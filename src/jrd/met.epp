@@ -1633,7 +1633,7 @@ SLONG MET_lookup_index_name(TDBB tdbb,
 
 
 int MET_lookup_partner(
-					   TDBB tdbb, Relation* relation, IDX* idx, const TEXT* index_name)
+					   TDBB tdbb, Relation* relation, index_desc* idx, const TEXT* index_name)
 {
 /**************************************
  *

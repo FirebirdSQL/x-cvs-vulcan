@@ -900,8 +900,8 @@ static void add_index_set(TDBB tdbb,
 	JRD_REL		relation;
 	TEXT	string[32];
 	const ini_idx_t::ini_idx_segment_t* segment;
-	IDX		idx;
-	idx::idx_repeat* tail;
+	index_desc idx;
+	index_desc::idx_repeat* tail;
 	USHORT	position;
 	JRD_FLD		field;
 

@@ -565,7 +565,7 @@ struct csb_repeat
 	Procedure* csb_procedure;
 	Relation* csb_view;		/* parent view */
 
-	struct idx* csb_idx;		/* Packed description of indices */
+	struct index_desc* csb_idx;		/* Packed description of indices */
 	struct str* csb_idx_allocation;	/* Memory allocated to hold index descriptions */
 	jrd_nod* csb_message;			/* Msg for send/receive */
 	struct fmt* csb_format;		/* Default fmt for stream */

@@ -88,12 +88,12 @@
 #endif
 
 static bool augment_stack(JRD_NOD, LLS *);
-static UINT64 calculate_priority_level(TDBB tdbb, OPT, IDX *);
+static UINT64 calculate_priority_level(TDBB tdbb, OPT, index_desc*);
 static void check_indices(TDBB tdbb, csb_repeat *);
 static bool check_relationship(OPT, USHORT, USHORT);
 static void check_sorts(RSE);
 static void class_mask(USHORT, JRD_NOD *, ULONG *);
-static void clear_bounds(OPT, IDX *);
+static void clear_bounds(OPT, index_desc*);
 static JRD_NOD compose(TDBB tdbb, JRD_NOD *, JRD_NOD, NOD_T);
 static bool computable(CSB, JRD_NOD, SSHORT, bool);
 static void compute_dependencies(JRD_NOD, ULONG *);
@@ -121,11 +121,11 @@ static RSB gen_aggregate(TDBB, OPT, JRD_NOD);
 static RSB gen_boolean(TDBB, OPT, RSB, JRD_NOD);
 static RSB gen_first(TDBB, OPT, RSB, JRD_NOD);
 static void gen_join(TDBB, OPT, UCHAR *, LLS *, JRD_NOD *, JRD_NOD *, JRD_NOD);
-static RSB gen_navigation(TDBB, OPT, USHORT, JRD_REL, STR, IDX *, JRD_NOD *);
+static RSB gen_navigation(TDBB, OPT, USHORT, JRD_REL, STR, index_desc*, JRD_NOD *);
 #ifdef SCROLLABLE_CURSORS
-static RSB gen_nav_rsb(TDBB, OPT, USHORT, JRD_REL, STR, IDX *, RSE_GET_MODE);
+static RSB gen_nav_rsb(TDBB, OPT, USHORT, JRD_REL, STR, index_desc*, RSE_GET_MODE);
 #else
-static RSB gen_nav_rsb(TDBB, OPT, USHORT, JRD_REL, STR, IDX *);
+static RSB gen_nav_rsb(TDBB, OPT, USHORT, JRD_REL, STR, index_desc*);
 #endif
 static RSB gen_outer(TDBB, OPT, RSE, LLS, JRD_NOD *, JRD_NOD *);
 static RSB gen_procedure(TDBB, OPT, JRD_NOD);
@@ -142,15 +142,15 @@ static IRL indexed_relationship(TDBB, OPT, USHORT);
 static STR make_alias(TDBB, CSB, csb_repeat *);
 static JRD_NOD make_binary_node(TDBB tdbb, NOD_T, JRD_NOD, JRD_NOD, bool);
 static RSB make_cross(TDBB, OPT, LLS);
-static JRD_NOD make_index_node(TDBB, JRD_REL, CSB, IDX *);
+static JRD_NOD make_index_node(TDBB, JRD_REL, CSB, index_desc*);
 static JRD_NOD make_inference_node(TDBB tdbb, CSB, JRD_NOD, JRD_NOD, JRD_NOD);
 static JRD_NOD make_inversion(TDBB, OPT, JRD_NOD, USHORT);
-static JRD_NOD make_missing(TDBB, OPT, JRD_REL, JRD_NOD, USHORT, IDX *);
-static JRD_NOD make_starts(TDBB, OPT, JRD_REL, JRD_NOD, USHORT, IDX *);
+static JRD_NOD make_missing(TDBB, OPT, JRD_REL, JRD_NOD, USHORT, index_desc*);
+static JRD_NOD make_starts(TDBB, OPT, JRD_REL, JRD_NOD, USHORT, index_desc*);
 static bool map_equal(JRD_NOD, JRD_NOD, JRD_NOD);
 static void mark_indices(csb_repeat *, SSHORT);
-static SSHORT match_index(TDBB, OPT, SSHORT, JRD_NOD, IDX *);
-static bool match_indices(TDBB, OPT, SSHORT, JRD_NOD, IDX *);
+static SSHORT match_index(TDBB, OPT, SSHORT, JRD_NOD, index_desc*);
+static bool match_indices(TDBB, OPT, SSHORT, JRD_NOD, index_desc*);
 static USHORT nav_rsb_size(RSB, USHORT, USHORT);
 static bool node_equality(JRD_NOD, JRD_NOD);
 static JRD_NOD optimize_like(TDBB, JRD_NOD);
@@ -167,7 +167,7 @@ static void set_made_river(OPT, RIV);
 static void set_position(JRD_NOD, JRD_NOD, JRD_NOD);
 static void set_rse_inactive(CSB, RSE);
 static void sort_indices_by_selectivity(TDBB tdbb, csb_repeat *);
-static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat *, IDX **, UINT64 *);
+static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat *, index_desc**, UINT64 *);
 
 
 /* macro definitions */
@@ -299,7 +299,7 @@ RSB OPT_compile(TDBB tdbb,
  **************************************/
 	DBB dbb;
 	OPT opt_;
-	IDX *idx;
+	index_desc* idx;
 	RIV river;
 	JRD_NOD node, *ptr, *end, sort, project, aggregate;
 	LLS conjunct_stack, rivers_stack, *stack_end;
@@ -330,7 +330,7 @@ RSB OPT_compile(TDBB tdbb,
    enough to hold this crud. */
 
 
-/* Do not allocate the IDX struct. Let BTR_all do the job. The allocated
+/* Do not allocate the index_desc struct. Let BTR_all do the job. The allocated
    memory will then be in csb->csb_rpt[stream].csb_idx_allocation, which
    gets cleaned up before this function exits. */
 
@@ -839,7 +839,7 @@ JRD_NOD OPT_make_dbkey(TDBB tdbb, OPT opt_, JRD_NOD boolean, USHORT stream)
 }
 
 
-JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, IDX * idx)
+JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, index_desc* idx)
 {
 /**************************************
  *
@@ -851,7 +851,7 @@ JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, IDX * idx)
  *	Build node for index scan.
  *
  **************************************/
-	IRB retrieval;
+	IndexRetrieval* retrieval;
 	JRD_NOD node, *lower, *upper, *end_node;
 	Opt::opt_segment *tail, *end;
 
@@ -863,7 +863,7 @@ JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, IDX * idx)
 /* Allocate both a index retrieval node and block. */
 
 	node = make_index_node(tdbb, relation, opt_->opt_csb, idx);
-	retrieval = (IRB) node->nod_arg[e_idx_retrieval];
+	retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
 	retrieval->irb_relation = relation;
 
 /* Pick up lower bound segment values */
@@ -932,7 +932,7 @@ JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, IDX * idx)
 }
 
 
-int OPT_match_index(TDBB tdbb, OPT opt, USHORT stream, IDX * idx)
+int OPT_match_index(TDBB tdbb, OPT opt, USHORT stream, index_desc* idx)
 {
 /**************************************
  *
@@ -978,7 +978,7 @@ int OPT_match_index(TDBB tdbb, OPT opt, USHORT stream, IDX * idx)
 
 
 void OPT_set_index(TDBB tdbb,
-				   JRD_REQ request, RSB * rsb_ptr, JRD_REL relation, IDX * idx)
+				   JRD_REQ request, RSB * rsb_ptr, JRD_REL relation, index_desc* idx)
 {
 /**************************************
  *
@@ -998,7 +998,7 @@ void OPT_set_index(TDBB tdbb,
 	OPT opt;
 	JRD_NOD inversion = NULL;
 	JRD_NOD index_node, new_index_node;
-	IRB retrieval;
+	IndexRetrieval* retrieval;
 	IDL index;
 	VEC vector;
 	DBB dbb;
@@ -1095,7 +1095,7 @@ void OPT_set_index(TDBB tdbb,
 
 	if (old_rsb->rsb_type == rsb_navigate) 
 		{
-		retrieval = (IRB) index_node->nod_arg[e_idx_retrieval];
+		retrieval = (IndexRetrieval*) index_node->nod_arg[e_idx_retrieval];
 		index_id = retrieval->irb_index;
 		
 		if ( (index = CMP_get_index_lock(tdbb, relation, index_id)) ) 
@@ -1171,7 +1171,7 @@ static bool augment_stack(JRD_NOD node, LLS * stack)
 }
 
 
-static UINT64 calculate_priority_level(TDBB tdbb, OPT opt, IDX * idx)
+static UINT64 calculate_priority_level(TDBB tdbb, OPT opt, index_desc* idx)
 {
 /**************************************
  *
@@ -1244,7 +1244,7 @@ static void check_indices(TDBB tdbb, csb_repeat * csb_tail)
 	TEXT index_name[32];
 	JRD_NOD plan, access_type;
 	JRD_REL relation;
-	IDX *idx;
+	index_desc* idx;
 	USHORT i;
 
 	if (!(plan = csb_tail->csb_plan)) {
@@ -1501,7 +1501,7 @@ static void class_mask(USHORT count, JRD_NOD * class_, ULONG * mask)
 }
 
 
-static void clear_bounds(OPT opt, IDX * idx)
+static void clear_bounds(OPT opt, index_desc* idx)
 {
 /**************************************
  *
@@ -2164,7 +2164,7 @@ static bool dump_index(TDBB tdbb, const jrd_nod* node,
  *
  **************************************/
 	UCHAR *buffer;
-	IRB retrieval;
+	IndexRetrieval* retrieval;
 	TEXT index_name[32], *i;
 	SSHORT length;
 
@@ -2199,7 +2199,7 @@ static bool dump_index(TDBB tdbb, const jrd_nod* node,
 		}
 	}
 	else if (node->nod_type == nod_index) {
-		retrieval = (IRB) node->nod_arg[e_idx_retrieval];
+		retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
 		MET_lookup_index(tdbb, index_name, retrieval->irb_relation->rel_name,
 						 (USHORT) (retrieval->irb_index + 1));
 		length = strlen(index_name);
@@ -2513,7 +2513,7 @@ static bool estimate_cost(TDBB tdbb,
  *
  **************************************/
 	CSB csb;
-	IDX *idx;
+	index_desc* idx;
 	JRD_NOD node;
 	USHORT indexes, i, equalities, inequalities, index_hits, count;
 	SSHORT n;
@@ -3745,7 +3745,7 @@ static void gen_join(TDBB     tdbb,
 static RSB gen_navigation(TDBB tdbb,
 						  OPT opt,
 						  USHORT stream,
-						  JRD_REL relation, STR alias, IDX * idx, JRD_NOD * sort_ptr)
+						  JRD_REL relation, STR alias, index_desc* idx, JRD_NOD * sort_ptr)
 {
 /**************************************
  *
@@ -3761,7 +3761,7 @@ static RSB gen_navigation(TDBB tdbb,
  *
  **************************************/
 	JRD_NOD node, *ptr, *end, sort;
-	idx::idx_repeat * idx_tail;
+	index_desc::idx_repeat* idx_tail;
 #ifdef SCROLLABLE_CURSORS
 	RSE_GET_MODE last_mode, mode;
 #endif
@@ -3870,7 +3870,7 @@ static RSB gen_navigation(TDBB tdbb,
 
 static RSB gen_nav_rsb(TDBB tdbb,
 					   OPT opt,
-					   USHORT stream, JRD_REL relation, STR alias, IDX * idx
+					   USHORT stream, JRD_REL relation, STR alias, index_desc* idx
 #ifdef SCROLLABLE_CURSORS
 					   , RSE_GET_MODE mode
 #endif
@@ -4135,7 +4135,7 @@ static RSB gen_retrieval(TDBB     tdbb,
  *
  **************************************/
 
-	IDX *idx;
+	index_desc* idx;
 	JRD_NOD node, opt_boolean;
 	SSHORT i, position;
 	Opt::opt_conjunct *tail;
@@ -4227,9 +4227,9 @@ static RSB gen_retrieval(TDBB     tdbb,
 		   could be calculated via the index; currently we won't detect that case
 		 */
 
-		firebird::HalfStaticArray<IDX*, OPT_STATIC_ITEMS> idx_walk_vector(tdbb->tdbb_default);
+		firebird::HalfStaticArray<index_desc*, OPT_STATIC_ITEMS> idx_walk_vector(tdbb->tdbb_default);
 		idx_walk_vector.grow(csb_tail->csb_indices);
-		IDX** idx_walk = idx_walk_vector.begin();
+		index_desc** idx_walk = idx_walk_vector.begin();
 		firebird::HalfStaticArray<UINT64, OPT_STATIC_ITEMS> idx_priority_level_vector(tdbb->tdbb_default);
 		idx_priority_level_vector.grow(csb_tail->csb_indices);
 		UINT64* idx_priority_level = idx_priority_level_vector.begin();
@@ -4419,7 +4419,7 @@ static RSB gen_retrieval(TDBB     tdbb,
 				}
 
 				JRD_NOD idx_node = OPT_make_index(tdbb, opt, relation, idx);
-				IRB	retrieval = (IRB) idx_node->nod_arg[e_idx_retrieval];
+				IndexRetrieval*	retrieval = (IndexRetrieval*) idx_node->nod_arg[e_idx_retrieval];
 				compose(tdbb, &inversion, idx_node, nod_bit_and);
 				idx->idx_runtime_flags |= idx_used_with_and;
 				index_used = true;
@@ -5201,7 +5201,7 @@ static IRL indexed_relationship(TDBB tdbb, OPT opt, USHORT stream)
 	IRL relationship = NULL;
 
 /* Loop thru indexes looking for a match */
-	IDX* idx = csb_tail->csb_idx;
+	index_desc* idx = csb_tail->csb_idx;
 	for (USHORT i = 0; i < csb_tail->csb_indices;
 		 i++, idx = NEXT_IDX(idx->idx_rpt, idx->idx_count))
 	{
@@ -5392,7 +5392,7 @@ static RSB make_cross(TDBB tdbb, OPT opt, LLS stack)
 }
 
 
-static JRD_NOD make_index_node(TDBB tdbb, JRD_REL relation, CSB csb, IDX * idx)
+static JRD_NOD make_index_node(TDBB tdbb, JRD_REL relation, CSB csb, index_desc* idx)
 {
 /**************************************
  *
@@ -5405,7 +5405,7 @@ static JRD_NOD make_index_node(TDBB tdbb, JRD_REL relation, CSB csb, IDX * idx)
  *
  **************************************/
 	JRD_NOD node;
-	IRB retrieval;
+	IndexRetrieval* retrieval;
 	DEV_BLKCHK(relation, type_rel);
 	DEV_BLKCHK(csb, type_csb);
 	SET_TDBB(tdbb);
@@ -5422,7 +5422,7 @@ static JRD_NOD make_index_node(TDBB tdbb, JRD_REL relation, CSB csb, IDX * idx)
 	node = PAR_make_node(tdbb, e_idx_length);
 	node->nod_type = nod_index;
 	node->nod_count = 0;
-	retrieval = FB_NEW_RPT(*tdbb->tdbb_default, idx->idx_count * 2) irb();
+	retrieval = FB_NEW_RPT(*tdbb->tdbb_default, idx->idx_count * 2) IndexRetrieval();
 	node->nod_arg[e_idx_retrieval] = (JRD_NOD) retrieval;
 	retrieval->irb_index = idx->idx_id;
 	MOVE_FAST(idx, &retrieval->irb_desc, sizeof(retrieval->irb_desc));
@@ -5551,16 +5551,16 @@ static JRD_NOD make_inversion(TDBB tdbb, OPT opt, JRD_NOD boolean, USHORT stream
 	float compound_selectivity = 1; // Real maximum selectivity possible is 1.
 
 	// TMN: Shouldn't this be allocated from the tdbb->tdbb_default pool?
-	firebird::HalfStaticArray<IDX*, OPT_STATIC_ITEMS> 
+	firebird::HalfStaticArray<index_desc*, OPT_STATIC_ITEMS> 
 		idx_walk_vector(tdbb->tdbb_default);
 	idx_walk_vector.grow(csb_tail->csb_indices);
-	IDX** idx_walk = idx_walk_vector.begin();
+	index_desc** idx_walk = idx_walk_vector.begin();
 	firebird::HalfStaticArray<UINT64, OPT_STATIC_ITEMS> 
 		idx_priority_level_vector(tdbb->tdbb_default);
 	idx_priority_level_vector.grow(csb_tail->csb_indices);
 	UINT64* idx_priority_level = idx_priority_level_vector.begin();
 
-	IDX *idx;
+	index_desc* idx;
 	SSHORT i;
 	idx = csb_tail->csb_idx;
 	if (opt->opt_base_conjuncts) {
@@ -5649,7 +5649,7 @@ static JRD_NOD make_inversion(TDBB tdbb, OPT opt, JRD_NOD boolean, USHORT stream
 
 static JRD_NOD make_missing(TDBB tdbb,
 						OPT opt,
-						JRD_REL relation, JRD_NOD boolean, USHORT stream, IDX * idx)
+						JRD_REL relation, JRD_NOD boolean, USHORT stream, index_desc* idx)
 {
 /**************************************
  *
@@ -5665,7 +5665,7 @@ static JRD_NOD make_missing(TDBB tdbb,
  *
  **************************************/
 	JRD_NOD field, node, value;
-	IRB retrieval;
+	IndexRetrieval* retrieval;
 	SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 	DEV_BLKCHK(opt, type_opt);
@@ -5678,7 +5678,7 @@ static JRD_NOD make_missing(TDBB tdbb,
 		(USHORT)(long) field->nod_arg[e_fld_id] != idx->idx_rpt[0].idx_field)
 		return NULL;
 	node = make_index_node(tdbb, relation, opt->opt_csb, idx);
-	retrieval = (IRB) node->nod_arg[e_idx_retrieval];
+	retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
 	retrieval->irb_relation = relation;
 	if ((dbb->dbb_ods_version < ODS_VERSION11) || (idx->idx_flags & idx_descending)) {
 		// AB: irb_starting? Why?
@@ -5706,7 +5706,7 @@ static JRD_NOD make_missing(TDBB tdbb,
 
 static JRD_NOD make_starts(TDBB tdbb,
 					   OPT opt,
-					   JRD_REL relation, JRD_NOD boolean, USHORT stream, IDX * idx)
+					   JRD_REL relation, JRD_NOD boolean, USHORT stream, index_desc* idx)
 {
 /**************************************
  *
@@ -5720,7 +5720,7 @@ static JRD_NOD make_starts(TDBB tdbb,
  *
  **************************************/
 	JRD_NOD value, field, node;
-	IRB retrieval;
+	IndexRetrieval* retrieval;
 	SET_TDBB(tdbb);
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(relation, type_rel);
@@ -5765,7 +5765,7 @@ static JRD_NOD make_starts(TDBB tdbb,
 		return NULL;
 	}
 	node = make_index_node(tdbb, relation, opt->opt_csb, idx);
-	retrieval = (IRB) node->nod_arg[e_idx_retrieval];
+	retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
 	retrieval->irb_relation = relation;
 	retrieval->irb_generic = irb_starting;
 	retrieval->irb_lower_count = retrieval->irb_upper_count = 1;
@@ -5849,7 +5849,7 @@ static void mark_indices(csb_repeat * csb_tail, SSHORT relation_id)
  *
  **************************************/
 	JRD_NOD access_type, plan, *arg, *end;
-	IDX *idx;
+	index_desc* idx;
 	USHORT i, plan_count = 0;
 	if (!(plan = csb_tail->csb_plan))
 		return;
@@ -5896,7 +5896,7 @@ static void mark_indices(csb_repeat * csb_tail, SSHORT relation_id)
 
 static SSHORT match_index(TDBB tdbb,
 						  OPT opt,
-						  SSHORT stream, JRD_NOD boolean, IDX * idx)
+						  SSHORT stream, JRD_NOD boolean, index_desc* idx)
 {
 /**************************************
  *
@@ -6037,7 +6037,7 @@ static SSHORT match_index(TDBB tdbb,
 
 static bool match_indices(TDBB tdbb,
 							OPT opt,
-							SSHORT stream, JRD_NOD boolean, IDX * idx)
+							SSHORT stream, JRD_NOD boolean, index_desc* idx)
 {
 /**************************************
  *
@@ -6108,7 +6108,7 @@ static USHORT nav_rsb_size(RSB rsb, USHORT key_length, USHORT size)
    that was used to generate this rsb */
 	if (rsb->rsb_type == rsb_navigate)
 		rsb->rsb_arg[RSB_NAV_idx_offset] = (RSB) (long) size;
-	size += sizeof(struct idx);
+	size += sizeof(struct index_desc);
 	return size;
 }
 
@@ -6661,9 +6661,9 @@ static void sort_indices_by_selectivity(tdbb *tdbb, csb_repeat * csb_tail)
 		return;
 	}
 
-	IDX *idx, *selected_idx = NULL;
+	index_desc* idx, *selected_idx = NULL;
 	USHORT i, j;
-	firebird::Array<IDX> idx_sort(tdbb->tdbb_default, csb_tail->csb_indices);
+	firebird::Array<index_desc> idx_sort(tdbb->tdbb_default, csb_tail->csb_indices);
 	float selectivity;
 	bool same_selectivity = false;
 
@@ -6711,7 +6711,7 @@ static void sort_indices_by_selectivity(tdbb *tdbb, csb_repeat * csb_tail)
 		idx = csb_tail->csb_idx;
 		for (j = 0; j < csb_tail->csb_indices; j++) {
 			idx->idx_runtime_flags &= ~idx_marker;
-			MOVE_FAST(&idx_sort[j], idx, sizeof(IDX));
+			MOVE_FAST(&idx_sort[j], idx, sizeof(index_desc));
 			idx = NEXT_IDX(idx->idx_rpt, idx->idx_count);
 		}
 	}
@@ -6719,7 +6719,7 @@ static void sort_indices_by_selectivity(tdbb *tdbb, csb_repeat * csb_tail)
 
 
 static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat * csb_tail,
-									   IDX ** idx_walk,
+									   index_desc** idx_walk,
 									   UINT64 * idx_priority_level)
 {
 /***************************************************
@@ -6732,9 +6732,9 @@ static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat * csb_tail,
  *    Sort indices based on the priority level.
  *
  ***************************************************/
-	firebird::HalfStaticArray<IDX*, OPT_STATIC_ITEMS> idx_csb(tdbb->tdbb_default);
+	firebird::HalfStaticArray<index_desc*, OPT_STATIC_ITEMS> idx_csb(tdbb->tdbb_default);
 	idx_csb.grow(csb_tail->csb_indices);
-	memcpy(idx_csb.begin(), idx_walk, csb_tail->csb_indices * sizeof(IDX*));
+	memcpy(idx_csb.begin(), idx_walk, csb_tail->csb_indices * sizeof(index_desc*));
 
 	SSHORT idx_walk_count = 0;
 	float selectivity = 1; /* Real maximum selectivity possible is 1 */
@@ -6763,7 +6763,7 @@ static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat * csb_tail,
 					   they are in fact, so we should be optimistic in this case. Unique
 					   indices are also always used, because they are good by definition,
 					   regardless of their (probably old) selectivity values. */
-			IDX *idx = idx_csb[last_idx];
+			index_desc* idx = idx_csb[last_idx];
 			bool should_be_used = true;
 			if (idx->idx_selectivity && !(csb_tail->csb_plan)) {
 				if (!(idx->idx_flags & idx_unique) &&

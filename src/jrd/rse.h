@@ -156,7 +156,7 @@ typedef struct irsb_index {
 
 typedef struct irsb_sort {
 	ULONG irsb_flags;
-	struct scb *irsb_sort_handle;
+	struct sort_context* irsb_sort_handle;
 } *IRSB_SORT;
 
 typedef struct irsb_procedure {

@@ -378,7 +378,7 @@ SBM* EVL_bitmap(TDBB tdbb, JRD_NOD node)
 			inv* impure = (INV) IMPURE (tdbb->tdbb_request, node->nod_impure);
 			BTR_evaluate(tdbb,
 							reinterpret_cast <
-							irb * >(node->nod_arg[e_idx_retrieval]),
+							IndexRetrieval* >(node->nod_arg[e_idx_retrieval]),
 							&impure->inv_bitmap);
 			return &impure->inv_bitmap;
 			}
@@ -1684,7 +1684,7 @@ USHORT EVL_group(TDBB tdbb, Rsb* rsb, JRD_NOD node, USHORT state)
 					iasb* asb_impure = (IASB) IMPURE (request, asb->nod_impure);
 					UCHAR* data;
 					SORT_put(tdbb,
-							 reinterpret_cast<scb*>(asb_impure->iasb_sort_handle),
+							 reinterpret_cast<sort_context*>(asb_impure->iasb_sort_handle),
 							 reinterpret_cast<ULONG**>(&data));
 					MOVE_CLEAR(data, ROUNDUP_LONG(asb->asb_key_desc->skd_length));
 					asb->asb_desc.dsc_address = data;
@@ -3219,7 +3219,7 @@ static void compute_agg_distinct(TDBB tdbb, jrd_nod* node)
 /* Sort the values already "put" to sort */
 
 	if (!SORT_sort(tdbb,
-				   reinterpret_cast<SCB>(asb_impure->iasb_sort_handle)))
+				   reinterpret_cast<sort_context*>(asb_impure->iasb_sort_handle)))
 		{
 		ERR_punt();
 		}
@@ -3230,7 +3230,7 @@ static void compute_agg_distinct(TDBB tdbb, jrd_nod* node)
 		{
 		UCHAR* data;
 		SORT_get(tdbb,
-				 reinterpret_cast < SCB > (asb_impure->iasb_sort_handle),
+				 reinterpret_cast < sort_context* > (asb_impure->iasb_sort_handle),
 				 reinterpret_cast < ULONG ** >(&data)
 #ifdef SCROLLABLE_CURSORS
 				 , RSE_get_forward
@@ -3240,7 +3240,7 @@ static void compute_agg_distinct(TDBB tdbb, jrd_nod* node)
 		if (data == NULL) 
 			{
 			/* we are done, close the sort */
-			SORT_fini(reinterpret_cast < SCB > (asb_impure->iasb_sort_handle),
+			SORT_fini(reinterpret_cast < sort_context* > (asb_impure->iasb_sort_handle),
 					  tdbb->tdbb_attachment);
 			asb_impure->iasb_sort_handle = NULL;
 			break;
@@ -3768,7 +3768,7 @@ static void init_agg_distinct(TDBB tdbb, const jrd_nod* node)
 	iasb* asb_impure = (iasb*) IMPURE (request, agSortBlk->nod_impure);
 	const skd* sort_key = agSortBlk->asb_key_desc;
 
-	scb* handle =
+	sort_context* handle =
 		SORT_init(tdbb,
 				  ROUNDUP_LONG(sort_key->skd_length), 1, sort_key,
 				  reject_duplicate, 0,

@@ -57,18 +57,18 @@
 
 #define MOVE_BYTE(x_from, x_to)	*x_to++ = *x_from++;
 
-static SSHORT compare_keys(IDX *, UCHAR *, USHORT, KEY *, USHORT);
+static SSHORT compare_keys(index_desc*, UCHAR *, USHORT, temporary_key *, USHORT);
 #ifdef SCROLLABLE_CURSORS
 static void expand_index(WIN *);
 #endif
 #ifdef PC_ENGINE
 static BOOLEAN find_dbkey(TDBB tdbb, RSB, ULONG);
-static BOOLEAN find_record(TDBB tdbb, RSB, RSE_GET_MODE, KEY *, USHORT, USHORT);
+static BOOLEAN find_record(TDBB tdbb, RSB, RSE_GET_MODE, temporary_key *, USHORT, USHORT);
 #endif
 static BTX find_current(EXP, BTR, UCHAR *);
 static bool find_saved_node(TDBB tdbb, RSB, IRSB_NAV, WIN *, UCHAR **);
 static UCHAR* get_position(TDBB, RSB, IRSB_NAV, WIN *, RSE_GET_MODE, BTX *);
-static BOOLEAN get_record(TDBB tdbb, RSB, IRSB_NAV, RPB *, KEY *, BOOLEAN);
+static BOOLEAN get_record(TDBB tdbb, RSB, IRSB_NAV, RPB *, temporary_key *, BOOLEAN);
 static void init_fetch(IRSB_NAV);
 static UCHAR* nav_open(TDBB, RSB, IRSB_NAV, WIN *, RSE_GET_MODE, BTX *);
 static void set_position(IRSB_NAV, RPB *, WIN *, UCHAR *, BTX, UCHAR *, USHORT);
@@ -168,8 +168,8 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
  **************************************/
 	JRD_REQ request;
 	IRSB_NAV impure;
-	IDX *idx;
-	KEY key_value;
+	index_desc* idx;
+	temporary_key key_value;
 	WIN window;
 	BTN expanded_node;
 	BOOLEAN backwards;
@@ -198,7 +198,7 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
 	SBM_reset(&impure->irsb_nav_records_visited);
 
 	idx =
-		(IDX *) ((SCHAR *) impure + (SLONG) rsb->rsb_arg[RSB_NAV_idx_offset]);
+		(index_desc* ) ((SCHAR *) impure + (SLONG) rsb->rsb_arg[RSB_NAV_idx_offset]);
 
 	if ((idx == NULL) || (find_key->nod_count == 0) ||
 		(find_key->nod_count > idx->idx_count))
@@ -465,7 +465,7 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 #endif
 
 	init_fetch(impure);
-	IDX *idx = (IDX*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
+	index_desc* idx = (index_desc*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 
 	// The bitmap is only valid when we are continuing on in one 
 	// direction.  It is of no help when we change direction,
@@ -488,16 +488,16 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 	// find the last fetched position from the index
 	WIN window(impure->irsb_nav_page);
 
-	KEY key;
+	temporary_key key;
 	BTX expanded_next = NULL;
 	UCHAR *nextPointer = get_position(tdbb, rsb, impure, &window, 
 		direction, &expanded_next);
 	MOVE_FAST(impure->irsb_nav_data, key.key_data, impure->irsb_nav_length);
 	JRD_NOD retrieval_node = (JRD_NOD) rsb->rsb_arg[RSB_NAV_index];
-	IRB retrieval = (IRB) retrieval_node->nod_arg[e_idx_retrieval];
+	IndexRetrieval* retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 
 	// set the upper (or lower) limit for navigational retrieval
-	KEY upper, lower;
+	temporary_key upper, lower;
 	if ((direction == RSE_get_forward) && retrieval->irb_upper_count) {
 		upper.key_length = impure->irsb_nav_upper_length;
 #ifdef SCROLLABLE_CURSORS
@@ -776,9 +776,9 @@ BOOLEAN NAV_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
  *
  **************************************/
 	JRD_REQ request;
-	KEY key_value;
+	temporary_key key_value;
 	IRSB_NAV impure;
-	IDX *idx;
+	index_desc* idx;
 	WIN window;
 	BTN expanded_node;
 	ULONG record_number;
@@ -796,7 +796,7 @@ BOOLEAN NAV_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
 	// resetting the stream invalidates the visited records
 	SBM_reset(&impure->irsb_nav_records_visited);
 
-	IDX *idx = (IDX*) ((SCHAR*) impure + (SLONG) rsb->rsb_arg[RSB_NAV_idx_offset]);
+	index_desc* idx = (index_desc*) ((SCHAR*) impure + (SLONG) rsb->rsb_arg[RSB_NAV_idx_offset]);
 
 	// save the record number, in case the passed new_rpb is 
 	// the same as the one on the rpb, in which case it will 
@@ -868,9 +868,9 @@ BOOLEAN NAV_set_bookmark(RSB rsb, IRSB_NAV impure, RPB * rpb, BKM bookmark)
 
 
 static SSHORT compare_keys(
-						   IDX * idx,
+						   index_desc*  idx,
 						   UCHAR * key_string1,
-						   USHORT length1, KEY * key2, USHORT flags)
+						   USHORT length1, temporary_key * key2, USHORT flags)
 {
 /**************************************
  *      
@@ -888,7 +888,7 @@ static SSHORT compare_keys(
  **************************************/
 	UCHAR *string1, *string2, *segment;
 	USHORT length2, l, remainder;
-	idx::idx_repeat * tail;
+	index_desc::idx_repeat* tail;
 
 	string1 = key_string1;
 	string2 = key2->key_data;
@@ -992,7 +992,7 @@ static void expand_index(WIN * window)
 	expanded_page->exp_incarnation = CCH_GET_INCARNATION(window);
 
 	// go through the nodes on the original page and expand them
-	KEY key;
+	temporary_key key;
 	BTX expanded_node = (BTX) expanded_page->exp_nodes;
 	bool priorPointer = false;
 	UCHAR *pointer = BTreeNode::getPointerFirstNode(page);
@@ -1067,7 +1067,7 @@ static BOOLEAN find_dbkey(TDBB tdbb, RSB rsb, ULONG record_number)
 	WIN window;
 	BTN node;
 	BTX expanded_node = NULL;
-	KEY key;
+	temporary_key key;
 
 	request = tdbb->tdbb_request;
 	impure = (IRSB_NAV) IMPURE (request, rsb->rsb_impure);
@@ -1135,7 +1135,7 @@ static BOOLEAN find_dbkey(TDBB tdbb, RSB rsb, ULONG record_number)
 static BOOLEAN find_record(TDBB tdbb,
 						   RSB rsb,
 						   RSE_GET_MODE mode,
-						   KEY * find_key,
+						   temporary_key * find_key,
 						   USHORT find_count, USHORT search_flags)
 {
 /**************************************
@@ -1156,14 +1156,14 @@ static BOOLEAN find_record(TDBB tdbb,
 	IRSB_NAV impure;
 	RPB *rpb;
 	JRD_NOD retrieval_node;
-	IRB retrieval;
-	IDX *idx;
+	IndexRetrieval* retrieval;
+	index_desc* idx;
 	BTR page;
 	WIN window;
 	BTN node;
 	EXP expanded_page;
 	BTX expanded_node;
-	KEY lower, upper, *tmp, value;
+	temporary_key lower, upper, *tmp, value;
 	USHORT upper_count, lower_count;
 	BOOLEAN result = FALSE, position_set = FALSE;
 	UCHAR *p, *q;
@@ -1175,7 +1175,7 @@ static BOOLEAN find_record(TDBB tdbb,
 	window.win_flags = 0;
 
 	retrieval_node = (JRD_NOD) rsb->rsb_arg[RSB_NAV_index];
-	retrieval = (IRB) retrieval_node->nod_arg[e_idx_retrieval];
+	retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 
 	// save the current equality retrieval key
 	tmp = retrieval->irb_key;
@@ -1187,7 +1187,7 @@ static BOOLEAN find_record(TDBB tdbb,
 	retrieval->irb_upper_count = retrieval->irb_lower_count = find_count;
 
 	idx =
-		(IDX *) ((SCHAR *) impure + (SLONG) rsb->rsb_arg[RSB_NAV_idx_offset]);
+		(index_desc* ) ((SCHAR *) impure + (SLONG) rsb->rsb_arg[RSB_NAV_idx_offset]);
 	page =
 		BTR_find_page(tdbb, retrieval, &window, idx, &lower, &upper, false);
 
@@ -1359,13 +1359,13 @@ static bool find_saved_node(TDBB tdbb, RSB rsb, IRSB_NAV impure,
  *
  **************************************/
 
-	IDX *idx = (IDX*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
+	index_desc* idx = (index_desc*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 	BTR page = (BTR) CCH_FETCH(tdbb, window, LCK_read, pag_index);
 
 	// the outer loop goes through all the sibling pages
 	// looking for the node (in case the page has split);
 	// the inner loop goes through the nodes on each page
-	KEY key;
+	temporary_key key;
 	SCHAR flags = page->btr_header.pag_flags;
 	UCHAR *pointer;
 	UCHAR *endPointer;
@@ -1561,7 +1561,7 @@ static UCHAR* get_position(
 static BOOLEAN get_record(TDBB tdbb,
 						  RSB rsb,
 						  IRSB_NAV impure,
-						  RPB * rpb, KEY * key, BOOLEAN inhibit_cleanup)
+						  RPB * rpb, temporary_key * key, BOOLEAN inhibit_cleanup)
 {
 /**************************************
  *
@@ -1576,9 +1576,9 @@ static BOOLEAN get_record(TDBB tdbb,
  **************************************/
 
 	JRD_REQ request = tdbb->tdbb_request;
-	IDX *idx = (IDX*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
+	index_desc* idx = (index_desc*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 
-	KEY value;
+	temporary_key value;
 	USHORT old_att_flags;
 	BOOLEAN result;
 
@@ -1606,7 +1606,7 @@ static BOOLEAN get_record(TDBB tdbb,
 	if (result)
 		{
 		BTR_key(tdbb, rpb->rpb_relation, rpb->rpb_record,
-				reinterpret_cast<struct idx *>((SCHAR*) impure +
+				reinterpret_cast<struct index_desc*>((SCHAR*) impure +
 					(long) rsb->rsb_arg[RSB_NAV_idx_offset]),
 				&value,	0);
 				
@@ -1684,8 +1684,8 @@ static UCHAR* nav_open(
  *	Open a stream to walk an index.
  *
  **************************************/
-	IRB retrieval;
-	KEY lower, upper, *limit_ptr;
+	IndexRetrieval* retrieval;
+	temporary_key lower, upper, *limit_ptr;
 	//EXP expanded_page;
 	JRD_NOD retrieval_node;
 
@@ -1705,8 +1705,8 @@ static UCHAR* nav_open(
 
 	// Find the starting leaf page
 	retrieval_node = (JRD_NOD) rsb->rsb_arg[RSB_NAV_index];
-	retrieval = (IRB) retrieval_node->nod_arg[e_idx_retrieval];
-	IDX *idx = (IDX *) ((SCHAR *) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
+	retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
+	index_desc* idx = (index_desc* ) ((SCHAR *) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 	BTR page = BTR_find_page(tdbb, retrieval, window, idx, &lower, 
 		&upper, (direction == RSE_get_backward));
 	impure->irsb_nav_page = window->win_page;

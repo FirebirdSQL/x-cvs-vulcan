@@ -253,9 +253,9 @@ struct tdbb;
 // Used by SORT_init
 typedef bool (*FPTR_REJECT_DUP_CALLBACK)(const UCHAR*, const UCHAR*, void*);
 
-typedef struct scb
+struct sort_context
 {
-	struct scb *scb_next;		/* Next known sort in system */
+	struct sort_context* scb_next;		/* Next known sort in system */
 	SORTP *scb_memory;			/* ALLOC: Memory for sort */
 	SORTP *scb_end_memory;		/* End of memory */
 	ULONG scb_size_memory;		/* Bytes allocated */
@@ -286,14 +286,14 @@ typedef struct scb
 	Attachment *scb_attachment;	/* back pointer to attachment */
 	struct irsb_sort *scb_impure;	/* back pointer to request's impure area */
 	SKD scb_description[1];
-} *SCB;
+};
 
 /* flags as set in scb_flags */
 
 #define scb_initialized		1
 #define scb_sorted		2		/* stream has been sorted */
 
-#define SCB_LEN(n_k)	(sizeof (struct scb) + (SLONG)(n_k) * sizeof (SKD))
+#define SCB_LEN(n_k)	(sizeof (struct sort_context) + (SLONG)(n_k) * sizeof (SKD))
 
 #endif // JRD_SORT_H
 

@@ -3141,7 +3141,7 @@ static void open_sort(TDBB tdbb, RSB rsb, IRSB_SORT impure, UINT64 max_records)
 	// Initialize for sort. If this is really a project operation,
 	// establish a callback routine to reject duplicate records.
 
-	SCB handle = SORT_init(tdbb,
+	sort_context* handle = SORT_init(tdbb,
 						   map->smb_length,
 						   map->smb_keys,
 						   map->smb_key_desc,

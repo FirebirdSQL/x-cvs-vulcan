@@ -1488,7 +1488,7 @@ static bool create_index(	TDBB	tdbb,
 
 	Request *request;
 	JRD_REL relation, partner_relation;
-	IDX idx;
+	index_desc idx;
 	int key_count;
 	SSHORT text_type;
 	SSHORT collate;

@@ -31,7 +31,7 @@
 
 void IDX_check_access(TDBB, class Csb *, Relation *, Relation *,
 							 Field *);
-void IDX_create_index(TDBB, Relation*, struct idx*, const TEXT*,
+void IDX_create_index(TDBB, Relation*, struct index_desc*, const TEXT*,
 					  USHORT*, Transaction*, SelectivityList&);
 struct idb* IDX_create_index_block(TDBB, Relation *, USHORT);
 void IDX_delete_index(TDBB, Relation *, USHORT);

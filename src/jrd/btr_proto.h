@@ -30,24 +30,24 @@
 
 class Transaction;
 
-USHORT	BTR_all(TDBB, jrd_rel*, idx**, idx**, str**, SLONG*);
-void	BTR_create(TDBB, jrd_rel*, Transaction*, idx*, USHORT, scb*, SelectivityList&);
+USHORT	BTR_all(TDBB, jrd_rel*, index_desc**, index_desc**, str**, SLONG*);
+void	BTR_create(TDBB, jrd_rel*, Transaction*, index_desc*, USHORT, sort_context*, SelectivityList&);
 void	BTR_delete_index(TDBB, win*, USHORT);
 //USHORT	BTR_delete_node(TDBB, btr*, USHORT);
-bool	BTR_description(DBB dbb, JRD_REL, irt*, idx*, SSHORT);
-void	BTR_evaluate(tdbb*, irb*, sbm**);
-UCHAR*	BTR_find_leaf(btr*, key*, UCHAR*, USHORT*, int, bool);
-btr*	BTR_find_page(tdbb*, irb*, win*, idx*, key*, key*, bool);
-void	BTR_insert(tdbb*, win*, iib*);
-enum idx_e	BTR_key(tdbb*, jrd_rel*, rec*, idx*, key*, idx_null_state*);
-USHORT	BTR_key_length(TDBB tdbb, jrd_rel*, idx*);
+bool	BTR_description(DBB dbb, JRD_REL, irt*, index_desc*, SSHORT);
+void	BTR_evaluate(tdbb*, IndexRetrieval*, sbm**);
+UCHAR*	BTR_find_leaf(btr*, temporary_key*, UCHAR*, USHORT*, int, bool);
+btr*	BTR_find_page(tdbb*, IndexRetrieval*, win*, index_desc*, temporary_key*, temporary_key*, bool);
+void	BTR_insert(tdbb*, win*, index_insertion*);
+enum idx_e	BTR_key(tdbb*, jrd_rel*, rec*, index_desc*, temporary_key*, idx_null_state*);
+USHORT	BTR_key_length(TDBB tdbb, jrd_rel*, index_desc*);
 UCHAR*	BTR_last_node(btr*, jrd_exp*, struct btx**);
 btr*	BTR_left_handoff(tdbb*, win*, btr*, SSHORT);
-USHORT	BTR_lookup(TDBB, jrd_rel*, USHORT, idx*);
-void	BTR_make_key(tdbb*, USHORT, jrd_nod**, idx*, key*, USHORT);
-bool	BTR_next_index(TDBB, jrd_rel*, Transaction*, idx*, win*);
-void	BTR_remove(tdbb*, win*, iib*);
-void	BTR_reserve_slot(TDBB, jrd_rel*, Transaction*, idx*);
+USHORT	BTR_lookup(TDBB, jrd_rel*, USHORT, index_desc*);
+void	BTR_make_key(tdbb*, USHORT, jrd_nod**, index_desc*, temporary_key*, USHORT);
+bool	BTR_next_index(TDBB, jrd_rel*, Transaction*, index_desc*, win*);
+void	BTR_remove(tdbb*, win*, index_insertion*);
+void	BTR_reserve_slot(TDBB, jrd_rel*, Transaction*, index_desc*);
 void	BTR_selectivity(TDBB, jrd_rel*, USHORT, SelectivityList&);
 
 #endif // JRD_BTR_PROTO_H

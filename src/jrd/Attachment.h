@@ -99,7 +99,7 @@ class str;
 class usr;
 class Request;
 class lck;
-class scb;
+class sort_context;
 class scl;
 class bkm;
 
@@ -122,7 +122,7 @@ public:
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
 	Request*	att_requests;		// Requests belonging to attachment
-	scb*		att_active_sorts;	// Active sorts
+	sort_context* att_active_sorts;	// Active sorts
 	lck*		att_id_lock;		// Attachment lock (if any)
 	SLONG		att_attachment_id;	// Attachment ID
 	SLONG		att_lock_owner_handle;	// Handle for the lock manager

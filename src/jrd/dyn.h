@@ -32,11 +32,6 @@ const char* const ALL_PROC_PRIVILEGES = "X";
 #define STUFF_COUNT		4
 #define TEXT_BLOB_LENGTH	512
 
-const char* const PRIMARY_KEY		= "PRIMARY KEY";
-const char* const FOREIGN_KEY		= "FOREIGN KEY";
-const char* const UNIQUE_CNSTRT		= "UNIQUE";
-const char* const CHECK_CNSTRT		= "CHECK";
-const char* const NOT_NULL_CNSTRT	= "NOT NULL";
 
 #define GET_STRING(from,to)	DYN_get_string (tdbb, (const UCHAR**)from, (TEXT*)to, sizeof (to), true)
 

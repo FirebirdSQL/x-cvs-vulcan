@@ -42,7 +42,7 @@ class sdw;
 class Triggers;
 
 struct dsc;
-struct idx;
+struct index_desc;
 
 void		MET_activate_shadow(tdbb* tdbb);
 ULONG		MET_align(const dsc*, USHORT);
@@ -71,7 +71,7 @@ SLONG		MET_lookup_generator(tdbb* tdbb, const TEXT*);
 void		MET_lookup_generator_id(tdbb* tdbb, SLONG, TEXT *);
 void		MET_lookup_index(tdbb* tdbb, TEXT*, const TEXT*, USHORT);
 SLONG		MET_lookup_index_name(tdbb* tdbb, const TEXT*, SLONG*, SSHORT*);
-int			MET_lookup_partner(tdbb* tdbb, Relation*, idx*, const TEXT*);
+int			MET_lookup_partner(tdbb* tdbb, Relation*, index_desc*, const TEXT*);
 Procedure*	MET_lookup_procedure(tdbb* tdbb, const TEXT*);
 //Procedure*	MET_lookup_procedure_id(tdbb* tdbb, SSHORT, BOOLEAN, BOOLEAN, USHORT);
 Relation*	MET_lookup_relation(tdbb* tdbb, const char*);

@@ -80,14 +80,14 @@ typedef struct ifl {
 	USHORT ifl_key_length;
 } *IFL;
 
-static IDX_E check_duplicates(TDBB, REC, IDX *, IIB *, JRD_REL);
-static IDX_E check_foreign_key(TDBB, REC, JRD_REL, JRD_TRA, IDX *, JRD_REL *, USHORT *);
-static IDX_E check_partner_index(TDBB, JRD_REL, REC, JRD_TRA, IDX *, JRD_REL, SSHORT);
+static IDX_E check_duplicates(TDBB, REC, index_desc *, index_insertion*, JRD_REL);
+static IDX_E check_foreign_key(TDBB, REC, JRD_REL, JRD_TRA, index_desc *, JRD_REL *, USHORT *);
+static IDX_E check_partner_index(TDBB, JRD_REL, REC, JRD_TRA, index_desc *, JRD_REL, SSHORT);
 static bool duplicate_key(const UCHAR*, const UCHAR*, void*);
 static SLONG get_root_page(TDBB, JRD_REL);
 static int index_block_flush(void *ast_object);
-static IDX_E insert_key(TDBB, JRD_REL, REC, JRD_TRA, WIN *, IIB *, JRD_REL *, USHORT *);
-static bool key_equal(const KEY*, const KEY*);
+static IDX_E insert_key(TDBB, JRD_REL, REC, JRD_TRA, WIN *, index_insertion*, JRD_REL *, USHORT *);
+static bool key_equal(const temporary_key*, const temporary_key*);
 static void signal_index_deletion(TDBB, JRD_REL, USHORT);
 
 
@@ -109,7 +109,7 @@ void IDX_check_access(TDBB tdbb, CSB csb, JRD_REL view, JRD_REL relation, JRD_FL
  **************************************/
 	SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
-	IDX idx;
+	index_desc idx;
 	idx.idx_id = (USHORT) -1;
 	WIN window(-1);
 	WIN referenced_window(-1);
@@ -131,14 +131,14 @@ void IDX_check_access(TDBB tdbb, CSB csb, JRD_REL view, JRD_REL relation, JRD_FL
 			referenced_window.win_page = get_root_page(tdbb, referenced_relation);
 			referenced_window.win_flags = 0;
 			irt* referenced_root = (IRT) CCH_FETCH(tdbb, &referenced_window, LCK_read, pag_root);
-			IDX referenced_idx;
+			index_desc referenced_idx;
 			
 			if (!BTR_description (dbb, referenced_relation, referenced_root, &referenced_idx, index_id)) 
 				BUGCHECK(173);	/* msg 173 referenced index description not found */
 
 			/* post references access to each field in the index */
 
-			const idx::idx_repeat* idx_desc = referenced_idx.idx_rpt;
+			const index_desc::idx_repeat* idx_desc = referenced_idx.idx_rpt;
 			
 			for (USHORT i = 0; i < referenced_idx.idx_count; i++, idx_desc++) 
 				{
@@ -162,7 +162,7 @@ void IDX_check_access(TDBB tdbb, CSB csb, JRD_REL view, JRD_REL relation, JRD_FL
 void IDX_create_index(
 					  TDBB tdbb,
 					  JRD_REL relation,
-					  IDX* idx,
+					  index_desc* idx,
 					  const TEXT* index_name,
 					  USHORT* index_id,
 					  JRD_TRA transaction,
@@ -229,8 +229,8 @@ void IDX_create_index(
 	FPTR_REJECT_DUP_CALLBACK callback = (idx->idx_flags & idx_unique) ? duplicate_key : NULL;
 	void* callback_arg = (idx->idx_flags & idx_unique) ? &ifl_data : NULL;
 
-	SCB sort_handle = SORT_init(tdbb,
-							key_length + sizeof(struct isr),
+	sort_context* sort_handle = SORT_init(tdbb,
+							key_length + sizeof(struct index_sort_record),
 							1, &key_desc, callback, callback_arg,
 							tdbb->tdbb_attachment, 0);
 
@@ -269,7 +269,7 @@ void IDX_create_index(
 	   find them, too. */
 	
 	BOOLEAN cancel = FALSE;
-	KEY key;
+	temporary_key key;
 	
 	while (!cancel && DPM_next(tdbb, &primary, LCK_read, FALSE, FALSE)) 
 		{
@@ -395,7 +395,7 @@ void IDX_create_index(
 					*p++ = pad;
 				} while (--l);
 			}
-			ISR isr = (ISR) p;
+			index_sort_record* isr = (index_sort_record*) p;
 			isr->isr_key_length = key.key_length;
 			isr->isr_record_number = primary.rpb_number;
 			isr->isr_flags = (stack ? ISR_secondary : 0) | (key_is_null ? ISR_null : 0);
@@ -545,7 +545,7 @@ IDX_E IDX_erase(TDBB tdbb,
  *	a duplicate record.
  *
  **************************************/
-	IDX idx;
+	index_desc idx;
 
 	SET_TDBB(tdbb);
 
@@ -582,9 +582,9 @@ void IDX_garbage_collect(TDBB tdbb, RPB * rpb, LLS going, LLS staying)
  *	each.
  *
  **************************************/
-	IIB insertion;
-	IDX idx;
-	KEY key1, key2;
+	index_insertion insertion;
+	index_desc idx;
+	temporary_key key1, key2;
 
 	SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
@@ -659,9 +659,9 @@ IDX_E IDX_modify(TDBB tdbb,
  *	-1.
  *
  **************************************/
-	IDX idx;
-	IIB insertion;
-	KEY key1, key2;
+	index_desc idx;
+	index_insertion insertion;
+	temporary_key key1, key2;
 
 	SET_TDBB(tdbb);
 
@@ -714,8 +714,8 @@ IDX_E IDX_modify_check_constraints(TDBB tdbb,
  *	Check for foreign key constraint after a modify statement
  *
  **************************************/
-	IDX idx;
-	KEY key1, key2;
+	index_desc idx;
+	temporary_key key1, key2;
 
 	SET_TDBB(tdbb);
 
@@ -810,9 +810,9 @@ IDX_E IDX_store(TDBB tdbb,
  *	-1.
  *
  **************************************/
-	IDX idx;
-	IIB insertion;
-	KEY key;
+	index_desc idx;
+	index_insertion insertion;
+	temporary_key key;
 
 	SET_TDBB(tdbb);
 
@@ -852,8 +852,8 @@ IDX_E IDX_store(TDBB tdbb,
 static IDX_E check_duplicates(
 							  TDBB tdbb,
 							  REC record,
-							  IDX * record_idx,
-							  IIB * insertion, JRD_REL relation_2)
+							  index_desc * record_idx,
+							  index_insertion* insertion, JRD_REL relation_2)
 {
 /**************************************
  *
@@ -872,7 +872,7 @@ static IDX_E check_duplicates(
 	SET_TDBB(tdbb);
 
 	IDX_E result = idx_e_ok;
-	IDX* insertion_idx = insertion->iib_descriptor;
+	index_desc* insertion_idx = insertion->iib_descriptor;
 
 	rpb.rpb_number = -1;
 	rpb.rpb_relation = insertion->iib_relation;
@@ -959,7 +959,7 @@ static IDX_E check_foreign_key(
 							   REC record,
 							   JRD_REL relation,
 							   JRD_TRA transaction,
-							   IDX * idx,
+							   index_desc * idx,
 JRD_REL * bad_relation, USHORT * bad_index)
 {
 /**************************************
@@ -1033,7 +1033,7 @@ static IDX_E check_partner_index(
 								 JRD_REL relation,
 								 REC record,
 								 JRD_TRA transaction,
-								 IDX * idx,
+								 index_desc * idx,
 	JRD_REL partner_relation, SSHORT index_id)
 {
 /**************************************
@@ -1048,10 +1048,10 @@ static IDX_E check_partner_index(
  *	record appears in the partner index.
  *
  **************************************/
-	IDX partner_idx;
-	IIB insertion;
-	KEY key;
-	struct irb retrieval;
+	index_desc partner_idx;
+	index_insertion insertion;
+	temporary_key key;
+	struct IndexRetrieval retrieval;
 
 	SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
@@ -1080,7 +1080,7 @@ static IDX_E check_partner_index(
 		   generating a bitmap of duplicate records  */
 
 		sbm* bitmap = NULL;
-		MOVE_CLEAR(&retrieval, sizeof(struct irb));
+		MOVE_CLEAR(&retrieval, sizeof(struct IndexRetrieval));
 		//retrieval.blk_type = type_irb;
 		retrieval.irb_index = partner_idx.idx_id;
 		MOVE_FAST(&partner_idx, &retrieval.irb_desc,
@@ -1137,8 +1137,8 @@ static bool duplicate_key(const UCHAR* record1, const UCHAR* record2, void* ifl_
  *
  **************************************/
 	ifl* ifl_data = static_cast<ifl*>(ifl_void);
-	const isr* rec1 = (ISR) (record1 + ifl_data->ifl_key_length);
-	const isr* rec2 = (ISR) (record2 + ifl_data->ifl_key_length);
+	const index_sort_record* rec1 = (index_sort_record*) (record1 + ifl_data->ifl_key_length);
+	const index_sort_record* rec2 = (index_sort_record*) (record2 + ifl_data->ifl_key_length);
 
 	if (!(rec1->isr_flags & (ISR_secondary | ISR_null)) &&
 		!(rec2->isr_flags & (ISR_secondary | ISR_null)))
@@ -1231,7 +1231,7 @@ static IDX_E insert_key(
 						REC record,
 						JRD_TRA transaction,
 						WIN * window_ptr,
-						IIB * insertion,
+						index_insertion* insertion,
 						JRD_REL * bad_relation,
 						USHORT * bad_index)
 {
@@ -1251,7 +1251,7 @@ static IDX_E insert_key(
 	SET_TDBB(tdbb);
 
 	IDX_E result = idx_e_ok;
-	IDX* idx = insertion->iib_descriptor;
+	index_desc* idx = insertion->iib_descriptor;
 
 /* Insert the key into the index.  If the index is unique, BTR
    will keep track of duplicates. */
@@ -1276,7 +1276,7 @@ static IDX_E insert_key(
 
 		idx->idx_flags |= idx_unique;
 		CCH_FETCH(tdbb, window_ptr, LCK_read, pag_root);
-		KEY key;
+		temporary_key key;
 		idx_null_state null_state;
 		result = BTR_key(tdbb, relation, record, idx, &key, &null_state);
 		CCH_RELEASE(tdbb, window_ptr);
@@ -1292,7 +1292,7 @@ static IDX_E insert_key(
 }
 
 
-static bool key_equal(const KEY* key1, const KEY* key2)
+static bool key_equal(const temporary_key* key1, const temporary_key* key2)
 {
 /**************************************
  *
