@@ -42,6 +42,7 @@ static bool	verbose;
 static char *projectFileName;
 static char *configFileName = "vulcan.conf";
 static char *port;
+static char *type;
 static char *component;
 static char *outputFileName;
 
@@ -51,6 +52,7 @@ static const Switches switches [] =
 	ARG_ARG("-f", configFileName,	"configuration file name")
 	ARG_ARG("-c", component,		"component name")
 	ARG_ARG("-p", port,				"port name")
+	ARG_ARG("-t", type,				"type")
 	SW_ARG ("-v", verbose,			"verbose")
 	ARG_ARG("-o", outputFileName,	"output file name")
 	SW_ARG ("-h", printHelp,		"Print this text")
@@ -293,6 +295,8 @@ void MakeGen::expandTag(Element *tag, Stream *stream)
 {
 	if (tag->name == "files")
 		expandFiles (tag, stream);
+	else if (tag->name == "if")
+		expandIf(tag, stream);
 	else
 		expand (tag, stream);
 }
@@ -329,4 +333,59 @@ TemplateValue* MakeGen::findExtension(const char *extension)
 			return value;
 
 	return NULL;
+}
+
+
+void MakeGen::expandIf(Element* tag, Stream* stream)
+{
+	if (evalBoolean(tag))
+		{
+		const char *p = tag->innerText;
+
+		if (*p == '\n')
+			++p;
+
+		expandText (p, stream);
+
+		for (Element *child = tag->children; child && child->name != "else"; child = child->sibling)
+			{
+			expandTag (child, stream);
+			expandText (child->outerText, stream);
+			}
+		}
+	else
+		{
+		Element *child;
+		
+		for (child = tag->children; child && child->name != "else"; child = child->sibling)
+			;
+		
+		if (!child)
+			return;
+		
+		const char *p = child->outerText;
+
+		if (*p == '\n')
+			++p;
+
+		expandText (p, stream);
+
+		for (child = child->sibling; child; child = child->sibling)
+			{
+			expandTag (child, stream);
+			expandText (child->outerText, stream);
+			}
+		}
+}
+
+bool MakeGen::evalBoolean(Element* tag)
+{
+	for (Element *option = tag->attributes; option; option = option->sibling)
+		{
+		if (option->name == "type")
+			if (!type || option->value != type)
+				return false;
+		}
+	
+	return true;
 }

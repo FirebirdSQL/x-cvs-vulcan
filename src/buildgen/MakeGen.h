@@ -54,6 +54,8 @@ public:
 	ProjectFile		*projectFiles;
 	ProjectFile		**filePtr;
 	TemplateValue	*extensions [hashTableSize];
+	void expandIf(Element* tag, Stream* stream);
+	bool evalBoolean(Element* tag);
 };
 
 #endif // !defined(AFX_MAKEGEN_H__5ACD329F_A2E0_4D41_BE11_E835D5351253__INCLUDED_)
