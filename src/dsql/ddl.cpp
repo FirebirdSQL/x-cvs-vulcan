@@ -6155,7 +6155,7 @@ static void  new_procedure (CStatement *request,
 	GEN_statement(request, PASS1_statement(request, procedure_node->nod_arg[e_prc_body], true));
 	request->req_type = REQ_DDL;
 	request->appendUCHAR(blr_end);
-	GEN_return(request, procedure_node, true);
+	GEN_return(request, procedure_node->nod_arg[e_prc_outputs], true);
 	request->appendUCHAR(blr_end);
 	request->blrEnd();
 
