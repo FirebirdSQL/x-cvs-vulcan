@@ -1,3 +1,15 @@
+2005-03-08 19:22  arnobrinkman
+
+	* vulcan/src/jrd/opt.cpp:
+	
+	fix PLAN problem with SP
+
+2005-03-08 18:59  arnobrinkman
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	fix missed merge issue
+
 2005-03-07 00:12  arnobrinkman
 
 	* vulcan/src/jrd/: Attachment.h, acl.h, all.h, blb.cpp, blb.h,
