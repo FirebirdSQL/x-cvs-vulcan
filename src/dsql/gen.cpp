@@ -658,8 +658,18 @@ void GEN_request( CStatement* request, dsql_nod* node)
 		{
 		// Do not generate BEGIN..END block around savepoint statement
 		// to avoid breaking of savepoint logic
-		request->sendMessage = NULL;
-		request->receiveMessage = NULL;
+
+		/* Fix memory leak.  SAS SEK */
+		if( request->sendMessage )
+			{
+			delete request->sendMessage;
+			request->sendMessage = NULL;
+			}
+		if( request->receiveMessage )
+			{
+			delete request->receiveMessage;
+			request->receiveMessage = NULL;
+			}
 		GEN_statement(request, node);
 		} 
 	else 
@@ -678,7 +688,14 @@ void GEN_request( CStatement* request, dsql_nod* node)
 			dsql_msg* message = request->sendMessage;
 			
 			if (!message->msg_parameter)
-				request->sendMessage = NULL;
+				/* Fix memory leak.  SAS SEK */
+				{
+				if( request->sendMessage )
+					{
+					delete request->sendMessage;
+					request->sendMessage = NULL;
+					}
+				}
 			else 
 				{
 				GEN_port(request, message);
@@ -692,8 +709,13 @@ void GEN_request( CStatement* request, dsql_nod* node)
 				
 			message = request->receiveMessage;
 			
-			if (!message->msg_parameter)
-				request->receiveMessage = NULL;
+			if (!message->msg_parameter) {
+				if( request->receiveMessage )
+					{
+					delete request->receiveMessage;
+					request->receiveMessage = NULL;
+					}
+				}
 			else
 				GEN_port(request, message);
 				
@@ -2645,8 +2667,12 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 	if (message->msg_parameter)
 		GEN_port(request, message);
 	else
-		request->sendMessage = NULL;
-		
+		/* Fix memory leak.  SAS SEK */
+		if( request->sendMessage ) 
+			{
+			delete request-> sendMessage;
+			request->sendMessage = NULL;
+			}	
 #ifdef SCROLLABLE_CURSORS
 
 	if (request->req_type == REQ_SELECT && request->req_dbb->dbb_base_level >= 5)
@@ -2777,7 +2803,12 @@ static void gen_sort( CStatement* request, dsql_nod* list)
 		ptr++)
 	{
 		dsql_nod* nulls_placement = (*ptr)->nod_arg[e_order_nulls];
-		if (nulls_placement) {
+
+		/* Fix non-64-bit clean access of argument - SAS S0282759 */
+		UCHAR *p = (UCHAR*)nulls_placement->nod_arg;
+		long constval = (long)*(SLONG*)p;
+
+		if (constval) {
 			switch ((long)nulls_placement->nod_arg[0]) {
 				case NOD_NULLS_FIRST:
 					stuff(request, blr_nullsfirst);
