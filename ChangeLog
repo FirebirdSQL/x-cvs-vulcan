@@ -1,3 +1,45 @@
+2005-03-03 01:21  arnobrinkman
+
+	* vulcan/src/jrd/: all.cpp, Attachment.cpp, Attachment.h, Bdb.cpp,
+	Bdb.h, all.h, blb.cpp, blb.h, blb_proto.h, blf_proto.h,
+	blob_filter.cpp, bookmark.cpp, bookmark.h, btn.cpp, btn.h, btr.cpp,
+	btr.h, btr_proto.h, CharSetManager.cpp, CharSetManager.h,
+	CommitManager.cpp, CommitManager.h, CsConvertArray.h, Database.cpp,
+	Database.h, cch.h, cmp.cpp, cmp_proto.h, cvt.cpp, cvt2.cpp,
+	cvt2_proto.h, dfw.epp, dfw_proto.h, dmp.cpp, dpm.epp, dpm_proto.h,
+	dyn.epp, dyn.h, dyn_def.epp, ExecuteStatement.h,
+	InternalSecurityContext.cpp, InternalSecurityContext.h,
+	JrdMove.cpp, PageCache.cpp, PageCache.h, ProcManager.cpp,
+	ProcManager.h, Procedure.cpp, Procedure.h, Relation.cpp,
+	Relation.h, Request.cpp, Request.h, dyn_del.epp, dyn_df_proto.h,
+	dyn_dl_proto.h, dyn_md_proto.h, dyn_mod.epp, dyn_proto.h,
+	dyn_ut_proto.h, dyn_util.epp, err.cpp, evl.cpp, evl_like.cpp,
+	evl_proto.h, exe.cpp, exe.h, exe_proto.h, ext.cpp, ext_proto.h,
+	filters.cpp, fun.epp, fun_proto.h, grant.epp, grant_proto.h,
+	idx.cpp, idx_proto.h, inf.cpp, inf_proto.h, ini.epp, ini_proto.h,
+	intl.cpp, intl_classes.h, intl_proto.h, isc_exception.cpp, jrd.cpp,
+	jrd.h, jrd_proto.h, lck.cpp, lck_proto.h, met.epp, met_proto.h,
+	mov.cpp, mov_proto.h, nav.cpp, nav_proto.h, nbak.cpp, nbak.h,
+	ods.h, opt.cpp, opt_proto.h, pag.cpp, pag_proto.h, par.cpp,
+	par_proto.h, pcmet_proto.h, req.h, rlck.cpp, rlck_proto.h, rse.cpp,
+	rse.h, rse_proto.h, sbm.cpp, sbm_proto.h, scl.epp, scl_proto.h,
+	sdw.cpp, sdw_proto.h, ThreadData.cpp, ThreadData.h, TipCache.cpp,
+	TipCache.h, Trigger.cpp, Trigger.h, shut.cpp, shut_proto.h,
+	sort.cpp, sort_proto.h, sqz.cpp, sqz_proto.h, sym.cpp, sym_proto.h,
+	tdbb.h, tra.cpp, tra.h, tra_proto.h, val.cpp, val_proto.h, vio.cpp,
+	vio_proto.h, os/pio_proto.h, os/win32/pio.cpp:
+	
+	Update structure and class names to simplify merge
+
+2005-03-03 01:16  arnobrinkman
+
+	* vulcan/src/: dsql/CStatement.cpp, dsql/CStatement.h,
+	dsql/DStatement.cpp, dsql/DStatement.h, dsql/SQLParse.cpp,
+	dsql/SQLParse.h, dsql/ddl.cpp, dsql/dsql.cpp, dsql/dsql.h,
+	dsql/make.cpp, dsql/make_proto.h, include/fb_blk.h:
+	
+	Update structure and class names to simplify merge
+
 2005-03-01 21:12  jimstarkey
 
 	* vulcan/src/jrd/SyncObject.cpp:
