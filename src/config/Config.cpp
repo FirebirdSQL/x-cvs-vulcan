@@ -119,18 +119,17 @@ int Config::parse(int argc, char ** argv)
 			for (int n = 0; !hasProvider && n < 10; ++n)
 				{
 				ConfObj confObject = configFile->findObject ("database", dbName);
+				
 				if (!confObject.hasObject())
 					break;
+					
 				const char *name = confObject->getName();
+				
 				if (!name)
 					break;
 				
 				prior = dbName;
 				dbName = confObject->getValue ("filename", (const char*) dbName);
-				
-				if (dbName == prior)
-					break;
-					
 				printf ("  Matches \"%s\", translates to \"%s\"\n", name, (const char*) dbName);
 
 				for (int n = 0;; ++n)
@@ -144,6 +143,9 @@ int Config::parse(int argc, char ** argv)
 					Provider *provider = new Provider (providerName, providerObject, "      ");
 					delete provider;
 					}
+				
+				if (dbName == prior)
+					break;
 				}
 			}
 		
