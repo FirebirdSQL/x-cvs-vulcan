@@ -38,9 +38,9 @@
 #include "SyncObject.h"
 #include "Synchronize.h"
 
-START_NAMESPACE
+CLASS (Thread)
 
-CLASS (Thread);
+START_NAMESPACE
 
 class Threads : public Synchronize
 {
