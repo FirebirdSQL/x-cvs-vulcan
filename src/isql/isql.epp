@@ -3750,8 +3750,10 @@ static SSHORT get_statement(TEXT ** statement_ref,
 ** grows throughout the program to the maximum command size
 */
 	if (!bufsize) {
+	
+	/* Fix overflow risk.  Need to allow space for null byte. SAS SEK */
 		bufsize = 512;
-		statement = (TEXT*) ISQL_ALLOC((SLONG) bufsize);
+		statement = (TEXT*) ISQL_ALLOC((SLONG) bufsize+1);
 #ifdef DEBUG_GDS_ALLOC
 		gds_alloc_flag_unfreed((void *) statement);
 #endif
