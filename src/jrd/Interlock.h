@@ -67,13 +67,13 @@ inline INTERLOCK_TYPE interlockedIncrement(volatile INTERLOCK_TYPE *ptr)
 #elif defined (__i386) || (__x86_64__)
 	INTERLOCK_TYPE ret;
 	asm (
-		"mov $1,%%ebx\n\t"
-		"lock\n\t" "xaddl %%ebx,%1\n\t" 
-		"incl %%ebx\n\t"
-		"movl %%ebx,%0\n\t"
+		"mov $1,%%eax\n\t"
+		"lock\n\t" "xaddl %%eax,%1\n\t" 
+		"incl %%eax\n\t"
+		"movl %%eax,%0\n\t"
 		: "=m" (ret)
 		: "m" (*ptr) 
-		: "%ebx"
+		: "%eax"
 		);
 	return ret;
 #else
@@ -94,13 +94,13 @@ inline INTERLOCK_TYPE interlockedDecrement(volatile INTERLOCK_TYPE *ptr)
 #elif defined (__i386) || (__x86_64__)
 	INTERLOCK_TYPE ret;
 	asm (
-		"mov $-1,%%ebx\n\t"
-		"lock\n\t" "xaddl %%ebx,%1\n\t" 
-		"decl %%ebx\n\t"
-		"movl %%ebx,%0\n\t"
+		"mov $-1,%%eax\n\t"
+		"lock\n\t" "xaddl %%eax,%1\n\t" 
+		"decl %%eax\n\t"
+		"movl %%eax,%0\n\t"
 		: "=m" (ret)
 		: "m" (*ptr) 
-		: "%ebx"
+		: "%eax"
 		);
 	return ret;
 #else
