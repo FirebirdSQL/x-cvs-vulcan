@@ -125,6 +125,9 @@
 				RelativePath="..\config\ArgsException.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\AsyncEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\remote\os\win32\chop.cpp">
 			</File>
 			<File
@@ -326,6 +329,9 @@
 			</File>
 			<File
 				RelativePath="..\config\ArgsException.h">
+			</File>
+			<File
+				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
 				RelativePath="..\remote\os\win32\chop_proto.h">
