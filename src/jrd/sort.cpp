@@ -1239,7 +1239,9 @@ ULONG SORT_write_block(sort_work_file* sfb, ULONG seek, BLOB_PTR * address, ULON
 			if ((write_len = write(sfb->sfb_file, address, len)) == len)
 				break;
 			else {
-				if (write_len >= 0)
+
+			/* Fix ULONG and signed compare agreement error.  SAS TRT */
+				if ((long)write_len >= 0)
 					// If write returns value that is not equal len, then 
 					// most likely there is not enough space, try to write
 					// one more time to get meaningful errno
