@@ -121,11 +121,12 @@ dependencies:
 <template name="BuildLibr">
 # Libraries: <value name="Libraries"/>
 <value name="libr"/>:	$(MODULES) 
-	$(LINK.cpp) <buildopt/> <SharedLibr/> $(MODULES) -L../../install/<bin/> <Libraries/> -o <value name="libr"/>
+	$(LINK.cpp) <buildopt/> <SharedLibr/> <OptionFile/> $(MODULES) -L../../install/<bin/> <Libraries/> -o <value name="libr"/>
 # end BuildLibr
 </template>
 
 <template name="SharedLibr"> -shared </template>
+<template name="OptionFile"/>
 
 <template name="Libraries">
     -lpthread -lm -ldl -lfirebird -lcrypt \
@@ -157,7 +158,8 @@ DIRS = $(SRCDIR)/jrd \
 </template>
 
 <template name="CFlags">
-CPPFLAGS = <buildopt/> -I. \
+CPPFLAGS = <buildopt/> \
+	-I. \
 	-fPIC \
 	-DFIREBIRD_ENGINE \
 	-D_REENTRANT \
@@ -180,6 +182,8 @@ CPPFLAGS = <buildopt/> -I. \
 <BuildLibr libr="libfirebird.so"/>
 <Install file="libfirebird.so"/>
 </template>
+
+<template name="OptionFile">--version-script=firebird.res</template>
 
 <template name="Includes">-I$(SRCDIR)/include \
 	-I$(SRCDIR)/include/gen \
