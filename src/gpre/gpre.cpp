@@ -1203,7 +1203,8 @@ void CPR_raw_read()
 		else
 			*p++ = (SCHAR) c;
 
-		if (c = '\n') {
+		/* Fix "=" vs "==" error.  SAS TRT */
+		if (c == '\n') {
 			line++;
 			line_position = 0;
 			if (!continue_char)
