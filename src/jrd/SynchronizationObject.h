@@ -31,11 +31,11 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-class LinkedList;
 
 START_NAMESPACE
 
 class Sync;
+class LinkedList;
 
 class SynchronizationObject
 {

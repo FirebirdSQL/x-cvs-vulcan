@@ -43,6 +43,8 @@
 #define NULL	0
 #endif
 
+START_NAMESPACE
+
 class LinkedNode;
 
 class LinkedList
@@ -105,6 +107,7 @@ inline void	*LinkedList::getNext(LinkedList **node)
 	return object;
 	}
 
+END_NAMESPACE
 
 #endif
 

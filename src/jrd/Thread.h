@@ -59,10 +59,10 @@
 
 CLASS(Sync);
 CLASS(SyncObject);
+CLASS(LinkedList);
 
 class Threads;
 class SyncWait;
-class LinkedList;
 
 struct TimeZone;
 

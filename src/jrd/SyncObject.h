@@ -58,9 +58,10 @@
 CLASS(Sync);
 
 class Thread;
-class LinkedList;
 
 START_NAMESPACE
+
+class LinkedList;
 
 class SyncObject : public SynchronizationObject
 {
