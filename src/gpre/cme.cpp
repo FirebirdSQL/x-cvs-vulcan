@@ -1381,7 +1381,7 @@ static GPRE_NOD cmp_literal( GPRE_NOD node, GPRE_REQ request)
 {
 	REF reference;
 	char *p;
-	char buffer[MAXSYMLEN];
+	char buffer[MAX_SYM_SIZE];
 	char *string;
 	SSHORT length;
 	DSC from, to;

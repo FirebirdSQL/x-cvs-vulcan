@@ -55,7 +55,7 @@ typedef struct tok {
 	SLONG tok_position;			/* byte number in input stream */
 	USHORT tok_length;
 	USHORT tok_white_space;
-	SCHAR tok_string[MAXSYMLEN];
+	SCHAR tok_string[MAX_SYM_SIZE];
 	USHORT tok_first;			/* first token in a statement */
 	struct sym *tok_charset;	/* Character set of token */
 } *TOK;

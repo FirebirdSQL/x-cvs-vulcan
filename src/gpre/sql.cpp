@@ -53,7 +53,6 @@
 #endif
 
 
-#define ERROR_LENGTH			128
 #ifdef FLINT_CACHE
 #define MIN_CACHE_BUFFERS		250
 #define DEF_CACHE_BUFFERS		1000
@@ -2263,7 +2262,7 @@ static ACT act_declare(void)
 		if ((symb = HSH_lookup2(token.tok_string)) &&
 			(symb->sym_type == SYM_cursor ||
 			 symb->sym_type == SYM_delimited_cursor)) {
-			char s[64];
+			char s[ERROR_LENGTH];
 			sprintf(s, "symbol %s is already in use", t_str);
 			PAR_error(s);
 		}
@@ -3782,7 +3781,7 @@ static ACT act_open_blob( ACT_T act_op, SYM symbol)
 	REF reference;
 	BLB blob;
 	GPRE_CTX context;
-	SCHAR s[128];
+	SCHAR s[ERROR_LENGTH];
 	ACT action;
 
 	if (!MATCH(KW_BLOB))
@@ -4193,7 +4192,7 @@ static ACT act_set_generator(void)
 	ACT action;
 	SGEN setgen;
 	GPRE_REQ request;
-	SCHAR s[128];
+	SCHAR s[ERROR_LENGTH];
 
 	request = MAKE_REQUEST(REQ_set_generator);
 	action = (ACT) MAKE_ACTION(request, ACT_s_start);
@@ -4241,7 +4240,7 @@ static ACT act_set_names(void)
 	ACT action;
 	TEXT *value;
 	DBB db;
-	char buffer[256];
+	char buffer[ERROR_LENGTH];
 
 	if (sw_auto)
 		CPR_warn("SET NAMES requires -manual switch to gpre.");
@@ -4873,7 +4872,7 @@ static FIL define_cache(void)
 {
 	FIL file;
 	TEXT *string;
-	TEXT err_string[256];
+	TEXT err_string[ERROR_LENGTH];
 
 	file = (FIL) ALLOC(sizeof(struct fil));
 	if (QUOTED(token.tok_type)) {
@@ -5048,7 +5047,7 @@ static DBB dup_dbb( DBB db)
 
 static void error( const TEXT * string, const TEXT * string2)
 {
-	TEXT buffer[256];
+	TEXT buffer[ERROR_LENGTH];
 
 	sprintf(buffer, string, string2);
 	PAR_error(buffer);
@@ -6132,7 +6131,7 @@ static BOOLEAN par_using( DYN statement)
 
 static USHORT resolve_dtypes( KWWORDS typ, BOOLEAN sql_date)
 {
-	TEXT err_mesg[128];
+	TEXT err_mesg[ERROR_LENGTH];
 
 	switch (typ) {
 	case KW_DATE:

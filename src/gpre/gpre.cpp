@@ -1185,7 +1185,7 @@ void CPR_get_text( TEXT * buffer, TXT text)
 void CPR_raw_read()
 {
 	SSHORT c;
-	SCHAR token_string[MAXSYMLEN];
+	SCHAR token_string[MAX_SYM_SIZE];
 	SCHAR *p;
 	BOOLEAN continue_char;
 

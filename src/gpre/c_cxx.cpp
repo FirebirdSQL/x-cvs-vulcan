@@ -644,7 +644,7 @@ static void align( int column)
 static void asgn_from( ACT action, REF reference, int column)
 {
 	GPRE_FLD field;
-	TEXT *value, name[64], variable[20], temp[20];
+	TEXT *value, name[MAX_REF_SIZE], variable[MAX_REF_SIZE], temp[MAX_REF_SIZE];
 	REF source;
 	ACT slice_action;
 	SSHORT slice_flag = FALSE;
@@ -729,7 +729,7 @@ static void asgn_to( ACT action, REF reference, int column)
 	GPRE_FLD field;
 	REF source;
 	ACT slice_action;
-	char s[64];
+	char s[MAX_REF_SIZE];
 
 	source = reference->ref_friend;
 	field = source->ref_field;
@@ -791,7 +791,7 @@ static void asgn_to( ACT action, REF reference, int column)
 static void asgn_to_proc( REF reference, int column)
 {
 	GPRE_FLD field;
-	char s[64];
+	char s[MAX_REF_SIZE];
 
 	for (; reference; reference = reference->ref_next) {
 		if (!reference->ref_value)
@@ -854,7 +854,7 @@ static void gen_any( ACT action, int column)
 static void gen_at_end( ACT action, int column)
 {
 	GPRE_REQ request;
-	char s[20];
+	char s[MAX_REF_SIZE];
 
 	request = action->act_request;
 	printa(column, "if (!%s) {", gen_name(s, request->req_eof, TRUE));
@@ -1083,7 +1083,7 @@ static void gen_blob_open( ACT action, USHORT column)
 	BLB blob;
 	PAT args;
 	REF reference;
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 	const TEXT *pattern1 =
 		"isc_%IFcreate%ELopen%EN_blob2 (%V1, &%DH, &%RT, &%BH, &%FR, (short) %N1, %I1);",
 		*pattern2 =
@@ -1270,7 +1270,7 @@ static void gen_compile( ACT action, int column)
 	BLB blob;
 	PAT args;
 	const TEXT *pattern1 =
-		"isc_compile_request%IF2%EN (%V1, (isc_db_handle*) &%DH, (isc_req_handle*) &%RH, (short) sizeof (%RI), (char *) %RI);",
+		"isc_compile_request%IF2%EN (%V1, (FB_API_HANDLE*) &%DH, (FB_API_HANDLE*) &%RH, (short) sizeof (%RI), (char *) %RI);",
 		*pattern2 = "if (!%RH%IF && %S1%EN)";
 
 	args.pat_request = request = action->act_request;
@@ -1371,7 +1371,7 @@ static void gen_create_database( ACT action, int column)
 	column += INDENT;
 	BEGIN;
 	printa(column,
-		   "isc_start_transaction (%s, (isc_tr_handle*) &%s, (short) 1, &%s, (short) 0, (char*) 0);",
+		   "isc_start_transaction (%s, (FB_API_HANDLE*) &%s, (short) 1, &%s, (short) 0, (char*) 0);",
 		   status_vector(action), trname, db->dbb_name->sym_string);
 	printa(column, "if (%s)", trname);
 	column += INDENT;
@@ -1382,10 +1382,10 @@ static void gen_create_database( ACT action, int column)
 			   trname, request->req_length, request->req_ident);
 	column -= INDENT;
 	printa(column, "if (!%s [1])", status_name);
-	printa(column + INDENT, "isc_commit_transaction (%s, (isc_tr_handle*) &%s);",
+	printa(column + INDENT, "isc_commit_transaction (%s, (FB_API_HANDLE*) &%s);",
 		   status_vector(action), trname);
 	printa(column, "if (%s [1])", status_name);
-	printa(column + INDENT, "isc_rollback_transaction (%s, (isc_tr_handle*) &%s);",
+	printa(column + INDENT, "isc_rollback_transaction (%s, (FB_API_HANDLE*) &%s);",
 		   status_vector(NULL), trname);
 	SET_SQLCODE;
 	END;
@@ -1682,10 +1682,10 @@ static void gen_ddl( ACT action, int column)
 	if (sw_auto) {
 		column -= INDENT;
 		printa(column, "if (!%s [1])", status_name);
-		printa(column + INDENT, "isc_commit_transaction (%s, (isc_tr_handle*) &%s);",
+		printa(column + INDENT, "isc_commit_transaction (%s, (FB_API_HANDLE*) &%s);",
 			   status_vector(action), transaction_name);
 		printa(column, "if (%s [1])", status_name);
-		printa(column + INDENT, "isc_rollback_transaction (%s, (isc_tr_handle*) &%s);",
+		printa(column + INDENT, "isc_rollback_transaction (%s, (FB_API_HANDLE*) &%s);",
 			   status_vector(NULL), transaction_name);
 	}
 
@@ -2026,7 +2026,7 @@ static void gen_emodify( ACT action, int column)
 	UPD modify;
 	REF reference, source;
 	GPRE_FLD field;
-	TEXT s1[20], s2[20];
+	TEXT s1[MAX_REF_SIZE], s2[MAX_REF_SIZE];
 
 	modify = (UPD) action->act_object;
 
@@ -2166,7 +2166,7 @@ static void gen_event_init( ACT action, int column)
 	GPRE_NOD init, event_list, *ptr, *end, node;
 	REF reference;
 	PAT args;
-	TEXT variable[20];
+	TEXT variable[MAX_REF_SIZE];
 	const TEXT
 		* pattern1 =
 		"isc_%N1l = isc_event_block (&isc_%N1a, &isc_%N1b, (short) %N2",
@@ -2293,7 +2293,7 @@ static void gen_fetch( ACT action, int column)
 	GPRE_REQ request;
 	GPRE_NOD var_list;
 	int i;
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 
 #ifdef SCROLLABLE_CURSORS
 	POR port;
@@ -2447,7 +2447,7 @@ static void gen_for( ACT action, int column)
 {
 	POR port;
 	GPRE_REQ request;
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 	REF reference;
 
 	gen_s_start(action, column);
@@ -2592,7 +2592,7 @@ static void gen_function( ACT function, int column)
 	REF reference;
 	GPRE_FLD field;
 	ACT action;
-	TEXT s[64];
+	TEXT s[MAX_REF_SIZE];
 	const TEXT *dtype;
 
 	action = (ACT) function->act_object;
@@ -2707,7 +2707,7 @@ static void gen_get_or_put_slice(
 								 REF reference, BOOLEAN get, int column)
 {
 	PAT args;
-	TEXT s1[25], s2[10], s4[10];
+	TEXT s1[MAX_REF_SIZE], s2[MAX_REF_SIZE], s4[MAX_REF_SIZE];
 	const TEXT *pattern1 =
 		"isc_get_slice (%V1, &%DH, &%RT, &%S2, (short) %N1, (char *) %S3, 0, (%S6*) 0, (%S6) %L1, %S5, &isc_array_length);";
 	const TEXT *pattern2 =
@@ -2906,7 +2906,7 @@ static void gen_loop( ACT action, int column)
 {
 	GPRE_REQ request;
 	POR port;
-	TEXT name[20];
+	TEXT name[MAX_REF_SIZE];
 
 	gen_s_start(action, column);
 	request = action->act_request;
@@ -3420,7 +3420,7 @@ static void gen_receive( ACT action, int column, POR port)
 {
 	PAT args;
 	const TEXT *pattern =
-		"isc_receive (%V1, (isc_req_handle*) &%RH, (short) %PN, (short) %PL, &%PI, (short) %RL);";
+		"isc_receive (%V1, (FB_API_HANDLE*) &%RH, (short) %PN, (short) %PL, &%PI, (short) %RL);";
 
 	args.pat_request = action->act_request;
 	args.pat_vector1 = status_vector(action);
@@ -3836,7 +3836,7 @@ static void gen_select( ACT action, int column)
 	POR port;
 	GPRE_NOD var_list;
 	int i;
-	TEXT name[20];
+	TEXT name[MAX_REF_SIZE];
 
 	request = action->act_request;
 	port = request->req_primary;
@@ -3882,7 +3882,7 @@ static void gen_send( ACT action, POR port, int column)
 {
 	PAT args;
 	const TEXT *pattern =
-		"isc_send (%V1, (isc_req_handle*) &%RH, (short) %PN, (short) %PL, &%PI, (short) %RL);";
+		"isc_send (%V1, (FB_API_HANDLE*) &%RH, (short) %PN, (short) %PL, &%PI, (short) %RL);";
 
 	args.pat_request = action->act_request;
 	args.pat_vector1 = status_vector(action);
@@ -3977,8 +3977,8 @@ static void gen_start( ACT action, POR port, int column, BOOLEAN sending)
 {
 	PAT args;
 	const TEXT *pattern1 =
-		"isc_start_and_send (%V1, (isc_req_handle*) &%RH, (isc_req_handle*) &%S1, (short) %PN, (short) %PL, &%PI, (short) %RL);";
-	const TEXT *pattern2 = "isc_start_request (%V1, (isc_req_handle*) &%RH, (isc_tr_handle*) &%S1, (short) %RL);";
+		"isc_start_and_send (%V1, (FB_API_HANDLE*) &%RH, (FB_API_HANDLE*) &%S1, (short) %PN, (short) %PL, &%PI, (short) %RL);";
+	const TEXT *pattern2 = "isc_start_request (%V1, (FB_API_HANDLE*) &%RH, (FB_API_HANDLE*) &%S1, (short) %RL);";
 	REF reference;
 
 	if (port && sending) {
@@ -4009,7 +4009,7 @@ static void gen_store( ACT action, int column)
 	REF reference;
 	GPRE_FLD field;
 	POR port;
-	TEXT name[64];
+	TEXT name[MAX_REF_SIZE];
 
 	request = action->act_request;
 	align(column);
@@ -4070,7 +4070,7 @@ static void gen_t_start( ACT action, int column)
 			}
 		}
 
-	printa(column, "isc_start_transaction (%s, (isc_tr_handle*) &%s, (short) %d",
+	printa(column, "isc_start_transaction (%s, (FB_API_HANDLE*) &%s, (short) %d",
 		   vector,
 		   (trans->tra_handle) ? trans->tra_handle : transaction_name,
 		   trans->tra_db_count);
@@ -4156,13 +4156,13 @@ static void gen_trans( ACT action, int column)
 {
 
 	if (action->act_type == ACT_commit_retain_context)
-		printa(column, "isc_commit_retaining (%s, (isc_tr_handle*) &%s);",
+		printa(column, "isc_commit_retaining (%s, (FB_API_HANDLE*) &%s);",
 			   status_vector(action),
 			   (action->act_object) ? (TEXT *) (action->
 												act_object) :
 			   transaction_name);
 	else
-		printa(column, "isc_%s_transaction (%s, (isc_tr_handle*) &%s);",
+		printa(column, "isc_%s_transaction (%s, (FB_API_HANDLE*) &%s);",
 			   (action->act_type ==
 				ACT_commit) ? "commit" : (action->act_type ==
 										  ACT_rollback) ? "rollback" :
@@ -4211,7 +4211,7 @@ static void gen_update( ACT action, int column)
 
 static void gen_variable( ACT action, int column)
 {
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 
 	printa(column, gen_name(s, action->act_object, FALSE));
 }
@@ -4298,7 +4298,7 @@ static void make_array_declaration( REF reference)
 
 	GPRE_FLD field = reference->ref_field;
 	const TEXT *name = field->fld_symbol->sym_string;
-	TEXT s[64];
+	TEXT s[ERROR_LENGTH];
 	const TEXT *dtype;
 	DIM dimension;
 
@@ -4440,7 +4440,7 @@ static void make_port( POR port, int column)
 	REF reference;
 	SYM symbol;
 	const TEXT *name;
-	TEXT s[80];
+	TEXT s[ERROR_LENGTH];
 	const TEXT *dtype;
 	int fld_len;
 
@@ -4720,7 +4720,7 @@ static void t_start_auto(
 	else
 		for (count = 0, db = isc_databases; db; db = db->dbb_next, count++);
 
-	printa(column, "isc_start_transaction (%s, (isc_tr_handle*) &%s, (short) %d",
+	printa(column, "isc_start_transaction (%s, (FB_API_HANDLE*) &%s, (short) %d",
 		   vector, trname, count);
 
 //  Some systems don't like infinitely long lines.  Limit them to 256. 

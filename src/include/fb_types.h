@@ -70,6 +70,7 @@ typedef unsigned long long int	ISC_UINT64;
 	typedef INT64 SQUAD;
 	typedef UINT64 UQUAD;
 #   define NATIVE_QUAD
+	typedef unsigned int FB_API_HANDLE;
 #else
 	typedef long SLONG;
 	typedef unsigned long ULONG;
@@ -77,6 +78,7 @@ typedef unsigned long long int	ISC_UINT64;
 		SLONG high;
 		ULONG low;
 	} SQUAD;
+	typedef void* FB_API_HANDLE;
 #endif // SIZEOF_LONG == 8
 
 struct GDS_QUAD_t {

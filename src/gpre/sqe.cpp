@@ -56,10 +56,6 @@
 #include "../gpre/sqe_proto.h"
 #include "../gpre/sql_proto.h"
 
-
-
-#define ERROR_LENGTH	256
-
 struct scope {
 	struct gpre_ctx *req_contexts;
 	USHORT req_scope_level;		/* scope level for SQL subquery parsing */
