@@ -30,7 +30,9 @@
 #include "SyncObject.h"
 #include "LinkedList.h"
 
-class Module;
+CLASS(Module);
+
+START_NAMESPACE
 
 class ModuleManager
 {
@@ -44,5 +46,7 @@ public:
 	SyncObject	syncObject;
 	LinkedList	searchList;
 };
+
+END_NAMESPACE
 
 #endif

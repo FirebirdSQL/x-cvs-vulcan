@@ -56,8 +56,7 @@
 #endif
 
 CLASS(Sync);
-
-class Thread;
+CLASS(Thread);
 
 START_NAMESPACE
 

@@ -13,6 +13,7 @@
 
 typedef void* LibraryHandle;
 
+START_NAMESPACE
 
 class ExternalLibrary
 {
@@ -28,5 +29,7 @@ public:
 	LibraryHandle	libraryHandle;
 	JString			libraryName;
 };
+
+END_NAMESPACE
 
 #endif

@@ -24,7 +24,7 @@
 #ifndef JRD_SCL_PROTO_H
 #define JRD_SCL_PROTO_H
 
-class Generate;
+CLASS (Generate);
 
 void SCL_check_access(TDBB tdbb, struct scl*, SLONG, const TEXT*,
 					  const TEXT*, USHORT, const TEXT*, const TEXT*);

@@ -40,6 +40,7 @@
  */
 
 #include "firebird.h"
+#include "common.h"
 #include <limits.h>
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>

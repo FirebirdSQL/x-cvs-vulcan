@@ -41,7 +41,7 @@ enum ExceptionType
 	};
 
 class SQLException;
-class AdminException;
+CLASS (AdminException);
 	
 static const int STRING_SPACE = 4096;
 

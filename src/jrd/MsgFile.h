@@ -5,6 +5,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+START_NAMESPACE
 
 class MsgFile
 {
@@ -21,5 +22,7 @@ public:
 	USHORT	msg_levels;
 	UCHAR	*msg_bucket;
 };
+
+END_NAMESPACE
 
 #endif

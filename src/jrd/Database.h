@@ -108,6 +108,7 @@ static const int HASH_SIZE = 101;
 #define DBB_WLCK_files          1	// DB and shadow file manipulation
 #define DBB_WLCK_max            2
 
+CLASS (ModuleManager);
 
 class JrdMemoryPool;
 class Attachment;
@@ -124,7 +125,6 @@ class lck;
 class BackupManager;
 class PageCache;
 class CharSetManager;
-class ModuleManager;
 class CharSetContainer;
 class Procedure;
 class ProcManager;

@@ -34,6 +34,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+START_NAMESPACE
+
 class Generate
 {
 public:
@@ -55,5 +57,7 @@ public:
 	void reset(void);
 	void excise(UCHAR* ptr, int length);
 };
+
+END_NAMESPACE
 
 #endif

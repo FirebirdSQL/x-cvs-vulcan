@@ -60,8 +60,11 @@
 CLASS(Sync);
 CLASS(SyncObject);
 CLASS(LinkedList);
+CLASS(Threads);
 
-class Threads;
+START_NAMESPACE
+
+
 class SyncWait;
 
 struct TimeZone;
@@ -114,5 +117,7 @@ protected:
 public:
 	static THREAD_ID getCurrentThreadId(void);
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_THREAD_H__84FD1988_A97F_11D2_AB5C_0000C01D2301__INCLUDED_)
