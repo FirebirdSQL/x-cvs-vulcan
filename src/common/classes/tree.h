@@ -209,7 +209,7 @@ private:
 		static const Key& generate(void *sender, void *item) { 
 			for (int lev = ((NodeList *)sender)->level; lev > 0; lev--)
 				item = *((NodeList *)item)->begin();
-			return KeyOfValue::generate(item,*((BePlusTree::ItemList *)item)->begin());
+			return KeyOfValue::generate(item,*((typename BePlusTree::ItemList *)item)->begin());
 		}
 		static void setNodeParentAndLevel(void *node, int level, NodeList *parent) {
 			if (level) {

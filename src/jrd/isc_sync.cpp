@@ -3959,7 +3959,7 @@ void longjmp_sig_handler(int sig_num)
  *	The generic signal handler for all signals in a thread.
  *
  **************************************/
-	TDBB tdbb;
+	thread_db* tdbb;
 
 /* Note: we can only do this since we know that we
    will only be going to JRD, specifically fun and blf.

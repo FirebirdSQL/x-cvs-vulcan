@@ -126,7 +126,7 @@
 static void		close_marker_file(TEXT *);
 static FIL		find_file(FIL, Bdb*);
 static FIL		seek_file(FIL, Bdb*, UINT64 *, ISC_STATUS *);
-static FIL		setup_file(tdbb *tdbb, const TEXT*, int);
+static FIL		setup_file(thread_db *tdbb, const TEXT*, int);
 static BOOLEAN	unix_error(const TEXT *, FIL, ISC_STATUS, ISC_STATUS *);
 
 #if defined PREAD_PWRITE && !(defined HAVE_PREAD && defined HAVE_PWRITE)
@@ -148,7 +148,7 @@ union fcntlun {
 #endif
 
 
-int PIO_add_file(tdbb *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
+int PIO_add_file(thread_db *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
 {
 /**************************************
  *
@@ -250,7 +250,7 @@ int PIO_connection(const TEXT* file_name, USHORT* file_length)
 }
 
 
-FIL PIO_create(tdbb *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
+FIL PIO_create(thread_db *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
 {
 /**************************************
  *
@@ -594,7 +594,7 @@ SLONG PIO_act_alloc(DBB dbb)
 }
 
 
-FIL PIO_open(tdbb *tdbb,
+FIL PIO_open(thread_db *tdbb,
 			 const TEXT* string,
 			 SSHORT trace_flag,
 			 const TEXT* file_name, 
@@ -986,7 +986,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 }
 
 
-static FIL setup_file(tdbb *tdbb, const TEXT* file_name, int desc)
+static FIL setup_file(thread_db *tdbb, const TEXT* file_name, int desc)
 {
 /**************************************
  *

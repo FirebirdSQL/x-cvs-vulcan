@@ -58,6 +58,8 @@
 
 #else	// MEMMGR
 
+#pragma FB_COMPILER_MESSAGE("Does not define MEMMGR?")
+
 #define MEMORY_EXCEPTION	std::bad_alloc
 
 #include "locks.h"
@@ -413,35 +415,24 @@ namespace firebird
 		allocator(MemoryPool& p, SSHORT t = 0) : pool(&p), type(t) {}
 		allocator(MemoryPool* p = getDefaultMemoryPool(), SSHORT t = 0) : pool(p), type(t) {}
 	
-		template <class DST>
-		allocator(const allocator<DST> &alloc)
-			: pool(alloc.getPool()), type(alloc.getType()) { }
-
+                template <class DST>
+                  allocator(const allocator<DST> &alloc)
+                           : pool(alloc.getPool()), type(alloc.getType()) { }
+                    
 #ifdef DEBUG_GDS_ALLOC
 		pointer allocate(size_type s, const void* = 0)
-			{ return (pointer) pool->allocate(sizeof(T) * s, 0, __FILE__, __LINE__); }
+			{ return (pointer) this->pool->allocate(sizeof(T) * s, 0, __FILE__, __LINE__); }
 		char* _Charalloc(size_type n)
 			{ return (char*) pool->allocate(n, 0, __FILE__, __LINE__); }
 #else
 		pointer allocate(size_type s, const void* = 0)
-			{ return (pointer) pool->allocate(sizeof(T) * s, 0); }
+			{ return (pointer) this->pool->allocate(sizeof(T) * s, 0); }
 		char* _Charalloc(size_type n)
-			{ return (char*) pool->allocate(n, 0); }
+			{ return (char*) this->pool->allocate(n, 0); }
 #endif
-/*#ifdef DEBUG_GDS_ALLOC
-		pointer allocate(size_type s, const void * = 0)
-			{ return (pointer) pool->calloc(sizeof(T) * s, 0, __FILE__, __LINE__); }
-		char *_Charalloc(size_type n)
-			{ return (char*) pool->calloc(n, 0, __FILE__, __LINE__); }
-#else
-		pointer allocate(size_type s, const void * = 0)
-			{ return (pointer) pool->calloc(sizeof(T) * s, 0); }
-		char *_Charalloc(size_type n)
-			{ return (char*) pool->calloc(n, 0); }
-#endif*/
 			
-		void deallocate(pointer p, size_type s)	{ pool->deallocate(p); }
-		void deallocate(void* p, size_type s) { pool->deallocate(p); }
+		void deallocate(pointer p, size_type s)	{ this->pool->deallocate(p); }
+		void deallocate(void* p, size_type s) { this->pool->deallocate(p); }
 		void construct(pointer p, const T& v) { new(p) T(v); }
 		void destroy(pointer p) { p->~T(); }
 	

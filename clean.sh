@@ -16,7 +16,8 @@ rm Makefile 2>/dev/null
 echo Removing files in src directory
 
 rm src/include/gen/autoconfig.h 2>/dev/null
-rm src/include/gen/blrtable.h 2>/dev/null
+#this isn't yet re-created, don't remove it for now...
+#rm src/include/gen/blrtable.h 2>/dev/null
 rm src/Makefile 2>/dev/null
 rm builds/make.new/config/config.guess 2>/dev/null
 rm builds/make.new/config/config.sub 2>/dev/null
