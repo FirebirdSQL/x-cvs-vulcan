@@ -2797,7 +2797,7 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 
 	const dsql_nod* const query_spec = select_expr->nod_arg[e_sel_query_spec];
 
-	if (query_spec->nod_count > 1)
+	if (query_spec->nod_type == nod_list)
 		ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 104, isc_arg_gds, 
 				  isc_token_err, // Token unknown 
 				  isc_arg_gds, isc_random, isc_arg_string, "UNION", 0);
@@ -2806,7 +2806,7 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 // the fields in the select list will be properly recognized
 	request->scopeLevel++;
 	request->req_in_select_list++;
-	dsql_nod* const column = query_spec->nod_arg[0]->nod_arg[e_qry_list]->nod_arg[0];
+	dsql_nod* const column = query_spec->nod_arg[e_qry_list]->nod_arg[0];
 	temp->nod_arg[1] = PASS1_node(request, column, false);
 	request->req_in_select_list--;
 	request->scopeLevel--;
