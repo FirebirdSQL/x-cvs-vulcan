@@ -1,3 +1,25 @@
+2005-03-11 17:07  tomcole
+
+	* vulcan/src/jrd/sort.cpp:
+	
+	More correct sign/unsigned agreement fix in SORT_write_block()
+
+2005-03-11 05:23  paulkent
+
+	* vulcan/: clean.sh, configure, src/common/classes/alloc.h,
+	src/common/classes/tree.h, src/common/classes/vector.h,
+	src/config/ConfObject.cpp, src/dsql/pass1.cpp,
+	src/intlcpp/lc_big5.h, src/jrd/DVector.h, src/jrd/gds.cpp,
+	src/jrd/isc_sync.cpp, src/jrd/sch.cpp, src/jrd/os/posix/pio.cpp:
+	
+	changes to allow building on linux/FC3/GCC3.4.2
+
+2005-03-11 03:12  paulkent
+
+	* vulcan/src/: boot_build, build:
+	
+	make more friendly to emacs next-error
+
 2005-03-10 17:43  tomcole
 
 	* vulcan/src/dsql/ddl.cpp:
