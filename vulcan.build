@@ -32,6 +32,8 @@
 include makefile.in
 </template>
 
+<template name="buildopt"><if type="release">-O<else/>-g</if></template>
+
 <template name="Directories">
 INTDIR = .
 SRCDIR = ..
@@ -56,7 +58,7 @@ GPRE_FLAGS = -e -manual
 -DMEMMGR </template>
 
 <template name="CFlags">
-CPPFLAGS = -g -I. \
+CPPFLAGS = <buildopt/> -I. \
 	-fPIC \
 	-DFIREBIRD_ENGINE \
 	-D_REENTRANT \
@@ -119,7 +121,7 @@ dependencies:
 <template name="BuildLibr">
 # Libraries: <value name="Libraries"/>
 <value name="libr"/>:	$(MODULES) 
-	$(LINK.cpp) -g <SharedLibr/> $(MODULES) -L../../install/<bin/> <Libraries/> -o <value name="libr"/>
+	$(LINK.cpp) <buildopt/> <SharedLibr/> $(MODULES) -L../../install/<bin/> <Libraries/> -o <value name="libr"/>
 # end BuildLibr
 </template>
 
@@ -155,7 +157,7 @@ DIRS = $(SRCDIR)/jrd \
 </template>
 
 <template name="CFlags">
-CPPFLAGS = -g -I. \
+CPPFLAGS = <buildopt/> -I. \
 	-fPIC \
 	-DFIREBIRD_ENGINE \
 	-D_REENTRANT \
@@ -315,7 +317,7 @@ DIRS = $(SRCDIR)/remote \
 </template>
 
 <template name="CFlags">
-CPPFLAGS = -g -I. \
+CPPFLAGS = <buildopt/> -I. \
 	-DFIREBIRD_ENGINE \
 	-fPIC \
 	-D_REENTRANT \
@@ -472,7 +474,7 @@ install:	JdbcTest
 </template>
 
 <template name="CFlags">
-CPPFLAGS = -g -I. \
+CPPFLAGS = <buildopt/> -I. \
 	-fPIC \
 	-DFIREBIRD_ENGINE \
 	-D_REENTRANT -D_PTHREADS \
@@ -715,7 +717,7 @@ DIRS = $(SRCDIR)/jrd/os/posix \
 </template>
 
 <template name="CFlags">
-CPPFLAGS = -g -I. \
+CPPFLAGS = <buildopt/> -I. \
 	-DFIREBIRD_ENGINE \
 	-fPIC \
 	-D_REENTRANT \
@@ -747,7 +749,7 @@ CPPFLAGS = -g -I. \
 
 <template name="GpreRules">
 %.cpp : %.epp
-	$(INSTALLDIR)/<bin/>/gpre -gds $&lt; $@
+	$(INSTALLDIR)/<bin/>/gpre <buildopt/>ds $&lt; $@
 %.cpp : %.y
 	bison -y -d -b dsql $&lt; 
 	mv dsql.tab.c $*.cpp
@@ -834,7 +836,7 @@ LINK.cpp	= CC
 OUTPUT_OPTION = 
 LINKFLAGS = -xarch=v9
 CPPFLAGS = \
-	-g \
+	<buildopt/> \
 	-xarch=v9a \
 	-KPIC \
 	-mt \
@@ -860,7 +862,7 @@ CPPFLAGS = \
 
 <template name="BuildDependencies">
 dependencies:
-	-gmake clean >/dev/null
+	<buildopt/>make clean >/dev/null
 	-rm *.d
 	gmake CPPFLAGS='$(CPPFLAGS) -xM1' CPPOUTPUT='> $$*.d'
 	cat *.d > makefile.in
@@ -937,7 +939,7 @@ COMPILE.cpp = CC -c $(CPPFLAGS)
 OUTPUT_OPTION = 
 LINKFLAGS = -xarch=v9
 CPPFLAGS = \
-	-g \
+	<buildopt/> \
 	-xarch=v9a \
 	-KPIC \
 	-mt \
