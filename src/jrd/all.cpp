@@ -102,7 +102,9 @@ JrdMemoryPool *JrdMemoryPool::createPool(Database *dbb, int *cur_mem, int *max_m
 	result->plb_segments = NULL;
 	result->plb_dccs = NULL;
 	result->database = dbb;
-	new (&result->lls_cache) BlockCache<lls> (*result);
+	
+	/* Fix memory leak; object create already done via jrd/all.h.  SAS SEK */
+	// new (&result->lls_cache) BlockCache<lls> (*result);
 	
 	if (dbb) 
 		//dbb->dbb_pools.push_back(result);
@@ -128,7 +130,9 @@ JrdMemoryPool *JrdMemoryPool::createPool(Database *dbb)
 	result->plb_segments = NULL;
 	result->plb_dccs = NULL;
 	result->database = dbb;
-	new (&result->lls_cache) BlockCache<lls> (*result);
+	
+	/* Leak caused by extra new via constructor in all.h.  SAS SEK */
+	// new (&result->lls_cache) BlockCache<lls> (*result);
 	
 	if (dbb) 
 		//dbb->dbb_pools.push_back(result);
