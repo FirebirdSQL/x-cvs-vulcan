@@ -24,16 +24,14 @@ of VC++ option dialog (Tools->Options->Projects->VC++ Directories)
 The build requires bison to compile the dsql parse.y
 file.  
 
-To avoid destroying existing MSVC7 "solutions", the 
-kit provides a solution file called Vulcan.sln.template.
-By default it is copied to a new directory called Vulcan
-and renamed to Vulcan.sln.  If you modify the solution,
-you should either move it to a new location, or give it a
-different name.
+To avoid overwriting existing MSVC7 "solutions", the 
+kit provides a solution file called Vulcan.sln.template 
+which you can copy or rename to create the preliminary
+solution file for the project.  That file is located in
+vulcan\builds\VisualStudio7.  Copy or rename it to
+vulcan.sln in the same directory
 
 
 After downloading the sources intially, and any time you
 execute a 'clean' on the tree, you must run the command
 file boot_copy.bat from this top level directory. 
-Note that the command file copies Vulcan.sln.template to
-.\Vulcan\Vulcan.sln.	
