@@ -58,12 +58,11 @@
 #include "Synchronize.h"
 
 CLASS(Sync);
+CLASS(SyncObject);
 
 class Threads;
-class SyncObject;
 class SyncWait;
 class LinkedList;
-class JavaThread;
 
 struct TimeZone;
 
@@ -71,13 +70,10 @@ class Thread : public Synchronize
 {
 public:
 	static Thread* findThread();
-	//void setTimeZone (const TimeZone *timeZone);
 	const char* getWhere();
 	void print (const char *label);
 	void print();
 	void findLocks (LinkedList &threads, LinkedList& syncObjects);
-	//void clearLock (Sync *sync);
-	//void setLock (Sync *sync);
 	void release();
 	void addRef();
 	void createThread (void (*fn)(void*), void *arg);
@@ -104,7 +100,6 @@ public:
 	LockType		lockType;			// requested lock type (see SyncObject)
 	bool			active;
 	volatile bool	lockGranted;
-	//volatile bool	licenseWakeup;
 	volatile long	activeLocks;
 	Sync			*locks;
 	Sync			*lockPending;
@@ -112,8 +107,6 @@ public:
 	bool			marked;
 	int				useCount;
 	const char		*description;
-	//const TimeZone	*defaultTimeZone;
-	//JavaThread		*javaThread;
 
 protected:
 	static void setThread (Thread *thread);
