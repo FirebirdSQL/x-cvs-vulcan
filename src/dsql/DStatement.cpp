@@ -116,12 +116,14 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			{
 			case REQ_SELECT:
 			case REQ_SELECT_UPD: 
+			case REQ_SELECT_BLOCK:
 			case REQ_INSERT: 
 			case REQ_DELETE: 
 			case REQ_UPDATE:
 			case REQ_UPDATE_CURSOR: 
 			case REQ_DELETE_CURSOR:
 			case REQ_EXEC_PROCEDURE:
+			case REQ_EXEC_BLOCK:
 				instantiateRequest (thread);
 				break;
 			
@@ -202,6 +204,7 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 						{
 						case REQ_SELECT:
 						case REQ_EMBED_SELECT:
+						case REQ_SELECT_BLOCK: 
 							number = isc_info_sql_stmt_select;
 							break;
 							
@@ -248,6 +251,7 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 							number = isc_info_sql_stmt_delete;
 							break;
 							
+						case REQ_EXEC_BLOCK: 
 						case REQ_EXEC_PROCEDURE:
 							number = isc_info_sql_stmt_exec_procedure;
 							break;
@@ -1189,9 +1193,11 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
 			{
 			case REQ_SELECT:
 			case REQ_SELECT_UPD:
+			case REQ_SELECT_BLOCK:
 			case REQ_EMBED_SELECT:
 			case REQ_GET_SEGMENT:
 			case REQ_PUT_SEGMENT:
+			case REQ_EXEC_BLOCK:
 				if (!singleton)
 					needsCursor = true;
 					
@@ -1367,8 +1373,10 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				// Fall into ... 
 
 			case REQ_EXEC_PROCEDURE:
+			case REQ_EXEC_BLOCK:
 			case REQ_SELECT:
 			case REQ_SELECT_UPD:
+			case REQ_SELECT_BLOCK:
 			case REQ_INSERT:
 			case REQ_DELETE:
 			case REQ_UPDATE:

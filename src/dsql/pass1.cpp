@@ -174,7 +174,6 @@
 void DSQL_pretty(const dsql_nod*, int);
 #endif
 
-/* TODO:AB
 class CStrCmp
 {
 public:
@@ -184,19 +183,20 @@ public:
 	}
 };
 
+
 typedef firebird::SortedArray<const char*, 
 			firebird::EmptyStorage<const char*>, const char*, 
-			firebird::DefaultKeyValue<const char*>,
+			DefaultKeyValue<const char*>,
 			CStrCmp>
 		StrArray;
- */
+ 
 
 static bool aggregate_found(const CStatement*, const dsql_nod*);
 static bool aggregate_found2(const CStatement*, const dsql_nod*, USHORT*,
 	USHORT*, bool);
 static dsql_nod* ambiguity_check(CStatement*, dsql_nod*, dsql_str*, Stack *stack);
 static void assign_fld_dtype_from_dsc(dsql_fld*, const dsc*);
-//static void check_unique_fields_names(StrArray& names, const dsql_nod* fields);
+static void check_unique_fields_names(StrArray& names, const dsql_nod* fields);
 static dsql_nod* compose(CStatement* request, dsql_nod*, dsql_nod*, NOD_TYPE);
 static dsql_nod* explode_outputs(CStatement*, Procedure*);
 static void field_error(const TEXT*, const TEXT*, const dsql_nod*);
@@ -1265,7 +1265,6 @@ dsql_nod* PASS1_statement(CStatement* request, dsql_nod* input, bool proc_flag)
 			node->nod_arg[e_exe_blk_dcls] = input->nod_arg[e_exe_blk_dcls];
 			node->nod_arg[e_exe_blk_body] = input->nod_arg[e_exe_blk_body];
 
-/* TODO:AB
 			{
 				StrArray names( *getDefaultMemoryPool(),
 					node->nod_arg[e_exe_blk_inputs] ? 
@@ -1280,7 +1279,6 @@ dsql_nod* PASS1_statement(CStatement* request, dsql_nod* input, bool proc_flag)
 				check_unique_fields_names(names, node->nod_arg[e_exe_blk_outputs]);
 				check_unique_fields_names(names, node->nod_arg[e_exe_blk_dcls]);
 			}
-*/
 			return node;
 
 		case nod_for_select:
@@ -2033,13 +2031,13 @@ static void assign_fld_dtype_from_dsc( dsql_fld* field, const dsc* nod_desc)
 }
 
 
-/** TODO:AB
+/** 
 	check_unique_fields_names
 
 	check fields (params, variables, cursors etc) names against
 	sorted array 
 	if success, add them into array 
- 
+ **/
 static void check_unique_fields_names(StrArray& names, const dsql_nod* fields)
 {
 	if (!fields)
@@ -2048,9 +2046,9 @@ static void check_unique_fields_names(StrArray& names, const dsql_nod* fields)
 	const dsql_nod* const* ptr = fields->nod_arg;
 	const dsql_nod* const* const end = ptr + fields->nod_count;
 	const dsql_nod* temp;
-	const dsql_fld* field;
+	dsql_fld* field;
 	const dsql_str* str;
-	const char* name = NULL;
+	const char* name;
 
 	for (; ptr < end; ptr++) {
 		switch ((*ptr)->nod_type) {
@@ -2077,7 +2075,7 @@ static void check_unique_fields_names(StrArray& names, const dsql_nod* fields)
 				fb_assert(false);
 		}
 
-		size_t pos;
+		int pos;
 		if (!names.find(name, pos))
 			names.add(name);
 		else {
@@ -2087,7 +2085,7 @@ static void check_unique_fields_names(StrArray& names, const dsql_nod* fields)
 		}
 	}
 }
-**/
+
 
 /**
   

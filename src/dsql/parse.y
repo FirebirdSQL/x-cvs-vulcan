@@ -69,6 +69,8 @@
  *						   with table alias. Also removed group_by_function and ordinal.
  * 2003.08.14 Arno Brinkman: Added support for derived tables.
  * 2003.10.05 Dmitry Yemanov: Added support for explicit cursors in PSQL.
+ * 2004.01.16 Vlad Horsun: added support for default parameters and 
+ *   EXECUTE BLOCK statement
  */
 
 /* AB:Sync FB 1.169 */
