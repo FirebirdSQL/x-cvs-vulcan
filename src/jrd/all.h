@@ -35,11 +35,11 @@
 #endif
 
 class Database;
-struct tdbb;
+struct thread_db;
 
 TEXT* ALL_cstring(const TEXT* in_string);
 void ALL_fini(void);
-void ALL_init(tdbb *tdbb);
+void ALL_init(thread_db* tdbb);
 //void ALL_push(BLK , LLS *);
 //BLK ALL_pop(LLS *);
 void ALL_print_memory_pool_info(IB_FILE*, Database*);

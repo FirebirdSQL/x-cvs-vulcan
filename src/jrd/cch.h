@@ -97,8 +97,8 @@ class bdb : public pool_alloc<type_bdb>
 	struct Que	bdb_lower;				/* lower precedence Que */
 	struct Que	bdb_higher;				/* higher precedence Que */
 	struct Que	bdb_waiters;			/* latch wait Que */
-	struct tdbb*bdb_exclusive;			/* thread holding exclusive latch */
-	struct tdbb*bdb_io;					/* thread holding io latch */
+	struct thread_db*	bdb_exclusive;	/* thread holding exclusive latch */
+	struct thread_db*	bdb_io;			/* thread holding io latch */
 	UATOM		bdb_ast_flags;			/* flags manipulated at AST level */
 	USHORT		bdb_flags;
 	USHORT		bdb_length;				/* Length of journal records */
@@ -226,7 +226,7 @@ typedef lwt *LWT;
 class prf : public pool_alloc<type_prf>
 {
     public:
-	struct tdbb*prf_tdbb;			/* thread database context */
+	struct thread_db*	prf_tdbb;	/* thread database context */
 	SLONG		prf_start_page;		/* starting page of multipage prefetch */
 	USHORT		prf_max_prefetch;	/* maximum no. of pages to prefetch */
 	USHORT		prf_page_count;		/* actual no. of pages being prefetched */

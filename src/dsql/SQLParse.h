@@ -41,7 +41,8 @@ class dsql_nod;
 //class dsql_lls;
 class dsql_str;
 class Stack;
-struct tdbb;
+
+struct thread_db;
 
 class SQLParse
 {
@@ -49,7 +50,7 @@ public:
 	SQLParse(int client_dialect, int db_dialect, int parser_version);
 	~SQLParse(void);
 
-	dsql_nod*	parse(tdbb *threadData, int sqlLength, const char* sql, int charset);
+	dsql_nod*	parse(thread_db* threadData, int sqlLength, const char* sql, int charset);
 	int			yylex(dsql_nod **yylval);
 	void		punt(int sqlCode, int errorCode);
 	void		stackNodes(dsql_nod* node, Stack* stack);
@@ -67,7 +68,7 @@ public:
 	int			parserVersion;
 	int			yydebug;
 	bool		ambiguousStatement;
-	tdbb*		threadData;
+	thread_db*	threadData;
 	dsql_nod*	parseTree;
 	dsql_nod*	nodes;
 	

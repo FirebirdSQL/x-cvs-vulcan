@@ -121,7 +121,7 @@ Procedure* ProcManager::findKnownProcedure (const TEXT *name)
 
 
 
-Procedure * ProcManager::findKnownProcedure (tdbb *tdbb, int id)
+Procedure * ProcManager::findKnownProcedure (thread_db* tdbb, int id)
 {	
 	for (Procedure *procedure = procList; procedure; procedure = procedure->procNext)
 		if (procedure->procId == id)
@@ -132,7 +132,7 @@ Procedure * ProcManager::findKnownProcedure (tdbb *tdbb, int id)
 
 
 
-Procedure * ProcManager::findProcedure (tdbb *tdbb, const TEXT *name, bool noscan)
+Procedure * ProcManager::findProcedure (thread_db* tdbb, const TEXT *name, bool noscan)
 {
 	Sync sync(&syncObject, "ProcManager::findProcedure");
 	sync.lock(Shared);
@@ -178,7 +178,7 @@ Procedure * ProcManager::findProcedure (tdbb *tdbb, const TEXT *name, bool nosca
 
 
 
-Procedure * ProcManager::findProcedure (tdbb *tdbb, int id)
+Procedure * ProcManager::findProcedure (thread_db* tdbb, int id)
 {	
 	Sync sync(&syncObject, "ProcManager::findProcedure");
 	sync.lock(Shared);
@@ -192,7 +192,7 @@ Procedure * ProcManager::findProcedure (tdbb *tdbb, int id)
 
 
 
-Procedure * ProcManager::findProcedure (tdbb *tdbb, JString name, bool noscan)
+Procedure * ProcManager::findProcedure (thread_db* tdbb, JString name, bool noscan)
 {
 	return findProcedure (tdbb, (const TEXT*) name, noscan);
 }
@@ -217,7 +217,7 @@ Procedure * ProcManager::createProcedure (const char * name, const char *owner)
 }
 ***/
 
-void ProcManager::validateCache (tdbb *tdbb)
+void ProcManager::validateCache (thread_db* tdbb)
 {
 	Procedure* procedure = findFirst();
 	for (; procedure; procedure = procedure->findNext())
@@ -245,7 +245,7 @@ void ProcManager::validateCache (tdbb *tdbb)
 				{
 				if (prc->hasRequest()) 
 					{
-					for (RSC resource = prc->findRequest()->req_resources; resource;
+					for (Resource* resource = prc->findRequest()->req_resources; resource;
 						resource = resource->rsc_next)
 						{
 						if (resource->rsc_type == rsc_procedure)
@@ -266,7 +266,7 @@ void ProcManager::validateCache (tdbb *tdbb)
 
 
 
-bool ProcManager::clearCache(tdbb *tdbb, Procedure *proc)
+bool ProcManager::clearCache(thread_db* tdbb, Procedure *proc)
 {
 	bool result = TRUE;
 	Procedure *procedure = findFirst();
@@ -345,7 +345,7 @@ void ProcManager::adjustDependencies(Procedure* procedure)
 	Request *request = procedure->findRequest();
 	if (request) 
 		{
-		for (RSC resource = request->req_resources; resource;
+		for (Resource* resource = request->req_resources; resource;
 		  resource = resource->rsc_next) 
 			{
 			if (resource->rsc_type == rsc_procedure) 
@@ -360,7 +360,7 @@ void ProcManager::adjustDependencies(Procedure* procedure)
 }
 
 	
-bool ProcManager::procedureInUse (tdbb *tdbb, Procedure *proc)
+bool ProcManager::procedureInUse (thread_db* tdbb, Procedure *proc)
 {
 	/* Walk procedures and calculate internal dependencies */
 
@@ -370,7 +370,7 @@ bool ProcManager::procedureInUse (tdbb *tdbb, Procedure *proc)
 		if (procedure->hasRequest() &&
 			 !(procedure->checkFlags (PRC_obsolete))) 
 			{
-			for (RSC resource = procedure->findRequest()->req_resources; resource;
+			for (Resource* resource = procedure->findRequest()->req_resources; resource;
 				 resource = resource->rsc_next)
 				{
 				if (resource->rsc_type == rsc_procedure)
@@ -404,7 +404,7 @@ bool ProcManager::procedureInUse (tdbb *tdbb, Procedure *proc)
 }
 
 
-Procedure* ProcManager::findObsoleteProcedure(tdbb* tdbb, int id)
+Procedure* ProcManager::findObsoleteProcedure(thread_db* tdbb, int id)
 {
 	Sync sync(&syncObject, "ProcManager::findProcedure");
 	sync.lock(Shared);

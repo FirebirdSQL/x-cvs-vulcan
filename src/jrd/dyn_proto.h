@@ -26,7 +26,7 @@
 
 class Transaction;
 
-void	DYN_ddl(TDBB tdbb, Attachment*, class Transaction*, USHORT, const UCHAR*);
+void	DYN_ddl(thread_db* tdbb, Attachment*, class Transaction*, USHORT, const UCHAR*);
 void	DYN_terminate(TEXT*, int);
 
 #endif // JRD_DYN_PROTO_H

@@ -62,7 +62,7 @@ void SYM_insert(DBB dbb, Sym* symbol)
 }
 
 
-Sym* SYM_lookup(tdbb *tdbb, const TEXT * string)
+Sym* SYM_lookup(thread_db* tdbb, const TEXT * string)
 {
 /**************************************
  *

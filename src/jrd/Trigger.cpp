@@ -46,7 +46,7 @@ Trigger::~Trigger(void)
 	delete blr;
 }
 
-void Trigger::compile(tdbb* _tdbb)
+void Trigger::compile(thread_db* _tdbb)
 {
 	if (request)
 		return;
@@ -100,7 +100,7 @@ void Trigger::compile(tdbb* _tdbb)
 		}
 }
 
-BOOLEAN Trigger::release(tdbb* _tdbb)
+BOOLEAN Trigger::release(thread_db* _tdbb)
 {
 	if (!blr/*sys_trigger*/ || !request || CMP_clone_is_active(request)) 
 		return FALSE;

@@ -41,24 +41,24 @@
 #include "JString.h"
 #include "SyncObject.h"
 
-struct tdbb;
+struct thread_db;
 
 /* Attachment flags */
 
-#define ATT_no_cleanup			1	// Don't expunge, purge, or garbage collect
-#define ATT_shutdown			2	// attachment has been shutdown
-#define ATT_shutdown_notify		4	// attachment has notified client of shutdown
-#define ATT_shutdown_manager	8	// attachment requesting shutdown
-#define ATT_lck_init_done		16	// LCK_init() called for the attachment
-#define ATT_exclusive			32	// attachment wants exclusive database access
-#define ATT_attach_pending		64	// Indicate attachment is only pending
-#define ATT_exclusive_pending   128	// Indicate exclusive attachment pending
-#define ATT_gbak_attachment		256	// Indicate GBAK attachment
-#define ATT_security_db			512	// Indicates an implicit attachment to the security db
+const ULONG ATT_no_cleanup			= 1;	// Don't expunge, purge, or garbage collect
+const ULONG ATT_shutdown			= 2;	// attachment has been shutdown
+const ULONG ATT_shutdown_notify		= 4;	// attachment has notified client of shutdown
+const ULONG ATT_shutdown_manager	= 8;	// attachment requesting shutdown
+const ULONG ATT_lck_init_done		= 16;	// LCK_init() called for the attachment
+const ULONG ATT_exclusive			= 32;	// attachment wants exclusive database access
+const ULONG ATT_attach_pending		= 64;	// Indicate attachment is only pending
+const ULONG ATT_exclusive_pending	= 128;	// Indicate exclusive attachment pending
+const ULONG ATT_gbak_attachment		= 256;	// Indicate GBAK attachment
+const ULONG ATT_security_db			= 512;	// Indicates an implicit attachment to the security db
 #ifdef GARBAGE_THREAD
-#define ATT_notify_gc			1024	// Notify garbage collector to expunge, purge ..
-#define ATT_disable_notify_gc	2048	// Temporarily perform own garbage collection
-#define ATT_garbage_collector	4096	// I'm a garbage collector
+const ULONG ATT_notify_gc			= 1024;	// Notify garbage collector to expunge, purge ..
+const ULONG ATT_disable_notify_gc	= 2048;	// Temporarily perform own garbage collection
+const ULONG ATT_garbage_collector	= 4096;	// I'm a garbage collector
 
 #define ATT_NO_CLEANUP	(ATT_no_cleanup | ATT_notify_gc)
 #else
@@ -66,25 +66,25 @@ struct tdbb;
 #endif
 
 #ifdef CANCEL_OPERATION
-#define ATT_cancel_raise		8192	// Cancel currently running operation
-#define ATT_cancel_disable		16384	// Disable cancel operations
+const ULONG ATT_cancel_raise		= 8192;		// Cancel currently running operation
+const ULONG ATT_cancel_disable		= 16384;	// Disable cancel operations
 #endif
 
-#define ATT_gfix_attachment		32768	// Indicate a GFIX attachment
-#define ATT_gstat_attachment	65536	// Indicate a GSTAT attachment
+const ULONG ATT_gfix_attachment		= 32768;	// Indicate a GFIX attachment
+const ULONG ATT_gstat_attachment	= 65536;	// Indicate a GSTAT attachment
 
 //
 // Database attachments
 //
-#define DBB_read_seq_count      0
-#define DBB_read_idx_count      1
-#define DBB_update_count        2
-#define DBB_insert_count        3
-#define DBB_delete_count        4
-#define DBB_backout_count       5
-#define DBB_purge_count         6
-#define DBB_expunge_count       7
-#define DBB_max_count           8
+const int DBB_read_seq_count		= 0;
+const int DBB_read_idx_count		= 1;
+const int DBB_update_count			= 2;
+const int DBB_insert_count			= 3;
+const int DBB_delete_count			= 4;
+const int DBB_backout_count			= 5;
+const int DBB_purge_count			= 6;
+const int DBB_expunge_count			= 7;
+const int DBB_max_count				= 8;
 
 
 class Database;
@@ -157,16 +157,16 @@ public:
 	Cursor* findCursor(const char* name);
 	void deleteCursor(Cursor* cursor);
 	void endTransaction(Transaction* transaction);
-	void updateAccountInfo(tdbb *tdbb, int apbLength, const UCHAR* apb);
-	void authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb);
-	void shutdown(tdbb *tdbb);
+	void updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb);
+	void authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb);
+	void shutdown(thread_db* tdbb);
 	void addLongLock(lck* lock);
 	void removeLongLock(lck* lock);
 	lck* findBlock(lck* lock, int level);
-	Relation* findRelation(tdbb* tdbb, int relationId, int csbFlags=0);
-	Relation* getRelation(tdbb* tdbb, int relationId);
-	Relation* findRelation(tdbb* tdbb, const char* relationName, int csbFlags=0);
-	Relation* getRelation(tdbb* tdbb, const char* relationName);
+	Relation* findRelation(thread_db* tdbb, int relationId, int csbFlags=0);
+	Relation* getRelation(thread_db* tdbb, int relationId);
+	Relation* findRelation(thread_db* tdbb, const char* relationName, int csbFlags=0);
+	Relation* getRelation(thread_db* tdbb, const char* relationName);
 };
 
 #endif // !defined(AFX_ATTACHMENT_H__79215D0A_E447_411D_A318_BD185E131E4F__INCLUDED_)

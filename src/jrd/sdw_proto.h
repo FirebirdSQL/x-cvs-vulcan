@@ -24,19 +24,19 @@
 #ifndef JRD_SDW_PROTO_H
 #define JRD_SDW_PROTO_H
 
-void	SDW_add(TDBB tdbb, TEXT *, USHORT, USHORT);
-int		SDW_add_file(TDBB tdbb, TEXT *, SLONG, USHORT);
-void	SDW_check(TDBB tdbb);
-BOOLEAN	SDW_check_conditional(TDBB tdbb);
+void	SDW_add(thread_db* tdbb, TEXT *, USHORT, USHORT);
+int		SDW_add_file(thread_db* tdbb, TEXT *, SLONG, USHORT);
+void	SDW_check(thread_db* tdbb);
+BOOLEAN	SDW_check_conditional(thread_db* tdbb);
 void	SDW_close(DBB dbb);
-void	SDW_dump_pages(TDBB tdbb);
-void	SDW_get_shadows(TDBB tdbb);
-void	SDW_init(TDBB tdbb, bool, bool, class sbm*);
+void	SDW_dump_pages(thread_db* tdbb);
+void	SDW_get_shadows(thread_db* tdbb);
+void	SDW_init(thread_db* tdbb, bool, bool, class sbm*);
 BOOLEAN	SDW_lck_update(DBB dbb, SLONG);
-void	SDW_notify(TDBB tdbb);
-bool	SDW_rollover_to_shadow(TDBB tdbb, struct fil *, const bool);
+void	SDW_notify(thread_db* tdbb);
+bool	SDW_rollover_to_shadow(thread_db* tdbb, struct fil *, const bool);
 void	SDW_shutdown_shadow(DBB dbb, class sdw *);
-void	SDW_start(TDBB tdbb, const TEXT*, USHORT, USHORT, bool);
+void	SDW_start(thread_db* tdbb, const TEXT*, USHORT, USHORT, bool);
 int		SDW_start_shadowing(void* ast_object);
 
 #endif /* JRD_SDW_PROTO_H */

@@ -66,7 +66,7 @@ USHORT computePrefix(const UCHAR* prevString, USHORT prevLength,
 }
 
 
-SLONG findPageInDuplicates(const btr* page, UCHAR* pointer, 
+SLONG findPageInDuplicates(const btree_page* page, UCHAR* pointer, 
 			SLONG previousNumber, SLONG findRecordNumber)
 {
 /**************************************
@@ -208,7 +208,7 @@ USHORT getNodeSize(const IndexNode* indexNode, SCHAR flags, bool leafNode)
 }
 
 
-UCHAR* getPointerFirstNode(btr* page, IndexJumpInfo* jumpInfo)
+UCHAR* getPointerFirstNode(btree_page* page, IndexJumpInfo* jumpInfo)
 {
 /**************************************
  *
@@ -321,7 +321,7 @@ bool keyEquality(USHORT length, const UCHAR* data, const IndexNode* indexNode)
 
 
 #ifdef SCROLLABLE_CURSORS
-UCHAR* lastNode(btr* page, EXP expanded_page, BTX* expanded_node)
+UCHAR* lastNode(btr* page, exp_index_buf* expanded_page, btree_exp** expanded_node)
 {
 /**************************************
  *
@@ -336,9 +336,9 @@ UCHAR* lastNode(btr* page, EXP expanded_page, BTX* expanded_node)
  **************************************/
 
 	// the last expanded node is always at the end of the page 
-	// minus the size of a BTX, since there is always an extra
-	// BTX node with zero-length tail at the end of the page
-	BTX enode = (BTX) ((UCHAR*) expanded_page + expanded_page->exp_length - BTX_SIZE);
+	// minus the size of a btree_exp*, since there is always an extra
+	// btree_exp* node with zero-length tail at the end of the page
+	btree_exp* enode = (btree_exp*) ((UCHAR*) expanded_page + expanded_page->exp_length - BTX_SIZE);
 
 	// starting at the end of the page, find the
 	// first node that is not an end marker
@@ -361,7 +361,7 @@ UCHAR* lastNode(btr* page, EXP expanded_page, BTX* expanded_node)
 
 
 UCHAR* nextNode(IndexNode* node, UCHAR* pointer, 
-					SCHAR flags,  BTX* expanded_node)
+					SCHAR flags,  btree_exp** expanded_node)
 {
 /**************************************
  *
@@ -378,7 +378,7 @@ UCHAR* nextNode(IndexNode* node, UCHAR* pointer,
 	pointer = readNode(node, pointer, flags, true);
 
 	if (*expanded_node) {
-		*expanded_node = (BTX) ((UCHAR*) (*expanded_node)->btx_data + 
+		*expanded_node = (btree_exp*) ((UCHAR*) (*expanded_node)->btx_data + 
 			node->prefix + node->length);
 	}
 
@@ -387,7 +387,7 @@ UCHAR* nextNode(IndexNode* node, UCHAR* pointer,
 
 
 UCHAR* previousNode(IndexNode* node, UCHAR* pointer,
-					SCHAR flags,  BTX* expanded_node)
+					SCHAR flags,  btree_exp** expanded_node)
 {
 /**************************************
  *
@@ -403,7 +403,7 @@ UCHAR* previousNode(IndexNode* node, UCHAR* pointer,
 
 	pointer = (pointer - (*expanded_node)->btx_btr_previous_length);
 
-	*expanded_node = (BTX) ((UCHAR*) *expanded_node - (*expanded_node)->btx_previous_length);
+	*expanded_node = (btree_exp*) ((UCHAR*) *expanded_node - (*expanded_node)->btx_previous_length);
 
 	return pointer;
 }
@@ -562,7 +562,7 @@ UCHAR* readNode(IndexNode* indexNode, UCHAR* pagePointer, SCHAR flags, bool leaf
 }
 
 
-UCHAR* writeJumpInfo(btr* page, const IndexJumpInfo* jumpInfo)
+UCHAR* writeJumpInfo(btree_page* page, const IndexJumpInfo* jumpInfo)
 {
 /**************************************
  *

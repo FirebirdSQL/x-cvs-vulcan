@@ -28,8 +28,8 @@
 
 class Database;
 class tpc;
-struct tdbb;
-struct tip;
+struct thread_db;
+struct tx_inv_page;
 
 class TipCache
 {
@@ -42,16 +42,16 @@ public:
 	tpc			*cache;
 	int			transactionsPerTip;
 	
-	int			getCacheState(tdbb* tdbb, int number);
-	void		initialize(tdbb* tdbb, int number);
-	void		updateCache(tdbb* tdbb, tip* tip_page, int sequence);
-	int			snapshotState(tdbb* tdbb, int number);
-	void		setState(tdbb* tdbb, int number, int state);
+	int			getCacheState(thread_db* tdbb, int number);
+	void		initialize(thread_db* tdbb, int number);
+	void		updateCache(thread_db* tdbb, tx_inv_page* tip_page, int sequence);
+	int			snapshotState(thread_db* tdbb, int number);
+	void		setState(thread_db* tdbb, int number, int state);
 
 protected:
-	int			extendCache(tdbb* tdbb, int number);
-	void		cacheTransactions(tdbb* tdbb, tpc** tip_cache_ptr, ULONG oldest);
-	tpc*		allocateTpc(tdbb* tdbb, ULONG base);
+	int			extendCache(thread_db* tdbb, int number);
+	void		cacheTransactions(thread_db* tdbb, tpc** tip_cache_ptr, ULONG oldest);
+	tpc*		allocateTpc(thread_db* tdbb, ULONG base);
 };
 
 #endif

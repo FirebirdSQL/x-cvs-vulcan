@@ -84,7 +84,7 @@ class Procedure;
 class CharSetContainer;
 class Function;
 
-struct tdbb;
+struct thread_db;
 
 //#define FRBRD	void
 
@@ -114,7 +114,7 @@ public:
 	CharSetContainer* findCharset (const TEXT *name);
 	Procedure* findProcedure (const TEXT *procedureName);
 	dsql_rel* findRelation (const char *relationName);
-	void prepare (tdbb *threadDdata, int sqlLength, const TEXT *sql, int userDialect);
+	void prepare (thread_db* threadDdata, int sqlLength, const TEXT *sql, int userDialect);
 	CStatement(Attachment *attachment);
 	void convertDType (dsql_fld *field, int blrType);
 	JString stripString (const TEXT *string);
@@ -150,7 +150,7 @@ public:
 	JString		sql;
 	JString		cursorName;			// as in "current of <cursorName>
 	BlrGen		*blrGen;
-	tdbb		*threadData; 
+	thread_db	*threadData; 
 	DsqlMemoryPool	*pool;
 
 	Request		*request;
@@ -203,7 +203,7 @@ public:
 	void releaseInstantiation(int instantiation);
 	void deleteSyntaxTree(void);
 	dsql_rel* getRelation(const TEXT* relationName);
-	void getRequestInfo(tdbb* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	void getRequestInfo(thread_db* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	int findColumn(const char *columnName);
 };
 

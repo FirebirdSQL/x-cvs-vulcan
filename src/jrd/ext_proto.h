@@ -26,21 +26,21 @@
 
 class ext;
 class Transaction;
-struct tdbb;
+struct thread_db;
 
-void	EXT_close(tdbb *tdbb, Rsb*);
-void	EXT_erase(tdbb *tdbb, rpb*, int*);
-ext*	EXT_file(tdbb *tdbb, jrd_rel*, const TEXT*, SLONG*);
-void	EXT_fini(tdbb *tdbb, jrd_rel*);
-int		EXT_get(tdbb *tdbb, Rsb*);
-void	EXT_modify(tdbb *tdbb, rpb*, rpb*, int*);
+void	EXT_close(thread_db* tdbb, RecordSource*);
+void	EXT_erase(thread_db* tdbb, rpb*, int*);
+ext*	EXT_file(thread_db* tdbb, jrd_rel*, const TEXT*, SLONG*);
+void	EXT_fini(thread_db* tdbb, jrd_rel*);
+int		EXT_get(thread_db* tdbb, RecordSource*);
+void	EXT_modify(thread_db* tdbb, rpb*, rpb*, int*);
 
 #ifdef VMS
-int	EXT_open(tdbb *tdbb, Rsb*);
+int	EXT_open(thread_db* tdbb, RecordSource*);
 #else
-void	EXT_open(tdbb *tdbb, Rsb*);
+void	EXT_open(thread_db* tdbb, RecordSource*);
 #endif
-Rsb*	EXT_optimize(tdbb *tdbb, Opt*, SSHORT, jrd_nod**);
+RecordSource*	EXT_optimize(thread_db* tdbb, Opt*, SSHORT, jrd_nod**);
 void	EXT_ready(jrd_rel*);
 void	EXT_store(DBB dbb, rpb*, int*);
 void	EXT_trans_commit(Transaction*);

@@ -108,7 +108,7 @@ IB_FILE *ext_fopen(const char *filename, const char *mode)
 
 //static void io_error(EXT, TEXT *, ISC_STATUS, SLONG);
 
-void EXT_close(TDBB tdbb, RSB rsb)
+void EXT_close(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -123,7 +123,7 @@ void EXT_close(TDBB tdbb, RSB rsb)
 }
 
 
-void EXT_erase(tdbb *tdbb, RPB * rpb, int *transaction)
+void EXT_erase(thread_db* tdbb, RPB * rpb, int *transaction)
 {
 /**************************************
  *
@@ -140,7 +140,7 @@ void EXT_erase(tdbb *tdbb, RPB * rpb, int *transaction)
 }
 
 
-EXT EXT_file(tdbb *tdbb, JRD_REL relation, const TEXT * file_name, SLONG * description)
+EXT EXT_file(thread_db* tdbb, JRD_REL relation, const TEXT * file_name, SLONG * description)
 {
 /**************************************
  *
@@ -224,7 +224,7 @@ EXT EXT_file(tdbb *tdbb, JRD_REL relation, const TEXT * file_name, SLONG * descr
 }
 
 
-void EXT_fini(tdbb *tdbb, JRD_REL relation)
+void EXT_fini(thread_db* tdbb, JRD_REL relation)
 {
 /**************************************
  *
@@ -249,7 +249,7 @@ void EXT_fini(tdbb *tdbb, JRD_REL relation)
 }
 
 
-int EXT_get(TDBB tdbb, RSB rsb)
+int EXT_get(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -267,7 +267,7 @@ int EXT_get(TDBB tdbb, RSB rsb)
 	RPB *rpb;
 	REC record;
 	FMT format;
-	LIT literal;
+	Literal* literal;
 	//JRD_FLD field;
 	DSC desc;
 	SSHORT c, l, offset;
@@ -321,7 +321,7 @@ int EXT_get(TDBB tdbb, RSB rsb)
 		if (!desc_ptr->dsc_length || !field)
 			continue;
 			
-		if ( (literal = (LIT) field->fld_missing_value) ) 
+		if ( (literal = (Literal*) field->fld_missing_value) ) 
 			{
 			desc = *desc_ptr;
 			desc.dsc_address = record->rec_data + (long) desc.dsc_address;
@@ -336,7 +336,7 @@ int EXT_get(TDBB tdbb, RSB rsb)
 }
 
 
-void EXT_modify(tdbb *tdbb, RPB * old_rpb, RPB * new_rpb, int *transaction)
+void EXT_modify(thread_db* tdbb, RPB * old_rpb, RPB * new_rpb, int *transaction)
 {
 /**************************************
  *
@@ -354,7 +354,7 @@ void EXT_modify(tdbb *tdbb, RPB * old_rpb, RPB * new_rpb, int *transaction)
 }
 
 
-void EXT_open(TDBB tdbb, RSB rsb)
+void EXT_open(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -383,7 +383,7 @@ void EXT_open(TDBB tdbb, RSB rsb)
 }
 
 
-RSB EXT_optimize(tdbb *tdbb, OPT opt, SSHORT stream, JRD_NOD * sort_ptr)
+RecordSource* EXT_optimize(thread_db* tdbb, OPT opt, SSHORT stream, JRD_NOD * sort_ptr)
 {
 /**************************************
  *
@@ -396,9 +396,9 @@ RSB EXT_optimize(tdbb *tdbb, OPT opt, SSHORT stream, JRD_NOD * sort_ptr)
  *	set of record source blocks (rsb's).
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	JRD_REL relation;
-	RSB rsb_;
+	RecordSource* rsb_;
 	
 	/* all these are un refrenced due to the code commented below
 	JRD_NOD		node, inversion;
@@ -444,7 +444,7 @@ if (opt->opt_count)
 */
 
 
-	rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) Rsb;
+	rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) RecordSource;
 	rsb_->rsb_type = rsb_ext_sequential;
 	size = sizeof(irsb);
 
@@ -489,7 +489,7 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 	FMT format;
 	EXT file;
 	//JRD_FLD field;
-	LIT literal;
+	Literal* literal;
 	DSC desc;
 	UCHAR *p;
 	USHORT i, l, offset;
@@ -530,7 +530,7 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 			{
 			p = record->rec_data + (long) desc_ptr->dsc_address;
 			
-			if ( (literal = (LIT) field->fld_missing_value) ) 
+			if ( (literal = (Literal*) field->fld_missing_value) ) 
 				{
 				desc = *desc_ptr;
 				desc.dsc_address = p;

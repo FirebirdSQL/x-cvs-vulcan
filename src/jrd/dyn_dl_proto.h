@@ -24,23 +24,23 @@
 #ifndef JRD_DYN_DL_PROTO_H
 #define JRD_DYN_DL_PROTO_H
 
-void	DYN_delete_constraint(TDBB tdbb, GBL, const UCHAR**, const TEXT*);
-void	DYN_delete_dimensions(TDBB tdbb,GBL, const UCHAR**, const TEXT*, TEXT*);
-void	DYN_delete_exception(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_filter(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_function(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_generator(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_global_field(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_index(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_local_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void	DYN_delete_parameter(TDBB tdbb, GBL, const UCHAR**, TEXT*);
-void	DYN_delete_procedure(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_relation(TDBB tdbb, GBL, const UCHAR**, const TEXT*);
-void	DYN_delete_role(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_security_class(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_shadow(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_trigger(TDBB tdbb, GBL, const UCHAR**);
-void	DYN_delete_trigger_msg(TDBB tdbb, GBL, const UCHAR**, TEXT*);
+void	DYN_delete_constraint(thread_db* tdbb, GBL, const UCHAR**, const TEXT*);
+void	DYN_delete_dimensions(thread_db* tdbb,GBL, const UCHAR**, const TEXT*, TEXT*);
+void	DYN_delete_exception(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_filter(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_function(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_generator(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_global_field(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_index(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_local_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void	DYN_delete_parameter(thread_db* tdbb, GBL, const UCHAR**, TEXT*);
+void	DYN_delete_procedure(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_relation(thread_db* tdbb, GBL, const UCHAR**, const TEXT*);
+void	DYN_delete_role(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_security_class(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_shadow(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_trigger(thread_db* tdbb, GBL, const UCHAR**);
+void	DYN_delete_trigger_msg(thread_db* tdbb, GBL, const UCHAR**, TEXT*);
 
 #endif // JRD_DYN_DL_PROTO_H
 

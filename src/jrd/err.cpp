@@ -173,7 +173,7 @@ void ERR_duplicate_error(IDX_E	code,
 	const TEXT* index_name;
 	const TEXT* constraint_name;
 
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	MET_lookup_index(tdbb, index, relation->rel_name, index_number + 1);
 	if (index[0]) {
@@ -277,7 +277,7 @@ void ERR_log(int facility, int number, const TEXT* message)
  *
  **************************************/
 	TEXT errmsg[MAX_ERRMSG_LEN + 1];
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	const char *dbname = "";
 
 	DEBUG;
@@ -317,7 +317,7 @@ BOOLEAN ERR_post_warning(ISC_STATUS status, ...)
 	int indx = 0, warning_indx = 0;
 
 	VA_START(args, status);
-	status_vector = ((TDBB) GET_THREAD_DATA)->tdbb_status_vector;
+	status_vector = ((thread_db*) GET_THREAD_DATA)->tdbb_status_vector;
 
 	if (status_vector[0] != isc_arg_gds ||
 		(status_vector[0] == isc_arg_gds && status_vector[1] == 0 &&
@@ -411,7 +411,7 @@ void ERR_post(ISC_STATUS status, ...)
 	int i, tmp_status_len = 0, status_len = 0, err_status_len = 0;
 	int warning_count = 0, warning_indx = 0;
 
-	status_vector = ((TDBB) GET_THREAD_DATA)->tdbb_status_vector;
+	status_vector = ((thread_db*) GET_THREAD_DATA)->tdbb_status_vector;
 
 	/* stuff the status into temp buffer */
 	
@@ -507,7 +507,7 @@ void ERR_punt(void)
  *
  **************************************/
 
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	DBB dbb = tdbb->tdbb_database;
 
 	if (dbb && (dbb->dbb_flags & DBB_bugcheck))
@@ -592,7 +592,7 @@ void ERR_warning(ISC_STATUS status, ...)
  *	that subsequent errors can supersede this one.
  *
  **************************************/
-	TDBB tdbb;
+	thread_db* tdbb;
 
 	tdbb = GET_THREAD_DATA;
 

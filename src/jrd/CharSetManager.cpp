@@ -64,7 +64,7 @@ CharSetManager::~CharSetManager(void)
 		}
 }
 
-CharSetContainer* CharSetManager::findCharset(tdbb* tdbb, int ttype)
+CharSetContainer* CharSetManager::findCharset(thread_db* tdbb, int ttype)
 {
 	int charSetId = TTYPE_TO_CHARSET(ttype);
 
@@ -87,7 +87,7 @@ CharSetContainer* CharSetManager::findCharset(tdbb* tdbb, int ttype)
 	return loadCharset (tdbb, charSetId);
 }
 
-CharSetContainer* CharSetManager::findCharset(tdbb* tdbb, const char* name)
+CharSetContainer* CharSetManager::findCharset(thread_db* tdbb, const char* name)
 {
 	Sync sync (&syncObject, "CharSetManager::findCharset");
 	sync.lock (Shared);
@@ -107,7 +107,7 @@ CharSetContainer* CharSetManager::findCharset(tdbb* tdbb, const char* name)
 	return loadCharset (tdbb, charSetId);
 }
 
-CharSetContainer* CharSetManager::loadCharset(tdbb* tdbb, int charSetId)
+CharSetContainer* CharSetManager::loadCharset(thread_db* tdbb, int charSetId)
 {
 	CharSetContainer* container = new CharSetContainer (tdbb, database->dbb_permanent, charSetId);
 	
@@ -130,7 +130,7 @@ CharSetContainer* CharSetManager::loadCharset(tdbb* tdbb, int charSetId)
 	return container;
 }
 
-CharSetContainer* CharSetManager::findCollation(tdbb* tdbb, const char* name)
+CharSetContainer* CharSetManager::findCollation(thread_db* tdbb, const char* name)
 {
 	Sync sync (&syncObject, "CharSetManager::findCollation");
 	sync.lock (Shared);

@@ -59,14 +59,14 @@ static void btc_printer(SLONG, BDB, SCHAR *);
 static void btc_printer_errors(SLONG, BDB, SCHAR *);
 static void complement_key(UCHAR *, int);
 static double decompress(SCHAR *);
-static void dmp_blob(BLP);
-static void dmp_data(DPG);
-static void dmp_header(HDR);
-static void dmp_index(BTR, USHORT);
-static void dmp_pip(PIP, ULONG);
-static void dmp_pointer(PPG);
-static void dmp_root(IRT);
-static void dmp_transactions(TDBB tdbb, TIP, ULONG);
+static void dmp_blob(blob_page*);
+static void dmp_data(data_page*);
+static void dmp_header(header_page*);
+static void dmp_index(btree_page*, USHORT);
+static void dmp_pip(page_inv_page*, ULONG);
+static void dmp_pointer(pointer_page*);
+static void dmp_root(index_root_page*);
+static void dmp_transactions(thread_db* tdbb, tx_inv_page*, ULONG);
 
 static int dmp_descending = 0;
 
@@ -295,42 +295,42 @@ void DMP_fetched_page(PAG page,
  *	dump code.
  *
  **************************************/
-	tdbb *tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	
 	ib_fprintf(dbg_file, "\n%ld\t", number);
 
 	switch (page->pag_type)
 	{
 	case pag_header:
-		dmp_header((HDR) page);
+		dmp_header((header_page*) page);
 		break;
 
 	case pag_pages:
-		dmp_pip((PIP) page, sequence);
+		dmp_pip((page_inv_page*) page, sequence);
 		break;
 
 	case pag_transactions:
-		dmp_transactions(tdbb, (TIP) page, sequence);
+		dmp_transactions(tdbb, (tx_inv_page*) page, sequence);
 		break;
 
 	case pag_pointer:
-		dmp_pointer((PPG) page);
+		dmp_pointer((pointer_page*) page);
 		break;
 
 	case pag_data:
-		dmp_data((DPG) page);
+		dmp_data((data_page*) page);
 		break;
 
 	case pag_root:
-		dmp_root((IRT) page);
+		dmp_root((index_root_page*) page);
 		break;
 
 	case pag_index:
-		dmp_index((BTR) page, page_size);
+		dmp_index((btree_page*) page, page_size);
 		break;
 
 	case pag_blob:
-		dmp_blob((BLP) page);
+		dmp_blob((blob_page*) page);
 		break;
 
 	case pag_ids:
@@ -363,7 +363,7 @@ void DMP_page(SLONG number, USHORT page_size)
  *	and disptach.
  *
  **************************************/
-	tdbb *tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	WIN window(-1);
 	PAG page;
 
@@ -508,7 +508,7 @@ static double decompress(SCHAR * value)
 }
 
 
-static void dmp_blob(BLP page)
+static void dmp_blob(blob_page* page)
 {
 /**************************************
  *
@@ -538,7 +538,7 @@ static void dmp_blob(BLP page)
 }
 
 
-static void dmp_data(DPG page)
+static void dmp_data(data_page* page)
 {
 /**************************************
  *
@@ -559,7 +559,7 @@ static void dmp_data(DPG page)
 	RHD		header;
 	RHDF	fragment;
 	BLH		blob;
-	dpg::dpg_repeat* index;
+	data_page::dpg_repeat* index;
 	SCHAR	buffer[8096 + 1];
 
 	ib_fprintf(dbg_file,
@@ -700,7 +700,7 @@ static void dmp_data(DPG page)
 }
 
 
-static void dmp_header(HDR page)
+static void dmp_header(header_page* page)
 {
 /**************************************
  *
@@ -805,7 +805,7 @@ static void dmp_header(HDR page)
 }
 
 
-static void dmp_index(BTR page, USHORT page_size)
+static void dmp_index(btree_page* page, USHORT page_size)
 {
 /**************************************
  *
@@ -840,13 +840,13 @@ static void dmp_index(BTR page, USHORT page_size)
 	   requires a 32 bit pointer and a 2 bit control field. */
 	   
 	const USHORT dp_per_pp =
-			(USHORT)((ULONG) ((page_size - OFFSETA(PPG, ppg_page)) * 8) /
+			(USHORT)((ULONG) ((page_size - OFFSETA(pointer_page*, ppg_page)) * 8) /
 						(BITS_PER_LONG + 2));
-	const USHORT max_records = (page_size - sizeof(struct dpg)) /
-								(sizeof(dpg::dpg_repeat) + OFFSETA(RHD, rhd_data));
+	const USHORT max_records = (page_size - sizeof(struct data_page)) /
+								(sizeof(data_page::dpg_repeat) + OFFSETA(RHD, rhd_data));
 
-	BTN end  = (BTN) ((UCHAR *) page + page->btr_length);
-	BTN node = (BTN) page->btr_nodes;
+	btree_nod* end  = (btree_nod*) ((UCHAR *) page + page->btr_length);
+	btree_nod* node = (btree_nod*) page->btr_nodes;
 
 	while (node < end)
 	{
@@ -928,7 +928,7 @@ static void dmp_index(BTR page, USHORT page_size)
 }
 
 
-static void dmp_pip(PIP page, ULONG sequence)
+static void dmp_pip(page_inv_page* page, ULONG sequence)
 {
 /**************************************
  *
@@ -973,7 +973,7 @@ static void dmp_pip(PIP page, ULONG sequence)
 }
 
 
-static void dmp_pointer(PPG page)
+static void dmp_pointer(pointer_page* page)
 {
 /**************************************
  *
@@ -1011,7 +1011,7 @@ static void dmp_pointer(PPG page)
 }
 
 
-static void dmp_root(IRT page)
+static void dmp_root(index_root_page* page)
 {
 /**************************************
  *
@@ -1022,7 +1022,7 @@ static void dmp_root(IRT page)
  * Functional description
  *
  **************************************/
-	irt::irt_repeat * desc;
+	index_root_page::irt_repeat * desc;
 	struct irtd *stuff;
 	USHORT i, j;
 
@@ -1044,7 +1044,7 @@ static void dmp_root(IRT page)
 }
 
 
-static void dmp_transactions(TDBB tdbb, TIP page, ULONG sequence)
+static void dmp_transactions(thread_db* tdbb, tx_inv_page* page, ULONG sequence)
 {
 /**************************************
  *
@@ -1073,11 +1073,11 @@ static void dmp_transactions(TDBB tdbb, TIP page, ULONG sequence)
 		ib_fprintf(dbg_file, "\tCurrent transaction (NULL)");
 	if (sequence)
 		ib_fprintf(dbg_file, "\t first transaction on page %ld",
-				   transactions_per_tip * (sequence - 1));
+				   transactions_per_tip, (sequence - 1));
 	else
-		ib_fprintf(dbg_file, "\t Transactions per TIP %ld",
+		ib_fprintf(dbg_file, "\t Transactions per tx_inv_page* %ld",
 				   transactions_per_tip);
-	ib_fprintf(dbg_file, "\tnext TIP page %d\n\n", page->tip_next);
+	ib_fprintf(dbg_file, "\tnext tip page %d\n\n", page->tip_next);
 	ib_fprintf(dbg_file,
 			   "\t          1         2         3         4         5         6         7         8         9\n");
 	ib_fprintf(dbg_file,

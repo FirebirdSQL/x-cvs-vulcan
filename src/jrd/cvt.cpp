@@ -1389,7 +1389,7 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 			/* Per SQL Specs, we need to set the DATE
 			   portion to the current date */
 			{
-				TDBB tdbb = NULL;
+				thread_db* tdbb = NULL;
 				time_t clock;
 
 		/** Cannot call GET_THREAD_DATA because that macro calls 
@@ -1821,7 +1821,7 @@ static void datetime_to_text(const dsc* from, dsc* to, FPTR_ERROR err)
  *      Convert a timestamp, date or time value to text.
  *
  **************************************/
-	TDBB tdbb = NULL;
+	thread_db* tdbb = NULL;
 	bool version4 = true;
 
 	fb_assert(DTYPE_IS_TEXT(to->dsc_dtype));

@@ -1,7 +1,7 @@
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		tpc.cpp
- *	DESCRIPTION:	TIP Cache for DBB
+ *	DESCRIPTION:	tx_inv_page* Cache for DBB
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -70,7 +70,7 @@ TipCache::~TipCache(void)
  *
  **************************************/
 
-int TipCache::getCacheState(tdbb* tdbb, int number)
+int TipCache::getCacheState(thread_db* tdbb, int number)
 {
 	if (!cache) 
 		initialize(tdbb, number);
@@ -88,7 +88,7 @@ int TipCache::getCacheState(tdbb* tdbb, int number)
 	if (number < cache->tpc_base)
 		return tra_committed;
 
-	/* locate the specific TIP cache block for the transaction */
+	/* locate the specific tx_inv_page* cache block for the transaction */
 
 	for (tpc *tip_cache = cache; tip_cache; tip_cache = tip_cache->tpc_next)
 		if (number < (SLONG) (tip_cache->tpc_base + transactionsPerTip)) 
@@ -111,7 +111,7 @@ int TipCache::getCacheState(tdbb* tdbb, int number)
  *
  **************************************/
 
-void TipCache::initialize(tdbb* tdbb, int number)
+void TipCache::initialize(thread_db* tdbb, int number)
 {
 	TPC *tip_cache_ptr, tip_cache;
 	Sync sync (&syncObject, "TipCache::initialize");
@@ -151,7 +151,7 @@ void TipCache::initialize(tdbb* tdbb, int number)
  *
  **************************************/
 
-void TipCache::cacheTransactions(tdbb* tdbb, tpc **tip_cache_ptr, ULONG oldest)
+void TipCache::cacheTransactions(thread_db* tdbb, tpc **tip_cache_ptr, ULONG oldest)
 {
 	/* check the header page for the oldest and 
 	   newest transaction numbers */
@@ -161,7 +161,7 @@ void TipCache::cacheTransactions(tdbb* tdbb, tpc **tip_cache_ptr, ULONG oldest)
 	oldest = MAX(oldest, database->dbb_oldest_transaction);
 #else
 	WIN window(HEADER_PAGE);
-	HDR header = (HDR) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
+	header_page* header = (header_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
 	ULONG top = header->hdr_next_transaction;
 	oldest = MAX(oldest, (ULONG) header->hdr_oldest_transaction);
 	CCH_RELEASE(tdbb, &window);
@@ -200,12 +200,12 @@ void TipCache::cacheTransactions(tdbb* tdbb, tpc **tip_cache_ptr, ULONG oldest)
  *
  **************************************/
 
-tpc* TipCache::allocateTpc(tdbb* tdbb, ULONG base)
+tpc* TipCache::allocateTpc(thread_db* tdbb, ULONG base)
 {
 	if (!transactionsPerTip)
 		transactionsPerTip = database->dbb_pcontrol->pgc_tpt;
 
-	/* allocate a TIP cache block with enough room for 
+	/* allocate a tx_inv_page* cache block with enough room for 
 	   all desired transactions */
 
 	TPC tip_cache = FB_NEW_RPT(*database->dbb_permanent, transactionsPerTip / 4) tpc();
@@ -221,14 +221,14 @@ tpc* TipCache::allocateTpc(tdbb* tdbb, ULONG base)
  **************************************
  *
  * Functional description
- *	A TIP page has been fetched into memory,
+ *	A tx_inv_page* page has been fetched into memory,
  *	so we should take the opportunity to update
- *	the TIP cache with the state of all transactions
+ *	the tx_inv_page* cache with the state of all transactions
  *	on that page.
  *
  **************************************/
 
-void TipCache::updateCache(tdbb* tdbb, tip* tip_page, int sequence)
+void TipCache::updateCache(thread_db* tdbb, tx_inv_page* tip_page, int sequence)
 {
 	TPC tip_cache;
 	USHORT l;
@@ -238,7 +238,7 @@ void TipCache::updateCache(tdbb* tdbb, tip* tip_page, int sequence)
 
 	/* while we're in the area we can check to see if there are 
 	   any tip cache pages we can release--this is cheaper and 
-	   easier than finding out when a TIP page is dropped */
+	   easier than finding out when a tx_inv_page* page is dropped */
 
 	while ( (tip_cache = cache) )
 		if (database->dbb_oldest_transaction >= tip_cache->tpc_base + transactionsPerTip) 
@@ -249,7 +249,7 @@ void TipCache::updateCache(tdbb* tdbb, tip* tip_page, int sequence)
 		else
 			break;
 
-	/* find the appropriate page in the TIP cache and assign all transaction
+	/* find the appropriate page in the tx_inv_page* cache and assign all transaction
 	   bits -- it's not worth figuring out which ones are actually used */
 
 	for (; tip_cache; tip_cache = tip_cache->tpc_next)
@@ -275,13 +275,13 @@ void TipCache::updateCache(tdbb* tdbb, tip* tip_page, int sequence)
  *
  * Functional description
  *	Get the current state of a transaction.
- *	Look at the TIP cache first, but if it
+ *	Look at the tx_inv_page* cache first, but if it
  *	is marked as still alive we must do some 
  *	further checking to see if it really is.
  *
  **************************************/
 
-int TipCache::snapshotState(tdbb* tdbb, int number)
+int TipCache::snapshotState(thread_db* tdbb, int number)
 {
 	Sync sync (&syncObject, "TipCache::snapshotState");
 	sync.lock(Shared);
@@ -305,7 +305,7 @@ int TipCache::snapshotState(tdbb* tdbb, int number)
 	if (number < cache->tpc_base) 
 		return tra_committed;
 
-	/* locate the specific TIP cache block for the transaction */
+	/* locate the specific tx_inv_page* cache block for the transaction */
 
 	for (;;)
 		{
@@ -351,7 +351,7 @@ int TipCache::snapshotState(tdbb* tdbb, int number)
 				LCK_release(temp_lock.get());
 				sync.unlock();
 				
-				/* as a last resort we must look at the TIP page to see
+				/* as a last resort we must look at the tx_inv_page* page to see
 				  whether the transaction is committed or dead; to minimize 
 				  having to do this again we will check the state of all 
 				  other transactions on that page */
@@ -387,7 +387,7 @@ int TipCache::snapshotState(tdbb* tdbb, int number)
  *
  **************************************/
 
-int TipCache::extendCache(tdbb* tdbb, int number)
+int TipCache::extendCache(thread_db* tdbb, int number)
 {
 	TPC *tip_cache_ptr, tip_cache;
 
@@ -420,11 +420,11 @@ int TipCache::extendCache(tdbb* tdbb, int number)
  *
  * Functional description
  *	Set the state of a particular transaction
- *	in the TIP cache.
+ *	in the tx_inv_page* cache.
  *
  **************************************/
 
-void TipCache::setState(tdbb* tdbb, int number, int state)
+void TipCache::setState(thread_db* tdbb, int number, int state)
 {
 	Sync sync (&syncObject, "TipCache::setState");
 	sync.lock(Exclusive);

@@ -130,7 +130,7 @@ Relation::~Relation()
 		}
 }
 
-void Relation::scan(tdbb *tdbb)
+void Relation::scan(thread_db* tdbb)
 {
 	MET_scan_relation (tdbb, this);
 }
@@ -150,18 +150,18 @@ frgn::frgn(void)
 	frgn_indexes = NULL;
 }
 
-void Relation::getTypeInformation(tdbb* tdbb)
+void Relation::getTypeInformation(thread_db* tdbb)
 {
 	MET_getTypeInformation (tdbb, this);
 	rel_flags |= REL_has_type_info;
 }
 
-int Relation::getPrimaryKey(tdbb* tdbb, int maxFields, Field** fields)
+int Relation::getPrimaryKey(thread_db* tdbb, int maxFields, Field** fields)
 {
 	return MET_get_primary_key (tdbb, this, maxFields, fields);
 }
 
-Field* Relation::findField(tdbb* tdbb, const char* fieldName)
+Field* Relation::findField(thread_db* tdbb, const char* fieldName)
 {
 	if (!(rel_flags & REL_scanned))
 		MET_scan_relation (tdbb, this);
@@ -193,7 +193,7 @@ Field* Relation::findField(tdbb* tdbb, const char* fieldName)
 	return NULL;
 }
 
-Field* Relation::getField(tdbb* tdbb, const char* fieldName)
+Field* Relation::getField(thread_db* tdbb, const char* fieldName)
 {
 	Field *field = findField (tdbb, fieldName);
 
@@ -211,7 +211,7 @@ int Relation::blockingAst(void* astObject)
 
 int Relation::blockingAst(void)
 {
-	struct tdbb thd_context, *tdbb;
+	struct thread_db thd_context, *tdbb;
 
 	/* Since this routine will be called asynchronously, we must establish
 	   a thread context. */
@@ -241,7 +241,7 @@ int Relation::blockingAst(void)
 	return 0; 
 }
 
-void Relation::createExistenceLock(tdbb* tdbb)
+void Relation::createExistenceLock(thread_db* tdbb)
 {
 	LCK lock = rel_existence_lock = FB_NEW_RPT(*rel_database->dbb_permanent, 0) lck;
 	lock->lck_parent = rel_database->dbb_lock;
@@ -302,7 +302,7 @@ void Relation::fetchFields(Transaction* transaction)
 	fetchFields (connection);
 }
 
-void Relation::dropField(tdbb* tdbb, const char* fieldName)
+void Relation::dropField(thread_db* tdbb, const char* fieldName)
 {
 	Sync sync(&syncObject, "Relation::dropField");
 	sync.lock(Exclusive);
@@ -352,7 +352,7 @@ Field* Relation::findField(int id)
 	return rel_fields[id];
 }
 
-fmt* Relation::getFormat(tdbb* tdbb, int formatVersion)
+fmt* Relation::getFormat(thread_db* tdbb, int formatVersion)
 {
 	fmt *format;
 	Sync sync(&syncFormats, "Relation::getFormat");
@@ -377,7 +377,7 @@ fmt* Relation::getFormat(tdbb* tdbb, int formatVersion)
 	return format;
 }
 
-fmt* Relation::getCurrentFormat(tdbb* tdbb)
+fmt* Relation::getCurrentFormat(thread_db* tdbb)
 {
 	if (!rel_current_format)
 		rel_current_format = getFormat(tdbb, rel_current_fmt);
@@ -394,7 +394,7 @@ void Relation::setFormat(fmt* format)
 	rel_formats[formatVersion] = format;
 }
 
-void Relation::scanRelation(tdbb *tdbb, int csb_flags)
+void Relation::scanRelation(thread_db* tdbb, int csb_flags)
 {
 	if ((!(rel_flags & REL_scanned) || (rel_flags & REL_being_scanned)) &&
 		((rel_flags & REL_force_scan) || !(csb_flags & csb_internal)))

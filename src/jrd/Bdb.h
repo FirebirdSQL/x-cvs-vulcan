@@ -73,16 +73,15 @@ static const int BDB_max_shared			= 20;	/* maximum number of shared latch owners
 class Database;
 class lck;
 class btb;
-class lck;
 struct pag;
-struct jrd_exp;
-struct tdbb;
+struct exp_index_buf;
+struct thread_db;
 
 class Bdb
 {
 public:
 	Bdb(void);
-	Bdb(tdbb *tdbb, pag* memory);
+	Bdb(thread_db* tdbb, pag* memory);
 	~Bdb(void);
 
 public:
@@ -91,7 +90,7 @@ public:
 	Que				bdb_que;				/* Buffer que */
 	Que				bdb_in_use;				/* queue of buffers in use */
 	pag*			bdb_buffer;				/* Actual buffer */
-	jrd_exp*		bdb_expanded_buffer;	/* expanded index buffer */
+	exp_index_buf*	bdb_expanded_buffer;	/* expanded index buffer */
 	Bdb*			bdb_jrn_bdb;			/* BDB containing journal records */
 	Bdb				*bdb_lru_chain;
 	btb*			bdb_blocked;			/* Blocked attachments block */
@@ -109,8 +108,8 @@ public:
 	Que				bdb_higher;				/* higher precedence que */
 	Que				bdb_waiters;			/* latch wait que */
 	Que				bdb_dirty;				/* dirty buffer que */
-	tdbb*			bdb_exclusive;			/* thread holding exclusive latch */
-	tdbb*			bdb_io;					/* thread holding io latch */
+	thread_db*		bdb_exclusive;			/* thread holding exclusive latch */
+	thread_db*		bdb_io;					/* thread holding io latch */
 	UATOM			bdb_ast_flags;			/* flags manipulated at AST level */
 	volatile INTERLOCK_TYPE	bdb_flags;
 	USHORT			bdb_length;				/* Length of journal records */
@@ -120,7 +119,7 @@ public:
 	SLONG			bdb_diff_generation;    /* Number of backup/restore cycle for 
 											   this database in current process.
 											   Used in CS only. */
-	tdbb*			bdb_shared[BDB_max_shared];	/* threads holding shared latches */
+	thread_db*		bdb_shared[BDB_max_shared];	/* threads holding shared latches */
 	bool			exclusive;
 	//bool			bdb_lru_chained;
 	SyncObject		syncPage;
@@ -129,11 +128,11 @@ public:
 	
 	volatile INTERLOCK_TYPE bdb_use_count;			/* Number of active users */
 	
-	void		init(tdbb *tdbb, lck *lock, pag* buffer);
+	void		init(thread_db* tdbb, lck *lock, pag* buffer);
 	USHORT		computeChecksum(void);
 	static int	blockingAstBdb(void* argument);
-	void		addRef(tdbb *tdbb, LockType lockType);
-	void		release(tdbb *tdbb);
+	void		addRef(thread_db* tdbb, LockType lockType);
+	void		release(thread_db* tdbb);
 	void		downGrade(LockType lockType);
 	void		bugcheck(void);
 	bool		isLocked(void);
@@ -146,7 +145,7 @@ public:
 	INTERLOCK_TYPE decrementUseCount(void);
 	int setFlags(int setBits, int clearBits);
 	void printPage(void);
-	bool addRefConditional(tdbb* tdbb, LockType lType);
+	bool addRefConditional(thread_db* tdbb, LockType lType);
 };
 
 #endif

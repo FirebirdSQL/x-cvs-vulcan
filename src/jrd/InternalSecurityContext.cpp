@@ -31,7 +31,7 @@
 //#include "Connection.h"
 #include "InternalConnection.h"
 
-InternalSecurityContext::InternalSecurityContext(tdbb *tdbb)
+InternalSecurityContext::InternalSecurityContext(thread_db* tdbb)
 {
 	threadData = tdbb;
 	transaction = NULL;

@@ -154,59 +154,59 @@ DATABASE DB = FILENAME "ODS.RDB";
 **
 **==================================================================
 */
-static bool add_file(TDBB, SSHORT, DFW, JRD_TRA);
-static bool add_shadow(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_shadow(TDBB, SSHORT, DFW, JRD_TRA);
-static bool compute_security(TDBB, SSHORT, DFW, JRD_TRA);
-static bool create_index(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_index(TDBB, SSHORT, DFW, JRD_TRA);
-static bool create_log(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_log(TDBB, SSHORT, DFW, JRD_TRA);
-static bool create_procedure(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_procedure(TDBB, SSHORT, DFW, JRD_TRA);
-static bool modify_procedure(TDBB, SSHORT, DFW, JRD_TRA);
-static bool create_relation(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_relation(TDBB, SSHORT, DFW, JRD_TRA);
-static bool scan_relation(TDBB, SSHORT, DFW, JRD_TRA);
-static bool create_trigger(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_trigger(TDBB, SSHORT, DFW, JRD_TRA);
-static bool modify_trigger(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_exception(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_generator(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_udf(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_field(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_global(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_parameter(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_rfr(TDBB, SSHORT, DFW, JRD_TRA);
-static bool make_version(TDBB, SSHORT, DFW, JRD_TRA);
-static bool add_difference(TDBB, SSHORT, DFW, JRD_TRA);
-static bool delete_difference(TDBB, SSHORT, DFW, JRD_TRA);
-static bool begin_backup(TDBB, SSHORT, DFW, JRD_TRA);
-static bool end_backup(TDBB, SSHORT, DFW, JRD_TRA);
+static bool add_file(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool add_shadow(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_shadow(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool compute_security(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool create_index(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_index(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool create_log(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_log(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool create_procedure(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_procedure(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool modify_procedure(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool create_relation(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_relation(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool scan_relation(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool create_trigger(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_trigger(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool modify_trigger(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_exception(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_generator(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_udf(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_field(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_global(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_parameter(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_rfr(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool make_version(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool add_difference(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool delete_difference(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool begin_backup(thread_db*, SSHORT, DFW, JRD_TRA);
+static bool end_backup(thread_db*, SSHORT, DFW, JRD_TRA);
 
 /* ---------------------------------------------------------------- */
 
-static void check_dependencies(TDBB, const TEXT*, const TEXT*, USHORT, JRD_TRA);
+static void check_dependencies(thread_db*, const TEXT*, const TEXT*, USHORT, JRD_TRA);
 static void check_filename(TEXT*, USHORT);
 static bool formatsAreEqual(FMT, FMT);
-static bool	find_depend_in_dfw(TDBB, TEXT*, USHORT, USHORT, JRD_TRA);
-static void get_array_desc(TDBB, const TEXT*, ads*);
-static void get_procedure_dependencies(TDBB tdbb, DFW);
-static void get_trigger_dependencies(TDBB tdbb, DFW);
-static void	load_trigs(TDBB, JRD_REL, Triggers* *);
-static FMT	make_format(TDBB, JRD_REL, USHORT *, TFB);
+static bool	find_depend_in_dfw(thread_db*, TEXT*, USHORT, USHORT, JRD_TRA);
+static void get_array_desc(thread_db*, const TEXT*, ads*);
+static void get_procedure_dependencies(thread_db* tdbb, DFW);
+static void get_trigger_dependencies(thread_db* tdbb, DFW);
+static void	load_trigs(thread_db*, JRD_REL, Triggers* *);
+static FMT	make_format(thread_db*, JRD_REL, USHORT *, TFB);
 static USHORT name_length(const TEXT*);
 static DFW	post_work(JRD_TRA, SLONG, DFW *, enum dfw_t, DSC *, USHORT);
-static void put_summary_blob(TDBB tdbb, BLB, enum rsr_t, SLONG[2]);
-static void put_summary_record(TDBB tdbb, BLB, enum rsr_t, const UCHAR*, USHORT);
-static void	setup_array(TDBB, blb*, const TEXT*, USHORT, TFB);
-static blb*	setup_triggers(TDBB, JRD_REL, bool, Triggers**, blb*);
-static void	setup_trigger_details(TDBB, JRD_REL, BLB, Triggers**, const TEXT*,
+static void put_summary_blob(thread_db* tdbb, BLB, enum rsr_t, SLONG[2]);
+static void put_summary_record(thread_db* tdbb, BLB, enum rsr_t, const UCHAR*, USHORT);
+static void	setup_array(thread_db*, blb*, const TEXT*, USHORT, TFB);
+static blb*	setup_triggers(thread_db*, JRD_REL, bool, Triggers**, blb*);
+static void	setup_trigger_details(thread_db*, JRD_REL, BLB, Triggers**, const TEXT*,
 	const TEXT*, bool);
-//static void	setup_trigger_details(TDBB, JRD_REL, BLB, VEC *, UCHAR *, UCHAR *, BOOLEAN);
-static bool shadow_defined(TDBB);
-static bool validate_text_type (TDBB, ISC_STATUS *, TFB);
-static bool wal_defined(TDBB);
+//static void	setup_trigger_details(thread_db*, JRD_REL, BLB, VEC *, UCHAR *, UCHAR *, BOOLEAN);
+static bool shadow_defined(thread_db*);
+static bool validate_text_type (thread_db*, ISC_STATUS *, TFB);
+static bool wal_defined(thread_db*);
 
 static const UCHAR nonnull_validation_blr[] =
 {
@@ -220,7 +220,7 @@ static const UCHAR nonnull_validation_blr[] =
 typedef struct task
 {
 	enum dfw_t task_type;
-	bool (*task_routine) (TDBB, SSHORT, DFW, JRD_TRA);
+	bool (*task_routine) (thread_db*, SSHORT, DFW, JRD_TRA);
 } TASK;
 
 static const TASK task_table[] =
@@ -242,7 +242,7 @@ static const TASK task_table[] =
 	{ dfw_create_expression_index, PCMET_expression_index },
 #endif
 	{ dfw_delete_expression_index, delete_index },
-	{ dfw_grant, (bool(*)(TDBB, SSHORT, DFW, JRD_TRA))GRANT_privileges },
+	{ dfw_grant, (bool(*)(thread_db*, SSHORT, DFW, JRD_TRA))GRANT_privileges },
 	{ dfw_create_trigger, create_trigger },
 	{ dfw_delete_trigger, delete_trigger },
 	{ dfw_modify_trigger, modify_trigger },
@@ -263,7 +263,7 @@ static const TASK task_table[] =
 };
 
 
-USHORT DFW_assign_index_type(TDBB tdbb, DFW work, SSHORT field_type, SSHORT ttype)
+USHORT DFW_assign_index_type(thread_db* tdbb, DFW work, SSHORT field_type, SSHORT ttype)
 {
 /**************************************
  *
@@ -449,7 +449,7 @@ void DFW_merge_work(JRD_TRA transaction,
 }
 
 
-void DFW_perform_system_work(TDBB tdbb)
+void DFW_perform_system_work(thread_db* tdbb)
 {
 /**************************************
  *
@@ -471,7 +471,7 @@ void DFW_perform_system_work(TDBB tdbb)
 }
 
 
-void DFW_perform_work(TDBB tdbb, JRD_TRA transaction)
+void DFW_perform_work(thread_db* tdbb, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -558,7 +558,7 @@ void DFW_perform_work(TDBB tdbb, JRD_TRA transaction)
 }
 
 
-void DFW_perform_post_commit_work(tdbb* tdbb, JRD_TRA transaction)
+void DFW_perform_post_commit_work(thread_db* tdbb, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -666,7 +666,7 @@ void DFW_post_work_arg( JRD_TRA transaction, DFW work, DSC * desc, USHORT id)
 }
 
 
-void DFW_update_index(TDBB tdbb, const TEXT* name, USHORT id, const SelectivityList& selectivity)
+void DFW_update_index(thread_db* tdbb, const TEXT* name, USHORT id, const SelectivityList& selectivity)
 {
 /**************************************
  *
@@ -717,7 +717,7 @@ void DFW_update_index(TDBB tdbb, const TEXT* name, USHORT id, const SelectivityL
 }
 
 
-static bool add_file(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool add_file(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -843,7 +843,7 @@ static bool add_file(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 
 
 
-static bool add_shadow( TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool add_shadow( thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -1026,7 +1026,7 @@ static bool add_shadow( TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 	return false;
 }
 
-static bool add_difference( TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool add_difference( thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -1074,7 +1074,7 @@ static bool add_difference( TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transacti
 }
 
 
-static bool delete_difference(	TDBB	tdbb,
+static bool delete_difference(	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -1120,7 +1120,7 @@ static bool delete_difference(	TDBB	tdbb,
 	return false;
 }
 
-static bool begin_backup(	TDBB	tdbb,
+static bool begin_backup(	thread_db*	tdbb,
 							SSHORT	phase,
 							DFW		work,
 							JRD_TRA		transaction)
@@ -1160,7 +1160,7 @@ static bool begin_backup(	TDBB	tdbb,
 	return false;
 }
 
-static bool end_backup(	TDBB	tdbb,
+static bool end_backup(	thread_db*	tdbb,
 						SSHORT	phase,
 						DFW		work,
 						JRD_TRA		transaction)
@@ -1194,7 +1194,7 @@ static bool end_backup(	TDBB	tdbb,
 	return false;
 }
 
-static void check_dependencies(TDBB tdbb,
+static void check_dependencies(thread_db* tdbb,
 							   const TEXT * dpdo_name,
 							   const TEXT * field_name,
 							   USHORT dpdo_type,
@@ -1398,7 +1398,7 @@ static bool formatsAreEqual(FMT old_format, FMT new_format)
 }
 
 
-static bool compute_security(	TDBB	tdbb,
+static bool compute_security(	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -1470,7 +1470,7 @@ CMP_release (tdbb, handle);
 }
 
 
-static bool create_index(	TDBB	tdbb,
+static bool create_index(	thread_db*	tdbb,
 							SSHORT	phase,
 							DFW		work,
 							JRD_TRA		transaction)
@@ -1792,7 +1792,7 @@ static bool create_index(	TDBB	tdbb,
 }
 
 
-static bool create_log(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool create_log(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -1866,7 +1866,7 @@ static bool create_log(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 }
 
 
-static bool create_procedure(	TDBB	tdbb,
+static bool create_procedure(	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -1908,7 +1908,7 @@ static bool create_procedure(	TDBB	tdbb,
 }
 
 
-static bool create_relation(TDBB	tdbb,
+static bool create_relation(thread_db*	tdbb,
 							SSHORT	phase,
 							DFW		work,
 							JRD_TRA		transaction)
@@ -2071,7 +2071,7 @@ static bool create_relation(TDBB	tdbb,
 }
 
 
-static bool create_trigger(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool create_trigger(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2101,7 +2101,7 @@ static bool create_trigger(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transactio
 }
 
 
-static bool delete_exception(	TDBB	tdbb,
+static bool delete_exception(	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -2144,7 +2144,7 @@ static bool delete_exception(	TDBB	tdbb,
 }
 
 
-static bool delete_generator(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_generator(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2181,7 +2181,7 @@ static bool delete_generator(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transact
 }
 
 
-static bool delete_udf(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_udf(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2218,7 +2218,7 @@ static bool delete_udf(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 }
 
 
-static bool delete_field(	TDBB	tdbb,
+static bool delete_field(	thread_db*	tdbb,
 							SSHORT	phase,
 							DFW		work,
 							JRD_TRA		transaction)
@@ -2288,7 +2288,7 @@ static bool delete_field(	TDBB	tdbb,
 }
 
 
-static bool delete_global(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_global(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2332,7 +2332,7 @@ static bool delete_global(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction
 }
 
 
-static bool delete_index(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_index(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2343,7 +2343,8 @@ static bool delete_index(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
  * Functional description
  *
  **************************************/
-	IDL index, *ptr;
+	IndexLock* index;
+	IndexLock** ptr;
 	IDB index_block, *iptr;
 	JRD_REL relation;
 	USHORT id, wait;
@@ -2474,7 +2475,7 @@ static bool delete_index(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 }
 
 
-static bool delete_log(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_log(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2518,7 +2519,7 @@ static bool delete_log(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 }
 
 
-static bool delete_parameter(	TDBB	tdbb,
+static bool delete_parameter(	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -2554,7 +2555,7 @@ static bool delete_parameter(	TDBB	tdbb,
 }
 
 
-static bool delete_procedure(	TDBB	tdbb,
+static bool delete_procedure(	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -2675,7 +2676,7 @@ static bool delete_procedure(	TDBB	tdbb,
 }
 
 
-static bool delete_relation(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_relation(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -2691,7 +2692,7 @@ static bool delete_relation(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transacti
 
 	Request *request;
 	JRD_REL relation;
-	RSC rsc;
+	Resource* rsc;
 	USHORT wait, view_count, adjusted;
 
 	//SET_TDBB(tdbb);
@@ -2869,7 +2870,7 @@ static bool delete_relation(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transacti
 }
 
 
-static bool delete_rfr(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool delete_rfr(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -3008,7 +3009,7 @@ static bool delete_rfr(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 }
 
 
-static bool delete_shadow(	TDBB	tdbb,
+static bool delete_shadow(	thread_db*	tdbb,
 							SSHORT	phase,
 							DFW		work,
 							JRD_TRA		transaction)
@@ -3042,7 +3043,7 @@ static bool delete_shadow(	TDBB	tdbb,
 }
 
 
-static bool delete_trigger(	TDBB	tdbb,
+static bool delete_trigger(	thread_db*	tdbb,
 							SSHORT	phase,
 							DFW		work,
 							JRD_TRA		transaction)
@@ -3077,7 +3078,7 @@ static bool delete_trigger(	TDBB	tdbb,
 }
 
 
-static bool find_depend_in_dfw(	TDBB	tdbb,
+static bool find_depend_in_dfw(	thread_db*	tdbb,
 								TEXT*	object_name,
 								USHORT	dep_type,
 								USHORT	rel_id,
@@ -3171,7 +3172,7 @@ static bool find_depend_in_dfw(	TDBB	tdbb,
 }
 
 
-static void get_array_desc(TDBB tdbb, const TEXT* field_name, ads* desc)
+static void get_array_desc(thread_db* tdbb, const TEXT* field_name, ads* desc)
 {
 /**************************************
  *
@@ -3225,7 +3226,7 @@ static void get_array_desc(TDBB tdbb, const TEXT* field_name, ads* desc)
 }
 
 
-static void get_procedure_dependencies(TDBB tdbb, DFW work)
+static void get_procedure_dependencies(thread_db* tdbb, DFW work)
 {
 /**************************************
  *
@@ -3286,7 +3287,7 @@ static void get_procedure_dependencies(TDBB tdbb, DFW work)
 }
 
 
-static void get_trigger_dependencies(TDBB tdbb,  DFW work)
+static void get_trigger_dependencies(thread_db* tdbb,  DFW work)
 {
 /**************************************
  *
@@ -3338,7 +3339,7 @@ static void get_trigger_dependencies(TDBB tdbb,  DFW work)
 }
 
 
-static void load_trigs(TDBB tdbb, JRD_REL relation, Triggers* * triggers)
+static void load_trigs(thread_db* tdbb, JRD_REL relation, Triggers* * triggers)
 {
 /**************************************
  *
@@ -3383,7 +3384,7 @@ static void load_trigs(TDBB tdbb, JRD_REL relation, Triggers* * triggers)
 }
 
 
-static FMT make_format(TDBB tdbb, JRD_REL relation, USHORT * version, TFB stack)
+static FMT make_format(thread_db* tdbb, JRD_REL relation, USHORT * version, TFB stack)
 {
 /**************************************
  *
@@ -3552,7 +3553,7 @@ static FMT make_format(TDBB tdbb, JRD_REL relation, USHORT * version, TFB stack)
 }
 
 
-static bool make_version(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool make_version(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -3842,7 +3843,7 @@ static bool make_version(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 }
 
 
-static bool modify_procedure (	TDBB	tdbb,
+static bool modify_procedure (	thread_db*	tdbb,
 								SSHORT	phase,
 								DFW		work,
 								JRD_TRA		transaction)
@@ -3988,7 +3989,7 @@ static bool modify_procedure (	TDBB	tdbb,
 }
 
 
-static bool modify_trigger(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool modify_trigger(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -4136,7 +4137,7 @@ static DFW post_work(JRD_TRA transaction,
 }
 
 
-static void put_summary_blob(TDBB tdbb, BLB blob, RSR_T type, SLONG blob_id[2])
+static void put_summary_blob(thread_db* tdbb, BLB blob, RSR_T type, SLONG blob_id[2])
 {
 /**************************************
  *
@@ -4186,7 +4187,7 @@ static void put_summary_blob(TDBB tdbb, BLB blob, RSR_T type, SLONG blob_id[2])
 }
 
 
-static void put_summary_record(TDBB tdbb, BLB		blob,
+static void put_summary_record(thread_db* tdbb, BLB		blob,
 							   RSR_T	type,
 							   const UCHAR*	data,
 							   USHORT	length)
@@ -4233,7 +4234,7 @@ static void put_summary_record(TDBB tdbb, BLB		blob,
 }
 
 
-static bool scan_relation(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
+static bool scan_relation(thread_db* tdbb, SSHORT phase, DFW work, JRD_TRA transaction)
 {
 /**************************************
  *
@@ -4264,7 +4265,7 @@ static bool scan_relation(TDBB tdbb, SSHORT phase, DFW work, JRD_TRA transaction
 }
 
 
-static bool shadow_defined(TDBB tdbb)
+static bool shadow_defined(thread_db* tdbb)
 {
 /**************************************
  *
@@ -4293,7 +4294,7 @@ static bool shadow_defined(TDBB tdbb)
 }
 
 
-static void setup_array(TDBB tdbb, blb* blob, const TEXT* field_name, USHORT n, TFB tfb)
+static void setup_array(thread_db* tdbb, blb* blob, const TEXT* field_name, USHORT n, TFB tfb)
 {
 /**************************************
  *
@@ -4321,7 +4322,7 @@ static void setup_array(TDBB tdbb, blb* blob, const TEXT* field_name, USHORT n, 
 }
 
 
-static blb* setup_triggers(TDBB tdbb, JRD_REL relation, bool null_view,
+static blb* setup_triggers(thread_db* tdbb, JRD_REL relation, bool null_view,
 							Triggers** triggers, blb* blob)
 {
 /**************************************
@@ -4431,7 +4432,7 @@ static blb* setup_triggers(TDBB tdbb, JRD_REL relation, bool null_view,
 }
 
 
-static void setup_trigger_details(TDBB tdbb,
+static void setup_trigger_details(thread_db* tdbb,
 								  JRD_REL relation,
 								  BLB blob,
 								  Triggers** triggers,
@@ -4468,7 +4469,7 @@ static void setup_trigger_details(TDBB tdbb,
 }	
 
 
-static bool validate_text_type(TDBB tdbb, ISC_STATUS * status, TFB tfb)
+static bool validate_text_type(thread_db* tdbb, ISC_STATUS * status, TFB tfb)
 {
 /**************************************
  *
@@ -4496,7 +4497,7 @@ static bool validate_text_type(TDBB tdbb, ISC_STATUS * status, TFB tfb)
 }
 
 
-static bool wal_defined(TDBB tdbb)
+static bool wal_defined(thread_db* tdbb)
 {
 /**************************************
  *

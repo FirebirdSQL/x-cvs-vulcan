@@ -56,17 +56,17 @@ public:
 		{return procList;};
 	
 	void	addProcedure (Procedure *procedure);
-	Procedure*	findProcedure (tdbb *tdbb, JString name, bool noscan);
-	Procedure*	findProcedure (tdbb *tdbb, int id);
-	Procedure*	findProcedure (tdbb *tdbb, const TEXT *name, bool noscan);
-	Procedure*	findKnownProcedure (tdbb *tdbb, int id);
+	Procedure*	findProcedure (thread_db* tdbb, JString name, bool noscan);
+	Procedure*	findProcedure (thread_db* tdbb, int id);
+	Procedure*	findProcedure (thread_db* tdbb, const TEXT *name, bool noscan);
+	Procedure*	findKnownProcedure (thread_db* tdbb, int id);
 	Procedure*	findKnownProcedure (const TEXT *name);
 
 	void	dropProcedure (int id);
 	void	dropProcedure (const TEXT *name);
-	void	validateCache (tdbb *tdbb);
-	bool	clearCache (tdbb *tdbb, Procedure *proc);
-	bool	procedureInUse (tdbb *tdbb, Procedure *procedure);
+	void	validateCache (thread_db* tdbb);
+	bool	clearCache (thread_db* tdbb, Procedure *proc);
+	bool	procedureInUse (thread_db* tdbb, Procedure *procedure);
 
 protected:
 
@@ -77,7 +77,7 @@ protected:
 	void	adjustDependencies (Procedure *procedure);
 
 public:
-	Procedure* findObsoleteProcedure(tdbb* tdbb, int id);
+	Procedure* findObsoleteProcedure(thread_db* tdbb, int id);
 	void remove(Procedure* procedure);
 };
 #endif

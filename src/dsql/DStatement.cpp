@@ -429,7 +429,7 @@ UCHAR* DStatement::put_item(UCHAR item, int length, const UCHAR *string, UCHAR *
 	return ptr;
 }
 
-int DStatement::getRequestInfo(tdbb *threadData, int bufferLength, UCHAR *buffer)
+int DStatement::getRequestInfo(thread_db* threadData, int bufferLength, UCHAR *buffer)
 {
 	INF_request_info(threadData, statement->request, recordInfo, sizeof(recordInfo), buffer, bufferLength);
 
@@ -480,7 +480,7 @@ int DStatement::getRequestInfo(tdbb *threadData, int bufferLength, UCHAR *buffer
 	return data - buffer;
 }
 
-int DStatement::getPlanInfo(tdbb *threadData, int bufferLength, UCHAR **bufferPtr)
+int DStatement::getPlanInfo(thread_db* threadData, int bufferLength, UCHAR **bufferPtr)
 {
 	UCHAR explain_buffer[256];
 	int buffer_length = bufferLength;
@@ -1143,7 +1143,7 @@ bool DStatement::getIndices(int *explain_length_ptr, const UCHAR **explain_ptr, 
 	return true;
 }
 
-void DStatement::instantiateRequest(tdbb* tdsql)
+void DStatement::instantiateRequest(thread_db* tdsql)
 {
 	requestInstantiation = statement->getInstantiation();
 	dsql_msg *message = statement->sendMessage;

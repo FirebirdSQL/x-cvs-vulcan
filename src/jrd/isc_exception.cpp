@@ -152,7 +152,7 @@ ULONG ISC_exception_post(ULONG except_code, const char* err_msg)
  **************************************/
 	ULONG result;
 	bool is_critical = true;
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	if (!err_msg)
 		err_msg = "";

@@ -90,7 +90,7 @@ static void make_placeholder_null(dsc* const desc);
     @param numeric_flag
 
  **/
-dsql_nod* MAKE_constant(tdbb *threadData, dsql_str* constant, dsql_constant_type numeric_flag)
+dsql_nod* MAKE_constant(thread_db* threadData, dsql_str* constant, dsql_constant_type numeric_flag)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -241,7 +241,7 @@ dsql_nod* MAKE_constant(tdbb *threadData, dsql_str* constant, dsql_constant_type
     @param character_set
 
  **/
-dsql_nod* MAKE_str_constant(tdbb *threadData, dsql_str* constant, SSHORT character_set)
+dsql_nod* MAKE_str_constant(thread_db* threadData, dsql_str* constant, SSHORT character_set)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -274,7 +274,7 @@ dsql_nod* MAKE_str_constant(tdbb *threadData, dsql_str* constant, SSHORT charact
     @param str
 
  **/
-dsql_str* MAKE_cstring(tdbb *threadData, const char* str)
+dsql_str* MAKE_cstring(thread_db* threadData, const char* str)
 {
 
 	return MAKE_string(threadData, str, strlen(str));
@@ -292,7 +292,7 @@ dsql_str* MAKE_cstring(tdbb *threadData, const char* str)
     @param node
 
  **/
-void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node, dsql_nod* null_replacement)
+void MAKE_desc(thread_db* threadData, dsc* desc, dsql_nod* node, dsql_nod* null_replacement)
 {
 	dsc desc1, desc2;
 	USHORT dtype, dtype1, dtype2;
@@ -1249,7 +1249,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node, dsql_nod* null_repla
     @param field
 
  **/
-void MAKE_desc_from_field(tdbb *threadData, dsc* desc, const dsql_fld* field)
+void MAKE_desc_from_field(thread_db* threadData, dsc* desc, const dsql_fld* field)
 {
 	desc->dsc_dtype = field->fld_dtype;
 	desc->dsc_scale = field->fld_scale;
@@ -1279,7 +1279,7 @@ void MAKE_desc_from_field(tdbb *threadData, dsc* desc, const dsql_fld* field)
 	@param expression_name
 
  **/
-void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node,
+void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 						 dsql_nod* null_replacement, const TEXT* expression_name)
 {
 	//-------------------------------------------------------------------------- 
@@ -1647,7 +1647,7 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node,
     @param indices
 
  **/
-dsql_nod* MAKE_field(tdbb *threadData, dsql_ctx* context, dsql_fld* field, dsql_nod* indices)
+dsql_nod* MAKE_field(thread_db* threadData, dsql_ctx* context, dsql_fld* field, dsql_nod* indices)
 {
 	dsql_nod* node = MAKE_node(threadData, nod_field, e_fld_count);
 	node->nod_arg[e_fld_context] = (dsql_nod*) context;
@@ -1697,7 +1697,7 @@ dsql_nod* MAKE_field(tdbb *threadData, dsql_ctx* context, dsql_fld* field, dsql_
     @param stack
 
  **/
-dsql_nod* MAKE_list(tdbb *threadData, Stack *stack)
+dsql_nod* MAKE_list(thread_db* threadData, Stack *stack)
 {
 	//DEV_BLKCHK(stack, dsql_type_lls);
 
@@ -1730,7 +1730,7 @@ dsql_nod* MAKE_list(tdbb *threadData, Stack *stack)
     @param count
 
  **/
-dsql_nod* MAKE_node(tdbb *threadData, NOD_TYPE type, int count)
+dsql_nod* MAKE_node(thread_db* threadData, NOD_TYPE type, int count)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -1824,7 +1824,7 @@ par* MAKE_parameter(CStatement* request, dsql_msg* message, bool sqlda_flag, boo
     @param length
 
  **/
-dsql_str* MAKE_string(tdbb *threadData, const char* str, int length)
+dsql_str* MAKE_string(thread_db* threadData, const char* str, int length)
 {
 	return MAKE_tagged_string(threadData, str, length, NULL);
 }
@@ -1844,7 +1844,7 @@ dsql_str* MAKE_string(tdbb *threadData, const char* str, int length)
     @param object
 
  **/
-dsql_sym* MAKE_symbol(tdbb *threadData, DBB database,
+dsql_sym* MAKE_symbol(thread_db* threadData, DBB database,
 				const TEXT* name, USHORT length, SYM_TYPE type, dsql_req* object)
 {
 	//DEV_BLKCHK(database, dsql_type_dbb);
@@ -1884,7 +1884,7 @@ dsql_sym* MAKE_symbol(tdbb *threadData, DBB database,
     @param charset
 
  **/
-dsql_str* MAKE_tagged_string(tdbb *threadData, const char* str_, size_t length, const char* charset)
+dsql_str* MAKE_tagged_string(thread_db* threadData, const char* str_, size_t length, const char* charset)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -1908,7 +1908,7 @@ dsql_str* MAKE_tagged_string(tdbb *threadData, const char* str_, size_t length, 
     @param suffix_node
 
  **/
-dsql_nod* MAKE_trigger_type(tdbb *threadData, dsql_nod* prefix_node, dsql_nod* suffix_node)
+dsql_nod* MAKE_trigger_type(thread_db* threadData, dsql_nod* prefix_node, dsql_nod* suffix_node)
 {
 	JrdMove mover;
 	int prefix = mover.getLong (&prefix_node->nod_desc, 0);
@@ -1934,7 +1934,7 @@ dsql_nod* MAKE_trigger_type(tdbb *threadData, dsql_nod* prefix_node, dsql_nod* s
     @param local_number
 
  **/
-dsql_nod* MAKE_variable(tdbb *threadData, dsql_fld* field,
+dsql_nod* MAKE_variable(thread_db* threadData, dsql_fld* field,
 				  const TEXT* name,
 				  USHORT type,
 				  USHORT msg_number, USHORT item_number, USHORT local_number)

@@ -84,17 +84,17 @@ DATABASE DB = STATIC "ODS.RDB";
 
 
 
-static void grant(TDBB tdbb, GBL, const UCHAR**);
-static bool grantor_can_grant_role(TDBB, GBL, const TEXT*, const TEXT*);
-static bool grantor_can_grant(TDBB tdbb, GBL, const TEXT*, const TEXT*, const TEXT*,
+static void grant(thread_db* tdbb, GBL, const UCHAR**);
+static bool grantor_can_grant_role(thread_db*, GBL, const TEXT*, const TEXT*);
+static bool grantor_can_grant(thread_db* tdbb, GBL, const TEXT*, const TEXT*, const TEXT*,
 	const TEXT*, bool);
-static void	revoke_permission(TDBB tdbb, GBL, const UCHAR**);
-static void store_privilege(TDBB tdbb, GBL, const TEXT*, const TEXT*, const TEXT*,
+static void	revoke_permission(thread_db* tdbb, GBL, const UCHAR**);
+static void store_privilege(thread_db* tdbb, GBL, const TEXT*, const TEXT*, const TEXT*,
 	const TEXT*, SSHORT, SSHORT, int);
-static void	set_field_class_name(TDBB tdbb, GBL, const TEXT*, const TEXT*);
-static void user_operation(tdbb *tdbb, GBL global, int verb, const UCHAR**);
+static void	set_field_class_name(thread_db* tdbb, GBL, const TEXT*, const TEXT*);
+static void user_operation(thread_db* tdbb, GBL global, int verb, const UCHAR**);
 
-void DYN_ddl(TDBB tdbb, att* attachment, jrd_tra* transaction, USHORT length, const UCHAR* ddl)
+void DYN_ddl(thread_db* tdbb, att* attachment, jrd_tra* transaction, USHORT length, const UCHAR* ddl)
 {
 /**************************************
  *
@@ -169,7 +169,7 @@ void DYN_ddl(TDBB tdbb, att* attachment, jrd_tra* transaction, USHORT length, co
 }
 
 
-void DYN_error(TDBB tdbb, bool	status_flag,
+void DYN_error(thread_db* tdbb, bool	status_flag,
 			   USHORT	number,
 			   const TEXT*	arg1,
 			   const TEXT*	arg2,
@@ -240,7 +240,7 @@ void DYN_error(TDBB tdbb, bool	status_flag,
 }
 
 
-void DYN_error_punt(TDBB tdbb, bool	status_flag,
+void DYN_error_punt(thread_db* tdbb, bool	status_flag,
 					USHORT	number,
 					const TEXT*	arg1,
 					const TEXT*	arg2,
@@ -270,7 +270,7 @@ void DYN_error_punt(TDBB tdbb, bool	status_flag,
 						 isc_arg_string, error_buffer, 0);	
 }
 
-void DYN_error_punt(TDBB tdbb, OSRIException *exception,
+void DYN_error_punt(thread_db* tdbb, OSRIException *exception,
 					USHORT	number,
 					const TEXT*	arg1,
 					const TEXT*	arg2,
@@ -304,7 +304,7 @@ void DYN_error_punt(TDBB tdbb, OSRIException *exception,
 bool DYN_is_it_sql_role(GBL		gbl,
 						   const TEXT*	input_name,
 						   TEXT*	output_name,
-						   TDBB		tdbb)
+						   thread_db* tdbb)
 {
 /**************************************
  *
@@ -349,7 +349,7 @@ bool DYN_is_it_sql_role(GBL		gbl,
 }
 
 
-void DYN_unsupported_verb(TDBB tdbb)
+void DYN_unsupported_verb(thread_db* tdbb)
 {
 /**************************************
  *
@@ -366,7 +366,7 @@ void DYN_unsupported_verb(TDBB tdbb)
 }
 
 
-void DYN_execute(TDBB tdbb, 
+void DYN_execute(thread_db* tdbb, 
 				 GBL gbl,
 				 const UCHAR** ptr,
 				 const TEXT* relation_name,
@@ -647,7 +647,7 @@ SLONG DYN_get_number(const UCHAR** ptr)
 }
 
 
-USHORT DYN_get_string(TDBB tdbb, const UCHAR** ptr, TEXT* field, USHORT size, bool err_flag)
+USHORT DYN_get_string(thread_db* tdbb, const UCHAR** ptr, TEXT* field, USHORT size, bool err_flag)
 {
 /**************************************
  *
@@ -689,7 +689,7 @@ USHORT DYN_get_string(TDBB tdbb, const UCHAR** ptr, TEXT* field, USHORT size, bo
 	return length;
 }
 
-USHORT DYN_put_blr_blob(TDBB tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* blob_id)
+USHORT DYN_put_blr_blob(thread_db* tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* blob_id)
 {
 /**************************************
  *
@@ -728,7 +728,7 @@ USHORT DYN_put_blr_blob(TDBB tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* blob_id
 	return length;
 }
 
-USHORT DYN_put_text_blob(TDBB tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* blob_id)
+USHORT DYN_put_text_blob(thread_db* tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* blob_id)
 {
 /**************************************
  *
@@ -773,7 +773,7 @@ USHORT DYN_put_text_blob(TDBB tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* blob_i
 	return length;
 }
 
-void DYN_rundown_request(TDBB tdbb, Request * handle, SSHORT id)
+void DYN_rundown_request(thread_db* tdbb, Request * handle, SSHORT id)
 {
 /**************************************
  *
@@ -845,7 +845,7 @@ void DYN_terminate( TEXT* string, int length)
 }
 
 
-static void grant(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+static void grant(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1175,7 +1175,7 @@ do_punt:	// ugly, rethink logic of this function
 }
 
 
-static bool grantor_can_grant(	TDBB tdbb, GBL		gbl,
+static bool grantor_can_grant(	thread_db* tdbb, GBL		gbl,
 								const TEXT*	grantor,
 								const TEXT*	privilege,
 								const TEXT*	relation_name,
@@ -1455,7 +1455,7 @@ static bool grantor_can_grant(	TDBB tdbb, GBL		gbl,
 }
 
 
-static bool grantor_can_grant_role(	TDBB	tdbb,
+static bool grantor_can_grant_role(	thread_db* tdbb,
 									GBL		gbl,
 									const TEXT* grantor,
 									const TEXT* role_name)
@@ -1549,7 +1549,7 @@ static bool grantor_can_grant_role(	TDBB	tdbb,
 }
 
 
-static void revoke_permission(TDBB tdbb, GBL gbl, const UCHAR** ptr)
+static void revoke_permission(thread_db* tdbb, GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1823,7 +1823,7 @@ static void revoke_permission(TDBB tdbb, GBL gbl, const UCHAR** ptr)
 }
 
 
-static void set_field_class_name(TDBB tdbb, GBL gbl, const TEXT* relation, const TEXT* field)
+static void set_field_class_name(thread_db* tdbb, GBL gbl, const TEXT* relation, const TEXT* field)
 {
 /**************************************
  *
@@ -1879,7 +1879,7 @@ static void set_field_class_name(TDBB tdbb, GBL gbl, const TEXT* relation, const
 }
 
 
-static void store_privilege(TDBB tdbb, GBL		gbl,
+static void store_privilege(thread_db* tdbb, GBL		gbl,
 							const TEXT*	object,
 							const TEXT*	user,
 							const TEXT*	field,
@@ -1934,7 +1934,7 @@ static void store_privilege(TDBB tdbb, GBL		gbl,
 	}
 }
 
-void user_operation(tdbb *tdbb, GBL gbl, int verb, const UCHAR **ptr)
+void user_operation(thread_db* tdbb, GBL gbl, int verb, const UCHAR **ptr)
 {
 /**************************************
  *

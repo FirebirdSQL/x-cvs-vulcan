@@ -24,24 +24,24 @@
 #ifndef JRD_SORT_PROTO_H
 #define JRD_SORT_PROTO_H
 
-struct tdbb;
+struct thread_db;
 
 #ifdef SCROLLABLE_CURSORS
 void	SORT_diddle_key(UCHAR *, struct sort_context*, bool);
-void	SORT_get(tdbb *threadData, struct sort_context*, ULONG **, RSE_GET_MODE);
+void	SORT_get(thread_db* threadData, struct sort_context*, ULONG **, RSE_GET_MODE);
 void	SORT_read_block(struct sfb *, ULONG, BLOB_PTR *, ULONG);
 #else
-void	SORT_get(tdbb *threadData, struct sort_context*, ULONG **);
+void	SORT_get(thread_db* threadData, struct sort_context*, ULONG **);
 ULONG	SORT_read_block(struct sfb *, ULONG, BLOB_PTR *, ULONG);
 #endif
 
 void	SORT_error(struct sfb *, const TEXT *, ISC_STATUS, int);
 void	SORT_fini(struct sort_context*, Attachment *);
-struct sort_context*	SORT_init(tdbb *threadData, USHORT, USHORT, const struct skd*,
+struct sort_context*	SORT_init(thread_db* threadData, USHORT, USHORT, const struct skd*,
 						FPTR_REJECT_DUP_CALLBACK, void*, Attachment*, UINT64);
-void	SORT_put(tdbb *threadData, struct sort_context*, ULONG **);
+void	SORT_put(thread_db* threadData, struct sort_context*, ULONG **);
 void	SORT_shutdown(Attachment *);
-bool	SORT_sort(tdbb *threadData, struct sort_context*);
+bool	SORT_sort(thread_db* threadData, struct sort_context*);
 ULONG	SORT_write_block(struct sfb *, ULONG, BLOB_PTR *,
 							  ULONG);
 

@@ -149,7 +149,7 @@ CStatement::~CStatement()
 	pool->deletePool (pool);
 }
 
-void CStatement::prepare(tdbb *threadStuff, int sqlLength, const TEXT *sqlString, int userDialect)
+void CStatement::prepare(thread_db* threadStuff, int sqlLength, const TEXT *sqlString, int userDialect)
 {
 	threadData = threadStuff;
 	transaction = threadData->tdbb_transaction;
@@ -1182,7 +1182,7 @@ dsql_rel* CStatement::getRelation(const TEXT* relationName)
 	return relation;
 }
 
-void CStatement::getRequestInfo(tdbb* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+void CStatement::getRequestInfo(thread_db* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	Request *instance = request->getInstantiatedRequest(instantiation);
 	request->getRequestInfo(threadData, itemsLength, items, bufferLength, buffer);

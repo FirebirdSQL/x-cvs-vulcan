@@ -36,7 +36,7 @@
 
 
 #ifdef PC_ENGINE
-BKM BKM_allocate(tdbb* tdbb, RSB rsb, USHORT length)
+BKM BKM_allocate(tdbb* tdbb, RecordSource* rsb, USHORT length)
 {
 /**************************************
  *

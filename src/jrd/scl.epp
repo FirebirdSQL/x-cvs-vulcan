@@ -89,11 +89,11 @@ DATABASE DB = FILENAME "ODS.RDB";
 
 static bool check_hex(const TEXT*, USHORT);
 static bool check_number(const TEXT*, USHORT);
-static bool check_user_group(TDBB tdbb, const TEXT*);
+static bool check_user_group(thread_db* tdbb, const TEXT*);
 static bool check_string(const TEXT*, const TEXT*);
-static SLONG compute_access(TDBB, scl*, JRD_REL, const TEXT*, const TEXT*);
+static SLONG compute_access(thread_db*, scl*, JRD_REL, const TEXT*, const TEXT*);
 static TEXT* save_string(const TEXT*, TEXT**);
-static SLONG walk_acl(TDBB, const TEXT*, JRD_REL, const TEXT*, const TEXT*);
+static SLONG walk_acl(thread_db*, const TEXT*, JRD_REL, const TEXT*, const TEXT*);
 
 static inline void check_and_move(UCHAR*& to, UCHAR from, STR& start, ULONG* length_ptr)
 {
@@ -127,7 +127,7 @@ static const P_NAMES p_names[] =
 };
 
 
-void SCL_check_access(TDBB tdbb, scl* s_class,
+void SCL_check_access(thread_db* tdbb, scl* s_class,
 					  SLONG view_id,
 					  const TEXT* trg_name,
 					  const TEXT* prc_name,
@@ -197,7 +197,7 @@ void SCL_check_access(TDBB tdbb, scl* s_class,
 }
 
 
-void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT mask)
+void SCL_check_index(thread_db* tdbb, const TEXT* index_name, UCHAR index_id, USHORT mask)
 {
 /******************************************************
  *
@@ -325,7 +325,7 @@ void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT m
 }
 
 
-void SCL_check_procedure(TDBB tdbb, DSC* dsc_name, USHORT mask)
+void SCL_check_procedure(thread_db* tdbb, DSC* dsc_name, USHORT mask)
 {
 /**************************************
  *
@@ -380,7 +380,7 @@ void SCL_check_procedure(TDBB tdbb, DSC* dsc_name, USHORT mask)
 }
 
 
-void SCL_check_relation(TDBB tdbb, DSC* dsc_name, USHORT mask)
+void SCL_check_relation(thread_db* tdbb, DSC* dsc_name, USHORT mask)
 {
 /**************************************
  *
@@ -434,7 +434,7 @@ void SCL_check_relation(TDBB tdbb, DSC* dsc_name, USHORT mask)
 }
 
 
-SCL SCL_get_class(TDBB tdbb, const TEXT* string)
+SCL SCL_get_class(thread_db* tdbb, const TEXT* string)
 {
 /**************************************
  *
@@ -490,7 +490,7 @@ SCL SCL_get_class(TDBB tdbb, const TEXT* string)
 }
 
 
-int SCL_get_mask(TDBB tdbb, const TEXT* relation_name, const TEXT* field_name)
+int SCL_get_mask(thread_db* tdbb, const TEXT* relation_name, const TEXT* field_name)
 {
 /**************************************
  *
@@ -547,7 +547,7 @@ void SCL_init(bool create,
 			  TEXT*			password_enc,
 			  TEXT*			sql_role,
 			  const TEXT*	securityDatabase,
-			  TDBB			tdbb,
+			  thread_db*	tdbb,
 			  bool			internal)
 {
 /**************************************
@@ -798,7 +798,7 @@ void SCL_move_priv(Generate *acl, USHORT mask)
 }
 
 
-SCL SCL_recompute_class(TDBB tdbb, TEXT* string)
+SCL SCL_recompute_class(thread_db* tdbb, TEXT* string)
 {
 /**************************************
  *
@@ -831,7 +831,7 @@ SCL SCL_recompute_class(TDBB tdbb, TEXT* string)
 }
 
 
-void SCL_release(TDBB tdbb, SCL s_class)
+void SCL_release(thread_db* tdbb, SCL s_class)
 {
 /**************************************
  *
@@ -914,7 +914,7 @@ static bool check_number(const TEXT* acl, USHORT number)
 }
 
 
-static bool check_user_group(TDBB tdbb, const TEXT* acl, USHORT number)
+static bool check_user_group(thread_db* tdbb, const TEXT* acl, USHORT number)
 {
 /**************************************
  *
@@ -1013,7 +1013,7 @@ static bool check_string(const TEXT* acl, const TEXT* string)
 }
 
 
-static SLONG compute_access(TDBB tdbb,
+static SLONG compute_access(thread_db* tdbb,
 							scl* s_class,
 							JRD_REL view,
 							const TEXT* trg_name,
@@ -1096,7 +1096,7 @@ static TEXT* save_string(const TEXT* string, TEXT** ptr)
 }
 
 
-static SLONG walk_acl(TDBB tdbb,
+static SLONG walk_acl(thread_db* tdbb,
 					  const TEXT* acl,
 					  JRD_REL view,
 					  const TEXT* trg_name,

@@ -62,21 +62,21 @@ static SSHORT compare_keys(index_desc*, UCHAR *, USHORT, temporary_key *, USHORT
 static void expand_index(WIN *);
 #endif
 #ifdef PC_ENGINE
-static BOOLEAN find_dbkey(TDBB tdbb, RSB, ULONG);
-static BOOLEAN find_record(TDBB tdbb, RSB, RSE_GET_MODE, temporary_key *, USHORT, USHORT);
+static BOOLEAN find_dbkey(thread_db* tdbb, RecordSource*, ULONG);
+static BOOLEAN find_record(thread_db* tdbb, RecordSource*, RSE_GET_MODE, temporary_key *, USHORT, USHORT);
 #endif
-static BTX find_current(EXP, BTR, UCHAR *);
-static bool find_saved_node(TDBB tdbb, RSB, IRSB_NAV, WIN *, UCHAR **);
-static UCHAR* get_position(TDBB, RSB, IRSB_NAV, WIN *, RSE_GET_MODE, BTX *);
-static BOOLEAN get_record(TDBB tdbb, RSB, IRSB_NAV, RPB *, temporary_key *, BOOLEAN);
+static btree_exp* find_current(exp_index_buf*, btree_page*, UCHAR *);
+static bool find_saved_node(thread_db* tdbb, RecordSource*, IRSB_NAV, WIN *, UCHAR **);
+static UCHAR* get_position(thread_db*, RecordSource*, IRSB_NAV, WIN *, RSE_GET_MODE, btree_exp* *);
+static BOOLEAN get_record(thread_db* tdbb, RecordSource*, IRSB_NAV, RPB *, temporary_key *, BOOLEAN);
 static void init_fetch(IRSB_NAV);
-static UCHAR* nav_open(TDBB, RSB, IRSB_NAV, WIN *, RSE_GET_MODE, BTX *);
-static void set_position(IRSB_NAV, RPB *, WIN *, UCHAR *, BTX, UCHAR *, USHORT);
-static void setup_bitmaps(TDBB tdbb, RSB, IRSB_NAV);
+static UCHAR* nav_open(thread_db*, RecordSource*, IRSB_NAV, WIN *, RSE_GET_MODE, btree_exp* *);
+static void set_position(IRSB_NAV, RPB *, WIN *, UCHAR *, btree_exp*, UCHAR *, USHORT);
+static void setup_bitmaps(thread_db* tdbb, RecordSource*, IRSB_NAV);
 
 
 #ifdef SCROLLABLE_CURSORS
-EXP NAV_expand_index(WIN * window, IRSB_NAV impure)
+exp_index_buf* NAV_expand_index(WIN * window, IRSB_NAV impure)
 {
 /**************************************
  *
@@ -98,12 +98,12 @@ EXP NAV_expand_index(WIN * window, IRSB_NAV impure)
 
 	// allocate the expanded page to allow room for all nodes fully expanded,
 	// plus leave room for an extra node with zero-length tail
-	// (note that the difference in size of a BTX node versus a BTN node could
+	// (note that the difference in size of a btree_exp* node versus a btree_nod* node could
 	// be deducted, but there is no easy way to get the no. of nodes on page) */
 
 	// if the right version of expanded page is available, there 
 	// is no work to be done 
-	EXP expanded_page;
+	exp_index_buf* expanded_page;
 	if ((expanded_page = window->win_expanded_buffer) &&
 		(expanded_page->exp_incarnation == CCH_GET_INCARNATION(window)))
 	{
@@ -115,9 +115,9 @@ EXP NAV_expand_index(WIN * window, IRSB_NAV impure)
 		ALL_free(expanded_page);
 	}
 
-	BTR page = (BTR) window->win_buffer;
+	btree_page* page = (btree_page*) window->win_buffer;
 
-	expanded_page = (EXP) ALL_malloc(EXP_SIZE + page->btr_prefix_total +
+	expanded_page = (exp_index_buf) ALL_malloc(EXP_SIZE + page->btr_prefix_total +
 		(SLONG) page->btr_length + BTX_SIZE, ERR_jmp);
 	window->win_expanded_buffer = expanded_page;
 	expanded_page->exp_incarnation = -1;
@@ -131,7 +131,7 @@ EXP NAV_expand_index(WIN * window, IRSB_NAV impure)
 	// go through the nodes on the original page and reposition
 	UCHAR *pointer = BTreeNode::getPointerFirstNode(page);
 	UCHAR *endPointer = ((UCHAR*) page + page->btr_length);
-	BTX expanded_node = (BTX) expanded_page->exp_nodes;
+	btree_exp* expanded_node = (btree_exp*) expanded_page->exp_nodes;
 	UCHAR *current_pointer = ((UCHAR*) page + impure->irsb_nav_offset);
 
 	impure->irsb_nav_expanded_offset = -1;
@@ -151,7 +151,7 @@ EXP NAV_expand_index(WIN * window, IRSB_NAV impure)
 
 
 #ifdef PC_ENGINE
-BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
+BOOLEAN NAV_find_record(thread_db* tdbb, RecordSource* rsb,
 						USHORT operator, USHORT direction, JRD_NOD find_key)
 {
 /**************************************
@@ -171,7 +171,7 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
 	index_desc* idx;
 	temporary_key key_value;
 	WIN window;
-	BTN expanded_node;
+	btree_nod* expanded_node;
 	BOOLEAN backwards;
 	USHORT search_flags;
 
@@ -238,7 +238,7 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
 		if (backwards)
 			// find the first record before the given key value
 		{
-			find_record(TDBB, rsb, RSE_get_first, &key_value, find_key->nod_count,
+			find_record(thread_db*, rsb, RSE_get_first, &key_value, find_key->nod_count,
 						search_flags);
 			return NAV_get_record(rsb, impure,
 								  request->req_rpb + rsb->rsb_stream,
@@ -270,7 +270,7 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
 			// find the last record with the matching key; barring that, find the first less than 
 		{
 			if (find_record
-				(TDBB, rsb, RSE_get_last, &key_value, find_key->nod_count,
+				(thread_db*, rsb, RSE_get_last, &key_value, find_key->nod_count,
 				 search_flags)) return TRUE;
 			return NAV_get_record(rsb, impure,
 								  request->req_rpb + rsb->rsb_stream,
@@ -298,7 +298,7 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
 	//	break;  unreachable
 
 	case blr_eql:
-		if (find_record(TDBB, rsb, backwards ? RSE_get_last : RSE_get_first,
+		if (find_record(thread_db*, rsb, backwards ? RSE_get_last : RSE_get_first,
 						&key_value, find_key->nod_count, search_flags))
 			return TRUE;
 		else {
@@ -397,7 +397,7 @@ BOOLEAN NAV_find_record(TDBB tdbb, RSB rsb,
 
 
 #ifdef PC_ENGINE
-void NAV_get_bookmark(RSB rsb, IRSB_NAV impure, BKM bookmark)
+void NAV_get_bookmark(RecordSource* rsb, IRSB_NAV impure, BKM bookmark)
 {
 /**************************************
  *
@@ -429,8 +429,8 @@ void NAV_get_bookmark(RSB rsb, IRSB_NAV impure, BKM bookmark)
 #endif
 
 
-BOOLEAN NAV_get_record(TDBB tdbb,
-					   RSB rsb,
+BOOLEAN NAV_get_record(thread_db* tdbb,
+					   RecordSource* rsb,
 					   IRSB_NAV impure, RPB * rpb, RSE_GET_MODE direction)
 {
 /**************************************
@@ -489,7 +489,7 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 	WIN window(impure->irsb_nav_page);
 
 	temporary_key key;
-	BTX expanded_next = NULL;
+	btree_exp* expanded_next = NULL;
 	UCHAR *nextPointer = get_position(tdbb, rsb, impure, &window, 
 		direction, &expanded_next);
 	MOVE_FAST(impure->irsb_nav_data, key.key_data, impure->irsb_nav_length);
@@ -542,8 +542,8 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 	}
 
 	// Find the next interesting node.  If necessary, skip to the next page
-	EXP expanded_page;
-	BTX expanded_node;
+	exp_index_buf* expanded_page;
+	btree_exp* expanded_node;
 	bool page_changed = false;
 	// AB: I don't see number is initialized? 
 	SLONG number;
@@ -553,7 +553,7 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 	USHORT l;
 	IndexNode node;
 	while (true) {
-		BTR page = (BTR) window.win_buffer;
+		btree_page* page = (btree_page*) window.win_buffer;
 		flags = page->btr_header.pag_flags;
 
 		pointer = nextPointer;
@@ -598,15 +598,15 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 				break;
 			}
 			if (number == END_BUCKET) {
-				page = (BTR) window.win_buffer;
-				page = (BTR) CCH_HANDOFF(tdbb, &window, page->btr_sibling,
+				page = (btree_page*) window.win_buffer;
+				page = (btree_page*) CCH_HANDOFF(tdbb, &window, page->btr_sibling,
 					LCK_read, pag_index);
 #ifdef PC_ENGINE
 				RNG_add_page(tdbb, window.win_page);
 #endif
 				nextPointer = BTreeNode::getPointerFirstNode(page);
 				if ( (expanded_page = window.win_expanded_buffer) ) {
-					expanded_next = (BTX) expanded_page->exp_nodes;
+					expanded_next = (btree_exp*) expanded_page->exp_nodes;
 				}
 
 				page_changed = true;
@@ -762,7 +762,7 @@ BOOLEAN NAV_get_record(TDBB tdbb,
 
 
 #ifdef PC_ENGINE
-BOOLEAN NAV_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
+BOOLEAN NAV_reset_position(thread_db* tdbb, RecordSource* rsb, RPB * new_rpb)
 {
 /**************************************
  *
@@ -780,7 +780,7 @@ BOOLEAN NAV_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
 	IRSB_NAV impure;
 	index_desc* idx;
 	WIN window;
-	BTN expanded_node;
+	btree_nod* expanded_node;
 	ULONG record_number;
 
 	request = tdbb->tdbb_request;
@@ -819,7 +819,7 @@ BOOLEAN NAV_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
 
 
 #ifdef PC_ENGINE
-BOOLEAN NAV_set_bookmark(RSB rsb, IRSB_NAV impure, RPB * rpb, BKM bookmark)
+BOOLEAN NAV_set_bookmark(RecordSource* rsb, IRSB_NAV impure, RPB * rpb, BKM bookmark)
 {
 /**************************************
  *
@@ -987,13 +987,13 @@ static void expand_index(WIN * window)
  *
  **************************************/
 
-	BTR page = (BTR) window->win_buffer;
-	EXP expanded_page = window->win_expanded_buffer;
+	btree_page* page = (btree_page*) window->win_buffer;
+	exp_index_buf* expanded_page = window->win_expanded_buffer;
 	expanded_page->exp_incarnation = CCH_GET_INCARNATION(window);
 
 	// go through the nodes on the original page and expand them
 	temporary_key key;
-	BTX expanded_node = (BTX) expanded_page->exp_nodes;
+	btree_exp* expanded_node = (btree_exp*) expanded_page->exp_nodes;
 	bool priorPointer = false;
 	UCHAR *pointer = BTreeNode::getPointerFirstNode(page);
 	UCHAR *endPointer = ((UCHAR*) page + page->btr_length);
@@ -1046,7 +1046,7 @@ static void expand_index(WIN * window)
 
 
 #ifdef PC_ENGINE
-static BOOLEAN find_dbkey(TDBB tdbb, RSB rsb, ULONG record_number)
+static BOOLEAN find_dbkey(thread_db* tdbb, RecordSource* rsb, ULONG record_number)
 {
 /**************************************
  *
@@ -1065,8 +1065,8 @@ static BOOLEAN find_dbkey(TDBB tdbb, RSB rsb, ULONG record_number)
 	IRSB_NAV impure;
 	RPB *rpb;
 	WIN window;
-	BTN node;
-	BTX expanded_node = NULL;
+	btree_nod* node;
+	btree_exp* expanded_node = NULL;
 	temporary_key key;
 
 	request = tdbb->tdbb_request;
@@ -1132,8 +1132,8 @@ static BOOLEAN find_dbkey(TDBB tdbb, RSB rsb, ULONG record_number)
 
 
 #ifdef PC_ENGINE
-static BOOLEAN find_record(TDBB tdbb,
-						   RSB rsb,
+static BOOLEAN find_record(thread_db* tdbb,
+						   RecordSource* rsb,
 						   RSE_GET_MODE mode,
 						   temporary_key * find_key,
 						   USHORT find_count, USHORT search_flags)
@@ -1158,11 +1158,11 @@ static BOOLEAN find_record(TDBB tdbb,
 	JRD_NOD retrieval_node;
 	IndexRetrieval* retrieval;
 	index_desc* idx;
-	BTR page;
+	btree_page* page;
 	WIN window;
-	BTN node;
-	EXP expanded_page;
-	BTX expanded_node;
+	btree_nod* node;
+	exp_index_buf* expanded_page;
+	btree_exp* expanded_node;
 	temporary_key lower, upper, *tmp, value;
 	USHORT upper_count, lower_count;
 	BOOLEAN result = FALSE, position_set = FALSE;
@@ -1200,9 +1200,7 @@ static BOOLEAN find_record(TDBB tdbb,
 	while (!(node = BTR_find_leaf(page, find_key, impure->irsb_nav_data,
 								  0, idx->idx_flags & idx_descending, true)))
 	{
-		page =
-			(BTR) CCH_HANDOFF(tdbb, &window, page->btr_sibling, LCK_read,
-							  pag_index);
+		page = (btree_page*) CCH_HANDOFF(tdbb, &window, page->btr_sibling, LCK_read, pag_index);
 	}
 
 	if (expanded_page = window.win_expanded_buffer) {
@@ -1241,13 +1239,11 @@ static BOOLEAN find_record(TDBB tdbb,
 		}
 
 		if (rpb->rpb_number == END_BUCKET) {
-			page =
-				(BTR) CCH_HANDOFF(tdbb, &window, page->btr_sibling, LCK_read,
-								  pag_index);
-			node = (BTN) page->btr_nodes;
+			page = (btree_page*) CCH_HANDOFF(tdbb, &window, page->btr_sibling, LCK_read, pag_index);
+			node = (btree_nod*) page->btr_nodes;
 
 			if (expanded_page = window.win_expanded_buffer)
-				expanded_node = (BTX) expanded_page->exp_nodes;
+				expanded_node = (btree_exp*) expanded_page->exp_nodes;
 			continue;
 		}
 
@@ -1303,7 +1299,7 @@ static BOOLEAN find_record(TDBB tdbb,
 #endif
 
 
-static BTX find_current(EXP expanded_page, BTR page, UCHAR * current_pointer)
+static btree_exp* find_current(exp_index_buf* expanded_page, btree_page* page, UCHAR * current_pointer)
 {
 /**************************************
  *
@@ -1322,7 +1318,7 @@ static BTX find_current(EXP expanded_page, BTR page, UCHAR * current_pointer)
 		return NULL;
 	}
 
-	BTX expanded_node = expanded_page->exp_nodes;
+	btree_exp* expanded_node = expanded_page->exp_nodes;
 	SCHAR flags = page->btr_header.pag_flags;
 	UCHAR *pointer = BTreeNode::getPointerFirstNode(page);
 	UCHAR *endPointer = ((UCHAR*) page + page->btr_length);
@@ -1334,7 +1330,7 @@ static BTX find_current(EXP expanded_page, BTR page, UCHAR * current_pointer)
 
 		// AB: Together this looks pretty the same as BTreeNode::nextNode
 		pointer = BTreeNode::readNode(&node, pointer, flags, true);
-		expanded_node = (BTX) ((UCHAR*) expanded_node->btx_data + 
+		expanded_node = (btree_exp*) ((UCHAR*) expanded_node->btx_data + 
 			node.prefix + node.length);
 	}
 
@@ -1342,7 +1338,7 @@ static BTX find_current(EXP expanded_page, BTR page, UCHAR * current_pointer)
 }
 
 
-static bool find_saved_node(TDBB tdbb, RSB rsb, IRSB_NAV impure,
+static bool find_saved_node(thread_db* tdbb, RecordSource* rsb, IRSB_NAV impure,
 						WIN * window, UCHAR ** return_pointer)
 {
 /**************************************
@@ -1360,7 +1356,7 @@ static bool find_saved_node(TDBB tdbb, RSB rsb, IRSB_NAV impure,
  **************************************/
 
 	index_desc* idx = (index_desc*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
-	BTR page = (BTR) CCH_FETCH(tdbb, window, LCK_read, pag_index);
+	btree_page* page = (btree_page*) CCH_FETCH(tdbb, window, LCK_read, pag_index);
 
 	// the outer loop goes through all the sibling pages
 	// looking for the node (in case the page has split);
@@ -1385,7 +1381,7 @@ static bool find_saved_node(TDBB tdbb, RSB rsb, IRSB_NAV impure,
 				return false;
 			}
 			if (node.recordNumber == END_BUCKET) {
-				page = (BTR) CCH_HANDOFF(tdbb, window, page->btr_sibling,
+				page = (btree_page*) CCH_HANDOFF(tdbb, window, page->btr_sibling,
 					LCK_read, pag_index);
 				break;
 			}
@@ -1431,12 +1427,11 @@ static bool find_saved_node(TDBB tdbb, RSB rsb, IRSB_NAV impure,
 }
 
 
-static UCHAR* get_position(
-						TDBB tdbb,
-						RSB rsb,
+static UCHAR* get_position(thread_db* tdbb,
+						RecordSource* rsb,
 						IRSB_NAV impure,
 						WIN * window,
-						RSE_GET_MODE direction, BTX * expanded_node)
+						RSE_GET_MODE direction, btree_exp* * expanded_node)
 {
 /**************************************
  *
@@ -1459,7 +1454,7 @@ static UCHAR* get_position(
 		return nav_open(tdbb, rsb, impure, window, direction, expanded_node);
 	}
 
-	EXP expanded_page = NULL;
+	exp_index_buf* expanded_page = NULL;
 
 #ifdef PC_ENGINE
 	// if we are on a forced crack, don't really get the next node in 
@@ -1473,7 +1468,7 @@ static UCHAR* get_position(
 #endif
 
 	// Re-fetch page and get incarnation counter
-	BTR page = (BTR) CCH_FETCH(tdbb, window, LCK_read, pag_index);
+	btree_page* page = (btree_page*) CCH_FETCH(tdbb, window, LCK_read, pag_index);
 
 #ifdef SCROLLABLE_CURSORS
 	// we must ensure that if we are going backwards, we always 
@@ -1499,7 +1494,7 @@ static UCHAR* get_position(
 			// position unknown or invalid 
 			*expanded_node = find_current(expanded_page, page, pointer);
 		else 
-			*expanded_node = (BTX) ((UCHAR*) expanded_page +
+			*expanded_node = (btree_exp*) ((UCHAR*) expanded_page +
 				impure->irsb_nav_expanded_offset);
 
 		// The new way of doing things is to have the current
@@ -1508,7 +1503,7 @@ static UCHAR* get_position(
 		
 		if (direction == RSE_get_backward) {
 			pointer = BTreeNode::previousNode(&node, pointer, flags, expanded_node);
-			//node = (BTN) BTR_previous_node( (UCHAR*)node, expanded_node);
+			//node = (btree_nod*) BTR_previous_node( (UCHAR*)node, expanded_node);
 		}
 		else if (direction == RSE_get_forward) {
 			pointer = BTreeNode::nextNode(&node, pointer, flags, expanded_node);
@@ -1524,12 +1519,12 @@ static UCHAR* get_position(
 	}
 
 	bool found = find_saved_node(tdbb, rsb, impure, window, &pointer);
-	page = (BTR) window->win_buffer;
+	page = (btree_page*) window->win_buffer;
 	if (pointer) {
 		*expanded_node = find_current(window->win_expanded_buffer, page, pointer);
 		if (direction == RSE_get_backward) {
 			pointer = BTreeNode::previousNode(&node, pointer, flags, expanded_node);
-			//node = (BTN) BTR_previous_node((UCHAR*) node, expanded_node);
+			//node = (btree_nod*) BTR_previous_node((UCHAR*) node, expanded_node);
 		}
 		else if (direction == RSE_get_forward && found) {
 			// in the forward case, seek to the next node only if we found
@@ -1550,7 +1545,7 @@ static UCHAR* get_position(
 	}
 
 	if (expanded_page = window->win_expanded_buffer) {
-		*expanded_node = (BTX) expanded_page->exp_nodes;
+		*expanded_node = (btree_exp*) expanded_page->exp_nodes;
 	}
 #endif
 
@@ -1558,8 +1553,8 @@ static UCHAR* get_position(
 }
 
 
-static BOOLEAN get_record(TDBB tdbb,
-						  RSB rsb,
+static BOOLEAN get_record(thread_db* tdbb,
+						  RecordSource* rsb,
 						  IRSB_NAV impure,
 						  RPB * rpb, temporary_key * key, BOOLEAN inhibit_cleanup)
 {
@@ -1669,10 +1664,10 @@ static void init_fetch(IRSB_NAV impure)
 
 
 static UCHAR* nav_open(
-					TDBB tdbb,
-					RSB rsb,
+					thread_db* tdbb,
+					RecordSource* rsb,
 					IRSB_NAV impure,
-					WIN * window, RSE_GET_MODE direction, BTX * expanded_node)
+					WIN * window, RSE_GET_MODE direction, btree_exp* * expanded_node)
 {
 /**************************************
  *
@@ -1686,7 +1681,7 @@ static UCHAR* nav_open(
  **************************************/
 	IndexRetrieval* retrieval;
 	temporary_key lower, upper, *limit_ptr;
-	//EXP expanded_page;
+	//exp_index_buf* expanded_page;
 	JRD_NOD retrieval_node;
 
 	SET_TDBB(tdbb);
@@ -1707,7 +1702,7 @@ static UCHAR* nav_open(
 	retrieval_node = (JRD_NOD) rsb->rsb_arg[RSB_NAV_index];
 	retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 	index_desc* idx = (index_desc* ) ((SCHAR *) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
-	BTR page = BTR_find_page(tdbb, retrieval, window, idx, &lower, 
+	btree_page* page = BTR_find_page(tdbb, retrieval, window, idx, &lower, 
 		&upper, (direction == RSE_get_backward));
 	impure->irsb_nav_page = window->win_page;
 
@@ -1780,7 +1775,7 @@ static UCHAR* nav_open(
 		while (!(pointer = BTR_find_leaf(page, limit_ptr, impure->irsb_nav_data,
 									  0, idx->idx_flags & idx_descending, true)))
 		{
-			  page = (BTR) CCH_HANDOFF(tdbb, window, page->btr_sibling, 
+			  page = (btree_page*) CCH_HANDOFF(tdbb, window, page->btr_sibling, 
 				  LCK_read, pag_index);
 		}
 
@@ -1812,7 +1807,7 @@ static UCHAR* nav_open(
 
 #ifdef SCROLLABLE_CURSORS
 		if (expanded_node && (expanded_page = window->win_expanded_buffer)) {
-			*expanded_node = (BTX) expanded_page->exp_nodes;
+			*expanded_node = (btree_exp*) expanded_page->exp_nodes;
 		}
 		else {
 			*expanded_node = NULL;
@@ -1825,7 +1820,7 @@ static UCHAR* nav_open(
 
 
 static void set_position(IRSB_NAV impure, RPB * rpb, WIN * window,
-				UCHAR * pointer, BTX expanded_node, 
+				UCHAR * pointer, btree_exp* expanded_node, 
 				UCHAR * key_data, USHORT length)
 {
 /**************************************
@@ -1865,7 +1860,7 @@ static void set_position(IRSB_NAV impure, RPB * rpb, WIN * window,
 }
 
 
-static void setup_bitmaps(TDBB tdbb, RSB rsb, IRSB_NAV impure)
+static void setup_bitmaps(thread_db* tdbb, RecordSource* rsb, IRSB_NAV impure)
 {
 /**************************************
  *

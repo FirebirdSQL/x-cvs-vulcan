@@ -29,14 +29,14 @@
 #ifdef SCROLLABLE_CURSORS
 struct jrd_exp* NAV_expand_index(struct win*, struct irsb_nav*);
 #endif
-BOOLEAN NAV_get_record(TDBB tdbb, class Rsb*, struct irsb_nav*, struct rpb*,
+BOOLEAN NAV_get_record(thread_db* tdbb, class RecordSource*, struct irsb_nav*, struct rpb*,
 							  enum rse_get_mode);
 
 #ifdef PC_ENGINE
-BOOLEAN NAV_find_record(TDBB tdbb, class Rsb*, USHORT, USHORT, struct jrd_nod*);
-void NAV_get_bookmark(class Rsb*, struct irsb_nav*, struct bkm*);
-BOOLEAN NAV_reset_position(class Rsb*, struct rpb*);
-BOOLEAN NAV_set_bookmark(TDBB tdbb, class Rsb*, struct irsb_nav*, struct rpb*,
+BOOLEAN NAV_find_record(thread_db* tdbb, class RecordSource*, USHORT, USHORT, struct jrd_nod*);
+void NAV_get_bookmark(class RecordSource*, struct irsb_nav*, struct bkm*);
+BOOLEAN NAV_reset_position(class RecordSource*, struct rpb*);
+BOOLEAN NAV_set_bookmark(thread_db* tdbb, class RecordSource*, struct irsb_nav*, struct rpb*,
 								struct bkm*);
 #endif
 

@@ -26,7 +26,7 @@
 
 class Transaction;
 
-int PCMET_expression_index(TDBB, SSHORT, struct dfw *, class Transaction *);
+int PCMET_expression_index(thread_db*, SSHORT, struct dfw *, class Transaction *);
 void PCMET_lookup_index(Relation *, struct idx *);
 
 #endif // JRD_PCMET_PROTO_H

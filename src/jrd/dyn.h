@@ -60,37 +60,37 @@ typedef struct dyn_fld {
 
 class OSRIException;
 
-void	DYN_error(TDBB tdbb, bool, USHORT, const TEXT*, const TEXT*, const TEXT*,
+void	DYN_error(thread_db* tdbb, bool, USHORT, const TEXT*, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*);
-void	DYN_error_punt(TDBB tdbb, bool, USHORT, const TEXT*, const TEXT*,
+void	DYN_error_punt(thread_db* tdbb, bool, USHORT, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*, const TEXT*);
-void	DYN_error_punt(TDBB tdbb, OSRIException*, USHORT, const TEXT*, const TEXT*,
+void	DYN_error_punt(thread_db* tdbb, OSRIException*, USHORT, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*, const TEXT*);
-void	DYN_execute(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*);
+void	DYN_execute(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*);
 SLONG	DYN_get_number(const UCHAR**);
-USHORT	DYN_get_string(TDBB tdbb, const UCHAR**, TEXT*, USHORT, bool);
+USHORT	DYN_get_string(thread_db* tdbb, const UCHAR**, TEXT*, USHORT, bool);
 
 // This function is not defined anywhere.
 // void	DYN_get_string2(TEXT**, TEXT*, USHORT);
 
 // This function doesn't need to be exported currently.
-bool	DYN_is_it_sql_role(GBL, const TEXT*, TEXT*, TDBB);
-USHORT	DYN_put_blr_blob(TDBB tdbb, GBL, const UCHAR**, ISC_QUAD *);
+bool	DYN_is_it_sql_role(GBL, const TEXT*, TEXT*, thread_db*);
+USHORT	DYN_put_blr_blob(thread_db* tdbb, GBL, const UCHAR**, ISC_QUAD *);
 
 // This function is not defined anywhere.
 //USHORT	DYN_put_blr_blob2(GBL, const UCHAR**, ISC_QUAD *);
 
-USHORT	DYN_put_text_blob(TDBB tdbb, GBL, const UCHAR**, ISC_QUAD *);
+USHORT	DYN_put_text_blob(thread_db* tdbb, GBL, const UCHAR**, ISC_QUAD *);
 // This function is not defined anywhere.
 //USHORT	DYN_put_text_blob2(GBL, const UCHAR**, ISC_QUAD *);
 
-void	DYN_rundown_request(TDBB tdbb, Request*, SSHORT);
+void	DYN_rundown_request(thread_db* tdbb, Request*, SSHORT);
 USHORT	DYN_skip_attribute(const UCHAR**);
 
 // This function is not defined anywhere.
 //USHORT	DYN_skip_attribute2(const UCHAR**);
 
-void	DYN_unsupported_verb(TDBB tdbb);
+void	DYN_unsupported_verb(thread_db* tdbb);
 
 #endif // JRD_DYN_H
 

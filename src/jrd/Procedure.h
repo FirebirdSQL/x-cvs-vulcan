@@ -42,7 +42,7 @@ class lck;
 class ProcManager;
 class Database;
 class Request;
-class Csb;
+class CompilerScratch;
 struct jrd_nod;
 struct bid;
 
@@ -165,8 +165,8 @@ public:
 		};
 
 	//Locking
-	void lockExistence (tdbb *tdbb);
-	void releaseExistence (tdbb *tdbb);
+	void lockExistence (thread_db* tdbb);
+	void releaseExistence (thread_db* tdbb);
 	inline struct lck * findExistenceLock()
 		{return procExistenceLock;};
 	inline void setExistenceLock (struct lck * existence_lock)
@@ -259,12 +259,12 @@ protected:
 public:
 	Procedure(Database *dbb, int id);
 	void init(void);
-	lck* getExistenceLock(tdbb *tdbb);
+	lck* getExistenceLock(thread_db* tdbb);
 	static int blockingAst(void* object);
 	void blockingAst(void);
-	void parseBlr(tdbb *tdbb, const bid *blobId);
+	void parseBlr(thread_db* tdbb, const bid *blobId);
 	void setRequest(Request* request);
-	bool parseMessages(tdbb *tdbb, const UCHAR* blr, int blrLength, Csb* csb);
+	bool parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, CompilerScratch* csb);
 	void setBlrBlobId(const void* blobId);
 };
 #endif

@@ -587,7 +587,7 @@ int SBM_next(SBM bitmap, SLONG * number, RSE_GET_MODE mode)
 }
 
 
-SBM *SBM_or(tdbb *tdbb, SBM * bitmap1, SBM * bitmap2)
+SBM *SBM_or(thread_db* tdbb, SBM * bitmap1, SBM * bitmap2)
 {
 /**************************************
  *
@@ -749,7 +749,7 @@ void SBM_reset(SBM * bitmap)
 }
 
 
-void SBM_set(TDBB tdbb, SBM * bitmap, SLONG number)
+void SBM_set(thread_db* tdbb, SBM * bitmap, SLONG number)
 {
 /**************************************
  *

@@ -75,7 +75,7 @@ static ULONG	get_number_of_pages(const fil*, const USHORT);
 static bool		MaybeCloseFile(SLONG*);
 static FIL		find_file(FIL, Bdb*);
 static FIL		seek_file(FIL, Bdb*, ISC_STATUS*, OVERLAPPED*, OVERLAPPED**);
-static FIL		setup_file(tdbb *tdbb, const TEXT*, HANDLE);
+static FIL		setup_file(thread_db* tdbb, const TEXT*, HANDLE);
 static BOOLEAN	nt_error(TEXT*, const fil*, ISC_STATUS, ISC_STATUS*);
 
 static USHORT ostype;
@@ -97,7 +97,7 @@ static const DWORD g_dwExtraFlags = FILE_FLAG_RANDOM_ACCESS;
 
 
 
-int PIO_add_file(tdbb *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
+int PIO_add_file(thread_db* tdbb, FIL main_file, const TEXT* file_name, SLONG start)
 {
 /**************************************
  *
@@ -185,7 +185,7 @@ int PIO_connection(const TEXT* file_name, USHORT* file_length)
 
 
 
-FIL PIO_create(tdbb *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
+FIL PIO_create(thread_db* tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
 {
 /**************************************
  *
@@ -458,7 +458,7 @@ SLONG PIO_act_alloc(DBB dbb)
 }
 
 
-FIL PIO_open(tdbb *tdbb,
+FIL PIO_open(thread_db* tdbb,
 			 const TEXT* string,
 			 SSHORT trace_flag,
 			 const TEXT* file_name, 
@@ -960,7 +960,7 @@ static FIL seek_file(FIL			file,
 }
 
 
-static FIL setup_file(tdbb *tdbb,
+static FIL setup_file(thread_db* tdbb,
 					  const TEXT *file_name,
 					  HANDLE desc)
 {

@@ -63,7 +63,7 @@ class Relation;
 
 // Record source block
 
-class Rsb : public pool_alloc_rpt<class Rsb*, type_rsb>
+class RecordSource : public pool_alloc_rpt<class RecordSource*, type_rsb>
 {
 public:
 	RSB_T rsb_type;						// type of rsb
@@ -73,15 +73,14 @@ public:
 	ULONG rsb_impure;					// offset to impure area
 	ULONG rsb_cardinality;				// estimated cardinality of stream
 	ULONG rsb_record_count;				// count of records returned from rsb (not candidate records processed)
-	Rsb* rsb_next;						// next rsb, if appropriate
-	Relation* rsb_relation;		// relation, if appropriate
+	RecordSource* rsb_next;				// next rsb, if appropriate
+	Relation* rsb_relation;				// relation, if appropriate
 	struct str*	rsb_alias;				// SQL alias for relation
-	Procedure* rsb_procedure;		// procedure, if appropriate
+	Procedure* rsb_procedure;			// procedure, if appropriate
 	struct fmt* rsb_format;				// format, if appropriate
 	struct jrd_nod* rsb_any_boolean;	// any/all boolean
-	Rsb* rsb_arg[1];
+	RecordSource* rsb_arg[1];
 };
-typedef Rsb *RSB;
 
 // bits for the rsb_flags field
 
@@ -91,31 +90,39 @@ const USHORT rsb_descending = 4;		// an ascending index is being used for a desc
 const USHORT rsb_project = 8;			// projection on this stream is requested
 const USHORT rsb_writelock = 16;		// records should be locked for writing
 
-// special argument positions within the RSB
+// special argument positions within the RecordSource
 
-#define RSB_PRC_inputs			0
-#define RSB_PRC_in_msg			1
-#define RSB_PRC_count			2
+const int RSB_PRC_inputs		= 0;
+const int RSB_PRC_in_msg		= 1;
+const int RSB_PRC_count			= 2;
 
-#define RSB_NAV_index			0
-#define RSB_NAV_inversion		1
-#define RSB_NAV_key_length		2
-#define RSB_NAV_idx_offset		3
-#define RSB_NAV_count			4
+const int RSB_NAV_index			= 0;
+const int RSB_NAV_inversion		= 1;
+const int RSB_NAV_key_length	= 2;
+const int RSB_NAV_idx_offset	= 3;
+const int RSB_NAV_count			= 4;
 
-#define RSB_LEFT_outer			0
-#define RSB_LEFT_inner			1
-#define RSB_LEFT_boolean		2
-#define RSB_LEFT_streams		3
-#define RSB_LEFT_rsbs			4
-#define RSB_LEFT_inner_boolean	5
-#define RSB_LEFT_inner_streams	6
-#define RSB_LEFT_count			7
+// TODO:AB
+//const int RSB_LEFT_outer		= 0;
+//const int RSB_LEFT_inner		= 1;
+//const int RSB_LEFT_boolean		= 2;
+//const int RSB_LEFT_inner_boolean	= 3;
+//const int RSB_LEFT_count			= 4;
+
+const int RSB_LEFT_outer		= 0;
+const int RSB_LEFT_inner		= 1;
+const int RSB_LEFT_boolean		= 2;
+const int RSB_LEFT_streams		= 3;
+const int RSB_LEFT_rsbs			= 4;
+const int RSB_LEFT_inner_boolean	= 5;
+const int RSB_LEFT_inner_streams	= 6;
+const int RSB_LEFT_count			= 7;
 
 
 // Merge (equivalence) file block
 
-typedef struct mfb {
+struct merge_file 
+{
 	struct sfb *mfb_sfb;				// merge file uses SORT I/O routines
 	ULONG mfb_equal_records;			// equality group cardinality
 	ULONG mfb_record_size;				// matches sort map length
@@ -123,49 +130,61 @@ typedef struct mfb {
 	ULONG mfb_block_size;				// merge block I/O size
 	ULONG mfb_blocking_factor;			// merge equality records per block
 	UCHAR *mfb_block_data;				// merge block I/O buffer
-} *MFB;
+};
 
-#define MERGE_BLOCK_SIZE	65536
+const ULONG MERGE_BLOCK_SIZE	= 65536;
 
 
 // Impure area formats for the various RSB types
 
-typedef struct irsb {
+struct irsb {
 	ULONG irsb_flags;
 	USHORT irsb_count;
-} *IRSB;
+};
 
-typedef struct irsb_first_n {
+typedef irsb *IRSB;
+
+struct irsb_first_n {
 	ULONG irsb_flags;
 	SLONG irsb_number;
     SINT64 irsb_count;
-} *IRSB_FIRST;
+};
 
-typedef struct irsb_skip_n {
+typedef irsb_first_n *IRSB_FIRST;
+
+struct irsb_skip_n {
     ULONG irsb_flags;
     SLONG irsb_number;
     SINT64 irsb_count;
-} *IRSB_SKIP;
+};
 
-typedef struct irsb_index {
+typedef irsb_skip_n *IRSB_SKIP;
+
+struct irsb_index {
 	ULONG irsb_flags;
 	SLONG irsb_number;
 	SLONG irsb_prefetch_number;
 	class sbm **irsb_bitmap;
-} *IRSB_INDEX;
+};
 
-typedef struct irsb_sort {
+typedef irsb_index *IRSB_INDEX;
+
+struct irsb_sort {
 	ULONG irsb_flags;
 	struct sort_context* irsb_sort_handle;
-} *IRSB_SORT;
+};
 
-typedef struct irsb_procedure {
+typedef irsb_sort *IRSB_SORT;
+
+struct irsb_procedure {
 	ULONG irsb_flags;
 	Request *irsb_req_handle;
 	struct str *irsb_message;
-} *IRSB_PROCEDURE;
+};
 
-typedef struct irsb_mrg {
+typedef irsb_procedure *IRSB_PROCEDURE;
+
+struct irsb_mrg {
 	ULONG irsb_flags;
 	USHORT irsb_mrg_count;				// next stream in group
 	struct irsb_mrg_repeat {
@@ -174,17 +193,21 @@ typedef struct irsb_mrg {
 		SLONG irsb_mrg_equal_current;	// last fetched record from equal queue
 		SLONG irsb_mrg_last_fetched;	// first sort merge record of next group
 		SSHORT irsb_mrg_order;			// logical merge order by substream
-		struct mfb irsb_mrg_file;		// merge equivalence file
+		struct merge_file irsb_mrg_file;		// merge equivalence file
 	} irsb_mrg_rpt[1];
-} *IRSB_MRG;
+};
 
-typedef struct irsb_sim {
+typedef irsb_mrg *IRSB_MRG;
+
+struct irsb_sim {
 	ULONG irsb_flags;
 	USHORT irsb_sim_rid;				// next relation id
 	USHORT irsb_sim_fid;				// next field id
 	Request *irsb_sim_req1;		// request handle #1
 	Request *irsb_sim_req2;		// request handle #2
-} *IRSB_SIM;
+};
+
+typedef irsb_sim *IRSB_SIM;
 
 const ULONG irsb_sim_alias = 32;		// duplicate relation but w/o user name
 const ULONG irsb_sim_eos = 64;			// encountered end of stream
@@ -195,7 +218,7 @@ const ULONG irsb_sim_active = 128;		// remote simulated stream request is active
 // which holds information used to get back to 
 // the current location within an index
 
-typedef struct irsb_nav {
+struct irsb_nav {
 	ULONG irsb_flags;
 	SLONG irsb_nav_expanded_offset;			// page offset of current index node on expanded index page
 	SLONG irsb_nav_number;					// last record number
@@ -209,7 +232,9 @@ typedef struct irsb_nav {
 	USHORT irsb_nav_upper_length;			// length of upper key value
 	USHORT irsb_nav_length;					// length of expanded key
 	UCHAR irsb_nav_data[1];					// expanded key, upper bound, and index desc
-} *IRSB_NAV;
+};
+
+typedef irsb_nav *IRSB_NAV;
 
 // flags for the irsb_flags field
 
@@ -305,7 +330,7 @@ typedef irl *IRL;
 class Opt : public pool_alloc<type_opt>
 {
 public:
-	class Csb *opt_csb;						// compiler scratch block
+	class CompilerScratch* opt_csb;						// compiler scratch block
 	SLONG opt_combinations;					// number of partial orders considered
 	double opt_best_cost;					// cost of best join order
 	SSHORT opt_base_conjuncts;				// number of conjuncts in our rse, next conjuncts are from parent
@@ -361,7 +386,7 @@ const USHORT opt_g_stream = 1;				// indicate that this is a blr_stream
 class riv : public pool_alloc_rpt<SCHAR, type_riv>
 {
 public:
-	struct Rsb *riv_rsb;		// record source block for river
+	struct RecordSource *riv_rsb;		// record source block for river
 	USHORT riv_number;			// temporary number for river
 	UCHAR riv_count;			// count of streams
 	UCHAR riv_streams[1];		// actual streams

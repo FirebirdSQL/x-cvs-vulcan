@@ -26,7 +26,7 @@
 
 struct tdbb;
 
-bkm*	BKM_allocate(tdbb* tdbb, Rsb*, USHORT);
+bkm*	BKM_allocate(tdbb* tdbb, RecordSource*, USHORT);
 bkm*	BKM_lookup(tdbb* tdbb, jrd_nod*);
 void	BKM_release(tdbb* tdbb, jrd_nod*);
 

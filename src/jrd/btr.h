@@ -185,12 +185,12 @@ class IndexRetrieval : public pool_alloc_rpt<jrd_nod*, type_irb>
 #define irb_descending	16		/* ?Base index uses descending order */
 
 // macros used to manipulate btree nodes
-#define BTR_SIZE	OFFSETA(BTR, btr_nodes);
+#define BTR_SIZE	OFFSETA(btree_page*, btr_nodes);
 
-#define NEXT_NODE(node)	(btn*)(node->btn_data + node->btn_length)
-#define NEXT_NODE_RECNR(node)	(btn*)(node->btn_data + node->btn_length + sizeof(SLONG))
+#define NEXT_NODE(node)	(btree_nod*)(node->btn_data + node->btn_length)
+#define NEXT_NODE_RECNR(node)	(btree_nod*)(node->btn_data + node->btn_length + sizeof(SLONG))
 
-#define LAST_NODE(page)	(BTN) ((UCHAR*) page + page->btr_length)
+#define LAST_NODE(page)	(btree_nod*) ((UCHAR*) page + page->btr_length)
 
 //#define NEXT_EXPANDED(xxx,yyy)	(BTX) ((UCHAR*) xxx->btx_data + (yyy)->btn_prefix + (yyy)->btn_length)
 

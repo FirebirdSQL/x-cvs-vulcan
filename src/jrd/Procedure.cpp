@@ -130,7 +130,7 @@ void Procedure::setInputParameter (ProcParam *parameter)
 // Express an interest in a procedure
 //
 
-void Procedure::lockExistence(tdbb * tdbb)
+void Procedure::lockExistence(thread_db*  tdbb)
 {
 	//LCK_lock(tdbb, procExistenceLock, LCK_SR, TRUE);
 }
@@ -139,7 +139,7 @@ void Procedure::lockExistence(tdbb * tdbb)
 // Deny interest in a procedure
 //
 
-void Procedure::releaseExistence(tdbb * tdbb)
+void Procedure::releaseExistence(thread_db*  tdbb)
 {
 	//LCK_release(procExistenceLock);
 }
@@ -240,7 +240,7 @@ void Procedure::setDependencies()
 	/* Walk procedures and calculate internal dependencies */
 	if (Request *request = findRequest() ) 
 		{
-		RSC resource = request->req_resources;
+		Resource* resource = request->req_resources;
 		for (; resource; resource = resource->rsc_next)
 			{
 			if (resource->rsc_type == rsc_procedure)
@@ -252,7 +252,7 @@ void Procedure::setDependencies()
 		}
 }
 
-LCK Procedure::getExistenceLock(tdbb *tdbb)
+LCK Procedure::getExistenceLock(thread_db* tdbb)
 {
 	if (procExistenceLock)
 		return procExistenceLock;
@@ -305,12 +305,12 @@ void Procedure::blockingAst(void)
 
 }
 
-void Procedure::parseBlr(tdbb *tdbb, const bid *blobId)
+void Procedure::parseBlr(thread_db* tdbb, const bid *blobId)
 {
 	DBB dbb = tdbb->tdbb_database;
 	JrdMemoryPool *old_pool = tdbb->tdbb_default;
 	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	Csb csb(*tdbb->tdbb_default, 5);
+	CompilerScratch csb(*tdbb->tdbb_default, 5);
 	
 	//parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
 	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, blobId);
@@ -321,8 +321,8 @@ void Procedure::parseBlr(tdbb *tdbb, const bid *blobId)
 	csb.csb_blr = temp.space;
 	//par_messages(tdbb, temp.space, length, procedure, csb);
 	parseMessages(tdbb, temp.space, length, &csb);
-	Request *req = NULL;
-	Csb *csbPtr = &csb;
+	Request* req = NULL;
+	CompilerScratch* csbPtr = &csb;
 	jrd_nod* node = PAR_blr(tdbb, NULL, temp.space, NULL, &csbPtr, &req, FALSE, 0);
 	setRequest (req);
 	//procRequest->req_procedure = procedure;
@@ -347,7 +347,7 @@ void Procedure::setRequest(Request* request)
 		request->req_procedure = this;
 }
 
-bool Procedure::parseMessages(tdbb *tdbb, const UCHAR* blr, int blrLength, Csb* csb)
+bool Procedure::parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, CompilerScratch* csb)
 {
 	csb->csb_running = blr;
 	const SSHORT version = BLR_BYTE;

@@ -28,9 +28,9 @@
 #include "../jrd/jrd.h"
 #include "../jrd/val.h"
 
-struct tdbb;
+struct thread_db;
 
-int		MOV_compare(tdbb *tdbb, const struct dsc*, const struct dsc*);
+int		MOV_compare(thread_db* tdbb, const struct dsc*, const struct dsc*);
 double	MOV_date_to_double(const struct dsc*);
 void	MOV_double_to_date(double, SLONG[2]);
 void	MOV_fast(const SCHAR*, SCHAR*, ULONG);

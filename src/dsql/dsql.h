@@ -172,10 +172,10 @@ typedef dbb* DBB;
 
 //! values used in dbb_flags
 enum dbb_flags_vals {
-	DBB_no_arrays	= 0x1,
-	DBB_v3			= 0x2,
-	DBB_no_charset	= 0x4,
-	DBB_read_only	= 0x8
+	DBB_no_arrays		= 0x1,
+	DBB_v3				= 0x2,
+	DBB_no_charset		= 0x4,
+	DBB_read_only_flag	= 0x8
 };
 
 #include "dsql_rel.h"
@@ -542,7 +542,7 @@ typedef tsql* TSQL;
 #include "../jrd/tdbb.h"
 #define tsql			tdbb
 #define tsql_status		tdbb_status_vector
-typedef tdbb *TSQL;
+typedef thread_db* TSQL;
 
 #ifdef GET_THREAD_DATA
 #undef GET_THREAD_DATA

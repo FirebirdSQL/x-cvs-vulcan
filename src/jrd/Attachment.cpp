@@ -189,12 +189,12 @@ void Attachment::endTransaction(Transaction* transaction)
 			}
 }
 
-void Attachment::updateAccountInfo(tdbb *tdbb, int apbLength, const UCHAR* apb)
+void Attachment::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
 {
 	att_database->updateAccountInfo(tdbb, apbLength, apb);
 }
 
-void Attachment::authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb)
+void Attachment::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb)
 {
 	UCHAR buffer[256];
 	att_database->authenticateUser(tdbb,dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
@@ -202,7 +202,7 @@ void Attachment::authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb)
 	userData.processUserInfo(buffer);
 }
 
-void Attachment::shutdown(tdbb *tdbb)
+void Attachment::shutdown(thread_db* tdbb)
 {
 	if (att_event_session)
 		EVENT_delete_session(att_event_session);
@@ -318,7 +318,7 @@ lck* Attachment::findBlock(lck* lock, int level)
 	return NULL;
 }
 
-Relation* Attachment::findRelation(tdbb* tdbb, int relationId, int csbFlags)
+Relation* Attachment::findRelation(thread_db* tdbb, int relationId, int csbFlags)
 {
 	Relation *relation = MET_lookup_relation_id(tdbb, relationId, FALSE);
 
@@ -328,7 +328,7 @@ Relation* Attachment::findRelation(tdbb* tdbb, int relationId, int csbFlags)
 	return relation;
 }
 
-Relation* Attachment::getRelation(tdbb* tdbb, int relationId)
+Relation* Attachment::getRelation(thread_db* tdbb, int relationId)
 {
 	Relation *relation = findRelation(tdbb, relationId);
 	
@@ -342,7 +342,7 @@ Relation* Attachment::getRelation(tdbb* tdbb, int relationId)
 	return relation;
 }
 
-Relation* Attachment::findRelation(tdbb* tdbb, const char* relationName, int csbFlags)
+Relation* Attachment::findRelation(thread_db* tdbb, const char* relationName, int csbFlags)
 {
 	Relation *relation = MET_lookup_relation(tdbb, relationName);
 
@@ -352,7 +352,7 @@ Relation* Attachment::findRelation(tdbb* tdbb, const char* relationName, int csb
 	return relation;
 }
 
-Relation* Attachment::getRelation(tdbb* tdbb, const char* relationName)
+Relation* Attachment::getRelation(thread_db* tdbb, const char* relationName)
 {
 	Relation *relation = findRelation(tdbb, relationName);
 	

@@ -80,18 +80,18 @@ typedef struct ifl {
 	USHORT ifl_key_length;
 } *IFL;
 
-static IDX_E check_duplicates(TDBB, REC, index_desc *, index_insertion*, JRD_REL);
-static IDX_E check_foreign_key(TDBB, REC, JRD_REL, JRD_TRA, index_desc *, JRD_REL *, USHORT *);
-static IDX_E check_partner_index(TDBB, JRD_REL, REC, JRD_TRA, index_desc *, JRD_REL, SSHORT);
+static IDX_E check_duplicates(thread_db*, REC, index_desc *, index_insertion*, JRD_REL);
+static IDX_E check_foreign_key(thread_db*, REC, JRD_REL, JRD_TRA, index_desc *, JRD_REL *, USHORT *);
+static IDX_E check_partner_index(thread_db*, JRD_REL, REC, JRD_TRA, index_desc *, JRD_REL, SSHORT);
 static bool duplicate_key(const UCHAR*, const UCHAR*, void*);
-static SLONG get_root_page(TDBB, JRD_REL);
+static SLONG get_root_page(thread_db*, JRD_REL);
 static int index_block_flush(void *ast_object);
-static IDX_E insert_key(TDBB, JRD_REL, REC, JRD_TRA, WIN *, index_insertion*, JRD_REL *, USHORT *);
+static IDX_E insert_key(thread_db*, JRD_REL, REC, JRD_TRA, WIN *, index_insertion*, JRD_REL *, USHORT *);
 static bool key_equal(const temporary_key*, const temporary_key*);
-static void signal_index_deletion(TDBB, JRD_REL, USHORT);
+static void signal_index_deletion(thread_db*, JRD_REL, USHORT);
 
 
-void IDX_check_access(TDBB tdbb, CSB csb, JRD_REL view, JRD_REL relation, JRD_FLD field)
+void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, JRD_REL view, JRD_REL relation, JRD_FLD field)
 {
 /**************************************
  *
@@ -130,7 +130,7 @@ void IDX_check_access(TDBB tdbb, CSB csb, JRD_REL view, JRD_REL relation, JRD_FL
 
 			referenced_window.win_page = get_root_page(tdbb, referenced_relation);
 			referenced_window.win_flags = 0;
-			irt* referenced_root = (IRT) CCH_FETCH(tdbb, &referenced_window, LCK_read, pag_root);
+			index_root_page* referenced_root = (index_root_page*) CCH_FETCH(tdbb, &referenced_window, LCK_read, pag_root);
 			index_desc referenced_idx;
 			
 			if (!BTR_description (dbb, referenced_relation, referenced_root, &referenced_idx, index_id)) 
@@ -159,8 +159,7 @@ void IDX_check_access(TDBB tdbb, CSB csb, JRD_REL view, JRD_REL relation, JRD_FL
 }
 
 
-void IDX_create_index(
-					  TDBB tdbb,
+void IDX_create_index(thread_db* tdbb,
 					  JRD_REL relation,
 					  index_desc* idx,
 					  const TEXT* index_name,
@@ -432,7 +431,7 @@ void IDX_create_index(
 }
 
 
-IDB IDX_create_index_block(TDBB tdbb, JRD_REL relation, USHORT id)
+IDB IDX_create_index_block(thread_db* tdbb, JRD_REL relation, USHORT id)
 {
 /**************************************
  *
@@ -477,7 +476,7 @@ IDB IDX_create_index_block(TDBB tdbb, JRD_REL relation, USHORT id)
 }
 
 
-void IDX_delete_index(TDBB tdbb, JRD_REL relation, USHORT id)
+void IDX_delete_index(thread_db* tdbb, JRD_REL relation, USHORT id)
 {
 /**************************************
  *
@@ -500,7 +499,7 @@ void IDX_delete_index(TDBB tdbb, JRD_REL relation, USHORT id)
 }
 
 
-void IDX_delete_indices(TDBB tdbb, JRD_REL relation)
+void IDX_delete_indices(thread_db* tdbb, JRD_REL relation)
 {
 /**************************************
  *
@@ -518,18 +517,18 @@ void IDX_delete_indices(TDBB tdbb, JRD_REL relation)
 	SET_TDBB(tdbb);
 
 	WIN window(relation->rel_index_root);
-	IRT root = (IRT) CCH_FETCH(tdbb, &window, LCK_write, pag_root);
+	index_root_page* root = (index_root_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_root);
 
 	for (i = 0; i < root->irt_count; i++) {
 		BTR_delete_index(tdbb, &window, i);
-		root = (IRT) CCH_FETCH(tdbb, &window, LCK_write, pag_root);
+		root = (index_root_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_root);
 	}
 
 	CCH_RELEASE(tdbb, &window);
 }
 
 
-IDX_E IDX_erase(TDBB tdbb,
+IDX_E IDX_erase(thread_db* tdbb,
 				RPB * rpb,
 				JRD_TRA transaction, JRD_REL * bad_relation, USHORT * bad_index)
 {
@@ -568,7 +567,7 @@ IDX_E IDX_erase(TDBB tdbb,
 }
 
 
-void IDX_garbage_collect(TDBB tdbb, RPB * rpb, LLS going, LLS staying)
+void IDX_garbage_collect(thread_db* tdbb, RPB * rpb, LLS going, LLS staying)
 {
 /**************************************
  *
@@ -595,7 +594,7 @@ void IDX_garbage_collect(TDBB tdbb, RPB * rpb, LLS going, LLS staying)
 	insertion.iib_key = &key1;
 
 	WIN window(rpb->rpb_relation->rel_index_root);
-	IRT root = (IRT) CCH_FETCH(tdbb, &window, LCK_read, pag_root);
+	index_root_page* root = (index_root_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_root);
 
 	for (USHORT i = 0; i < root->irt_count; i++) {
 		if (BTR_description(dbb, rpb->rpb_relation, root, &idx, i)) {
@@ -631,7 +630,7 @@ void IDX_garbage_collect(TDBB tdbb, RPB * rpb, LLS going, LLS staying)
 				/* Get rid of index node */
 
 				BTR_remove(tdbb, &window, &insertion);
-				root = (IRT) CCH_FETCH(tdbb, &window, LCK_read, pag_root);
+				root = (index_root_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_root);
 				if (stack1->lls_next)
 					BTR_description(dbb, rpb->rpb_relation, root, &idx, i);
 			}
@@ -642,7 +641,7 @@ void IDX_garbage_collect(TDBB tdbb, RPB * rpb, LLS going, LLS staying)
 }
 
 
-IDX_E IDX_modify(TDBB tdbb,
+IDX_E IDX_modify(thread_db* tdbb,
 				 RPB * org_rpb,
 				 RPB * new_rpb,
 				 JRD_TRA transaction, JRD_REL * bad_relation, USHORT * bad_index)
@@ -698,7 +697,7 @@ IDX_E IDX_modify(TDBB tdbb,
 }
 
 
-IDX_E IDX_modify_check_constraints(TDBB tdbb,
+IDX_E IDX_modify_check_constraints(thread_db* tdbb,
 								   RPB * org_rpb,
 								   RPB * new_rpb,
 								   JRD_TRA transaction,
@@ -774,7 +773,7 @@ IDX_E IDX_modify_check_constraints(TDBB tdbb,
 }
 
 
-void IDX_statistics(TDBB tdbb, JRD_REL relation, USHORT id, SelectivityList& selectivity)
+void IDX_statistics(thread_db* tdbb, JRD_REL relation, USHORT id, SelectivityList& selectivity)
 {
 /**************************************
  *
@@ -794,7 +793,7 @@ void IDX_statistics(TDBB tdbb, JRD_REL relation, USHORT id, SelectivityList& sel
 }
 
 
-IDX_E IDX_store(TDBB tdbb,
+IDX_E IDX_store(thread_db* tdbb,
 				RPB * rpb,
 				JRD_TRA transaction, JRD_REL * bad_relation, USHORT * bad_index)
 {
@@ -849,8 +848,7 @@ IDX_E IDX_store(TDBB tdbb,
 }
 
 
-static IDX_E check_duplicates(
-							  TDBB tdbb,
+static IDX_E check_duplicates(thread_db* tdbb,
 							  REC record,
 							  index_desc * record_idx,
 							  index_insertion* insertion, JRD_REL relation_2)
@@ -954,8 +952,7 @@ static IDX_E check_duplicates(
 }
 
 
-static IDX_E check_foreign_key(
-							   TDBB tdbb,
+static IDX_E check_foreign_key(thread_db* tdbb,
 							   REC record,
 							   JRD_REL relation,
 							   JRD_TRA transaction,
@@ -1028,8 +1025,7 @@ JRD_REL * bad_relation, USHORT * bad_index)
 }
 
 
-static IDX_E check_partner_index(
-								 TDBB tdbb,
+static IDX_E check_partner_index(thread_db* tdbb,
 								 JRD_REL relation,
 								 REC record,
 								 JRD_TRA transaction,
@@ -1061,7 +1057,7 @@ static IDX_E check_partner_index(
 /* get the index root page for the partner relation */
 
 	WIN window(get_root_page(tdbb, partner_relation));
-	IRT root = (IRT) CCH_FETCH(tdbb, &window, LCK_read, pag_root);
+	index_root_page* root = (index_root_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_root);
 
 /* get the description of the partner index */
 
@@ -1150,7 +1146,7 @@ static bool duplicate_key(const UCHAR* record1, const UCHAR* record2, void* ifl_
 }
 
 
-static SLONG get_root_page(TDBB tdbb, JRD_REL relation)
+static SLONG get_root_page(thread_db* tdbb, JRD_REL relation)
 {
 /**************************************
  *
@@ -1190,7 +1186,7 @@ static int index_block_flush(void *ast_object)
  *
  **************************************/
 	IDB index_block = reinterpret_cast<IDB>(ast_object);
-	struct tdbb thd_context, *tdbb;
+	struct thread_db thd_context, *tdbb;
 
 /* Since this routine will be called asynchronously, we must establish
    a thread context. */
@@ -1225,8 +1221,7 @@ static int index_block_flush(void *ast_object)
 }
 
 
-static IDX_E insert_key(
-						TDBB tdbb,
+static IDX_E insert_key(thread_db* tdbb,
 						JRD_REL relation,
 						REC record,
 						JRD_TRA transaction,
@@ -1321,7 +1316,7 @@ static bool key_equal(const temporary_key* key1, const temporary_key* key2)
 }
 
 
-static void signal_index_deletion(TDBB tdbb, JRD_REL relation, USHORT id)
+static void signal_index_deletion(thread_db* tdbb, JRD_REL relation, USHORT id)
 {
 /**************************************
  *

@@ -53,60 +53,64 @@ static const int HASH_SIZE = 101;
 //
 // bit values for dbb_flags
 //
-#define DBB_no_garbage_collect 	0x1L
-#define DBB_damaged         	0x2L
-#define DBB_exclusive       	0x4L	/* Database is accessed in exclusive mode */
-#define DBB_bugcheck        	0x8L	/* Bugcheck has occurred */
+const ULONG DBB_no_garbage_collect	= 0x1L;
+const ULONG DBB_damaged				= 0x2L;
+const ULONG DBB_exclusive			= 0x4L;	/* Database is accessed in exclusive mode */
+const ULONG DBB_bugcheck			= 0x8L;	/* Bugcheck has occurred */
 #ifdef GARBAGE_THREAD
-#define DBB_garbage_collector	0x10L	/* garbage collector thread exists */
-#define DBB_gc_active			0x20L	/* ... and is actively working. */
-#define DBB_gc_pending			0x40L	/* garbage collection requested */
+const ULONG DBB_garbage_collector	= 0x10L;	/* garbage collector thread exists */
+const ULONG DBB_gc_active			= 0x20L;	/* ... and is actively working. */
+const ULONG DBB_gc_pending			= 0x40L;	/* garbage collection requested */
 #endif
-#define DBB_force_write     	0x80L	/* Database is forced write */
-#define DBB_no_reserve     		0x100L	/* No reserve space for versions */
-#define DBB_add_log         	0x200L	/* write ahead log has been added */
-#define DBB_delete_log      	0x400L	/* write ahead log has been deleted */
-#define DBB_cache_manager   	0x800L	/* Shared cache manager */
-#define DBB_DB_SQL_dialect_3 	0x1000L	/* database SQL dialect 3 */
-#define DBB_read_only    		0x2000L	/* DB is ReadOnly (RO). If not set, DB is RW */
-#define DBB_being_opened_read_only 0x4000L	/* DB is being opened RO. If unset, opened as RW */
-#define DBB_not_in_use      	0x8000L	/* DBB to be ignored while attaching */
-#define DBB_lck_init_done   	0x10000L	/* LCK_init() called for the database */
-#define DBB_sp_rec_mutex_init 	0x20000L	/* Stored procedure mutex initialized */
-#define DBB_sweep_in_progress 	0x40000L	/* A database sweep operation is in progress */
-#define DBB_security_db     	0x80000L	/* ISC security database */
-#define DBB_sweep_thread_started 0x100000L	/* A database sweep thread has been started */
-#define DBB_suspend_bgio		0x200000L	/* Suspend I/O by background threads */
-#define DBB_being_opened    	0x400000L	/* database is being attached to */
+const ULONG DBB_force_write			= 0x80L;	/* Database is forced write */
+const ULONG DBB_no_reserve			= 0x100L;	/* No reserve space for versions */
+//const ULONG DBB_add_log				= 0x200L;	// write ahead log has been added
+//const ULONG DBB_delete_log			= 0x400L;	// write ahead log has been deleted
+const ULONG DBB_cache_manager		= 0x800L;	// Shared cache manager
+const ULONG DBB_DB_SQL_dialect_3	= 0x1000L;	/* database SQL dialect 3 */
+const ULONG DBB_read_only			= 0x2000L;	/* DB is ReadOnly (RO). If not set, DB is RW */
+const ULONG DBB_being_opened_read_only	= 0x4000L;	/* DB is being opened RO. If unset, opened as RW */
+const ULONG DBB_not_in_use			= 0x8000L;	/* Database to be ignored while attaching */
+const ULONG DBB_lck_init_done		= 0x10000L;	/* LCK_init() called for the database */
+const ULONG DBB_sp_rec_mutex_init	= 0x20000L;	/* Stored procedure mutex initialized */
+const ULONG DBB_sweep_in_progress	= 0x40000L;	/* A database sweep operation is in progress */
+const ULONG DBB_security_db			= 0x80000L;	/* ISC security database */
+const ULONG DBB_sweep_thread_started	= 0x100000L;	/* A database sweep thread has been started */
+const ULONG DBB_suspend_bgio		= 0x200000L;	/* Suspend I/O by background threads */
+const ULONG DBB_being_opened		= 0x400000L;	/* database is being attached to */
+const ULONG DBB_gc_cooperative		= 0x0800000L;	/* cooperative garbage collection */
+const ULONG DBB_gc_background		= 0x1000000L;	/* background garbage collection by gc_thread */
 
 //
 // dbb_ast_flags
 //
-#define DBB_blocking		0x1L	// Exclusive mode is blocking
-//#define DBB_get_shadows		0x2L	// Signal received to check for new shadows
-#define DBB_assert_locks	0x4L	// Locks are to be asserted
-#define DBB_shutdown		0x8L	// Database is shutdown
-#define DBB_shut_attach		0x10L	// no new attachments accepted
-#define DBB_shut_tran		0x20L	// no new transactions accepted
-#define DBB_shut_force		0x40L	// forced shutdown in progress
-#define DBB_shutdown_locks	0x80L	// Database locks release by shutdown
+const UATOM DBB_blocking			= 0x1L;		// Exclusive mode is blocking
+//const UATOM DBB_get_shadows			= 0x2L;		// Signal received to check for new shadows
+const UATOM DBB_assert_locks		= 0x4L;		// Locks are to be asserted
+const UATOM DBB_shutdown			= 0x8L;		// Database is shutdown
+const UATOM DBB_shut_attach			= 0x10L;	// no new attachments accepted
+const UATOM DBB_shut_tran			= 0x20L;	// no new transactions accepted
+const UATOM DBB_shut_force			= 0x40L;	// forced shutdown in progress
+const UATOM DBB_shutdown_locks		= 0x80L;	// Database locks release by shutdown
+const UATOM DBB_shutdown_full		= 0x100L;	// Database fully shut down
+const UATOM DBB_shutdown_single		= 0x200L;	// Database is in single-user maintenance mode
 
 //
 // Database mutexes and read/write locks
 //
-#define DBB_MUTX_init_fini      0	// During startup and shutdown
-#define DBB_MUTX_statistics     1	// Memory size and counts
-#define DBB_MUTX_replay         2	// Replay logging
-#define DBB_MUTX_dyn            3	// Dynamic ddl
-#define DBB_MUTX_cache          4	// Process-private cache management
-#define DBB_MUTX_clone          5	// Request cloning
-#define DBB_MUTX_cmp_clone      6	// Compiled request cloning
-#define DBB_MUTX_flush_count    7	// flush count/time
-#define DBB_MUTX_max            8
+const int DBB_MUTX_init_fini		= 0;	// During startup and shutdown
+const int DBB_MUTX_statistics		= 1;	// Memory size and counts
+const int DBB_MUTX_replay			= 2;	// Replay logging
+const int DBB_MUTX_dyn				= 3;	// Dynamic ddl
+const int DBB_MUTX_cache			= 4;	// Process-private cache management
+const int DBB_MUTX_clone			= 5;	// Request cloning
+const int DBB_MUTX_cmp_clone		= 6;	// Compiled request cloning
+const int DBB_MUTX_flush_count		= 7;	// flush count/time
+const int DBB_MUTX_max				= 8;
 
-#define DBB_WLCK_pools          0	// Pool manipulation
-#define DBB_WLCK_files          1	// DB and shadow file manipulation
-#define DBB_WLCK_max            2
+const int DBB_WLCK_pools			= 0;	// Pool manipulation
+const int DBB_WLCK_files			= 1;	// DB and shadow file manipulation
+const int DBB_WLCK_max				= 2;
 
 CLASS (ModuleManager);
 
@@ -144,7 +148,7 @@ struct blf;
 struct lls;
 struct jrn;		/* journal block */
 //struct tpc;		/* cache of latest known state of all transactions in system */
-struct tdbb;
+struct thread_db;
 
 class Database : public RefObject //public pool_alloc<type_dbb>
 {
@@ -153,7 +157,7 @@ public:
 	virtual ~Database();
 
 public:
-	Relation* findRelation (tdbb *tdbb, const char *relationName);
+	Relation* findRelation (thread_db* tdbb, const char *relationName);
 	ISC_STATUS executeDDL (ISC_STATUS *statusVector, Transaction *transaction, int length, const UCHAR *ddl);
 	void init();
 	int getSqlDialect();
@@ -304,9 +308,9 @@ public:
 	Database(const Database&);	// no impl.
 	const Database& operator =(const Database&) { return *this; }
 	bool isFilename(const char* filename);
-	CharSetContainer* findCharset(tdbb* tdbb, int ttype);
-	CharSetContainer* findCharset(tdbb* tdbb, const char* name);
-	CharSetContainer* findCollation(tdbb* tdbb, const char* name);
+	CharSetContainer* findCharset(thread_db* tdbb, int ttype);
+	CharSetContainer* findCharset(thread_db* tdbb, const char* name);
+	CharSetContainer* findCollation(thread_db* tdbb, const char* name);
 	void addPool(JrdMemoryPool* pool);
 	void removePool(JrdMemoryPool* pool);
 	Attachment* createAttachment(void);
@@ -314,18 +318,18 @@ public:
 	void makeReady(void);
 	bool isReady(bool waitFlag);
 	//bool isInitialized(void);
-	Relation* lookupRelation(tdbb* tdbb, const char* relationName);
-	Relation* getRelation(tdbb* tdbb, int id);
+	Relation* lookupRelation(thread_db* tdbb, const char* relationName);
+	Relation* getRelation(thread_db* tdbb, int id);
 	void validate(void);
-	Procedure* findProcedure(tdbb* tdbb, int id);
-	Procedure* findProcedure(tdbb* tdbb, const TEXT* name, bool noscan);
+	Procedure* findProcedure(thread_db* tdbb, int id);
+	Procedure* findProcedure(thread_db* tdbb, const TEXT* name, bool noscan);
 	InternalConnection* getSystemConnection(void);
-	void updateAccountInfo(tdbb* tdbb, int apbLength, const UCHAR* apb);
-	void authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	void updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb);
+	void authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	void incrementUseCount(void);
 	void decrementUseCount(void);
 	Relation* findRelation(int relationId);
-	Relation* findRelation(tdbb* tdbb, int relationId);
+	Relation* findRelation(thread_db* tdbb, int relationId);
 };
 
 #endif // !defined(AFX_DATABASE_H__BE654FF4_17AA_4D04_B13D_B8569CF885F2__INCLUDED_)

@@ -24,14 +24,14 @@
 #ifndef JRD_INI_PROTO_H
 #define JRD_INI_PROTO_H
 
-void	INI_format(TDBB tdbb, const TEXT*, const TEXT*);
+void	INI_format(thread_db* tdbb, const TEXT*, const TEXT*);
 USHORT	INI_get_trig_flags(const TEXT*);
-void	INI_init(TDBB tdbb);
-void	INI_init2(TDBB tdbb);
+void	INI_init(thread_db* tdbb);
+void	INI_init2(thread_db* tdbb);
 const struct jrd_trg*	INI_lookup_sys_trigger(jrd_rel*, const jrd_trg*,
 										  const UCHAR**, UCHAR*, const SCHAR**,
 										  USHORT*);
-void INI_update_database(TDBB tdbb);
+void INI_update_database(thread_db* tdbb);
 
 #endif // JRD_INI_PROTO_H
 

@@ -56,10 +56,10 @@ typedef union {
 #define SHUT_WAIT_TIME	5
 
 static BOOLEAN notify_shutdown(DBB, SSHORT, SSHORT);
-static BOOLEAN shutdown_locks(TDBB tdbb, DBB);
+static BOOLEAN shutdown_locks(thread_db* tdbb, DBB);
 
 
-BOOLEAN SHUT_blocking_ast(TDBB tdbb, DBB dbb)
+BOOLEAN SHUT_blocking_ast(thread_db* tdbb, DBB dbb)
 {
 /**************************************
  *
@@ -120,9 +120,9 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
  *	Schedule database for shutdown
  *
  **************************************/
-	TDBB tdbb;
+	thread_db* tdbb;
 	ATT attachment;
-	HDR header;
+	header_page* header;
 	SSHORT timeout, exclusive;
 
 	tdbb = GET_THREAD_DATA;
@@ -144,7 +144,7 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
 			/* Clear shutdown flag on database header page */
 
 			WIN window(HEADER_PAGE);
-			header = (HDR) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
+			header = (header_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
 			CCH_MARK_MUST_WRITE(tdbb, &window);
 			header->hdr_flags &= ~hdr_shutdown;
 			CCH_RELEASE(tdbb, &window);
@@ -214,7 +214,7 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
 		dbb->incrementUseCount();
 		dbb->dbb_ast_flags &= ~(DBB_shut_force | DBB_shut_attach | DBB_shut_tran);
 		WIN window(HEADER_PAGE);
-		header = (HDR) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
+		header = (header_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
 		CCH_MARK_MUST_WRITE(tdbb, &window);
 		header->hdr_flags |= hdr_shutdown;
 		CCH_RELEASE(tdbb, &window);
@@ -229,7 +229,7 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
 }
 
 
-BOOLEAN SHUT_init(TDBB tdbb, DBB dbb)
+BOOLEAN SHUT_init(thread_db* tdbb, DBB dbb)
 {
 /**************************************
  *
@@ -263,7 +263,7 @@ static BOOLEAN notify_shutdown(DBB dbb, SSHORT flag, SSHORT delay)
  *
  **************************************/
 
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	SDATA data;
 
 	data.data_items.flag = flag;
@@ -289,7 +289,7 @@ static BOOLEAN notify_shutdown(DBB dbb, SSHORT flag, SSHORT delay)
 }
 
 
-static BOOLEAN shutdown_locks(TDBB tdbb, DBB dbb)
+static BOOLEAN shutdown_locks(thread_db* tdbb, DBB dbb)
 {
 /**************************************
  *

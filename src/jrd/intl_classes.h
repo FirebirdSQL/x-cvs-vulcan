@@ -129,7 +129,7 @@ public:
 						(tt->texttype_fn_mbtowc)))(tt,a,b,c);
 	}
 
-	USHORT contains(struct tdbb* a, const UCHAR *b,
+	USHORT contains(struct thread_db* a, const UCHAR *b,
 					USHORT c,
 					const UCHAR* d,
 					USHORT e)
@@ -137,12 +137,12 @@ public:
 		fb_assert(tt);
 		fb_assert(tt->texttype_fn_contains);
 		return (*(reinterpret_cast<
-					USHORT (*)(struct tdbb*, TextType, const UCHAR*, USHORT, const UCHAR*, USHORT)>
+					USHORT (*)(struct thread_db*, TextType, const UCHAR*, USHORT, const UCHAR*, USHORT)>
 						(tt->texttype_fn_contains)))
 							(a,tt,b,c,d,e);
 	}
 	
-	USHORT like(struct tdbb* tdbb, const UCHAR* a,
+	USHORT like(struct thread_db* tdbb, const UCHAR* a,
 							  SSHORT b,
 							  const UCHAR* c,
 							  SSHORT d,
@@ -151,21 +151,21 @@ public:
 		fb_assert(tt);
 		fb_assert(tt->texttype_fn_like);
 		return (*(reinterpret_cast<
-					USHORT(*)(struct tdbb*, TextType, const UCHAR*, short, const UCHAR*, short, short)>
+					USHORT(*)(struct thread_db*, TextType, const UCHAR*, short, const UCHAR*, short, short)>
 						(tt->texttype_fn_like)))(tdbb,tt,a,b,c,d,e);
 	}
 	
-	USHORT matches(struct tdbb* tdbb, const UCHAR* a, SSHORT b, const UCHAR* c, SSHORT d)
+	USHORT matches(struct thread_db* tdbb, const UCHAR* a, SSHORT b, const UCHAR* c, SSHORT d)
 	{
 		fb_assert(tt);
 		fb_assert(tt->texttype_fn_matches);
 		return (*(reinterpret_cast<
-					USHORT (*)(struct tdbb*, TextType, const UCHAR*, short, const UCHAR*, short)>
+					USHORT (*)(struct thread_db*, TextType, const UCHAR*, short, const UCHAR*, short)>
 						(tt->texttype_fn_matches)))
 							(tdbb,tt,a,b,c,d);
 	}
 
-	USHORT sleuth_check(struct tdbb* tdbb, USHORT a,
+	USHORT sleuth_check(struct thread_db* tdbb, USHORT a,
 								const UCHAR* b,
 								USHORT c,
 								const UCHAR* d,
@@ -174,12 +174,12 @@ public:
 		fb_assert(tt);
 		fb_assert(tt->texttype_fn_sleuth_check);
 		return (*(reinterpret_cast<
-					USHORT(*)(struct tdbb*, TextType, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT)>
+					USHORT(*)(struct thread_db*, TextType, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT)>
 						(tt->texttype_fn_sleuth_check)))
 							(tdbb,tt,a,b,c,d,e);
 	}
 	
-	USHORT sleuth_merge(struct tdbb* tdbb, const UCHAR* a,
+	USHORT sleuth_merge(struct thread_db* tdbb, const UCHAR* a,
 								USHORT b,
 								const UCHAR* c,
 								USHORT d,
@@ -189,7 +189,7 @@ public:
 		fb_assert(tt);
 		fb_assert(tt->texttype_fn_sleuth_merge);
 		return (*(reinterpret_cast<
-					USHORT(*)(struct tdbb*, TextType, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*, USHORT)>
+					USHORT(*)(struct thread_db*, TextType, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*, USHORT)>
 						(tt->texttype_fn_sleuth_merge)))
 							(tdbb,tt,a,b,c,d,e,f);
 	}

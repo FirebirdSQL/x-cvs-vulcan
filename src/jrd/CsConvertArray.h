@@ -36,10 +36,10 @@ public:
 
 class MemoryPool;
 class TextType;
-struct tdbb;
+struct thread_db;
 class MemoryPool;
 class CharSet;
-struct tdbb;
+struct thread_db;
 //struct texttype;
 
 // Classes and structures used internally to this file and intl implementation
@@ -47,14 +47,14 @@ struct tdbb;
 class CharSetContainer
 {
 public:
-	CharSetContainer(tdbb *tdbb, MemoryPool *p, USHORT cs_id);
+	CharSetContainer(thread_db* tdbb, MemoryPool *p, USHORT cs_id);
 	CharSet getCharSet() 
 		{ 
 		return cs; 
 		}
-	TextType lookupCollation(tdbb* tdbb, USHORT tt_id);
-	CsConvert lookupConverter(tdbb* tdbb, int to_cs);
-	//static CharSetContainer* lookupCharset(TDBB tdbb, SSHORT ttype, ISC_STATUS *status);
+	TextType lookupCollation(thread_db* tdbb, USHORT tt_id);
+	CsConvert lookupConverter(thread_db* tdbb, int to_cs);
+	//static CharSetContainer* lookupCharset(thread_db* tdbb, SSHORT ttype, ISC_STATUS *status);
 	CharSetContainer	*next;
 	int					id;
 	
@@ -70,7 +70,7 @@ private:
 	
 public:
 	virtual bool isNamed(const char* name);
-	virtual bool loadCharSet(tdbb* tdbb, MemoryPool* p, int cs_id);
+	virtual bool loadCharSet(thread_db* tdbb, MemoryPool* p, int cs_id);
 	virtual int getBytesPerChar(void);
 	virtual int getTType(void);
 	virtual int getCharsetId(void);

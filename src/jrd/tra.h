@@ -42,13 +42,13 @@ class sbm;
 class sbm;
 class sav;
 class dfw;
-class Rsc;
+class Resource;
 class traRpbList;
 
 struct arr;
 struct lck;
 struct vec;
-struct tdbb;
+struct thread_db;
 
 /* Transaction block */
 
@@ -80,7 +80,7 @@ public:
 #endif
 
 	dfw				*tra_deferred_work;		/* work deferred to commit time */
-	Rsc				*tra_resources;			/* resource existence list */
+	Resource		*tra_resources;			/* resource existence list */
 	traRpbList		*tra_rpblist;			/* active RPB's of given transaction */
 	UCHAR			tra_use_count;			/* use count for safe AST delivery */
 	UCHAR			tra_callback_count;		/* callback count for 'execute statement' */
@@ -91,10 +91,10 @@ public:
 	~Transaction(void);
 	Transaction(void);
 	
-	blb*		allocateBlob(tdbb *tdbb);
+	blb*		allocateBlob(thread_db* tdbb);
 	void		deleteBlob(blb* blob);
 	void		addPendingRelation(Relation* relation);
-	Relation*	findRelation(tdbb *tdbb, const char* relationName);
+	Relation*	findRelation(thread_db* tdbb, const char* relationName);
 	InternalConnection* getConnection(void);
 };
 

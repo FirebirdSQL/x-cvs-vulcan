@@ -88,72 +88,72 @@
 #endif
 
 static bool augment_stack(JRD_NOD, LLS *);
-static UINT64 calculate_priority_level(TDBB tdbb, OPT, index_desc*);
-static void check_indices(TDBB tdbb, csb_repeat *);
+static UINT64 calculate_priority_level(thread_db* tdbb, OPT, index_desc*);
+static void check_indices(thread_db* tdbb, csb_repeat *);
 static bool check_relationship(OPT, USHORT, USHORT);
-static void check_sorts(RSE);
+static void check_sorts(RecordSelExpr*);
 static void class_mask(USHORT, JRD_NOD *, ULONG *);
 static void clear_bounds(OPT, index_desc*);
-static JRD_NOD compose(TDBB tdbb, JRD_NOD *, JRD_NOD, NOD_T);
-static bool computable(CSB, JRD_NOD, SSHORT, bool);
+static JRD_NOD compose(thread_db* tdbb, JRD_NOD *, JRD_NOD, NOD_T);
+static bool computable(CompilerScratch*, JRD_NOD, SSHORT, bool);
 static void compute_dependencies(JRD_NOD, ULONG *);
-static void compute_dbkey_streams(CSB, JRD_NOD, UCHAR *);
-static void compute_rse_streams(CSB, RSE, UCHAR *);
+static void compute_dbkey_streams(CompilerScratch*, JRD_NOD, UCHAR *);
+static void compute_rse_streams(CompilerScratch*, RecordSelExpr*, UCHAR *);
 static bool check_for_nod_from(JRD_NOD);
-static SLONG decompose(TDBB, JRD_NOD, LLS *, CSB);
-static USHORT distribute_equalities(TDBB tdbb, LLS *, CSB, USHORT);
-static bool dump_index(TDBB tdbb, const jrd_nod*, UCHAR**, SSHORT*);
-static bool dump_rsb(TDBB tdbb, const jrd_req*, RSB, UCHAR**, SSHORT*);
-static bool estimate_cost(TDBB, OPT, USHORT, double *, double *);
+static SLONG decompose(thread_db*, JRD_NOD, LLS *, CompilerScratch*);
+static USHORT distribute_equalities(thread_db* tdbb, LLS *, CompilerScratch*, USHORT);
+static bool dump_index(thread_db* tdbb, const jrd_nod*, UCHAR**, SSHORT*);
+static bool dump_rsb(thread_db* tdbb, const jrd_req*, RecordSource*, UCHAR**, SSHORT*);
+static bool estimate_cost(thread_db*, OPT, USHORT, double *, double *);
 #ifdef EXPRESSION_INDICES
-static bool expression_equal(TDBB, JRD_NOD, JRD_NOD);
+static bool expression_equal(thread_db*, JRD_NOD, JRD_NOD);
 #endif
-static void find_best(TDBB, OPT, USHORT, USHORT, UCHAR *, JRD_NOD,
+static void find_best(thread_db*, OPT, USHORT, USHORT, UCHAR *, JRD_NOD,
 					  double, double);
 static JRD_NOD find_dbkey(JRD_NOD, USHORT, SLONG *);
-static USHORT find_order(TDBB, OPT, UCHAR *, JRD_NOD);
-static void find_rsbs(RSB, LLS *, LLS *);
-static void find_used_streams(RSB , UCHAR *);
-static void form_rivers(TDBB, OPT, UCHAR *, LLS *, JRD_NOD *, JRD_NOD *, JRD_NOD);
-static bool form_river(TDBB, OPT, USHORT, UCHAR *, UCHAR *, LLS *, JRD_NOD *,
+static USHORT find_order(thread_db*, OPT, UCHAR *, JRD_NOD);
+static void find_rsbs(RecordSource*, LLS *, LLS *);
+static void find_used_streams(RecordSource* , UCHAR *);
+static void form_rivers(thread_db*, OPT, UCHAR *, LLS *, JRD_NOD *, JRD_NOD *, JRD_NOD);
+static bool form_river(thread_db*, OPT, USHORT, UCHAR *, UCHAR *, LLS *, JRD_NOD *,
 						  JRD_NOD *, JRD_NOD);
-static RSB gen_aggregate(TDBB, OPT, JRD_NOD);
-static RSB gen_boolean(TDBB, OPT, RSB, JRD_NOD);
-static RSB gen_first(TDBB, OPT, RSB, JRD_NOD);
-static void gen_join(TDBB, OPT, UCHAR *, LLS *, JRD_NOD *, JRD_NOD *, JRD_NOD);
-static RSB gen_navigation(TDBB, OPT, USHORT, JRD_REL, STR, index_desc*, JRD_NOD *);
+static RecordSource* gen_aggregate(thread_db*, OPT, JRD_NOD);
+static RecordSource* gen_boolean(thread_db*, OPT, RecordSource*, JRD_NOD);
+static RecordSource* gen_first(thread_db*, OPT, RecordSource*, JRD_NOD);
+static void gen_join(thread_db*, OPT, UCHAR *, LLS *, JRD_NOD *, JRD_NOD *, JRD_NOD);
+static RecordSource* gen_navigation(thread_db*, OPT, USHORT, JRD_REL, STR, index_desc*, JRD_NOD *);
 #ifdef SCROLLABLE_CURSORS
-static RSB gen_nav_rsb(TDBB, OPT, USHORT, JRD_REL, STR, index_desc*, RSE_GET_MODE);
+static RecordSource* gen_nav_rsb(thread_db*, OPT, USHORT, JRD_REL, STR, index_desc*, RSE_GET_MODE);
 #else
-static RSB gen_nav_rsb(TDBB, OPT, USHORT, JRD_REL, STR, index_desc*);
+static RecordSource* gen_nav_rsb(thread_db*, OPT, USHORT, JRD_REL, STR, index_desc*);
 #endif
-static RSB gen_outer(TDBB, OPT, RSE, LLS, JRD_NOD *, JRD_NOD *);
-static RSB gen_procedure(TDBB, OPT, JRD_NOD);
-static RSB gen_residual_boolean(TDBB, OPT, RSB);
-static RSB gen_retrieval(TDBB, OPT, SSHORT, JRD_NOD *, JRD_NOD *, bool, bool,
+static RecordSource* gen_outer(thread_db*, OPT, RecordSelExpr*, LLS, JRD_NOD *, JRD_NOD *);
+static RecordSource* gen_procedure(thread_db*, OPT, JRD_NOD);
+static RecordSource* gen_residual_boolean(thread_db*, OPT, RecordSource*);
+static RecordSource* gen_retrieval(thread_db*, OPT, SSHORT, JRD_NOD *, JRD_NOD *, bool, bool,
 						 JRD_NOD *);
-static RSB gen_rsb(TDBB, OPT, RSB, JRD_NOD, SSHORT, JRD_REL, STR, JRD_NOD, float);
-static RSB	gen_skip (TDBB, OPT, RSB, JRD_NOD);
-static RSB gen_sort(TDBB, OPT, UCHAR *, UCHAR *, RSB, JRD_NOD, bool);
-static bool gen_sort_merge(TDBB, OPT, LLS *);
-static RSB gen_union(TDBB, OPT, JRD_NOD, UCHAR *, USHORT);
-static void get_inactivities(CSB, ULONG *);
-static IRL indexed_relationship(TDBB, OPT, USHORT);
-static STR make_alias(TDBB, CSB, csb_repeat *);
-static JRD_NOD make_binary_node(TDBB tdbb, NOD_T, JRD_NOD, JRD_NOD, bool);
-static RSB make_cross(TDBB, OPT, LLS);
-static JRD_NOD make_index_node(TDBB, JRD_REL, CSB, index_desc*);
-static JRD_NOD make_inference_node(TDBB tdbb, CSB, JRD_NOD, JRD_NOD, JRD_NOD);
-static JRD_NOD make_inversion(TDBB, OPT, JRD_NOD, USHORT);
-static JRD_NOD make_missing(TDBB, OPT, JRD_REL, JRD_NOD, USHORT, index_desc*);
-static JRD_NOD make_starts(TDBB, OPT, JRD_REL, JRD_NOD, USHORT, index_desc*);
+static RecordSource* gen_rsb(thread_db*, OPT, RecordSource*, JRD_NOD, SSHORT, JRD_REL, STR, JRD_NOD, float);
+static RecordSource* gen_skip (thread_db*, OPT, RecordSource*, JRD_NOD);
+static RecordSource* gen_sort(thread_db*, OPT, UCHAR *, UCHAR *, RecordSource*, JRD_NOD, bool);
+static bool gen_sort_merge(thread_db*, OPT, LLS *);
+static RecordSource* gen_union(thread_db*, OPT, JRD_NOD, UCHAR *, USHORT);
+static void get_inactivities(CompilerScratch*, ULONG *);
+static IRL indexed_relationship(thread_db*, OPT, USHORT);
+static STR make_alias(thread_db*, CompilerScratch*, csb_repeat *);
+static JRD_NOD make_binary_node(thread_db* tdbb, NOD_T, JRD_NOD, JRD_NOD, bool);
+static RecordSource* make_cross(thread_db*, OPT, LLS);
+static JRD_NOD make_index_node(thread_db*, JRD_REL, CompilerScratch*, index_desc*);
+static JRD_NOD make_inference_node(thread_db* tdbb, CompilerScratch*, JRD_NOD, JRD_NOD, JRD_NOD);
+static JRD_NOD make_inversion(thread_db*, OPT, JRD_NOD, USHORT);
+static JRD_NOD make_missing(thread_db*, OPT, JRD_REL, JRD_NOD, USHORT, index_desc*);
+static JRD_NOD make_starts(thread_db*, OPT, JRD_REL, JRD_NOD, USHORT, index_desc*);
 static bool map_equal(JRD_NOD, JRD_NOD, JRD_NOD);
 static void mark_indices(csb_repeat *, SSHORT);
-static SSHORT match_index(TDBB, OPT, SSHORT, JRD_NOD, index_desc*);
-static bool match_indices(TDBB, OPT, SSHORT, JRD_NOD, index_desc*);
-static USHORT nav_rsb_size(RSB, USHORT, USHORT);
+static SSHORT match_index(thread_db*, OPT, SSHORT, JRD_NOD, index_desc*);
+static bool match_indices(thread_db*, OPT, SSHORT, JRD_NOD, index_desc*);
+static USHORT nav_rsb_size(RecordSource*, USHORT, USHORT);
 static bool node_equality(JRD_NOD, JRD_NOD);
-static JRD_NOD optimize_like(TDBB, JRD_NOD);
+static JRD_NOD optimize_like(thread_db*, JRD_NOD);
 #ifdef OPT_DEBUG
 static void print_order(OPT, USHORT, double, double);
 #endif
@@ -165,9 +165,9 @@ static void set_direction(JRD_NOD, JRD_NOD);
 static void set_inactive(OPT, RIV);
 static void set_made_river(OPT, RIV);
 static void set_position(JRD_NOD, JRD_NOD, JRD_NOD);
-static void set_rse_inactive(CSB, RSE);
-static void sort_indices_by_selectivity(TDBB tdbb, csb_repeat *);
-static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat *, index_desc**, UINT64 *);
+static void set_rse_inactive(CompilerScratch*, RecordSelExpr*);
+static void sort_indices_by_selectivity(thread_db* tdbb, csb_repeat *);
+static SSHORT sort_indices_by_priority(thread_db* tdbb, csb_repeat *, index_desc**, UINT64 *);
 
 
 /* macro definitions */
@@ -237,7 +237,7 @@ static const UCHAR sort_dtypes[] = {
 };
 
 
-BOOLEAN OPT_access_path(TDBB tdbb, const jrd_req* request,
+BOOLEAN OPT_access_path(thread_db* tdbb, const jrd_req* request,
 						UCHAR* buffer,
 						SSHORT buffer_length, USHORT* return_length)
 {
@@ -268,7 +268,7 @@ BOOLEAN OPT_access_path(TDBB tdbb, const jrd_req* request,
 	
 	for (i = vector->count() - 1; i >= 0; i--) 
 		{
-		RSB rsb = (RSB) (*vector)[i];
+		RecordSource* rsb = (RecordSource*) (*vector)[i];
 		
 		if (rsb && !dump_rsb(tdbb, request, rsb, &buffer, &buffer_length))
 			break;
@@ -283,8 +283,8 @@ BOOLEAN OPT_access_path(TDBB tdbb, const jrd_req* request,
 }
 
 
-RSB OPT_compile(TDBB tdbb,
-				CSB csb, RSE rse, LLS parent_stack)
+RecordSource* OPT_compile(thread_db* tdbb,
+				CompilerScratch* csb, RecordSelExpr* rse, LLS parent_stack)
 {
 /**************************************
  *
@@ -303,7 +303,7 @@ RSB OPT_compile(TDBB tdbb,
 	RIV river;
 	JRD_NOD node, *ptr, *end, sort, project, aggregate;
 	LLS conjunct_stack, rivers_stack, *stack_end;
-	RSB rsb;
+	RecordSource* rsb;
 	SLONG idx_size, conjunct_count;
 	SSHORT i, stream;
 	UCHAR *p, *q, streams[MAX_STREAMS+1], beds[MAX_STREAMS+1],
@@ -424,8 +424,8 @@ RSB OPT_compile(TDBB tdbb,
 				(UCHAR)(long) node->nod_arg[e_prc_stream];
 		}
 		else if (node->nod_type == nod_rse) {
-			compute_rse_streams(csb, (RSE) node, beds);
-			compute_rse_streams(csb, (RSE) node, local_streams);
+			compute_rse_streams(csb, (RecordSelExpr*) node, beds);
+			compute_rse_streams(csb, (RecordSelExpr*) node, local_streams);
 			compute_dbkey_streams(csb, node, key_streams);
 			// pass rse boolean only to inner substreams because join condition 
 			// should never exclude records from outer substreams 
@@ -442,7 +442,7 @@ RSB OPT_compile(TDBB tdbb,
 					}
 				}
 				*stack_end = parent_stack;
-				rsb = OPT_compile(tdbb, csb, (RSE) node, conjunct_stack);
+				rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, conjunct_stack);
 				*stack_end = NULL;
 				if (rse->rse_jointype == blr_left) {
 					for (i = 1; i <= outer_streams[0]; i++) {
@@ -450,7 +450,7 @@ RSB OPT_compile(TDBB tdbb,
 					}
 				}
 			} else {
-				rsb = OPT_compile(tdbb, csb, (RSE) node, parent_stack);
+				rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, parent_stack);
 				if (rse->rse_jointype == blr_left)
 					find_used_streams(rsb, outer_streams);
 			}
@@ -648,7 +648,7 @@ RSB OPT_compile(TDBB tdbb,
 		// an index doesn't guarantee that the result will be in that
 		// order. So we assigned the sort node back.
 		// SF BUG # [ 221921 ] ORDER BY has no effect
-		RSB test_rsb = rsb;
+		RecordSource* test_rsb = rsb;
 		if ((rsb) && (rsb->rsb_type == rsb_boolean) && (rsb->rsb_next)) {
 			test_rsb = rsb->rsb_next;
 		}
@@ -758,7 +758,7 @@ RSB OPT_compile(TDBB tdbb,
 }
 
 
-JRD_NOD OPT_make_dbkey(TDBB tdbb, OPT opt_, JRD_NOD boolean, USHORT stream)
+JRD_NOD OPT_make_dbkey(thread_db* tdbb, OPT opt_, JRD_NOD boolean, USHORT stream)
 {
 /**************************************
  *
@@ -775,7 +775,7 @@ JRD_NOD OPT_make_dbkey(TDBB tdbb, OPT opt_, JRD_NOD boolean, USHORT stream)
  *	concatenations of primitive dbkeys.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	JRD_NOD value, dbkey;
 	SLONG n;
 
@@ -833,13 +833,13 @@ JRD_NOD OPT_make_dbkey(TDBB tdbb, OPT opt_, JRD_NOD boolean, USHORT stream)
 	dbkey->nod_type = nod_bit_dbkey;
 	dbkey->nod_arg[0] = value;
 	dbkey->nod_arg[1] = (JRD_NOD) (long) n;
-	dbkey->nod_impure = CMP_impure(csb, sizeof(struct inv));
+	dbkey->nod_impure = CMP_impure(csb, sizeof(struct impure_inversion));
 
 	return dbkey;
 }
 
 
-JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, index_desc* idx)
+JRD_NOD OPT_make_index(thread_db* tdbb, OPT opt_, JRD_REL relation, index_desc* idx)
 {
 /**************************************
  *
@@ -932,7 +932,7 @@ JRD_NOD OPT_make_index(TDBB tdbb, OPT opt_, JRD_REL relation, index_desc* idx)
 }
 
 
-int OPT_match_index(TDBB tdbb, OPT opt, USHORT stream, index_desc* idx)
+int OPT_match_index(thread_db* tdbb, OPT opt, USHORT stream, index_desc* idx)
 {
 /**************************************
  *
@@ -947,7 +947,7 @@ int OPT_match_index(TDBB tdbb, OPT opt, USHORT stream, index_desc* idx)
  *	Return the number of matching items.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	JRD_NOD node;
 	USHORT n;
 	Opt::opt_conjunct *tail, *opt_end;
@@ -977,8 +977,8 @@ int OPT_match_index(TDBB tdbb, OPT opt, USHORT stream, index_desc* idx)
 
 
 
-void OPT_set_index(TDBB tdbb,
-				   JRD_REQ request, RSB * rsb_ptr, JRD_REL relation, index_desc* idx)
+void OPT_set_index(thread_db* tdbb,
+				   JRD_REQ request, RecordSource* * rsb_ptr, JRD_REL relation, index_desc* idx)
 {
 /**************************************
  *
@@ -993,13 +993,14 @@ void OPT_set_index(TDBB tdbb,
  *	on the specified index.
  *
  **************************************/
-	RSB old_rsb, new_rsb;
+	RecordSource* old_rsb;
+	RecordSource* new_rsb;
 	USHORT index_id, i;
 	OPT opt;
 	JRD_NOD inversion = NULL;
 	JRD_NOD index_node, new_index_node;
 	IndexRetrieval* retrieval;
-	IDL index;
+	IndexLock* index;
 	VEC vector;
 	DBB dbb;
 
@@ -1047,7 +1048,7 @@ void OPT_set_index(TDBB tdbb,
 							  , RSE_get_forward
 #endif
 			);
-		new_rsb->rsb_arg[RSB_NAV_inversion] = (RSB) inversion;
+		new_rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
 		new_rsb->rsb_cardinality = old_rsb->rsb_cardinality;
 	}
 	else {
@@ -1083,11 +1084,11 @@ void OPT_set_index(TDBB tdbb,
 			new_index_node->nod_impure = index_node->nod_impure;
 		else {
 			new_index_node->nod_impure = old_rsb->rsb_impure;
-			new_rsb->rsb_impure += sizeof(struct inv);
+			new_rsb->rsb_impure += sizeof(struct impure_inversion);
 		}
 	}
 	else if (old_rsb->rsb_type == rsb_navigate) {
-		new_rsb->rsb_impure -= sizeof(struct inv);
+		new_rsb->rsb_impure -= sizeof(struct impure_inversion);
 	}
 
 	/* if there was a previous index, release its lock 
@@ -1171,7 +1172,7 @@ static bool augment_stack(JRD_NOD node, LLS * stack)
 }
 
 
-static UINT64 calculate_priority_level(TDBB tdbb, OPT opt, index_desc* idx)
+static UINT64 calculate_priority_level(thread_db* tdbb, OPT opt, index_desc* idx)
 {
 /**************************************
  *
@@ -1228,7 +1229,7 @@ static UINT64 calculate_priority_level(TDBB tdbb, OPT opt, index_desc* idx)
 }
 
 
-static void check_indices(TDBB tdbb, csb_repeat * csb_tail)
+static void check_indices(thread_db* tdbb, csb_repeat * csb_tail)
 {
 /**************************************
  *
@@ -1331,7 +1332,7 @@ static bool check_relationship(OPT opt, USHORT position, USHORT stream)
 }
 
 
-static void check_sorts(RSE rse)
+static void check_sorts(RecordSelExpr* rse)
 {
 /**************************************
  *
@@ -1528,7 +1529,7 @@ static void clear_bounds(OPT opt, index_desc* idx)
 }
 
 
-static JRD_NOD compose(TDBB tdbb, JRD_NOD * node1, JRD_NOD node2, NOD_T node_type)
+static JRD_NOD compose(thread_db* tdbb, JRD_NOD * node1, JRD_NOD node2, NOD_T node_type)
 {
 /**************************************
  *
@@ -1556,7 +1557,7 @@ static JRD_NOD compose(TDBB tdbb, JRD_NOD * node1, JRD_NOD node2, NOD_T node_typ
 }
 
 
-static bool computable(CSB     csb,
+static bool computable(CompilerScratch*     csb,
                        JRD_NOD node,
                        SSHORT  stream,
                        bool    idx_use)
@@ -1589,7 +1590,7 @@ static bool computable(CSB     csb,
  *     working on.
  *
  **************************************/
-	RSE rse;
+	RecordSelExpr* rse;
 	JRD_NOD *ptr, *end, sub, value;
 	USHORT n;
 
@@ -1653,17 +1654,17 @@ static bool computable(CSB     csb,
 		{
 			return false;
 		}
-		rse = (RSE) node->nod_arg[e_stat_rse];
+		rse = (RecordSelExpr*) node->nod_arg[e_stat_rse];
 		value = node->nod_arg[e_stat_value];
 		break;
 
 	case nod_rse:
-		rse = (RSE) node;
+		rse = (RecordSelExpr*) node;
 		value = NULL;
 		break;
 
 	case nod_aggregate:
-		rse = (RSE) node->nod_arg[e_agg_rse];
+		rse = (RecordSelExpr*) node->nod_arg[e_agg_rse];
 		rse->rse_sorted = node->nod_arg[e_agg_group];
 		value = NULL;
 		break;
@@ -1746,7 +1747,7 @@ static void compute_dependencies(JRD_NOD node, ULONG * dependencies)
  *	Compute stream dependencies for evaluation of an expression.
  *
  **************************************/
-	RSE rse;
+	RecordSelExpr* rse;
 	JRD_NOD *ptr, *end, sub, value;
 	USHORT n;
 
@@ -1784,12 +1785,12 @@ static void compute_dependencies(JRD_NOD node, ULONG * dependencies)
 		if ( (sub = node->nod_arg[e_stat_default]) ) {
 			compute_dependencies(sub, dependencies);
 		}
-		rse = (RSE) node->nod_arg[e_stat_rse];
+		rse = (RecordSelExpr*) node->nod_arg[e_stat_rse];
 		value = node->nod_arg[e_stat_value];
 		break;
 
 	case nod_rse:
-		rse = (RSE) node;
+		rse = (RecordSelExpr*) node;
 		value = NULL;
 		break;
 
@@ -1834,7 +1835,7 @@ static void compute_dependencies(JRD_NOD node, ULONG * dependencies)
 }
 
 
-static void compute_dbkey_streams(CSB csb, JRD_NOD node, UCHAR * streams)
+static void compute_dbkey_streams(CompilerScratch* csb, JRD_NOD node, UCHAR * streams)
 {
 /**************************************
  *
@@ -1848,7 +1849,7 @@ static void compute_dbkey_streams(CSB csb, JRD_NOD node, UCHAR * streams)
  *
  **************************************/
 	JRD_NOD clauses, *ptr, *end;
-	RSE rse;
+	RecordSelExpr* rse;
 
 	DEV_BLKCHK(csb, type_csb);
 	DEV_BLKCHK(node, type_nod);
@@ -1866,7 +1867,7 @@ static void compute_dbkey_streams(CSB csb, JRD_NOD node, UCHAR * streams)
 		}
 	}
 	else if (node->nod_type == nod_rse) {
-		rse = (RSE) node;
+		rse = (RecordSelExpr*) node;
 		for (ptr = rse->rse_relation, end = ptr + rse->rse_count; ptr < end; ptr++) {
 			compute_dbkey_streams(csb, *ptr, streams);
 		}
@@ -1874,7 +1875,7 @@ static void compute_dbkey_streams(CSB csb, JRD_NOD node, UCHAR * streams)
 }
 
 
-static void compute_rse_streams(CSB csb, RSE rse, UCHAR * streams)
+static void compute_rse_streams(CompilerScratch* csb, RecordSelExpr* rse, UCHAR * streams)
 {
 /**************************************
  *
@@ -1898,7 +1899,7 @@ static void compute_rse_streams(CSB csb, RSE rse, UCHAR * streams)
 			streams[++streams[0]] = (UCHAR)(long) node->nod_arg[STREAM_INDEX(node)];
 		}
 		else {
-			compute_rse_streams(csb, (RSE) node, streams);
+			compute_rse_streams(csb, (RecordSelExpr*) node, streams);
 		}
 	}
 }
@@ -1922,8 +1923,8 @@ static bool check_for_nod_from(JRD_NOD node)
 	return false;
 }
 
-static SLONG decompose(TDBB tdbb,
-					   JRD_NOD boolean_node, LLS * stack, CSB csb)
+static SLONG decompose(thread_db* tdbb,
+					   JRD_NOD boolean_node, LLS * stack, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1984,7 +1985,7 @@ static SLONG decompose(TDBB tdbb,
 }
 
 
-static USHORT distribute_equalities(TDBB tdbb, LLS * org_stack, CSB csb, USHORT base_count)
+static USHORT distribute_equalities(thread_db* tdbb, LLS * org_stack, CompilerScratch* csb, USHORT base_count)
 {
 /**************************************
  *
@@ -2149,7 +2150,7 @@ static USHORT distribute_equalities(TDBB tdbb, LLS * org_stack, CSB csb, USHORT 
 }
 
 
-static bool dump_index(TDBB tdbb, const jrd_nod* node,
+static bool dump_index(thread_db* tdbb, const jrd_nod* node,
 						  UCHAR** buffer_ptr, SSHORT* buffer_length)
 {
 /**************************************
@@ -2221,8 +2222,8 @@ static bool dump_index(TDBB tdbb, const jrd_nod* node,
 }
 
 
-static bool dump_rsb(TDBB tdbb, const jrd_req* request,
-						RSB rsb, UCHAR** buffer_ptr, SSHORT* buffer_length)
+static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
+						RecordSource* rsb, UCHAR** buffer_ptr, SSHORT* buffer_length)
 {
 /**************************************
  *
@@ -2238,7 +2239,8 @@ static bool dump_rsb(TDBB tdbb, const jrd_req* request,
 	USHORT length;
 	JRD_REL relation;
 	STR alias;
-	RSB *ptr, *end;
+	RecordSource** ptr;
+	RecordSource** end;
 	USHORT return_length;
 	Procedure *procedure;
 
@@ -2492,7 +2494,7 @@ static bool dump_rsb(TDBB tdbb, const jrd_req* request,
 }
 
 
-static bool estimate_cost(TDBB tdbb,
+static bool estimate_cost(thread_db* tdbb,
 							 OPT opt,
 							 USHORT stream,
 							 double *cost, double *resulting_cardinality)
@@ -2512,7 +2514,7 @@ static bool estimate_cost(TDBB tdbb,
  *	retrievable.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	index_desc* idx;
 	JRD_NOD node;
 	USHORT indexes, i, equalities, inequalities, index_hits, count;
@@ -2639,7 +2641,7 @@ static bool estimate_cost(TDBB tdbb,
 
 
 #ifdef EXPRESSION_INDICES
-static bool expression_equal(TDBB tdbb, JRD_NOD node1, JRD_NOD node2)
+static bool expression_equal(thread_db* tdbb, JRD_NOD node1, JRD_NOD node2)
 {
 /**************************************
  *
@@ -2795,7 +2797,7 @@ static bool expression_equal(TDBB tdbb, JRD_NOD node1, JRD_NOD node2)
 #endif
 
 
-static void find_best(TDBB tdbb,
+static void find_best(thread_db* tdbb,
 					  OPT opt,
 					  USHORT stream,
 					  USHORT position,
@@ -2818,7 +2820,7 @@ static void find_best(TDBB tdbb,
  *	relationships to form joins.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	UCHAR *ptr, *stream_end;
 
 	SET_TDBB(tdbb);
@@ -3024,7 +3026,7 @@ static JRD_NOD find_dbkey(JRD_NOD dbkey, USHORT stream, SLONG * position)
 }
 
 
-static USHORT find_order(TDBB tdbb,
+static USHORT find_order(thread_db* tdbb,
 						 OPT opt, UCHAR * streams, JRD_NOD plan_node)
 {
 /**************************************
@@ -3083,7 +3085,7 @@ static USHORT find_order(TDBB tdbb,
 }
 
 
-static void find_rsbs(RSB rsb, LLS * stream_list, LLS * rsb_list)
+static void find_rsbs(RecordSource* rsb, LLS * stream_list, LLS * rsb_list)
 {
 /**************************************
  *
@@ -3097,7 +3099,8 @@ static void find_rsbs(RSB rsb, LLS * stream_list, LLS * rsb_list)
  *	For unions/aggregates/procedures also save the rsb pointer.
  *
  **************************************/
-	RSB *ptr, *end;
+	RecordSource** ptr;
+	RecordSource** end;
 
 #ifdef DEV_BUILD
 	DEV_BLKCHK(rsb, type_rsb);
@@ -3156,7 +3159,7 @@ static void find_rsbs(RSB rsb, LLS * stream_list, LLS * rsb_list)
 }
 
 
-static void find_used_streams(RSB rsb, UCHAR * streams)
+static void find_used_streams(RecordSource* rsb, UCHAR * streams)
 {
 /**************************************
  *
@@ -3174,7 +3177,8 @@ static void find_used_streams(RSB rsb, UCHAR * streams)
 		return;
 	}
 
-	RSB *ptr, *end;
+	RecordSource** ptr;
+	RecordSource** end;
 	USHORT stream;
 	bool found = false;
 
@@ -3233,7 +3237,7 @@ static void find_used_streams(RSB rsb, UCHAR * streams)
 }
 
 
-static void form_rivers(TDBB tdbb,
+static void form_rivers(thread_db* tdbb,
 						OPT opt,
 						UCHAR * streams,
 						LLS * river_stack,
@@ -3301,7 +3305,7 @@ static void form_rivers(TDBB tdbb,
 }
 
 
-static bool form_river(TDBB tdbb,
+static bool form_river(thread_db* tdbb,
 						  OPT opt,
 						  USHORT count,
 						  UCHAR * streams,
@@ -3332,22 +3336,22 @@ static bool form_river(TDBB tdbb,
 
 	SET_TDBB(tdbb);
 
-	CSB csb = opt->opt_csb;
+	CompilerScratch* csb = opt->opt_csb;
 
 	// Allocate a river block and move the best order into it.
 	RIV river = FB_NEW_RPT(*tdbb->tdbb_default, count) riv();
 	LLS_PUSH(river, river_stack);
 	river->riv_count = (UCHAR) count;
 
-	RSB  rsb;
-	RSB* ptr;
+	RecordSource*  rsb;
+	RecordSource** ptr;
 
 	if (count == 1) {
 		rsb = NULL;
 		ptr = &river->riv_rsb;
 	}
 	else {
-		river->riv_rsb = rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) Rsb();
+		river->riv_rsb = rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) RecordSource();
 		rsb->rsb_type = rsb_cross;
 		rsb->rsb_count = count;
 		rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
@@ -3371,7 +3375,7 @@ static bool form_river(TDBB tdbb,
 
 	// determine whether the rsb we just made should be marked as a projection.
 	if (rsb && rsb->rsb_arg[0]
-		&& ((RSB) rsb->rsb_arg[0])->rsb_flags & rsb_project)
+		&& ((RecordSource*) rsb->rsb_arg[0])->rsb_flags & rsb_project)
 	{
 		rsb->rsb_flags |= rsb_project;
 	}
@@ -3400,7 +3404,7 @@ static bool form_river(TDBB tdbb,
 
 
 
-static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
+static RecordSource* gen_aggregate(thread_db* tdbb, OPT opt, JRD_NOD node)
 {
 /**************************************
  *
@@ -3409,8 +3413,8 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
  **************************************
  *
  * Functional description
- *	Generate an RSB (Record Source Block) for each aggregate operation.
- *	Generate an ASB (Aggregate Sort Block) for each DISTINCT aggregate.
+ *	Generate an RecordSource* (Record Source Block) for each aggregate operation.
+ *	Generate an AggregateSort* (Aggregate Sort Block) for each DISTINCT aggregate.
  *      
  **************************************/
 
@@ -3419,8 +3423,8 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(node, type_nod);
 	SET_TDBB(tdbb);
-	CSB csb = opt->opt_csb;
-	RSE rse = (RSE) node->nod_arg[e_agg_rse];
+	CompilerScratch* csb = opt->opt_csb;
+	RecordSelExpr* rse = (RecordSelExpr*) node->nod_arg[e_agg_rse];
 	rse->rse_sorted = node->nod_arg[e_agg_group];
 
 	// try to optimize MAX and MIN to use an index; for now, optimize
@@ -3449,14 +3453,14 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
 
 	// allocate and optimize the record source block
 
-	RSB rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) Rsb();
+	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource();
 	rsb->rsb_type = rsb_aggregate;
 	fb_assert((int) (IPTR)node->nod_arg[e_agg_stream] <= MAX_STREAMS);
 	fb_assert((int) (IPTR)node->nod_arg[e_agg_stream] <= MAX_UCHAR);
 	rsb->rsb_stream = (UCHAR) (long) node->nod_arg[e_agg_stream];
 	rsb->rsb_format = csb->csb_rpt[rsb->rsb_stream].csb_format;
 	rsb->rsb_next = OPT_compile(tdbb, csb, rse, NULL);
-	rsb->rsb_arg[0] = (RSB) node;
+	rsb->rsb_arg[0] = (RecordSource*) node;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
 
 	if (rse->rse_aggregate)
@@ -3471,7 +3475,7 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
 		}
 	}
 
-	// Now generate a separate ASB (Aggregate Sort Block) for each
+	// Now generate a separate AggregateSort* (Aggregate Sort Block) for each
 	// distinct operation;
 	// note that this should be optimized to use indices if possible
 
@@ -3489,7 +3493,7 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
 		{
 			const USHORT count = asb_delta + 1 +
 					(sizeof(SKD) + sizeof(JRD_NOD *) - 1) / sizeof(JRD_NOD*);
-			ASB asb = (ASB) PAR_make_node(tdbb, count);
+			AggregateSort* asb = (AggregateSort*) PAR_make_node(tdbb, count);
 			asb->nod_type = nod_asb;
 			asb->nod_count = 0;
 			/* build the sort key definition. Turn varying text and
@@ -3518,7 +3522,7 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
 			/*fb_assert (sort_key->skd_dtype != 0); */
 			sort_key->skd_length = desc->dsc_length;
 			sort_key->skd_flags = SKD_ascending;
-			asb->nod_impure = CMP_impure(csb, sizeof(struct iasb));
+			asb->nod_impure = CMP_impure(csb, sizeof(struct impure_agg_sort));
 			asb->asb_desc = *desc;
 			from->nod_arg[1] = (JRD_NOD) asb;
 			from->nod_count = 2;
@@ -3529,7 +3533,7 @@ static RSB gen_aggregate(TDBB tdbb, OPT opt, JRD_NOD node)
 }
 
 
-static RSB gen_boolean(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
+static RecordSource* gen_boolean(thread_db* tdbb, OPT opt, RecordSource* prior_rsb, JRD_NOD node)
 {
 /**************************************
  *
@@ -3547,18 +3551,18 @@ static RSB gen_boolean(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
 	DEV_BLKCHK(prior_rsb, type_rsb);
 	SET_TDBB(tdbb);
 
-	CSB csb = opt->opt_csb;
-	RSB rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) Rsb();
+	CompilerScratch* csb = opt->opt_csb;
+	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource();
 	rsb->rsb_count = 1;
 	rsb->rsb_type = rsb_boolean;
 	rsb->rsb_next = prior_rsb;
-	rsb->rsb_arg[0] = (RSB) node;
+	rsb->rsb_arg[0] = (RecordSource*) node;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
 	return rsb;
 }
 
 
-static RSB gen_first(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
+static RecordSource* gen_first(thread_db* tdbb, OPT opt, RecordSource* prior_rsb, JRD_NOD node)
 {
 /**************************************
  *
@@ -3581,18 +3585,18 @@ static RSB gen_first(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
 	DEV_BLKCHK(node, type_nod);
 	SET_TDBB(tdbb);
 
-	CSB csb = opt->opt_csb;
-	RSB rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) Rsb();
+	CompilerScratch* csb = opt->opt_csb;
+	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource();
 	rsb->rsb_count = 1;
 	rsb->rsb_type = rsb_first;
 	rsb->rsb_next = prior_rsb;
-	rsb->rsb_arg[0] = (RSB) node;
+	rsb->rsb_arg[0] = (RecordSource*) node;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb_first_n));
 	return rsb;
 }
 
 
-static void gen_join(TDBB     tdbb,
+static void gen_join(thread_db*     tdbb,
 					 OPT      opt,
 					 UCHAR*   streams,
 					 LLS*     river_stack,
@@ -3620,7 +3624,7 @@ static void gen_join(TDBB     tdbb,
 	SET_TDBB(tdbb);
 
 	DBB dbb = tdbb->tdbb_database;
-	CSB csb = opt->opt_csb;
+	CompilerScratch* csb = opt->opt_csb;
 
 	if (!streams[0]) {
 		return;
@@ -3742,7 +3746,7 @@ static void gen_join(TDBB     tdbb,
 }
 
 
-static RSB gen_navigation(TDBB tdbb,
+static RecordSource* gen_navigation(thread_db* tdbb,
 						  OPT opt,
 						  USHORT stream,
 						  JRD_REL relation, STR alias, index_desc* idx, JRD_NOD * sort_ptr)
@@ -3755,7 +3759,7 @@ static RSB gen_navigation(TDBB tdbb,
  *
  * Functional description
  *	See if a navigational walk of an index is in order.  If so,
- *	generate the appropriate RSB and zap the sort pointer.  If
+ *	generate the appropriate RecordSource* and zap the sort pointer.  If
  *	not, return NULL.   Prior to ODS7, missing values sorted in
  *	the wrong place for ascending indices, so don't use them.
  *
@@ -3868,7 +3872,7 @@ static RSB gen_navigation(TDBB tdbb,
 }
 
 
-static RSB gen_nav_rsb(TDBB tdbb,
+static RecordSource* gen_nav_rsb(thread_db* tdbb,
 					   OPT opt,
 					   USHORT stream, JRD_REL relation, STR alias, index_desc* idx
 #ifdef SCROLLABLE_CURSORS
@@ -3893,13 +3897,13 @@ static RSB gen_nav_rsb(TDBB tdbb,
 	SET_TDBB(tdbb);
 
 	USHORT key_length = ROUNDUP(BTR_key_length(tdbb, relation, idx), sizeof(SLONG));
-	RSB rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) Rsb();
+	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource();
 	rsb->rsb_type = rsb_navigate;
 	rsb->rsb_relation = relation;
 	rsb->rsb_stream = (UCHAR) stream;
 	rsb->rsb_alias = alias;
-	rsb->rsb_arg[RSB_NAV_index] = (RSB) OPT_make_index(tdbb, opt, relation, idx);
-	rsb->rsb_arg[RSB_NAV_key_length] = (RSB) (long) key_length;
+	rsb->rsb_arg[RSB_NAV_index] = (RecordSource*) OPT_make_index(tdbb, opt, relation, idx);
+	rsb->rsb_arg[RSB_NAV_key_length] = (RecordSource*) (long) key_length;
 
 #ifdef SCROLLABLE_CURSORS
 	// indicate that the index needs to be navigated in a mirror-image   
@@ -3923,9 +3927,9 @@ static RSB gen_nav_rsb(TDBB tdbb,
 }
 
 
-static RSB gen_outer(TDBB tdbb,
+static RecordSource* gen_outer(thread_db* tdbb,
 					 OPT opt,
-					 RSE rse,
+					 RecordSelExpr* rse,
 					 LLS river_stack, JRD_NOD * sort_clause, JRD_NOD * project_clause)
 {
 /**************************************
@@ -3944,7 +3948,7 @@ static RSB gen_outer(TDBB tdbb,
  *
  **************************************/
 	struct {
-		RSB stream_rsb;
+		RecordSource* stream_rsb;
 		USHORT stream_num;
 	} stream_o, stream_i, *stream_ptr[2];
 	DEV_BLKCHK(opt, type_opt);
@@ -4022,16 +4026,16 @@ static RSB gen_outer(TDBB tdbb,
 	stream_i.stream_rsb = gen_residual_boolean(tdbb, opt, stream_i.stream_rsb);
 
 	// Allocate and fill in the rsb
-	RSB rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_LEFT_count) Rsb();
+	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_LEFT_count) RecordSource();
 	rsb->rsb_type = rsb_left_cross;
 	rsb->rsb_count = 2;
 	rsb->rsb_impure = CMP_impure(opt->opt_csb, sizeof(struct irsb));
 	rsb->rsb_arg[RSB_LEFT_outer] = stream_o.stream_rsb;
 	rsb->rsb_arg[RSB_LEFT_inner] = stream_i.stream_rsb;
-	rsb->rsb_arg[RSB_LEFT_boolean] = (RSB) boolean;
+	rsb->rsb_arg[RSB_LEFT_boolean] = (RecordSource*) boolean;
 	rsb->rsb_arg[RSB_LEFT_streams] = NULL;
 	rsb->rsb_arg[RSB_LEFT_rsbs] = NULL;
-	rsb->rsb_arg[RSB_LEFT_inner_boolean] = (RSB) inner_boolean;
+	rsb->rsb_arg[RSB_LEFT_inner_boolean] = (RecordSource*) inner_boolean;
 	rsb->rsb_arg[RSB_LEFT_inner_streams] = NULL;
 	// find all the outer and inner substreams and push them on a stack.
 	find_rsbs(stream_i.stream_rsb,
@@ -4045,7 +4049,7 @@ static RSB gen_outer(TDBB tdbb,
 }
 
 
-static RSB gen_procedure(TDBB tdbb, OPT opt, JRD_NOD node)
+static RecordSource* gen_procedure(thread_db* tdbb, OPT opt, JRD_NOD node)
 {
 /**************************************
  *
@@ -4062,21 +4066,21 @@ static RSB gen_procedure(TDBB tdbb, OPT opt, JRD_NOD node)
 	DEV_BLKCHK(node, type_nod);
 	SET_TDBB(tdbb);
 
-	CSB csb = opt->opt_csb;	
+	CompilerScratch* csb = opt->opt_csb;	
 	Procedure * procedure = tdbb->tdbb_database->findProcedure(tdbb,(int)(long)node->nod_arg[e_prc_procedure]);
-	RSB rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_PRC_count) Rsb();
+	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_PRC_count) RecordSource();
 	rsb->rsb_type = rsb_procedure;
 	rsb->rsb_stream = (UCHAR)(long) node->nod_arg[e_prc_stream];
 	rsb->rsb_procedure = procedure;
 	rsb->rsb_format = procedure->findFormat();
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb_procedure));
-	rsb->rsb_arg[RSB_PRC_inputs] = (RSB) node->nod_arg[e_prc_inputs];
-	rsb->rsb_arg[RSB_PRC_in_msg] = (RSB) node->nod_arg[e_prc_in_msg];
+	rsb->rsb_arg[RSB_PRC_inputs] = (RecordSource*) node->nod_arg[e_prc_inputs];
+	rsb->rsb_arg[RSB_PRC_in_msg] = (RecordSource*) node->nod_arg[e_prc_in_msg];
 	return rsb;
 }
 
 
-static RSB gen_residual_boolean(TDBB tdbb, OPT opt, RSB prior_rsb)
+static RecordSource* gen_residual_boolean(thread_db* tdbb, OPT opt, RecordSource* prior_rsb)
 {
 /**************************************
  *
@@ -4114,7 +4118,7 @@ static RSB gen_residual_boolean(TDBB tdbb, OPT opt, RSB prior_rsb)
 }
 
 
-static RSB gen_retrieval(TDBB     tdbb,
+static RecordSource* gen_retrieval(thread_db*     tdbb,
 						 OPT      opt,
 						 SSHORT   stream,
 						 JRD_NOD* sort_ptr,
@@ -4168,7 +4172,7 @@ static RSB gen_retrieval(TDBB     tdbb,
 		full = true;
 	}
 
-	CSB         csb      = opt->opt_csb;
+	CompilerScratch* csb = opt->opt_csb;
 	csb_repeat* csb_tail = &csb->csb_rpt[stream];
 	JRD_REL     relation = csb_tail->csb_relation;
 
@@ -4207,7 +4211,7 @@ static RSB gen_retrieval(TDBB     tdbb,
 	JRD_NOD inversion = NULL;
 	Opt::opt_conjunct* opt_end =
 		opt->opt_conjuncts.begin() + (inner_flag ? opt->opt_base_conjuncts : opt->opt_conjuncts.getCount());
-	RSB rsb = NULL;
+	RecordSource* rsb = NULL;
 	bool index_used = false;
 
 	if (relation->rel_file)
@@ -4508,9 +4512,9 @@ static RSB gen_retrieval(TDBB     tdbb,
 }
 
 
-static RSB gen_rsb(TDBB tdbb,
+static RecordSource* gen_rsb(thread_db* tdbb,
 				   OPT opt,
-				   RSB rsb,
+				   RecordSource* rsb,
 				   JRD_NOD inversion,
 				   SSHORT stream,
 				   JRD_REL relation, STR alias, JRD_NOD boolean, float cardinality)
@@ -4535,18 +4539,18 @@ static RSB gen_rsb(TDBB tdbb,
 	SET_TDBB(tdbb);
 	if (rsb) {
 		if (rsb->rsb_type == rsb_navigate && inversion)
-			rsb->rsb_arg[RSB_NAV_inversion] = (RSB) inversion;
+			rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
 	}
 	else {
 		if (inversion) {
-			rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) Rsb();
+			rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource();
 			rsb->rsb_type = rsb_indexed;
 			rsb->rsb_count = 1;
 			size = sizeof(struct irsb_index);
-			rsb->rsb_arg[0] = (RSB) inversion;
+			rsb->rsb_arg[0] = (RecordSource*) inversion;
 		}
 		else {
-			rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) Rsb();
+			rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) RecordSource();
 			rsb->rsb_type = rsb_sequential;
 			size = sizeof(struct irsb);
 			if (boolean)
@@ -4561,7 +4565,7 @@ static RSB gen_rsb(TDBB tdbb,
 		// even if this is not currently a navigational rsb, 
 		// OPT_set_index() could be used to convert it to one.
 		if (opt->opt_g_flags & opt_g_stream) {
-			size = sizeof(struct inv);
+			size = sizeof(struct impure_inversion);
 			size = nav_rsb_size(rsb, MAX_KEY, size);
 		}
 
@@ -4578,7 +4582,7 @@ static RSB gen_rsb(TDBB tdbb,
 }
 
 
-static RSB gen_skip(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
+static RecordSource* gen_skip(thread_db* tdbb, OPT opt, RecordSource* prior_rsb, JRD_NOD node)
 {
 /**************************************
  *
@@ -4595,8 +4599,8 @@ static RSB gen_skip(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
  *          gen_first.
  *
  **************************************/
-    CSB	csb;
-    RSB	rsb;
+    CompilerScratch* csb;
+    RecordSource* rsb;
 
     DEV_BLKCHK (opt, type_opt);
     DEV_BLKCHK (prior_rsb, type_rsb);
@@ -4605,22 +4609,22 @@ static RSB gen_skip(TDBB tdbb, OPT opt, RSB prior_rsb, JRD_NOD node)
     SET_TDBB (tdbb);
     
     csb = opt->opt_csb;
-    rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) Rsb();   // was : rsb = (RSB) ALLOCDV (type_rsb, 1);
+    rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) RecordSource();   // was : rsb = (RecordSource*) ALLOCDV (type_rsb, 1);
     rsb->rsb_count = 1;
     rsb->rsb_type = rsb_skip;
     rsb->rsb_next = prior_rsb;
-    rsb->rsb_arg [0] = (RSB) node;
+    rsb->rsb_arg [0] = (RecordSource*) node;
     rsb->rsb_impure = CMP_impure (csb, sizeof (struct irsb_skip_n));
     
     return rsb;
 }
 
 
-static RSB gen_sort(TDBB tdbb,
+static RecordSource* gen_sort(thread_db* tdbb,
 					OPT opt,
 					UCHAR * streams,
 					UCHAR * dbkey_streams,
-					RSB prior_rsb, JRD_NOD sort, bool project_flag)
+					RecordSource* prior_rsb, JRD_NOD sort, bool project_flag)
 {
 /**************************************
  *
@@ -4635,8 +4639,8 @@ static RSB gen_sort(TDBB tdbb,
  *	recognized and handled by sort, the JRD processing is identical.
  *
  **************************************/
-	RSB rsb;
-	CSB csb;
+	RecordSource* rsb;
+	CompilerScratch* csb;
 	SLONG id;
 	ULONG map_length = 0;
 	JRD_NOD node, *node_ptr, *end_node;
@@ -4870,16 +4874,16 @@ static RSB gen_sort(TDBB tdbb,
 /* That was most unpleasant.  Never the less, it's done (except for
    the debugging).  All that remains is to build the record source
    block for the sort. */
-	rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) Rsb();
+	rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource();
 	rsb->rsb_type = rsb_sort;
 	rsb->rsb_next = prior_rsb;
-	rsb->rsb_arg[0] = (RSB) map;
+	rsb->rsb_arg[0] = (RecordSource*) map;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb_sort));
 	return rsb;
 }
 
 
-static bool gen_sort_merge(TDBB tdbb, OPT opt, LLS * org_rivers)
+static bool gen_sort_merge(thread_db* tdbb, OPT opt, LLS * org_rivers)
 {
 /**************************************
  *
@@ -4890,7 +4894,7 @@ static bool gen_sort_merge(TDBB tdbb, OPT opt, LLS * org_rivers)
  * Functional description
  *	We've got a set of rivers that may or may not be amenable to
  *	a sort/merge join, and it's time to find out.  If there are,
- *	build a sort/merge RSB, push it on the rsb stack, and update
+ *	build a sort/merge RecordSource*, push it on the rsb stack, and update
  *	rivers accordingly.  If two or more rivers were successfully
  *	joined, return true.  If the whole things is a moby no-op,
  *	return false.
@@ -4902,8 +4906,9 @@ static bool gen_sort_merge(TDBB tdbb, OPT opt, LLS * org_rivers)
 	ULONG selected_rivers[OPT_STREAM_BITS], selected_rivers2[OPT_STREAM_BITS];
 	UCHAR *stream;
 	JRD_NOD *class_, node, node1, node2, *ptr;
-	RSB rsb, merge_rsb;
-	RSB *rsb_tail;
+	RecordSource* rsb;
+	RecordSource* merge_rsb;
+	RecordSource** rsb_tail;
 	Opt::opt_conjunct *tail, *end;
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(*org_rivers, type_lls);
@@ -5001,7 +5006,7 @@ static bool gen_sort_merge(TDBB tdbb, OPT opt, LLS * org_rivers)
 		return false;
 
 	// Build a sort stream.
-	merge_rsb = FB_NEW_RPT(*tdbb->tdbb_default, river_cnt * 2) Rsb();
+	merge_rsb = FB_NEW_RPT(*tdbb->tdbb_default, river_cnt * 2) RecordSource();
 	merge_rsb->rsb_count = river_cnt;
 	merge_rsb->rsb_type = rsb_merge;
 	merge_rsb->rsb_impure = 
@@ -5027,7 +5032,7 @@ static bool gen_sort_merge(TDBB tdbb, OPT opt, LLS * org_rivers)
 		}
 		rsb = gen_sort(tdbb, opt, &river1->riv_count, NULL, river1->riv_rsb, sort, false);
 		*rsb_tail++ = rsb;
-		*rsb_tail++ = (RSB) sort;
+		*rsb_tail++ = (RecordSource*) sort;
 	}
 
 	// Finally, merge selected rivers into a single river, and rebuild 
@@ -5101,7 +5106,7 @@ static bool gen_sort_merge(TDBB tdbb, OPT opt, LLS * org_rivers)
 }
 
 
-static RSB gen_union(TDBB tdbb,
+static RecordSource* gen_union(thread_db* tdbb,
 					 OPT opt,
 					 JRD_NOD union_node, UCHAR * streams, USHORT nstreams)
 {
@@ -5115,17 +5120,18 @@ static RSB gen_union(TDBB tdbb,
  *	Generate a union complex.
  *
  **************************************/
-	RSB rsb, *rsb_ptr;
+	RecordSource* rsb;
+	RecordSource** rsb_ptr;
 	USHORT count;
 	JRD_NOD clauses, *ptr, *end;
-	CSB csb;
+	CompilerScratch* csb;
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(union_node, type_nod);
 	SET_TDBB(tdbb);
 	clauses = union_node->nod_arg[e_uni_clauses];
 	count = clauses->nod_count;
 	csb = opt->opt_csb;
-	rsb = FB_NEW_RPT(*tdbb->tdbb_default, count + nstreams + 1) Rsb();
+	rsb = FB_NEW_RPT(*tdbb->tdbb_default, count + nstreams + 1) RecordSource();
 	rsb->rsb_type = rsb_union;
 	rsb->rsb_count = count;
 	rsb->rsb_stream = (UCHAR)(long) union_node->nod_arg[e_uni_stream];
@@ -5133,20 +5139,20 @@ static RSB gen_union(TDBB tdbb,
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
 	rsb_ptr = rsb->rsb_arg;
 	for (ptr = clauses->nod_arg, end = ptr + count; ptr < end;) {
-		*rsb_ptr++ = OPT_compile(tdbb, csb, (RSE) * ptr++, NULL);
-		*rsb_ptr++ = (RSB) * ptr++;
+		*rsb_ptr++ = OPT_compile(tdbb, csb, (RecordSelExpr*) * ptr++, NULL);
+		*rsb_ptr++ = (RecordSource*) * ptr++;
 	}
 
 /* Save the count and numbers of the streams that make up the union */
 
-	*rsb_ptr++ = (RSB)(long) nstreams;
+	*rsb_ptr++ = (RecordSource*)(long) nstreams;
 	while (nstreams--)
-		*rsb_ptr++ = (RSB)(long) * streams++;
+		*rsb_ptr++ = (RecordSource*)(long) * streams++;
 	return rsb;
 }
 
 
-static void get_inactivities(CSB csb, ULONG * dependencies)
+static void get_inactivities(CompilerScratch* csb, ULONG * dependencies)
 {
 /**************************************
  *
@@ -5159,7 +5165,7 @@ static void get_inactivities(CSB csb, ULONG * dependencies)
  *
  **************************************/
 	USHORT n;
-	Csb::rpt_itr tail, end;
+	CompilerScratch::rpt_itr tail, end;
 	DEV_BLKCHK(csb, type_csb);
 	for (n = 0; n < OPT_STREAM_BITS; n++)
 		dependencies[n] = (ULONG) - 1;
@@ -5170,7 +5176,7 @@ static void get_inactivities(CSB csb, ULONG * dependencies)
 }
 
 
-static IRL indexed_relationship(TDBB tdbb, OPT opt, USHORT stream)
+static IRL indexed_relationship(thread_db* tdbb, OPT opt, USHORT stream)
 {
 /**************************************
  *
@@ -5195,8 +5201,8 @@ static IRL indexed_relationship(TDBB tdbb, OPT opt, USHORT stream)
 		return NULL;
 	}
 
-	CSB              csb       = opt->opt_csb;
-	csb_repeat*      csb_tail  = &csb->csb_rpt[stream];
+	CompilerScratch* csb = opt->opt_csb;
+	csb_repeat* csb_tail  = &csb->csb_rpt[stream];
 	Opt::opt_conjunct* opt_end = opt->opt_conjuncts.begin() + opt->opt_base_conjuncts;
 	IRL relationship = NULL;
 
@@ -5244,7 +5250,7 @@ static IRL indexed_relationship(TDBB tdbb, OPT opt, USHORT stream)
 }
 
 
-static STR make_alias(TDBB tdbb, CSB csb, csb_repeat * base_tail)
+static STR make_alias(thread_db* tdbb, CompilerScratch* csb, csb_repeat * base_tail)
 {
 /**************************************
  *
@@ -5324,7 +5330,7 @@ static STR make_alias(TDBB tdbb, CSB csb, csb_repeat * base_tail)
 }
 
 
-static JRD_NOD make_binary_node(TDBB tdbb, NOD_T type, JRD_NOD arg1, JRD_NOD arg2, bool flag)
+static JRD_NOD make_binary_node(thread_db* tdbb, NOD_T type, JRD_NOD arg1, JRD_NOD arg2, bool flag)
 {
 /**************************************
  *
@@ -5350,7 +5356,7 @@ static JRD_NOD make_binary_node(TDBB tdbb, NOD_T type, JRD_NOD arg1, JRD_NOD arg
 }
 
 
-static RSB make_cross(TDBB tdbb, OPT opt, LLS stack)
+static RecordSource* make_cross(thread_db* tdbb, OPT opt, LLS stack)
 {
 /**************************************
  *
@@ -5363,8 +5369,9 @@ static RSB make_cross(TDBB tdbb, OPT opt, LLS stack)
  *
  **************************************/
 	RIV river;
-	RSB rsb, *ptr;
-	CSB csb;
+	RecordSource* rsb;
+	RecordSource** ptr;
+	CompilerScratch* csb;
 	LLS temp;
 	USHORT count;
 	DEV_BLKCHK(opt, type_opt);
@@ -5378,7 +5385,7 @@ static RSB make_cross(TDBB tdbb, OPT opt, LLS stack)
 	}
 
 	csb = opt->opt_csb;
-	rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) Rsb();
+	rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) RecordSource();
 	rsb->rsb_type = rsb_cross;
 	rsb->rsb_count = count;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
@@ -5392,7 +5399,7 @@ static RSB make_cross(TDBB tdbb, OPT opt, LLS stack)
 }
 
 
-static JRD_NOD make_index_node(TDBB tdbb, JRD_REL relation, CSB csb, index_desc* idx)
+static JRD_NOD make_index_node(thread_db* tdbb, JRD_REL relation, CompilerScratch* csb, index_desc* idx)
 {
 /**************************************
  *
@@ -5427,12 +5434,12 @@ static JRD_NOD make_index_node(TDBB tdbb, JRD_REL relation, CSB csb, index_desc*
 	retrieval->irb_index = idx->idx_id;
 	MOVE_FAST(idx, &retrieval->irb_desc, sizeof(retrieval->irb_desc));
 	if (csb)
-		node->nod_impure = CMP_impure(csb, sizeof(struct inv));
+		node->nod_impure = CMP_impure(csb, sizeof(struct impure_inversion));
 	return node;
 }
 
 
-static JRD_NOD make_inference_node(TDBB tdbb, CSB csb, JRD_NOD boolean, JRD_NOD arg1, JRD_NOD arg2)
+static JRD_NOD make_inference_node(thread_db* tdbb, CompilerScratch* csb, JRD_NOD boolean, JRD_NOD arg1, JRD_NOD arg2)
 {
 /**************************************
  *
@@ -5490,7 +5497,7 @@ static JRD_NOD make_inference_node(TDBB tdbb, CSB csb, JRD_NOD boolean, JRD_NOD 
 }
 
 
-static JRD_NOD make_inversion(TDBB tdbb, OPT opt, JRD_NOD boolean, USHORT stream)
+static JRD_NOD make_inversion(thread_db* tdbb, OPT opt, JRD_NOD boolean, USHORT stream)
 {
 /**************************************
  *
@@ -5647,7 +5654,7 @@ static JRD_NOD make_inversion(TDBB tdbb, OPT opt, JRD_NOD boolean, USHORT stream
 }
 
 
-static JRD_NOD make_missing(TDBB tdbb,
+static JRD_NOD make_missing(thread_db* tdbb,
 						OPT opt,
 						JRD_REL relation, JRD_NOD boolean, USHORT stream, index_desc* idx)
 {
@@ -5704,7 +5711,7 @@ static JRD_NOD make_missing(TDBB tdbb,
 }
 
 
-static JRD_NOD make_starts(TDBB tdbb,
+static JRD_NOD make_starts(thread_db* tdbb,
 					   OPT opt,
 					   JRD_REL relation, JRD_NOD boolean, USHORT stream, index_desc* idx)
 {
@@ -5746,7 +5753,7 @@ static JRD_NOD make_starts(TDBB tdbb,
 
 	if (value->nod_type == nod_literal) {
 		DSC *literal_desc;
-		literal_desc = &((LIT) value)->lit_desc;
+		literal_desc = &((Literal*) value)->lit_desc;
 		if ((literal_desc->dsc_dtype == dtype_text &&
 			 literal_desc->dsc_length == 0) ||
 			(literal_desc->dsc_dtype == dtype_varying &&
@@ -5894,7 +5901,7 @@ static void mark_indices(csb_repeat * csb_tail, SSHORT relation_id)
 }
 
 
-static SSHORT match_index(TDBB tdbb,
+static SSHORT match_index(thread_db* tdbb,
 						  OPT opt,
 						  SSHORT stream, JRD_NOD boolean, index_desc* idx)
 {
@@ -6035,7 +6042,7 @@ static SSHORT match_index(TDBB tdbb,
 }
 
 
-static bool match_indices(TDBB tdbb,
+static bool match_indices(thread_db* tdbb,
 							OPT opt,
 							SSHORT stream, JRD_NOD boolean, index_desc* idx)
 {
@@ -6081,7 +6088,7 @@ static bool match_indices(TDBB tdbb,
 }
 
 
-static USHORT nav_rsb_size(RSB rsb, USHORT key_length, USHORT size)
+static USHORT nav_rsb_size(RecordSource* rsb, USHORT key_length, USHORT size)
 {
 /**************************************
  *
@@ -6107,7 +6114,7 @@ static USHORT nav_rsb_size(RSB rsb, USHORT key_length, USHORT size)
 /* make room for an idx structure to describe the index
    that was used to generate this rsb */
 	if (rsb->rsb_type == rsb_navigate)
-		rsb->rsb_arg[RSB_NAV_idx_offset] = (RSB) (long) size;
+		rsb->rsb_arg[RSB_NAV_idx_offset] = (RecordSource*) (long) size;
 	size += sizeof(struct index_desc);
 	return size;
 }
@@ -6168,7 +6175,7 @@ static bool node_equality(JRD_NOD node1, JRD_NOD node2)
 }
 
 
-static JRD_NOD optimize_like(TDBB tdbb, JRD_NOD like_node)
+static JRD_NOD optimize_like(thread_db* tdbb, JRD_NOD like_node)
 {
 /**************************************
  *
@@ -6191,7 +6198,7 @@ static JRD_NOD optimize_like(TDBB tdbb, JRD_NOD like_node)
 	DSC* escape_desc;
 	UCHAR *end, *q, *p_start;
 	SSHORT count;
-	LIT literal;
+	Literal* literal;
 	USHORT escape_ch;
 	UCHAR tmp_buffer[32];		/* large enough to hold 1 ch of escape string */
 	TextType text_obj = NULL;
@@ -6206,9 +6213,9 @@ static JRD_NOD optimize_like(TDBB tdbb, JRD_NOD like_node)
 	{
 		return NULL;
 	}
-	dsc* search_desc = &((LIT) search_node)->lit_desc;
+	dsc* search_desc = &((Literal*) search_node)->lit_desc;
 	if (escape_node)
-		escape_desc = &((LIT) escape_node)->lit_desc;
+		escape_desc = &((Literal*) escape_node)->lit_desc;
 /* if either is not a character expression, forget it */
 	if ((search_desc->dsc_dtype > dtype_any_text) ||
 		(escape_node && escape_desc->dsc_dtype > dtype_any_text))
@@ -6255,7 +6262,7 @@ static JRD_NOD optimize_like(TDBB tdbb, JRD_NOD like_node)
 	JRD_NOD node = PAR_make_node(tdbb, count);
 	node->nod_type = nod_literal;
 	node->nod_count = 0;
-	literal = (LIT) node;
+	literal = (Literal*) node;
 	literal->lit_desc = *search_desc;
 	literal->lit_desc.dsc_address = q = reinterpret_cast<UCHAR*>(literal->lit_data);
 /* copy the string into the starting with literal, up to the first wildcard character */
@@ -6477,7 +6484,7 @@ static void set_active(OPT opt, RIV river)
  *	Set a group of streams active.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	UCHAR *streams, *end;
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(river, type_riv);
@@ -6526,7 +6533,7 @@ static void set_inactive(OPT opt, RIV river)
  *	Set a group of streams inactive.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	UCHAR *streams, *end;
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(river, type_riv);
@@ -6558,7 +6565,7 @@ static void set_made_river(OPT opt, RIV river)
  *      been processed (and made into rivers) before.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	UCHAR *streams, *end;
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(river, type_riv);
@@ -6615,7 +6622,7 @@ static void set_position(JRD_NOD from_clause, JRD_NOD to_clause, JRD_NOD map)
 }
 
 
-static void set_rse_inactive(CSB csb, RSE rse)
+static void set_rse_inactive(CompilerScratch* csb, RecordSelExpr* rse)
 {
 /***************************************************
  *
@@ -6638,12 +6645,12 @@ static void set_rse_inactive(CSB csb, RSE rse)
 			csb->csb_rpt[stream].csb_flags &= ~csb_active;
 		}
 		else
-			set_rse_inactive(csb, (RSE) node);
+			set_rse_inactive(csb, (RecordSelExpr*) node);
 	}
 }
 
 
-static void sort_indices_by_selectivity(tdbb *tdbb, csb_repeat * csb_tail)
+static void sort_indices_by_selectivity(thread_db* tdbb, csb_repeat * csb_tail)
 {
 /***************************************************
  *
@@ -6718,7 +6725,7 @@ static void sort_indices_by_selectivity(tdbb *tdbb, csb_repeat * csb_tail)
 }
 
 
-static SSHORT sort_indices_by_priority(TDBB tdbb, csb_repeat * csb_tail,
+static SSHORT sort_indices_by_priority(thread_db* tdbb, csb_repeat * csb_tail,
 									   index_desc** idx_walk,
 									   UINT64 * idx_priority_level)
 {

@@ -336,19 +336,19 @@ typedef struct dpb
 	TEXT*	dpb_set_db_charset;
 } DPB;
 
-static BLB		check_blob(TDBB, ISC_STATUS*, BLB*);
-static ISC_STATUS	check_database(TDBB, ATT, ISC_STATUS*);
+static BLB		check_blob(thread_db*, ISC_STATUS*, BLB*);
+static ISC_STATUS	check_database(thread_db*, ATT, ISC_STATUS*);
 static void		cleanup(void*);
 static ISC_STATUS	commit(ISC_STATUS*, JRD_TRA*, const bool);
 static STR		copy_string(const TEXT*, int);
 static bool		drop_files(const fil*);
 static ISC_STATUS	error(OSRIException *exception, ISC_STATUS*);
-static void		find_intl_charset(TDBB, ATT, const DPB*);
-static JRD_TRA		find_transaction(TDBB, JRD_TRA, ISC_STATUS);
-static void		get_options(TDBB tdbb, const UCHAR*, USHORT, TEXT**, ULONG, DPB*);
+static void		find_intl_charset(thread_db*, ATT, const DPB*);
+static JRD_TRA		find_transaction(thread_db*, JRD_TRA, ISC_STATUS);
+static void		get_options(thread_db* tdbb, const UCHAR*, USHORT, TEXT**, ULONG, DPB*);
 static SLONG	get_parameter(const UCHAR**);
 static TEXT*	get_string_parameter(const UCHAR**, TEXT**, ULONG*);
-static ISC_STATUS	handle_error(ISC_STATUS*, ISC_STATUS, TDBB);
+static ISC_STATUS	handle_error(ISC_STATUS*, ISC_STATUS, thread_db*);
 //static void		verify_request_synchronization(Request*& request, SSHORT level);
 static bool		verify_database_name(const TEXT*, ISC_STATUS*);
 
@@ -361,15 +361,15 @@ static BOOLEAN	handler_NT(SSHORT);
 #endif	// SERVER_SHUTDOWN
 #endif	// WIN_NT
 
-static DBB		init(TDBB, ISC_STATUS*, const TEXT*, bool, ConfObject *configObject);
-static ISC_STATUS	prepare(TDBB, JRD_TRA, ISC_STATUS*, USHORT, const UCHAR*);
-static void		release_attachment(tdbb* tdbb, ATT);
-static ISC_STATUS	return_success(TDBB);
-static BOOLEAN	rollback(TDBB, JRD_TRA, ISC_STATUS*, const bool);
+static DBB		init(thread_db*, ISC_STATUS*, const TEXT*, bool, ConfObject *configObject);
+static ISC_STATUS	prepare(thread_db*, JRD_TRA, ISC_STATUS*, USHORT, const UCHAR*);
+static void		release_attachment(thread_db* tdbb, ATT);
+static ISC_STATUS	return_success(thread_db*);
+static BOOLEAN	rollback(thread_db*, JRD_TRA, ISC_STATUS*, const bool);
 
-static void		shutdown_database(tdbb *tdbb, const bool);
+static void		shutdown_database(thread_db* tdbb, const bool);
 static void		strip_quotes(const TEXT*, TEXT*);
-static void		purge_attachment(TDBB, ISC_STATUS*, ATT, const bool);
+static void		purge_attachment(thread_db*, ISC_STATUS*, ATT, const bool);
 
 static bool				initialized = false;
 static DatabaseManager	databaseManager;
@@ -396,7 +396,7 @@ IHNDL	internal_db_handles = 0;
 // do it here to prevent committing every record update
 // in a statement
 //
-static void check_autocommit(JRD_REQ request, struct tdbb* tdbb)
+static void check_autocommit(JRD_REQ request, struct thread_db* tdbb)
 {
 	/* dimitr: we should ignore autocommit for requests
 			   created by EXECUTE STATEMENT */
@@ -417,10 +417,10 @@ inline static void api_entry_point_init(ISC_STATUS* user_status)
 	user_status[2] = isc_arg_end;
 }
 
-inline static struct tdbb* set_thread_data(struct tdbb& thd_context)
+inline static struct thread_db* set_thread_data(struct thread_db& thd_context)
 {
-	struct tdbb* tdbb = &thd_context;
-	MOVE_CLEAR(tdbb, sizeof(struct tdbb));
+	struct thread_db* tdbb = &thd_context;
+	MOVE_CLEAR(tdbb, sizeof(struct thread_db));
 	JRD_set_context(tdbb);
 	return tdbb;
 }
@@ -431,11 +431,11 @@ inline static struct tdbb* set_thread_data(struct tdbb& thd_context)
 #undef GET_DBB
 #undef SET_TDBB
 
-static TDBB get_thread_data()
+static thread_db* get_thread_data()
 {
 	THDD p1 = (THDD)(PLATFORM_GET_THREAD_DATA);
 
-	return (TDBB)p1;
+	return (thread_db*)p1;
 }
 
 inline static void CHECK_DBB(DBB dbb)
@@ -445,7 +445,7 @@ inline static void CHECK_DBB(DBB dbb)
 #endif	// DEV_BUILD
 }
 
-inline static void check_tdbb(TDBB tdbb)
+inline static void check_tdbb(thread_db* tdbb)
 {
 /***
 #ifdef DEV_BUILD
@@ -462,7 +462,7 @@ inline static DBB get_dbb()
 	return get_thread_data()->tdbb_database;
 }
 
-static void SET_TDBB(TDBB& tdbb)
+static void SET_TDBB(thread_db*& tdbb)
 {
 	if (tdbb == NULL) {
 		tdbb = get_thread_data();
@@ -2139,7 +2139,7 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, ATT * handle)
 		   lock and start dropping files. */
 
    		WIN window(HEADER_PAGE);
-		hdr* header = (HDR) CCH_FETCH(threadData.threadData, &window, LCK_write, pag_header);
+		header_page* header = (header_page*) CCH_FETCH(threadData.threadData, &window, LCK_write, pag_header);
 		CCH_MARK_MUST_WRITE(threadData.threadData, &window);
 		header->hdr_ods_version = 0;
 		CCH_RELEASE(threadData.threadData, &window);
@@ -3473,10 +3473,10 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS*	user_status,
 		old_pool = threadData.getPool();
 		new_pool = JrdMemoryPool::createPool(transaction->tra_attachment->att_database);
 		threadData.setPool (new_pool);
-		CSB csb = PAR_parse(threadData, reinterpret_cast<const UCHAR*>(blr), FALSE);
+		CompilerScratch* csb = PAR_parse(threadData, reinterpret_cast<const UCHAR*>(blr), FALSE);
 		request = CMP_make_request(threadData, csb);
 
-		for (const acc* access = request->req_access; access; access = access->acc_next)
+		for (const AccessItem* access = request->req_access; access; access = access->acc_next)
 			{
 			scl* sec_class = SCL_get_class(threadData, access->acc_security_name);
 			SCL_check_access(threadData, sec_class, access->acc_view_id, access->acc_trg_name,
@@ -3790,7 +3790,7 @@ void JRD_blocked(ATT blocking, BTB * que)
  *	wake us up.
  *
  **************************************/
-	TDBB tdbb = get_thread_data();
+	thread_db* tdbb = get_thread_data();
 	DBB  dbb  = tdbb->tdbb_database;
 
 	/* Check for deadlock.  If there is one, complain */
@@ -3865,7 +3865,7 @@ USHORT JRD_getdir(TEXT* buf, USHORT len)
 		}
 	else
 		{
-		TDBB tdbb = get_thread_data();
+		thread_db* tdbb = get_thread_data();
 		att* attachment;
 
 		/** If the server has not done a SET_THREAD_DATA prior to this call
@@ -3916,7 +3916,7 @@ void JRD_mutex_lock(MUTX mutex)
  *	in the thread context block.
  *
  **************************************/
-	TDBB tdbb = get_thread_data();
+	thread_db* tdbb) = get_thread_data();
 	INUSE_insert(&tdbb->tdbb_mutexes, (void *) mutex, TRUE);
 	THD_MUTEX_LOCK(mutex);
 }
@@ -3934,7 +3934,7 @@ void JRD_mutex_unlock(MUTX mutex)
  *	in the thread context block.
  *
  **************************************/
-	TDBB tdbb = get_thread_data();
+	thread_db* tdbb) = get_thread_data();
 	INUSE_remove(&tdbb->tdbb_mutexes, (void *) mutex, FALSE);
 	THD_MUTEX_UNLOCK(mutex);
 }
@@ -3963,7 +3963,7 @@ void JRD_print_all_counters(const char* fname)
 #endif
 
 #ifdef DEBUG_PROCS
-void JRD_print_procedure_info(TDBB tdbb, const char* mesg)
+void JRD_print_procedure_info(thread_db* tdbb, const char* mesg)
 {
 /*****************************************************
  *
@@ -4018,7 +4018,7 @@ void JRD_print_procedure_info(TDBB tdbb, const char* mesg)
 #endif /* DEBUG_PROCS */
 
 #ifdef MULTI_THREAD
-BOOLEAN JRD_reschedule(TDBB tdbb, SLONG quantum, bool punt)
+BOOLEAN JRD_reschedule(thread_db* tdbb, SLONG quantum, bool punt)
 {
 /**************************************
  *
@@ -4127,7 +4127,7 @@ void JRD_restore_context(void)
  *
  **************************************/
 #ifdef OBSOLETE
-	TDBB tdbb = get_thread_data();
+	thread_db* tdbb) = get_thread_data();
 	THD_restore_specific();
 
 #ifdef DEV_BUILD
@@ -4142,7 +4142,7 @@ void JRD_restore_context(void)
 }
 
 
-void JRD_set_context(TDBB tdbb)
+void JRD_set_context(thread_db* tdbb)
 {
 /**************************************
  *
@@ -4231,7 +4231,7 @@ void jrd_vtof(const char* string, char* field, SSHORT length)
 	}
 }
 
-static BLB check_blob(TDBB tdbb, ISC_STATUS* user_status, BLB* blob_handle)
+static BLB check_blob(thread_db* tdbb, ISC_STATUS* user_status, BLB* blob_handle)
 {
 /**************************************
  *
@@ -4266,7 +4266,7 @@ static BLB check_blob(TDBB tdbb, ISC_STATUS* user_status, BLB* blob_handle)
 }
 
 
-static ISC_STATUS check_database(TDBB tdbb, ATT attachment, ISC_STATUS * user_status)
+static ISC_STATUS check_database(thread_db* tdbb, ATT attachment, ISC_STATUS * user_status)
 {
 /**************************************
  *
@@ -4487,7 +4487,7 @@ static bool drop_files(const fil* file)
 }
 
 
-static JRD_TRA find_transaction(TDBB tdbb, JRD_TRA transaction, ISC_STATUS error_code)
+static JRD_TRA find_transaction(thread_db* tdbb, JRD_TRA transaction, ISC_STATUS error_code)
 {
 /**************************************
  *
@@ -4531,7 +4531,7 @@ static ISC_STATUS error(OSRIException *exception, ISC_STATUS* user_status)
  *	An error returned has been trapped.  Return a status code.
  *
  **************************************/
-	TDBB tdbb = get_thread_data();
+	thread_db* tdbb = get_thread_data();
 
 	/* Decrement count of active threads in database */
 	
@@ -4569,7 +4569,7 @@ static ISC_STATUS error(OSRIException *exception, ISC_STATUS* user_status)
 }
 
 
-static void find_intl_charset(TDBB tdbb, ATT attachment, const DPB* options)
+static void find_intl_charset(thread_db* tdbb, ATT attachment, const DPB* options)
 {
 /**************************************
  *
@@ -4611,7 +4611,7 @@ static void find_intl_charset(TDBB tdbb, ATT attachment, const DPB* options)
 }
 
 
-static void get_options(TDBB tdbb,
+static void get_options(thread_db* tdbb,
 						const UCHAR*	dpb,
 						USHORT	dpb_length,
 						TEXT**	scratch,
@@ -5081,7 +5081,7 @@ static TEXT* get_string_parameter(const UCHAR** dpb_ptr, TEXT** opt_ptr, ULONG* 
 }
 
 
-static ISC_STATUS handle_error(ISC_STATUS* user_status, ISC_STATUS code, TDBB tdbb)
+static ISC_STATUS handle_error(ISC_STATUS* user_status, ISC_STATUS code, thread_db* tdbb)
 {
 /**************************************
  *
@@ -5138,7 +5138,7 @@ static BOOLEAN handler_NT(SSHORT controlAction)
 #endif
 
 
-static DBB init(TDBB	tdbb,
+static DBB init(thread_db* tdbb,
 				ISC_STATUS*	user_status,
 				const TEXT*	expanded_filename,
 				bool attach_flag, 
@@ -5276,7 +5276,7 @@ static DBB init(TDBB	tdbb,
 
 
 
-static ISC_STATUS prepare(TDBB		tdbb,
+static ISC_STATUS prepare(thread_db* tdbb,
 					  JRD_TRA		transaction,
 					  ISC_STATUS*	status_vector,
 					  USHORT	length,
@@ -5319,7 +5319,7 @@ static ISC_STATUS prepare(TDBB		tdbb,
 }
 
 
-static void release_attachment(tdbb* tdbb, ATT attachment)
+static void release_attachment(thread_db* tdbb, ATT attachment)
 {
 /**************************************
  *
@@ -5347,7 +5347,7 @@ static void release_attachment(tdbb* tdbb, ATT attachment)
 }
 
 
-static ISC_STATUS return_success(TDBB tdbb)
+static ISC_STATUS return_success(thread_db* tdbb)
 {
 /**************************************
  *
@@ -5409,7 +5409,7 @@ static ISC_STATUS return_success(TDBB tdbb)
 }
 
 
-static BOOLEAN rollback(TDBB	tdbb,
+static BOOLEAN rollback(thread_db*	tdbb,
 						JRD_TRA		next,
 						ISC_STATUS*	status_vector,
 						const bool	retaining_flag)
@@ -5477,7 +5477,7 @@ static void setup_NT_handlers()
 #endif
 
 
-static void shutdown_database(tdbb *tdbb, const bool release_pools)
+static void shutdown_database(thread_db* tdbb, const bool release_pools)
 {
 /**************************************
  *
@@ -5909,7 +5909,7 @@ ULONG JRD_shutdown_all()
 #endif /* SERVER_SHUTDOWN */
 
 
-static void purge_attachment(TDBB		tdbb,
+static void purge_attachment(thread_db*	tdbb,
 							 ISC_STATUS*	user_status,
 							 ATT		attachment,
 							 const bool	force_flag)

@@ -45,7 +45,7 @@ Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invari
 	req_impure_size = impureSize;
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
-	req_last_xcp = new status_xcp;
+	req_last_xcp = new StatusXcp;
 	req_fors = NULL;
 }
 
@@ -61,7 +61,7 @@ Request::Request(Request* request) : req_invariants(request->req_pool)
 	req_flags = request->req_flags & REQ_FLAGS_CLONE_MASK;
 	//req_last_xcp = request->req_last_xcp;
 	req_invariants.join(request->req_invariants);
-	req_last_xcp = new status_xcp;
+	req_last_xcp = new StatusXcp;
 	req_rpb = new rpb [req_count];
 	memset (req_rpb, 0, sizeof (rpb) * req_count);
 	req_impure = new UCHAR [req_impure_size];
@@ -106,18 +106,18 @@ Request* Request::findInstantiatedRequest(int instantiation)
 	return (Request*)(*vector)[instantiation];
 }
 
-int Request::getRequestInfo(tdbb* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+int Request::getRequestInfo(thread_db* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	return INF_request_info(threadData, this, items, itemsLength,buffer,bufferLength);
 }
 
 void Request::release(void)
 {
-	tdbb *tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	release(tdbb);
 }
 
-void Request::release(tdbb* tdbb)
+void Request::release(thread_db* tdbb)
 {
 	CMP_release(tdbb, this);
 }

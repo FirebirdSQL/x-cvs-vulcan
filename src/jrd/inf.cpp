@@ -82,7 +82,7 @@ using namespace NAMESPACE;
 #define STUFF_WORD(p, value)	{*p++ = value; *p++ = value >> 8;}
 #define STUFF(p, value)		*p++ = value
 
-static USHORT get_counts(TDBB tdbb, USHORT, UCHAR*, USHORT);
+static USHORT get_counts(thread_db* tdbb, USHORT, UCHAR*, USHORT);
 
 
 int INF_blob_info(const blb* blob,
@@ -185,7 +185,7 @@ USHORT INF_convert(SLONG number, UCHAR* buffer)
 }
 
 
-int INF_database_info(TDBB tdbb, const UCHAR* items,
+int INF_database_info(thread_db* tdbb, const UCHAR* items,
 					  const SSHORT item_length,
 					  UCHAR* info, const SSHORT output_length)
 {
@@ -740,7 +740,7 @@ UCHAR* INF_put_item(UCHAR item,
 }
 
 
-int INF_request_info(TDBB tdbb, Request* request,
+int INF_request_info(thread_db* tdbb, Request* request,
 					 const UCHAR* items,
 					 const SSHORT item_length,
 					 UCHAR* info, const SSHORT output_length)
@@ -930,7 +930,7 @@ int INF_transaction_info(const jrd_tra* transaction,
 }
 
 
-static USHORT get_counts(TDBB tdbb, USHORT count_id, UCHAR* buffer, USHORT length)
+static USHORT get_counts(thread_db* tdbb, USHORT count_id, UCHAR* buffer, USHORT length)
 {
 /**************************************
  *

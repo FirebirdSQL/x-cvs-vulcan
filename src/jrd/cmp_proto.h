@@ -32,34 +32,34 @@ class jrd_nod;
 class Transaction;
 class Procedure;
 class Relation;
-class Rsc;
-class Csb;
-struct tdbb;
+class Resource;
+class CompilerScratch;
+struct thread_db;
 class fmt;
-class idl;
+class IndexLock;
 
 struct csb_repeat;
 
 bool		CMP_clone_is_active(const Request*);
-jrd_nod*	CMP_clone_node(tdbb*, Csb*, jrd_nod*);
-Request*	CMP_clone_request(tdbb*, Request*, USHORT, bool);
-Request*	CMP_compile2(tdbb*, const UCHAR*, USHORT);
-csb_repeat* CMP_csb_element(Csb*, USHORT);
+jrd_nod*	CMP_clone_node(thread_db*, CompilerScratch*, jrd_nod*);
+Request*	CMP_clone_request(thread_db*, Request*, USHORT, bool);
+Request*	CMP_compile2(thread_db*, const UCHAR*, USHORT);
+csb_repeat* CMP_csb_element(CompilerScratch*, USHORT);
 void		CMP_expunge_transaction(Transaction*);
-void		CMP_decrement_prc_use_count(tdbb*, Procedure*);
-Request*	CMP_find_request(tdbb*, USHORT, USHORT);
-void		CMP_fini(tdbb*);
-fmt*		CMP_format(tdbb*, Csb*, USHORT);
-void		CMP_get_desc(tdbb*, Csb*, jrd_nod*, dsc*);
-idl*		CMP_get_index_lock(tdbb *tdbb, Relation*, USHORT);
-SLONG		CMP_impure(Csb*, USHORT);
-Request*	CMP_make_request(tdbb*, Csb*);
-void		CMP_post_access(tdbb*, Csb*, const TEXT*, SLONG,
+void		CMP_decrement_prc_use_count(thread_db*, Procedure*);
+Request*	CMP_find_request(thread_db*, USHORT, USHORT);
+void		CMP_fini(thread_db*);
+fmt*		CMP_format(thread_db*, CompilerScratch*, USHORT);
+void		CMP_get_desc(thread_db*, CompilerScratch*, jrd_nod*, dsc*);
+IndexLock*	CMP_get_index_lock(thread_db* tdbb, Relation*, USHORT);
+SLONG		CMP_impure(CompilerScratch*, USHORT);
+Request*	CMP_make_request(thread_db*, CompilerScratch*);
+void		CMP_post_access(thread_db*, CompilerScratch*, const TEXT*, SLONG,
 					 const TEXT*, const TEXT*, USHORT, const TEXT*,
 					 const TEXT*);
-void		CMP_post_resource(tdbb*, Rsc**, blk*, enum rsc_s, USHORT);
-void		CMP_release_resource(Rsc**, enum rsc_s, USHORT);
-void		CMP_release(tdbb*, Request*);
-void		CMP_shutdown_database(tdbb*);
+void		CMP_post_resource(thread_db*, Resource**, blk*, enum rsc_s, USHORT);
+void		CMP_release_resource(Resource**, enum rsc_s, USHORT);
+void		CMP_release(thread_db*, Request*);
+void		CMP_shutdown_database(thread_db*);
 
 #endif // JRD_CMP_PROTO_H

@@ -494,7 +494,7 @@ void DDL_generate(CStatement* request, dsql_nod* node)
  **************************************/
 
 	//if (request->dbb_flags & DBB_read_only)
-	if (request->database->dbb_flags & DBB_read_only)
+	if (request->database->dbb_flags & DBB_read_only_flag)
 		ERRD_post(isc_read_only_database, 0);
 	
 	request->appendUCHAR(isc_dyn_version_1);

@@ -103,7 +103,7 @@ PageCache::~PageCache(void)
 	delete [] hashTable;
 }
 
-void PageCache::initialize(tdbb *tdbb, int numberBuffers)
+void PageCache::initialize(thread_db* tdbb, int numberBuffers)
 {
 	SLONG count;
 	int number = numberBuffers;
@@ -222,7 +222,7 @@ void PageCache::initialize(tdbb *tdbb, int numberBuffers)
 #endif
 }
 
-void PageCache::expandBuffers(tdbb* tdbb, int expandedSize)
+void PageCache::expandBuffers(thread_db* tdbb, int expandedSize)
 {
 	if (expandedSize <= bcb_count || expandedSize > MAX_PAGE_BUFFERS)
 		return;
@@ -304,7 +304,7 @@ void PageCache::expandBuffers(tdbb* tdbb, int expandedSize)
  *
  **************************************/
 
-bool PageCache::writePage(tdbb *tdbb, Bdb* bdb, bool write_thru, bool inAst)
+bool PageCache::writePage(thread_db* tdbb, Bdb* bdb, bool write_thru, bool inAst)
 {
 	Sync sync (&syncPageWrite, "PageCache::writePage");
 	sync.lock(Exclusive);
@@ -327,7 +327,7 @@ bool PageCache::writePage(tdbb *tdbb, Bdb* bdb, bool write_thru, bool inAst)
 	  
 	if (bdb->bdb_page == HEADER_PAGE) 
 		{
-		HDR header = (HDR) page;
+		header_page* header = (header_page*) page;
 		if (header->hdr_next_transaction) 
 			{
 			if (header->hdr_oldest_active > header->hdr_next_transaction)
@@ -387,7 +387,7 @@ bool PageCache::writePage(tdbb *tdbb, Bdb* bdb, bool write_thru, bool inAst)
 				// We finished. Adjust transaction accounting and get ready for exit
 				if (bdb->bdb_page == HEADER_PAGE)
 					database->dbb_last_header_write =
-						((HDR) page)->hdr_next_transaction;
+						((header_page*) page)->hdr_next_transaction;
 				setWriteDirection (tdbb, bdb, BDB_write_undefined);
 				}
 			else 
@@ -408,8 +408,8 @@ bool PageCache::writePage(tdbb *tdbb, Bdb* bdb, bool write_thru, bool inAst)
 
 				if (bdb->bdb_page == HEADER_PAGE)
 					{
-					database->dbb_last_header_write = ((HDR) page)->hdr_next_transaction;
-					database->commitManager->headerWritten(((HDR) page)->hdr_next_transaction);
+					database->dbb_last_header_write = ((header_page*) page)->hdr_next_transaction;
+					database->commitManager->headerWritten(((header_page*) page)->hdr_next_transaction);
 					}
 					
 				if (database->dbb_shadow) 
@@ -481,7 +481,7 @@ void PageCache::journalBuffer(Bdb* bdb)
 {
 }
 
-bool PageCache::setWriteDirection(tdbb *tdbb, Bdb* bdb, int direction)
+bool PageCache::setWriteDirection(thread_db* tdbb, Bdb* bdb, int direction)
 {
 #ifdef SUPERSERVER
 	NBAK_TRACE(("set_write_direction page=%d old=%d new=%d", bdb->bdb_page,
@@ -566,7 +566,7 @@ bool PageCache::setWriteDirection(tdbb *tdbb, Bdb* bdb, int direction)
 	return true;
 }
 
-bool PageCache::rolloverToShadow(tdbb *tdbb, fil* file, bool inAst)
+bool PageCache::rolloverToShadow(thread_db* tdbb, fil* file, bool inAst)
 {
 	/* Is the shadow subsystem yet initialized */
 	
@@ -579,11 +579,11 @@ bool PageCache::rolloverToShadow(tdbb *tdbb, fil* file, bool inAst)
 	return SDW_rollover_to_shadow(tdbb, file, inAst);
 }
 
-bool PageCache::writeAllShadows(tdbb *tdbb, sdw* shadow, Bdb* bdb, int checksum, bool inAst)
+bool PageCache::writeAllShadows(thread_db* tdbb, sdw* shadow, Bdb* bdb, int checksum, bool inAst)
 {
 	SLONG last, *spare_buffer = NULL;
 	FIL next_file, shadow_file;
-	HDR header;
+	header_page* header;
 	PAG old_buffer, page;
 	UCHAR *q;
 	ISC_STATUS statusVector [20];
@@ -643,7 +643,7 @@ bool PageCache::writeAllShadows(tdbb *tdbb, sdw* shadow, Bdb* bdb, int checksum,
 				{
 				/* fixup header for shadow file */
 				shadow_file = sdw->sdw_file;
-				header = (HDR) page;
+				header = (header_page*) page;
 				q = (UCHAR *) database->dbb_file->fil_string;
 				header->hdr_data[0] = HDR_end;
 				header->hdr_end = HDR_SIZE;
@@ -782,7 +782,7 @@ void PageCache::removeDirtyPage(Bdb* bdb)
 #endif
 }
 
-void PageCache::unwind(tdbb* tdbb, bool punt)
+void PageCache::unwind(thread_db* tdbb, bool punt)
 {
 	/* CCH_unwind is called when any of the following occurs:
 		- IO error
@@ -889,7 +889,7 @@ void PageCache::unwind(tdbb* tdbb, bool punt)
  *
  **************************************/
 
-void PageCache::releaseLatch(tdbb* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
+void PageCache::releaseLatch(thread_db* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
 {
 	bdb->incrementUseCount();
 
@@ -939,7 +939,7 @@ void PageCache::bugcheck(int msgNumber)
 	BUGCHECK(msgNumber);
 }
 
-void PageCache::flushDatabase(tdbb* tdbb)
+void PageCache::flushDatabase(thread_db* tdbb)
 {
 #ifdef SUPERSERVER
 	// This is called on architectures with shared buffer cache (like SuperServer)
@@ -985,7 +985,7 @@ void PageCache::flushDatabase(tdbb* tdbb)
 #endif
 }
 
-void PageCache::updateWriteDirection(tdbb* tdbb, Bdb* bdb)
+void PageCache::updateWriteDirection(thread_db* tdbb, Bdb* bdb)
 {
 	SSHORT write_direction;
 	BackupManager *backupManager = database->backup_manager;
@@ -1000,7 +1000,7 @@ void PageCache::updateWriteDirection(tdbb* tdbb, Bdb* bdb)
 	// SCN of header page is adjusted in nbak.cpp	
 	
 	if (bdb->bdb_page != HEADER_PAGE) 
-		bdb->bdb_buffer->pag_scn() = backupManager->get_current_scn(); 
+		bdb->bdb_buffer->pag_scn = backupManager->get_current_scn(); 
 		
 	// Set SCN for the page
 
@@ -1090,7 +1090,7 @@ void PageCache::updateWriteDirection(tdbb* tdbb, Bdb* bdb)
 	backupManager->unlock_state(tdbb);
 }
 
-void PageCache::invalidateAndRelease(tdbb* tdbb, Bdb* bdb)
+void PageCache::invalidateAndRelease(thread_db* tdbb, Bdb* bdb)
 {
 	//bdb->bdb_flags |= BDB_not_valid;
 	bdb->setFlags(BDB_not_valid);
@@ -1259,7 +1259,7 @@ void PageCache::insertDirtyPage(Bdb* bdb)
  *
  **************************************/
 
-pag* PageCache::fake(tdbb* tdbb, win* window)
+pag* PageCache::fake(thread_db* tdbb, win* window)
 {
 	/* if there has been a shadow added recently, go out and
 	   find it before we grant any more write locks */
@@ -1327,7 +1327,7 @@ pag* PageCache::fake(tdbb* tdbb, win* window)
  *
  **************************************/
 
-Bdb* PageCache::getBuffer(tdbb* tdbb, SLONG page, int lock_type)
+Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 {
 	QUE que;
 	Bdb *oldest;
@@ -1681,7 +1681,7 @@ void PageCache::clearPrecedence(Bdb* bdb)
  *
  **************************************/
 
-int PageCache::writeBuffer(tdbb* tdbb, Bdb* bdb, SLONG page, bool write_thru, ISC_STATUS* status, bool write_this_page)
+int PageCache::writeBuffer(thread_db* tdbb, Bdb* bdb, SLONG page, bool write_thru, ISC_STATUS* status, bool write_this_page)
 {
 	QUE que;
 	PRE precedence;
@@ -1801,7 +1801,7 @@ int PageCache::writeBuffer(tdbb* tdbb, Bdb* bdb, SLONG page, bool write_thru, IS
  *
  **************************************/
  
-LockState PageCache::lockBuffer(tdbb* tdbb, Bdb* bdb, int wait, int page_type)
+LockState PageCache::lockBuffer(thread_db* tdbb, Bdb* bdb, int wait, int page_type)
 {
 	ISC_STATUS_ARRAY alt_status;
 	ISC_STATUS *status;
@@ -1933,7 +1933,7 @@ LockState PageCache::lockBuffer(tdbb* tdbb, Bdb* bdb, int wait, int page_type)
 	return lsError;					/* Added to get rid of Compiler Warning */
 }
 
-void PageCache::mark(tdbb* tdbb, win* window, int mark_system)
+void PageCache::mark(thread_db* tdbb, win* window, int mark_system)
 {
 	Transaction* transaction;
 	ULONG trans_bucket;
@@ -2018,7 +2018,7 @@ void PageCache::mark(tdbb* tdbb, win* window, int mark_system)
  *
  **************************************/
 
-int PageCache::latchBdb(tdbb* tdbb, LatchType type, Bdb* bdb, SLONG page)
+int PageCache::latchBdb(thread_db* tdbb, LatchType type, Bdb* bdb, SLONG page)
 {
 	//bdb->incrementUseCount();
 
@@ -2145,7 +2145,7 @@ int PageCache::blockingAst(Bdb* bdb)
  *
  **************************************/
 
-void PageCache::downGrade(tdbb* tdbb, Bdb* bdb)
+void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
 {
 	QUE que;
 	int in_use, invalid;
@@ -2315,7 +2315,7 @@ void PageCache::downGrade(tdbb* tdbb, Bdb* bdb)
  *
  **************************************/
 
-bool PageCache::getExclusive(tdbb* tdbb, int level, int wait_flag)
+bool PageCache::getExclusive(thread_db* tdbb, int level, int wait_flag)
 {
 #ifdef SUPERSERVER
 	if (!getExclusiveAttachment(tdbb, level, wait_flag))
@@ -2369,7 +2369,7 @@ bool PageCache::getExclusive(tdbb* tdbb, int level, int wait_flag)
  *
  **************************************/
 
-bool PageCache::getExclusiveAttachment(tdbb* tdbb, int level, int wait_flag)
+bool PageCache::getExclusiveAttachment(thread_db* tdbb, int level, int wait_flag)
 {
 #define CCH_EXCLUSIVE_RETRY_INTERVAL	1	/* retry interval in seconds */
 
@@ -2500,7 +2500,7 @@ bool PageCache::getExclusiveAttachment(tdbb* tdbb, int level, int wait_flag)
  *
  **************************************/
 
-pag* PageCache::fetch(tdbb* tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow)
+pag* PageCache::fetch(thread_db* tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow)
 {
 	LockState lockState = fetchLock (tdbb, window, lock_type, LCK_WAIT, page_type);
 	Bdb *bdb = window->win_bdb;
@@ -2594,7 +2594,7 @@ pag* PageCache::fetch(tdbb* tdbb, win* window, int lock_type, int page_type, int
  *
  **************************************/
 
-LockState PageCache::fetchLock(tdbb* tdbb, win* window, int lock_type, int wait, int page_type)
+LockState PageCache::fetchLock(thread_db* tdbb, win* window, int lock_type, int wait, int page_type)
 {
 	/* if there has been a shadow added recently, go out and
 	   find it before we grant any more write locks */
@@ -2645,7 +2645,7 @@ LockState PageCache::fetchLock(tdbb* tdbb, win* window, int lock_type, int wait,
  *
  **************************************/
 
-void PageCache::fetchPage(tdbb* tdbb, win* window, int compute_checksum, bool read_shadow)
+void PageCache::fetchPage(thread_db* tdbb, win* window, int compute_checksum, bool read_shadow)
 {
 	SSHORT retryCount;
 	Bdb	*bdb = window->win_bdb;
@@ -2756,7 +2756,7 @@ void PageCache::fetchPage(tdbb* tdbb, win* window, int compute_checksum, bool re
  *
  **************************************/
 
-void PageCache::pageValidationError(tdbb* tdbb, win* window, int type)
+void PageCache::pageValidationError(thread_db* tdbb, win* window, int type)
 {
 	Bdb *bdb = window->win_bdb;
 	PAG page = bdb->bdb_buffer;
@@ -2797,7 +2797,7 @@ void PageCache::pageValidationError(tdbb* tdbb, win* window, int type)
  *
  **************************************/
 
-pag* PageCache::handoff(tdbb* tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail)
+pag* PageCache::handoff(thread_db* tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -2897,7 +2897,7 @@ pag* PageCache::handoff(tdbb* tdbb, win* window, SLONG page, int lock, int page_
  *
  **************************************/
 
-void PageCache::unmark(tdbb* tdbb, win* window)
+void PageCache::unmark(thread_db* tdbb, win* window)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -2927,7 +2927,7 @@ void PageCache::unmark(tdbb* tdbb, win* window)
  *
  **************************************/
 
-void PageCache::release(tdbb* tdbb, win* window, bool release_tail)
+void PageCache::release(thread_db* tdbb, win* window, bool release_tail)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -2957,7 +2957,7 @@ void PageCache::release(tdbb* tdbb, win* window, bool release_tail)
 		window->win_flags &= ~WIN_garbage_collect;
 		}
 
-	//  void PageCache::release(tdbb* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
+	//  void PageCache::release(thread_db* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
 
 	//if (bdb->bdb_use_count == 1)
 	if (bdb->exclusive && bdb->writers == 1)
@@ -3070,7 +3070,7 @@ void PageCache::release(tdbb* tdbb, win* window, bool release_tail)
  *
  **************************************/
 
-void PageCache::declarePrecedence(tdbb* tdbb, win* window, SLONG page)
+void PageCache::declarePrecedence(thread_db* tdbb, win* window, SLONG page)
 {
 	/* If the page is zero, the caller isn't really serious */
 
@@ -3225,7 +3225,7 @@ int PageCache::related(Bdb* low, Bdb* high, int limit)
  *
  **************************************/
 
-void PageCache::prefetch(tdbb* tdbb, SLONG* pages, int count)
+void PageCache::prefetch(thread_db* tdbb, SLONG* pages, int count)
 {
 #ifdef CACHE_READER
 	SLONG page, first_page, *end;
@@ -3288,7 +3288,7 @@ void PageCache::prefetch(tdbb* tdbb, SLONG* pages, int count)
  *
  **************************************/
 
-void PageCache::markMustWrite(tdbb* tdbb, win* window)
+void PageCache::markMustWrite(thread_db* tdbb, win* window)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -3313,7 +3313,7 @@ void PageCache::markMustWrite(tdbb* tdbb, win* window)
  *
  **************************************/
 
-void PageCache::flush(tdbb* tdbb, int flush_flag, int tra_number)
+void PageCache::flush(thread_db* tdbb, int flush_flag, int tra_number)
 {
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
 
@@ -3444,7 +3444,7 @@ void PageCache::flush(tdbb* tdbb, int flush_flag, int tra_number)
  *
  **************************************/
 
-void PageCache::flushDirtyPages(tdbb* tdbb, int transaction_mask, bool sys_only, ISC_STATUS* status)
+void PageCache::flushDirtyPages(thread_db* tdbb, int transaction_mask, bool sys_only, ISC_STATUS* status)
 {
 	Sync sync(&syncDirtyBdbs, "PageCache::flushDirtyPages");
 	sync.lock(Shared);
@@ -3515,7 +3515,7 @@ void PageCache::flushDirtyPages(tdbb* tdbb, int transaction_mask, bool sys_only,
  *
  **************************************/
 
-void PageCache::releaseExclusive(tdbb* tdbb)
+void PageCache::releaseExclusive(thread_db* tdbb)
 {
 	database->dbb_flags &= ~DBB_exclusive;
 	Attachment *attachment = tdbb->tdbb_attachment;
@@ -3538,7 +3538,7 @@ void PageCache::releaseExclusive(tdbb* tdbb)
  *
  **************************************/
 
-void PageCache::shutdownDatabase(tdbb* tdbb)
+void PageCache::shutdownDatabase(thread_db* tdbb)
 {
 	for (int n = 0; n < bcb_count; ++n)
 		{
@@ -3664,7 +3664,7 @@ bool PageCache::validate(win* window)
  *
  **************************************/
 
-void PageCache::recoverShadow(tdbb* tdbb, sbm* sbm_rec)
+void PageCache::recoverShadow(thread_db* tdbb, sbm* sbm_rec)
 {
 	SLONG page_no = -1;
 	int result;
@@ -3718,7 +3718,7 @@ void PageCache::recoverShadow(tdbb* tdbb, sbm* sbm_rec)
  *
  **************************************/
 
-void PageCache::fini(tdbb* tdbb)
+void PageCache::fini(thread_db* tdbb)
 {
 	BOOLEAN flush_error;
 #ifdef CACHE_WRITER

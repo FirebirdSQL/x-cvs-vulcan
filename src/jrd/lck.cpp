@@ -70,7 +70,7 @@ static void		check_lock(LCK, USHORT);
 #endif
 
 //static BOOLEAN	compatible(LCK, LCK, USHORT);
-static void		enqueue(TDBB, LCK, USHORT, SSHORT);
+static void		enqueue(thread_db*, LCK, USHORT, SSHORT);
 static int		external_ast(void *arg);
 
 static USHORT	hash_func(UCHAR *, USHORT);
@@ -82,7 +82,7 @@ static void		internal_ast(LCK);
 static BOOLEAN internal_compatible(LCK, LCK, USHORT);
 static void		internal_dequeue(ISC_STATUS *statusVector, LCK);
 static USHORT	internal_downgrade(ISC_STATUS *statusVector, LCK);
-static BOOLEAN	internal_enqueue(TDBB, LCK, USHORT, SSHORT, BOOLEAN);
+static BOOLEAN	internal_enqueue(thread_db*, LCK, USHORT, SSHORT, BOOLEAN);
 
 
 /* globals and macros */
@@ -203,7 +203,7 @@ void LCK_ast_enable() {
 	LockMgr::LOCK_ast_enable();
 }
 
-void LCK_assert(TDBB tdbb, LCK lock)
+void LCK_assert(thread_db* tdbb, LCK lock)
 {
 /**************************************
  *
@@ -229,7 +229,7 @@ void LCK_assert(TDBB tdbb, LCK lock)
 }
 
 
-int LCK_convert(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_convert(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -291,7 +291,7 @@ int LCK_convert(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
 }
 
 
-int LCK_convert_non_blocking(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_convert_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -361,7 +361,7 @@ int LCK_convert_non_blocking(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
 
 
 
-int LCK_convert_opt(TDBB tdbb, LCK lock, USHORT level)
+int LCK_convert_opt(thread_db* tdbb, LCK lock, USHORT level)
 {
 /**************************************
  *
@@ -392,7 +392,7 @@ int LCK_convert_opt(TDBB tdbb, LCK lock, USHORT level)
 
 
 #ifndef VMS
-int LCK_downgrade(TDBB tdbb, LCK lock)
+int LCK_downgrade(thread_db* tdbb, LCK lock)
 {
 /**************************************
  *
@@ -429,7 +429,7 @@ int LCK_downgrade(TDBB tdbb, LCK lock)
 #endif
 
 
-void LCK_fini(TDBB tdbb, enum lck_owner_t owner_type)
+void LCK_fini(thread_db* tdbb, enum lck_owner_t owner_type)
 {
 /**************************************
  *
@@ -469,7 +469,7 @@ void LCK_fini(TDBB tdbb, enum lck_owner_t owner_type)
 }
 
 
-SLONG LCK_get_owner_handle(TDBB tdbb, enum lck_t lock_type)
+SLONG LCK_get_owner_handle(thread_db* tdbb, enum lck_t lock_type)
 //SLONG LCK_get_owner_handle()
 {
 /**************************************
@@ -522,7 +522,7 @@ SLONG LCK_get_owner_handle(TDBB tdbb, enum lck_t lock_type)
 }
 
 
-void LCK_init(TDBB tdbb, enum lck_owner_t owner_type)
+void LCK_init(thread_db* tdbb, enum lck_owner_t owner_type)
 {
 /**************************************
  *
@@ -572,7 +572,7 @@ void LCK_init(TDBB tdbb, enum lck_owner_t owner_type)
 }
 
 
-int LCK_lock(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -620,7 +620,7 @@ int LCK_lock(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
 }
 
 
-int LCK_lock_non_blocking(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -698,7 +698,7 @@ int LCK_lock_non_blocking(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
 }
 
 
-int LCK_lock_opt(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_lock_opt(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -977,7 +977,7 @@ static BOOLEAN compatible(LCK lock1, LCK lock2, USHORT level2)
 }
 #endif
 
-static void enqueue(TDBB tdbb, LCK lock, USHORT level, SSHORT wait)
+static void enqueue(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -1497,7 +1497,7 @@ static USHORT internal_downgrade(ISC_STATUS *statusVector, LCK first)
 
 
 static BOOLEAN internal_enqueue(
-								TDBB tdbb,
+								thread_db* tdbb,
 								LCK lock,
 								USHORT level,
 								SSHORT wait, BOOLEAN convert_flg)

@@ -78,10 +78,10 @@ class blb : public pool_alloc_rpt<UCHAR, type_blb>
 	SLONG	temporaryId;		/* globally assigned id for temporary blobs */
 	/* blb_data must be longword aligned */
 	UCHAR blb_data[1];			/* A page's worth of blob */
-	blb(tdbb* tdbb, Transaction* transaction);
+	blb(thread_db* tdbb, Transaction* transaction);
 	void release(void);
 	~blb(void);
-	int getData(tdbb *tdbb, int bufferLength, UCHAR* buffer);
+	int getData(thread_db* tdbb, int bufferLength, UCHAR* buffer);
 	int getLength(void);
 };
 typedef blb* BLB;

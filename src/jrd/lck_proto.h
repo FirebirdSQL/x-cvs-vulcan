@@ -26,18 +26,18 @@
 
 #include "../jrd/lck.h"
 
-void	LCK_assert(TDBB, struct lck *);
-int		LCK_convert(TDBB, struct lck *, USHORT, SSHORT);
-int		LCK_convert_non_blocking(TDBB, struct lck *, USHORT, SSHORT);
-int		LCK_convert_opt(TDBB, struct lck *, USHORT);
-int		LCK_downgrade(TDBB, struct lck *);
-void	LCK_fini(TDBB, enum lck_owner_t);
-SLONG	LCK_get_owner_handle(TDBB, enum lck_t);
+void	LCK_assert(thread_db*, struct lck *);
+int		LCK_convert(thread_db*, struct lck *, USHORT, SSHORT);
+int		LCK_convert_non_blocking(thread_db*, struct lck *, USHORT, SSHORT);
+int		LCK_convert_opt(thread_db*, struct lck *, USHORT);
+int		LCK_downgrade(thread_db*, struct lck *);
+void	LCK_fini(thread_db*, enum lck_owner_t);
+SLONG	LCK_get_owner_handle(thread_db*, enum lck_t);
 //SLONG	LCK_get_owner_handle();
-void	LCK_init(TDBB, enum lck_owner_t);
-int		LCK_lock(TDBB, struct lck *, USHORT, SSHORT);
-int		LCK_lock_non_blocking(TDBB, struct lck *, USHORT, SSHORT);
-int		LCK_lock_opt(TDBB, struct lck *, USHORT, SSHORT);
+void	LCK_init(thread_db*, enum lck_owner_t);
+int		LCK_lock(thread_db*, struct lck *, USHORT, SSHORT);
+int		LCK_lock_non_blocking(thread_db*, struct lck *, USHORT, SSHORT);
+int		LCK_lock_opt(thread_db*, struct lck *, USHORT, SSHORT);
 SLONG	LCK_query_data(struct lck *, enum lck_t, USHORT);
 SLONG	LCK_read_data(struct lck *);
 void	LCK_release(struct lck *);

@@ -33,17 +33,17 @@ void SBM_dump(IB_FILE *, SBM);
 #endif
 
 class sbm;
-struct tdbb;
+struct thread_db;
 
 sbm**		SBM_and(sbm **, sbm **);
 int			SBM_clear(sbm *, SLONG);
 BOOLEAN		SBM_equal(SBM, SBM);
 void		SBM_init(void);
 int			SBM_next(sbm *, SLONG *, enum rse_get_mode);
-sbm**		SBM_or(tdbb *tdbb, sbm **, sbm **);
+sbm**		SBM_or(thread_db* tdbb, sbm **, sbm **);
 void		SBM_release(sbm *);
 void		SBM_reset(sbm **);
-void		SBM_set(tdbb *tdbb, sbm **, SLONG);
+void		SBM_set(thread_db* tdbb, sbm **, SLONG);
 int			SBM_test(sbm *, SLONG);
 SLONG		SBM_size(sbm **);
 

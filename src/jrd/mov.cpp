@@ -39,7 +39,7 @@
 
 
 
-int MOV_compare(tdbb *tdbb, const dsc* arg1, const dsc* arg2)
+int MOV_compare(thread_db* tdbb, const dsc* arg1, const dsc* arg2)
 {
 /**************************************
  *

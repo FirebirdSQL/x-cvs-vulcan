@@ -67,16 +67,16 @@
 
 DATABASE DB = STATIC "ODS.RDB";
 
-static bool delete_constraint_records(TDBB tdbb, GBL, const TEXT*, const TEXT*);
-static bool delete_dimension_records(TDBB tdbb, GBL, const TEXT*);
-static void delete_f_key_constraint(TDBB, GBL, const TEXT*, const TEXT*,
+static bool delete_constraint_records(thread_db* tdbb, GBL, const TEXT*, const TEXT*);
+static bool delete_dimension_records(thread_db* tdbb, GBL, const TEXT*);
+static void delete_f_key_constraint(thread_db*, GBL, const TEXT*, const TEXT*,
 									const TEXT*, const TEXT*);
-static void delete_gfield_for_lfield(TDBB tdbb, GBL, const TEXT*);
-static bool delete_index_segment_records(TDBB tdbb, GBL, const TEXT*);
-static bool delete_security_class2(TDBB tdbb, GBL, const TEXT*);
+static void delete_gfield_for_lfield(thread_db* tdbb, GBL, const TEXT*);
+static bool delete_index_segment_records(thread_db* tdbb, GBL, const TEXT*);
+static bool delete_security_class2(thread_db* tdbb, GBL, const TEXT*);
 
 
-void DYN_delete_constraint(TDBB tdbb, GBL gbl, const UCHAR** ptr, const TEXT* relation)
+void DYN_delete_constraint(thread_db* tdbb, GBL gbl, const UCHAR** ptr, const TEXT* relation)
 {
 /**************************************
  *
@@ -108,7 +108,7 @@ void DYN_delete_constraint(TDBB tdbb, GBL gbl, const UCHAR** ptr, const TEXT* re
 }
 
 
-void DYN_delete_dimensions(TDBB tdbb,
+void DYN_delete_dimensions(thread_db* tdbb,
 						   GBL gbl,
 						   const UCHAR** ptr,
 						   const TEXT* relation_name, TEXT* field_name)
@@ -143,7 +143,7 @@ void DYN_delete_dimensions(TDBB tdbb,
 }
 
 
-void DYN_delete_exception(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_exception(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -195,7 +195,7 @@ void DYN_delete_exception(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_filter(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_filter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -249,7 +249,7 @@ void DYN_delete_filter(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_function(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_function(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -323,7 +323,7 @@ void DYN_delete_function(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_generator(TDBB tdbb, GBL gbl, const UCHAR**ptr)
+void DYN_delete_generator(thread_db* tdbb, GBL gbl, const UCHAR**ptr)
 {
 /**************************************
  *
@@ -380,7 +380,7 @@ void DYN_delete_generator(TDBB tdbb, GBL gbl, const UCHAR**ptr)
 }
 
 
-void DYN_delete_global_field(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_global_field(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -462,7 +462,7 @@ void DYN_delete_global_field(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_index(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_index(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -525,7 +525,7 @@ void DYN_delete_index(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_local_field(TDBB tdbb, 
+void DYN_delete_local_field(thread_db* tdbb, 
 							GBL gbl,
 							const UCHAR** ptr,
 							const TEXT* relation_name, TEXT* field_name)
@@ -777,7 +777,7 @@ void DYN_delete_local_field(TDBB tdbb,
 }
 
 
-void DYN_delete_parameter(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* proc_name)
+void DYN_delete_parameter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, TEXT* proc_name)
 {
 /**************************************
  *
@@ -870,7 +870,7 @@ void DYN_delete_parameter(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* proc_nam
 }
 
 
-void DYN_delete_procedure(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_procedure(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1036,7 +1036,7 @@ void DYN_delete_procedure(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_relation(TDBB tdbb,  GBL gbl, const UCHAR** ptr, const TEXT* relation)
+void DYN_delete_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, const TEXT* relation)
 {
 /**************************************
  *
@@ -1275,7 +1275,7 @@ dyn_punt_61:
 }
 
 
-void DYN_delete_role(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_role(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1402,7 +1402,7 @@ do_punt:	// ugly, rethink logic of this function
 }
 
 
-void DYN_delete_security_class(TDBB tdbb, GBL gbl, const UCHAR** ptr)
+void DYN_delete_security_class(thread_db* tdbb, GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1430,7 +1430,7 @@ void DYN_delete_security_class(TDBB tdbb, GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_shadow(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_shadow(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1501,7 +1501,7 @@ while (files)
 }
 
 
-void DYN_delete_trigger(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_trigger(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1636,7 +1636,7 @@ dyn_punt_67:
 }
 
 
-void DYN_delete_trigger_msg(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigger_name)
+void DYN_delete_trigger_msg(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigger_name)
 {
 /**************************************
  *
@@ -1703,7 +1703,7 @@ void DYN_delete_trigger_msg(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigge
 }
 
 
-static bool delete_constraint_records(TDBB tdbb, GBL	gbl,
+static bool delete_constraint_records(thread_db* tdbb, GBL	gbl,
 										 const TEXT*	constraint_name,
 										 const TEXT*	relation_name)
 {
@@ -1753,7 +1753,7 @@ static bool delete_constraint_records(TDBB tdbb, GBL	gbl,
 }
 
 
-static bool delete_dimension_records(TDBB tdbb, GBL gbl, const TEXT* field_name)
+static bool delete_dimension_records(thread_db* tdbb, GBL gbl, const TEXT* field_name)
 {
 /**************************************
  *
@@ -1799,7 +1799,7 @@ static bool delete_dimension_records(TDBB tdbb, GBL gbl, const TEXT* field_name)
 }
 
 
-static void delete_f_key_constraint(TDBB	tdbb,
+static void delete_f_key_constraint(thread_db*	tdbb,
 									GBL		gbl,
 									const TEXT*	tbl_nm,
 									const TEXT*	col_nm, // unused
@@ -1874,7 +1874,7 @@ static void delete_f_key_constraint(TDBB	tdbb,
 }
 
 
-static void delete_gfield_for_lfield(TDBB tdbb,  GBL gbl, const TEXT* lfield_name)
+static void delete_gfield_for_lfield(thread_db* tdbb,  GBL gbl, const TEXT* lfield_name)
 {
 /**************************************
  *
@@ -1914,7 +1914,7 @@ static void delete_gfield_for_lfield(TDBB tdbb,  GBL gbl, const TEXT* lfield_nam
 }
 
 
-static bool delete_index_segment_records(TDBB tdbb,  GBL gbl, const TEXT* index_name)
+static bool delete_index_segment_records(thread_db* tdbb,  GBL gbl, const TEXT* index_name)
 {
 /**************************************
  *
@@ -1959,7 +1959,7 @@ static bool delete_index_segment_records(TDBB tdbb,  GBL gbl, const TEXT* index_
 }
 
 
-static bool delete_security_class2(TDBB tdbb, GBL gbl, const TEXT* security_class)
+static bool delete_security_class2(thread_db* tdbb, GBL gbl, const TEXT* security_class)
 {
 /**************************************
  *

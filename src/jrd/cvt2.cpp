@@ -98,7 +98,7 @@ static const BYTE compare_priority[] = { dtype_unknown,	/* dtype_unknown through
 };								/* int64 goes right after long       */
 
 
-SSHORT CVT2_compare(tdbb *tdbb, const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
+SSHORT CVT2_compare(thread_db* tdbb, const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 {
 /**************************************
  *
@@ -561,7 +561,7 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
  *
  **************************************/
 	/* CHARSET_ID charset1, charset2; */
-	TDBB tdbb = NULL;
+	thread_db* tdbb = NULL;
 	SSHORT l1, l2;
 	USHORT ttype1, ttype2;
 	SSHORT ret_val = 0;
@@ -906,7 +906,7 @@ USHORT CVT2_make_string2(const dsc* desc,
 
 	if (desc->dsc_dtype <= dtype_any_text) {
 		USHORT cs1, cs2;
-		TDBB tdbb = NULL;
+		thread_db* tdbb = NULL;
 
 		if (to_interp == from_interp) {
 			*address = from_buf;

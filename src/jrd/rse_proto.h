@@ -27,21 +27,21 @@
 #include "../jrd/jrd.h"
 #include "../jrd/rse.h"
 
-void RSE_close(TDBB, class Rsb *);
+void RSE_close(thread_db*, class RecordSource*);
 #ifdef PC_ENGINE
-BOOLEAN RSE_find_dbkey(TDBB, class Rsb *, struct jrd_nod *, struct jrd_nod *);
-BOOLEAN RSE_find_record(TDBB, class Rsb *, USHORT, USHORT,
+BOOLEAN RSE_find_dbkey(thread_db*, class RecordSource*, struct jrd_nod *, struct jrd_nod *);
+BOOLEAN RSE_find_record(thread_db*, class RecordSource*, USHORT, USHORT,
 							   struct jrd_nod *);
 #endif
-BOOLEAN RSE_get_record(TDBB, class Rsb *, enum rse_get_mode);
+BOOLEAN RSE_get_record(thread_db*, class RecordSource*, enum rse_get_mode);
 #ifdef PC_ENGINE
-struct bkm *RSE_get_bookmark(TDBB, class Rsb *);
-void RSE_mark_crack(TDBB, class Rsb *, USHORT);
+struct bkm *RSE_get_bookmark(thread_db*, class RecordSource*);
+void RSE_mark_crack(thread_db*, class RecordSource*, USHORT);
 #endif
-void RSE_open(TDBB, class Rsb *);
+void RSE_open(thread_db*, class RecordSource*);
 #ifdef PC_ENGINE
-BOOLEAN RSE_reset_position(TDBB, class Rsb *, struct rpb *);
-BOOLEAN RSE_set_bookmark(TDBB, class Rsb *, struct rpb *,
+BOOLEAN RSE_reset_position(thread_db*, class RecordSource*, struct rpb *);
+BOOLEAN RSE_set_bookmark(thread_db*, class RecordSource*, struct rpb *,
 								struct bkm *);
 #endif
 

@@ -85,48 +85,48 @@
 #include <io.h> // close
 #endif
 
-static void close_merge(TDBB, RSB, IRSB_MRG);
-static void close_procedure(TDBB, RSB);
-static SSHORT compare(TDBB, jrd_nod*, jrd_nod*);
+static void close_merge(thread_db*, RecordSource*, IRSB_MRG);
+static void close_procedure(thread_db*, RecordSource*);
+static SSHORT compare(thread_db*, jrd_nod*, jrd_nod*);
 static SSHORT compare_longs(const SLONG*, const SLONG*, USHORT);
 #ifdef SCROLLABLE_CURSORS
-static BOOLEAN fetch_record(TDBB, RSB, SSHORT, RSE_GET_MODE);
-static BOOLEAN get_merge_join(TDBB, RSB, IRSB_MRG, RSE_GET_MODE);
-static BOOLEAN get_merge_fetch(TDBB, RSB, SSHORT, RSE_GET_MODE);
-static SLONG get_merge_record(TDBB, RSB, irsb_mrg::irsb_mrg_repeat *,
+static BOOLEAN fetch_record(thread_db*, RecordSource*, SSHORT, RSE_GET_MODE);
+static BOOLEAN get_merge_join(thread_db*, RecordSource*, IRSB_MRG, RSE_GET_MODE);
+static BOOLEAN get_merge_fetch(thread_db*, RecordSource*, SSHORT, RSE_GET_MODE);
+static SLONG get_merge_record(thread_db*, RecordSource*, irsb_mrg::irsb_mrg_repeat *,
 							  RSE_GET_MODE);
-static UCHAR *get_sort(TDBB, RSB, RSE_GET_MODE);
-static void resynch_merge(TDBB, RSB, IRSB_MRG, RSE_GET_MODE);
-static void unget_sort(TDBB, RSB, UCHAR *);
+static UCHAR *get_sort(thread_db*, RecordSource*, RSE_GET_MODE);
+static void resynch_merge(thread_db*, RecordSource*, IRSB_MRG, RSE_GET_MODE);
+static void unget_sort(thread_db*, RecordSource*, UCHAR *);
 #else
-static BOOLEAN fetch_record(TDBB, RSB, SSHORT);
-static BOOLEAN get_merge_join(TDBB, RSB, IRSB_MRG);
-static BOOLEAN get_merge_fetch(TDBB, RSB, SSHORT);
-static SLONG get_merge_record(TDBB, RSB, irsb_mrg::irsb_mrg_repeat *);
-static UCHAR *get_sort(TDBB, RSB);
+static BOOLEAN fetch_record(thread_db*, RecordSource*, SSHORT);
+static BOOLEAN get_merge_join(thread_db*, RecordSource*, IRSB_MRG);
+static BOOLEAN get_merge_fetch(thread_db*, RecordSource*, SSHORT);
+static SLONG get_merge_record(thread_db*, RecordSource*, irsb_mrg::irsb_mrg_repeat *);
+static UCHAR *get_sort(thread_db*, RecordSource*);
 #endif
 #ifdef SCROLLABLE_CURSORS
-static BOOLEAN fetch_left(TDBB, RSB, IRSB, RSE_GET_MODE);
+static BOOLEAN fetch_left(thread_db*, RecordSource*, IRSB, RSE_GET_MODE);
 #else
-static BOOLEAN fetch_left(TDBB, RSB, IRSB);
+static BOOLEAN fetch_left(thread_db*, RecordSource*, IRSB);
 #endif
-static UCHAR *get_merge_data(TDBB, MFB, SLONG);
-static BOOLEAN get_procedure(TDBB, RSB, IRSB_PROCEDURE, RPB *);
-static BOOLEAN get_record(TDBB, RSB, RSB, RSE_GET_MODE);
-static BOOLEAN get_union(TDBB, RSB, IRSB);
-static void join_to_nulls(TDBB, RSB, USHORT);
+static UCHAR *get_merge_data(thread_db*, merge_file*, SLONG);
+static BOOLEAN get_procedure(thread_db*, RecordSource*, IRSB_PROCEDURE, RPB *);
+static BOOLEAN get_record(thread_db*, RecordSource*, RecordSource*, RSE_GET_MODE);
+static BOOLEAN get_union(thread_db*, RecordSource*, IRSB);
+static void join_to_nulls(thread_db*, RecordSource*, USHORT);
 static void map_sort_data(JRD_REQ, SMB, UCHAR *);
-static void open_merge(TDBB, RSB, IRSB_MRG);
-static void open_procedure(TDBB, RSB, IRSB_PROCEDURE);
-static void open_sort(TDBB, RSB, IRSB_SORT, UINT64);
+static void open_merge(thread_db*, RecordSource*, IRSB_MRG);
+static void open_procedure(thread_db*, RecordSource*, IRSB_PROCEDURE);
+static void open_sort(thread_db*, RecordSource*, IRSB_SORT, UINT64);
 static void proc_assignment(DSC *, DSC *, UCHAR *, DSC *, SSHORT, REC);
-static void pop_rpbs(JRD_REQ, RSB);
-static void push_rpbs(TDBB, JRD_REQ, RSB);
-static ULONG read_merge_block(TDBB, MFB, ULONG);
+static void pop_rpbs(JRD_REQ, RecordSource*);
+static void push_rpbs(thread_db*, JRD_REQ, RecordSource*);
+static ULONG read_merge_block(thread_db*, merge_file*, ULONG);
 static bool reject(const UCHAR*, const UCHAR*, void*);
 static void restore_record(RPB *);
-static void save_record(TDBB, RPB *);
-static void write_merge_block(TDBB, MFB, ULONG);
+static void save_record(thread_db*, RPB *);
+static void write_merge_block(thread_db*, merge_file*, ULONG);
 
 #ifdef SMALL_FILE_NAMES
 #define SCRATCH         "fb_m"
@@ -136,7 +136,7 @@ static void write_merge_block(TDBB, MFB, ULONG);
 
 
 
-void RSE_close(TDBB tdbb, RSB rsb)
+void RSE_close(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -180,8 +180,8 @@ void RSE_close(TDBB tdbb, RSB rsb)
 
 		case rsb_cross:
 			{
-				RSB* ptr = rsb->rsb_arg;
-				for (RSB* const end = ptr + rsb->rsb_count;
+				RecordSource** ptr = rsb->rsb_arg;
+				for (RecordSource** const end = ptr + rsb->rsb_count;
 					 ptr < end; ptr++)
 				{
 					RSE_close(tdbb, *ptr);
@@ -231,7 +231,7 @@ void RSE_close(TDBB tdbb, RSB rsb)
 
 
 #ifdef PC_ENGINE
-BOOLEAN RSE_find_dbkey(TDBB tdbb, RSB rsb, JRD_NOD find_key, JRD_NOD record_version)
+BOOLEAN RSE_find_dbkey(thread_db* tdbb, RecordSource* rsb, JRD_NOD find_key, JRD_NOD record_version)
 {
 /**************************************
  *
@@ -358,8 +358,8 @@ BOOLEAN RSE_find_dbkey(TDBB tdbb, RSB rsb, JRD_NOD find_key, JRD_NOD record_vers
 
 
 #ifdef PC_ENGINE
-BOOLEAN RSE_find_record(TDBB tdbb,
-						RSB rsb,
+BOOLEAN RSE_find_record(thread_db* tdbb,
+						RecordSource* rsb,
 						USHORT operator, USHORT direction, JRD_NOD find_key)
 {
 /**************************************
@@ -406,7 +406,7 @@ BOOLEAN RSE_find_record(TDBB tdbb,
 #endif
 
 
-BOOLEAN RSE_get_record(TDBB tdbb, RSB rsb, RSE_GET_MODE mode)
+BOOLEAN RSE_get_record(thread_db* tdbb, RecordSource* rsb, RSE_GET_MODE mode)
 {
 /**************************************
  *
@@ -449,7 +449,7 @@ BOOLEAN RSE_get_record(TDBB tdbb, RSB rsb, RSE_GET_MODE mode)
 			{
 			// Lock record if we were asked for it
 			JRD_TRA transaction = request->req_transaction;
-			RSB test_rsb;
+			RecordSource* test_rsb;
 			
 			if (rsb->rsb_type == rsb_boolean)
 				test_rsb = rsb->rsb_next;
@@ -486,7 +486,7 @@ BOOLEAN RSE_get_record(TDBB tdbb, RSB rsb, RSE_GET_MODE mode)
 
 
 #ifdef PC_ENGINE
-BKM RSE_get_bookmark(TDBB tdbb, RSB rsb)
+BKM RSE_get_bookmark(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -543,7 +543,7 @@ BKM RSE_get_bookmark(TDBB tdbb, RSB rsb)
 
 
 #ifdef PC_ENGINE
-void RSE_mark_crack(TDBB tdbb, RSB rsb, USHORT flags)
+void RSE_mark_crack(thread_db* tdbb, RecordSource* rsb, USHORT flags)
 {
 /**************************************
  *
@@ -594,7 +594,7 @@ void RSE_mark_crack(TDBB tdbb, RSB rsb, USHORT flags)
 #endif
 
 
-void RSE_open(TDBB tdbb, RSB rsb)
+void RSE_open(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -727,8 +727,8 @@ void RSE_open(TDBB tdbb, RSB rsb)
 
 				/* Initialize the record number of each stream in the union */
 
-				RSB* ptr = &rsb->rsb_arg[rsb->rsb_count];
-				for (RSB* const end = ptr + (USHORT)(long) * ptr; ++ptr <= end;) {
+				RecordSource** ptr = &rsb->rsb_arg[rsb->rsb_count];
+				for (RecordSource** const end = ptr + (USHORT)(long) * ptr; ++ptr <= end;) {
 					request->req_rpb[(USHORT)(long) * ptr].rpb_number = -1;
 				}
 
@@ -765,7 +765,7 @@ void RSE_open(TDBB tdbb, RSB rsb)
 				for (lls* stack = (LLS) rsb->rsb_arg[RSB_LEFT_rsbs]; stack;
 					 stack = stack->lls_next)
 				{
-					RSB right_rsbs = (RSB) stack->lls_object;
+					RecordSource* right_rsbs = (RecordSource*) stack->lls_object;
 					VIO_record(tdbb,
 							   &request->req_rpb[right_rsbs->rsb_stream],
 							   right_rsbs->rsb_format, tdbb->tdbb_default);
@@ -781,7 +781,7 @@ void RSE_open(TDBB tdbb, RSB rsb)
 
 
 #ifdef PC_ENGINE
-BOOLEAN RSE_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
+BOOLEAN RSE_reset_position(thread_db* tdbb, RecordSource* rsb, RPB * new_rpb)
 {
 /**************************************
  *
@@ -852,7 +852,7 @@ BOOLEAN RSE_reset_position(TDBB tdbb, RSB rsb, RPB * new_rpb)
 
 
 #ifdef PC_ENGINE
-BOOLEAN RSE_set_bookmark(TDBB tdbb, RSB rsb, RPB * rpb, BKM bookmark)
+BOOLEAN RSE_set_bookmark(thread_db* tdbb, RecordSource* rsb, RPB * rpb, BKM bookmark)
 {
 /**************************************
  *
@@ -903,7 +903,7 @@ BOOLEAN RSE_set_bookmark(TDBB tdbb, RSB rsb, RPB * rpb, BKM bookmark)
 #endif
 
 
-static void close_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
+static void close_merge(thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure)
 {
 /**************************************
  *
@@ -920,8 +920,8 @@ static void close_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
 
 /* do two simultaneous but unrelated things in one loop */
 	irsb_mrg::irsb_mrg_repeat* tail = impure->irsb_mrg_rpt;
-	RSB* ptr = rsb->rsb_arg;
-	for (RSB* const end = ptr + rsb->rsb_count * 2;
+	RecordSource** ptr = rsb->rsb_arg;
+	for (RecordSource** const end = ptr + rsb->rsb_count * 2;
 		ptr < end; ptr += 2, tail++)
 	{
 		/* close all the substreams for the sort-merge */
@@ -932,7 +932,7 @@ static void close_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
 		   and the sort file block. Also delete the merge file
 		   if one exists. */
 
-		MFB mfb = &tail->irsb_mrg_file;
+		merge_file* mfb = &tail->irsb_mrg_file;
 		SFB sfb = mfb->mfb_sfb;
 		if (sfb) {
 			if (sfb->sfb_file_name) {
@@ -952,7 +952,7 @@ static void close_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
 }
 
 
-static void close_procedure(TDBB tdbb, RSB rsb)
+static void close_procedure(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -989,7 +989,7 @@ static void close_procedure(TDBB tdbb, RSB rsb)
 
 // It seems strange this function doesn't take two const nodes,
 // but EVL_expr can change node1 and node2' args.
-static SSHORT compare(TDBB tdbb, jrd_nod* node1, jrd_nod* node2)
+static SSHORT compare(thread_db* tdbb, jrd_nod* node1, jrd_nod* node2)
 {
 /**************************************
  *
@@ -1066,7 +1066,7 @@ static SSHORT compare_longs(const SLONG* p, const SLONG* q, USHORT count)
 }
 
 
-static BOOLEAN fetch_record(TDBB tdbb, RSB rsb, SSHORT n
+static BOOLEAN fetch_record(thread_db* tdbb, RecordSource* rsb, SSHORT n
 #ifdef SCROLLABLE_CURSORS
 							, RSE_GET_MODE mode
 #endif
@@ -1088,7 +1088,7 @@ static BOOLEAN fetch_record(TDBB tdbb, RSB rsb, SSHORT n
  **************************************/
 	SET_TDBB(tdbb);
 
-	RSB sub_rsb = rsb->rsb_arg[n];
+	RecordSource* sub_rsb = rsb->rsb_arg[n];
 
 	if (get_record(tdbb, sub_rsb, NULL
 #ifdef SCROLLABLE_CURSORS
@@ -1133,7 +1133,7 @@ static BOOLEAN fetch_record(TDBB tdbb, RSB rsb, SSHORT n
 
 
 #ifdef SCROLLABLE_CURSORS
-static BOOLEAN fetch_left(TDBB tdbb, RSB rsb, IRSB impure, RSE_GET_MODE mode)
+static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_GET_MODE mode)
 {
 /**************************************
  *
@@ -1297,7 +1297,7 @@ return_to_outer:
 #else
 
 
-static BOOLEAN fetch_left(TDBB tdbb, RSB rsb, IRSB impure)
+static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 {
 /**************************************
  *
@@ -1378,7 +1378,7 @@ static BOOLEAN fetch_left(TDBB tdbb, RSB rsb, IRSB impure)
 
 /* Continue with a full outer join. */
 
-	RSB full = rsb->rsb_arg[RSB_LEFT_inner];
+	RecordSource* full = rsb->rsb_arg[RSB_LEFT_inner];
 	full = (full->rsb_type == rsb_boolean) ? full->rsb_next : full;
 
 	if (impure->irsb_flags & irsb_in_opened)
@@ -1426,7 +1426,7 @@ static BOOLEAN fetch_left(TDBB tdbb, RSB rsb, IRSB impure)
 #endif
 
 
-static UCHAR *get_merge_data(TDBB tdbb, MFB mfb, SLONG record)
+static UCHAR *get_merge_data(thread_db* tdbb, merge_file* mfb, SLONG record)
 {
 /**************************************
  *
@@ -1453,8 +1453,8 @@ static UCHAR *get_merge_data(TDBB tdbb, MFB mfb, SLONG record)
 
 #ifdef SCROLLABLE_CURSORS
 static BOOLEAN get_merge_fetch(
-							   TDBB tdbb,
-							   RSB rsb, SSHORT stream, RSE_GET_MODE mode)
+							   thread_db* tdbb,
+							   RecordSource* rsb, SSHORT stream, RSE_GET_MODE mode)
 {
 /**************************************
  *
@@ -1470,7 +1470,7 @@ static BOOLEAN get_merge_fetch(
 	RSB sub_rsb;
 	IRSB_MRG impure;
 	SLONG record;
-	MFB mfb;
+	merge_file* mfb;
 	SSHORT m;
 	irsb_mrg::irsb_mrg_repeat * tail;
 
@@ -1556,7 +1556,7 @@ map_sort_data(tdbb->tdbb_request, (SMB) sub_rsb->rsb_arg[0],
 return TRUE;
 }
 #else
-static BOOLEAN get_merge_fetch(TDBB tdbb, RSB rsb, SSHORT stream)
+static BOOLEAN get_merge_fetch(thread_db* tdbb, RecordSource* rsb, SSHORT stream)
 {
 /**************************************
  *
@@ -1575,7 +1575,7 @@ static BOOLEAN get_merge_fetch(TDBB tdbb, RSB rsb, SSHORT stream)
 	irsb_mrg::irsb_mrg_repeat* tail = impure->irsb_mrg_rpt + stream;
 	SSHORT m = tail->irsb_mrg_order;
 	tail = impure->irsb_mrg_rpt + m;
-	RSB sub_rsb = rsb->rsb_arg[m + m];
+	RecordSource* sub_rsb = rsb->rsb_arg[m + m];
 
 	SLONG record = tail->irsb_mrg_equal_current;
 	++record;
@@ -1588,7 +1588,7 @@ static BOOLEAN get_merge_fetch(TDBB tdbb, RSB rsb, SSHORT stream)
 
 	tail->irsb_mrg_equal_current = record;
 
-	MFB mfb = &tail->irsb_mrg_file;
+	merge_file* mfb = &tail->irsb_mrg_file;
 	map_sort_data(tdbb->tdbb_request, (SMB) sub_rsb->rsb_arg[0],
 				  get_merge_data(tdbb, mfb, record));
 
@@ -1599,8 +1599,8 @@ static BOOLEAN get_merge_fetch(TDBB tdbb, RSB rsb, SSHORT stream)
 
 
 static BOOLEAN get_merge_join(
-							  TDBB tdbb,
-							  RSB rsb, IRSB_MRG impure, RSE_GET_MODE mode)
+							  thread_db* tdbb,
+							  RecordSource* rsb, IRSB_MRG impure, RSE_GET_MODE mode)
 {
 /**************************************
  *
@@ -1652,7 +1652,7 @@ static BOOLEAN get_merge_join(
 	{
 		RSB sort_rsb = *ptr;
 		SMB map = (SMB) sort_rsb->rsb_arg[0];
-		MFB mfb = &tail->irsb_mrg_file;
+		merge_file* mfb = &tail->irsb_mrg_file;
 
 		/* reset equality group record positions */
 
@@ -1716,7 +1716,7 @@ static BOOLEAN get_merge_join(
 						goto recycle;
 					}
 					RSB sort_rsb = *ptr;
-					MFB mfb = &tail->irsb_mrg_file;
+					merge_file* mfb = &tail->irsb_mrg_file;
 					mfb->mfb_current_block = 0;
 					mfb->mfb_equal_records = 0;
 
@@ -1746,7 +1746,7 @@ static BOOLEAN get_merge_join(
 
 		RSB sort_rsb = *ptr;
 		SMB map = (SMB) sort_rsb->rsb_arg[0];
-		MFB mfb = &tail->irsb_mrg_file;
+		merge_file* mfb = &tail->irsb_mrg_file;
 		const ULONG key_length = map->smb_key_length * sizeof(ULONG);
 		if (key_length > sizeof(key))
 			first_data = (UCHAR *) gds__alloc(key_length);
@@ -1817,7 +1817,7 @@ static BOOLEAN get_merge_join(
 	return TRUE;
 }
 #else
-static BOOLEAN get_merge_join(TDBB tdbb, RSB rsb, IRSB_MRG impure)
+static BOOLEAN get_merge_join(thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure)
 {
 /**************************************
  *
@@ -1829,19 +1829,20 @@ static BOOLEAN get_merge_join(TDBB tdbb, RSB rsb, IRSB_MRG impure)
  *	Get the next tuple from a sort/merge join.
  *
  **************************************/
-	RSB sort_rsb, *ptr;
+	RecordSource* sort_rsb;
+	RecordSource** ptr;
 	SMB map;
 	SLONG record;
 	int result;
 	UCHAR *first_data, *last_data;
-	MFB mfb;
+	merge_file* mfb;
 	LLS best_tails;
 	irsb_mrg::irsb_mrg_repeat * tail, *tail_end;
 
 	SET_TDBB(tdbb);
 
 	JRD_REQ request = tdbb->tdbb_request;
-	RSB* const end = rsb->rsb_arg + rsb->rsb_count * 2;
+	RecordSource** const end = rsb->rsb_arg + rsb->rsb_count * 2;
 
 /* If there is a record group already formed, fetch the next combination */
 
@@ -1851,7 +1852,7 @@ static BOOLEAN get_merge_join(TDBB tdbb, RSB rsb, IRSB_MRG impure)
 /* Assuming we are done with the current value group, advance each
    stream one record.  If any comes up dry, we're done. */
 
-	RSB* highest_ptr = rsb->rsb_arg;
+	RecordSource** highest_ptr = rsb->rsb_arg;
 
 	for (ptr = rsb->rsb_arg, tail = impure->irsb_mrg_rpt; ptr < end;
 		 ptr += 2, tail++)
@@ -2012,8 +2013,8 @@ static BOOLEAN get_merge_join(TDBB tdbb, RSB rsb, IRSB_MRG impure)
 
 
 static SLONG get_merge_record(
-							  TDBB tdbb,
-							  RSB rsb, irsb_mrg::irsb_mrg_repeat * impure
+							  thread_db* tdbb,
+							  RecordSource* rsb, irsb_mrg::irsb_mrg_repeat * impure
 #ifdef SCROLLABLE_CURSORS
 , RSE_GET_MODE mode
 #endif
@@ -2032,7 +2033,7 @@ static SLONG get_merge_record(
  **************************************/
 	SLONG record;
 	SMB map;
-	MFB mfb;
+	merge_file* mfb;
 	UCHAR *sort_data, *merge_data;
 	ULONG merge_block;
 	ULONG merge_offset;
@@ -2073,8 +2074,8 @@ static SLONG get_merge_record(
 }
 
 
-static BOOLEAN get_procedure(TDBB				tdbb,
-							 RSB				rsb,
+static BOOLEAN get_procedure(thread_db*			tdbb,
+							 RecordSource*		rsb,
 							 IRSB_PROCEDURE		impure,
 							 RPB*				rpb)
 {
@@ -2140,9 +2141,9 @@ static BOOLEAN get_procedure(TDBB				tdbb,
 }
 
 
-static BOOLEAN get_record(TDBB			tdbb,
-						  RSB			rsb,
-						  RSB			parent_rsb,
+static BOOLEAN get_record(thread_db*	tdbb,
+						  RecordSource*	rsb,
+						  RecordSource*	parent_rsb,
 						  RSE_GET_MODE	mode)
 {
 /**************************************
@@ -2789,7 +2790,7 @@ static BOOLEAN get_record(TDBB			tdbb,
 }
 
 
-static UCHAR *get_sort(TDBB tdbb, RSB rsb
+static UCHAR *get_sort(thread_db* tdbb, RecordSource* rsb
 #ifdef SCROLLABLE_CURSORS
 					   , RSE_GET_MODE mode
 #endif
@@ -2830,7 +2831,7 @@ static UCHAR *get_sort(TDBB tdbb, RSB rsb
 }
 
 
-static BOOLEAN get_union(TDBB tdbb, RSB rsb, IRSB impure)
+static BOOLEAN get_union(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 {
 /**************************************
  *
@@ -2842,7 +2843,7 @@ static BOOLEAN get_union(TDBB tdbb, RSB rsb, IRSB impure)
  *	Get next record in a union.
  *
  **************************************/
-	RSB *rsb_ptr;
+	RecordSource** rsb_ptr;
 	JRD_NOD map, *ptr, *end;
 
 	SET_TDBB(tdbb);
@@ -2870,7 +2871,7 @@ static BOOLEAN get_union(TDBB tdbb, RSB rsb, IRSB impure)
 }
 
 
-static void join_to_nulls(TDBB tdbb, RSB rsb, USHORT streams)
+static void join_to_nulls(thread_db* tdbb, RecordSource* rsb, USHORT streams)
 {
 /**************************************
  *
@@ -2981,7 +2982,7 @@ static void map_sort_data(JRD_REQ request, SMB map, UCHAR * data)
 }
 
 
-static void open_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
+static void open_merge(thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure)
 {
 /**************************************
  *
@@ -2994,9 +2995,11 @@ static void open_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
  *	and cleaning up after any prior sort-merge retrieval.
  *
  **************************************/
-	RSB *ptr, *end, sort_rsb;
+	RecordSource** ptr;
+	RecordSource** end;
+	RecordSource* sort_rsb;
 	SMB map;
-	MFB mfb;
+	merge_file* mfb;
 	irsb_mrg::irsb_mrg_repeat * tail;
 
 	SET_TDBB(tdbb);
@@ -3034,7 +3037,7 @@ static void open_merge(TDBB tdbb, RSB rsb, IRSB_MRG impure)
 }
 
 
-static void open_procedure(TDBB tdbb, RSB rsb, IRSB_PROCEDURE impure)
+static void open_procedure(thread_db* tdbb, RecordSource* rsb, IRSB_PROCEDURE impure)
 {
 /**************************************
  *
@@ -3105,7 +3108,7 @@ static void open_procedure(TDBB tdbb, RSB rsb, IRSB_PROCEDURE impure)
 }
 
 
-static void open_sort(TDBB tdbb, RSB rsb, IRSB_SORT impure, UINT64 max_records)
+static void open_sort(thread_db* tdbb, RecordSource* rsb, IRSB_SORT impure, UINT64 max_records)
 {
 /**************************************
  *
@@ -3324,7 +3327,7 @@ static void proc_assignment(DSC * from_desc,
 }
 
 
-static void pop_rpbs(JRD_REQ request, RSB rsb)
+static void pop_rpbs(JRD_REQ request, RecordSource* rsb)
 {
 /**************************************
  *
@@ -3379,7 +3382,9 @@ static void pop_rpbs(JRD_REQ request, RSB rsb)
 		{
 			SSHORT i, streams[128];
 			SMB map;
-			RSB sort_rsb, *ptr, *end;
+			RecordSource* sort_rsb;
+			RecordSource** ptr;
+			RecordSource** end;
 			smb_repeat * item, *end_item;
 			irsb_mrg::irsb_mrg_repeat * tail;
 
@@ -3412,7 +3417,8 @@ static void pop_rpbs(JRD_REQ request, RSB rsb)
 
 	case rsb_cross:
 		{
-			RSB *ptr, *end;
+			RecordSource** ptr;
+			RecordSource** end;
 
 			/* Bug # 72369: singleton-SELECT in Stored Procedure gives wrong
 			 * results when there are more than 2 streams in the cross. 
@@ -3436,7 +3442,7 @@ static void pop_rpbs(JRD_REQ request, RSB rsb)
 }
 
 
-static void push_rpbs(TDBB tdbb, JRD_REQ request, RSB rsb)
+static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb)
 {
 /**************************************
  *
@@ -3492,7 +3498,9 @@ static void push_rpbs(TDBB tdbb, JRD_REQ request, RSB rsb)
 		{
 			SSHORT i, streams[128];
 			SMB map;
-			RSB sort_rsb, *ptr, *end;
+			RecordSource* sort_rsb;
+			RecordSource** ptr;
+			RecordSource** end;
 			smb_repeat * item, *end_item;
 			irsb_mrg::irsb_mrg_repeat * tail;
 
@@ -3525,7 +3533,8 @@ static void push_rpbs(TDBB tdbb, JRD_REQ request, RSB rsb)
 
 	case rsb_cross:
 		{
-			RSB *ptr, *end;
+			RecordSource** ptr;
+			RecordSource** end;
 
 			/* Bug # 72369: singleton-SELECT in Stored Procedure gives wrong
 			 * results when there are more than 2 streams in the cross. 
@@ -3551,7 +3560,7 @@ static void push_rpbs(TDBB tdbb, JRD_REQ request, RSB rsb)
 }
 
 
-static ULONG read_merge_block(TDBB tdbb, MFB mfb, ULONG block)
+static ULONG read_merge_block(thread_db* tdbb, merge_file* mfb, ULONG block)
 {
 /**************************************
  *
@@ -3633,8 +3642,8 @@ static void restore_record(RPB * rpb)
 
 #ifdef SCROLLABLE_CURSORS
 static void resynch_merge(
-						  TDBB tdbb,
-						  RSB rsb, IRSB_MRG impure, RSE_GET_MODE mode)
+						  thread_db* tdbb,
+						  RecordSource* rsb, IRSB_MRG impure, RSE_GET_MODE mode)
 {
 /**************************************
  *
@@ -3696,7 +3705,7 @@ static void resynch_merge(
 #endif
 
 
-static void save_record(TDBB tdbb, RPB * rpb)
+static void save_record(thread_db* tdbb, RPB * rpb)
 {
 /**************************************
  *
@@ -3736,7 +3745,7 @@ static void save_record(TDBB tdbb, RPB * rpb)
 
 
 #ifdef SCROLLABLE_CURSORS
-static void unget_sort(TDBB tdbb, RSB rsb, UCHAR * data)
+static void unget_sort(thread_db* tdbb, RecordSource* rsb, UCHAR * data)
 {
 /**************************************
  *
@@ -3761,7 +3770,7 @@ static void unget_sort(TDBB tdbb, RSB rsb, UCHAR * data)
 #endif
 
 
-static void write_merge_block(TDBB tdbb, MFB mfb, ULONG block)
+static void write_merge_block(thread_db* tdbb, merge_file* mfb, ULONG block)
 {
 /**************************************
  *

@@ -30,24 +30,24 @@
 
 class Transaction;
 
-USHORT	BTR_all(TDBB, jrd_rel*, index_desc**, index_desc**, str**, SLONG*);
-void	BTR_create(TDBB, jrd_rel*, Transaction*, index_desc*, USHORT, sort_context*, SelectivityList&);
-void	BTR_delete_index(TDBB, win*, USHORT);
-//USHORT	BTR_delete_node(TDBB, btr*, USHORT);
-bool	BTR_description(DBB dbb, JRD_REL, irt*, index_desc*, SSHORT);
-void	BTR_evaluate(tdbb*, IndexRetrieval*, sbm**);
-UCHAR*	BTR_find_leaf(btr*, temporary_key*, UCHAR*, USHORT*, int, bool);
-btr*	BTR_find_page(tdbb*, IndexRetrieval*, win*, index_desc*, temporary_key*, temporary_key*, bool);
-void	BTR_insert(tdbb*, win*, index_insertion*);
-enum idx_e	BTR_key(tdbb*, jrd_rel*, rec*, index_desc*, temporary_key*, idx_null_state*);
-USHORT	BTR_key_length(TDBB tdbb, jrd_rel*, index_desc*);
-UCHAR*	BTR_last_node(btr*, jrd_exp*, struct btx**);
-btr*	BTR_left_handoff(tdbb*, win*, btr*, SSHORT);
-USHORT	BTR_lookup(TDBB, jrd_rel*, USHORT, index_desc*);
-void	BTR_make_key(tdbb*, USHORT, jrd_nod**, index_desc*, temporary_key*, USHORT);
-bool	BTR_next_index(TDBB, jrd_rel*, Transaction*, index_desc*, win*);
-void	BTR_remove(tdbb*, win*, index_insertion*);
-void	BTR_reserve_slot(TDBB, jrd_rel*, Transaction*, index_desc*);
-void	BTR_selectivity(TDBB, jrd_rel*, USHORT, SelectivityList&);
+USHORT	BTR_all(thread_db*, jrd_rel*, index_desc**, index_desc**, str**, SLONG*);
+void	BTR_create(thread_db*, jrd_rel*, Transaction*, index_desc*, USHORT, sort_context*, SelectivityList&);
+void	BTR_delete_index(thread_db*, win*, USHORT);
+//USHORT	BTR_delete_node(thread_db*, btree_page*, USHORT);
+bool	BTR_description(DBB dbb, JRD_REL, index_root_page*, index_desc*, SSHORT);
+void	BTR_evaluate(thread_db*, IndexRetrieval*, sbm**);
+UCHAR*	BTR_find_leaf(btree_page*, temporary_key*, UCHAR*, USHORT*, int, bool);
+btree_page*	BTR_find_page(thread_db*, IndexRetrieval*, win*, index_desc*, temporary_key*, temporary_key*, bool);
+void	BTR_insert(thread_db*, win*, index_insertion*);
+enum idx_e	BTR_key(thread_db*, jrd_rel*, rec*, index_desc*, temporary_key*, idx_null_state*);
+USHORT	BTR_key_length(thread_db* tdbb, jrd_rel*, index_desc*);
+UCHAR*	BTR_last_node(btree_page*, exp_index_buf*, struct btree_exp**);
+btree_page*	BTR_left_handoff(thread_db*, win*, btree_page*, SSHORT);
+USHORT	BTR_lookup(thread_db*, jrd_rel*, USHORT, index_desc*);
+void	BTR_make_key(thread_db*, USHORT, jrd_nod**, index_desc*, temporary_key*, USHORT);
+bool	BTR_next_index(thread_db*, jrd_rel*, Transaction*, index_desc*, win*);
+void	BTR_remove(thread_db*, win*, index_insertion*);
+void	BTR_reserve_slot(thread_db*, jrd_rel*, Transaction*, index_desc*);
+void	BTR_selectivity(thread_db*, jrd_rel*, USHORT, SelectivityList&);
 
 #endif // JRD_BTR_PROTO_H

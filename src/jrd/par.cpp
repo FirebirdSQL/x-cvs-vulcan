@@ -86,35 +86,35 @@ static const TEXT elements[][10] =
 
 #include "gen/codetext.h"
 
-static void error(CSB, ...);
+static void error(CompilerScratch*, ...);
 static SSHORT find_proc_field(Procedure*, TEXT *);
-static JRD_NOD par_args(TDBB, CSB, USHORT);
-static JRD_NOD par_cast(TDBB, CSB);
-static XCP par_condition(TDBB, CSB);
-static XCP par_conditions(TDBB, CSB);
-static SSHORT par_context(CSB, SSHORT *);
-static void par_dependency(TDBB, CSB, SSHORT, SSHORT, TEXT *);
-static JRD_NOD par_exec_proc(TDBB, CSB, SSHORT);
-static JRD_NOD par_fetch(TDBB, CSB, JRD_NOD);
-static JRD_NOD par_field(TDBB, CSB, SSHORT);
-static JRD_NOD par_function(TDBB, CSB);
-static JRD_NOD par_literal(TDBB, CSB);
-static JRD_NOD par_map(TDBB, CSB, USHORT);
-static JRD_NOD par_message(TDBB, CSB);
-static JRD_NOD par_modify(TDBB, CSB);
-static USHORT par_name(CSB, TEXT *);
-static JRD_NOD par_plan(TDBB, CSB);
-static JRD_NOD par_procedure(TDBB, CSB, SSHORT);
-static void par_procedure_parms(TDBB, CSB, Procedure*, JRD_NOD *, JRD_NOD *, USHORT);
-static JRD_NOD par_relation(TDBB, CSB, SSHORT, BOOLEAN);
-static JRD_NOD par_rse(TDBB, CSB, SSHORT);
-static JRD_NOD par_sort(TDBB, CSB, BOOLEAN);
-static JRD_NOD par_stream(TDBB, CSB);
-static JRD_NOD par_union(TDBB, CSB);
-static USHORT par_word(CSB);
-static JRD_NOD parse(TDBB, CSB, USHORT, USHORT expected_optional = 0);
-static void syntax_error(CSB, const TEXT *);
-static void warning(CSB, ...);
+static JRD_NOD par_args(thread_db*, CompilerScratch*, USHORT);
+static JRD_NOD par_cast(thread_db*, CompilerScratch*);
+static PsqlException* par_condition(thread_db*, CompilerScratch*);
+static PsqlException* par_conditions(thread_db*, CompilerScratch*);
+static SSHORT par_context(CompilerScratch*, SSHORT *);
+static void par_dependency(thread_db*, CompilerScratch*, SSHORT, SSHORT, TEXT *);
+static JRD_NOD par_exec_proc(thread_db*, CompilerScratch*, SSHORT);
+static JRD_NOD par_fetch(thread_db*, CompilerScratch*, JRD_NOD);
+static JRD_NOD par_field(thread_db*, CompilerScratch*, SSHORT);
+static JRD_NOD par_function(thread_db*, CompilerScratch*);
+static JRD_NOD par_literal(thread_db*, CompilerScratch*);
+static JRD_NOD par_map(thread_db*, CompilerScratch*, USHORT);
+static JRD_NOD par_message(thread_db*, CompilerScratch*);
+static JRD_NOD par_modify(thread_db*, CompilerScratch*);
+static USHORT par_name(CompilerScratch*, TEXT *);
+static JRD_NOD par_plan(thread_db*, CompilerScratch*);
+static JRD_NOD par_procedure(thread_db*, CompilerScratch*, SSHORT);
+static void par_procedure_parms(thread_db*, CompilerScratch*, Procedure*, JRD_NOD *, JRD_NOD *, USHORT);
+static JRD_NOD par_relation(thread_db*, CompilerScratch*, SSHORT, BOOLEAN);
+static JRD_NOD par_rse(thread_db*, CompilerScratch*, SSHORT);
+static JRD_NOD par_sort(thread_db*, CompilerScratch*, BOOLEAN);
+static JRD_NOD par_stream(thread_db*, CompilerScratch*);
+static JRD_NOD par_union(thread_db*, CompilerScratch*);
+static USHORT par_word(CompilerScratch*);
+static JRD_NOD parse(thread_db*, CompilerScratch*, USHORT, USHORT expected_optional = 0);
+static void syntax_error(CompilerScratch*, const TEXT *);
+static void warning(CompilerScratch*, ...);
 
 #define BLR_PEEK	*(csb->csb_running)
 #define BLR_BYTE	*(csb->csb_running)++
@@ -122,11 +122,11 @@ static void warning(CSB, ...);
 #define BLR_WORD	par_word (csb)
 
 
-JRD_NOD PAR_blr(TDBB	tdbb,
+JRD_NOD PAR_blr(thread_db* tdbb,
 			JRD_REL		relation,
 			const UCHAR*	blr,
-			CSB		view_csb,
-			CSB*	csb_ptr,
+			CompilerScratch*	view_csb,
+			CompilerScratch**	csb_ptr,
 			JRD_REQ*	request_ptr,
 			BOOLEAN	trigger,
 			USHORT	flags)
@@ -142,7 +142,7 @@ JRD_NOD PAR_blr(TDBB	tdbb,
  *	Caller must do pool handling.
  *
  **************************************/
-	CSB csb;
+	CompilerScratch* csb;
 	SSHORT stream, count;
 	csb_repeat *t1, *t2;
 
@@ -161,7 +161,7 @@ JRD_NOD PAR_blr(TDBB	tdbb,
 		if (view_csb)
 			count += view_csb->csb_rpt.getCapacity();
 			
-		csb = Csb::newCsb(*tdbb->tdbb_default, count);
+		csb = CompilerScratch::newCsb(*tdbb->tdbb_default, count);
 		csb->csb_g_flags |= flags;
 		}
 
@@ -194,11 +194,11 @@ JRD_NOD PAR_blr(TDBB	tdbb,
 
 	if (view_csb) 
 		{
-		Csb::rpt_itr ptr = view_csb->csb_rpt.begin();
+		CompilerScratch::rpt_itr ptr = view_csb->csb_rpt.begin();
 		// AB: csb_n_stream replaced by view_csb->csb_rpt.getCount(), because there could
 		// be more then just csb_n_stream-numbers that hold data. 
 		// Certainly csb_stream (see par_context where the context is retrieved)
-		const Csb::rpt_itr end = view_csb->csb_rpt.end();
+		const CompilerScratch::rpt_itr end = view_csb->csb_rpt.end();
 		
 		for (stream = 0; ptr != end; ++ptr, ++stream) 
 			{
@@ -242,7 +242,7 @@ JRD_NOD PAR_blr(TDBB	tdbb,
 }
 
 
-int PAR_desc(CSB csb, DSC * desc)
+int PAR_desc(CompilerScratch* csb, DSC * desc)
 {
 /**************************************
  *
@@ -375,7 +375,7 @@ int PAR_desc(CSB csb, DSC * desc)
 }
 
 
-JRD_NOD PAR_gen_field(TDBB tdbb, USHORT stream, USHORT id)
+JRD_NOD PAR_gen_field(thread_db* tdbb, USHORT stream, USHORT id)
 {
 /**************************************
  *
@@ -398,7 +398,7 @@ JRD_NOD PAR_gen_field(TDBB tdbb, USHORT stream, USHORT id)
 }
 
 
-JRD_NOD PAR_make_field(TDBB tdbb, CSB csb, USHORT context, const TEXT* base_field)
+JRD_NOD PAR_make_field(thread_db* tdbb, CompilerScratch* csb, USHORT context, const TEXT* base_field)
 {
 /**************************************
  *
@@ -464,7 +464,7 @@ JRD_NOD PAR_make_field(TDBB tdbb, CSB csb, USHORT context, const TEXT* base_fiel
 }
 
 
-JRD_NOD PAR_make_list(TDBB tdbb, LLS stack)
+JRD_NOD PAR_make_list(thread_db* tdbb, LLS stack)
 {
 /**************************************
  *
@@ -495,7 +495,7 @@ JRD_NOD PAR_make_list(TDBB tdbb, LLS stack)
 }
 
 
-JRD_NOD PAR_make_node(TDBB tdbb, int size)
+JRD_NOD PAR_make_node(thread_db* tdbb, int size)
 {
 /**************************************
  *
@@ -516,7 +516,7 @@ JRD_NOD PAR_make_node(TDBB tdbb, int size)
 }
 
 
-CSB PAR_parse(TDBB tdbb, const UCHAR* blr, USHORT internal_flag)
+CompilerScratch* PAR_parse(thread_db* tdbb, const UCHAR* blr, USHORT internal_flag)
 {
 /**************************************
  *
@@ -530,7 +530,7 @@ CSB PAR_parse(TDBB tdbb, const UCHAR* blr, USHORT internal_flag)
  **************************************/
 	//SET_TDBB(tdbb);
 
-	CSB csb = Csb::newCsb(*tdbb->tdbb_default, 5);
+	CompilerScratch* csb = CompilerScratch::newCsb(*tdbb->tdbb_default, 5);
 	csb->csb_running = csb->csb_blr = blr;
 	const SSHORT version = *csb->csb_running++;
 	
@@ -591,7 +591,7 @@ SLONG PAR_symbol_to_gdscode(const char* name)
 }
 
 
-static void error(CSB csb, ...)
+static void error(CompilerScratch* csb, ...)
 {
 /**************************************
  *
@@ -609,7 +609,7 @@ static void error(CSB csb, ...)
 	va_list args;
 
 /* Don't bother to pass tdbb for error handling */
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	VA_START(args, csb);
 
@@ -679,7 +679,7 @@ static SSHORT find_proc_field(Procedure* procedure, TEXT * name)
 }
 
 
-static JRD_NOD par_args(TDBB tdbb, CSB csb, USHORT expected)
+static JRD_NOD par_args(thread_db* tdbb, CompilerScratch* csb, USHORT expected)
 {
 /**************************************
  *
@@ -708,7 +708,7 @@ static JRD_NOD par_args(TDBB tdbb, CSB csb, USHORT expected)
 }
 
 
-static JRD_NOD par_cast(TDBB tdbb, CSB csb)
+static JRD_NOD par_cast(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -739,7 +739,7 @@ static JRD_NOD par_cast(TDBB tdbb, CSB csb)
 }
 
 
-static XCP par_condition(TDBB tdbb, CSB csb)
+static PsqlException* par_condition(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -768,7 +768,7 @@ static XCP par_condition(TDBB tdbb, CSB csb)
 		return NULL;
 	}
 
-	XCP exception_list = FB_NEW_RPT(*tdbb->tdbb_default, 1) xcp();
+	PsqlException* exception_list = FB_NEW_RPT(*tdbb->tdbb_default, 1) PsqlException();
 	exception_list->xcp_count = 1;
 	
 	switch (code_type) {
@@ -813,7 +813,7 @@ static XCP par_condition(TDBB tdbb, CSB csb)
 }
 
 
-static XCP par_conditions(TDBB tdbb, CSB csb)
+static PsqlException* par_conditions(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -834,7 +834,7 @@ static XCP par_conditions(TDBB tdbb, CSB csb)
 /* allocate a node to represent the conditions list */
 
 	const USHORT n = BLR_WORD;
-	XCP exception_list = FB_NEW_RPT(*tdbb->tdbb_default, n) xcp();
+	PsqlException* exception_list = FB_NEW_RPT(*tdbb->tdbb_default, n) PsqlException();
 	exception_list->xcp_count = n;
 	for (int i = 0; i < n; i++) {
 		const USHORT code_type = BLR_BYTE;
@@ -887,7 +887,7 @@ static XCP par_conditions(TDBB tdbb, CSB csb)
 }
 
 
-static SSHORT par_context(CSB csb, SSHORT* context_ptr)
+static SSHORT par_context(CompilerScratch* csb, SSHORT* context_ptr)
 {
 /**************************************
  *
@@ -928,8 +928,8 @@ static SSHORT par_context(CSB csb, SSHORT* context_ptr)
 }
 
 
-static void par_dependency(TDBB   tdbb,
-						   CSB    csb,
+static void par_dependency(thread_db*   tdbb,
+						   CompilerScratch*    csb,
 						   SSHORT stream,
 						   SSHORT id,
 						   TEXT*  field_name)
@@ -981,7 +981,7 @@ static void par_dependency(TDBB   tdbb,
 }
 
 
-static JRD_NOD par_exec_proc(TDBB tdbb, CSB csb, SSHORT op)
+static JRD_NOD par_exec_proc(thread_db* tdbb, CompilerScratch* csb, SSHORT op)
 {
 /**************************************
  *
@@ -1023,7 +1023,7 @@ static JRD_NOD par_exec_proc(TDBB tdbb, CSB csb, SSHORT op)
 }
 
 
-static JRD_NOD par_fetch(TDBB tdbb, CSB csb, JRD_NOD for_node)
+static JRD_NOD par_fetch(thread_db* tdbb, CompilerScratch* csb, JRD_NOD for_node)
 {
 /**************************************
  *
@@ -1042,7 +1042,7 @@ static JRD_NOD par_fetch(TDBB tdbb, CSB csb, JRD_NOD for_node)
 /* Fake RSE */
 
 	for_node->nod_arg[e_for_re] = PAR_make_node(tdbb, 1 + rse_delta + 2);
-	RSE rse = (RSE) for_node->nod_arg[e_for_re];
+	RecordSelExpr* rse = (RecordSelExpr*) for_node->nod_arg[e_for_re];
 	rse->nod_type = nod_rse;
 	rse->nod_count = 0;
 	rse->rse_count = 1;
@@ -1069,7 +1069,7 @@ static JRD_NOD par_fetch(TDBB tdbb, CSB csb, JRD_NOD for_node)
 }
 
 
-static JRD_NOD par_field(TDBB tdbb, CSB csb, SSHORT operator_)
+static JRD_NOD par_field(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_)
 {
 /**************************************
  *
@@ -1204,7 +1204,7 @@ static JRD_NOD par_field(TDBB tdbb, CSB csb, SSHORT operator_)
 }
 
 
-static JRD_NOD par_function(TDBB tdbb, CSB csb)
+static JRD_NOD par_function(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1279,7 +1279,7 @@ static JRD_NOD par_function(TDBB tdbb, CSB csb)
 }
 
 
-static JRD_NOD par_literal(TDBB tdbb, CSB csb)
+static JRD_NOD par_literal(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1302,7 +1302,7 @@ static JRD_NOD par_literal(TDBB tdbb, CSB csb)
 	const SSHORT count = lit_delta +
 		(desc.dsc_length + sizeof(jrd_nod*) - 1) / sizeof(jrd_nod*);
 	JRD_NOD node = PAR_make_node(tdbb, count);
-	LIT literal = (LIT) node;
+	Literal* literal = (Literal*) node;
 	node->nod_count = 0;
 	literal->lit_desc = desc;
 	literal->lit_desc.dsc_address = p = reinterpret_cast<UCHAR*>(literal->lit_data);
@@ -1379,7 +1379,7 @@ static JRD_NOD par_literal(TDBB tdbb, CSB csb)
 }
 
 
-static JRD_NOD par_map(TDBB tdbb, CSB csb, USHORT stream)
+static JRD_NOD par_map(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
 {
 /**************************************
  *
@@ -1416,7 +1416,7 @@ static JRD_NOD par_map(TDBB tdbb, CSB csb, USHORT stream)
 }
 
 
-static JRD_NOD par_message(TDBB tdbb, CSB csb)
+static JRD_NOD par_message(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1469,7 +1469,7 @@ static JRD_NOD par_message(TDBB tdbb, CSB csb)
 }
 
 
-static JRD_NOD par_modify(TDBB tdbb, CSB csb)
+static JRD_NOD par_modify(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1517,7 +1517,7 @@ static JRD_NOD par_modify(TDBB tdbb, CSB csb)
 }
 
 
-static USHORT par_name(CSB csb, TEXT* string)
+static USHORT par_name(CompilerScratch* csb, TEXT* string)
 {
 /**************************************
  *
@@ -1544,7 +1544,7 @@ static USHORT par_name(CSB csb, TEXT* string)
 }
 
 
-static JRD_NOD par_plan(TDBB tdbb, CSB csb)
+static JRD_NOD par_plan(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1727,7 +1727,7 @@ static JRD_NOD par_plan(TDBB tdbb, CSB csb)
 }
 
 
-static JRD_NOD par_procedure(TDBB tdbb, CSB csb, SSHORT op)
+static JRD_NOD par_procedure(thread_db* tdbb, CompilerScratch* csb, SSHORT op)
 {
 /**************************************
  *
@@ -1778,9 +1778,8 @@ static JRD_NOD par_procedure(TDBB tdbb, CSB csb, SSHORT op)
 }
 
 
-static void par_procedure_parms(
-								TDBB tdbb,
-								CSB csb,
+static void par_procedure_parms(thread_db* tdbb,
+								CompilerScratch* csb,
 								Procedure* procedure,
 								JRD_NOD * message_ptr,
 								JRD_NOD * parameter_ptr, USHORT input_flag)
@@ -1902,7 +1901,7 @@ static void par_procedure_parms(
 }
 
 
-static JRD_NOD par_relation( TDBB tdbb, CSB csb, SSHORT operator_, BOOLEAN parse_context)
+static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_, BOOLEAN parse_context)
 {
 /**************************************
  *
@@ -2004,7 +2003,7 @@ static JRD_NOD par_relation( TDBB tdbb, CSB csb, SSHORT operator_, BOOLEAN parse
 }
 
 
-static JRD_NOD par_rse(TDBB tdbb, CSB csb, SSHORT rse_op)
+static JRD_NOD par_rse(thread_db* tdbb, CompilerScratch* csb, SSHORT rse_op)
 {
 /**************************************
  *
@@ -2019,7 +2018,7 @@ static JRD_NOD par_rse(TDBB tdbb, CSB csb, SSHORT rse_op)
 	//SET_TDBB(tdbb);
 
 	SSHORT count = (unsigned int) BLR_BYTE;
-	RSE rse = (RSE) PAR_make_node(tdbb, count + rse_delta + 2);
+	RecordSelExpr* rse = (RecordSelExpr*) PAR_make_node(tdbb, count + rse_delta + 2);
 	rse->nod_count = 0;
 	rse->rse_count = count;
 	jrd_nod** ptr = rse->rse_relation;
@@ -2124,7 +2123,7 @@ static JRD_NOD par_rse(TDBB tdbb, CSB csb, SSHORT rse_op)
 }
 
 
-static JRD_NOD par_sort(TDBB tdbb, CSB csb, BOOLEAN flag)
+static JRD_NOD par_sort(thread_db* tdbb, CompilerScratch* csb, BOOLEAN flag)
 {
 /**************************************
  *
@@ -2173,7 +2172,7 @@ static JRD_NOD par_sort(TDBB tdbb, CSB csb, BOOLEAN flag)
 }
 
 
-static JRD_NOD par_stream(TDBB tdbb, CSB csb)
+static JRD_NOD par_stream(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -2187,7 +2186,7 @@ static JRD_NOD par_stream(TDBB tdbb, CSB csb)
  **************************************/
 	//SET_TDBB(tdbb);
 
-	RSE rse = (RSE) PAR_make_node(tdbb, 1 + rse_delta + 2);
+	RecordSelExpr* rse = (RecordSelExpr*) PAR_make_node(tdbb, 1 + rse_delta + 2);
 	rse->nod_count = 0;
 	rse->rse_count = 1;
 	rse->rse_relation[0] = parse(tdbb, csb, RELATION);
@@ -2208,7 +2207,7 @@ static JRD_NOD par_stream(TDBB tdbb, CSB csb)
 }
 
 
-static JRD_NOD par_union(TDBB tdbb, CSB csb)
+static JRD_NOD par_union(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -2246,7 +2245,7 @@ static JRD_NOD par_union(TDBB tdbb, CSB csb)
 }
 
 
-static USHORT par_word(CSB csb)
+static USHORT par_word(CompilerScratch* csb)
 {
 /**************************************
  *
@@ -2265,7 +2264,7 @@ static USHORT par_word(CSB csb)
 }
 
 
-static JRD_NOD parse(TDBB tdbb, CSB csb, USHORT expected, USHORT expected_optional)
+static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USHORT expected_optional)
 {
 /**************************************
  *
@@ -2517,7 +2516,7 @@ static JRD_NOD parse(TDBB tdbb, CSB csb, USHORT expected, USHORT expected_option
 
 	case blr_singular:
 		node = parse(tdbb, csb, TYPE_RSE);
-		((RSE) node)->nod_flags |= rse_singular;
+		((RecordSelExpr*) node)->nod_flags |= rse_singular;
 		break;
 
 	case blr_relation:
@@ -2945,7 +2944,7 @@ static JRD_NOD parse(TDBB tdbb, CSB csb, USHORT expected, USHORT expected_option
 }
 
 
-static void syntax_error(CSB csb, const TEXT* string)
+static void syntax_error(CompilerScratch* csb, const TEXT* string)
 {
 /**************************************
  *
@@ -2965,7 +2964,7 @@ static void syntax_error(CSB csb, const TEXT* string)
 }
 
 
-static void warning(CSB csb, ...)
+static void warning(CompilerScratch* csb, ...)
 {
 /**************************************
  *
@@ -2990,7 +2989,7 @@ static void warning(CSB csb, ...)
 	int type;
 	va_list args;
 
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	VA_START(args, csb);
 

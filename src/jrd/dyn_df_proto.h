@@ -24,31 +24,31 @@
 #ifndef JRD_DYN_DF_PROTO_H
 #define JRD_DYN_DF_PROTO_H
 
-void DYN_define_cache(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_constraint(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_define_dimension(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_define_exception(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_file(TDBB tdbb, GBL, const UCHAR**, SLONG, SLONG*, USHORT);
-void DYN_define_filter(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_function(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_function_arg(TDBB tdbb, GBL, const UCHAR**, TEXT*);
-void DYN_define_generator(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_global_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_define_index(TDBB tdbb, GBL, const UCHAR**, const TEXT*, UCHAR, TEXT*, TEXT*,
+void DYN_define_cache(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_constraint(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_define_dimension(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_define_exception(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_file(thread_db* tdbb, GBL, const UCHAR**, SLONG, SLONG*, USHORT);
+void DYN_define_filter(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_function(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_function_arg(thread_db* tdbb, GBL, const UCHAR**, TEXT*);
+void DYN_define_generator(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_global_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_define_index(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, UCHAR, TEXT*, TEXT*,
 							 TEXT*, UCHAR *);
-void DYN_define_local_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_define_log_file(TDBB tdbb, GBL, const UCHAR**, bool, bool);
-void DYN_define_parameter(TDBB tdbb, GBL, const UCHAR**, TEXT*);
-void DYN_define_procedure(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_relation(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_role(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_security_class(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_shadow(TDBB tdbb, GBL, const UCHAR**);
-void DYN_define_sql_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_define_trigger(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*, const bool);
-void DYN_define_trigger_msg(TDBB tdbb, GBL, const UCHAR**, const TEXT*);
-void DYN_define_view_relation(TDBB tdbb, GBL, const UCHAR**, const TEXT*);
-void DYN_define_difference(TDBB tdbb, GBL, const UCHAR**);
+void DYN_define_local_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_define_log_file(thread_db* tdbb, GBL, const UCHAR**, bool, bool);
+void DYN_define_parameter(thread_db* tdbb, GBL, const UCHAR**, TEXT*);
+void DYN_define_procedure(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_relation(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_role(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_security_class(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_shadow(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_define_sql_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_define_trigger(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*, const bool);
+void DYN_define_trigger_msg(thread_db* tdbb, GBL, const UCHAR**, const TEXT*);
+void DYN_define_view_relation(thread_db* tdbb, GBL, const UCHAR**, const TEXT*);
+void DYN_define_difference(thread_db* tdbb, GBL, const UCHAR**);
 
 #endif // JRD_DYN_DF_PROTO_H
 

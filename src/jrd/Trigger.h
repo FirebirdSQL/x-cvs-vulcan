@@ -33,7 +33,7 @@ class str;
 class Relation;
 class Request;
 
-struct tdbb;
+struct thread_db;
 
 class Trigger
 {
@@ -48,8 +48,8 @@ public:
 	USHORT		flags; // Flags as they are in RDB$TRIGGERS table
 	Relation*	relation; // Trigger parent relation
 	JString		name; // Trigger name
-	void		compile(tdbb* _tdbb); // Ensure that trigger is compiled
-	BOOLEAN		release(tdbb* _tdbb); // Try to free trigger request
+	void		compile(thread_db* _tdbb); // Ensure that trigger is compiled
+	BOOLEAN		release(thread_db* _tdbb); // Try to free trigger request
 };
 
 /***

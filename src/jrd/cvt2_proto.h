@@ -24,9 +24,9 @@
 #ifndef JRD_CVT2_PROTO_H
 #define JRD_CVT2_PROTO_H
 
-struct tdbb;
+struct thread_db;
 
-SSHORT	CVT2_compare(tdbb *tdbb, const dsc*, const dsc*, FPTR_ERROR);
+SSHORT	CVT2_compare(thread_db* tdbb, const dsc*, const dsc*, FPTR_ERROR);
 SSHORT	CVT2_blob_compare(const dsc*, const dsc*, FPTR_ERROR);
 void	CVT2_get_name(const dsc*, TEXT*, FPTR_ERROR);
 USHORT	CVT2_make_string2(const dsc*, USHORT, UCHAR**, vary*,

@@ -260,7 +260,7 @@ ISC_STATUS Database::executeDDL(ISC_STATUS *statusVector, Transaction *transacti
 	return statusVector [1];
 }
 
-Relation* Database::findRelation(TDBB tdbb, const char *relationName)
+Relation* Database::findRelation(thread_db* tdbb, const char *relationName)
 {
 	return MET_lookup_relation (tdbb, relationName);
 }
@@ -270,17 +270,17 @@ bool Database::isFilename(const char* filename)
 	return PathName::pathsEquivalent (dbb_filename, filename);
 }
 
-CharSetContainer* Database::findCharset(tdbb* tdbb, int ttype)
+CharSetContainer* Database::findCharset(thread_db* tdbb, int ttype)
 {
 	return charSetManager->findCharset (tdbb, ttype);
 }
 
-CharSetContainer* Database::findCharset(tdbb* tdbb, const char* name)
+CharSetContainer* Database::findCharset(thread_db* tdbb, const char* name)
 {
 	return charSetManager->findCharset (tdbb, name);
 }
 
-CharSetContainer* Database::findCollation(tdbb* tdbb, const char* name)
+CharSetContainer* Database::findCollation(thread_db* tdbb, const char* name)
 {
 	return charSetManager->findCollation (tdbb, name);
 }
@@ -341,7 +341,7 @@ bool Database::isReady(bool waitFlag)
 }
 
 
-Relation* Database::lookupRelation(tdbb* tdbb, const char* relationName)
+Relation* Database::lookupRelation(thread_db* tdbb, const char* relationName)
 {
 	int length = strlen(relationName);
 	Sync sync (&syncRelations, "Database::lookupRelation");
@@ -370,7 +370,7 @@ Relation* Database::lookupRelation(tdbb* tdbb, const char* relationName)
 	return NULL;
 }
 
-Relation* Database::getRelation(tdbb* tdbb, int id)
+Relation* Database::getRelation(thread_db* tdbb, int id)
 {
 	if (id < 0)
 		return new Relation(this, id);
@@ -414,12 +414,12 @@ void Database::validate(void)
 {
 }
 
-Procedure* Database::findProcedure(tdbb* tdbb, int id)
+Procedure* Database::findProcedure(thread_db* tdbb, int id)
 {
 	return procManager->findProcedure (tdbb, id);
 }
 
-Procedure* Database::findProcedure(tdbb* tdbb, const TEXT* name, bool noscan)
+Procedure* Database::findProcedure(thread_db* tdbb, const TEXT* name, bool noscan)
 {
 	return procManager->findProcedure (tdbb, name, noscan);
 }
@@ -432,13 +432,13 @@ InternalConnection* Database::getSystemConnection(void)
 	return systemConnection;
 }
 
-void Database::updateAccountInfo(tdbb* tdbb, int apbLength, const UCHAR* apb)
+void Database::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
 {
 	InternalSecurityContext securityContext (tdbb);
 	securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
 }
 
-void Database::authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+void Database::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	InternalSecurityContext securityContext (tdbb);
 	securityPlugin->authenticateUser(&securityContext, dpbLength, dpb, itemsLength, items, bufferLength, buffer);
@@ -462,7 +462,7 @@ Relation* Database::findRelation(int relationId)
 	return dbb_relations[relationId];
 }
 
-Relation* Database::findRelation(tdbb* tdbb, int relationId)
+Relation* Database::findRelation(thread_db* tdbb, int relationId)
 {
 	return NULL;
 }

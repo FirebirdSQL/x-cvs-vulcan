@@ -62,14 +62,14 @@ class vec;
 class Attachment;
 class Transaction;
 class Relation;
-class acc;
-class Rsc;
+class AccessItem;
+class Resource;
 class Procedure;
 class rng;
 class sav;
-class status_xcp;
+class StatusXcp;
 struct rpb;
-struct tdbb;
+struct thread_db;
 
 class Request: public pool_alloc <type_req>
 {
@@ -86,9 +86,9 @@ public:
 	vec*			req_sub_requests;	// vector of sub-requests
 	Transaction*	req_transaction;
 	Request*		req_request;		/* next request in dbb */
-	acc*			req_access;			/* Access items to be checked */
+	AccessItem*		req_access;			/* Access items to be checked */
 	//SVector<jrd_nod*> req_variables;	/* Vector of variables, if any */
-	Rsc*			req_resources;		/* Resources (relations and indices) */
+	Resource*		req_resources;		/* Resources (relations and indices) */
 	jrd_nod*		req_message;		/* Current message for send/receive */
 #ifdef SCROLLABLE_CURSORS
 	jrd_nod			*req_async_message;	/* Asynchronous message (used in scrolling) */
@@ -126,14 +126,14 @@ public:
 	ULONG			req_timestamp;		/* Start time of request */
 	req_ta			req_trigger_action;		/* action that caused trigger to fire */
 	req_s			req_operation;	/* operation for next node */
-    status_xcp		*req_last_xcp;	/* last known exception */
+    StatusXcp		*req_last_xcp;	/* last known exception */
 	rpb				*req_rpb;		/* record parameter blocks */
 	UCHAR			*req_impure;
 	Request* getInstantiatedRequest(int instantiation);
 	Request* findInstantiatedRequest(int instantiation);
-	int getRequestInfo(tdbb* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	int getRequestInfo(thread_db* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	void release(void);
-	void release(tdbb* tdbb);
+	void release(thread_db* tdbb);
 };
 
 #endif

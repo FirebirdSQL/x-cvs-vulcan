@@ -192,45 +192,43 @@ enum rsc_s {
 	rsc_index
 };
 
-class Rsc : public pool_alloc<type_rsc>
+class Resource : public pool_alloc<type_rsc>
 {
     public:
-	class Rsc *rsc_next;		/* Next resource in request */
-	Relation *rsc_rel;		/* Relation block */
-	Procedure *rsc_prc;		/* Relation block */
+	class Resource* rsc_next;	/* Next resource in request */
+	Relation* rsc_rel;			/* Relation block */
+	Procedure* rsc_prc;			/* Relation block */
 	USHORT rsc_id;				/* Id of parent */
 	enum rsc_s rsc_type;
 };
-typedef Rsc *RSC;
 
 /* Index lock block */
 
-class idl : public pool_alloc<type_idl>
+class IndexLock : public pool_alloc<type_idl>
 {
     public:
-	struct idl*	idl_next;		/* Next index lock block for relation */
+	class IndexLock* idl_next;	/* Next index lock block for relation */
 	struct lck*	idl_lock;		/* Lock block */
 	Relation*	idl_relation;	/* Parent relation */
 	USHORT		idl_id;			/* Index id */
 	USHORT		idl_count;		/* Use count */
 };
-typedef idl *IDL;
 
 
 /* Access items */
 
-class acc : public pool_alloc<type_acc>
+class AccessItem : public pool_alloc<type_acc>
 {
     public:
-	struct acc*	acc_next;
-	TEXT*		acc_security_name;	/* WRITTEN into by SCL_get_class() */
-	SLONG	acc_view_id;
+	class AccessItem* acc_next;
+	TEXT* acc_security_name;	/* WRITTEN into by SCL_get_class() */
+	SLONG acc_view_id;
 	const TEXT*	acc_trg_name;
 	const TEXT*	acc_prc_name;
 	const TEXT*	acc_name;
 	const TEXT*	acc_type;
 	USHORT		acc_mask;
 };
-typedef acc *ACC;
+//typedef acc *ACC;
 
 #endif /* JRD_REQ_H */

@@ -49,7 +49,7 @@
 #define GDML_RPAREN		')'
 
 
-USHORT LIKENAME(TDBB tdbb, TextType obj, const LIKETYPE* p1, SSHORT l1_bytes,	/* byte count */
+USHORT LIKENAME(thread_db* tdbb, TextType obj, const LIKETYPE* p1, SSHORT l1_bytes,	/* byte count */
 				const LIKETYPE* p2, SSHORT l2_bytes,	/* byte count */
 				UCS2_CHAR escape_char)
 {
@@ -129,7 +129,7 @@ USHORT LIKENAME(TDBB tdbb, TextType obj, const LIKETYPE* p1, SSHORT l1_bytes,	/*
 }
 
 
-USHORT MATCHESNAME(TDBB tdbb,
+USHORT MATCHESNAME(thread_db* tdbb,
 				   TextType obj,
 				   const MATCHESTYPE* p1,
 				   SSHORT l1_bytes, const MATCHESTYPE* p2, SSHORT l2_bytes)
@@ -192,7 +192,7 @@ USHORT MATCHESNAME(TDBB tdbb,
 }
 
 
-USHORT SLEUTHNAME(TDBB tdbb_dummy,
+USHORT SLEUTHNAME(thread_db* tdbb_dummy,
 				  TextType obj,
 				  USHORT flags,
 				  const SLEUTHTYPE* search,
@@ -222,7 +222,7 @@ USHORT SLEUTHNAME(TDBB tdbb_dummy,
 }
 
 
-USHORT SLEUTH_MERGE_NAME(TDBB tdbb_dummy,
+USHORT SLEUTH_MERGE_NAME(thread_db* tdbb_dummy,
 						 TextType obj,
 						 const SLEUTHTYPE* match,
 						 USHORT match_bytes,

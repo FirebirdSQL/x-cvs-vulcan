@@ -143,27 +143,27 @@ DATABASE DB = FILENAME "ODS.RDB";
 
 static int blocking_ast_procedure(void* ast_object);
 //static int blocking_ast_relation(void* ast_object);
-static void get_trigger(TDBB, Relation*, SLONG[2], Triggers**, const TEXT*, bool, USHORT);
-static bool get_type(TDBB, SSHORT*, const TEXT*, const TEXT*);
-static void lookup_view_contexts(TDBB, Relation*);
+static void get_trigger(thread_db*, Relation*, SLONG[2], Triggers**, const TEXT*, bool, USHORT);
+static bool get_type(thread_db*, SSHORT*, const TEXT*, const TEXT*);
+static void lookup_view_contexts(thread_db*, Relation*);
 static void name_copy(TEXT*, const TEXT*);
 static USHORT name_length(const TEXT *);
-//static jrd_nod* parse_procedure_blr(TDBB, Procedure*, SLONG[2], CSB);
-//static BOOLEAN par_messages(TDBB, const UCHAR*, USHORT, Procedure*, CSB);
-static BOOLEAN resolve_charset_and_collation(TDBB, SSHORT*, const TEXT*, const TEXT*);
-static str* save_name(TDBB, const TEXT*);
-static void save_trigger_data(TDBB, Triggers**, Relation*, JRD_REQ, STR,
+//static jrd_nod* parse_procedure_blr(thread_db*, Procedure*, SLONG[2], CompilerScratch*);
+//static BOOLEAN par_messages(thread_db*, const UCHAR*, USHORT, Procedure*, CompilerScratch*);
+static BOOLEAN resolve_charset_and_collation(thread_db*, SSHORT*, const TEXT*, const TEXT*);
+static str* save_name(thread_db*, const TEXT*);
+static void save_trigger_data(thread_db*, Triggers**, Relation*, JRD_REQ, STR,
 	const TEXT*, bool, USHORT);
-static void store_dependencies(TDBB, CSB, const TEXT*, USHORT);
+static void store_dependencies(thread_db*, CompilerScratch*, const TEXT*, USHORT);
 static void terminate(TEXT*, USHORT);
-static bool verify_TRG_ignore_perm(TDBB, const TEXT*);
-//void MET_release_triggers( TDBB tdbb, Triggers** vector_ptr);
+static bool verify_TRG_ignore_perm(thread_db*, const TEXT*);
+//void MET_release_triggers(thread_db* tdbb, Triggers** vector_ptr);
 
 
 
 // Decompile all triggers from vector
 
-void release_cached_triggers(TDBB tdbb, Triggers* vector) 
+void release_cached_triggers(thread_db* tdbb, Triggers* vector) 
 {
 	if (!vector)
 		return;
@@ -180,7 +180,7 @@ void release_cached_triggers(TDBB tdbb, Triggers* vector)
 
 // Increment int_use_count for all procedures used by triggers
 
-void post_used_procedures(TDBB tdbb, Triggers* vector) 
+void post_used_procedures(thread_db* tdbb, Triggers* vector) 
 {
 	if (!vector)
 		return;
@@ -195,13 +195,13 @@ void post_used_procedures(TDBB tdbb, Triggers* vector)
 		Trigger *trigger = (*vector)[n];
 		
 		if (trigger->request) 
-			for (RSC resource = trigger->request->req_resources; resource; resource = resource->rsc_next)
+			for (Resource* resource = trigger->request->req_resources; resource; resource = resource->rsc_next)
 				if (resource->rsc_type == rsc_procedure)
 						resource->rsc_prc->incrementInternalUseCount();
 		}
 }
 
-void MET_update_partners(TDBB tdbb)
+void MET_update_partners(thread_db* tdbb)
 {
 /**************************************
  *
@@ -234,7 +234,7 @@ void MET_update_partners(TDBB tdbb)
 
 
 #ifdef DEV_BUILD
-void MET_verify_cache(TDBB tdbb)
+void MET_verify_cache(thread_db* tdbb)
 {
 /**************************************
  *
@@ -252,7 +252,7 @@ void MET_verify_cache(TDBB tdbb)
 }
 #endif
 
-BOOLEAN MET_clear_cache(TDBB tdbb, Procedure* proc)
+BOOLEAN MET_clear_cache(thread_db* tdbb, Procedure* proc)
 {
 /**************************************
  *
@@ -300,7 +300,7 @@ BOOLEAN MET_clear_cache(TDBB tdbb, Procedure* proc)
 	return result;
 }
 
-BOOLEAN MET_procedure_in_use(TDBB tdbb, Procedure* proc)
+BOOLEAN MET_procedure_in_use(thread_db* tdbb, Procedure* proc)
 {
 /**************************************
  *
@@ -353,7 +353,7 @@ BOOLEAN MET_procedure_in_use(TDBB tdbb, Procedure* proc)
 }
 
 
-void MET_activate_shadow( TDBB tdbb)
+void MET_activate_shadow(thread_db* tdbb)
 {
 /**************************************
  *
@@ -465,7 +465,7 @@ ULONG MET_align(const dsc* desc, USHORT value)
 }
 
 
-void MET_change_fields( TDBB tdbb, Transaction* transaction, DSC * field_source)
+void MET_change_fields(thread_db* tdbb, Transaction* transaction, DSC * field_source)
 {
 /**************************************
  *
@@ -504,7 +504,7 @@ void MET_change_fields( TDBB tdbb, Transaction* transaction, DSC * field_source)
 }
 
 #ifdef OBSOLETE
-FMT MET_current(TDBB tdbb, Relation* relation)
+FMT MET_current(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -528,7 +528,7 @@ FMT MET_current(TDBB tdbb, Relation* relation)
 }
 #endif
 
-void MET_delete_dependencies(TDBB	tdbb,
+void MET_delete_dependencies(thread_db*	tdbb,
 							 TEXT*	object_name,
 							 USHORT	dependency_type)
 {
@@ -566,7 +566,7 @@ void MET_delete_dependencies(TDBB	tdbb,
 }
 
 
-void MET_delete_shadow( TDBB tdbb, USHORT shadow_number)
+void MET_delete_shadow(thread_db* tdbb, USHORT shadow_number)
 {
 /**************************************
  *
@@ -656,7 +656,7 @@ SCHAR* MET_exact_name(TEXT* str)
 }
 
 
-FMT MET_format(TDBB tdbb, Relation* relation, USHORT number)
+FMT MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 {
 /**************************************
  *
@@ -718,7 +718,7 @@ FMT MET_format(TDBB tdbb, Relation* relation, USHORT number)
 }
 
 
-BOOLEAN MET_get_char_subtype(TDBB tdbb,
+BOOLEAN MET_get_char_subtype(thread_db* tdbb,
 							 SSHORT* id, const TEXT* name, USHORT length)
 {
 /**************************************
@@ -786,13 +786,13 @@ BOOLEAN MET_get_char_subtype(TDBB tdbb,
 }
 
 
-JRD_NOD MET_get_dependencies(TDBB			tdbb,
-						 Relation*			relation,
+JRD_NOD MET_get_dependencies(thread_db*	tdbb,
+						 Relation*		relation,
 						 TEXT*			blob,
-						 CSB			view_csb,
+						 CompilerScratch* view_csb,
 						 SLONG			blob_id[2],
-						 JRD_REQ*			request,
-						 CSB*			csb_ptr,
+						 JRD_REQ*		request,
+						 CompilerScratch** csb_ptr,
 						 const TEXT*	object_name,
 						 USHORT			type)
 {
@@ -810,7 +810,7 @@ JRD_NOD MET_get_dependencies(TDBB			tdbb,
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 
-	CSB csb_ = Csb::newCsb(*tdbb->tdbb_default, 5);
+	CompilerScratch* csb_ = CompilerScratch::newCsb(*tdbb->tdbb_default, 5);
 	csb_->csb_g_flags |= csb_get_dependencies;
 
 	jrd_nod* node;
@@ -874,7 +874,7 @@ JRD_FLD MET_get_field(Relation* relation, USHORT id)
 	return relation->rel_fields[id];
 }
 
-int	MET_get_primary_key (tdbb* tdbb, Relation *relation, int maxFields, Field **fields)
+int	MET_get_primary_key (thread_db* tdbb, Relation *relation, int maxFields, Field **fields)
 {
 /**************************************
  *
@@ -918,7 +918,7 @@ int	MET_get_primary_key (tdbb* tdbb, Relation *relation, int maxFields, Field **
 	return count;
 }
 
-void MET_get_shadow_files( TDBB tdbb, bool deleteVar)
+void MET_get_shadow_files(thread_db* tdbb, bool deleteVar)
 {
 /**************************************
  *
@@ -985,7 +985,7 @@ void MET_get_shadow_files( TDBB tdbb, bool deleteVar)
 
 
 ULONG MET_get_walinfo(
-					TDBB tdbb,
+					thread_db* tdbb,
 					LGFILE ** logfiles_, ULONG* number, LGFILE ** over_flow)
 {
 /**************************************
@@ -1040,7 +1040,7 @@ ULONG MET_get_walinfo(
 }
 
 
-void MET_load_trigger(TDBB tdbb,
+void MET_load_trigger(thread_db* tdbb,
 					  Relation* relation, 
 					  const TEXT* trigger_name, 
 					  Triggers** triggers)
@@ -1118,7 +1118,7 @@ void MET_load_trigger(TDBB tdbb,
 
 
 
-void MET_lookup_cnstrt_for_index(TDBB tdbb,
+void MET_lookup_cnstrt_for_index(thread_db* tdbb,
 								TEXT* constraint_name,
 								const TEXT* index_name)
 {
@@ -1156,7 +1156,7 @@ void MET_lookup_cnstrt_for_index(TDBB tdbb,
 
 
 void MET_lookup_cnstrt_for_trigger(
-								   TDBB tdbb,
+								   thread_db* tdbb,
 								   TEXT* constraint_name,
 								   TEXT* relation_name,
 								   const TEXT* trigger_name)
@@ -1215,7 +1215,7 @@ void MET_lookup_cnstrt_for_trigger(
 }
 
 
-void MET_lookup_exception(TDBB	tdbb,
+void MET_lookup_exception(thread_db*	tdbb,
 						  SLONG	number,
 						  TEXT*	name,
 						  TEXT*	message)
@@ -1268,7 +1268,7 @@ void MET_lookup_exception(TDBB	tdbb,
 }
 
 
-SLONG MET_lookup_exception_number(TDBB tdbb, const TEXT* name)
+SLONG MET_lookup_exception_number(thread_db* tdbb, const TEXT* name)
 {
 /**************************************
  *
@@ -1306,7 +1306,7 @@ SLONG MET_lookup_exception_number(TDBB tdbb, const TEXT* name)
 }
 
 
-int MET_lookup_field(TDBB tdbb, Relation* relation, const TEXT* name, const TEXT* security_name)
+int MET_lookup_field(thread_db* tdbb, Relation* relation, const TEXT* name, const TEXT* security_name)
 {
 /**************************************
  *
@@ -1390,7 +1390,7 @@ int MET_lookup_field(TDBB tdbb, Relation* relation, const TEXT* name, const TEXT
 }
 
 
-BLF MET_lookup_filter(tdbb* tdbb, SSHORT from, SSHORT to)
+BLF MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 {
 /**************************************
  *
@@ -1468,7 +1468,7 @@ BLF MET_lookup_filter(tdbb* tdbb, SSHORT from, SSHORT to)
 }
 
 
-SLONG MET_lookup_generator(TDBB tdbb, const TEXT* name)
+SLONG MET_lookup_generator(thread_db* tdbb, const TEXT* name)
 {
 /**************************************
  *
@@ -1507,7 +1507,7 @@ SLONG MET_lookup_generator(TDBB tdbb, const TEXT* name)
 	return gen_id;
 }
 
-void MET_lookup_generator_id (TDBB tdbb, SLONG gen_id, TEXT* name)
+void MET_lookup_generator_id (thread_db* tdbb, SLONG gen_id, TEXT* name)
 {
 /**************************************
  *
@@ -1544,7 +1544,7 @@ void MET_lookup_generator_id (TDBB tdbb, SLONG gen_id, TEXT* name)
         REQUEST (irq_r_gen_id_num) = request;
 }
 
-void MET_lookup_index(TDBB tdbb,
+void MET_lookup_index(thread_db* tdbb,
 						TEXT* index_name,
 						const TEXT* relation_name,
 						USHORT number)
@@ -1584,7 +1584,7 @@ void MET_lookup_index(TDBB tdbb,
 }
 
 
-SLONG MET_lookup_index_name(TDBB tdbb,
+SLONG MET_lookup_index_name(thread_db* tdbb,
 							const TEXT* index_name,
 							SLONG* relation_id, SSHORT* status)
 {
@@ -1633,7 +1633,7 @@ SLONG MET_lookup_index_name(TDBB tdbb,
 
 
 int MET_lookup_partner(
-					   TDBB tdbb, Relation* relation, index_desc* idx, const TEXT* index_name)
+					   thread_db* tdbb, Relation* relation, index_desc* idx, const TEXT* index_name)
 {
 /**************************************
  *
@@ -1890,7 +1890,7 @@ int MET_lookup_partner(
 }
 
 
-Procedure * MET_lookup_procedure(TDBB tdbb, const TEXT* name)
+Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 {
 /**************************************
  *
@@ -1905,7 +1905,7 @@ Procedure * MET_lookup_procedure(TDBB tdbb, const TEXT* name)
  **************************************/
 
 	vec::iterator ptr, end;
-	//CSB csb_;
+	//CompilerScratch* csb_;
 	ProcParam * parameter;
 	//JrdMemoryPool *old_pool;
 	//JRD_NOD node;
@@ -2021,8 +2021,8 @@ Procedure * MET_lookup_procedure(TDBB tdbb, const TEXT* name)
 			/***
 			old_pool = tdbb->tdbb_default;
 			tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-			//csb = Csb::newCsb(*tdbb->tdbb_default, 5);
-			Csb csb(*tdbb->tdbb_default, 5);
+			//csb = CompilerScratch::newCsb(*tdbb->tdbb_default, 5);
+			CompilerScratch csb(*tdbb->tdbb_default, 5);
 			parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
 			procedure->findRequest()->req_procedure = procedure;
 
@@ -2075,7 +2075,7 @@ Procedure * MET_lookup_procedure(TDBB tdbb, const TEXT* name)
 }
 
 #ifdef OBSOLETE
-Procedure* MET_lookup_procedure_id(TDBB tdbb, SSHORT id,
+Procedure* MET_lookup_procedure_id(thread_db* tdbb, SSHORT id,
 							BOOLEAN return_deleted, BOOLEAN noscan, USHORT flags)
 {
 /**************************************
@@ -2138,7 +2138,7 @@ Procedure* MET_lookup_procedure_id(TDBB tdbb, SSHORT id,
 }
 #endif
 
-void MET_getTypeInformation (tdbb *tdbb, Relation *relation)
+void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 {
 /**************************************
  *
@@ -2191,7 +2191,7 @@ void MET_getTypeInformation (tdbb *tdbb, Relation *relation)
 }
 
 
-Relation* MET_lookup_relation(TDBB tdbb, const char* name)
+Relation* MET_lookup_relation(thread_db* tdbb, const char* name)
 {
 /**************************************
  *
@@ -2261,7 +2261,7 @@ Relation* MET_lookup_relation(TDBB tdbb, const char* name)
 }
 
 
-Relation* MET_lookup_relation_id(TDBB tdbb, SLONG id, BOOLEAN return_deleted)
+Relation* MET_lookup_relation_id(thread_db* tdbb, SLONG id, BOOLEAN return_deleted)
 {
 /**************************************
  *
@@ -2348,10 +2348,10 @@ Relation* MET_lookup_relation_id(TDBB tdbb, SLONG id, BOOLEAN return_deleted)
 }
 
 
-JRD_NOD MET_parse_blob(TDBB		tdbb,
+JRD_NOD MET_parse_blob(thread_db*		tdbb,
 				   Relation*		relation,
 				   SLONG	blob_id[2],
-				   CSB*		csb_ptr,
+				   CompilerScratch** csb_ptr,
 				   JRD_REQ*		request_ptr,
 				   BOOLEAN	trigger,
 				   BOOLEAN	ignore_perm)
@@ -2387,7 +2387,7 @@ JRD_NOD MET_parse_blob(TDBB		tdbb,
 }
 
 
-void MET_parse_sys_trigger(TDBB tdbb, Relation* relation)
+void MET_parse_sys_trigger(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -2495,7 +2495,7 @@ void MET_parse_sys_trigger(TDBB tdbb, Relation* relation)
 }
 
 
-int MET_post_existence( TDBB tdbb, Relation* relation)
+int MET_post_existence(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -2518,7 +2518,7 @@ int MET_post_existence( TDBB tdbb, Relation* relation)
 }
 
 
-void MET_prepare( TDBB tdbb, Transaction* transaction, USHORT length,
+void MET_prepare(thread_db* tdbb, Transaction* transaction, USHORT length,
 	const UCHAR* msg)
 {
 /**************************************
@@ -2556,7 +2556,7 @@ void MET_prepare( TDBB tdbb, Transaction* transaction, USHORT length,
 }
 
 #ifdef OBSOLETE
-Procedure* MET_procedure(TDBB tdbb, int id, BOOLEAN noscan, USHORT flags)
+Procedure* MET_procedure(thread_db* tdbb, int id, BOOLEAN noscan, USHORT flags)
 {
 /**************************************
  *
@@ -2571,7 +2571,7 @@ Procedure* MET_procedure(TDBB tdbb, int id, BOOLEAN noscan, USHORT flags)
 	Procedure* procedure;
 	Request	*request, *request2;
 	vec::iterator ptr, end;
-	//CSB csb_;
+	//CompilerScratch* csb_;
 	ProcParam * parameter;
 	JrdMemoryPool *old_pool;
 	//JRD_NOD node;
@@ -2720,8 +2720,8 @@ Procedure* MET_procedure(TDBB tdbb, int id, BOOLEAN noscan, USHORT flags)
 
 				old_pool = tdbb->tdbb_default;
 				tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-				//csb = Csb::newCsb(*tdbb->tdbb_default, 5);
-				Csb csb(*tdbb->tdbb_default, 5);
+				//csb = CompilerScratch::newCsb(*tdbb->tdbb_default, 5);
+				CompilerScratch csb(*tdbb->tdbb_default, 5);
 				parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
 				procedure->findRequest()->req_procedure = procedure;
 
@@ -2770,7 +2770,7 @@ Procedure* MET_procedure(TDBB tdbb, int id, BOOLEAN noscan, USHORT flags)
 #endif
 
 #ifdef OBSOLETE
-Relation* MET_relation(TDBB tdbb, USHORT id)
+Relation* MET_relation(thread_db* tdbb, USHORT id)
 {
 /**************************************
  *
@@ -2790,7 +2790,7 @@ Relation* MET_relation(TDBB tdbb, USHORT id)
 }
 #endif
 
-BOOLEAN MET_relation_owns_trigger (TDBB tdbb, const TEXT *relation_name, 
+BOOLEAN MET_relation_owns_trigger (thread_db* tdbb, const TEXT *relation_name, 
                                    const TEXT *trigger_name)
 {
 /**************************************
@@ -2848,7 +2848,7 @@ BOOLEAN MET_relation_owns_trigger (TDBB tdbb, const TEXT *relation_name,
     return found;
 }
 
-BOOLEAN MET_relation_default_class (TDBB tdbb, const TEXT *relation_name,
+BOOLEAN MET_relation_default_class (thread_db* tdbb, const TEXT *relation_name,
                                     const TEXT *default_security_class_name)
 {
 /**************************************
@@ -2922,7 +2922,7 @@ void MET_release_existence( Relation* relation)
 }
 
 
-void MET_remove_procedure( TDBB tdbb, Procedure* procedure)
+void MET_remove_procedure(thread_db* tdbb, Procedure* procedure)
 {
 /**************************************
  *
@@ -2966,7 +2966,7 @@ void MET_remove_procedure( TDBB tdbb, Procedure* procedure)
 
 
 void MET_revoke(
-				TDBB tdbb,
+				thread_db* tdbb,
 				Transaction* transaction,
 				TEXT * relation, TEXT * revokee, TEXT * privilege)
 {
@@ -3033,7 +3033,7 @@ void MET_revoke(
 }
 
 
-TEXT* MET_save_name(TDBB tdbb, const TEXT* name)
+TEXT* MET_save_name(thread_db* tdbb, const TEXT* name)
 {
 /**************************************
  *
@@ -3053,7 +3053,7 @@ TEXT* MET_save_name(TDBB tdbb, const TEXT* name)
 }
 
 
-void MET_scan_relation( TDBB tdbb, Relation* relation)
+void MET_scan_relation(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -3071,7 +3071,7 @@ void MET_scan_relation( TDBB tdbb, Relation* relation)
 	Triggers* triggers[TRIGGER_MAX], *tmp_vector;
 	Field *field;
 	Request* request;
-	CSB csb_;
+	CompilerScratch* csb_;
 	BLB blob;
 	UCHAR *p, *q, temp[256];
 	DBB dbb = tdbb->tdbb_database;
@@ -3135,7 +3135,7 @@ void MET_scan_relation( TDBB tdbb, Relation* relation)
 				if (dependencies)
 					{
 					relation->rel_view_rse =
-					(RSE) MET_get_dependencies(tdbb, relation, NULL, NULL,
+					(RecordSelExpr*) MET_get_dependencies(tdbb, relation, NULL, NULL,
 												(SLONG*)&REL.RDB$VIEW_BLR, NULL, 
 												&csb_, REL.RDB$RELATION_NAME,
 												obj_view);
@@ -3143,7 +3143,7 @@ void MET_scan_relation( TDBB tdbb, Relation* relation)
 				else
 					{
 					relation->rel_view_rse =
-						(RSE) MET_parse_blob(tdbb, relation, (SLONG*)&REL.RDB$VIEW_BLR, &csb_, NULL, FALSE, FALSE);
+						(RecordSelExpr*) MET_parse_blob(tdbb, relation, (SLONG*)&REL.RDB$VIEW_BLR, &csb_, NULL, FALSE, FALSE);
 					}
 
 				/* retrieve the view context names */
@@ -3360,7 +3360,7 @@ void MET_scan_relation( TDBB tdbb, Relation* relation)
 }
 
 
-const TEXT* MET_trigger_msg(TDBB tdbb, const TEXT* name, USHORT number)
+const TEXT* MET_trigger_msg(thread_db* tdbb, const TEXT* name, USHORT number)
 {
 /**************************************
  *
@@ -3396,7 +3396,7 @@ const TEXT* MET_trigger_msg(TDBB tdbb, const TEXT* name, USHORT number)
 }
 
 
-void MET_update_shadow( TDBB tdbb, SDW shadow, USHORT file_flags)
+void MET_update_shadow(thread_db* tdbb, SDW shadow, USHORT file_flags)
 {
 /**************************************
  *
@@ -3425,7 +3425,7 @@ void MET_update_shadow( TDBB tdbb, SDW shadow, USHORT file_flags)
 }
 
 
-void MET_update_transaction( TDBB tdbb, Transaction* transaction, const bool do_commit)
+void MET_update_transaction(thread_db* tdbb, Transaction* transaction, const bool do_commit)
 {
 /**************************************
  *
@@ -3561,7 +3561,7 @@ static int blocking_ast_relation(void* ast_object)
 #endif
 
 static void get_trigger(
-						TDBB tdbb,
+						thread_db* tdbb,
 						Relation* relation,
 						SLONG blob_id[2],
 						Triggers** ptr,
@@ -3592,7 +3592,7 @@ static void get_trigger(
 }
 
 
-static bool get_type(TDBB tdbb, SSHORT* id, const TEXT* name, const TEXT* field)
+static bool get_type(thread_db* tdbb, SSHORT* id, const TEXT* name, const TEXT* field)
 {
 /**************************************
  *
@@ -3646,7 +3646,7 @@ static bool get_type(TDBB tdbb, SSHORT* id, const TEXT* name, const TEXT* field)
 }
 
 
-static void lookup_view_contexts( TDBB tdbb, Relation* view)
+static void lookup_view_contexts(thread_db* tdbb, Relation* view)
 {
 /**************************************
  *
@@ -3761,10 +3761,10 @@ static USHORT name_length(const TEXT* name)
 
 #ifdef OBSOLETE
 static jrd_nod* parse_procedure_blr(
-							   TDBB tdbb,
+							   thread_db* tdbb,
 							   Procedure* procedure, 
 							   SLONG blob_id[2], 
-							   CSB csb)
+							   CompilerScratch* csb)
 {
 /**************************************
  *
@@ -3796,11 +3796,11 @@ static jrd_nod* parse_procedure_blr(
 }
 
 
-static BOOLEAN par_messages(TDBB	tdbb,
+static BOOLEAN par_messages(thread_db*	tdbb,
 							const UCHAR*	blr,
 							USHORT	blr_length,
 							Procedure*	procedure,
-							CSB		csb)
+							CompilerScratch* csb)
 {
 /**************************************
  *
@@ -3857,7 +3857,7 @@ static BOOLEAN par_messages(TDBB	tdbb,
 }
 #endif
 
-void MET_release_triggers( TDBB tdbb, Triggers** vector_ptr)
+void MET_release_triggers(thread_db* tdbb, Triggers** vector_ptr)
 {
 /***********************************************
  *
@@ -3897,7 +3897,7 @@ void MET_release_triggers( TDBB tdbb, Triggers** vector_ptr)
 	delete vector;
 }
 
-int MET_resolve_charset_and_collation (tdbb* tdbb, const TEXT* charset, const TEXT* collation)
+int MET_resolve_charset_and_collation (thread_db* tdbb, const TEXT* charset, const TEXT* collation)
 {
 	SSHORT id;
 	
@@ -3907,7 +3907,7 @@ int MET_resolve_charset_and_collation (tdbb* tdbb, const TEXT* charset, const TE
 	return -1;
 }
 
-static BOOLEAN resolve_charset_and_collation(TDBB tdbb,
+static BOOLEAN resolve_charset_and_collation(thread_db* tdbb,
 											 SSHORT* id,
 											 const TEXT* charset,
 											 const TEXT* collation)
@@ -4015,7 +4015,7 @@ static BOOLEAN resolve_charset_and_collation(TDBB tdbb,
 }
 
 
-static str* save_name(TDBB tdbb, const TEXT* name)
+static str* save_name(thread_db* tdbb, const TEXT* name)
 {
 /**************************************
  *
@@ -4046,7 +4046,7 @@ static str* save_name(TDBB tdbb, const TEXT* name)
 }
 
 
-static void save_trigger_data(TDBB tdbb, Triggers** ptr, Relation* relation, JRD_REQ request, STR blr,
+static void save_trigger_data(thread_db* tdbb, Triggers** ptr, Relation* relation, JRD_REQ request, STR blr,
 							  const TEXT* name, bool sys_trigger, USHORT flags)
 {
 /**************************************
@@ -4089,8 +4089,8 @@ static void save_trigger_data(TDBB tdbb, Triggers** ptr, Relation* relation, JRD
 }
 
 
-static void store_dependencies(TDBB			tdbb,
-							   CSB			csb,
+static void store_dependencies(thread_db*	tdbb,
+							   CompilerScratch*	csb,
 							   const TEXT*	object_name,
 							   USHORT		dependency_type)
 {
@@ -4269,7 +4269,7 @@ static void terminate(TEXT* str, USHORT len)
 }
 
 
-static bool verify_TRG_ignore_perm(TDBB tdbb, const TEXT* trig_name)
+static bool verify_TRG_ignore_perm(thread_db* tdbb, const TEXT* trig_name)
 {
 /*****************************************************
  *

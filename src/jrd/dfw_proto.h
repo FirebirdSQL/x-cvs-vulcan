@@ -27,14 +27,14 @@
 class Transaction;
 class tdbb;
 
-USHORT DFW_assign_index_type(TDBB tdbb, dfw*, SSHORT, SSHORT);
+USHORT DFW_assign_index_type(thread_db* tdbb, dfw*, SSHORT, SSHORT);
 void DFW_delete_deferred(Transaction*, SLONG);
 void DFW_merge_work(Transaction*, SLONG, SLONG);
-void DFW_perform_system_work(TDBB tdbb);
-void DFW_perform_work(TDBB tdbb, Transaction*);
-void DFW_perform_post_commit_work(tdbb* tdbb, Transaction*);
+void DFW_perform_system_work(thread_db* tdbb);
+void DFW_perform_work(thread_db* tdbb, Transaction*);
+void DFW_perform_post_commit_work(thread_db* tdbb, Transaction*);
 dfw* DFW_post_work(Transaction*, enum dfw_t, dsc*, USHORT);
 void DFW_post_work_arg(Transaction*, dfw*, dsc*, USHORT);
-void DFW_update_index(tdbb* tdbb, const TEXT*, USHORT, const SelectivityList&);
+void DFW_update_index(thread_db* tdbb, const TEXT*, USHORT, const SelectivityList&);
 
 #endif // JRD_DFW_PROTO_H

@@ -44,20 +44,20 @@
 #include "SVector.h"
 #include "Interlock.h"
 
-#define REL_scanned					1		/* Field expressions scanned (or being scanned) */
-#define REL_system					2
-#define REL_deleted					4		/* Relation known gonzo */
-#define REL_get_dependencies		8		/* New relation needs dependencies during scan */
-#define REL_force_scan				16		/* system relation has been updated since ODS change, force a scan */
-#define REL_check_existence			32		/* Existence lock released pending drop of relation */
-#define REL_blocking				64		/* Blocking someone from dropping relation */
-#define REL_sys_triggers			128		/* The relation has system triggers to compile */
-#define REL_sql_relation			256		/* Relation defined as sql table */
-#define REL_check_partners			512		/* Rescan primary dependencies and foreign references */
-#define	REL_being_scanned			1024	/* relation scan in progress */
-#define REL_sys_trigs_being_loaded	2048	/* System triggers being loaded */
-#define REL_deleting				4096	/* relation delete in progress */
-#define	REL_has_type_info			8192	/* relation has field type information */
+const USHORT REL_scanned				= 1;		/* Field expressions scanned (or being scanned) */
+const USHORT REL_system					= 2;
+const USHORT REL_deleted				= 4;		/* Relation known gonzo */
+const USHORT REL_get_dependencies		= 8;			/* New relation needs dependencies during scan */
+const USHORT REL_force_scan				= 16;		/* system relation has been updated since ODS change, force a scan */
+const USHORT REL_check_existence		= 32;		/* Existence lock released pending drop of relation */
+const USHORT REL_blocking				= 64;		/* Blocking someone from dropping relation */
+const USHORT REL_sys_triggers			= 128;		/* The relation has system triggers to compile */
+const USHORT REL_sql_relation			= 256;		/* Relation defined as sql table */
+const USHORT REL_check_partners			= 512;		/* Rescan primary dependencies and foreign references */
+const USHORT REL_being_scanned			= 1024;		/* relation scan in progress */
+const USHORT REL_sys_trigs_being_loaded	= 2048;		/* System triggers being loaded */
+const USHORT REL_deleting				= 4096;		/* relation delete in progress */
+const USHORT REL_has_type_info			= 8192;		/* relation has field type information */
 
 class Trigger;
 class Triggers;
@@ -67,10 +67,10 @@ class Procedure;
 class Connection;
 class Transaction;
 class vec;
-class idl;
+class IndexLock;
 class idb;
 class fmt;
-class rse;
+class RecordSelExpr;
 class vcl;
 class vcx;
 class ext;
@@ -78,7 +78,7 @@ class sbm;
 class lck;
 class dsql_rel;
 
-struct tdbb;
+struct thread_db;
 
 typedef firebird::vector<Trigger> TriggerVector;
 
@@ -122,7 +122,7 @@ public:
 	SIVector<SLONG>	rel_pages;				/* vector of pointer page numbers */
 	SVector<Field*>	rel_fields;				/* vector of field blocks */
 
-	rse				*rel_view_rse;			/* view record select expression */
+	RecordSelExpr*	rel_view_rse;			/* view record select expression */
 	vcx				*rel_view_contexts;		/* linked list of view contexts */
 
 	TEXT			*rel_security_name;		/* pointer to security class name for relation */
@@ -152,7 +152,7 @@ public:
 	ULONG		rel_write_locks;		/* count of records write locked in relation (implicit or explicit) */
 	ULONG		rel_lock_total;			/* count of records locked since database first attached */
 
-	idl				*rel_index_locks;	/* index existence locks */
+	IndexLock*		rel_index_locks;	/* index existence locks */
 	idb *			rel_index_blocks;	/* index blocks for caching index info */
 	Triggers		*rel_pre_erase; 	/* Pre-operation erase trigger */
 	Triggers		*rel_post_erase;	/* Post-operation erase trigger */
@@ -170,25 +170,25 @@ public:
 	SyncObject		syncFormats;
 	Field			*junk;
 	
-	void scan(tdbb* tdbb);
-	void getTypeInformation(tdbb* tdbb);
-	int getPrimaryKey(tdbb* tdbb, int maxFields, Field** fields);
-	Field* findField(tdbb* tdbb, const char* fieldName);
-	Field* getField(tdbb* tdbb, const char* fieldName);
+	void scan(thread_db* tdbb);
+	void getTypeInformation(thread_db* tdbb);
+	int getPrimaryKey(thread_db* tdbb, int maxFields, Field** fields);
+	Field* findField(thread_db* tdbb, const char* fieldName);
+	Field* getField(thread_db* tdbb, const char* fieldName);
 	static int blockingAst(void* astObject);
 	int blockingAst(void);
-	void createExistenceLock(tdbb* tdbb);
+	void createExistenceLock(thread_db* tdbb);
 	void fetchFields(Connection* connection);
 	void fetchFields(Transaction* transaction);
-	void dropField(tdbb* tdbb, const char* field);
+	void dropField(thread_db* tdbb, const char* field);
 	Field* addField(int id, const char* name);
 	int incrementUseCount(void);
 	int decrementUseCount(void);
 	Field* findField(int id);
-	fmt* getFormat(tdbb* tdbb, int formatVersion);
-	fmt* getCurrentFormat(tdbb* tdbb);
+	fmt* getFormat(thread_db* tdbb, int formatVersion);
+	fmt* getCurrentFormat(thread_db* tdbb);
 	void setFormat(fmt* format);
-	void scanRelation(tdbb *tdbb, int csb_flags);
+	void scanRelation(thread_db* tdbb, int csb_flags);
 };
 
 #endif // !defined(AFX_RELATION_H__E9A7F451_19FA_468E_8900_7B1CEA851EF4__INCLUDED_)

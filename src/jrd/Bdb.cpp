@@ -39,7 +39,7 @@
 #include "dmp_proto.h"
 #endif
 
-Bdb::Bdb(tdbb *tdbb, pag* memory)
+Bdb::Bdb(thread_db* tdbb, pag* memory)
 {
 	Database *database = tdbb->tdbb_database;
 	init();
@@ -105,7 +105,7 @@ void Bdb::init(void)
 }
 
 
-void Bdb::init(tdbb *tdbb, lck *lock, pag* buffer)
+void Bdb::init(thread_db* tdbb, lck *lock, pag* buffer)
 {
 	bdb_dbb = tdbb->tdbb_database;
 	bdb_buffer = buffer;
@@ -174,7 +174,7 @@ int Bdb::blockingAstBdb(void* argument)
 	return PageCache::bdbBlockingAst(argument);
 }
 
-void Bdb::addRef(tdbb *tdbb, LockType lType)
+void Bdb::addRef(thread_db* tdbb, LockType lType)
 {
 	syncPage.lock (NULL, lType);
 	incrementUseCount();
@@ -190,7 +190,7 @@ void Bdb::addRef(tdbb *tdbb, LockType lType)
 		tdbb->registerBdb (this);
 }
 
-bool Bdb::addRefConditional(tdbb* tdbb, LockType lType)
+bool Bdb::addRefConditional(thread_db* tdbb, LockType lType)
 {
 	if (!syncPage.lockConditional(lType))
 		return false;
@@ -210,7 +210,7 @@ bool Bdb::addRefConditional(tdbb* tdbb, LockType lType)
 	return true;
 }
 
-void Bdb::release(tdbb *tdbb)
+void Bdb::release(thread_db* tdbb)
 {
 	int oldState = syncPage.getState();
 	fb_assert (!(bdb_flags & BDB_marked) || writers > 1);

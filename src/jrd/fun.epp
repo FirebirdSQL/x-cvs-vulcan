@@ -106,7 +106,7 @@ static SLONG blob_lseek(BLB, USHORT, SLONG);
 static SLONG get_scalar_array(fun_repeat*, DSC*, SAD, LLS*);
 
 
-void FUN_evaluate(TDBB tdbb, FUN function, JRD_NOD node, VLU value)
+void FUN_evaluate(thread_db* tdbb, FUN function, JRD_NOD node, impure_value* value)
 {
 /**************************************
  *
@@ -723,7 +723,7 @@ void FUN_evaluate(TDBB tdbb, FUN function, JRD_NOD node, VLU value)
 }
 
 
-void FUN_fini( TDBB tdbb)
+void FUN_fini( thread_db* tdbb)
 {
 /**************************************
  *
@@ -759,7 +759,7 @@ void FUN_init(void)
 }
 
 
-FUN FUN_lookup_function(TDBB tdbb, const TEXT * name, bool ShowAccessError)
+FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError)
 {
 /**************************************
  *
@@ -933,7 +933,7 @@ FUN FUN_lookup_function(TDBB tdbb, const TEXT * name, bool ShowAccessError)
 }
 
 
-FUN FUN_resolve(TDBB tdbb, CSB csb, FUN function, JRD_NOD args)
+FUN FUN_resolve(thread_db* tdbb, CompilerScratch* csb, FUN function, JRD_NOD args)
 {
 /**************************************
  *
@@ -1022,7 +1022,7 @@ static void blob_put_segment( BLB blob, const UCHAR* buffer, USHORT length)
 	   engine mutex */
 
 	THREAD_ENTER;
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	BLB_put_segment(tdbb, blob, buffer, length);
 	THREAD_EXIT;
 }
@@ -1047,7 +1047,7 @@ static SSHORT blob_get_segment(
  *		-1	-- Current segment is incomplete.
  *
  **************************************/
-	TDBB tdbb;
+	thread_db* tdbb;
 
 /* add thread enter and thread_exit wrappers */
 	THREAD_ENTER;
@@ -1082,7 +1082,7 @@ static SLONG get_scalar_array(fun_repeat*	arg,
  *	Return length of array desc.
  *
  **************************************/
-	TDBB tdbb;
+	thread_db* tdbb;
 	BLB blob;
 	ADS array_desc;
 	SLONG stuff[ADS_LEN(16) / 4], n;

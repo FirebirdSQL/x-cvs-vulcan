@@ -59,7 +59,7 @@ SQLParse::~SQLParse(void)
 	deleteNodes();
 }
 
-dsql_nod* SQLParse::parse(tdbb *threadStuff, int sqlLength, const char* sql, int charset)
+dsql_nod* SQLParse::parse(thread_db* threadStuff, int sqlLength, const char* sql, int charset)
 {
 	threadData = threadStuff;
 	deleteNodes();

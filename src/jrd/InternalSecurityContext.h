@@ -38,18 +38,18 @@
 
 class InternalConnection;
 class Transaction;
-class tdbb;
+class thread_db;
 
 class InternalSecurityContext : public SecurityContext
 {
 public:
-	InternalSecurityContext(tdbb *tdbb);
+	InternalSecurityContext(thread_db* tdbb);
 	virtual ~InternalSecurityContext(void);
 	Connection* getConnection(void);
 	
 	Transaction			*transaction;
 	InternalConnection	*connection;
-	tdbb				*threadData;
+	thread_db			*threadData;
 	isc_db_handle		dbHandle;
 	
 	void commit(void);

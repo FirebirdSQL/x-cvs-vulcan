@@ -560,7 +560,7 @@ void SORT_fini(sort_context* scb, ATT att)
 
 
 #ifdef SCROLLABLE_CURSORS
-void SORT_get(tdbb *threadData,
+void SORT_get(thread_db* threadData,
 			  sort_context* scb, ULONG ** record_address, RSE_GET_MODE mode)
 {
 /**************************************
@@ -654,7 +654,7 @@ void SORT_get(tdbb *threadData,
 	*record_address = (ULONG *) record;
 }
 #else
-void SORT_get(tdbb *threadData, sort_context* scb, ULONG ** record_address)
+void SORT_get(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 {
 /**************************************
  *
@@ -696,7 +696,7 @@ void SORT_get(tdbb *threadData, sort_context* scb, ULONG ** record_address)
 #endif
 
 
-sort_context* SORT_init(tdbb *threadData,
+sort_context* SORT_init(thread_db* threadData,
 			  USHORT record_length,
 			  USHORT keys,
 			  const skd* key_description,
@@ -821,7 +821,7 @@ sort_context* SORT_init(tdbb *threadData,
 }
 
 
-void SORT_put(tdbb *threadData, sort_context* scb, ULONG ** record_address)
+void SORT_put(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 {
 /**************************************
  *
@@ -994,7 +994,7 @@ void SORT_shutdown(ATT att)
 }
 
 
-bool SORT_sort(tdbb *threadData, sort_context* scb)
+bool SORT_sort(thread_db* threadData, sort_context* scb)
 {
 /**************************************
  *

@@ -30,15 +30,15 @@
 #include "../jrd/lls.h"
 
 
-BOOLEAN OPT_access_path(TDBB tdbb, const Request*, UCHAR*, SSHORT, USHORT*);
-class Rsb* OPT_compile(TDBB, class Csb *,
-							   struct rse *, struct lls *);
-struct jrd_nod* OPT_make_dbkey(TDBB tdbb, struct opt *, struct jrd_nod *,
+BOOLEAN OPT_access_path(thread_db* tdbb, const Request*, UCHAR*, SSHORT, USHORT*);
+class RecordSource* OPT_compile(thread_db*, class CompilerScratch*,
+							   struct RecordSelExpr*, struct lls *);
+struct jrd_nod* OPT_make_dbkey(thread_db* tdbb, struct opt *, struct jrd_nod *,
 								  USHORT);
-struct jrd_nod* OPT_make_index(TDBB, struct opt *, Relation *,
+struct jrd_nod* OPT_make_index(thread_db*, struct opt *, Relation *,
 								  struct idx *);
-int OPT_match_index(TDBB tdbb, struct opt *, USHORT, struct idx *);
-void OPT_set_index(TDBB, Request *, class Rsb **, Relation *,
+int OPT_match_index(thread_db* tdbb, struct opt *, USHORT, struct idx *);
+void OPT_set_index(thread_db*, Request *, class RecordSource**, Relation *,
 						  struct idx *);
 
 #endif // JRD_OPT_PROTO_H

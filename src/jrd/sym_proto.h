@@ -27,7 +27,7 @@
 class Sym;
 
 void	SYM_insert(DBB dbb, Sym*);
-Sym*	SYM_lookup(tdbb *tdbb, const TEXT *);
+Sym*	SYM_lookup(thread_db* tdbb, const TEXT *);
 void	SYM_remove(DBB dbb, Sym*);
 
 #endif // JRD_SYM_PROTO_H

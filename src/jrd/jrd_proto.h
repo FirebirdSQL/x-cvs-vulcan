@@ -154,9 +154,9 @@ void jrd_vtof(const char*, char*, SSHORT);
 void	JRD_blocked(Attachment *, struct btb **);
 //void	JRD_mutex_lock(struct mutx_t *);
 //void	JRD_mutex_unlock(struct mutx_t *);
-BOOLEAN	JRD_reschedule(struct tdbb*, SLONG, bool);
+BOOLEAN	JRD_reschedule(struct thread_db*, SLONG, bool);
 void	JRD_restore_context(void);
-void	JRD_set_context(struct tdbb *);
+void	JRD_set_context(struct thread_db*);
 void	JRD_unblock(struct btb **);
 //void	JRD_wlck_lock(struct mutx_t *);
 //void	JRD_wlck_unlock(struct mutx_t *);
@@ -167,7 +167,7 @@ USHORT	JRD_getdir(TEXT*, USHORT);
 #endif
 
 #ifdef DEBUG_PROCS
-void	JRD_print_procedure_info(TDBB, const char*);
+void	JRD_print_procedure_info(thread_db*, const char*);
 #endif
 
 #endif /* JRD_JRD_PROTO_H */

@@ -25,12 +25,12 @@
 #define JRD_FUN_PROTO_H
 
 class Function;
-struct vlu;
+struct impure_value;
 
-void		FUN_evaluate(tdbb* tdbb, Function*, jrd_nod*, vlu*);
-void		FUN_fini(tdbb*);
+void		FUN_evaluate(thread_db* tdbb, Function*, jrd_nod*, impure_value*);
+void		FUN_fini(thread_db*);
 void		FUN_init(void);
-Function*	FUN_lookup_function(tdbb* tdbb, const TEXT*, bool ShowAccessError);
-Function*	FUN_resolve(tdbb* tdbb, class Csb*, Function*, jrd_nod*);
+Function*	FUN_lookup_function(thread_db* tdbb, const TEXT*, bool ShowAccessError);
+Function*	FUN_resolve(thread_db* tdbb, class CompilerScratch*, Function*, jrd_nod*);
 
 #endif // JRD_FUN_PROTO_H

@@ -25,14 +25,14 @@
 #define JRD_INF_PROTO_H
 
 struct thdd;
-struct tdbb;
+struct thread_db;
 
 int		INF_blob_info(const struct blb*, const UCHAR*, const SSHORT,
 						UCHAR*, const SSHORT);
 USHORT	INF_convert(SLONG, UCHAR*);
-int		INF_database_info(tdbb* tdbb, const UCHAR*, const SSHORT, UCHAR*, const SSHORT);
+int		INF_database_info(thread_db* tdbb, const UCHAR*, const SSHORT, UCHAR*, const SSHORT);
 UCHAR*	INF_put_item(UCHAR, USHORT, const UCHAR*, UCHAR*, const UCHAR*);
-int		INF_request_info(tdbb *tdbb, Request*, const UCHAR*, const SSHORT,
+int		INF_request_info(thread_db* tdbb, Request*, const UCHAR*, const SSHORT,
 						UCHAR*, const SSHORT);
 int		INF_transaction_info(const Transaction*, const UCHAR*, const SSHORT,
 						UCHAR*, const SSHORT);

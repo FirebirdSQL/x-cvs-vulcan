@@ -129,36 +129,36 @@ rel_MAX} RIDS;
 
 #define MAX_REQUEST_SIZE	10485760	// 10 MB - just to be safe
 
-static UCHAR* alloc_map(TDBB, CSB, USHORT);
-static JRD_NOD catenate_nodes(TDBB, LLS);
-static JRD_NOD copy(TDBB, CSB, JRD_NOD, UCHAR *, USHORT, JRD_NOD, bool);
-static void expand_view_nodes(TDBB, CSB, USHORT, LLS *, NOD_T);
-static void ignore_dbkey(TDBB, CSB, RSE, JRD_REL);
-static JRD_NOD make_defaults(TDBB, CSB, USHORT, JRD_NOD);
-static JRD_NOD make_validation(TDBB, CSB, USHORT);
-static JRD_NOD pass1(TDBB, CSB, JRD_NOD, JRD_REL, USHORT, bool);
-static void pass1_erase(TDBB, CSB, JRD_NOD);
-static JRD_NOD pass1_expand_view(TDBB, CSB, USHORT, USHORT, bool);
-static void pass1_modify(TDBB, CSB, JRD_NOD);
-static RSE pass1_rse(TDBB, CSB, RSE, JRD_REL, USHORT);
-static void pass1_source(TDBB, CSB, RSE, JRD_NOD, JRD_NOD *, LLS *, JRD_REL, USHORT);
-static JRD_NOD pass1_store(TDBB, CSB, JRD_NOD);
-static JRD_NOD pass1_update(TDBB, CSB, JRD_REL, Triggers*, USHORT, USHORT, USHORT, JRD_REL,
+static UCHAR* alloc_map(thread_db*, CompilerScratch*, USHORT);
+static JRD_NOD catenate_nodes(thread_db*, LLS);
+static JRD_NOD copy(thread_db*, CompilerScratch*, JRD_NOD, UCHAR *, USHORT, JRD_NOD, bool);
+static void expand_view_nodes(thread_db*, CompilerScratch*, USHORT, LLS *, NOD_T);
+static void ignore_dbkey(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_REL);
+static JRD_NOD make_defaults(thread_db*, CompilerScratch*, USHORT, JRD_NOD);
+static JRD_NOD make_validation(thread_db*, CompilerScratch*, USHORT);
+static JRD_NOD pass1(thread_db*, CompilerScratch*, JRD_NOD, JRD_REL, USHORT, bool);
+static void pass1_erase(thread_db*, CompilerScratch*, JRD_NOD);
+static JRD_NOD pass1_expand_view(thread_db*, CompilerScratch*, USHORT, USHORT, bool);
+static void pass1_modify(thread_db*, CompilerScratch*, JRD_NOD);
+static RecordSelExpr* pass1_rse(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_REL, USHORT);
+static void pass1_source(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_NOD, JRD_NOD *, LLS *, JRD_REL, USHORT);
+static JRD_NOD pass1_store(thread_db*, CompilerScratch*, JRD_NOD);
+static JRD_NOD pass1_update(thread_db*, CompilerScratch*, JRD_REL, Triggers*, USHORT, USHORT, USHORT, JRD_REL,
 						USHORT);
-static JRD_NOD pass2(TDBB, CSB, JRD_NOD, JRD_NOD);
-static void pass2_rse(TDBB, CSB, RSE);
-static JRD_NOD pass2_union(TDBB, CSB, JRD_NOD);
-static void plan_check(CSB, RSE);
-static void plan_set(CSB, RSE, JRD_NOD);
-static void post_procedure_access(TDBB, CSB, Procedure *);
-static RSB post_rse(TDBB, CSB, RSE);
-static void	post_trigger_access(TDBB, CSB, JRD_REL, Triggers*, JRD_REL);
-static void process_map(TDBB, CSB, JRD_NOD, FMT *);
-static bool stream_in_rse(USHORT, RSE);
+static JRD_NOD pass2(thread_db*, CompilerScratch*, JRD_NOD, JRD_NOD);
+static void pass2_rse(thread_db*, CompilerScratch*, RecordSelExpr*);
+static JRD_NOD pass2_union(thread_db*, CompilerScratch*, JRD_NOD);
+static void plan_check(CompilerScratch*, RecordSelExpr*);
+static void plan_set(CompilerScratch*, RecordSelExpr*, JRD_NOD);
+static void post_procedure_access(thread_db*, CompilerScratch*, Procedure *);
+static RecordSource* post_rse(thread_db*, CompilerScratch*, RecordSelExpr*);
+static void	post_trigger_access(thread_db*, CompilerScratch*, JRD_REL, Triggers*, JRD_REL);
+static void process_map(thread_db*, CompilerScratch*, JRD_NOD, FMT *);
+static bool stream_in_rse(USHORT, RecordSelExpr*);
 static SSHORT strcmp_space(const TEXT*, const TEXT*);
 
 #ifdef PC_ENGINE
-static USHORT base_stream(CSB, JRD_NOD *, bool);
+static USHORT base_stream(CompilerScratch*, JRD_NOD *, bool);
 #endif
 
 #ifdef CMP_DEBUG
@@ -208,7 +208,7 @@ bool CMP_clone_is_active(const jrd_req* request)
 }
 
 
-JRD_NOD CMP_clone_node(TDBB tdbb, CSB csb, JRD_NOD node)
+JRD_NOD CMP_clone_node(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 {
 /**************************************
  *
@@ -233,7 +233,7 @@ JRD_NOD CMP_clone_node(TDBB tdbb, CSB csb, JRD_NOD node)
 }
 
 
-JRD_REQ CMP_clone_request(TDBB tdbb, JRD_REQ request, USHORT level, bool validate)
+JRD_REQ CMP_clone_request(thread_db* tdbb, JRD_REQ request, USHORT level, bool validate)
 {
 /**************************************
  *
@@ -247,7 +247,7 @@ JRD_REQ CMP_clone_request(TDBB tdbb, JRD_REQ request, USHORT level, bool validat
  *
  **************************************/
 	JRD_REQ clone;
-	ACC access;
+	AccessItem* access;
 	SCL class_;
 	Procedure *procedure;
 
@@ -319,7 +319,7 @@ JRD_REQ CMP_clone_request(TDBB tdbb, JRD_REQ request, USHORT level, bool validat
 
 
 
-JRD_REQ CMP_compile2(TDBB tdbb, const UCHAR* blr, USHORT internal_flag)
+JRD_REQ CMP_compile2(thread_db* tdbb, const UCHAR* blr, USHORT internal_flag)
 {
 /**************************************
  *
@@ -333,7 +333,7 @@ JRD_REQ CMP_compile2(TDBB tdbb, const UCHAR* blr, USHORT internal_flag)
  **************************************/
 
 	JRD_REQ request = 0;
-	ACC access;
+	AccessItem* access;
 	JrdMemoryPool* old_pool = tdbb->tdbb_default;
 	
 	// 26.09.2002 Nickolay Samofatov: default memory pool will become statement pool 
@@ -344,7 +344,7 @@ JRD_REQ CMP_compile2(TDBB tdbb, const UCHAR* blr, USHORT internal_flag)
 
 	try 
 		{
-		CSB csb = PAR_parse(tdbb, blr, internal_flag);
+		CompilerScratch* csb = PAR_parse(tdbb, blr, internal_flag);
 		request = CMP_make_request(tdbb, csb);
 
 		if (internal_flag) 
@@ -379,7 +379,7 @@ JRD_REQ CMP_compile2(TDBB tdbb, const UCHAR* blr, USHORT internal_flag)
 }
 
 
-csb_repeat* CMP_csb_element(CSB csb, USHORT element)
+csb_repeat* CMP_csb_element(CompilerScratch* csb, USHORT element)
 {
 /**************************************
  *
@@ -436,7 +436,7 @@ void CMP_expunge_transaction(JRD_TRA transaction)
 }
 
 
-JRD_REQ CMP_find_request(TDBB tdbb, USHORT id, USHORT which)
+JRD_REQ CMP_find_request(thread_db* tdbb, USHORT id, USHORT which)
 {
 /**************************************
  *
@@ -492,7 +492,7 @@ JRD_REQ CMP_find_request(TDBB tdbb, USHORT id, USHORT which)
 }
 
 
-void CMP_fini(TDBB tdbb)
+void CMP_fini(thread_db* tdbb)
 {
 /**************************************
  *
@@ -511,7 +511,7 @@ void CMP_fini(TDBB tdbb)
 }
 
 
-FMT CMP_format(TDBB tdbb, CSB csb, USHORT stream)
+FMT CMP_format(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
 {
 /**************************************
  *
@@ -544,7 +544,7 @@ FMT CMP_format(TDBB tdbb, CSB csb, USHORT stream)
 }
 
 
-void CMP_get_desc(TDBB tdbb, CSB csb, JRD_NOD node, DSC * desc)
+void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * desc)
 {
 /**************************************
  *
@@ -1462,7 +1462,7 @@ void CMP_get_desc(TDBB tdbb, CSB csb, JRD_NOD node, DSC * desc)
 		return;
 
 	case nod_literal:
-		*desc = ((LIT) node)->lit_desc;
+		*desc = ((Literal*) node)->lit_desc;
 		return;
 
 	case nod_cast:
@@ -1576,7 +1576,7 @@ void CMP_get_desc(TDBB tdbb, CSB csb, JRD_NOD node, DSC * desc)
 }
 
 
-IDL CMP_get_index_lock(tdbb *tdbb, Relation *relation, USHORT id)
+IndexLock* CMP_get_index_lock(thread_db* tdbb, Relation *relation, USHORT id)
 {
 /**************************************
  *
@@ -1599,13 +1599,13 @@ IDL CMP_get_index_lock(tdbb *tdbb, Relation *relation, USHORT id)
 
 	// for for an existing block
 
-	idl* index;
+	IndexLock* index;
 	
 	for (index = relation->rel_index_locks; index; index = index->idl_next)
 		if (index->idl_id == id)
 			return index;
 
-	index = FB_NEW(*dbb->dbb_permanent) idl();
+	index = FB_NEW(*dbb->dbb_permanent) IndexLock();
 	index->idl_next = relation->rel_index_locks;
 	relation->rel_index_locks = index;
 	index->idl_relation = relation;
@@ -1625,7 +1625,7 @@ IDL CMP_get_index_lock(tdbb *tdbb, Relation *relation, USHORT id)
 }
 
 
-SLONG CMP_impure(CSB csb, USHORT size)
+SLONG CMP_impure(CompilerScratch* csb, USHORT size)
 {
 /**************************************
  *
@@ -1649,7 +1649,7 @@ SLONG CMP_impure(CSB csb, USHORT size)
 }
 
 
-JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
+JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 {
 /**************************************
  *
@@ -1723,7 +1723,7 @@ JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
 		for (link_ptr = csb->csb_invariants.begin(), link_end = csb->csb_invariants.end();
 			 link_ptr < link_end; link_ptr++)
 			{
-			RSE rse;
+			RecordSelExpr* rse;
 			switch ((*link_ptr)->nod_type) 
 				{
 				case nod_max:
@@ -1733,7 +1733,7 @@ JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
 				case nod_average:
 				case nod_total:
 				case nod_from:
-					rse = reinterpret_cast<RSE>((*link_ptr)->nod_arg[e_stat_rse]);
+					rse = reinterpret_cast<RecordSelExpr*>((*link_ptr)->nod_arg[e_stat_rse]);
 					break;
 					
 				case nod_ansi_all:
@@ -1741,7 +1741,7 @@ JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
 				case nod_any:
 				case nod_exists:
 				case nod_unique:
-					rse = reinterpret_cast<RSE>((*link_ptr)->nod_arg[e_any_rse]);
+					rse = reinterpret_cast<RecordSelExpr*>((*link_ptr)->nod_arg[e_any_rse]);
 					break;
 				}
 				
@@ -1806,7 +1806,7 @@ JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
 		// a little complicated since relation locks MUST be taken before
 		// index locks.
 
-		for (RSC resource = request->req_resources; resource;
+		for (Resource* resource = request->req_resources; resource;
 			 resource = resource->rsc_next)
 			{
 			switch (resource->rsc_type)
@@ -1821,7 +1821,7 @@ JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
 				case rsc_index:
 					{
 					Relation *relation = resource->rsc_rel;
-					IDL index = CMP_get_index_lock(tdbb, relation, resource->rsc_id);
+					IndexLock* index = CMP_get_index_lock(tdbb, relation, resource->rsc_id);
 					Sync sync(&relation->syncObject, "CMP_make_request");
 					sync.lock(Exclusive);
 					
@@ -1906,8 +1906,8 @@ JRD_REQ CMP_make_request(TDBB tdbb, CSB csb)
 }
 
 
-void CMP_post_access(TDBB tdbb,
-					 CSB csb,
+void CMP_post_access(thread_db* tdbb,
+					 CompilerScratch* csb,
 					 const TEXT* security_name,
 					 SLONG view_id,
 					 const TEXT* trig,
@@ -1938,7 +1938,8 @@ void CMP_post_access(TDBB tdbb,
 
 	SET_TDBB(tdbb);
 
-	ACC access, last_entry = NULL;
+	AccessItem* access;
+	AccessItem* last_entry = NULL;
 
 	for (access = csb->csb_access; access; access = access->acc_next)
 		{
@@ -1954,7 +1955,7 @@ void CMP_post_access(TDBB tdbb,
 			last_entry = access;
 		}
 
-	access = FB_NEW(*tdbb->tdbb_default) acc;
+	access = FB_NEW(*tdbb->tdbb_default) AccessItem;
 
 	// append the security class to the existing list
 
@@ -1988,8 +1989,8 @@ void CMP_post_access(TDBB tdbb,
 }
 
 
-void CMP_post_resource(TDBB tdbb,
-						RSC * rsc_ptr,
+void CMP_post_resource(thread_db* tdbb,
+						Resource** rsc_ptr,
 						BLK rel_or_prc,
 						enum rsc_s type,
 						USHORT id)
@@ -2004,7 +2005,7 @@ void CMP_post_resource(TDBB tdbb,
  *	Post a resource usage to the compiler scratch block.
  *
  **************************************/
-	RSC resource;
+	Resource* resource;
 
 	DEV_BLKCHK(*rsc_ptr, type_rsc);
 
@@ -2014,7 +2015,7 @@ void CMP_post_resource(TDBB tdbb,
 		if (resource->rsc_type == type && resource->rsc_id == id)
 			return;
 
-	resource = FB_NEW(*tdbb->tdbb_default) Rsc;
+	resource = FB_NEW(*tdbb->tdbb_default) Resource;
 	resource->rsc_next = *rsc_ptr;
 	*rsc_ptr = resource;
 	resource->rsc_type = type;
@@ -2034,7 +2035,7 @@ void CMP_post_resource(TDBB tdbb,
 }
 
 
-void CMP_release_resource(RSC * rsc_ptr, enum rsc_s type, USHORT id)
+void CMP_release_resource(Resource** rsc_ptr, enum rsc_s type, USHORT id)
 {
 /**************************************
  *
@@ -2046,7 +2047,7 @@ void CMP_release_resource(RSC * rsc_ptr, enum rsc_s type, USHORT id)
  *	Release resource from request.
  *
  **************************************/
-	RSC resource;
+	Resource* resource;
 
 	DEV_BLKCHK(*rsc_ptr, type_rsc);
 
@@ -2064,7 +2065,7 @@ void CMP_release_resource(RSC * rsc_ptr, enum rsc_s type, USHORT id)
 }
 
 
-void CMP_decrement_prc_use_count(TDBB tdbb, Procedure * procedure)
+void CMP_decrement_prc_use_count(thread_db* tdbb, Procedure * procedure)
 {
 /*********************************************
  *
@@ -2119,7 +2120,7 @@ void CMP_decrement_prc_use_count(TDBB tdbb, Procedure * procedure)
 }
 
 
-void CMP_release(TDBB tdbb, JRD_REQ request)
+void CMP_release(thread_db* tdbb, JRD_REQ request)
 {
 /**************************************
  *
@@ -2131,9 +2132,9 @@ void CMP_release(TDBB tdbb, JRD_REQ request)
  *	Release an unneeded and unloved request.
  *
  **************************************/
-	IDL index;
-	Relation *relation;
-	RSC resource;
+	IndexLock* index;
+	Relation* relation;
+	Resource* resource;
 
 	// release existence locks on references
 
@@ -2206,7 +2207,7 @@ void CMP_release(TDBB tdbb, JRD_REQ request)
 }
 
 
-void CMP_shutdown_database(TDBB tdbb)
+void CMP_shutdown_database(thread_db* tdbb)
 {
 /**************************************
  *
@@ -2235,7 +2236,7 @@ void CMP_shutdown_database(TDBB tdbb)
 				relation->useCount = 0;
 				}
 				
-			for (idl* index = relation->rel_index_locks; index; index = index->idl_next)
+			for (IndexLock* index = relation->rel_index_locks; index; index = index->idl_next)
 				if (index->idl_lock) 
 					{
 					LCK_release(index->idl_lock);
@@ -2263,7 +2264,7 @@ void CMP_shutdown_database(TDBB tdbb)
 }
 
 
-static UCHAR* alloc_map(TDBB tdbb, CSB csb, USHORT stream)
+static UCHAR* alloc_map(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
 {
 /**************************************
  *
@@ -2290,7 +2291,7 @@ static UCHAR* alloc_map(TDBB tdbb, CSB csb, USHORT stream)
 
 
 #ifdef PC_ENGINE
-static USHORT base_stream(CSB csb, JRD_NOD * stream_number, bool nav_stream)
+static USHORT base_stream(CompilerScratch* csb, JRD_NOD * stream_number, bool nav_stream)
 {
 /**************************************
  *
@@ -2335,7 +2336,7 @@ static USHORT base_stream(CSB csb, JRD_NOD * stream_number, bool nav_stream)
 #endif
 
 
-static JRD_NOD catenate_nodes(TDBB tdbb, LLS stack)
+static JRD_NOD catenate_nodes(thread_db* tdbb, LLS stack)
 {
 /**************************************
  *
@@ -2366,8 +2367,8 @@ static JRD_NOD catenate_nodes(TDBB tdbb, LLS stack)
 }
 
 
-static JRD_NOD copy(TDBB tdbb,
-					CSB csb,
+static JRD_NOD copy(thread_db* tdbb,
+					CompilerScratch* csb,
 					JRD_NOD input,
 					UCHAR * remap,
 					USHORT field_id,
@@ -2548,8 +2549,8 @@ static JRD_NOD copy(TDBB tdbb,
 		case nod_rse:
 		case nod_stream:
 			{
-			RSE old_rse = (RSE) input;
-			RSE new_rse = (RSE) PAR_make_node(tdbb, old_rse->rse_count + rse_delta + 2);
+			RecordSelExpr* old_rse = (RecordSelExpr*) input;
+			RecordSelExpr* new_rse = (RecordSelExpr*) PAR_make_node(tdbb, old_rse->rse_count + rse_delta + 2);
 			new_rse->nod_type = input->nod_type;
 			new_rse->nod_count = 0;
 			new_rse->rse_count = old_rse->rse_count;
@@ -2622,7 +2623,7 @@ static JRD_NOD copy(TDBB tdbb,
 					stream 1  -------- X
 					stream 2  -------- V1
 				while expanding V1 the engine calls copy() with nod_relation.
-				A new stream 3 is created. Now the CSB looks like
+				A new stream 3 is created. Now the CompilerScratch* looks like
 					stream 1  -------- X
 					stream 2  -------- V1  map [2,3]
 					stream 3  -------- T1
@@ -2777,8 +2778,8 @@ static JRD_NOD copy(TDBB tdbb,
 }
 
 
-static void expand_view_nodes(TDBB tdbb,
-							  CSB csb,
+static void expand_view_nodes(thread_db* tdbb,
+							  CompilerScratch* csb,
 							  USHORT stream,
 							  LLS * stack,
 							  NOD_T type)
@@ -2826,7 +2827,7 @@ static void expand_view_nodes(TDBB tdbb,
 }
 
 
-static void ignore_dbkey(TDBB tdbb, CSB csb, RSE rse, Relation *view)
+static void ignore_dbkey(thread_db* tdbb, CompilerScratch* csb, RecordSelExpr* rse, Relation *view)
 {
 /**************************************
  *
@@ -2865,22 +2866,22 @@ static void ignore_dbkey(TDBB tdbb, CSB csb, RSE rse, Relation *view)
 								relation->rel_name);
 		}
 		else if (node->nod_type == nod_rse)
-			ignore_dbkey(tdbb, csb, (RSE) node, view);
+			ignore_dbkey(tdbb, csb, (RecordSelExpr*) node, view);
 		else if (node->nod_type == nod_aggregate)
-			ignore_dbkey(tdbb, csb, (RSE) node->nod_arg[e_agg_rse], view);
+			ignore_dbkey(tdbb, csb, (RecordSelExpr*) node->nod_arg[e_agg_rse], view);
 		else if (node->nod_type == nod_union) {
 			JRD_NOD *ptr_uni, *end_uni;
 
 			jrd_nod* clauses = node->nod_arg[e_uni_clauses];
 			for (ptr_uni = clauses->nod_arg, end_uni =
 				 ptr_uni + clauses->nod_count; ptr_uni < end_uni; ptr_uni++)
-				ignore_dbkey(tdbb, csb, (RSE) * ptr_uni++, view);
+				ignore_dbkey(tdbb, csb, (RecordSelExpr*) * ptr_uni++, view);
 		}
 	}
 }
 
 
-static JRD_NOD make_defaults(TDBB tdbb, CSB csb, USHORT stream, JRD_NOD statement)
+static JRD_NOD make_defaults(thread_db* tdbb, CompilerScratch* csb, USHORT stream, JRD_NOD statement)
 {
 /**************************************
  *
@@ -2946,7 +2947,7 @@ static JRD_NOD make_defaults(TDBB tdbb, CSB csb, USHORT stream, JRD_NOD statemen
 }
 
 
-static JRD_NOD make_validation(TDBB tdbb, CSB csb, USHORT stream)
+static JRD_NOD make_validation(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
 {
 /**************************************
  *
@@ -3014,8 +3015,8 @@ static JRD_NOD make_validation(TDBB tdbb, CSB csb, USHORT stream)
 }
 
 
-static JRD_NOD pass1(TDBB tdbb,
-					 CSB csb,
+static JRD_NOD pass1(thread_db* tdbb,
+					 CompilerScratch* csb,
 					 JRD_NOD node,
 					 Relation *view,
 					 USHORT view_stream,
@@ -3063,7 +3064,7 @@ static JRD_NOD pass1(TDBB tdbb,
 		{
 		case nod_variable:
 		case nod_argument:
-			for (RSE *rse = csb->csb_current_rses.begin();  rse < csb->csb_current_rses.end(); rse++) 
+			for (RecordSelExpr* *rse = csb->csb_current_rses.begin();  rse < csb->csb_current_rses.end(); rse++) 
 				{
 				if (!(*rse)->rse_variables) 
 					(*rse)->rse_variables = FB_NEW(*tdbb->tdbb_default) 
@@ -3087,7 +3088,7 @@ static JRD_NOD pass1(TDBB tdbb,
 			// operating assumption for now.
 
 			if (csb->csb_current_rses.getCount()) 
-				for (RSE *rse = csb->csb_current_rses.end() - 1;  rse >= csb->csb_current_rses.begin(); rse--) 
+				for (RecordSelExpr* *rse = csb->csb_current_rses.end() - 1;  rse >= csb->csb_current_rses.begin(); rse--) 
 					{
 					if (stream_in_rse(stream, *rse)) 
 						break;
@@ -3293,7 +3294,7 @@ static JRD_NOD pass1(TDBB tdbb,
 
 		case nod_rse:
 		case nod_stream:
-			return (JRD_NOD) pass1_rse(tdbb, csb, (RSE) node, view, view_stream);
+			return (JRD_NOD) pass1_rse(tdbb, csb, (RecordSelExpr*) node, view, view_stream);
 
 		case nod_max:
 		case nod_min:
@@ -3302,14 +3303,14 @@ static JRD_NOD pass1(TDBB tdbb,
 		case nod_count:
 		case nod_count2:
 		case nod_total:
-			ignore_dbkey(tdbb, csb, (RSE) node->nod_arg[e_stat_rse], view);
+			ignore_dbkey(tdbb, csb, (RecordSelExpr*) node->nod_arg[e_stat_rse], view);
 			break;
 
 		case nod_aggregate:
 			fb_assert((int) (IPTR) node->nod_arg[e_agg_stream] <= MAX_STREAMS);
 			csb->csb_rpt[(USHORT)(long) node->nod_arg[e_agg_stream]].csb_flags |=
 				csb_no_dbkey;
-			ignore_dbkey(tdbb, csb, (RSE) node->nod_arg[e_agg_rse], view);
+			ignore_dbkey(tdbb, csb, (RecordSelExpr*) node->nod_arg[e_agg_rse], view);
 			node->nod_arg[e_agg_rse] =
 				pass1(tdbb, csb, node->nod_arg[e_agg_rse], view, view_stream,
 					validate_expr);
@@ -3370,7 +3371,7 @@ static JRD_NOD pass1(TDBB tdbb,
 		case nod_any:
 		case nod_exists:
 		case nod_unique:
-			ignore_dbkey(tdbb, csb, (RSE) node->nod_arg[e_any_rse], view);
+			ignore_dbkey(tdbb, csb, (RecordSelExpr*) node->nod_arg[e_any_rse], view);
 			break;
 
 		case nod_cardinality:
@@ -3404,7 +3405,7 @@ static JRD_NOD pass1(TDBB tdbb,
 }
 
 
-static void pass1_erase(TDBB tdbb, CSB csb, JRD_NOD node)
+static void pass1_erase(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 {
 /**************************************
  *
@@ -3515,8 +3516,8 @@ static void pass1_erase(TDBB tdbb, CSB csb, JRD_NOD node)
 }
 
 
-static JRD_NOD pass1_expand_view(TDBB tdbb,
-								 CSB csb,
+static JRD_NOD pass1_expand_view(thread_db* tdbb,
+								 CompilerScratch* csb,
 								 USHORT org_stream,
 								 USHORT new_stream,
 								 bool remap)
@@ -3590,7 +3591,7 @@ static JRD_NOD pass1_expand_view(TDBB tdbb,
 }
 
 
-static void pass1_modify(TDBB tdbb, CSB csb, JRD_NOD node)
+static void pass1_modify(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 {
 /**************************************
  *
@@ -3705,9 +3706,9 @@ static void pass1_modify(TDBB tdbb, CSB csb, JRD_NOD node)
 }
 
 
-static RSE pass1_rse(TDBB tdbb,
-					 CSB csb,
-					 RSE rse,
+static RecordSelExpr* pass1_rse(thread_db* tdbb,
+					 CompilerScratch* csb,
+					 RecordSelExpr* rse,
 					 Relation *view,
 					 USHORT view_stream)
 {
@@ -3773,9 +3774,9 @@ static RSE pass1_rse(TDBB tdbb,
 		++count;
 
 	if (count != rse->rse_count) {
-		RSE new_rse;
+		RecordSelExpr* new_rse;
 
-		new_rse = (RSE) PAR_make_node(tdbb, count + rse_delta + 2);
+		new_rse = (RecordSelExpr*) PAR_make_node(tdbb, count + rse_delta + 2);
 		*new_rse = *rse;
 		new_rse->rse_count = count;
 		rse = new_rse;
@@ -3847,9 +3848,9 @@ static RSE pass1_rse(TDBB tdbb,
 }
 
 
-static void pass1_source(TDBB     tdbb,
-						 CSB      csb,
-						 RSE      rse,
+static void pass1_source(thread_db*     tdbb,
+						 CompilerScratch*      csb,
+						 RecordSelExpr* rse,
 						 JRD_NOD  source,
 						 JRD_NOD* boolean,
 						 LLS*     stack,
@@ -3868,7 +3869,7 @@ static void pass1_source(TDBB     tdbb,
  *
  **************************************/
 	DBB dbb;
-	RSE view_rse;
+	RecordSelExpr* view_rse;
 	JRD_NOD *arg, *end, node;
 	Relation *view;
 	UCHAR *map;
@@ -3897,7 +3898,7 @@ static void pass1_source(TDBB     tdbb,
 		// where we are just trying to inner join more than 2 streams. If possible, 
 		// try to flatten the tree out before we go any further.
 
-		RSE sub_rse = (RSE) source;
+		RecordSelExpr* sub_rse = (RecordSelExpr*) source;
 		if (!rse->rse_jointype && !sub_rse->rse_jointype
 			&& !sub_rse->rse_sorted && !sub_rse->rse_projection
 			&& !sub_rse->rse_first && !sub_rse->rse_plan) {
@@ -4091,7 +4092,7 @@ static void pass1_source(TDBB     tdbb,
 }
 
 
-static JRD_NOD pass1_store(TDBB tdbb, CSB csb, JRD_NOD node)
+static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 {
 /**************************************
  *
@@ -4201,8 +4202,8 @@ static JRD_NOD pass1_store(TDBB tdbb, CSB csb, JRD_NOD node)
 }
 
 
-static JRD_NOD pass1_update(TDBB tdbb,
-							CSB csb,
+static JRD_NOD pass1_update(thread_db* tdbb,
+							CompilerScratch* csb,
 							Relation *relation,
 							Triggers* trigger,
 							USHORT stream,
@@ -4224,7 +4225,7 @@ static JRD_NOD pass1_update(TDBB tdbb,
  *	If it's a simple relation, return NULL.
  *
  **************************************/
-	RSE rse;
+	RecordSelExpr* rse;
 	JRD_NOD node;
 
 	// unless this is an internal request, check access permission
@@ -4279,7 +4280,7 @@ static JRD_NOD pass1_update(TDBB tdbb,
 }
 
 
-static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
+static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NOD parent)
 {
 /**************************************
  *
@@ -4294,7 +4295,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 	JRD_NOD *ptr, *end;
 	ULONG id;
 	USHORT stream;
-	RSB *rsb_ptr;
+	RecordSource** rsb_ptr;
 	//SET_TDBB(tdbb);
 	//DEV_BLKCHK(csb, type_csb);
 	//DEV_BLKCHK(node, type_nod);
@@ -4321,7 +4322,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 
 		case nod_for:
 			rse_node = node->nod_arg[e_for_re];
-			rsb_ptr = (RSB *) & node->nod_arg[e_for_rsb];
+			rsb_ptr = (RecordSource* *) & node->nod_arg[e_for_rsb];
 #ifdef SCROLLABLE_CURSORS
 			csb->csb_current_rse = rse_node;
 #endif
@@ -4329,7 +4330,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 
 		case nod_dcl_cursor:
 			rse_node = node->nod_arg[e_dcl_cursor_rse];
-			rsb_ptr = (RSB *) & node->nod_arg[e_dcl_cursor_rsb];
+			rsb_ptr = (RecordSource* *) & node->nod_arg[e_dcl_cursor_rsb];
 #ifdef SCROLLABLE_CURSORS
 			csb->csb_current_rse = rse_node;
 #endif
@@ -4369,7 +4370,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 				csb->csb_invariants.push(node);
 				}
 				
-			rsb_ptr = (RSB *) & node->nod_arg[e_stat_rsb];
+			rsb_ptr = (RecordSource* *) & node->nod_arg[e_stat_rsb];
 			break;
 
 		case nod_ansi_all:
@@ -4385,7 +4386,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 				csb->csb_invariants.push(node);
 				}
 				
-			rsb_ptr = (RSB *) & node->nod_arg[e_any_rsb];
+			rsb_ptr = (RecordSource* *) & node->nod_arg[e_any_rsb];
 			break;
 
 		case nod_sort:
@@ -4425,9 +4426,9 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 		case nod_stream:
 			{
 			JRD_NOD relation;
-			RSE rse;
+			RecordSelExpr* rse;
 
-			rse = (RSE) node;
+			rse = (RecordSelExpr*) node;
 			rse_node = node;
 			// setting the stream flag will allow the optimizer to  
 			// detect that a SET INDEX may be done on this stream
@@ -4524,7 +4525,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 		}
 
 	if (rse_node)
-		pass2_rse(tdbb, csb, (RSE) rse_node);
+		pass2_rse(tdbb, csb, (RecordSelExpr*) rse_node);
 
 	// handle sub-expressions here
 
@@ -4584,7 +4585,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 		case nod_agg_max:
 		case nod_agg_count:
 			node->nod_count = 0;
-			csb->csb_impure += sizeof(vlux);
+			csb->csb_impure += sizeof(impure_value_ex);
 			break;
 
 		case nod_ansi_all:
@@ -4593,7 +4594,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 		case nod_exists:
 		case nod_unique:
 			if (node->nod_flags & nod_invariant)
-				csb->csb_impure += sizeof(vlu);
+				csb->csb_impure += sizeof(impure_value);
 			break;
 
 		case nod_block:
@@ -4603,7 +4604,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 		case nod_dcl_variable:
 			{
 			DSC* desc = (DSC*) (node->nod_arg + e_dcl_desc);
-			csb->csb_impure += sizeof(vlu) + desc->dsc_length;
+			csb->csb_impure += sizeof(impure_value) + desc->dsc_length;
 			}
 			break;
 
@@ -4616,7 +4617,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			DSC descriptor_a;
 
 			node->nod_count = 0;
-			csb->csb_impure += sizeof(vlu);
+			csb->csb_impure += sizeof(impure_value);
 			CMP_get_desc(tdbb, csb, node, &descriptor_a);
 			}
 			break;
@@ -4627,7 +4628,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			DSC descriptor_a;
 
 			node->nod_count = 0;
-			csb->csb_impure += sizeof(vlux);
+			csb->csb_impure += sizeof(impure_value_ex);
 			CMP_get_desc(tdbb, csb, node, &descriptor_a);
 			}
 			break;
@@ -4653,7 +4654,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			for (id = 0; id < format->fmt_count; id++, desc++)
 				if (desc->dsc_dtype)
 					SBM_set(tdbb, &csb->csb_rpt[stream].csb_fields, id);
-			csb->csb_impure += sizeof(sta);
+			csb->csb_impure += sizeof(impure_state);
 			}
 			break;
 
@@ -4669,7 +4670,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			// FALL INTO
 
 		case nod_store:
-			csb->csb_impure += sizeof(sta);
+			csb->csb_impure += sizeof(impure_state);
 			break;
 
 		case nod_erase:
@@ -4684,7 +4685,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			
 			if (node->nod_flags & nod_value) 
 				{
-				csb->csb_impure += sizeof(vlux);
+				csb->csb_impure += sizeof(impure_value_ex);
 				break;
 				}
 			// FALL INTO
@@ -4733,7 +4734,7 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			DSC descriptor_a;
 
 			CMP_get_desc(tdbb, csb, node, &descriptor_a);
-			csb->csb_impure += sizeof(vlu);
+			csb->csb_impure += sizeof(impure_value);
 			}
 			break;
 
@@ -4751,12 +4752,12 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 			DSC descriptor_a;
 
 			CMP_get_desc(tdbb, csb, node, &descriptor_a);
-			csb->csb_impure += sizeof(vlu);
+			csb->csb_impure += sizeof(impure_value);
 			}
 			break;
 
 		case nod_aggregate:
-			pass2_rse(tdbb, csb, (RSE) node->nod_arg[e_agg_rse]);
+			pass2_rse(tdbb, csb, (RecordSelExpr*) node->nod_arg[e_agg_rse]);
 			pass2(tdbb, csb, node->nod_arg[e_agg_map], node);
 			pass2(tdbb, csb, node->nod_arg[e_agg_group], node);
 			stream = (USHORT)(long) node->nod_arg[e_agg_stream];
@@ -4837,13 +4838,13 @@ static JRD_NOD pass2(TDBB tdbb, CSB csb, JRD_NOD node, JRD_NOD parent)
 	// finish up processing of record selection expressions
 
 	if (rse_node)
-		*rsb_ptr = post_rse(tdbb, csb, (RSE) rse_node);
+		*rsb_ptr = post_rse(tdbb, csb, (RecordSelExpr*) rse_node);
 
 	return node;
 }
 
 
-static void pass2_rse(TDBB tdbb, CSB csb, RSE rse)
+static void pass2_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelExpr* rse)
 {
 /**************************************
  *
@@ -4878,7 +4879,7 @@ static void pass2_rse(TDBB tdbb, CSB csb, RSE rse)
 			pass2(tdbb, csb, node, (JRD_NOD) rse);
 		}
 		else if (node->nod_type == nod_rse) {
-			pass2_rse(tdbb, csb, (RSE) node);
+			pass2_rse(tdbb, csb, (RecordSelExpr*) node);
 		}
 		else if (node->nod_type == nod_procedure) {
 			USHORT stream = (USHORT)(long) node->nod_arg[e_prc_stream];
@@ -4918,7 +4919,7 @@ static void pass2_rse(TDBB tdbb, CSB csb, RSE rse)
 }
 
 
-static JRD_NOD pass2_union(TDBB tdbb, CSB csb, JRD_NOD node)
+static JRD_NOD pass2_union(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 {
 /**************************************
  *
@@ -4947,7 +4948,7 @@ static JRD_NOD pass2_union(TDBB tdbb, CSB csb, JRD_NOD node)
 	// process alternating rse and map blocks
 
 	for (ptr = clauses->nod_arg, end = ptr + clauses->nod_count; ptr < end;) {
-		pass2_rse(tdbb, csb, (RSE) * ptr++);
+		pass2_rse(tdbb, csb, (RecordSelExpr*) * ptr++);
 		map = *ptr++;
 		pass2(tdbb, csb, map, node);
 		process_map(tdbb, csb, map, format);
@@ -4957,7 +4958,7 @@ static JRD_NOD pass2_union(TDBB tdbb, CSB csb, JRD_NOD node)
 }
 
 
-static void plan_check(CSB csb, RSE rse)
+static void plan_check(CompilerScratch* csb, RecordSelExpr* rse)
 {
 /**************************************
  *
@@ -4991,7 +4992,7 @@ static void plan_check(CSB csb, RSE rse)
 }
 
 
-static void plan_set(CSB csb, RSE rse, JRD_NOD plan)
+static void plan_set(CompilerScratch* csb, RecordSelExpr* rse, JRD_NOD plan)
 {
 /**************************************
  *
@@ -5191,7 +5192,7 @@ static void plan_set(CSB csb, RSE rse, JRD_NOD plan)
 }
 
 
-static void post_procedure_access(TDBB tdbb, CSB csb, Procedure * procedure)
+static void post_procedure_access(thread_db* tdbb, CompilerScratch* csb, Procedure * procedure)
 {
 /**************************************
  *
@@ -5205,7 +5206,7 @@ static void post_procedure_access(TDBB tdbb, CSB csb, Procedure * procedure)
  *	the called stored procedure has access requirements for.
  *
  **************************************/
-	ACC access;
+	AccessItem* access;
 	TEXT *prc_sec_name;
 
 	SET_TDBB(tdbb);
@@ -5245,7 +5246,7 @@ static void post_procedure_access(TDBB tdbb, CSB csb, Procedure * procedure)
 }
 
 
-static RSB post_rse(TDBB tdbb, CSB csb, RSE rse)
+static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelExpr* rse)
 {
 /**************************************
  *
@@ -5257,7 +5258,7 @@ static RSB post_rse(TDBB tdbb, CSB csb, RSE rse)
  *	Perform actual optimization of an rse and clear activity.
  *
  **************************************/
-	RSB rsb;
+	RecordSource* rsb;
 	JRD_NOD node, *ptr, *end;
 
 	SET_TDBB(tdbb);
@@ -5305,7 +5306,7 @@ static RSB post_rse(TDBB tdbb, CSB csb, RSE rse)
 }
 
 
-static void post_trigger_access(TDBB tdbb, CSB csb, Relation *owner_relation, Triggers* triggers, Relation *view)
+static void post_trigger_access(thread_db* tdbb, CompilerScratch* csb, Relation *owner_relation, Triggers* triggers, Relation *view)
 {
 /**************************************
  *
@@ -5335,7 +5336,7 @@ static void post_trigger_access(TDBB tdbb, CSB csb, Relation *owner_relation, Tr
  *   messages about false REFERENCES right failures.
  *
  **************************************/
-	ACC access;
+	AccessItem* access;
 
 	if (!triggers)
 		return;
@@ -5448,7 +5449,7 @@ static void post_trigger_access(TDBB tdbb, CSB csb, Relation *owner_relation, Tr
 }
 
 
-static void process_map(TDBB tdbb, CSB csb, JRD_NOD map, FMT * input_format)
+static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, FMT * input_format)
 {
 /**************************************
  *
@@ -5591,7 +5592,7 @@ static SSHORT strcmp_space(const TEXT* p, const TEXT* q)
 }
 
 
-static bool stream_in_rse(USHORT stream, RSE rse)
+static bool stream_in_rse(USHORT stream, RecordSelExpr* rse)
 {
 /**************************************
  *
@@ -5619,7 +5620,7 @@ static bool stream_in_rse(USHORT stream, RSE rse)
 		// the sub-rse
 		if (sub->nod_type == nod_aggregate) {
 			if ((stream == (USHORT)(long) sub->nod_arg[e_rel_stream]) ||
-				(stream_in_rse(stream, (RSE) sub->nod_arg[e_agg_rse])))
+				(stream_in_rse(stream, (RecordSelExpr*) sub->nod_arg[e_agg_rse])))
 				return true;	// do not mark as variant
 		}
 
