@@ -28,7 +28,7 @@ To avoid overwriting existing MSVC7 "solutions", the
 kit provides a solution file called Vulcan.sln.template 
 which you can copy or rename to create the preliminary
 solution file for the project.  That file is located in
-vulcan\builds\VisualStudio7.  Copy or rename it to
+vulcan\builds\VisualStudio7\Vulcan.  Copy or rename it to
 vulcan.sln in the same directory
 
 
