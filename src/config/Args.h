@@ -55,10 +55,18 @@ public:
 	static bool readPasswords(const char *msg, char *pw1, int length);
 	static void printHelp (const char *helpText, const Switches *switches);
 	static void init (const Switches *switches);
-	static void parse (const Switches *switches, int argc, char **argv);
+	static void parse (const Switches *switches, int argc, char **argv, Args *args=NULL);
 	Args();
 	virtual ~Args();
 
+	const char	**parameters;
+	int			*lengths;
+	int			parametersAllocated;
+	int			parametersUsed;
+	void extendParameters(void);
+	void addParameter(const char* parameter, int length);
+	const char* lookupParameter(const char* parameter);
+	void parseParameters(const Switches* switches, int argc, char** argv);
 };
 
 #endif // !defined(AFX_ARGS_H__7C584339_5A11_4040_889B_417B607C858B__INCLUDED_)

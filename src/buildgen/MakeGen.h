@@ -32,6 +32,7 @@
 
 #include "JString.h"
 #include "TemplateExpansion.h"
+#include "Args.h"
 
 class ProjectFile;
 class TemplateValue;
@@ -54,6 +55,7 @@ public:
 	ProjectFile		*projectFiles;
 	ProjectFile		**filePtr;
 	TemplateValue	*extensions [hashTableSize];
+	Args			args;
 	void expandIf(Element* tag, Stream* stream);
 	bool evalBoolean(Element* tag);
 };

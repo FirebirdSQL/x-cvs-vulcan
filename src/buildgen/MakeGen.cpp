@@ -52,7 +52,6 @@ static const Switches switches [] =
 	ARG_ARG("-f", configFileName,	"configuration file name")
 	ARG_ARG("-c", component,		"component name")
 	ARG_ARG("-p", port,				"port name")
-	ARG_ARG("-t", type,				"type")
 	SW_ARG ("-v", verbose,			"verbose")
 	ARG_ARG("-o", outputFileName,	"output file name")
 	SW_ARG ("-h", printHelp,		"Print this text")
@@ -102,7 +101,7 @@ MakeGen::~MakeGen()
 
 int MakeGen::gen(int argc, char **argv)
 {
-	Args::parse (switches, argc - 1, argv + 1);
+	args.parseParameters (switches, argc - 1, argv + 1);
 
 	if (printHelp)
 		{
@@ -382,9 +381,9 @@ bool MakeGen::evalBoolean(Element* tag)
 {
 	for (Element *option = tag->attributes; option; option = option->sibling)
 		{
-		if (option->name == "type")
-			if (!type || option->value != type)
-				return false;
+		const char *value = args.lookupParameter(option->name);
+		if (!value || option->value != value)
+			return false;
 		}
 	
 	return true;
