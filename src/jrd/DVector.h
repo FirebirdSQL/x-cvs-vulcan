@@ -10,7 +10,7 @@ public:
 	virtual ~DVector() 
 		{ 
 		for (int n = 0; n < this->size(); ++n)
-                  delete this->at(n);
+                  delete this->buffer[n];
 		}
 };
 
