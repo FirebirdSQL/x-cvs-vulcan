@@ -1,0 +1,4 @@
+echo Building security database
+gbak -r ../misc/security.gbak security.fdb
+echo Building messages database
+gbak -r msg.gbak msg.fdb

@@ -1,0 +1,3 @@
+buildgen -p proto -c isql -f ../../vulcan.build -o makefile isql.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  isql.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  isql.vcproj

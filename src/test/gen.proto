@@ -1,0 +1,3 @@
+buildgen -p proto -c test -f ../../vulcan.build -o makefile test.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  test.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  test.vcproj

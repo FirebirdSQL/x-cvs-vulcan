@@ -1,0 +1,52 @@
+# The contents of this file are subject to the Interbase Public
+# License Version 1.0 (the "License"); you may not use this file
+# except in compliance with the License. You may obtain a copy
+# of the License at http://www.Inprise.com/IPL.html
+#
+# Software distributed under the License is distributed on an
+# "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express
+# or implied. See the License for the specific language governing
+# rights and limitations under the License.
+#
+# The Original Code was created by Inprise Corporation
+# and its predecessors. Portions created by Inprise Corporation are
+# Copyright (C) Inprise Corporation.
+#
+# All Rights Reserved.
+# Contributor(s): ______________________________________.
+# Start of file prefix.win32:	$(VERSION)	$(PLATFORM)
+
+PROD_FLAGS=-O2  -march=@CPU_TYPE@ -mcpu=@CPU_TYPE@ -DMINGW -mno-cygwin -mthreads -Wall -Wno-unused-variable -Wno-unknown-pragmas -Wno-parentheses -Wno-switch -fmessage-length=0 -DIPSERVER -DMAXPATHLEN=255 -DWIN32_LEAN_AND_MEAN -MMD
+DEV_FLAGS=-ggdb -march=@CPU_TYPE@ -mcpu=@CPU_TYPE@ -DMINGW -mno-cygwin -mthreads -Wall -Wno-unused-variable -Wno-unknown-pragmas -Wno-parentheses -Wno-switch -fmessage-length=0 -DIPSERVER -DMAXPATHLEN=255 -DDEBUG_GDS_ALLOC -DWIN32_LEAN_AND_MEAN -MMD 
+
+PLATFORM_PATH=jrd/os/win32
+
+JRDBOOT_Extra_Files=isc_sync.cpp thd.cpp
+
+OS_SPECIFIC_Files=thd_priority.cpp
+
+OS_ServerFiles=srvr_w32 window.cpp chop.cpp property.cpp ibconfig.cpp cntl.cpp 
+
+LIB_LINK_OPTIONS:=-shared -Wl,--add-stdcall-alias
+LIB_LINK_RPATH:=-Wl,-rpath,
+LIB_LINK_SONAME:=-Wl,-soname,
+LIB_GUI:= -mwindows -lcomctl32 -lgdi32
+EMBED_UTIL_TARGETS:=gstat gsec fb_lock_print
+CLIENT_UTIL_TARGETS:=gstat gsec ibguard instsvc instreg fb_lock_print
+WIN_IPSERVER_Files:=ipserver.cpp alli.cpp
+
+Physical_IO_Module=winnt.cpp
+
+# Add resources to some files
+FilesToAddVersionInfo=$(LIBFBEMBED_SO) $(LIBFBCLIENT_SO) $(LIBFBINTL_SO) \
+ $(GSTAT) $(GSEC) $(GFIX) $(QLI) $(ISQL) $(GBAK) $(GPRE)
+# TODO: guardians also must be here
+FilesToAddDialog=$(FB_SUPER_SERVER) $(FB_CLASSIC_SERVER)
+
+# Override library names to suppress 'lib'-prefix
+LIBFBINTL_SO := $(patsubst %libfbintl.dll,%fbintl.dll,$(LIBFBINTL_SO))
+ClientLibraryName := $(patsubst lib%,%,$(ClientLibraryName))
+
+# Override library names to suppress version suffix
+ClientLibraryNameFull := $(ClientLibraryName)
+ClientLibraryNameMajor := $(ClientLibraryName)

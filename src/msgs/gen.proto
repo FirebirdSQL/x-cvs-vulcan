@@ -1,0 +1,3 @@
+buildgen -p proto -c msgs -f ../../vulcan.build -o makefile msgs.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  msgs.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  msgs.vcproj

@@ -1,0 +1,1334 @@
+/*
+ *	PROGRAM:	JRD Access Method
+ *	MODULE:		scl.epp
+ *	DESCRIPTION:	Security class handler
+ *
+ * The contents of this file are subject to the Interbase Public
+ * License Version 1.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy
+ * of the License at http://www.Inprise.com/IPL.html
+ *
+ * Software distributed under the License is distributed on an
+ * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ * The Original Code was created by Inprise Corporation
+ * and its predecessors. Portions created by Inprise Corporation are
+ * Copyright (C) Inprise Corporation.
+ *
+ * All Rights Reserved.
+ * Contributor(s): ______________________________________.
+ * 2001.6.12 Claudio Valderrama: the role should be wiped out if invalid.
+ * 2001.8.12 Claudio Valderrama: Squash security bug when processing
+ *           identifiers with embedded blanks: check_procedure, check_relation 
+ *           and check_string, the latter being called from many places.
+ *
+ */
+
+// This MUST be at the top of the file
+#ifdef DARWIN
+#define _STLP_CCTYPE
+#endif
+
+#include "firebird.h"
+#include "common.h"
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include "../jrd/ibase.h"
+#include "../jrd/jrd.h"
+#include "../jrd/Relation.h"
+#include "../jrd/Field.h"
+#include "../jrd/ods.h"
+#include "../jrd/scl.h"
+#include "../jrd/jrd_pwd.h"
+#include "../jrd/acl.h"
+#include "../jrd/blb.h"
+#include "../jrd/irq.h"
+#include "../jrd/obj.h"
+#include "../jrd/req.h"
+#include "../jrd/tra.h"
+#include "../jrd/gdsassert.h"
+#include "../jrd/all_proto.h"
+#include "../jrd/blb_proto.h"
+#include "../jrd/cmp_proto.h"
+#include "../jrd/enc_proto.h"
+#include "../jrd/err_proto.h"
+#include "../jrd/exe_proto.h"
+#include "../jrd/gds_proto.h"
+#include "../jrd/isc_proto.h"
+#include "../jrd/met_proto.h"
+#include "../jrd/grant_proto.h"
+#include "../jrd/scl_proto.h"
+#include "../jrd/thd_proto.h"
+#include "../include/fb_exception.h"
+#include "Generate.h"
+#include "TempSpace.h"
+
+#ifdef VMS
+#define UIC_BASE	8
+#else
+#define UIC_BASE	10
+#endif
+
+#ifdef BOOT_BUILD
+#define NO_SECURITY
+#endif
+
+#ifdef _WIN32
+#ifndef strcasecmp
+#define strcasecmp		stricmp
+#define strncasecmp		strnicmp
+#endif
+#endif
+
+#define	BLOB_BUFFER_SIZE	4096	/* used to read in acl blob */
+
+DATABASE DB = FILENAME "ODS.RDB";
+
+static bool check_hex(const TEXT*, USHORT);
+static bool check_number(const TEXT*, USHORT);
+static bool check_user_group(TDBB tdbb, const TEXT*);
+static bool check_string(const TEXT*, const TEXT*);
+static SLONG compute_access(TDBB, scl*, JRD_REL, const TEXT*, const TEXT*);
+static TEXT* save_string(const TEXT*, TEXT**);
+static SLONG walk_acl(TDBB, const TEXT*, JRD_REL, const TEXT*, const TEXT*);
+
+static inline void check_and_move(UCHAR*& to, UCHAR from, STR& start, ULONG* length_ptr)
+{
+	if ((start->str_data + *length_ptr) < (to + 1))
+	{
+		start = GRANT_realloc_acl(start, &to, length_ptr);
+	}
+	*to++ = from;
+}
+
+typedef struct {
+	USHORT p_names_priv;
+	USHORT p_names_acl;
+	const TEXT* p_names_string;
+} P_NAMES;
+
+static const P_NAMES p_names[] =
+{
+	{ SCL_protect, priv_protect, "protect" },
+	{ SCL_control, priv_control, "control" },
+	{ SCL_delete, priv_delete, "delete" },
+	{ SCL_sql_insert, priv_sql_insert, "insert/write" },
+	{ SCL_sql_update, priv_sql_update, "update/write" },
+	{ SCL_sql_delete, priv_sql_delete, "delete/write" },
+	{ SCL_write, priv_write, "write" },
+	{ SCL_read, priv_read, "read/select" },
+	{ SCL_grant, priv_grant, "grant" },
+	{ SCL_sql_references, priv_sql_references, "references" },
+	{ SCL_execute, priv_execute, "execute" },
+	{ 0, 0, "" }
+};
+
+
+void SCL_check_access(TDBB tdbb, scl* s_class,
+					  SLONG view_id,
+					  const TEXT* trg_name,
+					  const TEXT* prc_name,
+					  USHORT mask,
+					  const TEXT* type,
+					  const TEXT* name)
+{
+/**************************************
+ *
+ *	S C L _ c h e c k _ a c c e s s
+ *
+ **************************************
+ *
+ * Functional description
+ *	Check security class for desired permission.  Check first that
+ *	the desired access has been granted to the database then to the
+ *	object in question.
+ *
+ **************************************/
+
+	if (s_class && (s_class->scl_flags & SCL_corrupt))
+		ERR_post(isc_no_priv, isc_arg_string, "(ACL unrecognized)",
+				 isc_arg_string, "security_class",
+				 isc_arg_string, (const char*) s_class->scl_name,
+				 0);
+
+	ATT attachment = tdbb->tdbb_attachment;
+	SCL att_class = attachment->att_security_class;
+	
+	if (att_class && !(att_class->scl_flags & mask))
+		{
+		type = "DATABASE";
+		name = "";
+		}
+	else
+		{
+		if (!s_class ||	(mask & s_class->scl_flags))
+			return;
+
+		JRD_REL view = NULL;
+		
+		if (view_id)
+			view = MET_lookup_relation_id(tdbb, view_id, false);
+			
+		if ((view || trg_name || prc_name) && 
+			(compute_access(tdbb, s_class, view, trg_name, prc_name) & mask))
+			return;
+		}
+
+	// Allow the database owner to back up a database even if he does not have
+	// read access to all the tables in the database
+
+	if ((attachment->att_flags & ATT_gbak_attachment) && (mask & SCL_read))
+		return;
+
+	const P_NAMES* names;
+	
+	for (names = p_names; names->p_names_priv; names++)
+		if (names->p_names_priv & mask)
+			break;
+
+	ERR_post(isc_no_priv,
+			 isc_arg_string, names->p_names_string,
+			 isc_arg_string, type,
+			 isc_arg_string, ERR_cstring(name),
+			 0);
+}
+
+
+void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT mask)
+{
+/******************************************************
+ *
+ *	S C L _ c h e c k _ i n d e x 
+ *
+ ******************************************************
+ *
+ * Functional description
+ *	Given a index name (as a TEXT), check for a 
+ *      set of privileges on the table that the index is on and 
+ *      on the fields involved in that index.  
+ *   CVC: Allow the same function to use the zero-based index id, too.
+ *      The idx.idx_id value is zero based but system tables use
+ *      index id's being one based, hence adjust the incoming value
+ *      before calling this function. If you use index_id, index_name
+ *      becomes relation_name since index ids are relative to tables.
+ *
+ *******************************************************/
+	SCL			s_class, default_s_class;
+    TEXT		reln_name[32], aux_idx_name[32];
+    const TEXT *idx_name_ptr = index_name;
+    const TEXT  *relation_name_ptr = index_name;
+
+	DBB dbb = tdbb->tdbb_database;
+	s_class = default_s_class = NULL;
+
+	// No security to check for if the index is not yet created 
+
+    if ((!index_name || !*index_name) && index_id < 1)
+        return;
+
+    reln_name[0] = aux_idx_name[0] = 0;
+	Request *request = NULL;
+	Sync sync(&dbb->syncSecurityClass, "SCL_check_index");
+	sync.lock(Exclusive);
+	
+	// No need to cache this request handle, it's only used when
+	// new constraints are created
+
+    if (index_id < 1) 
+		{
+        FOR(REQUEST_HANDLE request) IND IN RDB$INDICES
+            CROSS REL IN RDB$RELATIONS
+			OVER RDB$RELATION_NAME
+			WITH IND.RDB$INDEX_NAME EQ index_name
+
+            strcpy(reln_name, REL.RDB$RELATION_NAME);
+		    if (!REL.RDB$SECURITY_CLASS.NULL)
+                s_class = SCL_get_class(tdbb, REL.RDB$SECURITY_CLASS);
+            if (!REL.RDB$DEFAULT_CLASS.NULL)
+                default_s_class = SCL_get_class(tdbb, REL.RDB$DEFAULT_CLASS);
+        END_FOR;
+
+        CMP_release(tdbb, request);
+		}
+    else 
+		{
+        idx_name_ptr = aux_idx_name;
+        FOR (REQUEST_HANDLE request) IND IN RDB$INDICES 
+            CROSS REL IN RDB$RELATIONS 
+            OVER RDB$RELATION_NAME
+            WITH IND.RDB$RELATION_NAME EQ relation_name_ptr
+            AND IND.RDB$INDEX_ID EQ index_id
+
+            strcpy (reln_name, REL.RDB$RELATION_NAME);
+            strcpy (aux_idx_name, IND.RDB$INDEX_NAME);
+            if (!REL.RDB$SECURITY_CLASS.NULL)
+                s_class = SCL_get_class (tdbb, REL.RDB$SECURITY_CLASS);
+            if (!REL.RDB$DEFAULT_CLASS.NULL)
+                default_s_class = SCL_get_class (tdbb, REL.RDB$DEFAULT_CLASS);
+        END_FOR;
+	
+        CMP_release (tdbb, (JRD_REQ)request);
+		}
+
+	// Check if the relation exists. It may not have been created yet.
+	// Just return in that case.
+
+	if (!reln_name || !*reln_name)
+		return;
+
+	SCL_check_access(tdbb, s_class, 0, NULL, NULL, mask, object_table, reln_name);
+
+	request = NULL;
+
+	// Set up the exception mechanism, so that we can release the request
+	// in case of error in SCL_check_access
+
+	try 
+		{
+		// Check if the field used in the index has the appropriate
+		// permission. If the field in question does not have a security class
+		// defined, then the default security class for the table applies for that
+		// field.
+
+		// No need to cache this request handle, it's only used when
+		// new constraints are created
+
+		FOR(REQUEST_HANDLE request) ISEG IN RDB$INDEX_SEGMENTS
+			CROSS RF IN RDB$RELATION_FIELDS
+				OVER RDB$FIELD_NAME
+				WITH RF.RDB$RELATION_NAME EQ reln_name
+				AND ISEG.RDB$INDEX_NAME EQ idx_name_ptr
+
+			if (!RF.RDB$SECURITY_CLASS.NULL) 
+				{
+				s_class = SCL_get_class(tdbb, RF.RDB$SECURITY_CLASS);
+				SCL_check_access(tdbb, s_class, 0, NULL, NULL, mask,
+								object_column, RF.RDB$FIELD_NAME);
+				}
+			else
+				SCL_check_access(tdbb, default_s_class, 0, NULL, NULL, mask,
+								object_column, RF.RDB$FIELD_NAME);
+
+		END_FOR;
+
+		CMP_release(tdbb, request);
+		}
+	catch (...) 
+		{
+		if (request) 
+			CMP_release(tdbb, request);
+		throw;
+		}
+}
+
+
+void SCL_check_procedure(TDBB tdbb, DSC* dsc_name, USHORT mask)
+{
+/**************************************
+ *
+ *	S C L _ c h e c k _ p r o c e d u r e
+ *
+ **************************************
+ *
+ * Functional description
+ *	Given a procedure name, check for a set of privileges.  The
+ *	procedure in question may or may not have been created, let alone
+ *	scanned.  This is used exclusively for meta-data operations.
+ *
+ **************************************/
+	TEXT name[32];
+
+	// Get the name in CSTRING format, ending on NULL or SPACE
+
+	fb_assert(dsc_name->dsc_dtype == dtype_text);
+
+	TEXT* p = name;
+	const TEXT* const endp = name + sizeof(name) - 1;
+	const TEXT* q = (TEXT*) dsc_name->dsc_address;
+	const TEXT* const endq = q + dsc_name->dsc_length;
+	
+	while (q < endq && p < endp && *q)
+		*p++ = *q++;
+		
+	*p = 0;
+	
+    MET_exact_name(name);
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync(&dbb->syncSecurityClass, "SCL_check_procedure");
+	sync.lock(Exclusive);
+
+	SCL s_class = NULL;
+	Request *request = CMP_find_request(tdbb, irq_p_security, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request) JRD_PRC IN RDB$PROCEDURES WITH
+		JRD_PRC.RDB$PROCEDURE_NAME EQ name 
+
+        if (!REQUEST(irq_p_security))
+			REQUEST(irq_p_security) = request;
+
+		if (!JRD_PRC.RDB$SECURITY_CLASS.NULL)
+			s_class = SCL_get_class(tdbb, JRD_PRC.RDB$SECURITY_CLASS);
+	END_FOR;
+
+	if (!REQUEST(irq_p_security))
+		REQUEST(irq_p_security) = request;
+
+	SCL_check_access(tdbb, s_class, 0, NULL, name, mask, object_procedure, name);
+}
+
+
+void SCL_check_relation(TDBB tdbb, DSC* dsc_name, USHORT mask)
+{
+/**************************************
+ *
+ *	S C L _ c h e c k _ r e l a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *	Given a relation name, check for a set of privileges.  The
+ *	relation in question may or may not have been created, let alone
+ *	scanned.  This is used exclusively for meta-data operations.
+ *
+ **************************************/
+	TEXT name[32];
+
+	// Get the name in CSTRING format, ending on NULL or SPACE
+
+	fb_assert(dsc_name->dsc_dtype == dtype_text);
+
+	TEXT* p = name;
+	const TEXT* const endp = name + sizeof(name) - 1;
+	const TEXT* q = (TEXT*) dsc_name->dsc_address;
+	const TEXT* const endq = q + dsc_name->dsc_length;
+	
+	while (q < endq && p < endp && *q)
+		*p++ = *q++;
+	*p = 0;
+	
+	MET_exact_name(name);
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync(&dbb->syncSecurityClass, "SCL_check_relation");
+	sync.lock(Exclusive);
+
+	SCL s_class = NULL;
+	Request *request = CMP_find_request(tdbb, irq_v_security, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request) REL IN RDB$RELATIONS WITH
+		REL.RDB$RELATION_NAME EQ name 
+
+        if (!REQUEST(irq_v_security))
+			REQUEST(irq_v_security) = request;
+
+        if (!REL.RDB$SECURITY_CLASS.NULL)
+			s_class = SCL_get_class(tdbb, REL.RDB$SECURITY_CLASS);
+	END_FOR;
+
+	if (!REQUEST(irq_v_security))
+		REQUEST(irq_v_security) = request;
+
+	SCL_check_access(tdbb, s_class, 0, NULL, NULL, mask, object_table, name);
+}
+
+
+SCL SCL_get_class(TDBB tdbb, const TEXT* string)
+{
+/**************************************
+ *
+ *	S C L _ g e t _ c l a s s
+ *
+ **************************************
+ *
+ * Functional description
+ *	Look up security class first in memory, then in database.  If
+ *	we don't find it, just return NULL.  If we do, return a security
+ *	class block.
+ *
+ **************************************/
+	DBB dbb = tdbb->tdbb_database;
+
+	// Name may be absent or terminated with NULL or blank.  Clean up name.
+
+	if (!string)
+		return NULL;
+
+	//MET_exact_name(string);
+
+	if (!string[0])
+		return NULL;
+
+	ATT attachment = tdbb->tdbb_attachment;
+
+	// Look for the class already known
+
+	SCL s_class;
+	
+	for (s_class = attachment->att_security_classes;  s_class; s_class = s_class->scl_next)
+		if (!strcmp(string, s_class->scl_name)) 
+			return s_class;
+
+	// Class isn't known. So make up a new security class block.
+
+	s_class = new scl;
+	s_class->scl_name = string;
+	s_class->scl_flags = (USHORT) compute_access(tdbb, s_class, NULL, NULL, NULL);
+
+	if (s_class->scl_flags & SCL_exists)
+		{
+		s_class->scl_next = attachment->att_security_classes;
+		attachment->att_security_classes = s_class;
+		
+		return s_class;
+		}
+
+	delete s_class;
+
+	return NULL;
+}
+
+
+int SCL_get_mask(TDBB tdbb, const TEXT* relation_name, const TEXT* field_name)
+{
+/**************************************
+ *
+ *	S C L _ g e t _ m a s k
+ *
+ **************************************
+ *
+ * Functional description
+ *	Get a protection mask for a named object.  If field and
+ *	relation names are present, get access to field.  If just
+ *	relation name, get access to relation.  If neither, get
+ *	access for database.
+ *
+ **************************************/
+	JRD_REL relation;
+
+	ATT attachment = tdbb->tdbb_attachment;
+
+	// Start with database security class
+
+	SCL s_class = attachment->att_security_class;
+	USHORT access = (s_class) ? s_class->scl_flags : -1;
+
+	// If there's a relation, track it down
+
+	if (relation_name && (relation = MET_lookup_relation(tdbb, relation_name)))
+		{
+		MET_scan_relation(tdbb, relation);
+		
+		if ( (s_class = SCL_get_class(tdbb, relation->rel_security_name)) )
+			access &= s_class->scl_flags;
+		
+		JRD_FLD field;
+		SSHORT id;
+		
+		if (field_name &&
+			(id = MET_lookup_field(tdbb, relation, field_name, 0)) >= 0 &&
+			(field = MET_get_field(relation, id)) &&
+			(s_class = SCL_get_class(tdbb, field->fld_security_name)))
+			access &= s_class->scl_flags;
+		}
+
+	return access & (SCL_read | SCL_write | SCL_delete | SCL_control |
+					 SCL_grant | SCL_sql_insert | SCL_sql_update |
+					 SCL_sql_delete | SCL_protect | SCL_sql_references |
+					 SCL_execute);
+}
+
+
+void SCL_init(bool create,
+			  const TEXT*	sys_user_name,
+			  TEXT*			user_name,
+			  TEXT*			password,
+			  TEXT*			password_enc,
+			  TEXT*			sql_role,
+			  const TEXT*	securityDatabase,
+			  TDBB			tdbb,
+			  bool			internal)
+{
+/**************************************
+ *
+ *	S C L _ i n i t
+ *
+ **************************************
+ *
+ * Functional description
+ *	Check database access control list.
+ *
+ *	Checks the userinfo database to get the
+ *	password and other stuff about the specified
+ *	user.   Compares the password to that passed
+ *	in, encrypting if necessary.
+ *
+ **************************************/
+	Request		*request;
+	TEXT		name[129], project[33], organization[33];
+	const TEXT	*p;
+	TEXT		role_name[33], login_name[129], *q;
+    bool		preODS9;
+
+	DBB dbb = tdbb->tdbb_database;
+	USHORT major_version = dbb->dbb_ods_version;
+	USHORT minor_original = dbb->dbb_minor_original;
+	*project = *organization = *name = *role_name = *login_name = '\0';
+	int node_id = 0;
+	int id = -1, group = -1;	// CVC: This var contained trash
+
+#ifdef NO_SECURITY
+	bool wheel = true;
+#else
+
+	bool wheel = false;
+	
+	if (!user_name) 
+		wheel = (bool) ISC_get_user(name, &id, &group, project,
+									organization, &node_id, sys_user_name);
+
+	if (user_name || (id == -1))
+		{
+		if (!user_name || (!password_enc && !password))
+			ERR_post(isc_login, 0);
+
+		if (internal || !*securityDatabase || 
+			 strcasecmp (securityDatabase, "None") == 0 ||
+			 strcasecmp (securityDatabase, "Self") == 0)
+			wheel = true;
+		else
+			SecurityDatabase::verifyUser(securityDatabase, name, user_name, password, password_enc,
+										 &id, &group, &node_id);
+
+		// if the name from the user database is defined as SYSDBA,
+		// we define that user id as having system privileges
+
+		if (!strcmp(name, SYSDBA_USER_NAME))
+			wheel = true;
+		}
+		
+#endif // NO_SECURITY
+
+	// In case we became WHEEL on an OS that didn't require name SYSDBA,
+	// (Like Unix) force the effective Database User name to be SYSDBA
+
+	if (wheel)
+		strcpy(name, SYSDBA_USER_NAME);
+
+	Sync sync(&dbb->syncSecurityClass, "SCL_init");
+	sync.lock(Exclusive);
+
+	/***************************************************************
+	**
+	** skip reading system relation RDB$ROLES when attaching pre ODS_9_0 database
+	**
+	****************************************************************/
+
+    // CVC: We'll verify the role and wipe it out when it doesn't exist
+
+	if (ENCODE_ODS(major_version, minor_original) >= ODS_9_0) 
+		{
+        preODS9 = false;
+
+		if (strlen(name) != 0)
+			{
+			//for (p = login_name, q = name; (*p++ = UPPER7(*q)); q++)
+			for (q = login_name, p = name; (*q++ = UPPER7(*p)); p++)
+				;
+
+			if (!create)
+				{
+				request = CMP_find_request(tdbb, irq_get_role_name, IRQ_REQUESTS);
+
+				FOR(REQUEST_HANDLE request) X IN RDB$ROLES
+					WITH X.RDB$ROLE_NAME EQ login_name
+
+                    if (!REQUEST(irq_get_role_name))
+                        REQUEST(irq_get_role_name) = request;
+
+					EXE_unwind(tdbb, request);
+					ERR_post(isc_login_same_as_role_name,
+							 isc_arg_string, ERR_cstring(login_name), 0);
+
+				END_FOR;
+
+				if (!REQUEST(irq_get_role_name))
+					REQUEST(irq_get_role_name) = request;
+				}
+			}
+
+        // CVC: If this is ODS>=ODS_9_0 and we aren't creating a db and sql_role was specified,
+        // then verify it against rdb$roles and rdb$user_privileges
+        
+        if (!create && sql_role && *sql_role && strcmp (sql_role, "NONE")) 
+			{
+            bool found = false;
+            for (q = login_name, p = name; *q++ = UPPER7 (*p); p++)
+				;
+            
+            request = CMP_find_request (tdbb, irq_verify_role_name, IRQ_REQUESTS);
+
+            // CVC: The caller has hopefully uppercased the role or stripped quotes. Of course,
+            // uppercase-UPPER7 should only happen if the role wasn't enclosed in quotes.
+            // Shortsighted developers named the field rdb$relation_name instead of rdb$object_name.
+            // This request is not exactly the same than irq_get_role_mem, sorry, I can't reuse that.
+            // If you think that an unknown role cannot be granted, think again: someone made sure
+            // in DYN that SYSDBA can do almost anything, including invalid grants.
+
+            FOR (REQUEST_HANDLE request) FIRST 1 RR IN RDB$ROLES
+                CROSS UU IN RDB$USER_PRIVILEGES
+                WITH RR.RDB$ROLE_NAME        EQ sql_role
+                AND RR.RDB$ROLE_NAME         EQ UU.RDB$RELATION_NAME
+                AND UU.RDB$OBJECT_TYPE       EQ obj_sql_role
+                AND (UU.RDB$USER             EQ login_name
+                     OR UU.RDB$USER               EQ "PUBLIC")
+                AND UU.RDB$USER_TYPE         EQ obj_user
+                AND UU.RDB$PRIVILEGE         EQ "M"
+                
+                if (!REQUEST (irq_verify_role_name))
+                    REQUEST (irq_verify_role_name) = request;
+
+                if (!UU.RDB$USER.NULL)
+                    found = true;
+
+            END_FOR;
+
+            if (!REQUEST (irq_verify_role_name))
+                REQUEST (irq_verify_role_name) = request;
+
+            if (!found)
+                strcpy(role_name, "NONE");
+			}
+		}
+    // CVC: Let's clean any role in pre-ODS9 attachments
+    else 
+        preODS9 = true;
+
+	if (sql_role) 
+		{
+        if (!preODS9 && strcmp (role_name, "NONE")) 
+            strcpy(role_name, sql_role);
+            
+        /* CVC: Role is an identifier, it may have embedded blanks. */
+        
+        MET_exact_name(role_name);
+		}
+	else 
+		strcpy(role_name, "NONE");
+
+	usr* user = new usr;
+	tdbb->tdbb_attachment->att_user = user;
+	
+	p = user->usr_data;
+	user->usr_user_name = name;
+	user->usr_project_name = project;
+	user->usr_org_name = organization; 
+	user->usr_sql_role_name = role_name;
+	user->usr_user_id = id;
+	user->usr_group_id = group;
+	user->usr_node_id = node_id;
+	user->usr_flags = 0;
+	
+	if (wheel)
+		user->usr_flags |= USR_locksmith;
+
+	BLK handle = NULL, handle1 = NULL;
+
+	if (!create) 
+		{
+		FOR(REQUEST_HANDLE handle) X IN RDB$DATABASE
+
+			if (!X.RDB$SECURITY_CLASS.NULL)
+				tdbb->tdbb_attachment->att_security_class = SCL_get_class(tdbb, X.RDB$SECURITY_CLASS);
+		END_FOR;
+		CMP_release(tdbb, (JRD_REQ) handle);
+
+		FOR(REQUEST_HANDLE handle1)
+			FIRST 1 REL IN RDB$RELATIONS WITH REL.
+				RDB$RELATION_NAME EQ "RDB$DATABASE" 
+
+            if (!REL.RDB$OWNER_NAME.NULL &&  (p = user->usr_user_name) && *p)
+				{
+				*name = strlen(p);
+				strcpy(name + 1, p);
+				
+				if (!check_string(name, REL.RDB$OWNER_NAME))
+					user->usr_flags |= USR_owner;
+				}
+		END_FOR;
+		CMP_release(tdbb, (JRD_REQ) handle1);
+		}
+	else
+		user->usr_flags |= USR_owner;
+
+}
+
+
+void SCL_move_priv(Generate *acl, USHORT mask)
+{
+/**************************************
+ *
+ *	S C L _ m o v e _ p r i v
+ *
+ **************************************
+ *
+ * Functional description
+ *	Given a mask of privileges, move privileges types to acl.
+ *
+ **************************************/
+
+	// Terminate identification criteria, and move privileges
+
+	//check_and_move(p, ACL_end, *start_ptr, length_ptr);
+	//check_and_move(p, ACL_priv_list, *start_ptr, length_ptr);
+	acl->appendUCHAR(ACL_end);
+	acl->appendUCHAR(ACL_priv_list);
+
+	for (const P_NAMES* priv = p_names; priv->p_names_priv; priv++)
+		if (mask & priv->p_names_priv)
+			{
+			fb_assert(priv->p_names_acl <= MAX_UCHAR);
+			//check_and_move(p, (UCHAR) priv->p_names_acl, *start_ptr, length_ptr);
+			acl->appendUCHAR(priv->p_names_acl);
+			}
+
+	//check_and_move(p, 0, *start_ptr, length_ptr);
+	acl->appendUCHAR(0);
+}
+
+
+SCL SCL_recompute_class(TDBB tdbb, TEXT* string)
+{
+/**************************************
+ *
+ *	S C L _ r e c o m p u t e _ c l a s s
+ *
+ **************************************
+ *
+ * Functional description
+ *	Something changed with a security class, recompute it.  If we
+ *	can't find it, return NULL.
+ *
+ **************************************/
+	SCL s_class;
+
+	SET_TDBB(tdbb);
+
+	if (!(s_class = SCL_get_class(tdbb, string)))
+		return NULL;
+
+	s_class->scl_flags = (USHORT) compute_access(tdbb, s_class, NULL, NULL,  NULL);
+
+	if (s_class->scl_flags & SCL_exists)
+		return s_class;
+
+	// Class no long exists - get rid of it!
+
+	SCL_release(tdbb, s_class);
+
+	return NULL;
+}
+
+
+void SCL_release(TDBB tdbb, SCL s_class)
+{
+/**************************************
+ *
+ *	S C L _ r e l e a s e
+ *
+ **************************************
+ *
+ * Functional description
+ *	Release an unneeded and unloved security class.
+ *
+ **************************************/
+	SCL *next;
+
+	ATT attachment = tdbb->tdbb_attachment;
+
+	for (next = &attachment->att_security_classes; *next; next = &(*next)->scl_next)
+		if (*next == s_class)
+			{
+			*next = s_class->scl_next;
+			break;
+			}
+
+	delete s_class;
+}
+
+
+static bool check_hex(const TEXT* acl, USHORT number)
+{
+/**************************************
+ *
+ *	c h e c k _ h e x
+ *
+ **************************************
+ *
+ * Functional description
+ *	Check a string against and acl numeric string.  If they don't match,
+ *	return TRUE.
+ *
+ **************************************/
+
+	int n = 0;
+	
+	for (int l = *acl++; l; --l)
+		{
+		TEXT c = *acl++;
+		n *= 10;
+		
+		if (c >= '0' && c <= '9')
+			n += c - '0';
+		else if (c >= 'a' && c <= 'f')
+			n += c - 'a' + 10;
+		else if (c >= 'A' && c <= 'F')
+			n += c - 'A' + 10;
+		}
+
+	return (n != number);
+}
+
+
+static bool check_number(const TEXT* acl, USHORT number)
+{
+/**************************************
+ *
+ *	c h e c k _ n u m b e r
+ *
+ **************************************
+ *
+ * Functional description
+ *	Check a string against and acl numeric string.  If they don't match,
+ *	return TRUE.
+ *
+ **************************************/
+
+	int n = 0;
+	
+	for (int l = *acl++; l; --l)
+		n = n * UIC_BASE + *acl++ - '0';
+
+	return (n != number);
+}
+
+
+static bool check_user_group(TDBB tdbb, const TEXT* acl, USHORT number)
+{
+/**************************************
+ *
+ *	c h e c k _ u s e r _ g r o u p
+ *
+ **************************************
+ *
+ * Functional description
+ *
+ *	Check a string against an acl numeric string.  
+ *
+ * logic:
+ *
+ *  If the string contains user group name, 
+ *    then 
+ *      converts user group name to numeric user group id.
+ *    else
+ *      converts character user group id to numeric user group id.
+ *
+ *	Check numeric user group id against an acl numeric string.  
+ *  If they don't match, return TRUE.
+ *
+ **************************************/
+
+	SLONG n = 0;
+	USHORT l;
+
+	if ( (l = *acl++) )
+		if (isdigit(*acl))	// this is a group id
+			{
+			do
+				n = n * UIC_BASE + *acl++ - '0';
+			while (--l);
+			}
+		else				// processing group name
+			{
+			TEXT user_group_name[256];
+			TEXT *p = user_group_name;
+			
+			do {
+				TEXT one_char = *acl++;
+				*p++ = LOWWER(one_char);
+			} while (--l);
+			
+			*p = '\0';
+
+			// convert unix group name to unix group id
+
+			n = ISC_get_user_group_id(user_group_name);
+			}
+
+	return (n != number);
+}
+
+
+static bool check_string(const TEXT* acl, const TEXT* string)
+{
+/**************************************
+ *
+ *	c h e c k _ s t r i n g
+ *
+ **************************************
+ *
+ * Functional description
+ *	Check a string against and acl string.  If they don't match,
+ *	return true.
+ *
+ **************************************/
+	USHORT l;
+
+	// Add these asserts to catch calls to this function with NULL,
+	// the caller to this function must check to ensure that the arguments are not
+	// NULL  - Shaunak Mistry 03-May-99.
+
+	fb_assert(string != NULL);
+	fb_assert(acl != NULL);
+
+	// JPN: Since Kanji User names are not allowed, no need to fix this UPPER loop
+
+	if ( (l = *acl++) )
+		do {
+			TEXT c1 = *acl++;
+			TEXT c2 = *string++;
+			if (UPPER7(c1) != UPPER7(c2))
+				return true;
+		} while (--l);
+
+	// CVC: This was the original check made obsolete by dialect 3.
+    // Need to check all since can have embedded spaces.
+
+    while (*string) 
+        if (*string++ != ' ')
+            return true;
+		
+    return false;
+}
+
+
+static SLONG compute_access(TDBB tdbb,
+							scl* s_class,
+							JRD_REL view,
+							const TEXT* trg_name,
+							const TEXT* prc_name)
+{
+/**************************************
+ *
+ *	c o m p u t e _ a c c e s s
+ *
+ **************************************
+ *
+ * Functional description
+ *	Compute access for security class.  If a relation block is
+ *	present, it is a view, and we should check for enhanced view
+ *	access permissions.  Return a flag word of recognized privileges.
+ *
+ **************************************/
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync(&dbb->syncSecurityClass, "compute_access");
+	sync.lock(Exclusive);
+	SLONG privileges = SCL_scanned;
+	Request *request = CMP_find_request(tdbb, irq_l_security, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request) X IN RDB$SECURITY_CLASSES
+		WITH X.RDB$SECURITY_CLASS EQ s_class->scl_name
+
+		if (!REQUEST(irq_l_security))
+			REQUEST(irq_l_security) = request;
+
+		privileges |= SCL_exists;
+		BLB blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID) & X.RDB$ACL);
+		int length = blob->getLength();
+
+		if (length)
+			{
+			TempSpace temp(length);
+			//str_buffer = FB_NEW_RPT(*dbb->dbb_permanent, length) str();
+			//str_buffer->str_length = length;
+			//TEXT* buffer = (TEXT*) str_buffer->str_data;
+			blob->getData(tdbb, length, temp.space);
+			privileges |= walk_acl(	tdbb, (TEXT*) temp.space, view, trg_name, prc_name);
+			}
+			
+		BLB_close(tdbb, blob);
+		blob = NULL;
+	END_FOR;
+
+	if (!REQUEST(irq_l_security))
+		REQUEST(irq_l_security) = request;
+
+	return privileges;
+}
+
+
+static TEXT* save_string(const TEXT* string, TEXT** ptr)
+{
+/**************************************
+ *
+ *	s a v e _ s t r i n g
+ *
+ **************************************
+ *
+ * Functional description
+ *	If a string is non-null, copy it to a work area and return a
+ *	pointer.
+ *
+ **************************************/
+	if (!*string)
+		return NULL;
+
+	TEXT* p = *ptr;
+	TEXT* const start = p;
+
+	while ( (*p++ = *string++) )
+		;
+
+	*ptr = p;
+
+	return start;
+}
+
+
+static SLONG walk_acl(TDBB tdbb,
+					  const TEXT* acl,
+					  JRD_REL view,
+					  const TEXT* trg_name,
+					  const TEXT* prc_name)
+{
+/**************************************
+ *
+ *	w a l k _ a c l
+ *
+ **************************************
+ *
+ * Functional description
+ *	Walk an access control list looking for a hit.  If a hit
+ *	is found, return privileges.
+ *
+ **************************************/
+	bool hit;
+	TEXT c;
+	const TEXT* p;
+	Request *request;
+	DBB dbb = tdbb->tdbb_database;
+
+	// Munch ACL. If we find a hit, eat up privileges.
+
+	struct usr user = *tdbb->tdbb_attachment->att_user;
+	const TEXT* role_name = user.usr_sql_role_name;
+
+	if (view && (view->rel_flags & REL_sql_relation))
+		{
+		// Use the owner of the view to perform the sql security
+		// checks with: (1) The view user must have sufficient privileges
+		// to the view, and (2a) the view owner must have sufficient 
+		// privileges to the base table or (2b) the view must have
+		// sufficient privileges on the base table.
+
+		user.usr_user_name = view->rel_owner_name;
+		}
+		
+	SLONG privilege = 0;
+
+	if (*acl++ != ACL_version)
+		BUGCHECK(160);	// msg 160 wrong ACL version
+
+	if (user.usr_flags & USR_locksmith)
+		return -1 & ~SCL_corrupt;
+
+	while ( (c = *acl++) )
+		{
+		switch (c)
+			{
+			case ACL_id_list:
+				hit = true;
+				while ( (c = *acl++) )
+					{
+					switch (c)
+						{
+						case id_person:
+							if (!(p = user.usr_user_name) || check_string(acl, p))
+								hit = false;
+							break;
+
+						case id_project:
+							if (!(p = user.usr_project_name) || check_string(acl, p))
+								hit = false;
+							break;
+
+						case id_organization:
+							if (!(p = user.usr_org_name) || check_string(acl, p))
+								hit = false;
+							break;
+
+						case id_group:
+							if (check_user_group(tdbb, acl, user.usr_group_id))
+								hit = false;
+							break;
+
+						case id_sql_role:
+							if (role_name == NULL || check_string(acl, role_name))
+								hit = false;
+							else
+								{
+								TEXT login_name[129], *p;
+								const TEXT *q;
+								
+								for (p = login_name, q = user.usr_user_name; (*p++ = UPPER7(*q)); q++)
+									;
+									
+								hit = false;
+								request = CMP_find_request(tdbb, irq_get_role_mem,
+														IRQ_REQUESTS);
+
+								FOR(REQUEST_HANDLE request) U IN RDB$USER_PRIVILEGES WITH
+									(U.RDB$USER EQ login_name OR
+									U.RDB$USER EQ "PUBLIC") AND
+										U.RDB$USER_TYPE EQ obj_user AND
+										U.RDB$RELATION_NAME EQ user.usr_sql_role_name AND
+										U.RDB$OBJECT_TYPE EQ obj_sql_role AND
+										U.RDB$PRIVILEGE EQ "M"
+
+									if (!REQUEST(irq_get_role_mem))
+										REQUEST(irq_get_role_mem) = request;
+
+									if (!U.RDB$USER.NULL)
+										hit = true;
+								END_FOR;
+
+								if (!REQUEST(irq_get_role_mem))
+									REQUEST(irq_get_role_mem) = request;
+								}
+							break;
+
+						case id_view:
+							if (!view || check_string(acl, view->rel_name))
+								hit = false;
+							break;
+
+						case id_procedure:
+							if (!prc_name || check_string(acl, prc_name))
+								hit = false;
+							break;
+
+						case id_trigger:
+							if (!trg_name || check_string(acl, trg_name))
+								hit = false;
+							break;
+
+						case id_views:
+							// Disable this catch-all that messes up the view security.
+							// Note that this id_views is not generated anymore, this code
+							// is only here for compatibility. id_views was only 
+							// generated for SQL.
+
+							hit = false;
+							
+							if (!view) 
+								hit = false;
+							break;
+
+						case id_user:
+							if (check_number(acl, user.usr_user_id)) 
+								hit = false;
+							break;
+
+						case id_node:
+							if (check_hex(acl, user.usr_node_id)) 
+								hit = false;
+							break;
+
+						default:
+							return SCL_corrupt;
+						}
+					acl += *acl + 1;
+					}
+				break;
+
+			case ACL_priv_list:
+				if (hit) 
+					{
+					while ( (c = *acl++) )
+						switch (c) 
+							{
+							case priv_control:
+								privilege |= SCL_control;
+								break;
+
+							case priv_read:
+								// Note that READ access must imply REFERENCES
+								// access for upward compatibility of existing
+								// security classes
+
+								privilege |= SCL_read | SCL_sql_references;
+								break;
+
+							case priv_write:
+								privilege |=
+									SCL_write | SCL_sql_insert | SCL_sql_update |
+									SCL_sql_delete;
+								break;
+
+							case priv_sql_insert:
+								privilege |= SCL_sql_insert;
+								break;
+
+							case priv_sql_delete:
+								privilege |= SCL_sql_delete;
+								break;
+
+							case priv_sql_references:
+								privilege |= SCL_sql_references;
+								break;
+
+							case priv_sql_update:
+								privilege |= SCL_sql_update;
+								break;
+
+							case priv_delete:
+								privilege |= SCL_delete;
+								break;
+
+							case priv_grant:
+								privilege |= SCL_grant;
+								break;
+
+							case priv_protect:
+								privilege |= SCL_protect;
+								break;
+
+							case priv_execute:
+								privilege |= SCL_execute;
+								break;
+
+							default:
+								return SCL_corrupt;
+							}
+							
+					// For a relation the first hit does not give the privilege. 
+					// Because, there could be some permissions for the table 
+					// (for user1) and some permissions for a column on that 
+					// table for public/user2, causing two hits.
+					// Hence, we do not return at this point.
+					// -- Madhukar Thakur (May 1, 1995)
+					}
+				else
+					while (*acl++);
+					
+				break;
+
+			default:
+				return SCL_corrupt;
+			}
+		}
+
+	return privilege;
+}
+

@@ -1,0 +1,3 @@
+buildgen -p proto -c IscDbc  -f ../../vulcan.build -o makefile IscDbc.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  IscDbc.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  IscDbc.vcproj

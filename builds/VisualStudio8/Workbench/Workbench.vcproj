@@ -1,0 +1,1009 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="Workbench" ProjectGUID="{10AD0080-7B9A-4E17-ACA6-41C8656D4033}" SccProjectName="" SccLocalPath="" Keyword="MFCProj">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Release|Win32" OutputDirectory=".\Release" IntermediateDirectory=".\Release" ConfigurationType="1" UseOfMFC="2" ATLMinimizesCRunTimeLibraryUsage="FALSE">
+         <Tool Name="VCCLCompilerTool" Optimization="2" InlineFunctionExpansion="1" AdditionalIncludeDirectories="../../../src/Engine/Crypto,../../../src/Remote,../../../src/Engine,jpeg-6b,\mssdk\include,../../../src/Remote/Password" PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS" StringPooling="TRUE" RuntimeLibrary="2" EnableFunctionLevelLinking="TRUE" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Release/Workbench.pch" AssemblerListingLocation=".\Release/" ObjectFile=".\Release/" ProgramDataBaseFileName=".\Release/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalDependencies="NetfraRemote.lib iphlpapi.lib" OutputFile="..\..\..\src\Workbench\Release\Workbench.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" AdditionalLibraryDirectories="..\..\..\src\remote\release,\mssdk\lib" GenerateDebugInformation="TRUE" ProgramDatabaseFile=".\Release/Workbench.pdb" SubSystem="2" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" PreprocessorDefinitions="NDEBUG" MkTypLibCompatible="TRUE" SuppressStartupBanner="TRUE" TargetEnvironment="1" TypeLibraryName=".\Release/Workbench.tlb" HeaderFileName=""/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="NDEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Debug|Win32" OutputDirectory=".\Debug" IntermediateDirectory=".\Debug" ConfigurationType="1" UseOfMFC="2" ATLMinimizesCRunTimeLibraryUsage="FALSE">
+         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/IscDbc,d:\netfrastructure\Engine\Crypto,d:\netfrastructure\Engine,jpeg-6b,d:\mssdk\include" PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS" RuntimeLibrary="3" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Debug/Workbench.pch" AssemblerListingLocation=".\Debug/" ObjectFile=".\Debug/" ProgramDataBaseFileName=".\Debug/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalDependencies="IscDbc.lib iphlpapi.lib" OutputFile="..\..\..\src\Workbench\Debug\Workbench.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" AdditionalLibraryDirectories="..\..\..\install\lib,\mssdk\lib" GenerateDebugInformation="TRUE" ProgramDatabaseFile=".\Debug/Workbench.pdb" GenerateMapFile="TRUE" MapFileName=".\Debug/Workbench.map" SubSystem="2" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" PreprocessorDefinitions="_DEBUG" MkTypLibCompatible="TRUE" SuppressStartupBanner="TRUE" TargetEnvironment="1" TypeLibraryName=".\Debug/Workbench.tlb" HeaderFileName=""/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="Source Files" Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+         <File RelativePath="..\..\..\src\Workbench\Application.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ApplicationObject.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Applications.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ChildFrm.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ConnectDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ConnectionAttributeDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\CoolDialogBar.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\CRC32.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\CreateDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\CreateFolderDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Database.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Domain.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Domains.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\DropTarget.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\EditClient.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Editor.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Error.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Field.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\FilterSet.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\FilterSets.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Find.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ForeignField.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ForeignKey.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\FormatException.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Gif.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\GifImage.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\HtmlState.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Image.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ImageDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ImageProperties.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Images.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ImageWindow.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Index.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Indexes.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jcomapi.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdapimin.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdapistd.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdatadst.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdatasrc.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdcoefct.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdcolor.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jddctmgr.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdhuff.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdinput.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdmainct.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdmarker.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdmaster.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdmerge.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdphuff.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdpostct.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdsample.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdtrans.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jerror.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jfdctflt.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jfdctfst.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jfdctint.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jidctflt.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jidctfst.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jidctint.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jidctred.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jmemmgr.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jmemnobs.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Jpeg.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jquant1.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jquant2.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\JString.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jutils.c">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\LinkedList.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\LZW.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\MainFrm.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Module.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Modules.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\NavTree.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\PasswordDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Png.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\PrintingDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Repositories.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Repository.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\RestoreDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ResultWindow.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\RString.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\SearchDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Sequence.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Sequences.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Session.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ShadowDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\SQLError.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\SqlState.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\SqlWindow.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\StdAfx.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions="" UsePrecompiledHeader="1" PrecompiledHeaderThrough="stdafx.h"/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" UsePrecompiledHeader="1" PrecompiledHeaderThrough="stdafx.h"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\Stream.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\StreamSegment.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Table.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Tables.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Template.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\TemplateDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\TemplateEditor.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\TemplateFolder.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Templates.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\TraceOptionDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\TreeNode.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Undo.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\ValidationDialog.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Wizard.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\Wizard.rc"/>
+         <File RelativePath="..\..\..\src\Workbench\WizardDoc.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\Workbench\WizardView.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+         </File>
+      </Filter>
+      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl">
+         <File RelativePath="..\..\..\src\Remote\Password\Account.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Application.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ApplicationObject.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Applications.h"/>
+         <File RelativePath="..\..\..\src\Engine\Blob.h"/>
+         <File RelativePath="..\..\..\src\Blob.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ChildFrm.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ConnectDialog.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\Connection.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ConnectionAttributeDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\CoolDialogBar.h"/>
+         <File RelativePath="..\..\..\src\Workbench\CRC32.h"/>
+         <File RelativePath="..\..\..\src\Workbench\CreateDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\CreateFolderDialog.h"/>
+         <File RelativePath="..\..\..\src\Engine\Crypto.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Database.h"/>
+         <File RelativePath="..\..\..\src\Engine\Crypto\des.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Domain.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Domains.h"/>
+         <File RelativePath="..\..\..\src\Workbench\DropTarget.h"/>
+         <File RelativePath="..\..\..\src\Workbench\EditClient.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Editor.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Error.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Field.h"/>
+         <File RelativePath="..\..\..\src\Workbench\FilterSet.h"/>
+         <File RelativePath="..\..\..\src\Workbench\FilterSets.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Find.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ForeignField.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ForeignKey.h"/>
+         <File RelativePath="..\..\..\src\Workbench\FormatException.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Gif.h"/>
+         <File RelativePath="..\..\..\src\Workbench\GifImage.h"/>
+         <File RelativePath="..\..\..\src\Workbench\HtmlState.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Image.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ImageDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ImageProperties.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Images.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ImageWindow.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Index.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Indexes.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jconfig.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdct.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jdhuff.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jerror.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jinclude.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jmemsys.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jmorecfg.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Jpeg.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jpegint.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jpeglib.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\JString.h"/>
+         <File RelativePath="..\..\..\src\Workbench\jpeg-6b\jversion.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\LinkedList.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\LinkedList.inl"/>
+         <File RelativePath="..\..\..\src\Workbench\LoggerClient.h"/>
+         <File RelativePath="..\..\..\src\Workbench\LoggerWindow.h"/>
+         <File RelativePath="..\..\..\src\Workbench\LZW.h"/>
+         <File RelativePath="..\..\..\src\Workbench\MainFrm.h"/>
+         <File RelativePath="..\..\..\src\Engine\Crypto\misc.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Module.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Modules.h"/>
+         <File RelativePath="..\..\..\src\Workbench\NavTree.h"/>
+         <File RelativePath="..\..\..\src\Engine\NetfraVersion.h"/>
+         <File RelativePath="..\..\..\src\Remote\Password\Passwd.h"/>
+         <File RelativePath="..\..\..\src\Workbench\PasswordDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Png.h"/>
+         <File RelativePath="..\..\..\src\Workbench\PopupIds.h"/>
+         <File RelativePath="..\..\..\src\Workbench\PrintingDialog.h"/>
+         <File RelativePath="..\..\..\src\Engine\Registry.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Repositories.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Repository.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Resource.h"/>
+         <File RelativePath="..\..\..\src\Workbench\RestoreDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ResultWindow.h"/>
+         <File RelativePath="..\..\..\src\Workbench\RString.h"/>
+         <File RelativePath="..\..\..\src\Workbench\SearchDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Sequence.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Sequences.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Serial.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Session.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ShadowDialog.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\SQLError.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\SQLException.h"/>
+         <File RelativePath="..\..\..\src\Workbench\SqlState.h"/>
+         <File RelativePath="..\..\..\src\Workbench\SqlWindow.h"/>
+         <File RelativePath="..\..\..\src\Engine\Stack.h"/>
+         <File RelativePath="..\..\..\src\Workbench\StdAfx.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\Stream.h"/>
+         <File RelativePath="..\..\..\..\..\:\netfrastructure\Engine\StreamSegment.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Table.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Tables.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Template.h"/>
+         <File RelativePath="..\..\..\src\Workbench\TemplateDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\TemplateEditor.h"/>
+         <File RelativePath="..\..\..\src\Workbench\TemplateFolder.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Templates.h"/>
+         <File RelativePath="..\..\..\src\Workbench\TraceOptionDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\TreeNode.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Trigger.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Triggers.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Undo.h"/>
+         <File RelativePath="..\..\..\src\Workbench\ValidationDialog.h"/>
+         <File RelativePath="..\..\..\src\Workbench\Wizard.h"/>
+         <File RelativePath="..\..\..\src\Workbench\WizardDoc.h"/>
+         <File RelativePath="..\..\..\src\Workbench\WizardView.h"/>
+      </Filter>
+      <Filter Name="Resource Files" Filter="ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe">
+         <File RelativePath="..\..\..\src\Workbench\res\bitmap1.bmp"/>
+         <File RelativePath="..\..\..\src\Workbench\res\Toolbar.bmp"/>
+         <File RelativePath="..\..\..\src\Workbench\res\Wizard.ico"/>
+         <File RelativePath="..\..\..\src\Workbench\res\Wizard.rc2"/>
+         <File RelativePath="..\..\..\src\Workbench\res\WizardDoc.ico"/>
+      </Filter>
+      <File RelativePath="..\..\..\src\Workbench\ReadMe.txt"/>
+   </Files>
+   <Globals/>
+</VisualStudioProject>

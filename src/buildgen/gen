@@ -1,0 +1,1 @@
+buildgen -p $1  -c buildgen -f buildgen.build -o makefile buildgen.vcproj

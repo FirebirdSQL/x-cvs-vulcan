@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="alice" RootNamespace="alice" SccProjectName="" SccLocalPath="">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Release|Win32" OutputDirectory=".\Release" IntermediateDirectory=".\Release" ConfigurationType="4" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="2" InlineFunctionExpansion="1" PreprocessorDefinitions="WIN32;NDEBUG;_LIB" StringPooling="TRUE" RuntimeLibrary="4" EnableFunctionLevelLinking="TRUE" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Release/alice.pch" AssemblerListingLocation=".\Release/" ObjectFile=".\Release/" ProgramDataBaseFileName=".\Release/" WarningLevel="3" SuppressStartupBanner="TRUE"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLibrarianTool" OutputFile="..\..\..\src\alice\Release\alice.lib" SuppressStartupBanner="TRUE"/>
+         <Tool Name="VCMIDLTool"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="NDEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Debug|Win32" OutputDirectory=".\Debug" IntermediateDirectory=".\Debug" ConfigurationType="4" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/alice/,../../../src/include,../../../src/include/gen,../../../src/jrd" PreprocessorDefinitions="_DEBUG;_LIB;SUPERSERVER;WIN32;_X86_;DEV_BUILD;NAMESPACE=Alice;MEMMGR" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Debug/alice.pch" AssemblerListingLocation=".\Debug/" ObjectFile=".\Debug/" ProgramDataBaseFileName=".\Debug/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLibrarianTool" OutputFile="..\..\..\src\alice\Debug\alice.lib" SuppressStartupBanner="TRUE"/>
+         <Tool Name="VCMIDLTool"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="Source Files" Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+         <File RelativePath="..\..\..\src\alice\alice.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\alice\alice_meta.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\alice\exe.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\jrd\MemMgr.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\Mutex.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\Sync.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\SyncObject.cpp"/>
+         <File RelativePath="..\..\..\src\alice\tdr.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+      </Filter>
+      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl">
+         <File RelativePath="..\..\..\src\alice\alice.h"/>
+         <File RelativePath="..\..\..\src\alice\alice_meta.h"/>
+         <File RelativePath="..\..\..\src\alice\alice_proto.h"/>
+         <File RelativePath="..\..\..\src\alice\aliceswi.h"/>
+         <File RelativePath="..\..\..\src\alice\all.h"/>
+         <File RelativePath="..\..\..\src\alice\all_proto.h"/>
+         <File RelativePath="..\..\..\src\alice\exe_proto.h"/>
+         <File RelativePath="..\..\..\src\jrd\MemMgr.h"/>
+         <File RelativePath="..\..\..\src\jrd\Mutex.h"/>
+         <File RelativePath="..\..\..\src\jrd\Sync.h"/>
+         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.h"/>
+         <File RelativePath="..\..\..\src\jrd\SyncObject.h"/>
+      </Filter>
+      <Filter Name="Preprocessed Files" Filter="*.epp">
+         <File RelativePath="..\..\..\src\alice\alice_meta.epp">
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCustomBuildTool" CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+" Outputs="$(InputDir)$(InputName).cpp"/>
+            </FileConfiguration>
+         </File>
+      </Filter>
+   </Files>
+   <Globals/>
+</VisualStudioProject>

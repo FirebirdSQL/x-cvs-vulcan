@@ -1,0 +1,279 @@
+all.o: all.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/everything.h ../qli/dtr.h \
+  ../jrd/ibase.h ../jrd/blr.h ../include/gen/iberror.h ../jrd/dsc.h \
+  ../qli/blk.h ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../qli/exe.h ../qli/report.h \
+  ../qli/format.h ../qli/form.h ../qli/err_proto.h ../qli/mov_proto.h \
+  ../jrd/gds_proto.h
+command.o: command.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../qli/exe.h ../jrd/license.h \
+  ../jrd/build_no.h ../jrd/isc_version.h ../qli/err_proto.h \
+  ../qli/exe_proto.h ../qli/meta_proto.h ../qli/proc_proto.h \
+  ../jrd/gds_proto.h
+compile.o: compile.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/compile.h \
+  ../qli/exe.h ../qli/report.h ../qli/form.h ../jrd/intl.h \
+  ../intl/charsets.h ../qli/compi_proto.h ../qli/err_proto.h \
+  ../qli/forma_proto.h ../qli/meta_proto.h ../jrd/dsc_proto.h
+dsc.o: ../jrd/dsc.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/dsc.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/constants.h ../jrd/intl.h \
+  ../intl/charsets.h ../jrd/gds_proto.h ../jrd/dsc_proto.h
+dtr.o: dtr.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../jrd/perf.h ../jrd/perf_proto.h \
+  ../jrd/license.h ../jrd/build_no.h ../jrd/isc_version.h \
+  ../qli/compi_proto.h ../qli/err_proto.h ../qli/exe_proto.h \
+  ../qli/form_proto.h ../qli/expan_proto.h ../qli/gener_proto.h \
+  ../qli/help_proto.h ../qli/lex_proto.h ../qli/meta_proto.h \
+  ../qli/parse_proto.h ../jrd/gds_proto.h
+err.o: err.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/err_proto.h ../qli/help_proto.h \
+  ../qli/lex_proto.h ../jrd/gds_proto.h
+Error.o: ../jrd/Error.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/OSRIBugcheck.h \
+  ../jrd/OSRIException.h ../jrd/gds_proto.h
+eval.o: eval.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/exe.h \
+  ../qli/err_proto.h ../qli/eval_proto.h ../qli/exe_proto.h \
+  ../qli/form_proto.h ../qli/lex_proto.h ../qli/mov_proto.h \
+  ../qli/picst_proto.h ../jrd/gds_proto.h ../jrd/utl_proto.h
+exe.o: exe.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/exe.h \
+  ../qli/err_proto.h ../qli/eval_proto.h ../qli/exe_proto.h \
+  ../qli/form_proto.h ../qli/forma_proto.h ../qli/mov_proto.h \
+  ../qli/repor_proto.h ../jrd/gds_proto.h ../jrd/utl_proto.h
+expand.o: expand.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../qli/exe.h ../qli/report.h \
+  ../qli/form.h ../qli/comma_proto.h ../qli/compi_proto.h \
+  ../qli/err_proto.h ../qli/expan_proto.h ../qli/form_proto.h \
+  ../qli/help_proto.h ../qli/meta_proto.h ../qli/show_proto.h
+fb_exception.o: ../common/fb_exception.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h
+format.o: format.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/jrd_time.h ../qli/dtr.h \
+  ../jrd/ibase.h ../jrd/blr.h ../include/gen/iberror.h ../jrd/dsc.h \
+  ../qli/blk.h ../include/old_fb_blk.h ../qli/all_proto.h ../qli/exe.h \
+  ../qli/compile.h ../qli/report.h ../qli/format.h ../qli/err_proto.h \
+  ../qli/eval_proto.h ../qli/exe_proto.h ../qli/form_proto.h \
+  ../qli/forma_proto.h ../qli/mov_proto.h ../qli/picst_proto.h
+gener.o: gener.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../jrd/align.h ../qli/exe.h \
+  ../qli/compile.h ../qli/report.h ../qli/compi_proto.h \
+  ../qli/err_proto.h ../qli/gener_proto.h ../qli/meta_proto.h \
+  ../qli/mov_proto.h ../jrd/gds_proto.h
+help.o: help.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/gds.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../qli/dtr.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/compile.h \
+  ../qli/err_proto.h ../qli/help_proto.h ../qli/lex_proto.h \
+  ../jrd/gds_proto.h
+hsh.o: hsh.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/err_proto.h ../qli/hsh_proto.h ../qli/words.h
+JString.o: ../jrd/JString.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemMgr.h \
+  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
+  ../jrd/JString.h
+lex.o: lex.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../utilities/TempFile.h ../jrd/JString.h \
+  ../qli/err_proto.h ../qli/hsh_proto.h ../qli/lex_proto.h \
+  ../qli/proc_proto.h ../jrd/gds_proto.h ../jrd/utl_proto.h
+locks.o: ../common/classes/locks.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../common/classes/locks.h
+meta.o: meta.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/compile.h \
+  ../qli/exe.h ../jrd/license.h ../jrd/build_no.h ../jrd/isc_version.h \
+  ../jrd/flags.h ../qli/reqs.h ../qli/err_proto.h ../qli/form_proto.h \
+  ../qli/gener_proto.h ../qli/hsh_proto.h ../qli/meta_proto.h \
+  ../gpre/prett_proto.h ../jrd/gds_proto.h ../jrd/isc_f_proto.h \
+  ../jrd/utl_proto.h ../wal/walf_proto.h
+mov.o: mov.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../jrd/jrd_time.h \
+  ../jrd/intl.h ../intl/charsets.h ../qli/err_proto.h ../jrd/gds_proto.h \
+  ../qli/mov_proto.h
+noform.o: noform.cpp
+nounix.o: nounix.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h
+parse.o: parse.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/exe.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../qli/report.h ../qli/err_proto.h \
+  ../qli/hsh_proto.h ../qli/lex_proto.h ../qli/mov_proto.h \
+  ../qli/parse_proto.h ../qli/proc_proto.h
+picstr.o: picstr.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/format.h \
+  ../qli/err_proto.h ../qli/picst_proto.h ../qli/mov_proto.h \
+  ../jrd/jrd_time.h ../jrd/gds_proto.h
+pretty.o: ../gpre/pretty.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/gds.h ../jrd/ibase.h \
+  ../jrd/blr.h ../include/gen/iberror.h ../gpre/prett_proto.h \
+  ../jrd/isc_proto.h ../jrd/isc.h ../jrd/AsyncEvent.h ../jrd/thd.h \
+  ../gpre/dyntable.h ../gpre/cdbtable.h ../gpre/sdltable.h
+proc.o: proc.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../qli/err_proto.h ../qli/lex_proto.h \
+  ../qli/meta_proto.h ../qli/parse_proto.h ../qli/proc_proto.h \
+  ../qli/procddl1.h ../qli/procddl2.h ../qli/procddl3.h ../qli/procddl4.h
+report.o: report.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../qli/dtr.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/exe.h \
+  ../qli/compile.h ../qli/report.h ../qli/eval_proto.h ../qli/exe_proto.h \
+  ../qli/forma_proto.h ../qli/mov_proto.h ../qli/repor_proto.h
+show.o: show.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../qli/dtr.h ../jrd/dsc.h ../qli/blk.h \
+  ../include/old_fb_blk.h ../qli/all_proto.h ../qli/parse.h \
+  ../qli/symbols.h ../qli/compile.h ../jrd/license.h ../jrd/build_no.h \
+  ../jrd/isc_version.h ../qli/reqs.h ../jrd/flags.h ../qli/comma_proto.h \
+  ../qli/err_proto.h ../qli/meta_proto.h ../qli/proc_proto.h \
+  ../qli/show_proto.h
+TempFile.o: ../utilities/TempFile.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../utilities/TempFile.h \
+  ../jrd/JString.h ../jrd/file_params.h

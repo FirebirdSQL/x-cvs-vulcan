@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE> New Document </TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="">
+<META NAME="Description" CONTENT="">
+</HEAD>
+
+<BODY>
+<H2>MINGW Notes</H2>
+<hr/>
+Last Update: June 4 2003<br>
+Author: Blas Rodriguez Somoza <a href="">blas@puertareal.com</a><br>
+
+<h3>0.-Introduction</h3>
+<p>The MSYS/MINGW build was started with 1.5 beta 4.<p>
+<p>The only difference between the msvc build and the mingw build, is that the later one does not support the ms SEH exception handling. This means that some exceptions will not be catched and thus FB will abort.The sources using this exception handling are jrd/blob_filter.cpp, jrd/exe.cpp and jrd/fun.epp.</p>
+<p>This port is maintained by Blas Rodriguez Somoza and Dmitry Sibiriakov.</p>
+
+<h3>1.-TODO</h3>
+<ul>
+<li>Build of fb_util.dll</li>
+<li>Analyze thread issue in blocking thread (classic server).
+<li>Support for ms SEH (superserver).</li>
+<li>Installer definition</li>
+</ul>
+
+<h3>2.-INSTALLING MSYS and MINGW</h3>
+
+<p>The following packages from http://www.mingw.org are needed</p>
+<p>MinGW
+<ul>
+<li>MinGW-2.0.0-3.exe</li>
+<li>MinGW_win32api-2.3.tar.gz</li>
+<li>mingw-runtime-3.0.tar.gz</li>
+<li>bison-1.875.0-2003.02.10-1.exe</li>
+</ul>
+</p>
+<p>MSYS
+<ul>
+<li>MSYS-1.0.8.exe</li>
+<li>msysDTK-1.0.1.exe</li>
+</ul>
+</p>
+<p>STEPS TO INSTALL
+<ol>
+<li>run MinGW-2.0.0-3.exe</li>
+<li>uncompress w32api-2.3.tar.gz in the mingw directory (default c:\mingw)</li>
+<li>uncompress mingw-runtime-3.0.tar.gz in the mingw directory (default c:\mingw)</li>
+<li>uncompress gcc-3.2.3-20030504-1.tar.gz in the mingw directory (default c:\mingw)</li>
+<li>run bison-1.875.0-2003.02.10-1.exe. You must give the program the mingw installation directory</li>
+<li>run MSYS-1.0.8.exe. First you must select your installation directory, then, in a command window, you must awswer some questions<br>continue postinstall [yes]<br>mingw directory:[your mingw directory]</li>
+<li>run msysDTK-1.0.1.exe. The installation directory must be the same that you select for MSYS.</li>
+</ol>
+</p>
+
+<h3>3.- PATCHES TO BUILD FILES</h3>
+
+<ul>
+<li>The lib_fb_udf target in Make.in.extlib cannot be built yet, so it must be removed.<br>
+Edit the file Makefile.in.extlib in the builds/posix directory and change the line <br>
+all: lib_ib_udf lib_ib_util lib_fb_util<br>
+to<br>
+all: lib_ib_udf lib_ib_util <br>
+</li>
+</ul>
+
+<h3>4.- BUILD PROCESS</h3>
+
+<ol>
+<li>Start msys with the icon.</li>
+<li>Go to the firebird2 root directory. For instance, if your root is d:\cvs\firebird you must do cd /d/cvs/firebird2.</li>
+<li>Start configure with the switches to get super/classic and production/development build, for instance:<br>
+autogen.sh --enable-superserver<br>
+The valid switches for autogen are<br>
+--enable-superserver    Select superserver build, default classic build.<br>
+--enable-debug          Select debug build, default production build.<br>
+</li>
+<li>Make the build. For instance if you want to get compiler messages isolated from make log<br> make > make.log 2>comp.log</li>
+<li>After the build finish, the firebird directory with the binaries is created as gen/firebird.</li> 
+</ol>
+<ul>
+<li>To make a clean build from scratch after making changes to the code use the clean.sh script</li>
+</ul>
+
+<p>BUILD NOTE:</p>
+<p>There is a bug in mingw (3.2) related with msvc format for 64bit integers. When the I64 format is used, the compiler throws warnings of two types:</p>
+<p>warning: [...] format, different type arg (arg 3)<br>
+or<br>
+warning: unknown conversion type character `I' in format<br>
+warning: too many arguments for format</p>
+
+
+</BODY>
+</HTML>

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for x in config why gpre remote jrd intlcpp burp isql qli server lock IscDbc XLoad; do
+	(
+	cd $x
+	echo
+	echo Cleaning $x
+	echo
+	gmake clean
+	)
+done

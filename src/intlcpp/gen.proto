@@ -1,0 +1,3 @@
+buildgen -p proto -c fbintl -f ../../vulcan.build -o makefile intlcpp.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  intlcpp.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  intlcpp.vcproj

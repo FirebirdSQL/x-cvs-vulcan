@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include "Configuration.h"
+#include "ConfObject.h"
+#include "ConfObj.h"
+#include "ConfigFile.h"
+#include "Args.h"
+
+static bool		swTrace;
+static bool		swList;
+static bool		swVerbose;
+static char		*databaseName;
+
+static const Switches switches [] =
+	{
+	"",		NULL,		&databaseName,	"database",	NULL,
+	"-t",	&swTrace,	NULL,			NULL,		"Trace configuration file opens",
+	"-l",	&swList,	NULL,			NULL,		"List configuration file",
+	//"-v",	&swVerbose, NULL,			NULL,		"Verbose mode",
+	"-h",	&printHelp, NULL,			NULL,		"Print this text",
+	NULL
+	};
+
+main (int argc, char **argv)
+{
+	Args::parse (switches, argc - 1, argv + 1);
+
+	if (printHelp)
+		{
+		Args::printHelp (HELP_TEXT, switches);
+		return 0;
+		}
+
+	
+	return 0;
+}

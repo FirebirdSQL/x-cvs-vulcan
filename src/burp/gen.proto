@@ -1,0 +1,3 @@
+buildgen -p proto -c burp -f ../../vulcan.build -o makefile burp.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  burp.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  burp.vcproj

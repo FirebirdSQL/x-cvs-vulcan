@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="VSRelo" ProjectGUID="{A7C840C5-16D5-4B1E-B4B2-3013EF933ECA}" SccProjectName="" SccLocalPath="">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Release|Win32" OutputDirectory=".\Release" IntermediateDirectory=".\Release" ConfigurationType="1" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="2" InlineFunctionExpansion="1" PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE" StringPooling="TRUE" RuntimeLibrary="4" EnableFunctionLevelLinking="TRUE" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Release/VSRelo.pch" AssemblerListingLocation=".\Release/" ObjectFile=".\Release/" ProgramDataBaseFileName=".\Release/" WarningLevel="3" SuppressStartupBanner="TRUE"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" OutputFile="..\..\..\src\VSRelo\Release\VSRelo.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" ProgramDatabaseFile=".\Release/VSRelo.pdb" SubSystem="1" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" TypeLibraryName=".\Release/VSRelo.tlb" HeaderFileName=""/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="NDEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Debug|Win32" OutputDirectory=".\Debug" IntermediateDirectory=".\Debug" ConfigurationType="1" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/config,../../../src/jrd,../../../src/XLoad,../../../src/include,../../../src/include/gen" PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE" BasicRuntimeChecks="3" RuntimeLibrary="5" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Debug/VSRelo.pch" AssemblerListingLocation=".\Debug/" ObjectFile=".\Debug/" ProgramDataBaseFileName=".\Debug/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" OutputFile="..\..\..\src\VSRelo\Debug\VSRelo.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" GenerateDebugInformation="TRUE" ProgramDatabaseFile=".\Debug/VSRelo.pdb" SubSystem="1" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" TypeLibraryName=".\Debug/VSRelo.tlb" HeaderFileName=""/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="Source Files" Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+         <File RelativePath="..\..\..\src\config\AdminException.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\Args.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\ArgsException.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\Element.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\InputFile.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\InputStream.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\jrd\JString.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\Lex.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\jrd\PathName.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\VSRelo\Relo.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\VSRelo\ScanDir.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\Stream.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\config\StreamSegment.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\VSRelo\vsrelo.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\XLoad\XMLParse.cpp">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions=""/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="" PreprocessorDefinitions="" BasicRuntimeChecks="3"/>
+            </FileConfiguration>
+         </File>
+      </Filter>
+      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl">
+         <File RelativePath="..\..\..\src\config\AdminException.h"/>
+         <File RelativePath="..\..\..\src\config\Args.h"/>
+         <File RelativePath="..\..\..\src\config\ArgsException.h"/>
+         <File RelativePath="..\..\..\src\config\Element.h"/>
+         <File RelativePath="..\..\..\src\config\InputFile.h"/>
+         <File RelativePath="..\..\..\src\config\InputStream.h"/>
+         <File RelativePath="..\..\..\src\jrd\JString.h"/>
+         <File RelativePath="..\..\..\src\config\Lex.h"/>
+         <File RelativePath="..\..\..\src\jrd\PathName.h"/>
+         <File RelativePath="..\..\..\src\VSRelo\Relo.h"/>
+         <File RelativePath="..\..\..\src\VSRelo\ScanDir.h"/>
+         <File RelativePath="..\..\..\src\config\Stream.h"/>
+         <File RelativePath="..\..\..\src\config\StreamSegment.h"/>
+         <File RelativePath="..\..\..\src\XLoad\XMLParse.h"/>
+      </Filter>
+      <Filter Name="Resource Files" Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+   </Files>
+   <Globals/>
+</VisualStudioProject>

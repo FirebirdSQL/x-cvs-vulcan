@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="gpre" ProjectGUID="{7A535094-96C2-4C3B-AB69-16138C99CBB4}" Keyword="Win32Proj">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Debug|Win32" OutputDirectory="Debug" IntermediateDirectory="Debug" ConfigurationType="1" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/include/gen;../../../src/jrd;../../../src/utilities;../../../src/include;../../../src/config" PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Gpre;MEMMGR" MinimalRebuild="TRUE" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="FALSE" DebugInformationFormat="3"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalDependencies="firebird.lib" OutputFile="..\..\..\install\bin\gpre.exe" LinkIncremental="2" AdditionalLibraryDirectories="..\..\..\install\lib" GenerateDebugInformation="TRUE" ProgramDatabaseFile="$(OutDir)/gpre.pdb" SubSystem="1" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Release|Win32" OutputDirectory="Release" IntermediateDirectory="Release" ConfigurationType="1" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" AdditionalIncludeDirectories="../../../src/gpre/;../../../src/jrd/;../../../src/intl/;../../../src/utilities/;../../../src/config/;../../../src/include/;../../../src/include/gen/" PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE" RuntimeLibrary="4" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="TRUE" DebugInformationFormat="3"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" OutputFile="$(OutDir)/gpre.exe" LinkIncremental="1" GenerateDebugInformation="TRUE" SubSystem="1" OptimizeReferences="2" EnableCOMDATFolding="2" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="Source Files" Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+         <File RelativePath="..\..\..\src\config\AdminException.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\c_cxx.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\cmd.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\cme.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\cmp.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\dsc.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\Error.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\exp.cpp"/>
+         <File RelativePath="..\..\..\src\common\fb_exception.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\form_trn.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\GenericMove.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\gpre.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\gpre_meta.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\hsh.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\int.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\int_cxx.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\isc.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\jrdmet.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\JString.cpp"/>
+         <File RelativePath="..\..\..\src\common\classes\locks.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\MemMgr.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\Move.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\movg.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\msc.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\Mutex.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\noform.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\OSRIException.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\OSRIMemException.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\par.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\pat.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\pretty.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\sqe.cpp"/>
+         <File RelativePath="..\..\..\src\gpre\sql.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\Sync.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp"/>
+         <File RelativePath="..\..\..\src\utilities\TempFile.cpp"/>
+      </Filter>
+      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl;inc;xsd" UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+         <File RelativePath="..\..\..\src\config\AdminException.h"/>
+         <File RelativePath="..\..\..\src\common\classes\alloc.h"/>
+         <File RelativePath="..\..\..\src\gpre\cdbtable.h"/>
+         <File RelativePath="..\..\..\src\gpre\cmd_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\cme_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\cmp_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\dyntable.h"/>
+         <File RelativePath="..\..\..\src\jrd\Error.h"/>
+         <File RelativePath="..\..\..\src\gpre\exp_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\form.h"/>
+         <File RelativePath="..\..\..\src\gpre\form__proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\form_proto.h"/>
+         <File RelativePath="..\..\..\src\jrd\GenericMove.h"/>
+         <File RelativePath="..\..\..\src\gpre\gpre.h"/>
+         <File RelativePath="..\..\..\src\gpre\gpre_meta.h"/>
+         <File RelativePath="..\..\..\src\gpre\gpre_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\gpreswi.h"/>
+         <File RelativePath="..\..\..\src\gpre\hsh.h"/>
+         <File RelativePath="..\..\..\src\gpre\hsh_proto.h"/>
+         <File RelativePath="..\..\..\src\jrd\isc.h"/>
+         <File RelativePath="..\..\..\src\gpre\jrdme_proto.h"/>
+         <File RelativePath="..\..\..\src\jrd\JString.h"/>
+         <File RelativePath="..\..\..\src\gpre\lang_proto.h"/>
+         <File RelativePath="..\..\..\src\common\classes\locks.h"/>
+         <File RelativePath="..\..\..\src\jrd\MemMgr.h"/>
+         <File RelativePath="..\..\..\src\jrd\MemoryManager.h"/>
+         <File RelativePath="..\..\..\src\jrd\Move.h"/>
+         <File RelativePath="..\..\..\src\gpre\movg_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\msc_proto.h"/>
+         <File RelativePath="..\..\..\src\jrd\Mutex.h"/>
+         <File RelativePath="..\..\..\src\jrd\OSRIException.h"/>
+         <File RelativePath="..\..\..\src\jrd\OSRIMemException.h"/>
+         <File RelativePath="..\..\..\src\gpre\par_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\parse.h"/>
+         <File RelativePath="..\..\..\src\gpre\pat.h"/>
+         <File RelativePath="..\..\..\src\gpre\pat_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\prett_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\sdltable.h"/>
+         <File RelativePath="..\..\..\src\gpre\sqe_proto.h"/>
+         <File RelativePath="..\..\..\src\gpre\sql_proto.h"/>
+         <File RelativePath="..\..\..\src\jrd\Sync.h"/>
+         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.h"/>
+         <File RelativePath="..\..\..\src\utilities\TempFile.h"/>
+         <File RelativePath="..\..\..\src\gpre\words.h"/>
+      </Filter>
+      <Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx" UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"/>
+      <Filter Name="Preprocessed Files" Filter="">
+         <File RelativePath="..\..\..\src\gpre\gpre_meta.epp">
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCustomBuildTool" CommandLine="gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+" Outputs="$(InputDir)$(InputName).cpp"/>
+            </FileConfiguration>
+         </File>
+      </Filter>
+      <File RelativePath="..\..\..\src\gpre\ReadMe.txt"/>
+   </Files>
+   <Globals/>
+</VisualStudioProject>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<configurations>
+
+<!--	Generic					-->
+
+<configuration name="Generic">
+
+<!--	Generic / Generic		-->
+
+<component name="Generic">
+<Extension Source="cpp" Target="o" />
+<Extension Source="c" Target="o" />
+
+<template name="Makefile">
+<CFlags />
+<Directories />
+<SourceDirectories />
+<VPath />
+<CppRules />
+<Modules />
+<Production />
+<Clean />
+<BuildDependencies />
+
+# Dependencies
+
+<Dependencies />
+
+include makefile.in
+</template>
+
+<template name="Directories">
+INTDIR = .
+SRCDIR = ..
+LIBDIR = .
+BINDIR = .
+INSTALLDIR = $(SRCDIR)/../install
+</template>
+
+<template name="bin">bin</template>
+
+<template name="memmgr">
+-DMEMMGR </template>
+
+<template name="CFlags">
+CPPFLAGS = -g -I. \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-D_GNU_SOURCE \
+	<memmgr /> \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Includes">
+</template>
+
+<template name="VPath">
+vpath %.cpp $(DIRS)
+vpath %.h $(DIRS)
+vpath %.epp $(DIRS)
+</template>
+
+<template name="CppRules">
+#CPPOUTPUT = -o $@
+$(BINDIR)/%.o : %.cpp
+	$(COMPILE.cpp) $&lt; $(OUTPUT_OPTION) $(CPPOUTPUT)
+</template>
+
+<template name="Modules">
+MODULES = \
+<files targetExt="o" targetDir="$(BINDIR)/">    <value name="targetPath"/> \
+</files>
+</template>
+
+<template name="Dependencies">
+<files target="Yes" targetDir="$(BINDIR)/">
+<value name="targetPath"/> : <value name="name"/>.<value name="extension"/>
+</files>
+</template>
+
+<template name="Clean">
+clean: 
+	rm $(MODULES) $(LIBRARY) $(LIB) 
+</template>
+
+<template name="BuildDependencies">
+dependencies:
+	-make clean > /dev/null 
+	-rm *.d > /dev/null 
+	make CPPFLAGS='$(CPPFLAGS) -MMD'
+	cat *.d > makefile.in
+</template>
+
+<template name="BuildExe">
+<value name="exe"/>:	$(MODULES) 
+	$(LINK.cpp)  $(CPPFLAGS) -ldl $(MODULES) -L../../install/<bin/> <Libraries/> -o <value name="exe"/>
+</template>
+
+<template name="BuildLibr">
+# Libraries: <value name="Libraries"/>
+<value name="libr"/>:	$(MODULES) 
+	$(LINK.cpp) -g <SharedLibr/> $(MODULES) -L../../install/<bin/> <Libraries/> -o <value name="libr"/>
+# end BuildLibr
+</template>
+
+<template name="SharedLibr"> -shared </template>
+
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird -lcrypt \
+</template>
+
+<template name="Install">
+install: <value name="file"/>
+	cp <value name="file"/> $(INSTALLDIR)/<bin/>
+</template>
+
+</component>
+
+
+
+
+<!--	Generic / BuildGen		-->
+
+<component name="buildgen">
+
+<template name="namespace"> -DNAMESPACE=bldgen </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/buildgen \
+		$(SRCDIR)/XLoad \
+		$(SRCDIR)/config \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="buildgen"/>
+<Install file="buildgen"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/config \
+	-I$(SRCDIR)/buildgen \
+	-I$(SRCDIR)/XLoad \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/config \
+</template>
+
+<template name="Libraries">
+    -lm  \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / modules			-->
+
+<component name="modules">
+<template name="Makefile">
+<Modules />
+</template>
+</component>
+
+<!--	Generic / dependencies		-->
+
+<component name="dependencies">
+<template name="Makefile">
+<Dependencies />
+</template>
+</component>
+
+<!--	Generic / test				-->
+
+<component name="test">
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+</template>
+
+<template name="Production">
+<BuildExe exe="test"/>
+<Install file="test"/>
+</template>
+
+</component>
+
+</configuration>
+
+<!--	Linux64			-->
+
+<configuration name="linux64">
+
+<component name="Generic">
+<template name="bin">bin64</template>
+</component>
+
+</configuration>
+
+<!--	Solaris64		-->
+
+<configuration name="solaris64">
+
+<!--	Solaris64 / Generic		-->
+
+<component name="Generic">
+
+<template name="bin">bin64</template>
+
+<template name="Libraries">
+    -lpthread -lm -ldl \
+</template>
+
+<template name="CppRules">
+CPPOUTPUT = -o $@
+$(BINDIR)/%.o : %.cpp
+	$(COMPILE.cpp) -c $&lt; $(OUTPUT_OPTION) $(CPPOUTPUT)
+$(BINDIR)/%.o : %.c
+	$(COMPILE.cpp) -c $&lt; $(OUTPUT_OPTION) $(CPPOUTPUT)
+</template>
+
+<template name="CFlags">
+COMPILE.cpp = CC $(CPPFLAGS)
+LINK.cpp	= CC
+OUTPUT_OPTION = 
+LINKFLAGS = -xarch=v9
+CPPFLAGS = \
+	-g \
+	-xarch=v9a \
+	-KPIC \
+	-mt \
+	-lrt \
+	-xs \
+	-DSFIO \
+	<memmgr /> \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="SharedLibr"> -lCrun -lCstd -G $(CPPFLAGS) </template>
+
+# -DSOLARIS_MT
+
+<template name="BuildDependencies">
+dependencies:
+	-gmake clean >/dev/null
+	-rm *.d
+	gmake CPPFLAGS='$(CPPFLAGS) -xM1' CPPOUTPUT='> $$*.d'
+	cat *.d > makefile.in
+</template>
+
+<template name="XXXLibraries">
+    -lm -ldl -lfirebird -lpthread \
+</template>
+
+</component>
+
+
+
+<!--	Solaris64 / xload		-->
+
+<component name="xload">
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -liscdbc \
+</template>
+
+</component>
+
+</configuration>
+</configurations>

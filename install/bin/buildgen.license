@@ -1,0 +1,41 @@
+LICENSE FOR BUILDGEN
+
+This License is a legal agreement between you  and Netfrastructure Inc. 
+through which Netfrastructure offers you the right to use BuildGen to 
+create makefiles for Firebird and the project codenamed Vulcan in exchange 
+for your acceptance of certain restrictions on your use of the BuildGen.  
+If you can not accept these restrictions, you may not use BuildGen.
+
+Rights Granted
+
+1)	You may use BuildGen to create makefiles for the Firebird open source 
+	relational database and related projects.
+
+2)	You may make copies of BuildGen for use within your organization and 
+	for archival purposes.
+
+Restrictions
+
+1)	You may not sell, license, rent, lease, or distribute copies of Buildgen 
+	outside your organization.
+
+2)	Buildgen includes intellectual property protected by copyright, patent, 
+	trade secret and other laws and regulations.  You acknowledge that your 
+	rights in that intellectual property are restricted to the uses specified 
+	in this license.
+
+3)	If you fail to comply with the terms of this license, Netfrastructure Inc. 
+	has the right to terminate the license and require you to destroy all 
+	copies of Buildgen that you have created.
+
+DISCLAIMER OF WARRANTY.
+
+BUILDGEN IS PROVIDED FREE OF CHARGE UNDER THIS LICENSE ON AN "AS IS'' BASIS, 
+WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, WITHOUT 
+LIMITATION, WARRANTIES THAT BUILDGEN IS FREE OF DEFECTS, MERCHANTABLE, FIT 
+FOR A PARTICULAR PURPOSE OR NON-INFRINGING. THE ENTIRE RISK AS TO THE QUALITY 
+AND PERFORMANCE OF BUILDGEN IS WITH YOU. SHOULD BUILDGEN PROVE DEFECTIVE IN 
+ANY RESPECT, YOU (NOT NETFRASTRUCTURE INC. OR ANY OTHER CONTRIBUTOR) ASSUME 
+THE COST OF ANY NECESSARY SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER 
+OF WARRANTY CONSTITUTES AN ESSENTIAL PART OF THIS LICENSE. NO USE OF BUILDGEN 
+IS AUTHORIZED HEREUNDER EXCEPT UNDER THIS DISCLAIMER.

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for x in config why gpre remote jrd burp isql qli ; do
+	(
+	cd $x
+	echo
+	echo Make dependencies for  $x
+	echo
+	gmake dependencies
+	)
+done

@@ -1,0 +1,4337 @@
+/*
+ *	PROGRAM:	JRD Access Method
+ *	MODULE:		met.epp
+ *	DESCRIPTION:	Meta data handler
+ *
+ * The contents of this file are subject to the Interbase Public
+ * License Version 1.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy
+ * of the License at http://www.Inprise.com/IPL.html
+ *
+ * Software distributed under the License is distributed on an
+ * "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ *
+ * The Original Code was created by Inprise Corporation
+ * and its predecessors. Portions created by Inprise Corporation are
+ * Copyright (C) Inprise Corporation.
+ *
+ * All Rights Reserved.
+ * Contributor(s): ______________________________________.
+ *
+ * 2001.6.25 Claudio Valderrama: Finish MET_lookup_generator_id() by
+ *	assigning it a number in the compiled requests table.
+ *
+ * 2001.07.06 Sean Leyne - Code Cleanup, removed "#ifdef READONLY_DATABASE"
+ *                         conditionals, as the engine now fully supports
+ *                         readonly databases.
+ * 2001.10.03 Claudio Valderrama: MET_relation_owns_trigger() determines if
+ *   there's a row in rdb$triggers with the given relation's and trigger's names.
+ * 2001.10.04 Claudio Valderrama: MET_relation_default_class() determines if the
+ *   given security class name is the default security class for a relation.
+ *   Modify MET_lookup_field() so it can verify the field's security class, too.
+ * 2002-02-24 Sean Leyne - Code Cleanup of old Win 3.1 port (WINDOWS_ONLY)
+ * 2002-09-16 Nickolay Samofatov - Deferred trigger compilation changes
+ * 2002.10.29 Sean Leyne - Removed obsolete "Netware" port
+ *
+ */
+/*
+$Id$
+*/
+// This MUST be at the top of the file
+#ifdef DARWIN
+#define _STLP_CCTYPE
+#endif
+
+
+#include "firebird.h"
+#include "firebird.h"
+#include "../jrd/ib_stdio.h"
+#include <string.h>
+#include "../jrd/common.h"
+#include <stdarg.h>
+
+#include "../jrd/constants.h"
+#include "../jrd/ibase.h"
+#include "../jrd/jrd.h"
+#include "../jrd/Relation.h"
+#include "../jrd/Field.h"
+#include "../jrd/Procedure.h"
+#include "../jrd/ProcParam.h"
+#include "../jrd/val.h"
+#include "../jrd/irq.h"
+#include "../jrd/tra.h"
+#include "../jrd/lck.h"
+#include "../jrd/ods.h"
+#include "../jrd/btr.h"
+#include "../jrd/req.h"
+#include "../jrd/exe.h"
+#include "../jrd/scl.h"
+#include "../jrd/blb.h"
+#include "../jrd/met.h"
+#include "../jrd/os/pio.h"
+#include "../jrd/sdw.h"
+#include "../jrd/flags.h"
+#include "../jrd/all.h"
+#include "../jrd/lls.h"
+#include "../jrd/intl.h"
+#include "../jrd/align.h"
+#include "../jrd/flu.h"
+#include "../jrd/blob_filter.h"
+#include "../intl/charsets.h"
+#include "../jrd/gdsassert.h"
+#include "../jrd/all_proto.h"
+#include "../jrd/blb_proto.h"
+#include "../jrd/cmp_proto.h"
+#include "../jrd/dfw_proto.h"
+#include "../jrd/dsc_proto.h"
+#include "../jrd/err_proto.h"
+#include "../jrd/exe_proto.h"
+#include "../jrd/ext_proto.h"
+#include "../jrd/flu_proto.h"
+#include "../jrd/gds_proto.h"
+#include "../jrd/idx_proto.h"
+#include "../jrd/ini_proto.h"
+
+#include "../jrd/lck_proto.h"
+#include "../jrd/met_proto.h"
+#include "../jrd/mov_proto.h"
+#include "../jrd/par_proto.h"
+#include "../jrd/pcmet_proto.h"
+#include "../jrd/os/pio_proto.h"
+#include "../jrd/scl_proto.h"
+#include "../jrd/sdw_proto.h"
+#include "../jrd/thd_proto.h"
+#include "../jrd/sch_proto.h"
+#include "../jrd/iberr.h"
+#include "../dsql/blk.h"
+#include "../dsql/dsql_rel.h"
+#include "OSRIException.h"
+#include "Sync.h"
+#include "ThreadData.h"
+#include "ProcManager.h"
+#include "TempSpace.h"
+#include "Triggers.h"
+
+
+#ifdef HAVE_CTYPE_H
+#include <ctype.h>
+#endif
+
+/* Pick up relation ids */
+
+#define RELATION(name,id,ods)       id,
+#define FIELD(symbol,name,id,update,ods,new_id,new_ods)
+#define END_RELATION
+
+typedef enum rids {
+#include "../jrd/relations.h"
+	rel_MAX
+} RIDS;
+
+#undef RELATION
+#undef FIELD
+#undef END_RELATION
+
+#define BLR_BYTE        *(csb->csb_running)++
+#define NULL_BLOB(id)   (!id.gds_quad_high && !id.gds_quad_low)
+
+#define	BLANK			'\040'
+
+DATABASE DB = FILENAME "ODS.RDB";
+
+static int blocking_ast_procedure(void* ast_object);
+//static int blocking_ast_relation(void* ast_object);
+static void get_trigger(TDBB, Relation*, SLONG[2], Triggers**, const TEXT*, bool, USHORT);
+static bool get_type(TDBB, SSHORT*, const TEXT*, const TEXT*);
+static void lookup_view_contexts(TDBB, Relation*);
+static void name_copy(TEXT*, const TEXT*);
+static USHORT name_length(const TEXT *);
+//static jrd_nod* parse_procedure_blr(TDBB, Procedure*, SLONG[2], CSB);
+//static BOOLEAN par_messages(TDBB, const UCHAR*, USHORT, Procedure*, CSB);
+static BOOLEAN resolve_charset_and_collation(TDBB, SSHORT*, const TEXT*, const TEXT*);
+static str* save_name(TDBB, const TEXT*);
+static void save_trigger_data(TDBB, Triggers**, Relation*, JRD_REQ, STR,
+	const TEXT*, bool, USHORT);
+static void store_dependencies(TDBB, CSB, const TEXT*, USHORT);
+static void terminate(TEXT*, USHORT);
+static bool verify_TRG_ignore_perm(TDBB, const TEXT*);
+//void MET_release_triggers( TDBB tdbb, Triggers** vector_ptr);
+
+
+
+// Decompile all triggers from vector
+
+void release_cached_triggers(TDBB tdbb, Triggers* vector) 
+{
+	if (!vector)
+		return;
+	
+	/***	
+	Triggers::iterator ptr, end;
+	for (ptr = vector->begin(), end = vector->end(); ptr < end; ptr++)
+		ptr->release(tdbb);
+	***/
+	
+	for (int n = 0; n < vector->size(); ++n)
+		vector->get(n)->release(tdbb);
+}
+
+// Increment int_use_count for all procedures used by triggers
+
+void post_used_procedures(TDBB tdbb, Triggers* vector) 
+{
+	if (!vector)
+		return;
+
+	/***
+	Triggers::iterator ptr, end;
+	for (ptr = vector->begin(), end = vector->end(); ptr < end; ptr++) 
+	***/
+	
+	for (int n = 0; n < vector->size(); ++n)
+		{
+		Trigger *trigger = (*vector)[n];
+		
+		if (trigger->request) 
+			for (RSC resource = trigger->request->req_resources; resource; resource = resource->rsc_next)
+				if (resource->rsc_type == rsc_procedure)
+						resource->rsc_prc->incrementInternalUseCount();
+		}
+}
+
+void MET_update_partners(TDBB tdbb)
+{
+/**************************************
+ *
+ *      M E T _ u p d a t e _ p a r t n e r s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Mark all relations to update their links to FK partners
+ *      Called when any index is deleted because engine don't know
+ *      was it used in any FK or not
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+	//vec* relations = dbb->dbb_relations;
+	//vec::iterator	ptr, end;
+	
+	//for (ptr = relations->begin(), end = relations->end(); ptr < end; ptr++)
+	for (int n = 0; n < dbb->dbb_relations.size(); ++n)
+		{
+		Relation* relation = dbb->dbb_relations[n];
+		
+		if (!relation)
+			continue;
+			
+		relation->rel_flags |= REL_check_partners;
+		}
+}
+
+
+#ifdef DEV_BUILD
+void MET_verify_cache(TDBB tdbb)
+{
+/**************************************
+ *
+ *      M E T _ v e r i f y _ c a c h e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Check if all links between procedures are properly counted
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+	dbb->procManager->validateCache (tdbb);
+}
+#endif
+
+BOOLEAN MET_clear_cache(TDBB tdbb, Procedure* proc)
+{
+/**************************************
+ *
+ *      M E T _ c l e a r _ c a c h e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Try to release all resources locked by cached triggers
+ *		do not remove proc procedure from cache because it will be
+ *		handled by the caller
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+#ifdef DEV_BUILD
+	MET_verify_cache(tdbb);
+#endif
+	//vec::iterator	ptr, end;
+
+	DBB dbb = tdbb->tdbb_database;
+	//vec* relations = dbb->dbb_relations;
+	
+	//for (ptr = relations->begin(), end = relations->end(); ptr < end; ptr++)
+	for (int n = 0; n < dbb->dbb_relations.size(); ++n)
+		{
+		Relation* relation = dbb->dbb_relations[n];
+		
+		if (relation)
+			{
+			Sync sync (&relation->syncTriggers, "MET_clear_cache");
+			sync.lock(Exclusive);
+			release_cached_triggers(tdbb,relation->rel_pre_store);		
+			release_cached_triggers(tdbb,relation->rel_post_store);
+			release_cached_triggers(tdbb,relation->rel_pre_erase);		
+			release_cached_triggers(tdbb,relation->rel_post_erase);		
+			release_cached_triggers(tdbb,relation->rel_pre_modify);		
+			release_cached_triggers(tdbb,relation->rel_post_modify);
+			}
+		}
+ 
+	BOOLEAN result = dbb->procManager->clearCache(tdbb, proc);
+#ifdef DEV_BUILD
+	dbb->procManager->validateCache(tdbb);
+#endif
+	return result;
+}
+
+BOOLEAN MET_procedure_in_use(TDBB tdbb, Procedure* proc)
+{
+/**************************************
+ *
+ *      M E T _ p r o c e d u r e _ i n _ u s e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Determine if procedure is used by any user requests or transactions. 
+ *      Return FALSE if procedure is used only inside cache or not used at all.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+	
+#ifdef DEV_BUILD
+	dbb->procManager->validateCache(tdbb);
+#endif
+	
+	// This should not really happen
+	
+	if (!dbb->procManager->findFirst())
+		return FALSE;
+
+	//vec* relations = dbb->dbb_relations;
+	//vec::iterator	ptr, end;
+	
+	//for (ptr = relations->begin(), end = relations->end(); ptr < end; ptr++)
+	for (int n = 0; n < dbb->dbb_relations.size(); ++n)
+		{
+		Relation *relation = dbb->dbb_relations[n];
+
+		if (relation)
+			{
+			post_used_procedures(tdbb,relation->rel_pre_store);		
+			post_used_procedures(tdbb,relation->rel_post_store);
+			post_used_procedures(tdbb,relation->rel_pre_erase);		
+			post_used_procedures(tdbb,relation->rel_post_erase);		
+			post_used_procedures(tdbb,relation->rel_pre_modify);		
+			post_used_procedures(tdbb,relation->rel_post_modify);
+			}
+		}
+
+	bool result = dbb->procManager->procedureInUse (tdbb, proc);
+
+#ifdef DEV_BUILD
+	MET_verify_cache(tdbb);
+#endif
+	return result;
+}
+
+
+void MET_activate_shadow( TDBB tdbb)
+{
+/**************************************
+ *
+ *      M E T _ a c t i v a t e _ s h a d o w
+ *
+ **************************************
+ *
+ * Functional description
+ *      Activate the current database, which presumably
+ *      was formerly a shadow, by deleting all records
+ *      corresponding to the shadow that this database
+ *      represents.
+ *      Get rid of write ahead log for the activated shadow.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+/* Erase any secondary files of the primary database of the
+   shadow being activated. */
+
+	blk* handle = NULL;
+	FOR(REQUEST_HANDLE handle) X IN RDB$FILES
+		WITH X.RDB$SHADOW_NUMBER NOT MISSING
+			AND X.RDB$SHADOW_NUMBER EQ 0 
+        ERASE X;
+	END_FOR;
+
+	CMP_release(tdbb, (JRD_REQ)handle);
+
+	const char* dbb_file_name = dbb->dbb_file->fil_string;
+
+/* go through files looking for any that expand to the current database name */
+	SCHAR expanded_name[MAXPATHLEN];
+	blk* handle2 = handle = NULL;
+	FOR(REQUEST_HANDLE handle) X IN RDB$FILES
+		WITH X.RDB$SHADOW_NUMBER NOT MISSING
+			AND X.RDB$SHADOW_NUMBER NE 0
+
+        PIO_expand(X.RDB$FILE_NAME, (USHORT)strlen(X.RDB$FILE_NAME),
+                   expanded_name);
+
+		if (!strcmp(expanded_name, dbb_file_name)) {
+			FOR(REQUEST_HANDLE handle2) Y IN RDB$FILES
+				WITH X.RDB$SHADOW_NUMBER EQ Y.RDB$SHADOW_NUMBER
+				MODIFY Y
+					Y.RDB$SHADOW_NUMBER = 0;
+				END_MODIFY;
+			END_FOR;
+			ERASE X;
+		}
+	END_FOR;
+
+	if (handle2)
+	{
+		CMP_release(tdbb, (JRD_REQ)handle2);
+	}
+	CMP_release(tdbb, (JRD_REQ)handle);
+
+/* Get rid of WAL after activation.  For V4.0, we are not allowing
+   WAL and Shadowing to be configured together.  So the following
+   (commented out) code should be re-visited when we do allow 
+   such configuration. */
+
+	/***********************
+	handle = 0;
+		FOR(REQUEST_HANDLE handle) X IN RDB$LOG_FILES
+			ERASE X;
+		END_FOR;
+		CMP_release(tdbb, handle);
+		AIL_modify_log();
+	************************/
+}
+
+
+ULONG MET_align(const dsc* desc, USHORT value)
+{
+/**************************************
+ *
+ *      M E T _ a l i g n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Align value (presumed offset) on appropriate border
+ *      and return.
+ *
+ **************************************/
+	USHORT alignment = desc->dsc_length;
+	
+	switch (desc->dsc_dtype) 
+		{
+		case dtype_text:
+		case dtype_cstring:
+			return value;
+
+		case dtype_varying:
+			alignment = sizeof(USHORT);
+			break;
+		
+		case dtype_blob:
+			alignment = sizeof (ULONG);
+			break;
+		}
+
+	alignment = MIN(alignment, ALIGNMENT);
+
+	return FB_ALIGN(value, alignment);
+}
+
+
+void MET_change_fields( TDBB tdbb, Transaction* transaction, DSC * field_source)
+{
+/**************************************
+ *
+ *      M E T _ c h a n g e _ f i e l d s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Somebody is modifying RDB$FIELDS.  Find all relations affected
+ *      and schedule a format update.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+    dsc relation_name;
+	Request *request = CMP_find_request(tdbb, irq_m_fields, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$RELATION_FIELDS WITH
+			X.RDB$FIELD_SOURCE EQ field_source->dsc_address
+
+        if (!REQUEST(irq_m_fields))
+			REQUEST(irq_m_fields) = request;
+
+		relation_name.dsc_dtype = dtype_text;
+		INTL_ASSIGN_DSC(&relation_name, CS_METADATA, COLLATE_NONE);
+		relation_name.dsc_length = sizeof(X.RDB$RELATION_NAME);
+		relation_name.dsc_address = (UCHAR *) X.RDB$RELATION_NAME;
+		SCL_check_relation(tdbb, &relation_name, SCL_control);
+		DFW_post_work(transaction, dfw_update_format, &relation_name, 0);
+	END_FOR;
+
+	if (!REQUEST(irq_m_fields))
+		REQUEST(irq_m_fields) = request;
+}
+
+#ifdef OBSOLETE
+FMT MET_current(TDBB tdbb, Relation* relation)
+{
+/**************************************
+ *
+ *      M E T _ c u r r e n t
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get the current format for a relation.  The current format is the
+ *      format in which new records are to be stored.
+ *
+ **************************************/
+
+	if (relation->rel_current_format)
+		return relation->rel_current_format;
+
+	//SET_TDBB(tdbb);
+
+	return relation->rel_current_format =
+		MET_format(tdbb, relation, relation->rel_current_fmt);
+}
+#endif
+
+void MET_delete_dependencies(TDBB	tdbb,
+							 TEXT*	object_name,
+							 USHORT	dependency_type)
+{
+/**************************************
+ *
+ *      M E T _ d e l e t e _ d e p e n d e n c i e s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Delete all dependencies for the specified 
+ *      object of given type.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	if (!object_name)
+		return;
+
+	Request *request = CMP_find_request(tdbb, irq_d_deps, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		DEP IN RDB$DEPENDENCIES
+			WITH DEP.RDB$DEPENDENT_NAME = object_name
+			AND DEP.RDB$DEPENDENT_TYPE = dependency_type
+
+        if (!REQUEST(irq_d_deps)) REQUEST(irq_d_deps) = request;
+
+		ERASE DEP;
+	END_FOR;
+
+	if (!REQUEST(irq_d_deps))
+		REQUEST(irq_d_deps) = request;
+}
+
+
+void MET_delete_shadow( TDBB tdbb, USHORT shadow_number)
+{
+/**************************************
+ *
+ *      M E T _ d e l e t e _ s h a d o w
+ *
+ **************************************
+ *
+ * Functional description 
+ *      When any of the shadows in RDB$FILES for a particular
+ *      shadow are deleted, stop shadowing to that file and
+ *      remove all other files from the same shadow.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	blk* handle = NULL;
+
+	FOR(REQUEST_HANDLE handle)
+		X IN RDB$FILES WITH X.RDB$SHADOW_NUMBER EQ shadow_number 
+        ERASE X;
+	END_FOR;
+
+	CMP_release(tdbb, (JRD_REQ)handle);
+
+	for (sdw* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next) {
+		if (shadow->sdw_number == shadow_number)
+			shadow->sdw_flags |= SDW_shutdown;
+	}
+
+/* notify other processes to check for shadow deletion */
+	if (SDW_lck_update(dbb, 0))
+		SDW_notify(tdbb);
+}
+
+
+void MET_error(const TEXT* string, ...)
+{
+/**************************************
+ *
+ *      M E T _ e r r o r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Post an error in a metadata update
+ *      Oh, wow.
+ *
+ **************************************/
+	TEXT s[128];
+	va_list ptr;
+
+	VA_START(ptr, string);
+	vsprintf(s, string, ptr);
+
+	ERR_post(isc_no_meta_update, isc_arg_gds, isc_random, isc_arg_string,
+			 ERR_cstring(s), 0);
+}
+
+
+SCHAR* MET_exact_name(TEXT* str)
+{
+/**************************************
+ *
+ *	M E T _ e x a c t _ n a m e
+ *
+ **************************************
+ *
+ * Functional description
+ *	Trim off trailing spaces from a metadata name.
+ *	eg: insert a null after the last non-blank character.
+ *
+ *	SQL delimited identifier may have blank as part of the name
+ *
+ *	Parameters:  str - the string to terminate
+ *	Returns:     str
+ *
+ **************************************/
+	TEXT* q = str - 1;
+	for (TEXT* p = str; *p; p++) {
+		if (*p != BLANK)
+			q = p;
+	}
+
+	*(q + 1) = '\0';
+	return str;
+}
+
+
+FMT MET_format(TDBB tdbb, Relation* relation, USHORT number)
+{
+/**************************************
+ *
+ *      M E T _ f o r m a t
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup a format for given relation.
+ *
+ **************************************/
+
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync(&dbb->syncSysTrans, "MET_format");
+	sync.lock(Exclusive);
+	fmt* format = NULL;
+	Request *request = CMP_find_request(tdbb, irq_r_format, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$FORMATS WITH X.RDB$RELATION_ID EQ relation->rel_id AND
+			X.RDB$FORMAT EQ number 
+
+        if (!REQUEST(irq_r_format))
+            REQUEST(irq_r_format) = request;
+
+		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)&X.RDB$DESCRIPTOR);
+		const USHORT count = blob->blb_length / sizeof(OdsDesc);
+		format = fmt::newFmt(*dbb->dbb_permanent, count);
+		format->fmt_count = count;
+		OdsDesc *odsDescs = new OdsDesc [count];
+		BLB_get_data(tdbb, blob, (UCHAR*) odsDescs, blob->blb_length);
+		OdsDesc *odsDesc = odsDescs;
+		
+		for (fmt::fmt_desc_iterator desc = format->fmt_desc.begin();
+			 desc < format->fmt_desc.end(); ++desc, ++odsDesc)
+			{
+			desc->dsc_dtype = odsDesc->dsc_dtype;
+			desc->dsc_scale = odsDesc->dsc_scale;
+			desc->dsc_length = odsDesc->dsc_length;
+			desc->dsc_sub_type = odsDesc->dsc_sub_type;
+			desc->dsc_flags = odsDesc->dsc_flags;
+			desc->dsc_address = (UCHAR*) odsDesc->dsc_offset;
+			if (desc->dsc_address)
+				format->fmt_length = (long) desc->dsc_address + desc->dsc_length;
+			}
+		
+		delete [] odsDescs;
+		END_FOR;
+
+	if (!REQUEST(irq_r_format))
+		REQUEST(irq_r_format) = request;
+
+	if (!format)
+		format = fmt::newFmt(*dbb->dbb_permanent);
+
+	format->fmt_version = number;
+
+	return format;
+}
+
+
+BOOLEAN MET_get_char_subtype(TDBB tdbb,
+							 SSHORT* id, const TEXT* name, USHORT length)
+{
+/**************************************
+ *
+ *      M E T _ g e t _ c h a r _ s u b t y p e 
+ *
+ **************************************
+ *
+ * Functional description
+ *      Character types can be specified as either:
+ *         a) A POSIX style locale name "<collation>.<characterset>"
+ *         or
+ *         b) A simple <characterset> name (using default collation)
+ *         c) A simple <collation> name    (use charset for collation)
+ *
+ *      Given an ASCII7 string which could be any of the above, try to
+ *      resolve the name in the order a, b, c
+ *      a) is only tried iff the name contains a period.
+ *      (in which case b) and c) are not tried).
+ *
+ * Return:
+ *      1 if no errors (and *id is set).
+ *      0 if the name could not be resolved.
+ *
+ **************************************/
+	fb_assert(id != NULL);
+	fb_assert(name != NULL);
+	const TEXT* const end_name = name + length;
+
+	/* Force key to uppercase, following C locale rules for uppercasing */
+	/* At the same time, search for the first period in the string (if any) */
+	
+	TEXT buffer[32];			/* BASED ON RDB$COLLATION_NAME */
+	TEXT* p = buffer;
+	TEXT* period = NULL;
+	
+	for (; name < end_name && p < buffer + sizeof(buffer) - 1; p++, name++) 
+		{
+		*p = UPPER7(*name);
+		if ((*p == '.') && !period)
+			period = p;
+		}
+		
+	*p = 0;
+
+	/* Is there a period, separating collation name from character set? */
+
+	if (period) 
+		{
+		*period = 0;
+		return resolve_charset_and_collation(tdbb, id, period + 1, buffer);
+		}
+
+	/* Is it a character set name (implying charset default collation sequence) */
+
+	BOOLEAN res = resolve_charset_and_collation(tdbb, id, buffer, NULL);
+
+	if (!res) 
+		{
+		/* Is it a collation name (implying implementation-default character set) */
+		res = resolve_charset_and_collation(tdbb, id, NULL, buffer);
+		}
+
+	return res;
+}
+
+
+JRD_NOD MET_get_dependencies(TDBB			tdbb,
+						 Relation*			relation,
+						 TEXT*			blob,
+						 CSB			view_csb,
+						 SLONG			blob_id[2],
+						 JRD_REQ*			request,
+						 CSB*			csb_ptr,
+						 const TEXT*	object_name,
+						 USHORT			type)
+{
+/**************************************
+ *
+ *      M E T _ g e t _ d e p e n d e n c i e s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get dependencies for an object by parsing 
+ *      the blr used in its definition.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	CSB csb_ = Csb::newCsb(*tdbb->tdbb_default, 5);
+	csb_->csb_g_flags |= csb_get_dependencies;
+
+	jrd_nod* node;
+
+	if (blob)
+		node = PAR_blr  (tdbb, relation, reinterpret_cast<const UCHAR*>(blob),
+						view_csb, &csb_, request,
+						(BOOLEAN)((type == obj_trigger) ? TRUE : FALSE),
+						0);	
+	else
+		node = MET_parse_blob (tdbb, relation, blob_id, &csb_, request,
+							(BOOLEAN)((type == obj_trigger) ? TRUE : FALSE),
+							FALSE);
+
+	if (type == (USHORT) obj_computed)
+		{
+		blk* handle = NULL;
+		FOR(REQUEST_HANDLE handle)
+			RLF IN RDB$RELATION_FIELDS CROSS
+				FLD IN RDB$FIELDS WITH
+				RLF.RDB$FIELD_SOURCE EQ FLD.RDB$FIELD_NAME AND
+				RLF.RDB$RELATION_NAME EQ relation->rel_name AND
+				RLF.RDB$FIELD_NAME EQ object_name
+            object_name = FLD.RDB$FIELD_NAME;
+		END_FOR;
+		CMP_release(tdbb, (JRD_REQ)handle);
+		}
+
+	store_dependencies(tdbb, csb_, object_name, type);
+
+	if (csb_ptr)
+	{
+		*csb_ptr = csb_;
+	}
+	else
+	{
+		delete csb_;
+	}
+
+	return node;
+}
+
+
+JRD_FLD MET_get_field(Relation* relation, USHORT id)
+{
+/**************************************
+ *
+ *      M E T _ g e t _ f i e l d
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get the field block for a field if possible.  If not,
+ *      return NULL;
+ *
+ **************************************/
+
+	if (!relation || id >= relation->rel_fields.size())
+		return NULL;
+
+	return relation->rel_fields[id];
+}
+
+int	MET_get_primary_key (tdbb* tdbb, Relation *relation, int maxFields, Field **fields)
+{
+/**************************************
+ *
+ *      M E T _ g e t _ p r i m a r y _ k e y
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get primary key fields.
+ *
+ **************************************/
+
+	int count = 0;
+	Database *dbb = tdbb->tdbb_database;
+	Request *request = CMP_find_request(tdbb, irq_l_primary_key, IRQ_REQUESTS);
+	int position = 0;
+	
+	FOR(REQUEST_HANDLE request)
+	    X IN RDB$INDICES CROSS
+		Y IN RDB$INDEX_SEGMENTS
+		OVER RDB$INDEX_NAME CROSS
+		Z IN RDB$RELATION_CONSTRAINTS
+		OVER RDB$INDEX_NAME
+		WITH Z.RDB$RELATION_NAME EQ relation->rel_name
+		AND Z.RDB$CONSTRAINT_TYPE EQ "PRIMARY KEY"
+		SORTED BY Y.RDB$FIELD_POSITION 
+
+        if (!REQUEST(irq_l_primary_key))
+            REQUEST(irq_l_primary_key) = request;
+
+		count = X.RDB$SEGMENT_COUNT;
+		char fieldName [32];
+		name_copy (fieldName, Y.RDB$FIELD_NAME);
+		
+		if (position < maxFields)
+			fields [position++] = relation->getField (tdbb, fieldName);
+	END_FOR 
+		ON_ERROR 
+		END_ERROR;
+
+	return count;
+}
+
+void MET_get_shadow_files( TDBB tdbb, bool deleteVar)
+{
+/**************************************
+ *
+ *      M E T _ g e t _ s h a d o w _ f i l e s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Check the shadows found in the database against
+ *      our in-memory list: if any new shadow files have 
+ *      been defined since the last time we looked, start
+ *      shadowing to them; if any have been deleted, stop
+ *      shadowing to them.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	blk* handle = NULL;
+	
+	FOR(REQUEST_HANDLE handle) X IN RDB$FILES
+		WITH X.RDB$SHADOW_NUMBER NOT MISSING
+			AND X.RDB$SHADOW_NUMBER NE 0
+			AND X.RDB$FILE_SEQUENCE EQ 0
+        if ((X.RDB$FILE_FLAGS & FILE_shadow) &&
+            !(X.RDB$FILE_FLAGS & FILE_inactive))
+		{
+			const USHORT file_flags = X.RDB$FILE_FLAGS;
+			SDW_start(tdbb, X.RDB$FILE_NAME, X.RDB$SHADOW_NUMBER, file_flags,
+					  deleteVar);
+
+			/* if the shadow exists, mark the appropriate shadow 
+			   block as found for the purposes of this routine;
+			   if the shadow was conditional and is no longer, note it */
+
+			for (sdw* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next)
+			{
+				if ((shadow->sdw_number == X.RDB$SHADOW_NUMBER) &&
+					!(shadow->sdw_flags & SDW_IGNORE))
+				{
+					shadow->sdw_flags |= SDW_found;
+					if (!(file_flags & FILE_conditional))
+						shadow->sdw_flags &= ~SDW_conditional;
+					break;
+				}
+			}
+		}
+	END_FOR;
+
+	CMP_release(tdbb, (JRD_REQ)handle);
+
+/* if any current shadows were not defined in database, mark 
+   them to be shutdown since they don't exist anymore */
+
+	for (sdw* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next) {
+		if (!(shadow->sdw_flags & SDW_found))
+			shadow->sdw_flags |= SDW_shutdown;
+		else
+			shadow->sdw_flags &= ~SDW_found;
+	}
+
+	SDW_check(tdbb);
+}
+
+
+ULONG MET_get_walinfo(
+					TDBB tdbb,
+					LGFILE ** logfiles_, ULONG* number, LGFILE ** over_flow)
+{
+/**************************************
+ *
+ *      M E T _ g e t _ w a l i n f o
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get WAL information from RDB$LOG_FILES
+ *      Initialize over_flow pointer if over flow file is specified.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+    ULONG num = 0;
+	blk* handle = NULL;
+	FOR(REQUEST_HANDLE handle)
+		LOG IN RDB$LOG_FILES SORTED BY LOG.RDB$FILE_SEQUENCE
+			logfiles_[num] = FB_NEW_RPT(*dbb->dbb_permanent,
+											   LGFILE_SIZE + MAXPATHLEN) logfiles();
+		strcpy(logfiles_[num]->lg_name, LOG.RDB$FILE_NAME);
+		logfiles_[num]->lg_size = LOG.RDB$FILE_LENGTH;
+		logfiles_[num]->lg_partitions = LOG.RDB$FILE_PARTITIONS;
+		logfiles_[num]->lg_flags = LOG.RDB$FILE_FLAGS;
+		logfiles_[num]->lg_sequence = LOG.RDB$FILE_SEQUENCE;
+
+		++num;
+	END_FOR;
+
+	if (handle)
+	{
+		CMP_release(tdbb, (JRD_REQ)handle);
+	}
+
+	if (num)
+	{
+		*over_flow = logfiles_[num - 1];
+
+		/* The overflow file will be passed separately */
+
+		if (over_flow[0]->lg_flags & LOG_overflow)
+			num--;
+		else
+			*over_flow = NULL;
+	}
+
+	*number = num;
+
+	return num;
+}
+
+
+void MET_load_trigger(TDBB tdbb,
+					  Relation* relation, 
+					  const TEXT* trigger_name, 
+					  Triggers** triggers)
+{
+/**************************************
+ *
+ *      M E T _ l o a d _ t r i g g e r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Load triggers from RDB$TRIGGERS.  If a requested,
+ *      also load triggers from RDB$RELATIONS.
+ *
+ **************************************/
+	TEXT errmsg[MAX_ERRMSG_LEN + 1];
+	DBB dbb = tdbb->tdbb_database;
+
+	if (relation->rel_flags & REL_sys_trigs_being_loaded)
+		return;
+
+	/* No need to load triggers for ReadOnly databases,
+	   since INSERT/DELETE/UPDATE statements are not going to be allowed */
+	   
+	if (dbb->dbb_flags & DBB_read_only)
+		return;
+
+	/* Scan RDB$TRIGGERS next */
+
+	Request* trigger_request = CMP_find_request(tdbb, irq_s_triggers, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE trigger_request)
+		TRG IN RDB$TRIGGERS WITH TRG.RDB$RELATION_NAME =
+			relation->rel_name AND TRG.RDB$TRIGGER_NAME EQ trigger_name
+			
+		if (!REQUEST(irq_s_triggers))
+			REQUEST(irq_s_triggers) = trigger_request;
+
+		if (TRG.RDB$TRIGGER_TYPE > 0 && TRG.RDB$TRIGGER_TYPE < TRIGGER_COMBINED_MAX)
+			{
+			/* check if the trigger is to be fired without any permissions
+			   checks. Verify such a claim */
+			USHORT trig_flags = (USHORT) TRG.RDB$FLAGS;
+
+			/* if there is an ignore permission flag, see if it is legit */
+			
+			if ((TRG.RDB$FLAGS & TRG_ignore_perm) &&
+				 !verify_TRG_ignore_perm(tdbb, trigger_name))
+				{
+				gds__msg_format(NULL, JRD_BUGCHK, 304, sizeof(errmsg),
+								errmsg, trigger_name, NULL, NULL,
+								NULL, NULL);
+				ERR_log(JRD_BUGCHK, 304, errmsg);
+				trig_flags &= ~TRG_ignore_perm;
+				}
+
+			// dimitr: support for the universal triggers
+			
+			int trigger_action, slot_index = 0;
+			
+			while ((trigger_action = TRIGGER_ACTION_SLOT(TRG.RDB$TRIGGER_TYPE, ++slot_index)) > 0)
+				get_trigger(tdbb,
+							relation,
+							(SLONG*)&TRG.RDB$TRIGGER_BLR,
+								triggers + trigger_action,
+								TRG.RDB$TRIGGER_NAME,
+								(bool) TRG.RDB$SYSTEM_FLAG,
+								trig_flags);
+			}
+	END_FOR;
+
+	if (!REQUEST(irq_s_triggers))
+		REQUEST(irq_s_triggers) = trigger_request;
+}
+
+
+
+void MET_lookup_cnstrt_for_index(TDBB tdbb,
+								TEXT* constraint_name,
+								const TEXT* index_name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ c n s t r t _ f o r _ i n d e x
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup  constraint name from index name, if one exists.
+ *      Calling routine must pass a buffer of at least 32 bytes.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	constraint_name[0] = 0;
+	Request *request = CMP_find_request(tdbb, irq_l_cnstrt, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$RELATION_CONSTRAINTS WITH X.RDB$INDEX_NAME EQ index_name
+
+        if (!REQUEST(irq_l_cnstrt))
+            REQUEST(irq_l_cnstrt) = request;
+
+		X.RDB$CONSTRAINT_NAME[name_length(X.RDB$CONSTRAINT_NAME)] = 0;
+		strcpy(constraint_name, X.RDB$CONSTRAINT_NAME);
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_cnstrt))
+		REQUEST(irq_l_cnstrt) = request;
+}
+
+
+void MET_lookup_cnstrt_for_trigger(
+								   TDBB tdbb,
+								   TEXT* constraint_name,
+								   TEXT* relation_name,
+								   const TEXT* trigger_name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ c n s t r t _ f o r _ t r i g g e r 
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup  constraint name from trigger name, if one exists.
+ *      Calling routine must pass a buffer of at least 32 bytes.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	constraint_name[0] = 0;
+	relation_name[0] = 0;
+	Request *request = CMP_find_request(tdbb, irq_l_check, IRQ_REQUESTS);
+	Request* request2 = CMP_find_request(tdbb, irq_l_check2, IRQ_REQUESTS);
+
+/* utilize two requests rather than one so that we 
+   guarantee we always return the name of the relation
+   that the trigger is defined on, even if we don't 
+   have a check constraint defined for that trigger */
+
+	FOR(REQUEST_HANDLE request)
+		Y IN RDB$TRIGGERS WITH
+			Y.RDB$TRIGGER_NAME EQ trigger_name
+
+        if (!REQUEST(irq_l_check)) REQUEST(irq_l_check) = request;
+
+		FOR(REQUEST_HANDLE request2)
+			X IN RDB$CHECK_CONSTRAINTS WITH
+				X.RDB$TRIGGER_NAME EQ Y.RDB$TRIGGER_NAME
+
+            if (!REQUEST(irq_l_check2)) REQUEST(irq_l_check2) = request2;
+
+			X.RDB$CONSTRAINT_NAME[name_length(X.RDB$CONSTRAINT_NAME)] = 0;
+			strcpy(constraint_name, X.RDB$CONSTRAINT_NAME);
+
+		END_FOR;
+
+		if (!REQUEST(irq_l_check2))
+			REQUEST(irq_l_check2) = request2;
+
+		Y.RDB$RELATION_NAME[name_length(Y.RDB$RELATION_NAME)] = 0;
+		strcpy(relation_name, Y.RDB$RELATION_NAME);
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_check))
+		REQUEST(irq_l_check) = request;
+}
+
+
+void MET_lookup_exception(TDBB	tdbb,
+						  SLONG	number,
+						  TEXT*	name,
+						  TEXT*	message)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ e x c e p t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup exception by number and return its name and message.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+/* We need to look up exception in RDB$EXCEPTIONS */
+
+	Request *request = CMP_find_request(tdbb, irq_l_exception, IRQ_REQUESTS);
+
+	*name = 0;
+	if (message)
+	{
+		*message = 0;
+	}
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$EXCEPTIONS WITH X.RDB$EXCEPTION_NUMBER = number
+
+        if (!REQUEST(irq_l_exception))
+		{
+			REQUEST(irq_l_exception) = request;
+		}
+
+		if (!X.RDB$EXCEPTION_NAME.NULL)
+		{
+			name_copy(name, X.RDB$EXCEPTION_NAME);
+		}
+		if (!X.RDB$MESSAGE.NULL && message)
+		{
+			name_copy(message, X.RDB$MESSAGE);
+		}
+	END_FOR;
+
+	if (!REQUEST(irq_l_exception))
+	{
+		REQUEST(irq_l_exception) = request;
+	}
+}
+
+
+SLONG MET_lookup_exception_number(TDBB tdbb, const TEXT* name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ e x c e p t i o n _ n u m b e r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup exception by name and return its number.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+/* We need to look up exception in RDB$EXCEPTIONS */
+
+	Request *request = CMP_find_request(tdbb, irq_l_except_no, IRQ_REQUESTS);
+
+	SLONG number = 0;
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$EXCEPTIONS WITH X.RDB$EXCEPTION_NAME = name
+
+        if (!REQUEST(irq_l_except_no))
+			REQUEST(irq_l_except_no) = request;
+
+		number = X.RDB$EXCEPTION_NUMBER;
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_except_no))
+		REQUEST(irq_l_except_no) = request;
+
+	return number;
+}
+
+
+int MET_lookup_field(TDBB tdbb, Relation* relation, const TEXT* name, const TEXT* security_name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ f i e l d
+ *
+ **************************************
+ *
+ * Functional description
+ *      Look up a field name.
+ *	Additinally, if security_name is a not null pointer,
+ *	it's used to include the condition that it should match
+ *	the field's security class name, too.
+ *
+ *	if the field is not found return -1
+ *
+ *****************************************/
+	Request		*request;
+	//VEC			vector;
+	//vec::iterator	fieldIter, end;
+	//USHORT		id;
+	DBB dbb = tdbb->tdbb_database;
+	int length = strlen(name);
+
+	/* Start by checking field names that we already know */
+
+	for (;;)
+		{
+		//for (fieldIter = vector->begin(), id = 0, end = vector->end();  fieldIter < end; fieldIter++, id++)
+		for (int n = 0; n < relation->rel_fields.size(); ++n)
+			{
+			Field *field = relation->rel_fields[n];
+			
+			if (field && field->fld_length == length && strcmp (field->fld_name, name) == 0)
+				if (!security_name || field->fld_security_name == security_name)
+					return n;
+			}
+			
+		if (relation->rel_flags & REL_scanned)
+			break;
+			
+		MET_scan_relation (tdbb, relation);
+		}
+
+	/* Not found.  Next, try system relations directly */
+
+	USHORT	id = (USHORT) -1;
+
+	if (!relation->rel_name)
+		return id;
+
+	request = CMP_find_request(tdbb, irq_l_field, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$RELATION_FIELDS WITH
+			X.RDB$RELATION_NAME EQ relation->rel_name AND
+			X.RDB$FIELD_NAME EQ name 
+
+        if (!REQUEST(irq_l_field))
+            REQUEST(irq_l_field) = request;
+
+        if (!security_name)
+            id = X.RDB$FIELD_ID;
+        else 
+			{
+            USHORT nl, nl2;
+            nl2 = name_length (security_name);
+            if (!X.RDB$SECURITY_CLASS.NULL && (nl = name_length (X.RDB$SECURITY_CLASS)) == nl2 && 
+				 !strncmp (X.RDB$SECURITY_CLASS, security_name, nl)) 
+				{
+                id = X.RDB$FIELD_ID;
+				}
+			}
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_field)) {
+		REQUEST(irq_l_field) = request;
+	}
+
+	return id;
+}
+
+
+BLF MET_lookup_filter(tdbb* tdbb, SSHORT from, SSHORT to)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ f i l t e r
+ *
+ **************************************
+ *
+ * Functional description
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	FPTR_BFILTER_CALLBACK filter = NULL;
+	BLF blf_ = NULL;
+
+	Request *request = CMP_find_request(tdbb, irq_r_filters, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$FILTERS WITH X.RDB$INPUT_SUB_TYPE EQ from AND
+        X.RDB$OUTPUT_SUB_TYPE EQ to 
+
+        if (!REQUEST(irq_r_filters))
+            REQUEST(irq_r_filters) = request;
+		MET_exact_name(X.RDB$MODULE_NAME);
+		MET_exact_name(X.RDB$ENTRYPOINT);
+		filter = (FPTR_BFILTER_CALLBACK)
+			ISC_lookup_entrypoint(dbb, X.RDB$MODULE_NAME, X.RDB$ENTRYPOINT,
+								  ISC_EXT_LIB_PATH_ENV, true);
+		if (filter)
+		{
+			blf_ = FB_NEW(*dbb->dbb_permanent) blf();
+			blf_->blf_next = NULL;
+			blf_->blf_from = from;
+			blf_->blf_to = to;
+			blf_->blf_filter = filter;
+			str* exception_msg =
+				FB_NEW_RPT(*dbb->dbb_permanent,  strlen(EXCEPTION_MESSAGE) + strlen(X.RDB$FUNCTION_NAME) + strlen(X.RDB$ENTRYPOINT) +  strlen(X.RDB$MODULE_NAME) + 1) str();
+			sprintf((char*)exception_msg->str_data, EXCEPTION_MESSAGE, X.RDB$FUNCTION_NAME, X.RDB$ENTRYPOINT, X.RDB$MODULE_NAME);
+			blf_->blf_exception_message = exception_msg;
+		}
+		
+		MOD module = FLU_lookup_module( X.RDB$MODULE_NAME);
+		if (module)
+			{
+			/* Register interest in the module by database. */
+
+			lls* stack;
+			for (stack = dbb->dbb_modules; stack; stack = stack->lls_next) {
+				if (module == (MOD) stack->lls_object)
+					break;
+			}
+
+			/* If the module was already registered with this database
+			   then decrement the use count that was incremented in
+			   ISC_lookup_entrypoint() above. Otherwise push it onto
+			   the stack of registered modules. */
+
+			if (stack)
+				FLU_unregister_module(module);
+			else
+			{
+				JrdMemoryPool* old_pool = tdbb->tdbb_default;
+				tdbb->tdbb_default = dbb->dbb_permanent;
+				LLS_PUSH(module, &dbb->dbb_modules);
+				tdbb->tdbb_default = old_pool;
+			}
+		}
+	END_FOR;
+
+	if (!REQUEST(irq_r_filters))
+		REQUEST(irq_r_filters) = request;
+
+	return blf_;
+}
+
+
+SLONG MET_lookup_generator(TDBB tdbb, const TEXT* name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ g e n e r a t o r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup generator (aka gen_id).  If we can't find it, make a new one.
+ * CVC: I don't see how this function "makes" a new generator; it simply
+ *		returns -1 if the name is not found.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	if (!strcmp(name, "RDB$GENERATORS"))
+		return 0;
+
+	SLONG gen_id = -1;
+
+	Request *request = CMP_find_request(tdbb, irq_r_gen_id, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$GENERATORS WITH X.RDB$GENERATOR_NAME EQ name
+
+        if (!REQUEST(irq_r_gen_id))
+			REQUEST(irq_r_gen_id) = request;
+
+		gen_id = X.RDB$GENERATOR_ID;
+	END_FOR;
+
+	if (!REQUEST(irq_r_gen_id))
+		REQUEST(irq_r_gen_id) = request;
+
+	return gen_id;
+}
+
+void MET_lookup_generator_id (TDBB tdbb, SLONG gen_id, TEXT* name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ g e n e r a t o r _ i d
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup generator (aka gen_id) by ID. It will load
+ *		the name in the third parameter.
+ *
+ **************************************/
+    //SET_TDBB (tdbb);
+    DBB dbb  = tdbb->tdbb_database;
+    
+    if (!gen_id) {
+        strcpy (name, "RDB$GENERATORS");
+        return;
+    }
+
+    *name = 0;
+    
+	Request *request = CMP_find_request (tdbb, irq_r_gen_id_num, IRQ_REQUESTS);
+    
+    FOR (REQUEST_HANDLE request)
+        X IN RDB$GENERATORS WITH X.RDB$GENERATOR_ID EQ gen_id
+
+        if (!REQUEST (irq_r_gen_id_num))
+            REQUEST (irq_r_gen_id_num) = request;
+	    name_copy (name, X.RDB$GENERATOR_NAME);
+    END_FOR;
+
+    if (!REQUEST (irq_r_gen_id_num))
+        REQUEST (irq_r_gen_id_num) = request;
+}
+
+void MET_lookup_index(TDBB tdbb,
+						TEXT* index_name,
+						const TEXT* relation_name,
+						USHORT number)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ i n d e x
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup index name from relation and index number.
+ *      Calling routine must pass a buffer of at least 32 bytes.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	index_name[0] = 0;
+
+	Request *request = CMP_find_request(tdbb, irq_l_index, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$INDICES WITH X.RDB$RELATION_NAME EQ relation_name
+			AND X.RDB$INDEX_ID EQ number 
+
+        if (!REQUEST(irq_l_index))
+            REQUEST(irq_l_index) = request;
+
+		X.RDB$INDEX_NAME[name_length(X.RDB$INDEX_NAME)] = 0;
+		strcpy(index_name, X.RDB$INDEX_NAME);
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_index))
+		REQUEST(irq_l_index) = request;
+}
+
+
+SLONG MET_lookup_index_name(TDBB tdbb,
+							const TEXT* index_name,
+							SLONG* relation_id, SSHORT* status)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ i n d e x _ n a m e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup index id from index name.
+ *
+ **************************************/
+	SLONG id = -1;
+
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	Request *request = CMP_find_request(tdbb, irq_l_index_name, IRQ_REQUESTS);
+
+	*status = MET_object_unknown;
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$INDICES WITH
+			X.RDB$INDEX_NAME EQ index_name
+
+        if (!REQUEST(irq_l_index_name))
+            REQUEST(irq_l_index_name) = request;
+
+		if (X.RDB$INDEX_INACTIVE == 0)
+			*status = MET_object_active;
+		else
+			*status = MET_object_inactive;
+
+		id = X.RDB$INDEX_ID - 1;
+		const Relation* relation = MET_lookup_relation(tdbb, X.RDB$RELATION_NAME);
+		*relation_id = relation->rel_id;
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_index_name))
+		REQUEST(irq_l_index_name) = request;
+
+	return id;
+}
+
+
+int MET_lookup_partner(
+					   TDBB tdbb, Relation* relation, IDX* idx, const TEXT* index_name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ p a r t n e r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Find partner index participating in a
+ *      foreign key relationship.
+ *
+ **************************************/
+	Request* request;
+	Relation* partner_relation;
+	int index_number, found;
+	PRIM dependencies;
+	FRGN references;
+
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	if (relation->rel_flags & REL_check_partners)
+	{
+		/* Prepare for rescan of foreign references on other relations'
+		   primary keys and release stale vectors. */
+
+		request = CMP_find_request(tdbb, irq_foreign1, IRQ_REQUESTS);
+		references = &relation->rel_foreign_refs;
+		index_number = 0;
+
+		if (references->frgn_reference_ids) {
+			delete references->frgn_reference_ids;
+			references->frgn_reference_ids = NULL;
+		}
+		if (references->frgn_relations) {
+			delete references->frgn_relations;
+			references->frgn_relations = NULL;
+		}
+		if (references->frgn_indexes) {
+			delete references->frgn_indexes;
+			references->frgn_indexes = NULL;
+		}
+
+		FOR(REQUEST_HANDLE request)
+			IDX IN RDB$INDICES CROSS
+				RC IN RDB$RELATION_CONSTRAINTS
+				OVER RDB$INDEX_NAME CROSS
+				IND IN RDB$INDICES WITH
+				RC.RDB$CONSTRAINT_TYPE EQ "FOREIGN KEY" AND
+				IDX.RDB$RELATION_NAME EQ relation->rel_name AND
+				IND.RDB$INDEX_NAME EQ IDX.RDB$FOREIGN_KEY AND
+				IND.RDB$UNIQUE_FLAG NOT MISSING 
+
+            if (!REQUEST(irq_foreign1))
+			{
+                REQUEST(irq_foreign1) = request;
+			}
+
+			partner_relation =
+				MET_lookup_relation(tdbb, IND.RDB$RELATION_NAME);
+
+			if (partner_relation)
+			{
+				references->frgn_reference_ids =
+					vec::newVector(*dbb->dbb_permanent, references->frgn_reference_ids,
+								   index_number + 1);
+
+				(*references->frgn_reference_ids)[index_number] =
+					(BLK) (IDX.RDB$INDEX_ID - 1);
+
+				references->frgn_relations =
+					vec::newVector(*dbb->dbb_permanent, references->frgn_relations,
+								   index_number + 1);
+
+				(*references->frgn_relations)[index_number] =
+					(BLK) (long) partner_relation->rel_id;
+
+				references->frgn_indexes = 
+					vec::newVector(*dbb->dbb_permanent, references->frgn_indexes,
+								   index_number + 1);
+
+				(*references->frgn_indexes)[index_number] =
+					(BLK) (IND.RDB$INDEX_ID - 1);
+
+				index_number++;
+			}
+		END_FOR;
+
+		if (!REQUEST(irq_foreign1))
+		{
+			REQUEST(irq_foreign1) = request;
+		}
+
+		/* Prepare for rescan of primary dependencies on relation's primary
+		   key and stale vectors. */
+
+		request = CMP_find_request(tdbb, irq_foreign2, IRQ_REQUESTS);
+		dependencies = &relation->rel_primary_dpnds;
+		index_number = 0;
+
+		if (dependencies->prim_reference_ids) {
+			delete dependencies->prim_reference_ids;
+			dependencies->prim_reference_ids = NULL;
+		}
+		if (dependencies->prim_relations) {
+			delete dependencies->prim_relations;
+			dependencies->prim_relations = NULL;
+		}
+		if (dependencies->prim_indexes) {
+			delete dependencies->prim_indexes;
+			dependencies->prim_indexes = NULL;
+		}
+
+/*
+** ============================================================
+** ==
+** == since UNIQUE constraint also could be used as primary key
+** == therefore we change:
+** ==
+** ==    IDX.RDB$INDEX_NAME STARTING WITH "RDB$PRIMARY"
+** ==
+** == to
+** ==
+** ==    IDX.RDB$UNIQUE_FLAG = 1
+** ==
+** ============================================================
+*/
+
+		FOR(REQUEST_HANDLE request)
+			IDX IN RDB$INDICES CROSS
+				IND IN RDB$INDICES WITH
+				IDX.RDB$UNIQUE_FLAG = 1 AND
+				IDX.RDB$RELATION_NAME EQ relation->rel_name AND
+				IND.RDB$FOREIGN_KEY EQ IDX.RDB$INDEX_NAME
+
+			if (!REQUEST(irq_foreign2)) {
+				REQUEST(irq_foreign2) = request;
+			}
+			partner_relation = MET_lookup_relation(tdbb, IND.RDB$RELATION_NAME);
+			if (partner_relation)
+			{
+				dependencies->prim_reference_ids =
+					vec::newVector(*dbb->dbb_permanent, dependencies->prim_reference_ids,
+								   index_number + 1);
+
+				(*dependencies->prim_reference_ids)[index_number] =
+					(BLK) (IDX.RDB$INDEX_ID - 1);
+
+				dependencies->prim_relations = 
+					vec::newVector(*dbb->dbb_permanent, dependencies->prim_relations,
+								   index_number+1);
+
+				(*dependencies->prim_relations)[index_number] =
+					(BLK) (long) partner_relation->rel_id;
+
+				dependencies->prim_indexes =
+					vec::newVector(*dbb->dbb_permanent, dependencies->prim_indexes,
+								   index_number+1);
+
+				(*dependencies->prim_indexes)[index_number] =
+					(BLK) (IND.RDB$INDEX_ID - 1);
+
+				index_number++;
+			}
+		END_FOR;
+
+		if (!REQUEST(irq_foreign2))
+			REQUEST(irq_foreign2) = request;
+
+		relation->rel_flags &= ~REL_check_partners;
+	}
+
+	if (idx->idx_flags & idx_foreign)
+	{
+		if (*index_name)
+		{
+			/* Since primary key index names aren't being cached, do a long
+			   hard lookup. This is only called during index create for foreign
+			   keys. */
+
+			found = FALSE;
+			request = NULL;
+
+			FOR(REQUEST_HANDLE request)
+				IDX IN RDB$INDICES CROSS
+					IND IN RDB$INDICES WITH
+					IDX.RDB$RELATION_NAME EQ relation->rel_name AND
+					(IDX.RDB$INDEX_ID EQ idx->idx_id + 1 OR
+					 IDX.RDB$INDEX_NAME EQ index_name) AND
+					IND.RDB$INDEX_NAME EQ IDX.RDB$FOREIGN_KEY AND
+					IND.RDB$UNIQUE_FLAG NOT MISSING
+
+				partner_relation =
+					MET_lookup_relation(tdbb, IND.RDB$RELATION_NAME);
+
+                if (partner_relation)
+				{
+					idx->idx_primary_relation = partner_relation->rel_id;
+					idx->idx_primary_index = IND.RDB$INDEX_ID - 1;
+					found = TRUE;
+				}
+			END_FOR;
+
+			CMP_release(tdbb, (JRD_REQ)request);
+			return found;
+		}
+
+		references = &relation->rel_foreign_refs;
+		if (references->frgn_reference_ids)
+		{
+			for (index_number = 0;
+				 index_number < (int) references->frgn_reference_ids->count();
+				 index_number++)
+			{
+				if (idx->idx_id == (UCHAR)(long) (*references->frgn_reference_ids)
+											[index_number])
+				{
+					idx->idx_primary_relation =
+						(USHORT)(long) (*references->frgn_relations)[index_number];
+					idx->idx_primary_index =
+						(UCHAR)(long) (*references->frgn_indexes)[index_number];
+					return TRUE;
+				}
+			}
+		}
+		return FALSE;
+	}
+	else if (idx->idx_flags & (idx_primary | idx_unique))
+	{
+		dependencies = &relation->rel_primary_dpnds;
+		if (dependencies->prim_reference_ids)
+		{
+			for (index_number = 0;
+				 index_number < (int) dependencies->prim_reference_ids->count();
+				 index_number++)
+			{
+				if (idx->idx_id == (UCHAR)(long) (*dependencies->prim_reference_ids)
+											[index_number])
+				{
+					idx->idx_foreign_primaries =
+						relation->rel_primary_dpnds.prim_reference_ids;
+					idx->idx_foreign_relations =
+						relation->rel_primary_dpnds.prim_relations;
+					idx->idx_foreign_indexes =
+						relation->rel_primary_dpnds.prim_indexes;
+					return TRUE;
+				}
+			}
+		}
+		return FALSE;
+	}
+
+	return FALSE;
+}
+
+
+Procedure * MET_lookup_procedure(TDBB tdbb, const TEXT* name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ p r o c e d u r e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup procedure by name.  Name passed in is
+ *      ASCIZ name.
+ *
+ **************************************/
+
+	vec::iterator ptr, end;
+	//CSB csb_;
+	ProcParam * parameter;
+	//JrdMemoryPool *old_pool;
+	//JRD_NOD node;
+	fmt::fmt_desc_iterator desc;
+	//SSHORT i;
+	DBB dbb = tdbb->tdbb_database;
+	Procedure *procedure = NULL;
+
+	/***
+	BLK request = CMP_find_request(tdbb, irq_l_procedure, IRQ_REQUESTS);
+	FOR(REQUEST_HANDLE request)
+		P IN RDB$PROCEDURES WITH P.RDB$PROCEDURE_NAME EQ name
+
+        if (!REQUEST(irq_l_procedure)) 
+            REQUEST(irq_l_procedure) = request;
+
+        procedure = MET_procedure(tdbb, P.RDB$PROCEDURE_ID, noscan, 0);
+	END_FOR;
+
+	if (!REQUEST(irq_l_procedure))
+		REQUEST(irq_l_procedure) = request;
+	***/
+	
+	try 
+		{
+		Request* request = CMP_find_request(tdbb, irq_l_procedure, IRQ_REQUESTS);
+		Request* request2 = CMP_find_request(tdbb, irq_l_params, IRQ_REQUESTS);
+
+		FOR(REQUEST_HANDLE request)
+			P IN RDB$PROCEDURES WITH P.RDB$PROCEDURE_NAME EQ name
+
+			if (!REQUEST(irq_l_procedure))
+				REQUEST(irq_l_procedure) = request;
+
+			P.RDB$PROCEDURE_NAME [name_length(P.RDB$PROCEDURE_NAME)] = 0;
+			procedure = new Procedure (dbb, P.RDB$PROCEDURE_NAME, "", P.RDB$PROCEDURE_ID);
+			procedure->setFlags (PRC_being_scanned);
+			procedure->clearFlags (PRC_obsolete);
+			//procedure->getExistenceLock(tdbb);
+			
+			if (!P.RDB$SECURITY_CLASS.NULL)
+				{
+				P.RDB$SECURITY_CLASS [name_length(P.RDB$SECURITY_CLASS)] = 0;
+				procedure->setSecurityClassName (P.RDB$SECURITY_CLASS);
+				}
+				
+			if (P.RDB$SYSTEM_FLAG.NULL || !P.RDB$SYSTEM_FLAG)
+				procedure->clearFlags(PRC_system);				
+			else
+				procedure->setFlags (PRC_system);
+		
+			procedure->setInputCount (P.RDB$PROCEDURE_INPUTS);
+			procedure->setOutputCount (P.RDB$PROCEDURE_OUTPUTS);
+
+			FOR(REQUEST_HANDLE request2) 
+				PA IN RDB$PROCEDURE_PARAMETERS CROSS
+				F IN RDB$FIELDS 
+					WITH F.RDB$FIELD_NAME = PA.RDB$FIELD_SOURCE
+					AND PA.RDB$PROCEDURE_NAME = P.RDB$PROCEDURE_NAME
+
+				if (!REQUEST(irq_l_params))
+					REQUEST(irq_l_params) = request2;
+
+				/* should be error if field already exists */
+				parameter = new ProcParam (PA.RDB$PARAMETER_NUMBER);
+				parameter->setProcedure (procedure);
+
+				if (PA.RDB$PARAMETER_TYPE == 0)
+					procedure->setInputParameter (parameter);
+				else if (PA.RDB$PARAMETER_TYPE == 1)
+					procedure->setOutputParameter (parameter);
+					
+				PA.RDB$PARAMETER_NAME[name_length(PA.RDB$PARAMETER_NAME)] = 0;
+				parameter->fld_name = PA.RDB$PARAMETER_NAME;
+				DSC desc;
+				
+				DSC_make_descriptor(&desc, F.RDB$FIELD_TYPE,
+									F.RDB$FIELD_SCALE, F.RDB$FIELD_LENGTH,
+									F.RDB$FIELD_SUB_TYPE, F.RDB$CHARACTER_SET_ID,
+									F.RDB$COLLATION_ID);
+				parameter->setDescriptor (desc);
+				
+				parameter->fld_dtype = desc.dsc_dtype;
+				parameter->fld_scale = desc.dsc_scale;
+				parameter->fld_precision = desc.dsc_length;
+				parameter->fld_dimensions = F.RDB$DIMENSIONS;
+				parameter->fld_sub_type = desc.dsc_sub_type;
+			END_FOR;
+
+			if (!REQUEST(irq_l_params)) 
+				REQUEST(irq_l_params) = request2;
+
+			if (procedure->hasOutputParameters())
+				{
+				ULONG length;
+				FMT format = fmt::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
+				procedure->setFormat (format);
+				format->fmt_count = procedure->findOutputCount();
+				length = FLAG_BYTES(format->fmt_count);
+				desc = format->fmt_desc.begin();
+				
+				for (parameter = procedure->findOutputParameters();  parameter; parameter = parameter->findNext(), ++desc)
+					{
+					*desc = parameter->findDescriptor();
+					length = MET_align(&*desc, length);
+					desc->dsc_address = (UCHAR *) length;
+					length += desc->dsc_length;
+					}
+					
+				format->fmt_length = (USHORT) length;
+				}
+
+			/***
+			old_pool = tdbb->tdbb_default;
+			tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
+			//csb = Csb::newCsb(*tdbb->tdbb_default, 5);
+			Csb csb(*tdbb->tdbb_default, 5);
+			parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
+			procedure->findRequest()->req_procedure = procedure;
+
+			for (i = 0; i < csb.csb_rpt.getCount(); i++)
+				{
+				JRD_NOD node = csb.csb_rpt[i].csb_message;
+				
+				if (node)
+					if ((int) (IPTR) node->nod_arg[e_msg_number] == 0)
+						procedure->setInputMsg (node);
+					else if ((int) (IPTR) node->nod_arg[e_msg_number] == 1)
+						procedure->setOutputMsg (node);
+				}
+
+			//delete csb;
+			tdbb->tdbb_default = old_pool;
+			***/
+			procedure->setBlrBlobId(&P.RDB$PROCEDURE_BLR);
+		END_FOR;
+
+		if (!REQUEST(irq_l_procedure)) 
+			REQUEST(irq_l_procedure) = request;
+
+		/* Make sure that it is really being Scanned ! */
+		
+		if (procedure)
+			{
+			fb_assert(procedure->checkFlags (PRC_being_scanned));		
+			procedure->clearFlags (PRC_being_scanned);
+			procedure->addFlags (PRC_scanned);
+			}
+		}
+	catch (OSRIException&) 
+		{
+		if (procedure)
+			{
+			procedure->clearFlags (PRC_being_scanned | PRC_scanned);
+
+			if (procedure->findExistenceLock())
+				{
+				LCK_release(procedure->findExistenceLock());
+				procedure->setExistenceLock(NULL);
+				}
+			}
+			
+		throw;
+		}
+
+	return procedure;
+}
+
+#ifdef OBSOLETE
+Procedure* MET_lookup_procedure_id(TDBB tdbb, SSHORT id,
+							BOOLEAN return_deleted, BOOLEAN noscan, USHORT flags)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ p r o c e d u r e _ i d
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup procedure by id.
+ *
+ **************************************/
+
+	DBB dbb = tdbb->tdbb_database;
+	Procedure* check_procedure = NULL;
+	Procedure* procedure;
+
+	if ((procedure = dbb->procManager->findKnownProcedure (tdbb, id)) && 
+		(procedure->checkActive (noscan) || procedure->checkFlags (PRC_obsolete) && return_deleted))
+		{
+		if (procedure->checkFlags (PRC_check_existence)) 
+			{
+			check_procedure = procedure;
+			LCK_lock(tdbb, check_procedure->findExistenceLock(), LCK_SR, TRUE);
+			}
+		else 
+			return procedure;
+		}
+
+	/* We need to look up the procedure name in RDB$PROCEDURES */
+
+	procedure = NULL;
+
+	Request* request = CMP_find_request(tdbb, irq_l_proc_id, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		P IN RDB$PROCEDURES WITH P.RDB$PROCEDURE_ID EQ id
+
+        if (!REQUEST(irq_l_proc_id)) 
+            REQUEST(irq_l_proc_id) = request;
+
+		procedure = MET_procedure(tdbb, P.RDB$PROCEDURE_ID, noscan, flags);
+	END_FOR;
+
+	if (!REQUEST(irq_l_proc_id))
+		REQUEST(irq_l_proc_id) = request;
+
+	if (check_procedure) 
+		{
+		check_procedure->clearFlags (PRC_check_existence);
+		if (check_procedure != procedure) 
+			{
+			LCK_release(check_procedure->findExistenceLock());
+			check_procedure->setFlags (PRC_obsolete);
+			}
+		}
+
+
+	return procedure;
+}
+#endif
+
+void MET_getTypeInformation (tdbb *tdbb, Relation *relation)
+{
+/**************************************
+ *
+ *      M E T _ g e t T y p e I n f o r m a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get field datatype information.
+ *
+ **************************************/
+
+	DBB dbb = tdbb->tdbb_database;
+	Request* request = CMP_find_request(tdbb, irq_l_type_info, IRQ_REQUESTS);
+	
+	FOR (REQUEST_HANDLE request)
+			RFR IN RDB$RELATION_FIELDS CROSS
+			FLD IN RDB$FIELDS WITH
+			RFR.RDB$FIELD_SOURCE EQ FLD.RDB$FIELD_NAME AND
+			RFR.RDB$RELATION_NAME EQ relation->rel_name
+		//FOR_VEC (Field*, field, relation->rel_fields)
+		for (int n = 0; n < relation->rel_fields.size(); ++n)
+			{
+			Field *field = relation->rel_fields[n];
+			
+			for (char *p = RFR.RDB$FIELD_NAME; *p; ++p)
+				if (*p == ' ')
+					{
+					*p = 0;
+					break;
+					}
+			if (field && strcmp (field->fld_name, RFR.RDB$FIELD_NAME) == 0)
+				{
+				DSC desc;
+				DSC_make_descriptor(&desc, FLD.RDB$FIELD_TYPE,
+									FLD.RDB$FIELD_SCALE, FLD.RDB$FIELD_LENGTH,
+									FLD.RDB$FIELD_SUB_TYPE, FLD.RDB$CHARACTER_SET_ID,
+									FLD.RDB$COLLATION_ID);
+				field->setType(&desc, FLD.RDB$DIMENSIONS);
+				field->fld_id = RFR.RDB$FIELD_ID;
+				field->fld_position = RFR.RDB$FIELD_POSITION;
+				break;
+				}
+			}
+
+	END_FOR;
+
+	if (!REQUEST(irq_l_type_info))
+		REQUEST(irq_l_type_info) = request;
+}
+
+
+Relation* MET_lookup_relation(TDBB tdbb, const char* name)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ r e l a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup relation by name.  Name passed in is
+ *      ASCIZ name.
+ *
+ **************************************/
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync (&dbb->syncRelations, "MET_lookup_relation");
+	sync.lock (Shared);
+	Relation *relation = dbb->lookupRelation (tdbb, name);
+	
+	if (relation)
+		if (relation->rel_flags & REL_check_existence)
+			{
+			//check_relation = relation;
+			LCK_lock(tdbb, relation->rel_existence_lock, LCK_SR, TRUE);
+			}
+		else
+			return relation;
+
+	sync.unlock();
+	Relation *check_relation = relation;
+	
+	/* We need to look up the relation name in RDB$RELATIONS */
+
+	relation = NULL;
+	Request* request = CMP_find_request(tdbb, irq_l_relation, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$RELATIONS WITH X.RDB$RELATION_NAME EQ name
+
+        if (!REQUEST(irq_l_relation))
+			REQUEST(irq_l_relation) = request;
+
+		if (!X.RDB$RELATION_ID.NULL)
+			{
+			relation = dbb->getRelation(tdbb, X.RDB$RELATION_ID);
+			relation->rel_dbkey_length = X.RDB$DBKEY_LENGTH;
+			if (!relation->rel_name)
+				{
+				relation->rel_name = MET_save_name(tdbb, name);
+				relation->rel_length = strlen(relation->rel_name);
+				}
+			}
+	END_FOR;
+
+	if (!REQUEST(irq_l_relation))
+		REQUEST(irq_l_relation) = request;
+
+	if (check_relation) 
+		{
+		check_relation->rel_flags &= ~REL_check_existence;
+		if (check_relation != relation) 
+			{
+			LCK_release(check_relation->rel_existence_lock);
+			check_relation->rel_flags |= REL_deleted;
+			}
+		}
+
+	return relation;
+}
+
+
+Relation* MET_lookup_relation_id(TDBB tdbb, SLONG id, BOOLEAN return_deleted)
+{
+/**************************************
+ *
+ *      M E T _ l o o k u p _ r e l a t i o n _ i d
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup relation by id. Make sure it really exists.
+ *
+ **************************************/
+	DBB dbb;
+	Relation* relation;
+	Relation* check_relation;
+	//VEC vector;
+	Request* request;
+
+	//SET_TDBB(tdbb);
+	dbb = tdbb->tdbb_database;
+
+/* System relations are above suspicion */
+
+	if (id < (int) rel_MAX)
+		{
+		if (id < 0)
+			return NULL;
+		fb_assert((USHORT)id < MAX_USHORT);
+		return dbb->getRelation(tdbb, (USHORT) id);
+		}
+
+	check_relation = NULL;
+	
+	if ((id < (SLONG) dbb->dbb_relations.size()) && (relation = dbb->dbb_relations[id]))
+		{
+		if (relation->rel_flags & REL_deleted)
+			{
+			if (return_deleted)
+				return relation;
+			return NULL;
+			}
+		else if (relation->rel_flags & REL_check_existence)
+			{
+			check_relation = relation;
+			LCK_lock(tdbb, check_relation->rel_existence_lock, LCK_SR, TRUE);
+			}
+		else
+			return relation;
+		}
+
+	/* We need to look up the relation id in RDB$RELATIONS */
+
+	relation = NULL;
+	request = CMP_find_request(tdbb, irq_l_rel_id, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$RELATIONS WITH X.RDB$RELATION_ID EQ id
+
+        if (!REQUEST(irq_l_rel_id)) 
+			REQUEST(irq_l_rel_id) = request;
+
+		relation = dbb->getRelation(tdbb, X.RDB$RELATION_ID);
+		relation->rel_dbkey_length = X.RDB$DBKEY_LENGTH;
+		if (!relation->rel_name) 
+			{
+			relation->rel_name = MET_save_name(tdbb, X.RDB$RELATION_NAME);
+			relation->rel_length = strlen(relation->rel_name);
+			}
+	END_FOR;
+
+	if (!REQUEST(irq_l_rel_id))
+		REQUEST(irq_l_rel_id) = request;
+
+	if (check_relation) 
+		{
+		check_relation->rel_flags &= ~REL_check_existence;
+		if (check_relation != relation) 
+			{
+			LCK_release(check_relation->rel_existence_lock);
+			check_relation->rel_flags |= REL_deleted;
+			}
+		}
+
+	return relation;
+}
+
+
+JRD_NOD MET_parse_blob(TDBB		tdbb,
+				   Relation*		relation,
+				   SLONG	blob_id[2],
+				   CSB*		csb_ptr,
+				   JRD_REQ*		request_ptr,
+				   BOOLEAN	trigger,
+				   BOOLEAN	ignore_perm)
+{
+/**************************************
+ *
+ *      M E T _ p a r s e _ b l o b
+ *
+ **************************************
+ *
+ * Functional description
+ *      Parse blr, returning a compiler scratch block with the results.
+ *
+ * if ignore_perm is true then, the request generated must be set to
+ *   ignore all permissions checks. In this case, we call PAR_blr
+ *   passing it the csb_ignore_perm flag to generate a request
+ *   which must go through without checking any permissions.
+ *
+ **************************************/
+
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync(&dbb->syncSysTrans, "MET_parse_blob");
+	sync.lock(Exclusive);
+	
+	BLB blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
+	SLONG length = blob->blb_length + 10;
+	TempSpace temp(length);
+	//temp = FB_NEW_RPT(*tdbb->tdbb_default, length) str();
+	BLB_get_data(tdbb, blob, temp.space, length);
+
+	return PAR_blr(tdbb, relation, temp.space, NULL, csb_ptr, request_ptr,
+					trigger, (USHORT)(ignore_perm ? csb_ignore_perm : 0));
+}
+
+
+void MET_parse_sys_trigger(TDBB tdbb, Relation* relation)
+{
+/**************************************
+ *
+ *      M E T _ p a r s e _ s y s _ t r i g g e r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Parse the blr for a system relation's triggers.
+ *
+ **************************************/
+	Triggers**	ptr;
+	JRD_REQ		request;
+	JrdMemoryPool	*old_pool;
+
+	DBB	dbb = tdbb->tdbb_database;
+	relation->rel_flags &= ~REL_sys_triggers;
+	Sync sync (&relation->syncTriggers, "MET_parse_sys_trigger");
+	sync.lock(Exclusive);
+
+	/* release any triggers in case of a rescan */
+
+	if (relation->rel_pre_store)
+		MET_release_triggers(tdbb, &relation->rel_pre_store);
+		
+	if (relation->rel_post_store)
+		MET_release_triggers(tdbb, &relation->rel_post_store);
+		
+	if (relation->rel_pre_erase)
+		MET_release_triggers(tdbb, &relation->rel_pre_erase);
+		
+	if (relation->rel_post_erase)
+		MET_release_triggers(tdbb, &relation->rel_post_erase);
+		
+	if (relation->rel_pre_modify)
+		MET_release_triggers(tdbb, &relation->rel_pre_modify);
+		
+	if (relation->rel_post_modify)
+		MET_release_triggers(tdbb, &relation->rel_post_modify);
+
+	/* No need to load triggers for ReadOnly databases, since
+       INSERT/DELETE/UPDATE statements are not going to be allowed */
+
+	if (dbb->dbb_flags & DBB_read_only)
+		return;
+
+	relation->rel_flags |= REL_sys_trigs_being_loaded;
+	const jrd_trg* trigger = NULL;
+	const UCHAR*	blr;
+	UCHAR	type;
+	const TEXT*	name;
+	USHORT	trig_flags;
+	
+	while ( (trigger = INI_lookup_sys_trigger(relation, trigger, &blr, &type, &name, &trig_flags)) )
+		{
+		switch (type) 
+			{
+			case 1:
+				ptr = &relation->rel_pre_store;
+				break;
+				
+			case 2:
+				ptr = &relation->rel_post_store;
+				break;
+				
+			case 3:
+				ptr = &relation->rel_pre_modify;
+				break;
+				
+			case 4:
+				ptr = &relation->rel_post_modify;
+				break;
+				
+			case 5:
+				ptr = &relation->rel_pre_erase;
+				break;
+				
+			case 6:
+				ptr = &relation->rel_post_erase;
+				break;
+				
+			default:
+				ptr = NULL;
+				break;
+			}
+
+		if (ptr)
+			{
+			const USHORT par_flags = (USHORT) ((trig_flags & TRG_ignore_perm) ? csb_ignore_perm : 0);
+			old_pool = tdbb->tdbb_default;
+			tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
+			PAR_blr(tdbb, relation, blr, NULL, NULL, &request, TRUE, par_flags);
+			tdbb->tdbb_default = old_pool;
+			request->req_trg_name = const_cast<TEXT*>(name);
+			request->req_flags |= req_sys_trigger;
+			
+			if (trig_flags & TRG_ignore_perm)
+				request->req_flags |= req_ignore_perm;
+
+			save_trigger_data(tdbb, ptr, relation, request, NULL, NULL, true, 0);
+			}
+		}
+
+	relation->rel_flags &= ~REL_sys_trigs_being_loaded;
+}
+
+
+int MET_post_existence( TDBB tdbb, Relation* relation)
+{
+/**************************************
+ *
+ *      M E T _ p o s t _ e x i s t e n c e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Post an interest in the existence of a relation.
+ *
+ **************************************/
+
+	//SET_TDBB(tdbb);
+
+	if (relation->incrementUseCount() == 1 &&
+		!MET_lookup_relation_id(tdbb, relation->rel_id, FALSE))
+		return FALSE;
+
+	return TRUE;
+}
+
+
+void MET_prepare( TDBB tdbb, Transaction* transaction, USHORT length,
+	const UCHAR* msg)
+{
+/**************************************
+ *
+ *      M E T _ p r e p a r e 
+ *
+ **************************************
+ *
+ * Functional description
+ *      Post a transaction description to RDB$TRANSACTIONS.
+ *
+ **************************************/
+	DBB dbb;
+	Request* request;
+	BLB blob;
+
+	//SET_TDBB(tdbb);
+	dbb = tdbb->tdbb_database;
+
+	request = CMP_find_request(tdbb, irq_s_trans, IRQ_REQUESTS);
+
+	STORE(REQUEST_HANDLE request) X IN RDB$TRANSACTIONS
+		X.RDB$TRANSACTION_ID = transaction->tra_number;
+		X.RDB$TRANSACTION_STATE =
+			RDB$TRANSACTIONS.RDB$TRANSACTION_STATE.LIMBO;
+		blob =
+			BLB_create(tdbb, dbb->dbb_sys_trans,
+					   (BID)&X.RDB$TRANSACTION_DESCRIPTION);
+		BLB_put_segment(tdbb, blob, msg, length);
+		BLB_close(tdbb, blob);
+	END_STORE;
+
+	if (!REQUEST(irq_s_trans))
+		REQUEST(irq_s_trans) = request;
+}
+
+#ifdef OBSOLETE
+Procedure* MET_procedure(TDBB tdbb, int id, BOOLEAN noscan, USHORT flags)
+{
+/**************************************
+ *
+ *      M E T _ p r o c e d u r e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Find or create a procedure block for a given procedure id.
+ *
+ **************************************/
+	Procedure* procedure;
+	Request	*request, *request2;
+	vec::iterator ptr, end;
+	//CSB csb_;
+	ProcParam * parameter;
+	JrdMemoryPool *old_pool;
+	//JRD_NOD node;
+	fmt::fmt_desc_iterator desc;
+	//SSHORT i;
+
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	if (procedure = dbb->procManager->findKnownProcedure (tdbb, id))
+		{
+		/* Make sure PRC_being_scanned and PRC_scanned
+		   are not set at the same time
+		 */
+		fb_assert(!(procedure->checkFlags (PRC_being_scanned)) ||
+			   !(procedure->checkFlags (PRC_scanned)));
+
+		/* To avoid scanning recursive procedure's blr recursively let's
+		   make use of PRC_being_scanned bit. Because this bit is set
+		   later in the code, it is not set when we are here first time.
+		   If (in case of rec. procedure) we get here second time it is 
+		   already set and we return half baked procedure.
+		   In case of superserver this code is under the rec. mutex
+		   protection, thus the only guy (thread) who can get here and see
+		   PRC_being_scanned bit set is the guy which started procedure scan
+		   and currently holds the mutex.
+		   In case of classic, there is always only one guy and if it 
+		   sees PRC_being_scanned bit set it is safe to assume it is here
+		   second time.
+
+		   If procedure has already been scanned - return. This condition
+		   is for those threads that did not find procedure in cach and 
+		   came here to get it from disk. But only one was able to lock
+		   the mutex and do the scanning, others were waiting. As soon as
+		   the first thread releases the mutex another thread gets in and
+		   it would be just unfair to make it do the work again
+		 */
+		 
+		if ((procedure->checkFlags (PRC_being_scanned))||
+			(procedure->checkFlags (PRC_scanned)))
+			return procedure;
+		}
+
+	if (!procedure)
+		procedure = new Procedure(dbb, id);
+
+	try 
+		{
+		procedure->setFlags (PRC_being_scanned | flags);
+		procedure->clearFlags (PRC_obsolete);
+		//procedure->getExistenceLock(tdbb);
+
+		if (!noscan) 
+			{
+			request = CMP_find_request(tdbb, irq_r_procedure, IRQ_REQUESTS);
+			request2 = CMP_find_request(tdbb, irq_r_params, IRQ_REQUESTS);
+
+			FOR(REQUEST_HANDLE request)
+				P IN RDB$PROCEDURES WITH P.RDB$PROCEDURE_ID EQ procedure->findId()
+
+				if (!REQUEST(irq_r_procedure))
+					REQUEST(irq_r_procedure) = request;
+
+				if (!procedure->findName())
+					{
+					P.RDB$PROCEDURE_NAME [name_length(P.RDB$PROCEDURE_NAME)] = 0;
+					procedure->setName (P.RDB$PROCEDURE_NAME);
+					}
+
+				if (!P.RDB$SECURITY_CLASS.NULL)
+					{
+					P.RDB$SECURITY_CLASS [name_length(P.RDB$SECURITY_CLASS)] = 0;
+					procedure->setSecurityClassName (P.RDB$SECURITY_CLASS);
+					}
+					
+				if (P.RDB$SYSTEM_FLAG.NULL || !P.RDB$SYSTEM_FLAG)
+					procedure->clearFlags(PRC_system);				
+				else
+					procedure->setFlags (PRC_system);
+			
+				procedure->setInputCount (P.RDB$PROCEDURE_INPUTS);
+				procedure->setOutputCount (P.RDB$PROCEDURE_OUTPUTS);
+
+				FOR(REQUEST_HANDLE request2) PA IN RDB$PROCEDURE_PARAMETERS CROSS
+					F IN RDB$FIELDS WITH F.RDB$FIELD_NAME = PA.RDB$FIELD_SOURCE
+						AND PA.RDB$PROCEDURE_NAME = P.RDB$PROCEDURE_NAME
+
+					if (!REQUEST(irq_r_params))
+						REQUEST(irq_r_params) = request2;
+
+					/* should be error if field already exists */
+					parameter = new ProcParam (PA.RDB$PARAMETER_NUMBER);
+					parameter->setProcedure (procedure);
+
+					if (PA.RDB$PARAMETER_TYPE == 0)
+						procedure->setInputParameter (parameter);
+					else if (PA.RDB$PARAMETER_TYPE == 1)
+						procedure->setOutputParameter (parameter);
+						
+					parameter->fld_name = PA.RDB$PARAMETER_NAME;
+					DSC desc;
+					
+					DSC_make_descriptor(&desc, F.RDB$FIELD_TYPE,
+										F.RDB$FIELD_SCALE, F.RDB$FIELD_LENGTH,
+										F.RDB$FIELD_SUB_TYPE, F.RDB$CHARACTER_SET_ID,
+										F.RDB$COLLATION_ID);
+										
+					parameter->setDescriptor (desc);
+					
+					parameter->fld_dtype = desc.dsc_dtype;
+					parameter->fld_scale = desc.dsc_scale;
+					parameter->fld_precision = desc.dsc_length;
+					parameter->fld_dimensions = F.RDB$DIMENSIONS;
+					parameter->fld_sub_type = desc.dsc_sub_type;
+				END_FOR;
+
+				if (!REQUEST(irq_r_params)) 
+					REQUEST(irq_r_params) = request2;
+
+				if (procedure->hasOutputParameters())
+					{
+					ULONG length;
+					FMT format = fmt::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
+					procedure->setFormat (format);
+					format->fmt_count = procedure->findOutputCount();
+					length = FLAG_BYTES(format->fmt_count);
+					desc = format->fmt_desc.begin();
+					
+					for (parameter = procedure->findOutputParameters(); 
+						parameter; parameter = parameter->findNext())
+						{
+						/* check for parameter to be null, this can only happen if the
+						* parameter numbers get out of sync. This was added to fix bug
+						* 10534. -Shaunak Mistry 12-May-99
+						*/
+						if (parameter)
+							{
+							*desc = parameter->findDescriptor();
+							length = MET_align(&*desc, length);
+							desc->dsc_address = (UCHAR *) length;
+							length += desc->dsc_length;
+							}
+						}
+					format->fmt_length = (USHORT) length;
+					}
+
+				old_pool = tdbb->tdbb_default;
+				tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
+				//csb = Csb::newCsb(*tdbb->tdbb_default, 5);
+				Csb csb(*tdbb->tdbb_default, 5);
+				parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
+				procedure->findRequest()->req_procedure = procedure;
+
+				for (int i = 0; i < csb.csb_rpt.getCount(); i++)
+					{
+					JRD_NOD node = csb.csb_rpt[i].csb_message;
+					
+					if (node)
+						if ((IPTR) node->nod_arg[e_msg_number] == 0)
+							procedure->setInputMsg (node);
+						else if ((IPTR) node->nod_arg[e_msg_number] == 1)
+							procedure->setOutputMsg (node);
+					}
+
+				//delete csb;
+				tdbb->tdbb_default = old_pool;
+				
+			END_FOR;
+
+			if (!REQUEST(irq_r_procedure)) 
+				REQUEST(irq_r_procedure) = request;
+
+			procedure->addFlags (PRC_scanned);
+			
+			} /* if !noscan */
+		
+		/* Make sure that it is really being Scanned ! */
+			fb_assert(procedure->checkFlags (PRC_being_scanned));		
+			procedure->clearFlags (PRC_being_scanned);
+
+		}
+	catch (OSRIException&) 
+		{
+		procedure->clearFlags (PRC_being_scanned | PRC_scanned);
+
+		if (procedure->findExistenceLock())
+			{
+			LCK_release(procedure->findExistenceLock());
+			procedure->setExistenceLock(NULL);
+			}
+		throw;
+		}
+
+	return procedure;
+}
+#endif
+
+#ifdef OBSOLETE
+Relation* MET_relation(TDBB tdbb, USHORT id)
+{
+/**************************************
+ *
+ *      M E T _ r e l a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Find or create a relation block for a given relation id.
+ *
+ **************************************/
+
+	Relation *relation = tdbb->tdbb_database->getRelation (tdbb, id);
+	//relation->rel_existence_lock->lck_ast = blocking_ast_relation;
+
+	return relation;
+}
+#endif
+
+BOOLEAN MET_relation_owns_trigger (TDBB tdbb, const TEXT *relation_name, 
+                                   const TEXT *trigger_name)
+{
+/**************************************
+ *
+ *      M E T _ r e l a t i o n _ o w n s _ t r i g g e r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Checks that a given trigger is defined for a
+ *      given relation, returning TRUE if there's a match.
+ *      It's almost a subset of MET_load_trigger().
+ *
+ **************************************/
+    DBB     dbb;
+    Request*     trigger_request;
+    BOOLEAN found = FALSE;
+    
+    //SET_TDBB (tdbb);
+    dbb = tdbb->tdbb_database;
+    CHECK_DBB (dbb);
+
+    /* No need to load triggers for ReadOnly databases,
+       since INSERT/DELETE/UPDATE statements are not going to be allowed;
+       but we do not care of this flag here. We do not load, we only check. */
+    /*if (dbb->dbb_flags & DBB_read_only)
+      return;*/
+
+    /* Scan RDB$TRIGGERS next */
+
+    /* CVC: Notice that we'll use the request irq_s_triggers2 that was found
+       to be unused at this time. */
+
+    trigger_request = CMP_find_request (tdbb, irq_s_triggers2, IRQ_REQUESTS);
+
+    FOR (REQUEST_HANDLE trigger_request)
+        TRG IN RDB$TRIGGERS WITH TRG.RDB$RELATION_NAME = relation_name AND
+	    TRG.RDB$TRIGGER_NAME EQ trigger_name
+
+        if (!REQUEST (irq_s_triggers2))
+            REQUEST (irq_s_triggers2) = trigger_request;
+
+        found = TRUE;
+
+        /* Notice we do not care whether the trigger is valid or not. We assume
+           the caller wants to verify already validated entities.
+           if (TRG.RDB$TRIGGER_TYPE > 0 && TRG.RDB$TRIGGER_TYPE < TRIGGER_MAX)
+        */
+
+    END_FOR;
+
+    if (!REQUEST (irq_s_triggers2))
+        REQUEST (irq_s_triggers2) = trigger_request;
+
+    return found;
+}
+
+BOOLEAN MET_relation_default_class (TDBB tdbb, const TEXT *relation_name,
+                                    const TEXT *default_security_class_name)
+{
+/**************************************
+ *
+ *      M E T _ r e l a t i o n _ d e f a u l t _ c l a s s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Checks that a given security class is the default for
+ *      a given relation, returning TRUE if there's a match.
+ *      It can be made obsolete in the future if Relation struct
+ *	gets another field, although metadata loading order
+ *	would not be safe when compared with this function.
+ *
+ **************************************/
+    DBB     dbb;
+    Request*     request;
+    BOOLEAN found = FALSE;
+
+    //SET_TDBB (tdbb);
+    dbb = tdbb->tdbb_database;
+    CHECK_DBB (dbb);
+    
+    request = CMP_find_request (tdbb, irq_l_relation_defsec, IRQ_REQUESTS);
+    
+    FOR (REQUEST_HANDLE request)
+        REL IN RDB$RELATIONS WITH REL.RDB$RELATION_NAME EQ relation_name
+
+        if (!REQUEST (irq_l_relation_defsec))
+            REQUEST (irq_l_relation_defsec) = request;
+
+        if (!REL.RDB$DEFAULT_CLASS.NULL) {
+            USHORT nl = name_length (REL.RDB$DEFAULT_CLASS),
+                nl2 = name_length (default_security_class_name);
+            if (nl == nl2 && !strncmp (REL.RDB$DEFAULT_CLASS, default_security_class_name, nl)) {
+                found = TRUE;
+            }
+        }
+
+    END_FOR;
+
+    if (!REQUEST (irq_l_relation_defsec))
+        REQUEST (irq_l_relation_defsec) = request;
+
+    return found;
+}
+
+
+void MET_release_existence( Relation* relation)
+{
+/**************************************
+ *
+ *      M E T _ r e l e a s e _ e x i s t e n c e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Release interest in relation. If no remaining interest
+ *      and we're blocking the drop of the relation then release
+ *      existence lock and mark deleted.
+ *
+ **************************************/
+ 
+	if (relation->useCount) 
+		relation->decrementUseCount();
+
+	if (!relation->useCount)
+		if (relation->rel_flags & REL_blocking)
+			LCK_re_post(relation->rel_existence_lock);
+}
+
+
+void MET_remove_procedure( TDBB tdbb, Procedure* procedure)
+{
+/**************************************
+ *
+ *      M E T _ r e m o v e  _ p r o c e d u r e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Remove a procedure from cache
+ *
+ **************************************/
+	Database *dbb = procedure->getDatabase();
+
+	if (!(dbb->procManager->findFirst()))
+		return;
+
+	/***
+	if (!procedure) 
+		{
+		// If we are in here then dfw.e/modify_procedure() called us
+		if (!(procedure = dbb->procManager->findProcedure (tdbb, id)))
+			return;
+		}
+	***/
+	
+	/* MET_procedure locks it. Lets unlock it now to avoid troubles later */
+	
+	if (procedure->findExistenceLock())
+		LCK_release(procedure->findExistenceLock());
+
+	/* Procedure that is being altered may have references
+	   to it by other procedures via pointer to current meta
+	   data structure, so don't lose the structure or the pointer. */
+   
+	int id = procedure->findId();
+	
+	if ((procedure == dbb->procManager->findProcedure (tdbb, id)) && 
+		!(procedure->checkFlags (PRC_being_altered)))
+	    dbb->procManager->dropProcedure(id);
+}
+
+
+void MET_revoke(
+				TDBB tdbb,
+				Transaction* transaction,
+				TEXT * relation, TEXT * revokee, TEXT * privilege)
+{
+/**************************************
+ *
+ *      M E T _ r e v o k e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Execute a recursive revoke.  This is called only when
+ *      a revoked privilege had the grant option.
+ *
+ **************************************/
+	DBB dbb;
+	USHORT count;
+	Request* request;
+
+	//SET_TDBB(tdbb);
+	dbb = tdbb->tdbb_database;
+
+/* See if the revokee still has the privilege.  If so, there's
+   nothing to do */
+
+	count = 0;
+
+	request = CMP_find_request(tdbb, irq_revoke1, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request TRANSACTION_HANDLE transaction)
+		FIRST 1 P IN RDB$USER_PRIVILEGES WITH
+			P.RDB$RELATION_NAME EQ relation AND
+			P.RDB$PRIVILEGE EQ privilege AND
+			P.RDB$USER EQ revokee 
+
+        if (!REQUEST(irq_revoke1))
+			REQUEST(irq_revoke1) = request;
+		++count;
+	END_FOR;
+
+	if (!REQUEST(irq_revoke1))
+		REQUEST(irq_revoke1) = request;
+
+	if (count)
+		return;
+
+	request = CMP_find_request(tdbb, irq_revoke2, IRQ_REQUESTS);
+
+/* User lost privilege.  Take it away from anybody he/she gave
+   it to. */
+
+	FOR(REQUEST_HANDLE request TRANSACTION_HANDLE transaction)
+		P IN RDB$USER_PRIVILEGES WITH
+			P.RDB$RELATION_NAME EQ relation AND
+			P.RDB$PRIVILEGE EQ privilege AND
+			P.RDB$GRANTOR EQ revokee 
+
+        if (!REQUEST(irq_revoke2))
+            REQUEST(irq_revoke2) = request;
+		ERASE P;
+	END_FOR;
+
+	if (!REQUEST(irq_revoke2))
+		REQUEST(irq_revoke2) = request;
+}
+
+
+TEXT* MET_save_name(TDBB tdbb, const TEXT* name)
+{
+/**************************************
+ *
+ *      M E T _ s a v e _ n a m e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Immortalize a field or relation name in a permant string block.
+ *      Oh, wow.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+
+	str* string = save_name(tdbb, name);
+	return (TEXT*) string->str_data;
+}
+
+
+void MET_scan_relation( TDBB tdbb, Relation* relation)
+{
+/**************************************
+ *
+ *      M E T _ s c a n _ r e l a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Scan a relation for view rse, computed by expressions, missing
+ *      expressions, and validation expressions.
+ *
+ **************************************/
+	USHORT n, length, view_context, field_id;
+	ARR array;
+	Triggers* triggers[TRIGGER_MAX], *tmp_vector;
+	Field *field;
+	Request* request;
+	CSB csb_;
+	BLB blob;
+	UCHAR *p, *q, temp[256];
+	DBB dbb = tdbb->tdbb_database;
+
+	Sync sync(&dbb->syncSysTrans, "MET_scan_relation");
+	sync.lock(Exclusive);
+
+	if (relation->rel_flags & REL_scanned || relation->rel_flags & REL_deleted) 
+		return;
+
+	relation->rel_flags |= REL_being_scanned;
+	BOOLEAN dependencies = (relation->rel_flags & REL_get_dependencies) ? TRUE : FALSE;
+	BOOLEAN sys_triggers = (relation->rel_flags & REL_sys_triggers) ? TRUE : FALSE;
+	relation->rel_flags &= ~(REL_get_dependencies | REL_sys_triggers);
+
+	for (n = 0; n < TRIGGER_MAX; n++)
+		triggers[n] = NULL;
+
+	JrdMemoryPool* old_pool = tdbb->tdbb_default;
+	tdbb->tdbb_default = dbb->dbb_permanent;
+
+	/* If anything errors, catch it to reset the scan flag.  This will
+	   make sure that the error will be caught if the operation is tried
+	   again. */
+
+	try 
+		{
+		/* Since this can be called recursively, find an inactive clone of the request */
+
+		request = CMP_find_request(tdbb, irq_r_fields, IRQ_REQUESTS);
+		csb_ = NULL;
+
+		FOR(REQUEST_HANDLE request)
+			REL IN RDB$RELATIONS WITH REL.RDB$RELATION_ID EQ relation->rel_id
+				/* Pick up relation level stuff */
+
+			if (!REQUEST(irq_r_fields))
+				REQUEST(irq_r_fields) = request;
+
+			relation->rel_current_fmt = REL.RDB$FORMAT;
+			relation->rel_fields.checkSize(REL.RDB$FIELD_ID, REL.RDB$FIELD_ID + 1);
+			
+			if (!REL.RDB$SECURITY_CLASS.NULL)
+				relation->rel_security_name = MET_save_name(tdbb, REL.RDB$SECURITY_CLASS);
+	 
+ 			if (relation->rel_name.IsEmpty()) 
+				{
+				relation->rel_name = MET_save_name(tdbb, REL.RDB$RELATION_NAME);
+				relation->rel_length = strlen(relation->rel_name);
+				}
+
+			if (relation->rel_owner_name.IsEmpty())
+				relation->rel_owner_name = MET_save_name(tdbb, REL.RDB$OWNER_NAME);
+
+			if (REL.RDB$FLAGS & REL_sql)
+				relation->rel_flags |= REL_sql_relation;
+
+			if (!NULL_BLOB(REL.RDB$VIEW_BLR))
+				{
+				/* parse the view blr, getting dependencies on relations, etc. at the same time */
+				if (dependencies)
+					{
+					relation->rel_view_rse =
+					(RSE) MET_get_dependencies(tdbb, relation, NULL, NULL,
+												(SLONG*)&REL.RDB$VIEW_BLR, NULL, 
+												&csb_, REL.RDB$RELATION_NAME,
+												obj_view);
+					}
+				else
+					{
+					relation->rel_view_rse =
+						(RSE) MET_parse_blob(tdbb, relation, (SLONG*)&REL.RDB$VIEW_BLR, &csb_, NULL, FALSE, FALSE);
+					}
+
+				/* retrieve the view context names */
+
+				lookup_view_contexts(tdbb, relation);
+				}
+
+			relation->rel_flags |= REL_scanned;
+
+			if (REL.RDB$EXTERNAL_FILE[0])
+				EXT_file(tdbb, relation,
+						REL.RDB$EXTERNAL_FILE,
+						(SLONG*)&REL.RDB$EXTERNAL_DESCRIPTION);
+
+			/* Pick up field specific stuff */
+
+			blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)&REL.RDB$RUNTIME);
+			TempSpace tempSpace(sizeof(temp), temp);
+			tempSpace.resize(blob->blb_max_segment);
+			UCHAR *buffer = tempSpace.space;
+			field = NULL;
+			
+			for (;;)
+				{
+				length = BLB_get_segment(tdbb, blob, buffer, blob->blb_max_segment);
+				
+				if (blob->blb_flags & BLB_eof)
+					break;
+					
+				buffer[length] = 0;
+				p = (UCHAR *) & n;
+				q = buffer + 1;
+				
+				while (q < buffer + 1 + sizeof(SSHORT))
+					*p++ = *q++;
+					
+				p = buffer + 1;
+				--length;
+				
+				switch ((RSR_T) buffer[0]) 
+					{
+					case RSR_field_id:
+						if (field && !field->fld_security_name && !REL.RDB$DEFAULT_CLASS.NULL) 
+							field->fld_security_name = MET_save_name(tdbb, REL.RDB$DEFAULT_CLASS);
+						field_id = n;
+						field = relation->rel_fields[field_id];
+						array = NULL;
+						break;
+
+					case RSR_field_name:
+						if (field) 
+							{
+							/* The field exists.  If its name hasn't changed, then
+							   there's no need to copy anything. */
+
+							if (field->fld_name != (char*) p)
+								field->setName ((char*) p);
+							}
+						else 
+							field = relation->addField(field_id, (char*) p);
+
+						/*
+						 * TMN: This const_cast equivalent is safe since
+						 * we just allocated the struct.
+						 */
+						 
+
+						// CVC: Be paranoid and allow the possible trigger(s) to have a
+						//   not null security class to work on, even if we only take it
+						//   from the relation itself.
+						
+						if (!field->fld_security_name && !REL.RDB$DEFAULT_CLASS.NULL)
+							field->fld_security_name = MET_save_name (tdbb, REL.RDB$DEFAULT_CLASS);
+
+						break;
+
+					case RSR_view_context:
+						view_context = n;
+						break;
+
+					case RSR_base_field:
+						field->fld_source = PAR_make_field(tdbb, csb_, view_context, (TEXT*)p);
+						break;
+
+					case RSR_computed_blr:
+						field->fld_computation = (dependencies) ?
+							MET_get_dependencies(tdbb, relation, (TEXT*) p, csb_, NULL,
+												NULL, NULL, field->fld_name,
+												obj_computed) :
+							PAR_blr(tdbb, relation, p, csb_, NULL, NULL, FALSE, 0);
+						break;
+
+					case RSR_missing_value:
+						field->fld_missing_value = PAR_blr(tdbb, relation, p, csb_, NULL, NULL, FALSE, 0);
+						break;
+
+					case RSR_default_value:
+						field->fld_default_value = PAR_blr(tdbb, relation, p, csb_, NULL, NULL, FALSE, 0);
+						break;
+
+					case RSR_validation_blr:
+						field->fld_validation = PAR_blr(tdbb, relation, p, csb_, NULL, NULL, FALSE,
+									csb_validation);
+						break;
+
+					case RSR_field_not_null:
+						field->fld_not_null = PAR_blr(tdbb, relation, p, csb_, NULL, NULL, FALSE,
+									csb_validation);
+						break;
+
+					case RSR_security_class:
+						field->fld_security_name = MET_save_name(tdbb, (TEXT*) p);
+						break;
+
+					case RSR_trigger_name:
+						MET_load_trigger(tdbb, relation, (TEXT*) p, triggers);
+						break;
+
+					case RSR_dimensions:
+						field->fld_array = array = FB_NEW_RPT(*dbb->dbb_permanent, n) arr();
+						array->arr_desc.ads_dimensions = n;
+						field->fld_dimensions = n;
+						break;
+
+					case RSR_array_desc:
+						if (array)
+							MOVE_FAST(p, &array->arr_desc, length);
+						break;
+						
+					default:    /* Shut up compiler warning */
+						break;
+					}
+				}
+				
+			if (field && !field->fld_security_name && !REL.RDB$DEFAULT_CLASS.NULL)
+				field->fld_security_name = MET_save_name(tdbb, REL.RDB$DEFAULT_CLASS);
+				
+		END_FOR;
+
+		sync.unlock();
+		
+		if (csb_)
+			delete csb_;
+
+		/* release any triggers in case of a rescan, but not if the rescan 
+		   hapenned while system triggers were being loaded. */
+
+		if (!(relation->rel_flags & REL_sys_trigs_being_loaded)) 
+			{
+			/* if we are scanning a system relation during loading the system 
+			   triggers, (during parsing its blr actually), we must not release the
+			   existing system triggers; because we have already set the
+			   relation->rel_flag to not have REL_sys_trig, so these
+			   system triggers will not get loaded again. This fixes bug 8149. */
+
+			/* We have just loaded the triggers onto the local vector triggers.
+			   Its now time to place them at their rightful place ie the relation
+			   block. 
+			*/
+			
+			Sync sync (&relation->syncTriggers, "MET_scan_relation");
+			sync.lock(Exclusive);
+			
+			tmp_vector = relation->rel_pre_store;
+			relation->rel_pre_store = triggers[TRIGGER_PRE_STORE];
+			MET_release_triggers(tdbb, &tmp_vector);
+
+			tmp_vector = relation->rel_post_store;
+			relation->rel_post_store = triggers[TRIGGER_POST_STORE];
+			MET_release_triggers(tdbb, &tmp_vector);
+
+			tmp_vector = relation->rel_pre_erase;
+			relation->rel_pre_erase = triggers[TRIGGER_PRE_ERASE];
+			MET_release_triggers(tdbb, &tmp_vector);
+
+			tmp_vector = relation->rel_post_erase;
+			relation->rel_post_erase = triggers[TRIGGER_POST_ERASE];
+			MET_release_triggers(tdbb, &tmp_vector);
+
+			tmp_vector = relation->rel_pre_modify;
+			relation->rel_pre_modify = triggers[TRIGGER_PRE_MODIFY];
+			MET_release_triggers(tdbb, &tmp_vector);
+
+			tmp_vector = relation->rel_post_modify;
+			relation->rel_post_modify = triggers[TRIGGER_POST_MODIFY];
+			MET_release_triggers(tdbb, &tmp_vector);
+			}
+
+		relation->rel_flags &= ~REL_being_scanned;
+		relation->rel_flags |= REL_scanned;
+		
+		relation->rel_current_format = NULL;
+		tdbb->tdbb_default = old_pool;
+		
+		if (relation->dsqlRelation)
+			{
+			relation->getTypeInformation(tdbb);
+			relation->dsqlRelation->orderFields();
+			}
+		}
+	catch (...) 
+		{
+		relation->rel_flags &= ~(REL_being_scanned | REL_scanned);
+		
+		if (dependencies) 
+			relation->rel_flags |= REL_get_dependencies;
+			
+		if (sys_triggers) 
+			relation->rel_flags |= REL_sys_triggers;
+			
+		tdbb->tdbb_default = old_pool;
+		throw;
+		}
+}
+
+
+const TEXT* MET_trigger_msg(TDBB tdbb, const TEXT* name, USHORT number)
+{
+/**************************************
+ *
+ *      M E T _ t r i g g e r _ m s g
+ *
+ **************************************
+ *
+ * Functional description
+ *      Look up trigger message using trigger and abort code.
+ *
+ **************************************/
+
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	const TEXT* msg = 0;
+	Request* request = CMP_find_request(tdbb, irq_s_msgs, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		MSG IN RDB$TRIGGER_MESSAGES WITH
+			MSG.RDB$TRIGGER_NAME EQ name AND
+			MSG.RDB$MESSAGE_NUMBER EQ number 
+
+        if (!REQUEST(irq_s_msgs))
+            REQUEST(irq_s_msgs) = request;
+		msg = ERR_cstring(MSG.RDB$MESSAGE);
+	END_FOR;
+
+	if (!REQUEST(irq_s_msgs))
+		REQUEST(irq_s_msgs) = request;
+
+	return msg;
+}
+
+
+void MET_update_shadow( TDBB tdbb, SDW shadow, USHORT file_flags)
+{
+/**************************************
+ *
+ *      M E T _ u p d a t e _ s h a d o w
+ *
+ **************************************
+ *
+ * Functional description
+ *      Update the stored file flags for the specified shadow.
+ *
+ **************************************/
+	DBB dbb;
+	BLK handle;
+
+	//SET_TDBB(tdbb);
+	dbb = tdbb->tdbb_database;
+
+	handle = NULL;
+	FOR(REQUEST_HANDLE handle)
+		FIL IN RDB$FILES WITH FIL.RDB$SHADOW_NUMBER EQ shadow->sdw_number
+		MODIFY FIL USING
+			FIL.RDB$FILE_FLAGS = file_flags;
+		END_MODIFY;
+	END_FOR;
+	CMP_release(tdbb, (JRD_REQ)handle);
+}
+
+
+void MET_update_transaction( TDBB tdbb, Transaction* transaction, const bool do_commit)
+{
+/**************************************
+ *
+ *      M E T _ u p d a t e _ t r a n s a c t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Update a record in RDB$TRANSACTIONS.  If do_commit is true, this is a
+ *      commit; otherwise it is a ROLLBACK.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	Request *request = CMP_find_request(tdbb, irq_m_trans, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		X IN RDB$TRANSACTIONS 
+        WITH X.RDB$TRANSACTION_ID EQ transaction->tra_number 
+
+        if (!REQUEST(irq_m_trans))
+            REQUEST(irq_m_trans) = request;
+		if (do_commit && (transaction->tra_flags & TRA_prepare2))
+		{
+			ERASE X
+		}
+		else
+		{
+			MODIFY X
+				X.RDB$TRANSACTION_STATE = (do_commit) ?
+					RDB$TRANSACTIONS.RDB$TRANSACTION_STATE.COMMITTED :
+					RDB$TRANSACTIONS.RDB$TRANSACTION_STATE.ROLLED_BACK;
+			END_MODIFY;
+		}
+	END_FOR;
+
+	if (!REQUEST(irq_m_trans))
+		REQUEST(irq_m_trans) = request;
+}
+
+
+static int blocking_ast_procedure(void *ast_object)
+{
+/**************************************
+ *
+ *      b l o c k i n g _ a s t _ p r o c e d u r e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Someone is trying to drop a proceedure. If there
+ *      are outstanding interests in the existence of
+ *      the relation then just mark as blocking and return.
+ *      Otherwise, mark the procedure block as questionable
+ *      and release the procedure existence lock.
+ *
+ **************************************/
+ 
+	Procedure *procedure = reinterpret_cast<Procedure*>(ast_object);
+	LCK lock = procedure->findExistenceLock();
+	Database *database = lock->lck_dbb;
+	//struct tdbb thd_context, *tdbb;
+	ISC_STATUS_ARRAY ast_status;
+	ThreadData threadData (ast_status, database);
+
+	/* Since this routine will be called asynchronously, we must establish
+	  a thread context. */
+
+	/***
+	SET_THREAD_DATA;
+	tdbb->tdbb_database = procedure->findExistenceLock()->lck_dbb;
+	tdbb->tdbb_attachment = procedure->findExistenceLock()->lck_attachment;
+	tdbb->tdbb_request = NULL;
+	tdbb->tdbb_transaction = NULL;
+	tdbb->tdbb_default = NULL;
+	***/
+	
+	LCK_release(lock);
+	procedure->addFlags(PRC_obsolete);
+
+	/* Restore the prior thread context */
+
+	//RESTORE_THREAD_DATA;
+	return 0;
+}
+
+#ifdef OBSOLETE
+static int blocking_ast_relation(void* ast_object)
+{
+/**************************************
+ *
+ *      b l o c k i n g _ a s t _ r e l a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Someone is trying to drop a relation. If there
+ *      are outstanding interests in the existence of
+ *      the relation then just mark as blocking and return.
+ *      Otherwise, mark the relation block as questionable
+ *      and release the relation existence lock.
+ *
+ **************************************/
+	Relation* relation = reinterpret_cast<Relation*>(ast_object);
+	struct tdbb thd_context, *tdbb;
+
+/* Since this routine will be called asynchronously, we must establish
+   a thread context. */
+
+	SET_THREAD_DATA;
+
+	tdbb->tdbb_database = relation->rel_existence_lock->lck_dbb;
+	tdbb->tdbb_attachment = relation->rel_existence_lock->lck_attachment;
+	tdbb->tdbb_request = NULL;
+	tdbb->tdbb_transaction = NULL;
+	tdbb->tdbb_default = NULL;
+
+	if (relation->rel_use_count)
+		relation->rel_flags |= REL_blocking;
+	else {
+		relation->rel_flags &= ~REL_blocking;
+		relation->rel_flags |= (REL_check_existence | REL_check_partners);
+		if (relation->rel_existence_lock)
+			LCK_release(relation->rel_existence_lock);
+	}
+
+/* Restore the prior thread context */
+
+	RESTORE_THREAD_DATA;
+	return 0; 
+}
+#endif
+
+static void get_trigger(
+						TDBB tdbb,
+						Relation* relation,
+						SLONG blob_id[2],
+						Triggers** ptr,
+						const TEXT* name, bool sys_trigger, USHORT flags)
+{
+/**************************************
+ *
+ *      g e t _ t r i g g e r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Get trigger.
+ *
+ **************************************/
+ 
+	if (!blob_id[0] && !blob_id[1])
+		return;
+
+	DBB dbb = tdbb->tdbb_database;
+	Sync sync(&dbb->syncSysTrans, "get_trigger");
+	sync.lock(Exclusive);
+	BLB blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
+	SLONG length = blob->blb_length + 10;
+	STR blr = FB_NEW_RPT(*dbb->dbb_permanent,length) str();
+	BLB_get_data(tdbb, blob, blr->str_data, length);
+	save_trigger_data(tdbb, ptr, relation, NULL, blr, name, sys_trigger, flags);
+}
+
+
+static bool get_type(TDBB tdbb, SSHORT* id, const TEXT* name, const TEXT* field)
+{
+/**************************************
+ *
+ *      g e t _ t y p e
+ *
+ **************************************
+ *
+ * Functional description
+ *      Resoved a symbolic name in RDB$TYPES.  Returned the value
+ *      defined for the name in (*id).  Don't touch (*id) if you
+ *      don't find the name.
+ *
+ *      Return (1) if found, (0) otherwise.
+ *
+ **************************************/
+	TEXT buffer[32];			/* BASED ON RDB$TYPE_NAME */
+
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	fb_assert(id != NULL);
+	fb_assert(name != NULL);
+	fb_assert(field != NULL);
+
+	/* Force key to uppercase, following C locale rules for uppercase */
+	
+	TEXT* p;
+
+	for (p = buffer; *name && p < buffer + sizeof(buffer) - 1; p++, name++)
+		*p = UPPER7(*name);
+
+	*p = 0;
+
+	/* Try for exact name match */
+
+	bool found = false;
+	BLK handle = NULL;
+	
+	FOR(REQUEST_HANDLE handle)
+		FIRST 1 T IN RDB$TYPES WITH
+			T.RDB$FIELD_NAME EQ field AND
+			T.RDB$TYPE_NAME EQ buffer
+
+        found = true;
+		*id = T.RDB$TYPE;
+	END_FOR;
+	
+	CMP_release(tdbb, (JRD_REQ)handle);
+
+	return found;
+}
+
+
+static void lookup_view_contexts( TDBB tdbb, Relation* view)
+{
+/**************************************
+ *
+ *      l o o k u p _ v i e w _ c o n t e x t s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Lookup view contexts and store in a linked 
+ *      list on the relation block.
+ *                                       
+ **************************************/
+	DBB dbb;
+	Request* request;
+	SSHORT length;
+	STR alias;
+	VCX view_context, *vcx_ptr;
+
+	//SET_TDBB(tdbb);
+	dbb = tdbb->tdbb_database;
+	request = CMP_find_request(tdbb, irq_view_context, IRQ_REQUESTS);
+
+	vcx_ptr = &view->rel_view_contexts;
+
+	FOR(REQUEST_HANDLE request)
+		V IN RDB$VIEW_RELATIONS WITH
+			V.RDB$VIEW_NAME EQ view->rel_name
+			SORTED BY V.RDB$VIEW_CONTEXT 
+
+        if (!REQUEST(irq_view_context))
+            REQUEST(irq_view_context) = request;
+
+		/* allocate a view context block and link it in
+		   to the relation block's linked list */
+
+		view_context = FB_NEW(*tdbb->tdbb_default) vcx();
+		*vcx_ptr = view_context;
+		vcx_ptr = &view_context->vcx_next;
+
+		view_context->vcx_context = V.RDB$VIEW_CONTEXT;
+
+		/* allocate a string block for the context name */
+
+		length = name_length(V.RDB$CONTEXT_NAME);
+		alias = FB_NEW_RPT(*tdbb->tdbb_default, length + 1) str();
+		V.RDB$CONTEXT_NAME[length] = 0;
+		strcpy((char*)alias->str_data, V.RDB$CONTEXT_NAME);
+		alias->str_length = length;
+
+		view_context->vcx_context_name = alias;
+
+		/* allocate a string block for the relation name */
+
+		length = name_length(V.RDB$RELATION_NAME);
+		alias = FB_NEW_RPT(*tdbb->tdbb_default, length + 1) str();
+		V.RDB$RELATION_NAME[length] = 0;
+		strcpy((char*)alias->str_data, V.RDB$RELATION_NAME);
+		alias->str_length = length;
+
+		view_context->vcx_relation_name = alias;
+
+	END_FOR;
+
+	if (!REQUEST(irq_view_context))
+		REQUEST(irq_view_context) = request;
+}
+
+
+static void name_copy(TEXT* to, const TEXT* from)
+{
+/**************************************
+ *
+ *      n a m e _ c o p y
+ *
+ **************************************
+ *
+ * Functional description
+ *      Copy a system name, stripping trailing blanks.
+ *
+ **************************************/
+	const USHORT length = name_length(from);
+	memcpy(to, from, length);
+	to[length] = '\0';
+}
+
+
+static USHORT name_length(const TEXT* name)
+{
+/**************************************
+ *
+ *      n a m e _ l e n g t h
+ *
+ **************************************
+ *
+ * Functional description
+ *      Compute effective length of system relation name.
+ *      SQL delimited identifier may contain blanks.
+ *
+ **************************************/
+
+	const TEXT* q = name - 1;
+	for (const TEXT* p = name; *p; p++)
+	{
+		if (*p != BLANK)
+		{
+			q = p;
+		}
+	}
+
+	return (q + 1) - name;
+}
+
+#ifdef OBSOLETE
+static jrd_nod* parse_procedure_blr(
+							   TDBB tdbb,
+							   Procedure* procedure, 
+							   SLONG blob_id[2], 
+							   CSB csb)
+{
+/**************************************
+ *
+ *      p a r s e _ p r o c e d u r e _ b l r
+ *
+ **************************************
+ *
+ * Functional description
+ *      Parse blr, returning a compiler scratch block with the results.
+ *
+ **************************************/
+	DBB dbb = tdbb->tdbb_database;
+	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
+	const SLONG length = blob->blb_length + 10;
+	
+	// CVC: Warning: the str class is limited by 64K
+	
+	str* temp = FB_NEW_RPT(*tdbb->tdbb_default, length) str();
+	BLB_get_data(tdbb, blob, temp->str_data, length);
+	csb->csb_blr = temp->str_data;
+	par_messages(tdbb, temp->str_data, (USHORT) length, procedure, csb);
+
+	Request *req = NULL;
+	jrd_nod* node = PAR_blr(tdbb, NULL, temp->str_data, NULL, &csb, &req, FALSE, 0);
+	procedure->setRequest (req);
+	delete temp;
+
+	return node;
+}
+
+
+static BOOLEAN par_messages(TDBB	tdbb,
+							const UCHAR*	blr,
+							USHORT	blr_length,
+							Procedure*	procedure,
+							CSB		csb)
+{
+/**************************************
+ *
+ *      p a r _ m e s s a g e s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Parse the messages of a blr request.  For specified message, allocate
+ *      a format (fmt) block.
+ *
+ **************************************/
+	csb->csb_running = blr;
+	const SSHORT version = BLR_BYTE;
+	if (version != blr_version4 && version != blr_version5)
+		return FALSE;
+
+	if (BLR_BYTE != blr_begin)
+		return FALSE;
+
+	//SET_TDBB(tdbb);
+
+	while (BLR_BYTE == blr_message) 
+		{
+		const USHORT msg_number = BLR_BYTE;
+		USHORT count = BLR_BYTE;
+		count += (BLR_BYTE) << 8;
+		fmt* format = fmt::newFmt(*tdbb->tdbb_default, count);
+		format->fmt_count = count;
+		// CVC: This offset should be protected against 32K overflow in the future
+		USHORT offset = 0;
+		
+		for (fmt::fmt_desc_iterator desc = format->fmt_desc.begin(); count;
+			--count, ++desc)
+			{
+			const USHORT align = PAR_desc(csb, &*desc);
+			if (align)
+				offset = FB_ALIGN(offset, align);
+			desc->dsc_address = (UCHAR *) (long) offset;
+			offset += desc->dsc_length;
+			}
+			
+		format->fmt_length = offset;
+
+		if (msg_number == 0)
+			procedure->setInputFormat (format);
+		else if (msg_number == 1)
+			procedure->setOutputFormat (format);
+		else
+			delete format;
+		}
+
+	return TRUE;
+}
+#endif
+
+void MET_release_triggers( TDBB tdbb, Triggers** vector_ptr)
+{
+/***********************************************
+ *
+ *      M E T _ r e l e a s e _ t r i g g e r s
+ *
+ ***********************************************
+ *
+ * Functional description
+ *      Release a possibly null vector of triggers.
+ *      If triggers are still active let someone
+ *      else do the work.
+ *
+ **************************************/
+	Triggers* vector = *vector_ptr;
+	
+	if (!vector)
+		return;
+
+	*vector_ptr = NULL;
+	//Triggers::iterator ptr, end;
+	int n;
+	
+	for (n = 0; n < vector->size(); ++n)
+		{
+		Trigger *trigger = (*vector)[n];
+		
+		if (trigger->request && CMP_clone_is_active(trigger->request))
+			return;
+		}
+
+	for (n = 0; n < vector->size(); ++n)
+		{
+		Trigger *trigger = (*vector)[n];
+		trigger->release(tdbb);
+		}
+
+	delete vector;
+}
+
+int MET_resolve_charset_and_collation (tdbb* tdbb, const TEXT* charset, const TEXT* collation)
+{
+	SSHORT id;
+	
+	if (resolve_charset_and_collation (tdbb, &id, charset, collation))
+		return id;
+	
+	return -1;
+}
+
+static BOOLEAN resolve_charset_and_collation(TDBB tdbb,
+											 SSHORT* id,
+											 const TEXT* charset,
+											 const TEXT* collation)
+{
+/**************************************
+ *
+ *      r e s o l v e _ c h a r s e t _ a n d _ c o l l a t i o n
+ *
+ **************************************
+ *
+ * Functional description
+ *      Given ASCII7 name of charset & collation
+ *      resolve the specification to a Character set id.
+ *      This character set id is also the id of the text_object
+ *      that implements the C locale for the Character set.
+ *
+ * Inputs:
+ *      (charset)
+ *              ASCII7z name of character set.
+ *              NULL (implying unspecified) means use the character set
+ *              for defined for (collation).
+ *
+ *      (collation)
+ *              ASCII7z name of collation.
+ *              NULL means use the default collation for (charset).
+ *
+ * Outputs:
+ *      (*id)   
+ *              Set to character set specified by this name.
+ *
+ * Return:
+ *      1 if no errors (and *id is set).
+ *      0 if either name not found.
+ *        or if names found, but the collation isn't for the specified
+ *        character set.
+ *
+ **************************************/
+	BOOLEAN found = FALSE;
+	SSHORT charset_id;
+
+	DBB dbb = tdbb->tdbb_database;
+	fb_assert(id != NULL);
+	Request *handle = NULL;
+
+	if (collation == NULL)
+		{
+		if (charset == NULL)
+			charset = DEFAULT_CHARACTER_SET_NAME;
+
+		charset_id = 0;
+		
+		if (get_type(tdbb, &charset_id, charset, "RDB$CHARACTER_SET_NAME"))
+			{
+			*id = charset_id;
+			return TRUE;
+			}
+
+		/* Charset name not found in the alias table - before giving up
+		   try the character_set table */
+
+		FOR(REQUEST_HANDLE handle)
+			FIRST 1 CS IN RDB$CHARACTER_SETS
+				WITH CS.RDB$CHARACTER_SET_NAME EQ charset
+
+            found = TRUE;
+			*id = CS.RDB$CHARACTER_SET_ID;
+
+		END_FOR;
+		CMP_release(tdbb, handle);
+
+		return found;
+		}
+		
+	if (charset == NULL)
+		{
+		FOR(REQUEST_HANDLE handle)
+			FIRST 1 COL IN RDB$COLLATIONS
+				WITH COL.RDB$COLLATION_NAME EQ collation
+
+            found = TRUE;
+			*id = COL.RDB$CHARACTER_SET_ID;
+		END_FOR;
+		
+		CMP_release(tdbb, handle);
+
+		return found;
+		}
+
+	FOR(REQUEST_HANDLE handle)
+		FIRST 1 CS IN RDB$CHARACTER_SETS CROSS
+			COL IN RDB$COLLATIONS OVER RDB$CHARACTER_SET_ID CROSS
+			AL1 IN RDB$TYPES
+			WITH AL1.RDB$FIELD_NAME EQ "RDB$CHARACTER_SET_NAME"
+			AND AL1.RDB$TYPE_NAME EQ charset
+			AND COL.RDB$COLLATION_NAME EQ collation
+			AND AL1.RDB$TYPE EQ CS.RDB$CHARACTER_SET_ID 
+
+        found = TRUE;
+		*id = CS.RDB$CHARACTER_SET_ID;
+	END_FOR;
+	
+	CMP_release(tdbb, handle);
+
+	return found;
+}
+
+
+static str* save_name(TDBB tdbb, const TEXT* name)
+{
+/**************************************
+ *
+ *      s a v e _ n a m e
+ *
+ **************************************
+ *
+ * Functional description
+ *      save a name in a string.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+	USHORT l = name_length(name);
+	str* string = FB_NEW_RPT(*dbb->dbb_permanent, l) str();
+	string->str_length = l;
+	TEXT* p = (TEXT *) string->str_data;
+
+	if (l)
+		{
+		do {
+			*p++ = *name++;
+		} while (--l);
+		}
+
+	return string;
+}
+
+
+static void save_trigger_data(TDBB tdbb, Triggers** ptr, Relation* relation, JRD_REQ request, STR blr,
+							  const TEXT* name, bool sys_trigger, USHORT flags)
+{
+/**************************************
+ *
+ *      s a v e _ t r i g g e r _ d a t a
+ *
+ **************************************
+ *
+ * Functional description
+ *      Save trigger data to passed vector
+ *
+ **************************************/
+	USHORT n      = (*ptr) ? (*ptr)->size() : 0;
+	Triggers* vector = *ptr;
+
+	if (!vector) 
+		{
+		*ptr = vector = new Triggers(n + 1);
+		/***
+		vector = FB_NEW(*tdbb->tdbb_database->dbb_permanent) 
+						 Triggers(n + 1, *tdbb->tdbb_database->dbb_permanent);
+		*ptr = vector;
+		***/
+		} 
+	else
+		//vector->resize(n + 1);
+		vector->checkSize(n, n + 1);
+
+	Trigger *trigger = (*vector)[n] = new Trigger;
+	trigger->blr = blr;
+	
+	if (name) 
+		trigger->name = JString(name, name_length(name));
+
+	trigger->flags = flags;
+	trigger->compile_in_progress = FALSE;
+	trigger->sys_trigger = sys_trigger ? TRUE : FALSE; // Remove later
+	trigger->request = request;
+	trigger->relation = relation;
+}
+
+
+static void store_dependencies(TDBB			tdbb,
+							   CSB			csb,
+							   const TEXT*	object_name,
+							   USHORT		dependency_type)
+{
+/**************************************
+ *
+ *      s t o r e _ d e p e n d e n c i e s
+ *
+ **************************************
+ *
+ * Functional description
+ *      Store records in RDB$DEPENDENCIES
+ *      corresponding to the objects found during 
+ *      compilation of blr for a trigger, view, etc.
+ *
+ **************************************/
+	DBB		dbb;
+	Request*		request;
+	Relation*		relation;
+	Procedure*		procedure;
+	JRD_FLD		field;
+	JRD_NOD		node;
+	JRD_NOD		field_node;
+	SSHORT	fld_id;
+	SSHORT	dpdo_type;
+	SLONG	number;
+	BOOLEAN found;
+	const TEXT*	field_name;
+	const TEXT*	dpdo_name;
+	TEXT	name[32];
+
+	//SET_TDBB(tdbb);
+	dbb = tdbb->tdbb_database;
+
+	while (csb->csb_dependencies)
+		{
+		node = (JRD_NOD) LLS_POP(&csb->csb_dependencies);
+		if (!node->nod_arg[e_dep_object])
+			continue;
+		dpdo_type = (SSHORT) (long) node->nod_arg[e_dep_object_type];
+        relation = NULL;
+        procedure = NULL;
+        switch (dpdo_type) 
+			{
+			case obj_relation:
+				relation = (Relation*) node->nod_arg[e_dep_object];
+				dpdo_name = relation->rel_name;
+				break;
+			case obj_procedure:
+				procedure = (Procedure*) node->nod_arg [e_dep_object];
+				dpdo_name = (const TEXT*) procedure->findName();
+				break;
+			case obj_exception:
+				number = (long) node->nod_arg [e_dep_object];
+				MET_lookup_exception (tdbb, number, name, NULL);
+				dpdo_name = name;
+				break;
+			case obj_generator:
+				number = (long) node->nod_arg [e_dep_object];
+				MET_lookup_generator_id (tdbb, number, name);
+				dpdo_name = name;
+				break;
+			case obj_udf: 
+				{
+				FUN udf = (FUN) node->nod_arg [e_dep_object];
+				dpdo_name = udf->fun_symbol->sym_string;
+				break;
+				}
+			}
+
+		field_node = node->nod_arg[e_dep_field];
+
+		field_name = NULL;
+		if (field_node)
+			{
+			if (field_node->nod_type == nod_field)
+				{
+				fld_id = (SSHORT) (long) field_node->nod_arg[0];
+				if (relation)
+					{
+					if (field = MET_get_field(relation, fld_id))
+						field_name = field->fld_name;
+					else if (procedure)
+						field = (JRD_FLD) procedure->findOutputParameter (fld_id);
+					}
+				}
+			else
+				field_name = (TEXT *) field_node->nod_arg[0];
+			}
+
+		if (field_name)
+			{
+			request =
+				CMP_find_request(tdbb, irq_c_deps_f, IRQ_REQUESTS);
+			found = FALSE;
+			FOR(REQUEST_HANDLE request) X IN RDB$DEPENDENCIES WITH
+				X.RDB$DEPENDENT_NAME = object_name AND
+					X.RDB$DEPENDED_ON_NAME = dpdo_name AND
+					X.RDB$DEPENDED_ON_TYPE = dpdo_type AND
+					X.RDB$FIELD_NAME = field_name AND
+					X.RDB$DEPENDENT_TYPE = dependency_type
+
+                if (!REQUEST(irq_c_deps_f))
+                    REQUEST(irq_c_deps_f) = request;
+				found = TRUE;
+			END_FOR;
+
+			if (found)
+				continue;
+			if (!REQUEST(irq_c_deps_f))
+				REQUEST(irq_c_deps_f) = request;
+			}
+		else
+			{
+			request = CMP_find_request(tdbb, irq_c_deps, IRQ_REQUESTS);
+			found = FALSE;
+			FOR(REQUEST_HANDLE request) X IN RDB$DEPENDENCIES WITH
+				X.RDB$DEPENDENT_NAME = object_name AND
+					X.RDB$DEPENDED_ON_NAME = dpdo_name AND
+					X.RDB$DEPENDED_ON_TYPE = dpdo_type AND
+					X.RDB$FIELD_NAME MISSING AND
+					X.RDB$DEPENDENT_TYPE = dependency_type
+
+                if (!REQUEST(irq_c_deps))
+					REQUEST(irq_c_deps) = request;
+				found = TRUE;
+
+			END_FOR;
+
+			if (found)
+				continue;
+			if (!REQUEST(irq_c_deps))
+				REQUEST(irq_c_deps) = request;
+			}
+
+		request = CMP_find_request(tdbb, irq_s_deps, IRQ_REQUESTS);
+
+		STORE(REQUEST_HANDLE request) DEP IN RDB$DEPENDENCIES
+			strcpy(DEP.RDB$DEPENDENT_NAME, object_name);
+			DEP.RDB$DEPENDED_ON_TYPE = dpdo_type;
+			strcpy(DEP.RDB$DEPENDED_ON_NAME, dpdo_name);
+			if (field_name)
+				{
+				DEP.RDB$FIELD_NAME.NULL = FALSE;
+				strcpy(DEP.RDB$FIELD_NAME, field_name);
+				}
+			else
+				DEP.RDB$FIELD_NAME.NULL = TRUE;
+				
+			DEP.RDB$DEPENDENT_TYPE = dependency_type;
+		END_STORE;
+
+		if (!REQUEST(irq_s_deps))
+			REQUEST(irq_s_deps) = request;
+		}
+}
+
+
+static void terminate(TEXT* str, USHORT len)
+{
+/**************************************
+ *
+ * t e r m i n a t e
+ *
+ ****************************************
+ *
+ *  Functional description
+ *      Truncates the rightmost contiguous spaces on a string.
+ *
+ **************************************************************/
+	SSHORT i;
+	fb_assert(len > 0);
+
+	for (i = len - 1; i >= 0 && ((isspace(str[i])) || (str[i] == 0)); i--)
+		/* do nothing */ ;
+	str[i + 1] = 0;
+}
+
+
+static bool verify_TRG_ignore_perm(TDBB tdbb, const TEXT* trig_name)
+{
+/*****************************************************
+ *
+ *      v e r i f y _ T R G _ i g n o r e  _ p e r m
+ *
+ *****************************************************
+ *
+ * Functional description
+ *      Return TRUE if this trigger can go through without any permission
+ *      checks. Currently, the only class of triggers that can go
+ *      through without permission checks are 
+ *      (a) two system triggers (RDB$TRIGGERS_34 and RDB$TRIGGERS_35)
+ *      (b) those defined for referential integrity actions such as, 
+ *      set null, set default, and cascade.
+ *
+ **************************************/
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
+
+/* see if this is a system trigger, with the flag set as TRG_ignore_perm */
+	if (INI_get_trig_flags(trig_name) & (USHORT) TRG_ignore_perm)
+	{
+		return true;
+	}
+
+	Request* request = CMP_find_request(tdbb, irq_c_trg_perm, IRQ_REQUESTS);
+
+	FOR(REQUEST_HANDLE request)
+		CHK IN RDB$CHECK_CONSTRAINTS CROSS
+			REF IN RDB$REF_CONSTRAINTS WITH
+			CHK.RDB$TRIGGER_NAME EQ trig_name AND
+			REF.RDB$CONSTRAINT_NAME = CHK.RDB$CONSTRAINT_NAME
+
+        if (!REQUEST(irq_c_trg_perm))
+		{
+			REQUEST(irq_c_trg_perm) = request;
+		}
+
+		EXE_unwind(tdbb, (JRD_REQ)request);
+		terminate(REF.RDB$UPDATE_RULE, sizeof(REF.RDB$UPDATE_RULE));
+		terminate(REF.RDB$DELETE_RULE, sizeof(REF.RDB$DELETE_RULE));
+
+		if (!strcmp(REF.RDB$UPDATE_RULE, RI_ACTION_CASCADE) ||
+			!strcmp(REF.RDB$UPDATE_RULE, RI_ACTION_NULL) ||
+			!strcmp(REF.RDB$UPDATE_RULE, RI_ACTION_DEFAULT) ||
+			!strcmp(REF.RDB$DELETE_RULE, RI_ACTION_CASCADE) ||
+			!strcmp(REF.RDB$DELETE_RULE, RI_ACTION_NULL) ||
+			!strcmp(REF.RDB$DELETE_RULE, RI_ACTION_DEFAULT))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	END_FOR;
+
+	if (!REQUEST(irq_c_trg_perm))
+	{
+		REQUEST(irq_c_trg_perm) = request;
+	}
+
+	return false;
+}
+

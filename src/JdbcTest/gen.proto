@@ -1,0 +1,3 @@
+buildgen -p proto -c JdbcTest -f ../../vulcan.build -o makefile JdbcTest.vcproj
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  JdbcTest.vcproj
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  JdbcTest.vcproj

@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+DATABASE DB = STATIC "yachts.lnk";
+
+int main (int argc, char **argv)
+{
+	READY;
+	START_TRANSACTION;
+
+	for x in rdb$relations
+		printf ("%s\n", x.rdb$relation_name);
+		modify x using
+			x.rdb$relation_id = 123;
+		end_modify;
+	end_for;
+
+	commit_transaction;
+	finish;
+
+	return 0;
+}

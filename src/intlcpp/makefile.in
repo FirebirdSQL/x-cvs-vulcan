@@ -1,0 +1,268 @@
+cs_big5.o: cs_big5.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h ../intlcpp/cv_big5.h \
+  cv_narrow.h ../intlcpp/charsets/cs_big5.h
+cs_gb2312.o: cs_gb2312.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  ../intlcpp/cv_gb2312.h cv_narrow.h ../intlcpp/charsets/cs_gb2312.h
+cs_jis.o: cs_jis.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h cv_jis.h cv_narrow.h \
+  ../intlcpp/charsets/cs_jis_0208_1990.h
+cs_ksc.o: cs_ksc.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h cv_ksc.h cv_narrow.h \
+  ../intlcpp/charsets/cs_ksc5601.h
+cs_narrow.o: cs_narrow.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  cv_narrow.h ../intlcpp/charsets/cs_iso8859_1.h \
+  ../intlcpp/charsets/cs_iso8859_2.h ../intlcpp/charsets/cs_iso8859_3.h \
+  ../intlcpp/charsets/cs_iso8859_4.h ../intlcpp/charsets/cs_iso8859_5.h \
+  ../intlcpp/charsets/cs_iso8859_6.h ../intlcpp/charsets/cs_iso8859_7.h \
+  ../intlcpp/charsets/cs_iso8859_8.h ../intlcpp/charsets/cs_iso8859_9.h \
+  ../intlcpp/charsets/cs_iso8859_13.h ../intlcpp/charsets/cs_437.h \
+  ../intlcpp/charsets/cs_865.h ../intlcpp/charsets/cs_850.h \
+  ../intlcpp/charsets/cs_852.h ../intlcpp/charsets/cs_857.h \
+  ../intlcpp/charsets/cs_860.h ../intlcpp/charsets/cs_861.h \
+  ../intlcpp/charsets/cs_863.h ../intlcpp/charsets/cs_737.h \
+  ../intlcpp/charsets/cs_775.h ../intlcpp/charsets/cs_858.h \
+  ../intlcpp/charsets/cs_862.h ../intlcpp/charsets/cs_864.h \
+  ../intlcpp/charsets/cs_866.h ../intlcpp/charsets/cs_869.h \
+  ../intlcpp/charsets/cs_cyrl.h ../intlcpp/charsets/cs_w1250.h \
+  ../intlcpp/charsets/cs_w1251.h ../intlcpp/charsets/cs_w1252.h \
+  ../intlcpp/charsets/cs_w1253.h ../intlcpp/charsets/cs_w1254.h \
+  ../intlcpp/charsets/cs_w1255.h ../intlcpp/charsets/cs_w1256.h \
+  ../intlcpp/charsets/cs_w1257.h ../intlcpp/charsets/cs_next.h
+cs_unicode_fss.o: cs_unicode_fss.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  cv_narrow.h cv_unicode_fss.h
+cs_unicode_ucs2.o: cs_unicode_ucs2.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  cv_narrow.h
+cv_big5.o: cv_big5.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h ../intlcpp/cv_big5.h
+cv_gb2312.o: cv_gb2312.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  ../intlcpp/cv_gb2312.h
+cv_jis.o: cv_jis.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  ../intlcpp/charsets/cs_sjis.h ../intlcpp/kanji.h cv_jis.h cv_narrow.h
+cv_ksc.o: cv_ksc.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h cv_ksc.h
+cv_narrow.o: cv_narrow.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  cv_narrow.h ../intlcpp/conversions/tx865_lat1.h \
+  ../intlcpp/conversions/tx437_865.h ../intlcpp/conversions/tx437_lat1.h
+cv_unicode_fss.o: cv_unicode_fss.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  cv_unicode_fss.h
+lc_ascii.o: lc_ascii.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  lc_ascii.h ../intlcpp/collations/undef.h
+lc_big5.o: lc_big5.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h lc_ascii.h cv_big5.h \
+  lc_big5.h ../intlcpp/collations/undef.h
+lc_dos.o: lc_dos.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h lc_dos.h lc_narrow.h \
+  ../intlcpp/collations/pd437intl.h ../intlcpp/collations/undef.h \
+  ../intlcpp/collations/pd865nordan40.h \
+  ../intlcpp/collations/pd437swedfin.h ../intlcpp/collations/db437de0.h \
+  ../intlcpp/collations/db437es1.h ../intlcpp/collations/db437fi0.h \
+  ../intlcpp/collations/db437fr0.h ../intlcpp/collations/db437it0.h \
+  ../intlcpp/collations/db437nl0.h ../intlcpp/collations/db437sv0.h \
+  ../intlcpp/collations/db437uk0.h ../intlcpp/collations/db437us0.h \
+  ../intlcpp/collations/db850cf0.h ../intlcpp/collations/db850de0.h \
+  ../intlcpp/collations/db850es0.h ../intlcpp/collations/db850fr0.h \
+  ../intlcpp/collations/db850it1.h ../intlcpp/collations/db850nl0.h \
+  ../intlcpp/collations/db850pt0.h ../intlcpp/collations/db850sv1.h \
+  ../intlcpp/collations/db850uk0.h ../intlcpp/collations/db850us0.h \
+  ../intlcpp/collations/db865da0.h ../intlcpp/collations/db865no0.h \
+  ../intlcpp/collations/db852cz0.h ../intlcpp/collations/db852po0.h \
+  ../intlcpp/collations/db852sl0.h ../intlcpp/collations/pd852czech.h \
+  ../intlcpp/collations/pd852polish.h ../intlcpp/collations/pd852hundc.h \
+  ../intlcpp/collations/pd852slovene.h ../intlcpp/collations/db857tr0.h \
+  ../intlcpp/collations/db860pt0.h ../intlcpp/collations/pd861iceland.h \
+  ../intlcpp/collations/db863cf1.h ../intlcpp/collations/db866ru0.h \
+  ../intlcpp/collations/pd866cyrr.h
+lc_gb2312.o: lc_gb2312.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  lc_ascii.h cv_gb2312.h ../intlcpp/collations/undef.h
+lc_iso8859_1.o: lc_iso8859_1.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  lc_narrow.h lc_dos.h ../intlcpp/collations/bl88591da0.h \
+  ../intlcpp/collations/undef.h ../intlcpp/collations/bl88591nl0.h \
+  ../intlcpp/collations/bl88591fi0.h ../intlcpp/collations/bl88591fr0.h \
+  ../intlcpp/collations/bl88591ca0.h ../intlcpp/collations/bl88591de0.h \
+  ../intlcpp/collations/bl88591is0.h ../intlcpp/collations/bl88591it0.h \
+  ../intlcpp/collations/bl88591no0.h ../intlcpp/collations/bl88591es0.h \
+  ../intlcpp/collations/bl88591sv0.h ../intlcpp/collations/bl88591uk0.h \
+  ../intlcpp/collations/bl88591us0.h ../intlcpp/collations/bl88591pt0.h \
+  ../intlcpp/collations/pw1250czech.h ../intlcpp/collations/pw1250hundc.h \
+  ../intlcpp/collations/pw1250polish.h ../intlcpp/collations/pw1250slov.h \
+  ../intlcpp/collations/pw1250hun.h ../intlcpp/collations/pw1251cyrr.h \
+  ../intlcpp/collations/xx1251_ua.h ../intlcpp/collations/pw1252intl.h \
+  ../intlcpp/collations/pw1252i850.h ../intlcpp/collations/pw1252nor4.h \
+  ../intlcpp/collations/pw1252span.h ../intlcpp/collations/pw1252swfn.h \
+  ../intlcpp/collations/pw1253greek1.h ../intlcpp/collations/pw1254turk.h \
+  ../intlcpp/collations/blNEXTus0.h ../intlcpp/collations/blNEXTde0.h \
+  ../intlcpp/collations/blNEXTfr0.h ../intlcpp/collations/blNEXTit0.h
+lc_iso8859_2.o: lc_iso8859_2.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  lc_narrow.h lc_dos.h ../intlcpp/collations/xx88592czech.h \
+  ../intlcpp/collations/undef.h
+lc_jis.o: lc_jis.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h ../intlcpp/kanji.h \
+  lc_ascii.h cv_jis.h ../intlcpp/collations/undef.h
+lc_ksc.o: lc_ksc.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h lc_ascii.h cv_ksc.h \
+  ../intlcpp/collations/undef.h
+lc_narrow.o: lc_narrow.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  lc_narrow.h
+lc_unicode_ucs2.o: lc_unicode_ucs2.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/gds_proto.h ../common/classes/vector.h ../intlcpp/ldcommon.h \
+  ../jrd/intlobj.h ../jrd/constants.h ../intlcpp/langdrv.h \
+  ../intlcpp/charsets.h ../intlcpp/country_codes.h ../intlcpp/ld.h \
+  lc_ascii.h cv_unicode_fss.h ../intlcpp/collations/undef.h
+ld.o: ld.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/gds_proto.h \
+  ../common/classes/vector.h ../intlcpp/ldcommon.h ../jrd/intlobj.h \
+  ../jrd/constants.h ../intlcpp/langdrv.h ../intlcpp/charsets.h \
+  ../intlcpp/country_codes.h ../intlcpp/ld.h ../intlcpp/ld_proto.h \
+  ../jrd/intlnames.h

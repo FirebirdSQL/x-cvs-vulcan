@@ -1,0 +1,143 @@
+AdminException.o: ../config/AdminException.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../config/AdminException.h \
+  ../jrd/JString.h
+Error.o: ../jrd/Error.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/OSRIBugcheck.h \
+  ../jrd/OSRIException.h ../jrd/gds_proto.h
+extract.o: extract.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/gds.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../dsql/dsql.h ../dsql/all.h \
+  ../jrd/block_cache.h ../jrd/smp_impl.h ../jrd/smp.h ../jrd/thd.h \
+  ../jrd/MemMgr.h ../jrd/Mutex.h ../jrd/SynchronizationObject.h \
+  ../jrd/SyncObject.h ../jrd/Stack.h ../dsql/blk.h ../include/fb_blk.h \
+  ../dsql/sym.h ../jrd/dsc.h ../dsql/node.h ../dsql/dsql_nodes.h \
+  ../dsql/dsql_rel.h ../jrd/JString.h ../dsql/DStatement.h \
+  ../dsql/CStatement.h ../jrd/RefObject.h ../dsql/BlrGen.h \
+  ../jrd/Generate.h ../jrd/dialect.h ../jrd/tdbb.h ../isql/isql.h \
+  ../jrd/flags.h ../jrd/constants.h ../isql/extra_proto.h \
+  ../isql/isql_proto.h ../isql/show_proto.h ../jrd/gds_proto.h \
+  ../jrd/obj.h ../jrd/ods.h
+fb_exception.o: ../common/fb_exception.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h
+isql.o: isql.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../dsql/keywords.h ../jrd/jrd_time.h \
+  ../jrd/gds.h ../jrd/ibase.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../isql/isql.h ../jrd/flags.h ../jrd/perf.h ../jrd/perf_proto.h \
+  ../jrd/license.h ../jrd/build_no.h ../jrd/isc_version.h \
+  ../jrd/constants.h ../jrd/ods.h ../jrd/file_params.h \
+  ../isql/extra_proto.h ../isql/isql_proto.h ../isql/show_proto.h \
+  ../jrd/gds_proto.h ../jrd/utl_proto.h ../utilities/TempFile.h \
+  ../jrd/JString.h ../jrd/MemMgr.h ../jrd/Mutex.h \
+  ../jrd/SynchronizationObject.h ../jrd/SyncObject.h
+JString.o: ../jrd/JString.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemMgr.h \
+  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
+  ../jrd/JString.h
+keywords.o: ../dsql/keywords.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../dsql/parse.h \
+  ../dsql/keywords.h
+locks.o: ../common/classes/locks.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../common/classes/locks.h
+MemMgr.o: ../jrd/MemMgr.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemMgr.h \
+  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
+  ../jrd/Sync.h ../jrd/OSRIMemException.h ../jrd/OSRIException.h \
+  ../include/gen/iberror.h
+Mutex.o: ../jrd/Mutex.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/Mutex.h \
+  ../jrd/SynchronizationObject.h
+OSRIException.o: ../jrd/OSRIException.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../include/gen/iberror.h \
+  ../jrd/OSRIException.h ../jrd/Mutex.h ../jrd/SynchronizationObject.h \
+  ../jrd/Sync.h ../IscDbc/SQLException.h ../config/AdminException.h \
+  ../jrd/JString.h
+OSRIMemException.o: ../jrd/OSRIMemException.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/OSRIMemException.h \
+  ../jrd/OSRIException.h ../include/gen/iberror.h
+show.o: show.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/license.h ../jrd/build_no.h \
+  ../jrd/isc_version.h ../jrd/gds.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/gen/iberror.h ../dsql/dsql.h ../dsql/all.h \
+  ../jrd/block_cache.h ../jrd/smp_impl.h ../jrd/smp.h ../jrd/thd.h \
+  ../jrd/MemMgr.h ../jrd/Mutex.h ../jrd/SynchronizationObject.h \
+  ../jrd/SyncObject.h ../jrd/Stack.h ../dsql/blk.h ../include/fb_blk.h \
+  ../dsql/sym.h ../jrd/dsc.h ../dsql/node.h ../dsql/dsql_nodes.h \
+  ../dsql/dsql_rel.h ../jrd/JString.h ../dsql/DStatement.h \
+  ../dsql/CStatement.h ../jrd/RefObject.h ../dsql/BlrGen.h \
+  ../jrd/Generate.h ../jrd/dialect.h ../jrd/tdbb.h ../isql/isql.h \
+  ../jrd/flags.h ../jrd/constants.h ../jrd/intl.h ../intl/charsets.h \
+  ../isql/isql_proto.h ../isql/show_proto.h ../jrd/gds_proto.h \
+  ../jrd/utl_proto.h ../jrd/obj.h ../jrd/ods.h ../isql/extra_proto.h
+Sync.o: ../jrd/Sync.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/Sync.h ../jrd/SynchronizationObject.h \
+  ../jrd/LinkedList.h
+SynchronizationObject.o: ../jrd/SynchronizationObject.cpp \
+  ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
+  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/SynchronizationObject.h
+TempFile.o: ../utilities/TempFile.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../utilities/TempFile.h \
+  ../jrd/JString.h ../jrd/file_params.h
