@@ -1,3 +1,13 @@
+2005-04-01 00:11  awharrison
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	The dsqlField field of a ProcParameter must be retrieved with
+	getDsqlField rather than a direct reference.  The dsqlField is
+	built on the fly by that routine if it does not exist.	Beyond
+	that, referencing directly into the attributes of an object is
+	rude.
+
 2005-03-30 17:34  tomcole
 
 	* vulcan/src/dsql/gen.cpp:
