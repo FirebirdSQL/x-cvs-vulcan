@@ -189,6 +189,7 @@ void SortMem::allocate(size_t size)
 	// Check whether virtual memory should be allocated or file should be used instead
 	
 	if (mem_total_size + smart_size <= mem_upper_limit)
+		{
 		try
 			{
 			block = FB_NEW (*getDefaultMemoryPool()) MemoryBlock(tail, smart_size);
@@ -210,6 +211,7 @@ void SortMem::allocate(size_t size)
 					{
 					}
 				}
+			}
 			
 		if (block)
 			{
