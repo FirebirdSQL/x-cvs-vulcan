@@ -2804,12 +2804,11 @@ static void gen_sort( CStatement* request, dsql_nod* list)
 	{
 		dsql_nod* nulls_placement = (*ptr)->nod_arg[e_order_nulls];
 
-		/* Fix non-64-bit clean access of argument - SAS S0282759 */
-		UCHAR *p = (UCHAR*)nulls_placement->nod_arg;
-		long constval = (long)*(SLONG*)p;
-
-		if (constval) {
-			switch ((long)nulls_placement->nod_arg[0]) {
+		if (nulls_placement) {
+			/* Fix non-64-bit clean access of argument - SAS S0282759 */
+			UCHAR *p = (UCHAR*)nulls_placement->nod_arg;
+			long constval = (long)*(SLONG*)p;
+			switch (constval) {
 				case NOD_NULLS_FIRST:
 					stuff(request, blr_nullsfirst);
 					break;
