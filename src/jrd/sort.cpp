@@ -1217,7 +1217,8 @@ ULONG SORT_write_block(sort_work_file* sfb, ULONG seek, BLOB_PTR * address, ULON
  *      Write a block of stuff to the scratch file.
  *
  **************************************/
-	ULONG write_len, i;
+	ULONG i;
+	SLONG write_len;  /* SAS TRT */
 
 #ifdef DEBUG_SORT_TRACE
 	write_trace("Write", sfb, seek, address, length);
@@ -1240,14 +1241,13 @@ ULONG SORT_write_block(sort_work_file* sfb, ULONG seek, BLOB_PTR * address, ULON
 				break;
 			else {
 
-			/* Fix ULONG and signed compare agreement error.  SAS TRT */
-				if ((long)write_len >= 0)
+				if (write_len >= 0)
 					// If write returns value that is not equal len, then 
 					// most likely there is not enough space, try to write
 					// one more time to get meaningful errno
 					write_len = write(sfb->sfb_file, address + write_len,
 									  len - write_len);
-				if ((SSHORT) write_len == -1 && !SYSCALL_INTERRUPTED(errno)) {
+				if ( write_len == -1L && !SYSCALL_INTERRUPTED(errno)) {
 					THREAD_ENTER;
 					SORT_error(sfb, "write", isc_io_write_err, errno);
 				}
