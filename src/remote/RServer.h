@@ -26,8 +26,8 @@
 #include "Port.h"
 #include "protocol.h"
 
-class RServer;
 CLASS (Threads);
+class RServer;
 
 struct Server
 	{
