@@ -1,3 +1,58 @@
+2005-03-10 17:43  tomcole
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	Fix sizeof(ptr) vs. sizeof(int) agreement error in define_udf()
+
+2005-03-10 17:39  tomcole
+
+	* vulcan/src/dsql/gen.cpp:
+	
+	Fix NULLS FIRST | LAST not working on big-endian 64 bit systems. 
+	Also fix a few memory leaks related to free-ing request objects.
+
+2005-03-10 17:33  tomcole
+
+	* vulcan/src/dsql/make.cpp:
+	
+	Fix two cases where "= 1" should have been "== 1", in
+	MAKE_desc_from_list()
+
+2005-03-10 17:24  tomcole
+
+	* vulcan/src/isql/isql.epp:
+	
+	Buffer overflow risk for ISQL command strings exactly 512 bytes
+	long; need extra room for null byte.
+
+2005-03-10 17:22  tomcole
+
+	* vulcan/src/gpre/gpre.cpp:
+	
+	Fix "=" vs. "==" typo in raw_read()
+
+2005-03-10 17:19  tomcole
+
+	* vulcan/src/jrd/sort.cpp:
+	
+	Fix ULONG and signed-compare agreement error in write_block()'s
+	attempt to re-write a failed write to get better diagnostics.
+
+2005-03-10 17:12  tomcole
+
+	* vulcan/src/jrd/cmp.cpp:
+	
+	cmp_release has memory leak for at least some ports; deleting pool
+	before request orphans memory.	Fix is to delete request first,
+	then pool.
+
+2005-03-10 16:38  tomcole
+
+	* vulcan/src/jrd/all.cpp:
+	
+	Fix memory leak introduced by redundant new operation for lls cache
+	create (constructor already allocates).
+
 2005-03-09 21:07  arnobrinkman
 
 	* vulcan/src/dsql/pass1.cpp:
