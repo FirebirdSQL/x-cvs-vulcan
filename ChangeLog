@@ -1,3 +1,33 @@
+2005-03-07 00:12  arnobrinkman
+
+	* vulcan/src/jrd/: Attachment.h, acl.h, all.h, blb.cpp, blb.h,
+	blb_proto.h, blf_proto.h, blk.h, blob_filter.cpp, bookmark.cpp,
+	bookmark.h, btr.cpp, Database.h, btr.h, btr_proto.h, cch.h,
+	cmp.cpp, cmp_proto.h, cvt2.cpp, dbg_proto.h, dfw.epp, dfw_proto.h,
+	dls.cpp, dls_proto.h, dmp.cpp, dpm.epp, dpm_proto.h, dyn.epp,
+	dyn.h, entry.h, err.cpp, evl.cpp, Field.h, evl_proto.h, exe.cpp,
+	exe.h, ext.cpp, ext.h, ext_proto.h, fun.epp, fun_proto.h,
+	grant.epp, grant_proto.h, idx.cpp, idx_proto.h, inf.cpp, ini.epp,
+	ini_proto.h, intl.cpp, jrd.cpp, jrd.h, jrd_proto.h, lck.cpp, lck.h,
+	met.epp, met_proto.h, nav.cpp, nav_proto.h, opt.cpp, PageCache.cpp,
+	opt_proto.h, pag.cpp, pag.h, PageCache.h, Procedure.cpp,
+	Procedure.h, Relation.cpp, Relation.h, Request.cpp, Request.h,
+	Symb.h, par.cpp, req.h, rlck.cpp, rng.cpp, rpb_chain.cpp,
+	rpb_chain.h, rse.cpp, rse.h, rse_proto.h, sbm.cpp, sbm.h,
+	sbm_proto.h, scl.epp, scl.h, scl_proto.h, sdw.cpp, sdw_proto.h,
+	shut.cpp, sort.cpp, sort.h, sort_mem.cpp, sort_mem.h, sort_proto.h,
+	sqz.cpp, sqz_proto.h, sym.cpp, sym_proto.h, tra.cpp, tra.h,
+	tra_proto.h, val.cpp, val.h, vio.cpp, vio_proto.h:
+	
+	Update structure and class names
+
+2005-03-07 00:07  arnobrinkman
+
+	* vulcan/src/dsql/: CStatement.cpp, CStatement.h, ddl.cpp, gen.cpp,
+	make.cpp, pass1.cpp:
+	
+	Update structure and class names
+
 2005-03-03 01:21  arnobrinkman
 
 	* vulcan/src/jrd/: all.cpp, Attachment.cpp, Attachment.h, Bdb.cpp,
