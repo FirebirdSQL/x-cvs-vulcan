@@ -52,7 +52,8 @@ public:
 	}
 };
 
-typedef firebird::SortedArray<traRpbListElement, traRpbListElement, 
+typedef firebird::SortedArray<traRpbListElement, 
+			firebird::InlineStorage<traRpbListElement, 16>, traRpbListElement, 
 			traRpbListElement, traRpbListElement> traRpbArray;
 			
 class traRpbList : public traRpbArray 
