@@ -2893,7 +2893,8 @@ static void define_udf( CStatement* request)
         // CVC: This is case of "returns <type> [by value|reference]"
 		// Some data types can not be returned as value 
 
-		if (((int) (IPTR) (ret_val_ptr[1]->nod_arg[0]) == FUN_value) &&
+		/* Fix sizeof(ptr)/int agreement error.  SAS S0282984 */
+		if (((int)((long)*(SLONG*)(ret_val_ptr[1]->nod_arg)) == FUN_value) &&
 			(field->fld_dtype == dtype_text ||
 			 field->fld_dtype == dtype_varying ||
 			 field->fld_dtype == dtype_cstring ||
