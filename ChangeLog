@@ -1,3 +1,12 @@
+2005-03-01 21:12  jimstarkey
+
+	* vulcan/src/jrd/SyncObject.cpp:
+	
+	The SyncObject internal mutex was left locked when a thread
+	requested an additional shared lock on a synchronization object
+	already locked for exclusive.  The bug only manifests itself on
+	Linux.
+
 2005-02-28 01:43  arnobrinkman
 
 	* vulcan/src/jrd/: Attachment.h, btr.cpp, btr.h, btr_proto.h,
