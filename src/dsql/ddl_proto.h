@@ -42,6 +42,7 @@ bool DDL_ids(CStatement*);
 void DDL_put_field_dtype(CStatement*, dsql_fld*, bool);
 void DDL_resolve_intl_type(CStatement*, dsql_fld*, dsql_str*);
 void DDL_resolve_intl_type2(CStatement*, dsql_fld*, dsql_str*, bool);
+void DDL_gen_block(CStatement*, dsql_nod*);
 
 #endif // DSQL_DDL_PROTO_H
 

@@ -88,7 +88,8 @@ typedef enum {
 		FUN_reference,
 		FUN_descriptor,
 		FUN_blob_struct,
-		FUN_scalar_array
+		FUN_scalar_array,
+		FUN_ref_with_null
 } FUN_T;
 
 struct fun_repeat {

@@ -46,7 +46,8 @@ enum REQ_TYPE
 	REQ_UPDATE_CURSOR, REQ_DELETE_CURSOR,
 	REQ_COMMIT, REQ_ROLLBACK, REQ_DDL, REQ_EMBED_SELECT,
 	REQ_START_TRANS, REQ_GET_SEGMENT, REQ_PUT_SEGMENT, REQ_EXEC_PROCEDURE,
-	REQ_COMMIT_RETAIN, REQ_SET_GENERATOR, REQ_SAVEPOINT
+	REQ_COMMIT_RETAIN, REQ_SET_GENERATOR, REQ_SAVEPOINT, 
+	REQ_EXEC_BLOCK, REQ_SELECT_BLOCK
 };
 
 enum trigger_type {
@@ -171,12 +172,12 @@ public:
 	bool		inOuterJoin;
 	dsql_str	*aliasRelationPrefix;
 	Stack		context;
-	Stack		derivedTableContext;
 	Stack		unionContext;
 	Stack		cursors;
 	Stack		labels;
 	Procedure	*procedure;
 	dsql_nod	*ddlNode;
+	dsql_nod	*execBlockNode;
 	dsql_nod	*syntaxTree;
 	dsql_blb	*blob;
 	int			req_in_where_clause;	//!< processing "where clause"

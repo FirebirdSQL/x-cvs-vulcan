@@ -87,6 +87,11 @@ public:
 
 const long STR_delimited_id		= 0x1L;
 
+// Context aliases used in triggers
+static const char* const OLD_CONTEXT		= "OLD";
+static const char* const NEW_CONTEXT		= "NEW";
+static const char* const TEMP_CONTEXT		= "TEMP";
+
 //! macros and block used to implement a generic stack mechanism
 
 /***
@@ -413,7 +418,8 @@ enum req_flags_vals {
 	REQ_no_batch			= 256,
 	REQ_backwards			= 512,
 	REQ_blr_version4		= 1024,
-	REQ_blr_version5		= 2048
+	REQ_blr_version5		= 2048,
+	REQ_block				= 4096
 };
 #endif /* UNDEF */
 
@@ -509,6 +515,7 @@ public:
 	const TEXT*	par_name;			//!< Parameter name, if any
 	const TEXT*	par_rel_name;		//!< Relation name, if any
 	const TEXT*	par_owner_name;		//!< Owner name, if any
+	const TEXT*	par_rel_alias;		//!< Relation alias, if any
 	const TEXT*	par_alias;			//!< Alias, if any
 	DSC		par_desc;			//!< Field data type
 	DSC		par_user_desc;		//!< SQLDA data type

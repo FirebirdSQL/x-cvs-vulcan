@@ -44,7 +44,8 @@ enum req_flags_vals {
 	REQ_no_batch			= 256,
 	REQ_backwards			= 512,
 	REQ_blr_version4		= 1024,
-	REQ_blr_version5		= 2048
+	REQ_blr_version5		= 2048,
+	REQ_block				= 4096
 };
 
 
