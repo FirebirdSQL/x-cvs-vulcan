@@ -136,6 +136,7 @@ void SyncObject::lock(Sync *sync, LockType type)
 			{
 			++monitorCount;
 			bumpWaiters(-1);
+			mutex.release();
 			return;
 			}
 		}
