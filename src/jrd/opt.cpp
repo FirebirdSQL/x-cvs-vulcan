@@ -2353,7 +2353,8 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 
 			if (!procedure->findRequest()->req_fors) 
 				{
-				*buffer_length -= 6 + (procedure->findName().length());
+				length = procedure->findName().length();
+				*buffer_length -= (6 + length);
 
 				if (*buffer_length < 0) 
 					return false;
@@ -2362,6 +2363,7 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 				*buffer++ = isc_info_rsb_relation;
 				*buffer++ = (SCHAR) length;
 				strncpy ((char *)buffer, (const TEXT *)procedure->findName(), length);
+				buffer += length;
 				*buffer++ = isc_info_rsb_type;
 				*buffer++ = isc_info_rsb_sequential;
 				*buffer++ = isc_info_rsb_end;
