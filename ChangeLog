@@ -1,3 +1,9 @@
+2005-03-09 21:07  arnobrinkman
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Fix problem introduced with merge in the ANY predicate
+
 2005-03-08 19:22  arnobrinkman
 
 	* vulcan/src/jrd/opt.cpp:
