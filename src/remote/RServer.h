@@ -27,7 +27,7 @@
 #include "protocol.h"
 
 class RServer;
-class Threads;
+CLASS (Threads);
 
 struct Server
 	{

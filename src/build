@@ -12,7 +12,7 @@ for x in config why gpre remote jrd intlcpp burp isql qli server lock IscDbc XLo
 	echo
 	echo Building $x
 	echo
-	./gen
+	./gen $*
 	gmake
 	gmake install
 	)
