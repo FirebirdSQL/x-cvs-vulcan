@@ -7336,7 +7336,7 @@ static dsql_fld* resolve_context( CStatement* request, dsql_str* qualifier,
 	if (relation)
 		return relation->rel_fields;
 	
-	return (procedure->findOutputParameters())->dsqlField;
+	return (procedure->findOutputParameters())->getDsqlField();
 }
 
 
