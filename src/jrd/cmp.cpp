@@ -2203,7 +2203,19 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 				}
 		}
 
-	JrdMemoryPool::deletePool(request->req_pool);
+/* Memory leak on some ports; must delete both pool and request objects. SAS SEK */
+
+	JrdMemoryPool *pool = request->req_pool;
+#ifdef HPUX
+	/* HP-UX complains "delete request" undef'd, so do it brute force */
+	delete request->req_last_xcp;
+	delete [] request->req_access-rpb;
+	delete [] request->req_impure;
+#else
+	delete request;
+#endif
+
+	JrdMemoryPool::deletePool(pool);
 }
 
 
