@@ -40,8 +40,8 @@
 
 Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool)
 {
-	req_rpb = new rpb [rpbCount];
-	memset (req_rpb, 0, sizeof (rpb) * rpbCount);
+	req_rpb = new record_param [rpbCount];
+	memset (req_rpb, 0, sizeof (record_param) * rpbCount);
 	req_impure_size = impureSize;
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
@@ -62,12 +62,12 @@ Request::Request(Request* request) : req_invariants(request->req_pool)
 	//req_last_xcp = request->req_last_xcp;
 	req_invariants.join(request->req_invariants);
 	req_last_xcp = new StatusXcp;
-	req_rpb = new rpb [req_count];
-	memset (req_rpb, 0, sizeof (rpb) * req_count);
+	req_rpb = new record_param [req_count];
+	memset (req_rpb, 0, sizeof (record_param) * req_count);
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
 	
-	for (rpb *rpb1 = req_rpb, *end = rpb1 + req_count, *rpb2 = request->req_rpb; rpb1 < end; rpb1++, rpb2++) 
+	for (record_param* rpb1 = req_rpb, *end = rpb1 + req_count, *rpb2 = request->req_rpb; rpb1 < end; rpb1++, rpb2++) 
 		{
 		if (rpb2->rpb_stream_flags & RPB_s_update)
 			rpb1->rpb_stream_flags |= RPB_s_update;

@@ -108,7 +108,7 @@ public:
 	class blk*	lck_compatible;	/* Enter into internal_enqueue() and treat as compatible */
 	class blk*	lck_compatible2;	/* Sub-level for internal compatibility */
 	Attachment* lck_attachment;	/* Attachment that owns lock */
-	struct btb* lck_blocked_threads;	/* Threads blocked by lock */
+	class BlockingThread* lck_blocked_threads;	/* Threads blocked by lock */
 	lock_ast_t	lck_ast;	        /* Blocking AST routine */
 	SLONG		lck_id;				/* Lock id from lock manager */
 	SLONG		lck_owner_handle;		/* Lock owner handle from the lock manager's point of view */

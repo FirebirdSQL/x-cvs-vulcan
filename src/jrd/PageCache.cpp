@@ -2391,7 +2391,7 @@ bool PageCache::getExclusiveAttachment(thread_db* tdbb, int level, int wait_flag
 
 	if (level != LCK_none) 
 		{
-		for (att** ptr = &database->dbb_attachments; *ptr; ptr = &(*ptr)->att_next) 
+		for (Attachment** ptr = &database->dbb_attachments; *ptr; ptr = &(*ptr)->att_next) 
 			if (*ptr == attachment) 
 				{
 				*ptr = attachment->att_next;
@@ -3664,7 +3664,7 @@ bool PageCache::validate(win* window)
  *
  **************************************/
 
-void PageCache::recoverShadow(thread_db* tdbb, sbm* sbm_rec)
+void PageCache::recoverShadow(thread_db* tdbb, SparseBitmap* sbm_rec)
 {
 	SLONG page_no = -1;
 	int result;

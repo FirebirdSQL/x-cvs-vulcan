@@ -86,27 +86,27 @@ double MTH$CVT_D_G(), MTH$CVT_G_D();
 
 typedef struct blob_t {
 //	SSHORT(*blob_get_segment) ();
-	SSHORT (*blob_get_segment) (BLB, UCHAR*, USHORT, USHORT*);
+	SSHORT (*blob_get_segment) (blb*, UCHAR*, USHORT, USHORT*);
 //	int* blob_handle;
 	void* blob_handle;
 	SLONG blob_number_segments;
 	SLONG blob_max_segment;
 	SLONG blob_total_length;
 //	void (*blob_put_segment) ();
-	void (*blob_put_segment) (BLB, const UCHAR*, USHORT);
+	void (*blob_put_segment) (blb*, const UCHAR*, USHORT);
 //	SLONG(*blob_seek) ();
-	SLONG (*blob_seek) (BLB, USHORT, SLONG);
+	SLONG (*blob_seek) (blb*, USHORT, SLONG);
 } *BLOB;
 
 
 
-static SSHORT blob_get_segment(BLB, UCHAR*, USHORT, USHORT*);
-static void blob_put_segment(BLB, const UCHAR*, USHORT);
-static SLONG blob_lseek(BLB, USHORT, SLONG);
-static SLONG get_scalar_array(fun_repeat*, DSC*, SAD, LLS*);
+static SSHORT blob_get_segment(blb*, UCHAR*, USHORT, USHORT*);
+static void blob_put_segment(blb*, const UCHAR*, USHORT);
+static SLONG blob_lseek(blb*, USHORT, SLONG);
+static SLONG get_scalar_array(fun_repeat*, DSC*, scalar_array_desc*, LLS*);
 
 
-void FUN_evaluate(thread_db* tdbb, FUN function, JRD_NOD node, impure_value* value)
+void FUN_evaluate(thread_db* tdbb, UserFunction* function, JRD_NOD node, impure_value* value)
 {
 /**************************************
  *
@@ -265,7 +265,7 @@ void FUN_evaluate(thread_db* tdbb, FUN function, JRD_NOD node, impure_value* val
 				MOVE_CLEAR(temp_ptr, (SLONG) length);
 			}
 		else if ((SSHORT) abs(tail->fun_mechanism) == FUN_scalar_array)
-			length = get_scalar_array(tail, input, (SAD)temp_ptr, &array_stack);
+			length = get_scalar_array(tail, input, (scalar_array_desc*)temp_ptr, &array_stack);
 		else
 			{
 			switch (tail->fun_desc.dsc_dtype)
@@ -427,7 +427,7 @@ void FUN_evaluate(thread_db* tdbb, FUN function, JRD_NOD node, impure_value* val
 					{
 					// This is not a descriptor pointing to a blob. This is a blob struct.
 					BLOB blob_desc = (BLOB) temp_ptr;
-					BLB  blob;
+					blb*  blob;
 					length = sizeof(blob_t);
 					
 					if (tail == return_ptr)
@@ -694,7 +694,7 @@ void FUN_evaluate(thread_db* tdbb, FUN function, JRD_NOD node, impure_value* val
 	//delete temp_string;
 
 	while (blob_stack)
-		BLB_close(tdbb, (BLB)LLS_POP(&blob_stack));
+		BLB_close(tdbb, (blb*)LLS_POP(&blob_stack));
 
 	while (array_stack)
 		delete[] (UCHAR*)LLS_POP(&array_stack);
@@ -759,7 +759,7 @@ void FUN_init(void)
 }
 
 
-FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError)
+UserFunction* FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError)
 {
 /**************************************
  *
@@ -771,7 +771,7 @@ FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError
  *	Lookup function by name.
  *
  **************************************/
-	FUN function;
+	UserFunction* function;
 	STR string;
 	//STR exception_msg;
 	TEXT *p;
@@ -784,13 +784,13 @@ FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError
 	DBB dbb = tdbb->tdbb_database;
 	Sync sync (&dbb->syncSymbols, "FUN_lookup_function");
 	sync.lock (Shared);
-	Sym *symbol;
+	Symbol* symbol;
 
 	/* Start by looking for already defined symbol */
 
 	for (symbol = SYM_lookup(tdbb, name); symbol; symbol = symbol->sym_homonym)
 	    if (symbol->sym_type == SYM_fun) 
-			return (FUN) symbol->sym_object;
+			return (UserFunction*) symbol->sym_object;
 
 	sync.unlock();
 	sync.lock (Exclusive);
@@ -799,9 +799,9 @@ FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError
 	
 	for (symbol = SYM_lookup(tdbb, name); symbol; symbol = symbol->sym_homonym)
 	    if (symbol->sym_type == SYM_fun) 
-			return (FUN) symbol->sym_object;
+			return (UserFunction*) symbol->sym_object;
 			
-	FUN prior = NULL;
+	UserFunction* prior = NULL;
 	Request* request_fun = CMP_find_request(tdbb, irq_l_functions, IRQ_REQUESTS);
 	Request* request_arg = CMP_find_request(tdbb, irq_l_args, IRQ_REQUESTS);
 
@@ -836,7 +836,7 @@ FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError
 				l = sizeof(blob_t);
 			length += l;
         END_FOR;
-		function = FB_NEW_RPT(*dbb->dbb_permanent, count + 1) fun;
+		function = FB_NEW_RPT(*dbb->dbb_permanent, count + 1) UserFunction;
 		function->fun_count = count;
 		function->fun_args = args;
 		function->fun_return_arg = X.RDB$RETURN_ARGUMENT;
@@ -913,7 +913,7 @@ FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError
 		else
 			{
 			prior = function;
-			function->fun_symbol = symbol = FB_NEW(*dbb->dbb_permanent) Sym;
+			function->fun_symbol = symbol = FB_NEW(*dbb->dbb_permanent) Symbol;
 			symbol->sym_object = (BLK) function;
 			string = FB_NEW_RPT(*dbb->dbb_permanent, strlen(name)) str;
 			strcpy((char*)string->str_data, name);
@@ -933,7 +933,7 @@ FUN FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowAccessError
 }
 
 
-FUN FUN_resolve(thread_db* tdbb, CompilerScratch* csb, FUN function, JRD_NOD args)
+UserFunction* FUN_resolve(thread_db* tdbb, CompilerScratch* csb, UserFunction* function, JRD_NOD args)
 {
 /**************************************
  *
@@ -945,7 +945,7 @@ FUN FUN_resolve(thread_db* tdbb, CompilerScratch* csb, FUN function, JRD_NOD arg
  *	Resolve instance of potentially overloaded function.
  *
  **************************************/
-	FUN best;
+	UserFunction* best;
 	JRD_NOD *ptr, *end;
 	DSC arg;
 	int best_score, score;
@@ -982,7 +982,7 @@ FUN FUN_resolve(thread_db* tdbb, CompilerScratch* csb, FUN function, JRD_NOD arg
 }
 
 
-static SLONG blob_lseek( BLB blob, USHORT mode, SLONG offset)
+static SLONG blob_lseek( blb* blob, USHORT mode, SLONG offset)
 {
 /**************************************
  *
@@ -1005,7 +1005,7 @@ static SLONG blob_lseek( BLB blob, USHORT mode, SLONG offset)
 }
 
 
-static void blob_put_segment( BLB blob, const UCHAR* buffer, USHORT length)
+static void blob_put_segment( blb* blob, const UCHAR* buffer, USHORT length)
 {
 /**************************************
  *
@@ -1029,7 +1029,7 @@ static void blob_put_segment( BLB blob, const UCHAR* buffer, USHORT length)
 
 
 static SSHORT blob_get_segment(
-							   BLB blob,
+							   blb* blob,
 							   UCHAR* buffer,
 							   USHORT length, USHORT* return_length)
 {
@@ -1065,10 +1065,10 @@ static SSHORT blob_get_segment(
 }
 
 
-static SLONG get_scalar_array(fun_repeat*	arg,
-							  DSC*	value,
-							  SAD	scalar_desc,
-							  LLS*	stack)
+static SLONG get_scalar_array(fun_repeat* arg,
+							  DSC* value,
+							  scalar_array_desc* scalar_desc,
+							  LLS* stack)
 {
 /**************************************
  *
@@ -1083,14 +1083,14 @@ static SLONG get_scalar_array(fun_repeat*	arg,
  *
  **************************************/
 	thread_db* tdbb;
-	BLB blob;
+	blb* blob;
 	ADS array_desc;
 	SLONG stuff[ADS_LEN(16) / 4], n;
 	UCHAR *data, *temp;
 	DSC from, to;
 	USHORT dimensions;
 	ads::ads_repeat *tail1;
-	sad::sad_repeat *tail2, *end;
+	scalar_array_desc::sad_repeat *tail2, *end;
 
 	tdbb = GET_THREAD_DATA;
 
@@ -1135,6 +1135,6 @@ static SLONG get_scalar_array(fun_repeat*	arg,
 		tail2->sad_lower = tail1->ads_lower;
 	}
 
-	return sizeof(sad) + (dimensions - 1) * sizeof(sad::sad_repeat);
+	return sizeof(scalar_array_desc) + (dimensions - 1) * sizeof(scalar_array_desc::sad_repeat);
 }
 

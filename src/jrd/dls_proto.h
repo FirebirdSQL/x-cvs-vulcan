@@ -30,8 +30,8 @@
 
 CLASS(ConfObject);
 
-BOOLEAN		DLS_get_temp_space(ULONG, SFB);
-void		DLS_put_temp_space(SFB);
+BOOLEAN		DLS_get_temp_space(ULONG, sort_work_file*);
+void		DLS_put_temp_space(sort_work_file*);
 BOOLEAN		API_ROUTINE DLS_add_dir(ULONG, const TEXT *);
 MDLS*		DLS_get_access(ConfObject *configuration);
 

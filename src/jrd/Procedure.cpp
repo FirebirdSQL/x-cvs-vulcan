@@ -365,12 +365,12 @@ bool Procedure::parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, 
 		const USHORT msg_number = BLR_BYTE;
 		USHORT count = BLR_BYTE;
 		count += (BLR_BYTE) << 8;
-		fmt* format = fmt::newFmt(*tdbb->tdbb_default, count);
+		Format* format = Format::newFmt(*tdbb->tdbb_default, count);
 		format->fmt_count = count;
 		// CVC: This offset should be protected against 32K overflow in the future
 		USHORT offset = 0;
 		
-		for (fmt::fmt_desc_iterator desc = format->fmt_desc.begin(); count; --count, ++desc)
+		for (Format::fmt_desc_iterator desc = format->fmt_desc.begin(); count; --count, ++desc)
 			{
 			const USHORT align = PAR_desc(csb, &*desc);
 			if (align)

@@ -36,7 +36,7 @@
 #include "JString.h"
 
 class dsql_sym;
-class fmt;
+class Format;
 class ProcParam;
 class lck;
 class ProcManager;
@@ -140,18 +140,18 @@ public:
 		{return procNext;};
 
 	//Format
-	inline struct fmt  *findInputFormat ()
+	inline struct Format* findInputFormat ()
 		{return procInputFormat;};
 		
-	inline void setInputFormat (struct fmt *format)
+	inline void setInputFormat (struct Format* format)
 		{procInputFormat = format;};
 
-	inline struct fmt  *findOutputFormat ()
+	inline struct Format* findOutputFormat ()
 		{return procOutputFormat;};
-	inline void setOutputFormat (struct fmt *format)
+	inline void setOutputFormat (struct Format* format)
 		{procOutputFormat = format;};
 
-	inline struct fmt *findFormat()
+	inline struct Format* findFormat()
 		{return procFormat;};
 	
 	inline Database *getDatabase()
@@ -159,7 +159,7 @@ public:
 		return procDatabase;
 		}
 			
-	inline void setFormat (struct fmt *format)
+	inline void setFormat (struct Format* format)
 		{
 		procFormat = format;
 		};
@@ -242,9 +242,9 @@ protected:
 	JString			procName;
 	JString			procSecurityClassName;
 	JString			procOwner;
-	fmt				*procInputFormat;
-	fmt				*procOutputFormat;
-	fmt				*procFormat;
+	Format			*procInputFormat;
+	Format			*procOutputFormat;
+	Format			*procFormat;
 	Request			*procRequest;			/* compiled procedure request */
 	int				procUseCount;			/* requests compiled with procedure */
 	int				procUseCountInternal;	/* number of procedures compiled with procedure, 

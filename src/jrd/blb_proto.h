@@ -34,7 +34,7 @@ void   BLB_cancel(thread_db*, blb*);
 void   BLB_close(thread_db*, blb*);
 blb*   BLB_create(thread_db*, Transaction*, bid*);
 blb*   BLB_create2(thread_db*, Transaction*, bid*, USHORT, const UCHAR*);
-void   BLB_garbage_collect(thread_db*, lls*, lls*, SLONG, jrd_rel*);
+void   BLB_garbage_collect(thread_db*, lls*, lls*, SLONG, Relation*);
 blb*   BLB_get_array(thread_db*, Transaction*, const bid*, ads*);
 SLONG  BLB_get_data(thread_db*, blb*, UCHAR*, SLONG);
 int BLB_get_segment(thread_db*, blb*, UCHAR*, int bufferLength);
@@ -49,7 +49,7 @@ blb* BLB_open2(thread_db*, Transaction*, const bid*, USHORT, const UCHAR*);
 void BLB_put_segment(thread_db*, blb*, const UCHAR*, USHORT);
 void BLB_put_slice(thread_db*, Transaction*, bid*, const UCHAR*, USHORT,
 	const SLONG*, SLONG, UCHAR*);
-void BLB_release_array(arr*);
+void BLB_release_array(ArrayField*);
 void BLB_scalar(thread_db*, Transaction*, const bid*, USHORT, SLONG*, impure_value*);
 
 

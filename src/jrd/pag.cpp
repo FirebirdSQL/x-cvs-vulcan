@@ -604,7 +604,7 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 	SLONG relative_bit;
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
-	PGC control = dbb->dbb_pcontrol;
+	PageControl* control = dbb->dbb_pcontrol;
 	
 	// Not sure if this can be moved inside the loop. Maybe some data members
 	// should persist across iterations?
@@ -723,7 +723,7 @@ SLONG PAG_attachment_id(thread_db* tdbb)
  *
  ******************************************/
 	DBB dbb = tdbb->tdbb_database;
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
 	/* If we've been here before just return the id */
 
@@ -1128,7 +1128,7 @@ void PAG_init(thread_db* tdbb)
  **************************************/
  
 	DBB dbb = tdbb->tdbb_database;
-	PGC control = dbb->dbb_pcontrol = FB_NEW(*dbb->dbb_permanent) pgc();
+	PageControl* control = dbb->dbb_pcontrol = FB_NEW(*dbb->dbb_permanent) PageControl();
 	control->pgc_bytes = dbb->dbb_page_size - OFFSETA(page_inv_page*, pip_bits);
 	control->pgc_ppp = control->pgc_bytes * 8;
 	control->pgc_tpt = (dbb->dbb_page_size - OFFSETA(tx_inv_page*, tip_transactions)) * 4;
@@ -1436,7 +1436,7 @@ void PAG_release_page(thread_db* tdbb, SLONG number, SLONG prior_page)
  **************************************/
 	DBB dbb;
 	page_inv_page* pages;
-	PGC control;
+	PageControl* control;
 	//JRNA record;
 	SLONG sequence;
 	SLONG relative_bit;

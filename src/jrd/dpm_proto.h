@@ -28,29 +28,26 @@
 class blb;
 
 struct pag* DPM_allocate(thread_db*, struct win*);
-void	DPM_backout(thread_db*, struct rpb *);
-int		DPM_chain(thread_db*, struct rpb *, struct rpb *);
+void	DPM_backout(thread_db*, struct record_param*);
+int		DPM_chain(thread_db*, struct record_param* , struct record_param*);
 int		DPM_compress(thread_db*, struct data_page*);
-void	DPM_create_relation(thread_db*, Relation *);
-SLONG	DPM_data_pages(thread_db*, Relation *);
-void	DPM_delete(thread_db*, struct rpb *, SLONG);
-void	DPM_delete_relation(thread_db*, Relation *);
-BOOLEAN	DPM_fetch(thread_db*, struct rpb *, USHORT);
-SSHORT	DPM_fetch_back(thread_db*, struct rpb *, USHORT, SSHORT);
-void	DPM_fetch_fragment(thread_db*, struct rpb *, USHORT);
+void	DPM_create_relation(thread_db*, Relation*);
+SLONG	DPM_data_pages(thread_db*, Relation*);
+void	DPM_delete(thread_db*, struct record_param*, SLONG);
+void	DPM_delete_relation(thread_db*, Relation*);
+BOOLEAN	DPM_fetch(thread_db*, struct record_param*, USHORT);
+SSHORT	DPM_fetch_back(thread_db*, struct record_param*, USHORT, SSHORT);
+void	DPM_fetch_fragment(thread_db*, struct record_param*, USHORT);
 SINT64	DPM_gen_id(thread_db*, SLONG, USHORT, SINT64);
-int		DPM_get(thread_db*, struct rpb *, SSHORT);
+int		DPM_get(thread_db*, struct record_param*, SSHORT);
 ULONG	DPM_get_blob(thread_db*, blb*, ULONG, USHORT, SLONG);
-BOOLEAN	DPM_next(thread_db*, struct rpb *, USHORT, BOOLEAN,
-					BOOLEAN);
+BOOLEAN	DPM_next(thread_db*, struct record_param*, USHORT, BOOLEAN, BOOLEAN);
 void	DPM_pages(thread_db*, SSHORT, int, ULONG, SLONG);
-SLONG	DPM_prefetch_bitmap(struct tdbb *, Relation *, class sbm *,
-								 SLONG);
+SLONG	DPM_prefetch_bitmap(struct thread_db*, Relation*, class sbm *, SLONG);
 void	DPM_scan_pages(thread_db*);
-void	DPM_store(thread_db*, struct rpb *, struct lls **, USHORT);
-SLONG	DPM_store_blob(thread_db*, blb*, struct rec *);
-void	DPM_rewrite_header(thread_db*, struct rpb *);
-void	DPM_update(thread_db*, struct rpb *, struct lls **,
-					   Transaction *);
+void	DPM_store(thread_db*, struct record_param* , struct lls **, USHORT);
+SLONG	DPM_store_blob(thread_db*, blb*, struct Record*);
+void	DPM_rewrite_header(thread_db*, struct record_param* );
+void	DPM_update(thread_db*, struct record_param* , struct lls **, Transaction*);
 
 #endif /* JRD_DPM_PROTO_H */

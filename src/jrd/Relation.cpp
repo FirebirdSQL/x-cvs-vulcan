@@ -123,7 +123,7 @@ Relation::~Relation()
 	delete rel_view_rse;
 	delete rel_gc_bitmap;
 	
-	for (vcx *context; context = rel_view_contexts;)
+	for (ViewContext *context; context = rel_view_contexts;)
 		{
 		rel_view_contexts = context->vcx_next;
 		delete context;
@@ -352,9 +352,9 @@ Field* Relation::findField(int id)
 	return rel_fields[id];
 }
 
-fmt* Relation::getFormat(thread_db* tdbb, int formatVersion)
+Format* Relation::getFormat(thread_db* tdbb, int formatVersion)
 {
-	fmt *format;
+	Format* format;
 	Sync sync(&syncFormats, "Relation::getFormat");
 	sync.lock(Shared);
 	
@@ -377,7 +377,7 @@ fmt* Relation::getFormat(thread_db* tdbb, int formatVersion)
 	return format;
 }
 
-fmt* Relation::getCurrentFormat(thread_db* tdbb)
+Format* Relation::getCurrentFormat(thread_db* tdbb)
 {
 	if (!rel_current_format)
 		rel_current_format = getFormat(tdbb, rel_current_fmt);
@@ -385,7 +385,7 @@ fmt* Relation::getCurrentFormat(thread_db* tdbb)
 	return rel_current_format;
 }
 
-void Relation::setFormat(fmt* format)
+void Relation::setFormat(Format* format)
 {
 	Sync sync(&syncFormats, "Relation::setFormat");
 	sync.lock(Exclusive);

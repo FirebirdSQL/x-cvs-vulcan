@@ -133,17 +133,17 @@ static UCHAR* alloc_map(thread_db*, CompilerScratch*, USHORT);
 static JRD_NOD catenate_nodes(thread_db*, LLS);
 static JRD_NOD copy(thread_db*, CompilerScratch*, JRD_NOD, UCHAR *, USHORT, JRD_NOD, bool);
 static void expand_view_nodes(thread_db*, CompilerScratch*, USHORT, LLS *, NOD_T);
-static void ignore_dbkey(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_REL);
+static void ignore_dbkey(thread_db*, CompilerScratch*, RecordSelExpr*, Relation*);
 static JRD_NOD make_defaults(thread_db*, CompilerScratch*, USHORT, JRD_NOD);
 static JRD_NOD make_validation(thread_db*, CompilerScratch*, USHORT);
-static JRD_NOD pass1(thread_db*, CompilerScratch*, JRD_NOD, JRD_REL, USHORT, bool);
+static JRD_NOD pass1(thread_db*, CompilerScratch*, JRD_NOD, Relation*, USHORT, bool);
 static void pass1_erase(thread_db*, CompilerScratch*, JRD_NOD);
 static JRD_NOD pass1_expand_view(thread_db*, CompilerScratch*, USHORT, USHORT, bool);
 static void pass1_modify(thread_db*, CompilerScratch*, JRD_NOD);
-static RecordSelExpr* pass1_rse(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_REL, USHORT);
-static void pass1_source(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_NOD, JRD_NOD *, LLS *, JRD_REL, USHORT);
+static RecordSelExpr* pass1_rse(thread_db*, CompilerScratch*, RecordSelExpr*, Relation*, USHORT);
+static void pass1_source(thread_db*, CompilerScratch*, RecordSelExpr*, JRD_NOD, JRD_NOD *, LLS *, Relation*, USHORT);
 static JRD_NOD pass1_store(thread_db*, CompilerScratch*, JRD_NOD);
-static JRD_NOD pass1_update(thread_db*, CompilerScratch*, JRD_REL, Triggers*, USHORT, USHORT, USHORT, JRD_REL,
+static JRD_NOD pass1_update(thread_db*, CompilerScratch*, Relation*, Triggers*, USHORT, USHORT, USHORT, Relation*,
 						USHORT);
 static JRD_NOD pass2(thread_db*, CompilerScratch*, JRD_NOD, JRD_NOD);
 static void pass2_rse(thread_db*, CompilerScratch*, RecordSelExpr*);
@@ -152,8 +152,8 @@ static void plan_check(CompilerScratch*, RecordSelExpr*);
 static void plan_set(CompilerScratch*, RecordSelExpr*, JRD_NOD);
 static void post_procedure_access(thread_db*, CompilerScratch*, Procedure *);
 static RecordSource* post_rse(thread_db*, CompilerScratch*, RecordSelExpr*);
-static void	post_trigger_access(thread_db*, CompilerScratch*, JRD_REL, Triggers*, JRD_REL);
-static void process_map(thread_db*, CompilerScratch*, JRD_NOD, FMT *);
+static void	post_trigger_access(thread_db*, CompilerScratch*, Relation*, Triggers*, Relation*);
+static void process_map(thread_db*, CompilerScratch*, JRD_NOD, Format* *);
 static bool stream_in_rse(USHORT, RecordSelExpr*);
 static SSHORT strcmp_space(const TEXT*, const TEXT*);
 
@@ -248,7 +248,7 @@ JRD_REQ CMP_clone_request(thread_db* tdbb, JRD_REQ request, USHORT level, bool v
  **************************************/
 	JRD_REQ clone;
 	AccessItem* access;
-	SCL class_;
+	SecurityClass* class_;
 	Procedure *procedure;
 
 	//DEV_BLKCHK(request, type_req);
@@ -352,7 +352,7 @@ JRD_REQ CMP_compile2(thread_db* tdbb, const UCHAR* blr, USHORT internal_flag)
 
 		for (access = request->req_access; access; access = access->acc_next)
 			{
-			SCL class_ = SCL_get_class(tdbb, access->acc_security_name);
+			SecurityClass* class_ = SCL_get_class(tdbb, access->acc_security_name);
 			SCL_check_access(tdbb, class_, access->acc_view_id, access->acc_trg_name,
 							 access->acc_prc_name, access->acc_mask,
 							 access->acc_type, access->acc_name);
@@ -402,7 +402,7 @@ csb_repeat* CMP_csb_element(CompilerScratch* csb, USHORT element)
 }
 
 
-void CMP_expunge_transaction(JRD_TRA transaction)
+void CMP_expunge_transaction(Transaction* transaction)
 {
 /**************************************
  *
@@ -511,7 +511,7 @@ void CMP_fini(thread_db* tdbb)
 }
 
 
-FMT CMP_format(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
+Format* CMP_format(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
 {
 /**************************************
  *
@@ -735,7 +735,7 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 	case nod_field:
 		{
 			const USHORT id = (USHORT) (long) node->nod_arg[e_fld_id];
-			const fmt* format =
+			const Format* format =
 				CMP_format(tdbb, csb, (USHORT) (long) node->nod_arg[e_fld_stream]);
 			if (id >= format->fmt_count) {
 				desc->dsc_dtype = dtype_unknown;
@@ -752,12 +752,12 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 	case nod_scalar:
 		{
 			jrd_nod* sub = node->nod_arg[e_scl_field];
-			jrd_rel* relation =
+			Relation* relation =
 				csb->csb_rpt[(USHORT)(long) sub->
 							 nod_arg[e_fld_stream]].csb_relation;
 			const USHORT id = (USHORT)(long) sub->nod_arg[e_fld_id];
 			const jrd_fld* field = MET_get_field(relation, id);
-			const arr* array;
+			const ArrayField* array;
 			if (!field || !(array = field->fld_array))
 				IBERROR(223);	// msg 223 argument of scalar operation must be an array
 			*desc = array->arr_desc.ads_rpt[0].ads_desc;
@@ -1467,7 +1467,7 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 
 	case nod_cast:
 		{
-			const fmt* format = (FMT) node->nod_arg[e_cast_fmt];
+			const Format* format = (Format*) node->nod_arg[e_cast_fmt];
 			*desc = format->fmt_desc[0];
 			if ((desc->dsc_dtype <= dtype_any_text && !desc->dsc_length) ||
 				(desc->dsc_dtype == dtype_varying
@@ -1487,7 +1487,7 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 	case nod_argument:
 		{
 		const jrd_nod* message = node->nod_arg[e_arg_message];
-		const fmt* format = (FMT) message->nod_arg[e_msg_format];
+		const Format* format = (Format*) message->nod_arg[e_msg_format];
 		*desc = format->fmt_desc[(int) (long) node->nod_arg[e_arg_number]];
 		return;
 		}
@@ -1524,7 +1524,7 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 
 	case nod_function:
 		{
-			const fun* function = (FUN) node->nod_arg[e_fun_function];
+			const UserFunction* function = (UserFunction*) node->nod_arg[e_fun_function];
 			// Null value for the function indicates that the function was not
 			// looked up during parsing the blr. This is true if the function 
 			// referenced in the procedure blr was dropped before dropping the
@@ -1576,7 +1576,7 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 }
 
 
-IndexLock* CMP_get_index_lock(thread_db* tdbb, Relation *relation, USHORT id)
+IndexLock* CMP_get_index_lock(thread_db* tdbb, Relation* relation, USHORT id)
 {
 /**************************************
  *
@@ -1860,7 +1860,7 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 		const csb_repeat* const streams_end  = tail + csb->csb_n_stream;
 		DEBUG;
 
-		for (RPB* rpb = request->req_rpb; tail < streams_end; rpb++, tail++)
+		for (record_param* rpb = request->req_rpb; tail < streams_end; rpb++, tail++)
 			{
 			// fetch input stream for update if all booleans matched against indices
 
@@ -2023,7 +2023,7 @@ void CMP_post_resource(thread_db* tdbb,
 	switch (type) {
 	case rsc_relation:
 	case rsc_index:
-		resource->rsc_rel = (JRD_REL) rel_or_prc;
+		resource->rsc_rel = (Relation*) rel_or_prc;
 		break;
 	case rsc_procedure:
 		resource->rsc_prc = (Procedure *) rel_or_prc;
@@ -2603,8 +2603,8 @@ static JRD_NOD copy(thread_db* tdbb,
 			node->nod_arg[e_rel_view] = input->nod_arg[e_rel_view];
 
 			csb_repeat* element = CMP_csb_element(csb, new_stream);
-			element->csb_relation = (JRD_REL) node->nod_arg[e_rel_relation];
-			element->csb_view = (JRD_REL) node->nod_arg[e_rel_view];
+			element->csb_relation = (Relation*) node->nod_arg[e_rel_relation];
+			element->csb_view = (Relation*) node->nod_arg[e_rel_view];
 			element->csb_view_stream = remap[0];
 
 			/** If there was a parent stream no., then copy the flags 
@@ -2827,7 +2827,7 @@ static void expand_view_nodes(thread_db* tdbb,
 }
 
 
-static void ignore_dbkey(thread_db* tdbb, CompilerScratch* csb, RecordSelExpr* rse, Relation *view)
+static void ignore_dbkey(thread_db* tdbb, CompilerScratch* csb, RecordSelExpr* rse, Relation* view)
 {
 /**************************************
  *
@@ -3018,7 +3018,7 @@ static JRD_NOD make_validation(thread_db* tdbb, CompilerScratch* csb, USHORT str
 static JRD_NOD pass1(thread_db* tdbb,
 					 CompilerScratch* csb,
 					 JRD_NOD node,
-					 Relation *view,
+					 Relation* view,
 					 USHORT view_stream,
 					 bool validate_expr)
 {
@@ -3709,7 +3709,7 @@ static void pass1_modify(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 static RecordSelExpr* pass1_rse(thread_db* tdbb,
 					 CompilerScratch* csb,
 					 RecordSelExpr* rse,
-					 Relation *view,
+					 Relation* view,
 					 USHORT view_stream)
 {
 /**************************************
@@ -3854,7 +3854,7 @@ static void pass1_source(thread_db*     tdbb,
 						 JRD_NOD  source,
 						 JRD_NOD* boolean,
 						 LLS*     stack,
-						 Relation * parent_view,
+						 Relation*  parent_view,
 						 USHORT   view_stream)
 {
 /**************************************
@@ -3970,7 +3970,7 @@ static void pass1_source(thread_db*     tdbb,
 	// prepare to check protection of relation when a field in the stream of the 
 	// relation is accessed.
 
-	view = (JRD_REL) source->nod_arg[e_rel_relation];
+	view = (Relation*) source->nod_arg[e_rel_relation];
 	CMP_post_resource(tdbb, &csb->csb_resources, (BLK) view, rsc_relation,
 					  view->rel_id);
 	source->nod_arg[e_rel_view] = (JRD_NOD) parent_view;
@@ -3984,7 +3984,7 @@ static void pass1_source(thread_db*     tdbb,
 	// in the case where there is a parent view, find the context name
 
 	if (parent_view) {
-		VCX *vcx_ptr;
+		ViewContext** vcx_ptr;
 
 		for (vcx_ptr = &parent_view->rel_view_contexts; *vcx_ptr;
 			 vcx_ptr = &(*vcx_ptr)->vcx_next)
@@ -4106,7 +4106,9 @@ static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
  *
  **************************************/
 	JRD_NOD source, original, view_node, very_orig;
-	JRD_REL relation, parent, view;
+	Relation* relation;
+	Relation* parent;
+	Relation* view;
 	UCHAR *map;
 	USHORT stream, new_stream, parent_stream = 0;
 	Triggers* trigger;
@@ -4398,7 +4400,7 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 		case nod_function:
 			{
 			JRD_NOD value = node->nod_arg[e_fun_args];
-			FUN function = (FUN) node->nod_arg[e_fun_function];
+			UserFunction* function = (UserFunction*) node->nod_arg[e_fun_function];
 			pass2(tdbb, csb, value, node);
 			
 			// For gbak attachments, there is no need to resolve the UDF function */
@@ -4635,7 +4637,7 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 
 		case nod_message:
 			{
-			FMT format = (FMT) node->nod_arg[e_msg_format];
+			Format* format = (Format*) node->nod_arg[e_msg_format];
 			
 			if (!((tdbb->tdbb_flags & TDBB_prc_being_dropped) && !format))
 				csb->csb_impure += FB_ALIGN(format->fmt_length, 2);
@@ -4644,8 +4646,8 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 
 		case nod_modify:
 			{
-			FMT format;
-			fmt::fmt_desc_iterator desc;
+			Format* format;
+			Format::fmt_desc_iterator desc;
 
 			stream = (USHORT)(long) node->nod_arg[e_mod_org_stream];
 			csb->csb_rpt[stream].csb_flags |= csb_update;
@@ -4932,7 +4934,7 @@ static JRD_NOD pass2_union(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
  *
  **************************************/
 	JRD_NOD clauses, *ptr, *end, map;
-	FMT *format;
+	Format** format;
 	USHORT id;
 
 	SET_TDBB(tdbb);
@@ -5012,7 +5014,10 @@ static void plan_set(CompilerScratch* csb, RecordSelExpr* rse, JRD_NOD plan)
 	JRD_NOD plan_relation_node, *ptr, *end;
 	USHORT stream;
 	UCHAR *map, *map_base, *duplicate_map;
-	JRD_REL relation, plan_relation, view_relation, duplicate_relation;
+	Relation* relation;
+	Relation* plan_relation;
+	Relation* view_relation;
+	Relation* duplicate_relation;
 	STR alias, plan_alias;
 	csb_repeat *tail, *duplicate_tail;
 
@@ -5032,7 +5037,7 @@ static void plan_set(CompilerScratch* csb, RecordSelExpr* rse, JRD_NOD plan)
 		return;
 
 	plan_relation_node = plan->nod_arg[e_retrieve_relation];
-	plan_relation = (JRD_REL) plan_relation_node->nod_arg[e_rel_relation];
+	plan_relation = (Relation*) plan_relation_node->nod_arg[e_rel_relation];
 	plan_alias = (STR) plan_relation_node->nod_arg[e_rel_alias];
 
 	// find the tail for the relation specified in the rse
@@ -5306,7 +5311,7 @@ static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelEx
 }
 
 
-static void post_trigger_access(thread_db* tdbb, CompilerScratch* csb, Relation *owner_relation, Triggers* triggers, Relation *view)
+static void post_trigger_access(thread_db* tdbb, CompilerScratch* csb, Relation* owner_relation, Triggers* triggers, Relation* view)
 {
 /**************************************
  *
@@ -5449,7 +5454,7 @@ static void post_trigger_access(thread_db* tdbb, CompilerScratch* csb, Relation 
 }
 
 
-static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, FMT * input_format)
+static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, Format* * input_format)
 {
 /**************************************
  *
@@ -5463,7 +5468,7 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, FMT 
  *
  **************************************/
 	JRD_NOD *ptr, *end, assignment, field;
-	FMT format;
+	Format* format;
 	DSC *desc, desc2;
 	USHORT id, min, max, align;
 
@@ -5474,7 +5479,7 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, FMT 
 	SET_TDBB(tdbb);
 
 	if (!(format = *input_format)) {
-		format = *input_format = fmt::newFmt(*tdbb->tdbb_default, map->nod_count);
+		format = *input_format = Format::newFmt(*tdbb->tdbb_default, map->nod_count);
 		format->fmt_count = map->nod_count;
 	}
 
@@ -5551,7 +5556,7 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, FMT 
 	// flesh out the format of the record
 
 	format->fmt_length = (USHORT) FLAG_BYTES(format->fmt_count);
-	fmt::fmt_desc_iterator desc3, end_desc;
+	Format::fmt_desc_iterator desc3, end_desc;
 
 	for (desc3 = format->fmt_desc.begin(), end_desc= format->fmt_desc.end();
 		 desc3 < end_desc; desc3++) {

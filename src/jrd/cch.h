@@ -40,8 +40,8 @@ class sbm;
 
 	struct bcb_repeat
 	{
-		bdb*	bcb_bdb;		/* Buffer descriptor block */
-		Que		bcb_page_mod;	/* Que of buffers with page mod n */
+		bdb* bcb_bdb;		/* Buffer descriptor block */
+		Que bcb_page_mod;	/* Que of buffers with page mod n */
 	};
 
 class bcb : public pool_alloc_rpt<bcb_repeat, type_bcb>
@@ -109,9 +109,8 @@ class bdb : public pool_alloc<type_bdb>
 	SLONG       bdb_diff_generation;    /* Number of backup/restore cycle for 
 										   this database in current process.
 										   Used in CS only. */
-	struct tdbb*bdb_shared[BDB_max_shared];	/* threads holding shared latches */
+	struct tdbb* bdb_shared[BDB_max_shared];	/* threads holding shared latches */
 };
-typedef bdb *BDB;
 
 /* bdb_flags */
 

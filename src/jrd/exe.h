@@ -162,7 +162,7 @@ public:
 	SCHAR	nod_scale;
 	USHORT	nod_count;
 	dsc		asb_desc;
-	struct skd* asb_key_desc;	/* for the aggregate   */
+	struct sort_key_def* asb_key_desc;	/* for the aggregate   */
 	UCHAR	asb_key_data[1];
 };
 
@@ -205,7 +205,7 @@ const int VLU_null		= 2;		/* An invariant sub-query computed to null */
 /* Inversion (i.e. nod_index) impure area */
 
 struct impure_inversion {
-	class sbm* inv_bitmap;
+	class SparseBitmap* inv_bitmap;
 };
 
 
@@ -552,8 +552,8 @@ struct csb_repeat
 	struct index_desc* csb_idx;		/* Packed description of indices */
 	struct str* csb_idx_allocation;	/* Memory allocated to hold index descriptions */
 	jrd_nod* csb_message;			/* Msg for send/receive */
-	struct fmt* csb_format;		/* Default fmt for stream */
-	struct sbm* csb_fields;		/* Fields referenced */
+	struct Format* csb_format;		/* Default fmt for stream */
+	struct SparseBitmap* csb_fields;		/* Fields referenced */
 	float csb_cardinality;		/* Cardinality of relation */
 	jrd_nod* csb_plan;				/* user-specified plan for this relation */
 	UCHAR* csb_map;				/* Stream map for views */

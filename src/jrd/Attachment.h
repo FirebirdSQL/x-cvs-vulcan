@@ -96,12 +96,12 @@ class Relation;
 class vec;
 class vcl;
 class str;
-class usr;
+class UserId;
 class Request;
 class lck;
 class sort_context;
-class scl;
-class bkm;
+class SecurityClass;
+class Bookmark;
 
 
 class Attachment //: public pool_alloc<type_att>
@@ -118,7 +118,7 @@ public:
 	Attachment*	att_next;			// Next attachment to database
 	Attachment*	att_blocking;		// Blocking attachment, if any
 	Cursor		*cursors;			// Active cursors
-	usr*		att_user;			// User identification
+	UserId*		att_user;			// User identification
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
 	Request*	att_requests;		// Requests belonging to attachment
@@ -127,11 +127,11 @@ public:
 	SLONG		att_attachment_id;	// Attachment ID
 	SLONG		att_lock_owner_handle;	// Handle for the lock manager
 	SLONG		att_event_session;	// Event session id, if any
-	scl*		att_security_class;	// security class for database
-	scl*		att_security_classes;	// security classes
+	SecurityClass* att_security_class;	// security class for database
+	SecurityClass* att_security_classes;	// security classes
 	vcl*		att_counts[DBB_max_count];
 	vec*		att_relation_locks;	// explicit persistent locks for relations
-	bkm*		att_bookmarks;		// list of bookmarks taken out using this attachment
+	Bookmark*	att_bookmarks;		// list of bookmarks taken out using this attachment
 	lck*		att_record_locks;	// explicit or implicit record locks taken out during attachment
 	vec*		att_bkm_quick_ref;	// correspondence table of bookmarks
 	vec*		att_lck_quick_ref;	// correspondence table of locks

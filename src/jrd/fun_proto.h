@@ -24,13 +24,13 @@
 #ifndef JRD_FUN_PROTO_H
 #define JRD_FUN_PROTO_H
 
-class Function;
+class UserFunction;
 struct impure_value;
 
-void		FUN_evaluate(thread_db* tdbb, Function*, jrd_nod*, impure_value*);
+void		FUN_evaluate(thread_db* tdbb, UserFunction*, jrd_nod*, impure_value*);
 void		FUN_fini(thread_db*);
 void		FUN_init(void);
-Function*	FUN_lookup_function(thread_db* tdbb, const TEXT*, bool ShowAccessError);
-Function*	FUN_resolve(thread_db* tdbb, class CompilerScratch*, Function*, jrd_nod*);
+UserFunction* FUN_lookup_function(thread_db* tdbb, const TEXT*, bool ShowAccessError);
+UserFunction* FUN_resolve(thread_db* tdbb, class CompilerScratch*, UserFunction*, jrd_nod*);
 
 #endif // JRD_FUN_PROTO_H

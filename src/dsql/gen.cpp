@@ -2493,7 +2493,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 				
 			case nod_udf: 
 				{
-				Function* userFunc = (Function*) item->nod_arg[0];
+				UserFunction* userFunc = (UserFunction*) item->nod_arg[0];
 				name_alias = userFunc->fun_symbol->sym_string;
 				break;
 				}
@@ -2861,7 +2861,7 @@ static void gen_table_lock( CStatement* request, const dsql_nod* tbl_lock,
 static void gen_udf( CStatement* request, const dsql_nod* node)
 {
 	//const dsql_udf* userFunc = (dsql_udf*) node->nod_arg[0];
-	const Function* userFunc = (Function*) node->nod_arg[0];
+	const UserFunction* userFunc = (UserFunction*) node->nod_arg[0];
 	stuff(request, blr_function);
 	stuff_cstring(request, userFunc->fun_symbol->sym_string);
 

@@ -29,20 +29,20 @@ class Transaction;
 struct thread_db;
 
 void	EXT_close(thread_db* tdbb, RecordSource*);
-void	EXT_erase(thread_db* tdbb, rpb*, int*);
-ext*	EXT_file(thread_db* tdbb, jrd_rel*, const TEXT*, SLONG*);
-void	EXT_fini(thread_db* tdbb, jrd_rel*);
+void	EXT_erase(thread_db* tdbb, record_param*, int*);
+ext*	EXT_file(thread_db* tdbb, Relation*, const TEXT*, SLONG*);
+void	EXT_fini(thread_db* tdbb, Relation*);
 int		EXT_get(thread_db* tdbb, RecordSource*);
-void	EXT_modify(thread_db* tdbb, rpb*, rpb*, int*);
+void	EXT_modify(thread_db* tdbb, record_param*, record_param*, int*);
 
 #ifdef VMS
 int	EXT_open(thread_db* tdbb, RecordSource*);
 #else
 void	EXT_open(thread_db* tdbb, RecordSource*);
 #endif
-RecordSource*	EXT_optimize(thread_db* tdbb, Opt*, SSHORT, jrd_nod**);
-void	EXT_ready(jrd_rel*);
-void	EXT_store(DBB dbb, rpb*, int*);
+RecordSource*	EXT_optimize(thread_db* tdbb, OptimizerBlk*, SSHORT, jrd_nod**);
+void	EXT_ready(Relation*);
+void	EXT_store(DBB dbb, record_param*, int*);
 void	EXT_trans_commit(Transaction*);
 void	EXT_trans_prepare(Transaction*);
 void	EXT_trans_rollback(Transaction*);

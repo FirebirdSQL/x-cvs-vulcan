@@ -81,7 +81,7 @@ class Database;
 class bdb;
 class lls;
 class pre;
-class sbm;
+class SparseBitmap;
 class Bdb;
 struct fil;
 class sdw;
@@ -107,7 +107,7 @@ public:
 	SSHORT		bcb_free_minimum;	/* Threshold to activate cache writer */
 	ULONG		bcb_count;			/* Number of buffers allocated */
 	ULONG		bcb_checkpoint;		/* Count of buffers to checkpoint */
-	sbm*		bcb_prefetch;		/* Bitmap of pages to prefetch */
+	SparseBitmap* bcb_prefetch;		/* Bitmap of pages to prefetch */
 	Database	*database;
 	
 	SyncObject	syncObject;
@@ -168,7 +168,7 @@ public:
 	void shutdownDatabase(thread_db* tdbb);
 	int checksum(Bdb *bdb);
 	bool validate(win* window);
-	void recoverShadow(thread_db* tdbb, sbm* sbm_rec);
+	void recoverShadow(thread_db* tdbb, SparseBitmap* sbm_rec);
 	void fini(thread_db* tdbb);
 
 	static int bdbBlockingAst(void* ast_argument);

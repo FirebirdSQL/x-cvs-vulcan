@@ -567,7 +567,7 @@ static FPTR_SHORT lookup_init_function(thread_db* tdbb,
 
 	/* Still not found, check if there is a UDF in the database defined the right way */
 
-	FUN function_block;
+	UserFunction* function_block;
 	USHORT argcount;
 	char entry[48];
 

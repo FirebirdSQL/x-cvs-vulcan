@@ -206,15 +206,16 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 	SLONG id;
 	//SCHAR wal_name[256];
 	//SLONG wal_p_offset;
-	ATT err_att, att;
-	USR user;
+	Attachment* err_att;
+	Attachment* att;
+	UserId* user;
 	SLONG err_val;
 	BOOLEAN	header_refreshed = FALSE;	
 
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-	JRD_TRA transaction = NULL;
+	Transaction* transaction = NULL;
 	const UCHAR* const end_items = items + item_length;
 	const UCHAR* const end = info + output_length;
 
@@ -756,7 +757,7 @@ int INF_request_info(thread_db* tdbb, Request* request,
  *
  **************************************/
 	JRD_NOD node;
-	FMT format;
+	Format* format;
 	SCHAR item;
 	SSHORT state;
 	USHORT length = 0;
@@ -854,7 +855,7 @@ int INF_request_info(thread_db* tdbb, Request* request,
 					INF_convert((long) node->nod_arg[e_msg_number],
 								buffer_ptr);
 			else {
-				format = (FMT) node->nod_arg[e_msg_format];
+				format = (Format*) node->nod_arg[e_msg_format];
 				length = INF_convert(format->fmt_length, buffer_ptr);
 			}
 			break;
@@ -884,7 +885,7 @@ int INF_request_info(thread_db* tdbb, Request* request,
 }
 
 
-int INF_transaction_info(const jrd_tra* transaction,
+int INF_transaction_info(const Transaction* transaction,
 						 const UCHAR* items,
 						 const SSHORT item_length,
 						 UCHAR* info, const SSHORT output_length)

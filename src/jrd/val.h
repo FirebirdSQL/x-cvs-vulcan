@@ -39,27 +39,25 @@ class Transaction;
 
 #define FLAG_BYTES(n)	(((n + BITS_PER_LONG) & ~((ULONG)BITS_PER_LONG - 1)) >> 3)
 
-#ifndef VMS
-#define DEFAULT_DOUBLE	dtype_double
-#else
+const UCHAR DEFAULT_DOUBLE	= dtype_double;
 
-#define DEFAULT_DOUBLE	dtype_double
-#define SPECIAL_DOUBLE	dtype_d_float
+#ifdef VMS
+const UCHAR SPECIAL_DOUBLE	= dtype_d_float;
 #define CNVT_TO_DFLT(x)	MTH$CVT_D_G (x)
 #define CNVT_FROM_DFLT(x)	MTH$CVT_G_D (x)
 
 #endif
 
 #ifndef REQUESTER
-class fmt : public pool_alloc<type_fmt>
+class Format : public pool_alloc<type_fmt>
 {
 public:
-	fmt(MemoryPool& p, int len) : fmt_desc(len, p, type_fmt)
+	Format(MemoryPool& p, int len) : fmt_desc(len, p, type_fmt)
 		{
 		}
 		
-	static fmt* newFmt(MemoryPool& p, int len = 0)
-		{ return FB_NEW(p) fmt(p, len); }
+	static Format* newFmt(MemoryPool& p, int len = 0)
+		{ return FB_NEW(p) Format(p, len); }
 
 	USHORT fmt_length;
 	USHORT fmt_count;
@@ -68,7 +66,7 @@ public:
 	typedef firebird::vector<dsc>::iterator fmt_desc_iterator;
 	typedef firebird::vector<dsc>::const_iterator fmt_desc_const_iterator;
 };
-typedef fmt* FMT;
+//typedef fmt* FMT;
 #endif /* REQUESTER */
 
 #define MAX_FORMAT_SIZE		65535
@@ -83,28 +81,29 @@ typedef vary VARY;
 #ifndef REQUESTER
 /* Function definition block */
 
-typedef enum {
+// Parameter passing mechanism. Also used for returning values, except for scalar_array.
+enum FUN_T {
 		FUN_value,
 		FUN_reference,
 		FUN_descriptor,
 		FUN_blob_struct,
 		FUN_scalar_array,
 		FUN_ref_with_null
-} FUN_T;
+};
 
 struct fun_repeat {
 	DSC fun_desc;			/* Datatype info */
 	FUN_T fun_mechanism;	/* Passing mechanism */
 };
 
-class Sym;
+class Symbol;
 
-class Function : public pool_alloc_rpt<fun_repeat, type_fun>
+class UserFunction : public pool_alloc_rpt<fun_repeat, type_fun>
 {
     public:
 	JString		fun_exception_message;	/* message containing the exception error message */
-	Function	*fun_homonym;	/* Homonym functions */
-	Sym			*fun_symbol;		/* Symbol block */
+	UserFunction* fun_homonym;	/* Homonym functions */
+	Symbol*		fun_symbol;		/* Symbol block */
 	int			(*fun_entrypoint) ();	/* Function entrypoint */
 	USHORT		fun_count;			/* Number of arguments (including return) */
 	USHORT		fun_args;			/* Number of input arguments */
@@ -114,26 +113,24 @@ class Function : public pool_alloc_rpt<fun_repeat, type_fun>
     fun_repeat fun_rpt[1];
 };
 
-typedef Function	fun;
-typedef Function*	FUN;
-
-// Those two defines seems an intention to do something that was completed.
-#define FUN_value	0
-#define FUN_boolean	1
+// Those two defines seems an intention to do something that wasn't completed.
+// UDfs that return values like now or boolean Udfs. See rdb$functions.rdb$function_type.
+//#define FUN_value	0
+//#define FUN_boolean	1
 
 /* Blob passing structure */
 // CVC: Moved to fun.epp where it belongs.
 
 /* Scalar array descriptor */
 
-typedef struct sad {
+struct scalar_array_desc {
 	DSC sad_desc;
 	SLONG sad_dimensions;
 	struct sad_repeat {
 		SLONG sad_lower;
 		SLONG sad_upper;
 	} sad_rpt[1];
-} *SAD;
+};
 #endif /* REQUESTER */
 
 
@@ -146,20 +143,19 @@ typedef struct sad {
 #endif
 
 #ifndef REQUESTER
-class arr : public pool_alloc_rpt<ads::ads_repeat, type_arr>
+class ArrayField : public pool_alloc_rpt<ads::ads_repeat, type_arr>
 {
     public:
 	UCHAR*			arr_data;				/* Data block, if allocated */
 	class blb*		arr_blob;				/* Blob for data access */
 	Transaction*	arr_transaction;		/* Parent transaction block */
-	struct arr*		arr_next;				/* Next array in transaction */
-	Request* arr_request;			/* request */
+	class ArrayField* arr_next;			/* Next array in transaction */
+	Request*		arr_request;			/* request */
 	SLONG			arr_effective_length;	/* Length of array instance */
 	USHORT			arr_desc_length;		/* Length of array descriptor */
 	SLONG			temporaryId;			/* Temporary array id */
 	struct ads		arr_desc;				/* Array descriptor */
 };
-typedef arr* ARR;
 
 #endif /* REQUESTER */
 

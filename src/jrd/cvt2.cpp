@@ -579,7 +579,8 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 	/* Is arg2 a blob? */
 	if (arg2->dsc_dtype == dtype_blob)
 	{
-		BLB	blob1, blob2;
+		blb* blob1;
+		blb* blob2;
 		UCHAR buffer1[BUFFER_LARGE], buffer2[BUFFER_LARGE];
 	
 	    /* Same blob id address? */
@@ -750,7 +751,7 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 	/* The second parameter should be a string. */
 	else
 	{
-		BLB blob1;
+		blb* blob1;
 		UCHAR buffer1[BUFFER_LARGE];
 		STR temp_str = 0;
 		UCHAR *dbuf = 0;

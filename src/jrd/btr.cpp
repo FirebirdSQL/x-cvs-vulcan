@@ -204,7 +204,7 @@ static void print_int64_key(SINT64, SSHORT, INT64_KEY);
 #endif
 static CONTENTS remove_node(thread_db*, index_insertion*, WIN* );
 static CONTENTS remove_leaf_node(thread_db*, index_insertion*, WIN* );
-static bool scan(thread_db*, UCHAR*, SBM *, USHORT, USHORT, 
+static bool scan(thread_db*, UCHAR*, SparseBitmap**, USHORT, USHORT, 
 				 temporary_key*, USHORT, SCHAR);
 static void update_selectivity(DBB dbb, index_root_page*, USHORT, const SelectivityList&);
 
@@ -419,7 +419,7 @@ bool BTR_description(DBB dbb, Relation* relation, index_root_page* root, index_d
 }
 
 
-void BTR_evaluate(thread_db* tdbb, IndexRetrieval* retrieval, SBM * bitmap)
+void BTR_evaluate(thread_db* tdbb, IndexRetrieval* retrieval, SparseBitmap** bitmap)
 {
 /**************************************
  *
@@ -777,7 +777,7 @@ void BTR_insert(thread_db* tdbb, WIN*  root_window, index_insertion* insertion)
 }
 
 
-IDX_E BTR_key(thread_db* tdbb, Relation* relation, REC record, index_desc* idx, temporary_key* key, idx_null_state * null_state)
+IDX_E BTR_key(thread_db* tdbb, Relation* relation, Record* record, index_desc* idx, temporary_key* key, idx_null_state * null_state)
 {
 /**************************************
  *
@@ -918,7 +918,7 @@ USHORT BTR_key_length(thread_db* tdbb, Relation* relation, index_desc* idx)
 	USHORT n, key_length, length;
 	index_desc::idx_repeat * tail;
 
-	FMT format = relation->getCurrentFormat(tdbb);
+	Format* format = relation->getCurrentFormat(tdbb);
 	tail = idx->idx_rpt;
 
 	// If there is only a single key, the computation is straightforward.
@@ -1220,8 +1220,9 @@ void BTR_make_key(thread_db* tdbb,
 }
 
 
-bool BTR_next_index(thread_db* tdbb,
-					   Relation* relation, JRD_TRA transaction, index_desc* idx, WIN*  window)
+bool BTR_next_index(thread_db* tdbb, Relation* relation, 
+					Transaction* transaction, index_desc* idx, 
+					WIN*  window)
 {
 /**************************************
  *
@@ -1432,7 +1433,7 @@ void BTR_remove(thread_db* tdbb, WIN*  root_window, index_insertion* insertion)
 }
 
 
-void BTR_reserve_slot(thread_db* tdbb, Relation* relation, JRD_TRA transaction, index_desc* idx)
+void BTR_reserve_slot(thread_db* tdbb, Relation* relation, Transaction* transaction, index_desc* idx)
 {
 /**************************************
  *
@@ -2561,7 +2562,7 @@ static DSC *eval(thread_db* tdbb, JRD_NOD node, DSC * temp, bool *isNull)
 
 static SLONG fast_load(thread_db* tdbb,
 					   Relation* relation,
-					   Transaction *transaction,
+					   Transaction* transaction,
 					   index_desc* idx,
 					   USHORT key_length,
 					   sort_context* sort_handle,
@@ -3347,7 +3348,7 @@ static SLONG fast_load(thread_db* tdbb,
 }
 
 
-static index_root_page* fetch_root(thread_db* tdbb, WIN*  window, JRD_REL relation)
+static index_root_page* fetch_root(thread_db* tdbb, WIN*  window, Relation* relation)
 {
 /**************************************
  *
@@ -5769,7 +5770,7 @@ static CONTENTS remove_leaf_node(thread_db* tdbb, index_insertion* insertion, WI
 }
 
 
-static bool scan(thread_db* tdbb, UCHAR* pointer, SBM *bitmap, USHORT to_segment,
+static bool scan(thread_db* tdbb, UCHAR* pointer, SparseBitmap** bitmap, USHORT to_segment,
 				 USHORT prefix, temporary_key*key, USHORT flag, SCHAR page_flags)
 {
 /**************************************

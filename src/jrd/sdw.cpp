@@ -570,7 +570,7 @@ void SDW_get_shadows(thread_db* tdbb)
 
 
 
-void SDW_init(thread_db* tdbb, bool activate, bool delete_, SBM sbm_rec)
+void SDW_init(thread_db* tdbb, bool activate, bool delete_, SparseBitmap* sbm_rec)
 {
 /**************************************
  *

@@ -29,24 +29,24 @@
 #include "../jrd/req.h"
 
 
-void IDX_check_access(thread_db*, class CompilerScratch*, Relation *, Relation *,
+void IDX_check_access(thread_db*, class CompilerScratch*, Relation* , Relation* ,
 							 Field *);
 void IDX_create_index(thread_db*, Relation*, struct index_desc*, const TEXT*,
 					  USHORT*, Transaction*, SelectivityList&);
-struct idb* IDX_create_index_block(thread_db*, Relation *, USHORT);
-void IDX_delete_index(thread_db*, Relation *, USHORT);
-void IDX_delete_indices(thread_db*, Relation *);
-enum idx_e IDX_erase(thread_db*, struct rpb *, Transaction *, Relation **,
+struct IndexBlock* IDX_create_index_block(thread_db*, Relation* , USHORT);
+void IDX_delete_index(thread_db*, Relation* , USHORT);
+void IDX_delete_indices(thread_db*, Relation* );
+enum idx_e IDX_erase(thread_db*, struct record_param* , Transaction *, Relation* *,
 							USHORT *);
-void IDX_garbage_collect(thread_db*, struct rpb *, struct lls *,
+void IDX_garbage_collect(thread_db*, struct record_param* , struct lls *,
 								struct lls *);
-enum idx_e IDX_modify(struct thread_db*, struct rpb *, struct rpb *,
-							 Transaction *, Relation **, USHORT *);
-enum idx_e IDX_modify_check_constraints(thread_db*, struct rpb *, struct rpb *,
-											  Transaction *, Relation **,
+enum idx_e IDX_modify(struct thread_db*, struct record_param* , struct record_param* ,
+							 Transaction *, Relation* *, USHORT *);
+enum idx_e IDX_modify_check_constraints(thread_db*, struct record_param* , struct record_param* ,
+											  Transaction *, Relation* *,
 											  USHORT *);
-void IDX_statistics(thread_db*, Relation *, USHORT, SelectivityList&);
-enum idx_e IDX_store(struct thread_db*, struct rpb *, Transaction *,
+void IDX_statistics(thread_db*, Relation* , USHORT, SelectivityList&);
+enum idx_e IDX_store(struct thread_db*, struct record_param* , Transaction *,
 							Relation **, USHORT *);
 
 

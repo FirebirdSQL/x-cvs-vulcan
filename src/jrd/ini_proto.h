@@ -28,7 +28,7 @@ void	INI_format(thread_db* tdbb, const TEXT*, const TEXT*);
 USHORT	INI_get_trig_flags(const TEXT*);
 void	INI_init(thread_db* tdbb);
 void	INI_init2(thread_db* tdbb);
-const struct jrd_trg*	INI_lookup_sys_trigger(jrd_rel*, const jrd_trg*,
+const struct jrd_trg*	INI_lookup_sys_trigger(Relation*, const jrd_trg*,
 										  const UCHAR**, UCHAR*, const SCHAR**,
 										  USHORT*);
 void INI_update_database(thread_db* tdbb);

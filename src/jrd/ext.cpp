@@ -123,7 +123,7 @@ void EXT_close(thread_db* tdbb, RecordSource* rsb)
 }
 
 
-void EXT_erase(thread_db* tdbb, RPB * rpb, int *transaction)
+void EXT_erase(thread_db* tdbb, record_param* rpb, int *transaction)
 {
 /**************************************
  *
@@ -140,7 +140,7 @@ void EXT_erase(thread_db* tdbb, RPB * rpb, int *transaction)
 }
 
 
-EXT EXT_file(thread_db* tdbb, JRD_REL relation, const TEXT * file_name, SLONG * description)
+EXT EXT_file(thread_db* tdbb, Relation* relation, const TEXT * file_name, SLONG * description)
 {
 /**************************************
  *
@@ -224,7 +224,7 @@ EXT EXT_file(thread_db* tdbb, JRD_REL relation, const TEXT * file_name, SLONG * 
 }
 
 
-void EXT_fini(thread_db* tdbb, JRD_REL relation)
+void EXT_fini(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -262,11 +262,11 @@ int EXT_get(thread_db* tdbb, RecordSource* rsb)
  *
  **************************************/
 	JRD_REQ request;
-	JRD_REL relation;
+	Relation* relation;
 	EXT file;
-	RPB *rpb;
-	REC record;
-	FMT format;
+	record_param* rpb;
+	Record* record;
+	Format* format;
 	Literal* literal;
 	//JRD_FLD field;
 	DSC desc;
@@ -310,7 +310,7 @@ int EXT_get(thread_db* tdbb, RecordSource* rsb)
 	/* Loop thru fields setting missing fields to either blanks/zeros
 	   or the missing value */
 
-	fmt::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
 
 	//for (i = 0, itr = relation->rel_fields->begin(); i < format->fmt_count; ++i, ++itr, ++desc_ptr) 
 	for (int i = 0; i < relation->rel_fields.size(); ++i)
@@ -336,7 +336,7 @@ int EXT_get(thread_db* tdbb, RecordSource* rsb)
 }
 
 
-void EXT_modify(thread_db* tdbb, RPB * old_rpb, RPB * new_rpb, int *transaction)
+void EXT_modify(thread_db* tdbb, record_param* old_rpb, record_param* new_rpb, int *transaction)
 {
 /**************************************
  *
@@ -369,9 +369,9 @@ void EXT_open(thread_db* tdbb, RecordSource* rsb)
 
 	Relation *relation = rsb->rsb_relation;
 	Request *request = tdbb->tdbb_request;
-	RPB *rpb = &request->req_rpb[rsb->rsb_stream];
-	REC record;
-	FMT format;
+	record_param* rpb = &request->req_rpb[rsb->rsb_stream];
+	Record* record;
+	Format* format;
 	
 	if (!(record = rpb->rpb_record) || !(format = record->rec_format)) 
 		{
@@ -383,7 +383,7 @@ void EXT_open(thread_db* tdbb, RecordSource* rsb)
 }
 
 
-RecordSource* EXT_optimize(thread_db* tdbb, OPT opt, SSHORT stream, JRD_NOD * sort_ptr)
+RecordSource* EXT_optimize(thread_db* tdbb, OptimizerBlk* opt, SSHORT stream, JRD_NOD * sort_ptr)
 {
 /**************************************
  *
@@ -397,7 +397,7 @@ RecordSource* EXT_optimize(thread_db* tdbb, OPT opt, SSHORT stream, JRD_NOD * so
  *
  **************************************/
 	CompilerScratch* csb;
-	JRD_REL relation;
+	Relation* relation;
 	RecordSource* rsb_;
 	
 	/* all these are un refrenced due to the code commented below
@@ -457,7 +457,7 @@ if (opt->opt_count)
 }
 
 
-void EXT_ready(JRD_REL relation)
+void EXT_ready(Relation* relation)
 {
 /**************************************
  *
@@ -472,7 +472,7 @@ void EXT_ready(JRD_REL relation)
 }
 
 
-void EXT_store(DBB dbb, RPB * rpb, int *transaction)
+void EXT_store(DBB dbb, record_param* rpb, int *transaction)
 {
 /**************************************
  *
@@ -484,9 +484,9 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
  *	Update an external file.
  *
  **************************************/
-	JRD_REL relation;
-	REC record;
-	FMT format;
+	Relation* relation;
+	Record* record;
+	Format* format;
 	EXT file;
 	//JRD_FLD field;
 	Literal* literal;
@@ -519,7 +519,7 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 		}
 
 	//vec::iterator field_ptr = relation->rel_fields->begin();
-	fmt::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
 
 	//for (i = 0; i < format->fmt_count; i++, field_ptr++, desc_ptr++)
 	for (i = 0; i < format->fmt_count; i++, desc_ptr++)
@@ -563,7 +563,7 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 }
 
 
-void EXT_trans_commit(JRD_TRA transaction)
+void EXT_trans_commit(Transaction* transaction)
 {
 /**************************************
  *
@@ -578,7 +578,7 @@ void EXT_trans_commit(JRD_TRA transaction)
 }
 
 
-void EXT_trans_prepare(JRD_TRA transaction)
+void EXT_trans_prepare(Transaction* transaction)
 {
 /**************************************
  *
@@ -593,7 +593,7 @@ void EXT_trans_prepare(JRD_TRA transaction)
 }
 
 
-void EXT_trans_rollback(JRD_TRA transaction)
+void EXT_trans_rollback(Transaction* transaction)
 {
 /**************************************
  *
@@ -608,7 +608,7 @@ void EXT_trans_rollback(JRD_TRA transaction)
 }
 
 
-void EXT_trans_start(JRD_TRA transaction)
+void EXT_trans_start(Transaction* transaction)
 {
 /**************************************
  *

@@ -86,16 +86,16 @@ DATABASE DB = FILENAME "ODS.RDB";
 #define SPACE_FUDGE	RHDF_SIZE
 
 static void delete_tail(thread_db*, RHDF, USHORT);
-static void fragment(thread_db*, RPB *, SSHORT, DCC, SSHORT, JRD_TRA);
-static void extend_relation(thread_db*, JRD_REL, WIN *);
-static UCHAR *find_space(thread_db*, RPB *, SSHORT, LLS *, REC, USHORT);
-static BOOLEAN get_header(WIN *, SSHORT, RPB *);
-static pointer_page* get_pointer_page(thread_db*, JRD_REL, WIN *, USHORT, USHORT);
+static void fragment(thread_db*, record_param *, SSHORT, DCC, SSHORT, Transaction*);
+static void extend_relation(thread_db*, Relation*, WIN *);
+static UCHAR *find_space(thread_db*, record_param *, SSHORT, LLS *, Record*, USHORT);
+static BOOLEAN get_header(WIN *, SSHORT, record_param *);
+static pointer_page* get_pointer_page(thread_db*, Relation*, WIN *, USHORT, USHORT);
 //static void journal_segment(thread_db*, WIN *, USHORT);
-static RHD locate_space(thread_db*, RPB *, SSHORT, LLS *, REC, USHORT);
-static void mark_full(thread_db*, RPB *);
+static RHD locate_space(thread_db*, record_param *, SSHORT, LLS *, Record*, USHORT);
+static void mark_full(thread_db*, record_param *);
 static void release_dcc(DCC);
-static void store_big_record(thread_db*, RPB *, LLS *, DCC, USHORT);
+static void store_big_record(thread_db*, record_param *, LLS *, DCC, USHORT);
 
 
 PAG DPM_allocate(thread_db* tdbb, WIN * window)
@@ -123,7 +123,7 @@ PAG DPM_allocate(thread_db* tdbb, WIN * window)
 }
 
 
-void DPM_backout( thread_db* tdbb, RPB * rpb)
+void DPM_backout( thread_db* tdbb, record_param * rpb)
 {
 /**************************************
  *
@@ -195,7 +195,7 @@ void DPM_backout( thread_db* tdbb, RPB * rpb)
 }
 
 
-int DPM_chain( thread_db* tdbb, RPB * org_rpb, RPB * new_rpb)
+int DPM_chain( thread_db* tdbb, record_param * org_rpb, record_param * new_rpb)
 {
 /**************************************
  *
@@ -219,7 +219,7 @@ int DPM_chain( thread_db* tdbb, RPB * org_rpb, RPB * new_rpb)
  **************************************/
 	DBB dbb;
 	RHD header;
-	RPB temp;
+	record_param temp;
 	data_page* page;
 	Dcc dcc;
 	UCHAR *p;
@@ -456,7 +456,7 @@ int DPM_compress( thread_db* tdbb, data_page* page)
 }
 
 
-void DPM_create_relation( thread_db* tdbb, JRD_REL relation)
+void DPM_create_relation( thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -526,7 +526,7 @@ void DPM_create_relation( thread_db* tdbb, JRD_REL relation)
 }
 
 
-SLONG DPM_data_pages(thread_db* tdbb, JRD_REL relation)
+SLONG DPM_data_pages(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -583,7 +583,7 @@ SLONG DPM_data_pages(thread_db* tdbb, JRD_REL relation)
 }
 
 
-void DPM_delete( thread_db* tdbb, RPB * rpb, SLONG prior_page)
+void DPM_delete( thread_db* tdbb, record_param * rpb, SLONG prior_page)
 {
 /**************************************
  *
@@ -607,7 +607,7 @@ void DPM_delete( thread_db* tdbb, RPB * rpb, SLONG prior_page)
 	USHORT pp_sequence;
 	SLONG *ptr, number, sequence;
 	//JRNP journal;
-	JRD_REL relation;
+	Relation* relation;
 	data_page::dpg_repeat *index;
 
 	SET_TDBB(tdbb);
@@ -772,7 +772,7 @@ void DPM_delete( thread_db* tdbb, RPB * rpb, SLONG prior_page)
 }
 
 
-void DPM_delete_relation( thread_db* tdbb, JRD_REL relation)
+void DPM_delete_relation( thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -863,7 +863,7 @@ void DPM_delete_relation( thread_db* tdbb, JRD_REL relation)
 }
 
 
-BOOLEAN DPM_fetch(thread_db* tdbb, RPB * rpb, USHORT lock)
+BOOLEAN DPM_fetch(thread_db* tdbb, record_param * rpb, USHORT lock)
 {
 /**************************************
  *
@@ -915,7 +915,7 @@ BOOLEAN DPM_fetch(thread_db* tdbb, RPB * rpb, USHORT lock)
 
 
 SSHORT DPM_fetch_back(thread_db* tdbb,
-					  RPB * rpb, USHORT lock, SSHORT latch_wait)
+					  record_param * rpb, USHORT lock, SSHORT latch_wait)
 {
 /**************************************
  *
@@ -1000,7 +1000,7 @@ SSHORT DPM_fetch_back(thread_db* tdbb,
 }
 
 
-void DPM_fetch_fragment( thread_db* tdbb, RPB * rpb, USHORT lock)
+void DPM_fetch_fragment( thread_db* tdbb, record_param * rpb, USHORT lock)
 {
 /**************************************
  *
@@ -1170,7 +1170,7 @@ SINT64 DPM_gen_id(thread_db* tdbb, SLONG generator, USHORT initialize, SINT64 va
 }
 
 
-int DPM_get( thread_db* tdbb, RPB * rpb, SSHORT lock_type)
+int DPM_get( thread_db* tdbb, record_param * rpb, SSHORT lock_type)
 {
 /**************************************
  *
@@ -1237,7 +1237,7 @@ int DPM_get( thread_db* tdbb, RPB * rpb, SSHORT lock_type)
 
 
 ULONG DPM_get_blob(thread_db* tdbb,
-				   BLB blob,
+				   blb* blob,
 				   ULONG record_number, USHORT delete_flag, SLONG prior_page)
 {
 /**************************************
@@ -1258,7 +1258,7 @@ ULONG DPM_get_blob(thread_db* tdbb,
 	SLONG sequence, page_number;
 	USHORT pp_sequence;
 	USHORT slot, line;
-	RPB rpb;
+	record_param rpb;
 
 	Database *dbb = tdbb->tdbb_database;
 	Attachment *attachment = tdbb->tdbb_attachment;
@@ -1413,7 +1413,7 @@ ULONG DPM_get_blob(thread_db* tdbb,
 
 
 BOOLEAN DPM_next(thread_db* tdbb,
-				 RPB * rpb,
+				 record_param * rpb,
 				 USHORT lock_type, BOOLEAN backwards, BOOLEAN onepage)
 {
 /**************************************
@@ -1655,7 +1655,7 @@ void DPM_pages(thread_db* tdbb, SSHORT rel_id, int type, ULONG sequence, SLONG p
 
 
 #ifdef SUPERSERVER_V2
-SLONG DPM_prefetch_bitmap(thread_db* tdbb, JRD_REL relation, SBM bitmap, SLONG number)
+SLONG DPM_prefetch_bitmap(thread_db* tdbb, Relation* relation, SBM bitmap, SLONG number)
 {
 /**************************************
  *
@@ -1792,7 +1792,7 @@ void DPM_scan_pages( thread_db* tdbb)
 }
 
 
-void DPM_store( thread_db* tdbb, RPB * rpb, LLS * stack, USHORT type)
+void DPM_store( thread_db* tdbb, record_param * rpb, LLS * stack, USHORT type)
 {
 /**************************************
  *
@@ -1877,7 +1877,7 @@ void DPM_store( thread_db* tdbb, RPB * rpb, LLS * stack, USHORT type)
 }
 
 
-SLONG DPM_store_blob(thread_db* tdbb, BLB blob, REC record)
+SLONG DPM_store_blob(thread_db* tdbb, blb* blob, Record* record)
 {
 /**************************************
  *
@@ -1890,7 +1890,7 @@ SLONG DPM_store_blob(thread_db* tdbb, BLB blob, REC record)
  *
  **************************************/
 	DBB dbb;
-	RPB rpb;
+	record_param rpb;
 	BLH header;
 	USHORT length;
 	vcl::iterator ptr, end;
@@ -1975,7 +1975,7 @@ SLONG DPM_store_blob(thread_db* tdbb, BLB blob, REC record)
 }
 
 
-void DPM_rewrite_header( thread_db* tdbb, RPB * rpb)
+void DPM_rewrite_header( thread_db* tdbb, record_param * rpb)
 {
 /**************************************
  *
@@ -2025,7 +2025,7 @@ void DPM_rewrite_header( thread_db* tdbb, RPB * rpb)
 }
 
 
-void DPM_update( thread_db* tdbb, RPB * rpb, LLS * stack, JRD_TRA transaction)
+void DPM_update( thread_db* tdbb, record_param * rpb, LLS * stack, Transaction* transaction)
 {
 /**************************************
  *
@@ -2213,9 +2213,9 @@ static void delete_tail( thread_db* tdbb, RHDF header, USHORT length)
 
 static void fragment(
 					 thread_db* tdbb,
-					 RPB * rpb,
+					 record_param * rpb,
 					 SSHORT available_space,
-					 DCC dcc, SSHORT length, JRD_TRA transaction)
+					 DCC dcc, SSHORT length, Transaction* transaction)
 {
 /**************************************
  *
@@ -2275,7 +2275,7 @@ static void fragment(
  **************************************/
 	DBB dbb;
 	data_page* page;
-	RPB tail_rpb;
+	record_param tail_rpb;
 	SSHORT line, space;
 	USHORT pre_header_length, post_header_length;
 	RHDF header;
@@ -2427,7 +2427,7 @@ static void fragment(
 }
 
 
-static void extend_relation( thread_db* tdbb, JRD_REL relation, WIN * window)
+static void extend_relation( thread_db* tdbb, Relation* relation, WIN * window)
 {
 /**************************************
  *
@@ -2578,10 +2578,10 @@ static void extend_relation( thread_db* tdbb, JRD_REL relation, WIN * window)
 
 
 static UCHAR *find_space(thread_db*	tdbb,
-						 RPB*	rpb,
+						 record_param* rpb,
 						 SSHORT	size,
 						 LLS*	stack,
-						 REC	record,
+						 Record* record,
 						 USHORT	type)
 {
 /**************************************
@@ -2678,7 +2678,7 @@ static UCHAR *find_space(thread_db*	tdbb,
 }
 
 
-static BOOLEAN get_header( WIN * window, SSHORT line, RPB * rpb)
+static BOOLEAN get_header( WIN * window, SSHORT line, record_param * rpb)
 {
 /**************************************
  *
@@ -2821,8 +2821,8 @@ static void journal_segment( thread_db* tdbb, WIN * window, USHORT slot)
 
 static RHD locate_space(
 						thread_db* tdbb,
-						RPB * rpb,
-						SSHORT size, LLS * stack, REC record, USHORT type)
+						record_param* rpb,
+						SSHORT size, LLS * stack, Record* record, USHORT type)
 {
 /**************************************
  *
@@ -2926,7 +2926,7 @@ static RHD locate_space(
 }
 
 
-static void mark_full( thread_db* tdbb, RPB * rpb)
+static void mark_full( thread_db* tdbb, record_param * rpb)
 {
 /**************************************
  *
@@ -3050,7 +3050,7 @@ static void release_dcc( DCC dcc)
 
 static void store_big_record(
 							 thread_db* tdbb,
-							 RPB * rpb,
+							 record_param * rpb,
 							 LLS * stack, DCC head_dcc, USHORT size)
 {
 /**************************************

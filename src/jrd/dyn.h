@@ -40,7 +40,7 @@ const char* const ALL_PROC_PRIVILEGES = "X";
 
 typedef struct gbl
 {
-	JRD_TRA gbl_transaction;
+	class Transaction* gbl_transaction;
 } *GBL;
 
 typedef struct dyn_fld {

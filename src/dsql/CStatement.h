@@ -82,7 +82,7 @@ class Relation;
 class Request;
 class Procedure;
 class CharSetContainer;
-class Function;
+class UserFunction;
 
 struct thread_db;
 
@@ -108,7 +108,7 @@ public:
 	void dropFunction (const TEXT *functionName);
 	void dropProcedure (const TEXT *procedureName);
 	void dropRelation (const TEXT *relationName);
-	Function* findFunction (const TEXT *functionName);
+	UserFunction* findFunction (const TEXT *functionName);
 	dsql_rel* findViewRelation (const TEXT *viewName, const TEXT *relationName, int level);
 	CharSetContainer* findCollation (const char *name);
 	CharSetContainer* findCharset (const TEXT *name);

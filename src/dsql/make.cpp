@@ -1046,7 +1046,7 @@ void MAKE_desc(thread_db* threadData, dsc* desc, dsql_nod* node, dsql_nod* null_
 			desc->dsc_length = userFunc->udf_length;
 			desc->dsc_scale = static_cast<SCHAR>(userFunc->udf_scale);
 			***/
-			Function *function = (Function*) node->nod_arg[0];
+			UserFunction *function = (UserFunction*) node->nod_arg[0];
 			*desc = function->fun_rpt[function->fun_return_arg].fun_desc;
 			
 			if (desc->dsc_dtype == dtype_cstring)

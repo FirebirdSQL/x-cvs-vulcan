@@ -120,10 +120,10 @@ class Relation;
 class Transaction;
 class Request;
 class str;
-class btb;	/* Attachments waiting for update */
-class btb;	/* Unused btb blocks */
+class BlockingThread;	/* Attachments waiting for update */
+//class BlockingThread;	/* Unused btb blocks */
 class map;	/* mapping of blobs for REPLAY */
-class Sym;
+class Symbol;
 class log;
 class lck;
 class BackupManager;
@@ -141,7 +141,7 @@ struct fil;		/* files for I/O operations */
 class sdw;		/* shadow control block */
 struct bcb;		/* Buffer control block */
 struct plc;		/* connection block */
-struct pgc;		/* page control */
+struct PageControl;	/* page control */
 struct blf;		/* known blob filters */
 struct lls;		/* external function/filter modules */
 struct blf;
@@ -174,7 +174,7 @@ public:
 	SLONG				dbb_shadow_sync_count;	/* to synchronize changes to shadows */
 	lck					*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
 	plc					*dbb_connection;		/* connection block */
-	pgc					*dbb_pcontrol;			/* page control */
+	PageControl			*dbb_pcontrol;			/* page control */
 	SIVector<SLONG>		dbb_t_pages;			/* pages number for transactions */
 	SIVector<SLONG>		dbb_gen_id_pages;		/* known pages for gen_id */
 	struct blf			*dbb_blob_filters;		/* known blob filters */
@@ -242,8 +242,8 @@ public:
 #endif
 
 	Attachment			*dbb_update_attachment;	/* Attachment with update in process */
-	btb					*dbb_update_que;		/* Attachments waiting for update */
-	btb					*dbb_free_btbs;			/* Unused btb blocks */
+	BlockingThread*		dbb_update_que;		/* Attachments waiting for update */
+	BlockingThread*		dbb_free_btbs;			/* Unused btb blocks */
 
 	int					dbb_current_memory;
 	int 				dbb_max_memory;
@@ -293,7 +293,7 @@ public:
 	TipCache			*tipCache;
 	SIVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
 	BackupManager		*backup_manager;			/* physical backup manager */
-	Sym					*dbb_hash_table[HASH_SIZE];	/* keep this at the end */
+	Symbol				*dbb_hash_table[HASH_SIZE];	/* keep this at the end */
 
 	Database (const char *expandedFilename, ConfObject *configObject);
 	

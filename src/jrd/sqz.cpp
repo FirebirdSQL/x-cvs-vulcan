@@ -34,7 +34,7 @@
 
 
 
-USHORT SQZ_apply_differences(REC record, SCHAR* differences, SCHAR* end)
+USHORT SQZ_apply_differences(Record* record, SCHAR* differences, SCHAR* end)
 {
 /**************************************
  *

@@ -67,7 +67,7 @@ public:
 	static class blk* ALL_pop(class lls**);
 	static void       ALL_push(class blk*, class lls**);
 
-    class sbm* plb_buckets;   /* available bit map buckets */
+    class SparseBitmap* plb_buckets;   /* available bit map buckets */
     struct bms* plb_segments;  /* available bit map segments */
 	struct Dcc* plb_dccs;
 

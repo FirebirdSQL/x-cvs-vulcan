@@ -365,7 +365,7 @@ DSC *RNG_begin(TDBB tdbb, JRD_NOD node, VLU impure)
  **************************************/
 	DBB dbb;
 	JRD_REQ request;
-	JRD_TRA transaction;
+	Transaction* transaction;
 	DSC desc, *desc2;
 	RNG refresh_range;
 	USHORT range_number;

@@ -68,10 +68,10 @@ static BOOLEAN find_record(thread_db* tdbb, RecordSource*, RSE_GET_MODE, tempora
 static btree_exp* find_current(exp_index_buf*, btree_page*, UCHAR *);
 static bool find_saved_node(thread_db* tdbb, RecordSource*, IRSB_NAV, WIN *, UCHAR **);
 static UCHAR* get_position(thread_db*, RecordSource*, IRSB_NAV, WIN *, RSE_GET_MODE, btree_exp* *);
-static BOOLEAN get_record(thread_db* tdbb, RecordSource*, IRSB_NAV, RPB *, temporary_key *, BOOLEAN);
+static BOOLEAN get_record(thread_db* tdbb, RecordSource*, IRSB_NAV, record_param *, temporary_key *, BOOLEAN);
 static void init_fetch(IRSB_NAV);
 static UCHAR* nav_open(thread_db*, RecordSource*, IRSB_NAV, WIN *, RSE_GET_MODE, btree_exp* *);
-static void set_position(IRSB_NAV, RPB *, WIN *, UCHAR *, btree_exp*, UCHAR *, USHORT);
+static void set_position(IRSB_NAV, record_param *, WIN *, UCHAR *, btree_exp*, UCHAR *, USHORT);
 static void setup_bitmaps(thread_db* tdbb, RecordSource*, IRSB_NAV);
 
 
@@ -397,7 +397,7 @@ BOOLEAN NAV_find_record(thread_db* tdbb, RecordSource* rsb,
 
 
 #ifdef PC_ENGINE
-void NAV_get_bookmark(RecordSource* rsb, IRSB_NAV impure, BKM bookmark)
+void NAV_get_bookmark(RecordSource* rsb, IRSB_NAV impure, Bookmark* bookmark)
 {
 /**************************************
  *
@@ -431,7 +431,7 @@ void NAV_get_bookmark(RecordSource* rsb, IRSB_NAV impure, BKM bookmark)
 
 BOOLEAN NAV_get_record(thread_db* tdbb,
 					   RecordSource* rsb,
-					   IRSB_NAV impure, RPB * rpb, RSE_GET_MODE direction)
+					   IRSB_NAV impure, record_param * rpb, RSE_GET_MODE direction)
 {
 /**************************************
  *
@@ -762,7 +762,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 
 
 #ifdef PC_ENGINE
-BOOLEAN NAV_reset_position(thread_db* tdbb, RecordSource* rsb, RPB * new_rpb)
+BOOLEAN NAV_reset_position(thread_db* tdbb, RecordSource* rsb, record_param * new_rpb)
 {
 /**************************************
  *
@@ -819,7 +819,7 @@ BOOLEAN NAV_reset_position(thread_db* tdbb, RecordSource* rsb, RPB * new_rpb)
 
 
 #ifdef PC_ENGINE
-BOOLEAN NAV_set_bookmark(RecordSource* rsb, IRSB_NAV impure, RPB * rpb, BKM bookmark)
+BOOLEAN NAV_set_bookmark(RecordSource* rsb, IRSB_NAV impure, record_param * rpb, Bookmark* bookmark)
 {
 /**************************************
  *
@@ -1556,7 +1556,7 @@ static UCHAR* get_position(thread_db* tdbb,
 static BOOLEAN get_record(thread_db* tdbb,
 						  RecordSource* rsb,
 						  IRSB_NAV impure,
-						  RPB * rpb, temporary_key * key, BOOLEAN inhibit_cleanup)
+						  record_param * rpb, temporary_key * key, BOOLEAN inhibit_cleanup)
 {
 /**************************************
  *
@@ -1819,7 +1819,7 @@ static UCHAR* nav_open(
 }
 
 
-static void set_position(IRSB_NAV impure, RPB * rpb, WIN * window,
+static void set_position(IRSB_NAV impure, record_param * rpb, WIN * window,
 				UCHAR * pointer, btree_exp* expanded_node, 
 				UCHAR * key_data, USHORT length)
 {

@@ -325,7 +325,7 @@ int LCK_convert_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wai
 
 	check_lock(lock, level);
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 	AST_DISABLE;
 
 	/* SuperServer: Do Not release engine here, it creates a race
@@ -444,7 +444,7 @@ void LCK_fini(thread_db* tdbb, enum lck_owner_t owner_type)
 	SLONG *owner_handle_ptr;
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
 	switch (owner_type) 
 		{
@@ -484,7 +484,7 @@ SLONG LCK_get_owner_handle(thread_db* tdbb, enum lck_t lock_type)
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
 	switch (lock_type) 
 		{
@@ -536,7 +536,7 @@ void LCK_init(thread_db* tdbb, enum lck_owner_t owner_type)
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 	long owner_id;
 	SLONG *owner_handle_ptr;
 
@@ -639,7 +639,7 @@ int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 	//SET_TDBB(tdbb);
 
 	DBB dbb = lock->lck_dbb;
-	ATT attachment = lock->lck_attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = lock->lck_attachment = tdbb->tdbb_attachment;
 
 	/* Don't bother for the non-wait or non-multi-threading case */
 
@@ -810,7 +810,7 @@ void LCK_release(LCK lock)
 
 	lock->lck_physical = lock->lck_logical = LCK_none;
 	lock->lck_id = lock->lck_data = 0;
-	ATT attachment = lock->lck_attachment;
+	Attachment* attachment = lock->lck_attachment;
 
 	if (lock->lck_long_lock && attachment)
 		attachment->removeLongLock(lock);
@@ -1060,7 +1060,7 @@ static LCK find_block(LCK lock, USHORT level)
  **************************************/
 	fb_assert(LCK_CHECK_LOCK(lock));
 	DBB dbb = lock->lck_dbb;
-	ATT attachment = lock->lck_attachment;
+	Attachment* attachment = lock->lck_attachment;
 
 	if (!attachment)
 		return NULL;
@@ -1147,7 +1147,7 @@ static void hash_allocate(LCK lock)
 
 	fb_assert(LCK_CHECK_LOCK(lock));
 	DBB dbb = lock->lck_dbb;
-	ATT att = lock->lck_attachment;
+	Attachment* att = lock->lck_attachment;
 
 	if (att) 
 		att->att_compatibility_table = vec::newVector(*dbb->dbb_permanent, LOCK_HASH_SIZE);
@@ -1175,7 +1175,7 @@ static LCK hash_get_lock(LCK lock, USHORT * hash_slot, LCK ** prior)
 	SSHORT l;
 
 	fb_assert(LCK_CHECK_LOCK(lock));
-	ATT att = lock->lck_attachment;
+	Attachment* att = lock->lck_attachment;
 
 	if (!att)
 		return NULL;
@@ -1243,7 +1243,7 @@ static void hash_insert_lock(LCK lock)
  **************************************/
 	LCK identical;
 	USHORT hash_slot;
-	ATT att;
+	Attachment* att;
 
 	fb_assert(LCK_CHECK_LOCK(lock));
 

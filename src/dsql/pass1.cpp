@@ -240,7 +240,7 @@ static dsql_nod* pass1_sel_list(CStatement*, dsql_nod*);
 static dsql_nod* pass1_simple_case(CStatement*, dsql_nod*, bool);
 static dsql_nod* pass1_sort(CStatement*, dsql_nod*, dsql_nod*);
 static dsql_nod* pass1_udf(CStatement*, dsql_nod*, bool);
-static void pass1_udf_args(CStatement*, dsql_nod*, Function*, USHORT, Stack*,
+static void pass1_udf_args(CStatement*, dsql_nod*, UserFunction*, USHORT, Stack*,
 	bool);
 static dsql_nod* pass1_union(CStatement*, dsql_nod*, dsql_nod*, dsql_nod*, USHORT);
 static void pass1_union_auto_cast(CStatement* request, dsql_nod*, const dsc&, SSHORT,
@@ -6177,7 +6177,7 @@ static dsql_nod* pass1_udf( CStatement* request, dsql_nod* input, bool proc_flag
 {
 	dsql_str* name = (dsql_str*) input->nod_arg[0];
 	//dsql_udf* userFunc = METD_get_function(request, name);
-	Function* userFunc = request->findFunction (*name);
+	UserFunction* userFunc = request->findFunction (*name);
 
 	if (!userFunc)
 		ERRD_post(isc_sqlerr, isc_arg_number, -804,
@@ -6215,7 +6215,7 @@ static dsql_nod* pass1_udf( CStatement* request, dsql_nod* input, bool proc_flag
 
  **/
 static void pass1_udf_args(CStatement* request, dsql_nod* input,
-						   Function* userFunc, USHORT arg_pos, Stack* stack, bool proc_flag)
+						   UserFunction* userFunc, USHORT arg_pos, Stack* stack, bool proc_flag)
 {
 	if (input->nod_type == nod_list)
 		{

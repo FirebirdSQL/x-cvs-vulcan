@@ -29,23 +29,23 @@
 
 #ifdef DEV_BUILD
 #include "../jrd/ib_stdio.h"
-void SBM_dump(IB_FILE *, SBM);
+void SBM_dump(IB_FILE *, SparseBitmap*);
 #endif
 
 class sbm;
 struct thread_db;
 
-sbm**		SBM_and(sbm **, sbm **);
-int			SBM_clear(sbm *, SLONG);
-BOOLEAN		SBM_equal(SBM, SBM);
-void		SBM_init(void);
-int			SBM_next(sbm *, SLONG *, enum rse_get_mode);
-sbm**		SBM_or(thread_db* tdbb, sbm **, sbm **);
-void		SBM_release(sbm *);
-void		SBM_reset(sbm **);
-void		SBM_set(thread_db* tdbb, sbm **, SLONG);
-int			SBM_test(sbm *, SLONG);
-SLONG		SBM_size(sbm **);
+SparseBitmap**	SBM_and(SparseBitmap**, SparseBitmap**);
+int				SBM_clear(SparseBitmap*, SLONG);
+BOOLEAN			SBM_equal(SparseBitmap*, SparseBitmap*);
+void			SBM_init(void);
+int				SBM_next(SparseBitmap*, SLONG*, enum rse_get_mode);
+SparseBitmap**	SBM_or(thread_db*, SparseBitmap**, SparseBitmap**);
+void			SBM_release(SparseBitmap*);
+void			SBM_reset(SparseBitmap**);
+void			SBM_set(thread_db*, SparseBitmap **, SLONG);
+int				SBM_test(SparseBitmap*, SLONG);
+SLONG			SBM_size(SparseBitmap**);
 
 
 #endif // JRD_SBM_PROTO_H

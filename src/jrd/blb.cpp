@@ -79,28 +79,28 @@ $Id$
 #define STREAM				(blob->blb_flags & BLB_stream)
 #define SEGMENTED			!STREAM
 
-static ARR alloc_array(DBB dbb, JRD_TRA, ADS);
-//static BLB allocate_blob(thread_db*, JRD_TRA);
+static ArrayField* alloc_array(DBB dbb, Transaction*, ADS);
+//static blb* allocate_blob(thread_db*, Transaction*);
 static ISC_STATUS blob_filter(USHORT, CTL, SSHORT, SLONG);
 static void check_BID_validity(const blb*, thread_db*);
-static BLB copy_blob(thread_db*, const bid*, bid*);
-static void delete_blob(thread_db*, BLB, ULONG);
-static void delete_blob_id(thread_db*, const bid*, ULONG, JRD_REL);
-static ARR find_array(JRD_TRA, const bid*);
+static blb* copy_blob(thread_db*, const bid*, bid*);
+static void delete_blob(thread_db*, blb*, ULONG);
+static void delete_blob_id(thread_db*, const bid*, ULONG, Relation*);
+static ArrayField* find_array(Transaction*, const bid*);
 static BLF find_filter(thread_db*, SSHORT, SSHORT);
-static blob_page* get_next_page(thread_db*, BLB, WIN *);
+static blob_page* get_next_page(thread_db*, blb*, WIN *);
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 static void get_replay_blob(thread_db*, const bid*);
 #endif
 
-static void insert_page(thread_db*, BLB);
-static void release_blob(BLB, const bool);
+static void insert_page(thread_db*, blb*);
+static void release_blob(blb*, const bool);
 static void slice_callback(SLICE, ULONG, DSC *);
-static BLB store_array(thread_db*, JRD_TRA, bid*);
+static blb* store_array(thread_db*, Transaction*, bid*);
 
 
-void BLB_cancel(thread_db* tdbb, BLB blob)
+void BLB_cancel(thread_db* tdbb, blb* blob)
 {
 /**************************************
  *
@@ -163,7 +163,7 @@ void BLB_close(thread_db* tdbb, class blb* blob)
 }
 
 
-BLB BLB_create(thread_db* tdbb, JRD_TRA transaction, bid* blob_id)
+blb* BLB_create(thread_db* tdbb, Transaction* transaction, bid* blob_id)
 {
 /**************************************
  *
@@ -181,8 +181,8 @@ BLB BLB_create(thread_db* tdbb, JRD_TRA transaction, bid* blob_id)
 }
 
 
-BLB BLB_create2(thread_db* tdbb,
-				JRD_TRA transaction, bid* blob_id,
+blb* BLB_create2(thread_db* tdbb,
+				Transaction* transaction, bid* blob_id,
 				USHORT bpb_length, const UCHAR* bpb)
 {
 /**************************************
@@ -280,7 +280,7 @@ BLB BLB_create2(thread_db* tdbb,
 void BLB_garbage_collect(
 						 thread_db* tdbb,
 						 LLS going,
-						 LLS staying, SLONG prior_page, JRD_REL relation)
+						 LLS staying, SLONG prior_page, Relation* relation)
 {
 /**************************************
  *
@@ -308,10 +308,10 @@ void BLB_garbage_collect(
 /* Loop thru records on the way out looking for blobs to garbage collect */
 
 	for (lls* stack1 = going; stack1; stack1 = stack1->lls_next) {
-		rec* rec1 = (REC) stack1->lls_object;
+		Record* rec1 = (Record*) stack1->lls_object;
 		if (!rec1)
 			continue;
-		const fmt* format = (FMT) rec1->rec_format;
+		const Format* format = (Format*) rec1->rec_format;
 
 		/* Look for active blob records */
 
@@ -327,7 +327,7 @@ void BLB_garbage_collect(
 
 			lls* stack2;
 			for (stack2 = stack1->lls_next; stack2; stack2 = stack2->lls_next) {
-				rec* rec2 = (REC) stack2->lls_object;
+				Record* rec2 = (Record*) stack2->lls_object;
 				if (!EVL_field(0, rec2, id, &desc2))
 					continue;
 				const bid* blob2 = (bid*) desc2.dsc_address;
@@ -341,7 +341,7 @@ void BLB_garbage_collect(
 			/* Make sure the blob doesn't stack in any record remaining */
 
 			for (stack2 = staying; stack2; stack2 = stack2->lls_next) {
-				rec* rec2 = (REC) stack2->lls_object;
+				Record* rec2 = (Record*) stack2->lls_object;
 				if (!EVL_field(0, rec2, id, &desc2))
 					continue;
 				const bid* blob2 = (bid*) desc2.dsc_address;
@@ -362,7 +362,7 @@ void BLB_garbage_collect(
 }
 
 
-BLB BLB_get_array(thread_db* tdbb, JRD_TRA transaction, const bid* blob_id, ADS desc)
+blb* BLB_get_array(thread_db* tdbb, Transaction* transaction, const bid* blob_id, ADS desc)
 {
 /**************************************
  *
@@ -376,7 +376,7 @@ BLB BLB_get_array(thread_db* tdbb, JRD_TRA transaction, const bid* blob_id, ADS 
  **************************************/
 	SET_TDBB(tdbb);
 
-	BLB blob = BLB_open2(tdbb, transaction, blob_id, 0, 0);
+	blb* blob = BLB_open2(tdbb, transaction, blob_id, 0, 0);
 
 	if (blob->blb_length < sizeof(ads)) {
 		BLB_close(tdbb, blob);
@@ -394,7 +394,7 @@ BLB BLB_get_array(thread_db* tdbb, JRD_TRA transaction, const bid* blob_id, ADS 
 }
 
 
-SLONG BLB_get_data(thread_db* tdbb, BLB blob, UCHAR* buffer, SLONG length)
+SLONG BLB_get_data(thread_db* tdbb, blb* blob, UCHAR* buffer, SLONG length)
 {
 /**************************************
  *
@@ -431,7 +431,7 @@ SLONG BLB_get_data(thread_db* tdbb, BLB blob, UCHAR* buffer, SLONG length)
 
 
 int BLB_get_segment(thread_db* tdbb,
-					   BLB blob, UCHAR* segment, int buffer_length)
+					   blb* blob, UCHAR* segment, int buffer_length)
 {
 /**************************************
  *
@@ -653,7 +653,7 @@ int BLB_get_segment(thread_db* tdbb,
 
 
 SLONG BLB_get_slice(thread_db* tdbb,
-					JRD_TRA transaction,
+					Transaction* transaction,
 					const bid* blob_id,
 					const UCHAR* sdl,
 					USHORT param_length,
@@ -768,7 +768,7 @@ SLONG BLB_get_slice(thread_db* tdbb,
 }
 
 
-SLONG BLB_lseek(BLB blob, USHORT mode, SLONG offset)
+SLONG BLB_lseek(blb* blob, USHORT mode, SLONG offset)
 {
 /**************************************
  *
@@ -806,7 +806,7 @@ SLONG BLB_lseek(BLB blob, USHORT mode, SLONG offset)
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 
-void BLB_map_blobs(thread_db* tdbb, BLB old_blob, BLB new_blob)
+void BLB_map_blobs(thread_db* tdbb, blb* old_blob, blb* new_blob)
 {
 /**************************************
  *
@@ -868,9 +868,9 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 	bid* source = (bid*) from_desc->dsc_address;
 	bid* destination = (bid*) to_desc->dsc_address;
 	const USHORT id = (USHORT) (long) field->nod_arg[e_fld_id];
-	RPB* rpb = &request->req_rpb[(int) (long) field->nod_arg[e_fld_stream]];
+	record_param* rpb = &request->req_rpb[(int) (long) field->nod_arg[e_fld_stream]];
 	Relation* relation = rpb->rpb_relation;
-	rec* record = rpb->rpb_record;
+	Record* record = rpb->rpb_record;
 
 	/* If nothing changed, do nothing.  If it isn't broken,
 	   don't fix it. */
@@ -892,7 +892,7 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 		}
 
 	CLEAR_NULL(record, id);
-	JRD_TRA transaction = request->req_transaction;
+	Transaction* transaction = request->req_transaction;
 
 	/* If the target is a view, this must be from a view update trigger.
 	   Just pass the blob id thru */
@@ -912,7 +912,7 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 	/* If the source is a permanent blob, then the blob must be copied.
 	   Otherwise find the temporary blob referenced.  */
 
-	arr* array = NULL;
+	ArrayField* array = NULL;
 	blb* blob = NULL;
 	bool materialized_blob, refetch_flag;
 	
@@ -991,7 +991,7 @@ void BLB_move_from_string(thread_db* tdbb, const dsc* from_desc, dsc* to_desc, J
 	else
 	{
 		USHORT ttype = 0;
-		BLB blob = 0;
+		blb* blob = 0;
 		UCHAR *fromstr = 0;
 		bid temp_bid;
 		DSC blob_desc;
@@ -1024,7 +1024,7 @@ void BLB_move_from_string(thread_db* tdbb, const dsc* from_desc, dsc* to_desc, J
 }
 
 
-BLB BLB_open(thread_db* tdbb, JRD_TRA transaction, const bid* blob_id)
+blb* BLB_open(thread_db* tdbb, Transaction* transaction, const bid* blob_id)
 {
 /**************************************
  *
@@ -1042,8 +1042,8 @@ BLB BLB_open(thread_db* tdbb, JRD_TRA transaction, const bid* blob_id)
 }
 
 
-BLB BLB_open2(thread_db* tdbb,
-			  JRD_TRA transaction, const bid* blob_id,
+blb* BLB_open2(thread_db* tdbb,
+			  Transaction* transaction, const bid* blob_id,
 			  USHORT bpb_length, const UCHAR* bpb)
 {
 /**************************************
@@ -1181,9 +1181,9 @@ BLB BLB_open2(thread_db* tdbb,
 	SVector<Relation*> *vector = &dbb->dbb_relations;
 	BlkPtr blkPtr = (*vector)[blob_id->bid_relation_id];
 	void *foo1 = (void*)( (*vector)[9]);
-	void *foo2 = (jrd_rel*)( (*vector)[9]);
+	void *foo2 = (Relation*)( (*vector)[9]);
 	Relation *relation = reinterpret_cast<Relation*>( (*vector)[blob_id->bid_relation_id]);
-	relation = (jrd_rel*)( (*vector)[blob_id->bid_relation_id]);
+	relation = (Relation*)( (*vector)[blob_id->bid_relation_id]);
 	***/
 	
 	if (!(blob->blb_relation = dbb->findRelation(blob_id->bid_relation_id)))
@@ -1212,7 +1212,7 @@ BLB BLB_open2(thread_db* tdbb,
 }
 
 
-void BLB_put_segment (thread_db* tdbb, BLB blob, const UCHAR* seg, USHORT segment_length)
+void BLB_put_segment (thread_db* tdbb, blb* blob, const UCHAR* seg, USHORT segment_length)
 {
 /**************************************
  *
@@ -1270,7 +1270,7 @@ void BLB_put_segment (thread_db* tdbb, BLB blob, const UCHAR* seg, USHORT segmen
 
 	if (blob->blb_level == 0 && length > (ULONG) blob->blb_space_remaining) 
 		{
-		JRD_TRA transaction;
+		Transaction* transaction;
 
 		transaction = blob->blb_transaction;
 		blob->blb_pages = vcl::newVector(*transaction->tra_pool, 0);
@@ -1370,7 +1370,7 @@ void BLB_put_segment (thread_db* tdbb, BLB blob, const UCHAR* seg, USHORT segmen
 
 
 void BLB_put_slice(	thread_db*		tdbb,
-					JRD_TRA			transaction,
+					Transaction*	transaction,
 					bid*			blob_id,
 					const UCHAR*	sdl,
 					USHORT			param_length,
@@ -1397,7 +1397,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 	if (SDL_info(tdbb->tdbb_status_vector, sdl, &info, 0))
 		ERR_punt();
 
-	jrd_rel* relation;
+	Relation* relation;
 
 	if (info.sdl_info_relation[0]) 
 		relation = MET_lookup_relation(tdbb, info.sdl_info_relation);
@@ -1423,7 +1423,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 		IBERROR(197);			/* msg 197 field for array not known */
 
 
-	arr* array_desc = field->fld_array;
+	ArrayField* array_desc = field->fld_array;
 	if (!array_desc)
 		ERR_post(isc_invalid_dimension, isc_arg_number, (SLONG) 0,
 				 isc_arg_number, (SLONG) 1, 0);
@@ -1434,7 +1434,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 		2.  Array is still in "temporary" state.
 		3.  Array exists and is being updated.
 	*/
-	arr* array = 0;
+	ArrayField* array = 0;
 	slice arg;
 
 	if (blob_id->bid_relation_id)
@@ -1458,7 +1458,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 			// CVC: maybe char temp[ADS_LEN(16)]; may work.
 			SLONG temp[ADS_LEN(16) / 4];
 			ads* p_ads = reinterpret_cast<ads*>(temp);
-			BLB blob = BLB_get_array(tdbb, transaction, blob_id, p_ads);
+			blb* blob = BLB_get_array(tdbb, transaction, blob_id, p_ads);
 			array =	alloc_array(tdbb->tdbb_database, transaction, p_ads);
 			array->arr_effective_length =
 				blob->blb_length - array->arr_desc.ads_length;
@@ -1510,12 +1510,12 @@ void BLB_put_slice(	thread_db*		tdbb,
 
 	blob_id->bid_relation_id = 0;
 	array->temporaryId = transaction->tra_attachment->att_database->temporaryBlobIds++;
-	//blob_id->bid_stuff.bid_blob = (BLB) array;
+	//blob_id->bid_stuff.bid_blob = (blb*) array;
 	blob_id->bid_stuff.bid_number = array->temporaryId;
 }
 
 
-void BLB_release_array(ARR array)
+void BLB_release_array(ArrayField* array)
 {
 /**************************************
  *
@@ -1532,10 +1532,10 @@ void BLB_release_array(ARR array)
 		MemoryPool::globalFree(array->arr_data); // But know that it comes from permanent pool
 	}
 
-	jrd_tra* transaction = array->arr_transaction;
+	Transaction* transaction = array->arr_transaction;
 	if (transaction)
 	{
-		for (arr** ptr = &transaction->tra_arrays; *ptr; ptr = &(*ptr)->arr_next) {
+		for (ArrayField** ptr = &transaction->tra_arrays; *ptr; ptr = &(*ptr)->arr_next) {
 			if (*ptr == array) {
 				*ptr = array->arr_next;
 				break;
@@ -1548,10 +1548,10 @@ void BLB_release_array(ARR array)
 
 
 void BLB_scalar (thread_db*	tdbb,
-				JRD_TRA		transaction,
-				const bid*		blob_id,
-				USHORT	count,
-				SLONG*	subscripts,
+				Transaction* transaction,
+				const bid* blob_id,
+				USHORT count,
+				SLONG* subscripts,
 				impure_value* value)
 {
 /**************************************
@@ -1619,7 +1619,7 @@ void BLB_scalar (thread_db*	tdbb,
 }
 
 
-static ARR alloc_array(DBB dbb, JRD_TRA transaction, ADS proto_desc)
+static ArrayField* alloc_array(DBB dbb, Transaction* transaction, ADS proto_desc)
 {
 /**************************************
  *
@@ -1635,7 +1635,7 @@ static ARR alloc_array(DBB dbb, JRD_TRA transaction, ADS proto_desc)
 	// Compute size and allocate block
 
 	const USHORT n = MAX(proto_desc->ads_struct_count, proto_desc->ads_dimensions);
-	arr* array = FB_NEW_RPT(*transaction->tra_pool, n) arr();
+	ArrayField* array = FB_NEW_RPT(*transaction->tra_pool, n) ArrayField();
 
 	// Copy prototype descriptor
 
@@ -1661,7 +1661,7 @@ static ARR alloc_array(DBB dbb, JRD_TRA transaction, ADS proto_desc)
 
 
 #ifdef OBSOLETE
-static BLB allocate_blob(thread_db* tdbb, JRD_TRA transaction)
+static blb* allocate_blob(thread_db* tdbb, Transaction* transaction)
 {
 /**************************************
  *
@@ -1722,7 +1722,7 @@ static ISC_STATUS blob_filter(	USHORT	action,
 
 	thread_db* tdbb = GET_THREAD_DATA;
 
-	JRD_TRA transaction = (JRD_TRA) control->ctl_internal[1];
+	Transaction* transaction = (Transaction*) control->ctl_internal[1];
 	bid* blob_id = reinterpret_cast<bid*>(control->ctl_internal[2]);
 
 #ifdef DEV_BUILD
@@ -1743,7 +1743,7 @@ static ISC_STATUS blob_filter(	USHORT	action,
 		return FB_SUCCESS;
 
 	case ACTION_get_segment:
-		blob = (BLB) control->ctl_source_handle;
+		blob = (blb*) control->ctl_source_handle;
 		control->ctl_segment_length =
 			BLB_get_segment(tdbb, blob, control->ctl_buffer,
 							control->ctl_buffer_length);
@@ -1761,7 +1761,7 @@ static ISC_STATUS blob_filter(	USHORT	action,
 		return FB_SUCCESS;
 
 	case ACTION_put_segment:
-		blob = (BLB) control->ctl_source_handle;
+		blob = (blb*) control->ctl_source_handle;
 		BLB_put_segment(tdbb, blob, control->ctl_buffer,
 						control->ctl_buffer_length);
 		return FB_SUCCESS;
@@ -1780,7 +1780,7 @@ static ISC_STATUS blob_filter(	USHORT	action,
 		return FB_SUCCESS;
 
 	case ACTION_seek:
-		return BLB_lseek((BLB) control->ctl_source_handle, mode, offset);
+		return BLB_lseek((blb*) control->ctl_source_handle, mode, offset);
 
 	default:
 		ERR_post(isc_uns_ext, 0);
@@ -1828,7 +1828,7 @@ static void check_BID_validity(const blb* blob, thread_db* tdbb)
 }
 
 
-static BLB copy_blob(thread_db* tdbb, const bid* source, bid* destination)
+static blb* copy_blob(thread_db* tdbb, const bid* source, bid* destination)
 {
 /**************************************
  *
@@ -1883,7 +1883,7 @@ static BLB copy_blob(thread_db* tdbb, const bid* source, bid* destination)
 }
 
 
-static void delete_blob(thread_db* tdbb, BLB blob, ULONG prior_page)
+static void delete_blob(thread_db* tdbb, blb* blob, ULONG prior_page)
 {
 /**************************************
  *
@@ -1952,7 +1952,7 @@ static void delete_blob(thread_db* tdbb, BLB blob, ULONG prior_page)
 }
 
 
-static void delete_blob_id(thread_db* tdbb, const bid* blob_id, ULONG prior_page, JRD_REL relation)
+static void delete_blob_id(thread_db* tdbb, const bid* blob_id, ULONG prior_page, Relation* relation)
 {
 /**************************************
  *
@@ -1987,7 +1987,7 @@ static void delete_blob_id(thread_db* tdbb, const bid* blob_id, ULONG prior_page
 }
 
 
-static ARR find_array(JRD_TRA transaction, const bid* blob_id)
+static ArrayField* find_array(Transaction* transaction, const bid* blob_id)
 {
 /**************************************
  *
@@ -1999,7 +1999,7 @@ static ARR find_array(JRD_TRA transaction, const bid* blob_id)
  *      Find array from temporary blob id.
  *
  **************************************/
-	arr* array = transaction->tra_arrays;
+	ArrayField* array = transaction->tra_arrays;
 
 	for (; array; array = array->arr_next) 
 		if (array->temporaryId == blob_id->bid_stuff.bid_number) 
@@ -2045,7 +2045,7 @@ static BLF find_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 }
 
 
-static blob_page* get_next_page(thread_db* tdbb, BLB blob, WIN * window)
+static blob_page* get_next_page(thread_db* tdbb, blb* blob, WIN * window)
 {
 /**************************************
  *
@@ -2171,7 +2171,7 @@ static void get_replay_blob(thread_db* tdbb, bid* blob_id)
 #endif
 
 
-static void insert_page(thread_db* tdbb, BLB blob)
+static void insert_page(thread_db* tdbb, blb* blob)
 {
 /**************************************
  *
@@ -2268,7 +2268,7 @@ static void insert_page(thread_db* tdbb, BLB blob)
 }
 
 
-static void release_blob(BLB blob, const bool purge_flag)
+static void release_blob(blb* blob, const bool purge_flag)
 {
 /**************************************
  *
@@ -2418,7 +2418,7 @@ static void slice_callback(SLICE arg, ULONG count, DSC * descriptors)
 }
 
 
-static BLB store_array(thread_db* tdbb, JRD_TRA transaction, bid* blob_id)
+static blb* store_array(thread_db* tdbb, Transaction* transaction, bid* blob_id)
 {
 /**************************************
  *
@@ -2434,7 +2434,7 @@ static BLB store_array(thread_db* tdbb, JRD_TRA transaction, bid* blob_id)
 
 	/* Validate array */
 
-	arr* array = find_array(transaction, blob_id);
+	ArrayField* array = find_array(transaction, blob_id);
 	
 	if (!array)
 		return NULL;

@@ -158,19 +158,11 @@ const int VAL_MAX_ERROR					= 25;
 //
 
 #include "Attachment.h"
-typedef Attachment att;
-typedef Attachment *ATT;
-
-
-
 
 
 
 #include "Trigger.h"
 
-
-//typedef Trigger trig;
-//typedef Trigger *TRIG;
 //typedef firebird::vector<Trigger*> trig_vec;
 //typedef trig_vec* TRIG_VEC;
 
@@ -179,8 +171,6 @@ typedef Attachment *ATT;
    the relation is scanned */
 
 //#include "Relation.h"
-typedef Relation jrd_rel;
-typedef Relation *JRD_REL;
 
 
 /* Field block, one for each field in a scanned relation */
@@ -193,30 +183,29 @@ typedef Field *JRD_FLD;
 
 /* Index block to cache index information */
 
-class idb : public pool_alloc<type_idb>
+class IndexBlock : public pool_alloc<type_idb>
 {
     public:
-	struct idb*	idb_next;
-	struct jrd_nod*	idb_expression;			/* node tree for index expression */
-	Request*	idb_expression_request;	/* request in which index expression is evaluated */
-	struct dsc	idb_expression_desc;	/* descriptor for expression result */
-	struct lck*	idb_lock;				/* lock to synchronize changes to index */
+	class IndexBlock* idb_next;
+	struct jrd_nod* idb_expression;			/* node tree for index expression */
+	Request* idb_expression_request;	/* request in which index expression is evaluated */
+	struct dsc idb_expression_desc;	/* descriptor for expression result */
+	struct lck* idb_lock;				/* lock to synchronize changes to index */
 	UCHAR idb_id;
 };
-typedef idb *IDB;
+
 
 
 /* view context block to cache view aliases */
 
-class vcx: public pool_alloc<type_vcx>
+class ViewContext: public pool_alloc<type_vcx>
 {
     public:
-	class vcx *vcx_next;
-	class str *vcx_context_name;
-	class str *vcx_relation_name;
+	class ViewContext* vcx_next;
+	class str* vcx_context_name;
+	class str* vcx_relation_name;
 	USHORT vcx_context;
 };
-typedef vcx *VCX;
 
 
 #include "JVector.h"
@@ -227,7 +216,7 @@ typedef vcx *VCX;
 /* symbol definitions */
 
 #include "Symb.h"
-typedef Sym *SYM;
+//typedef Sym *SYM;
 
 
 
@@ -267,21 +256,22 @@ typedef str *STR;
 //
 // Transaction element block
 //
-typedef struct teb {
-	ATT *teb_database;
+struct teb {
+	Attachment** teb_database;
 	int teb_tpb_length;
 	UCHAR *teb_tpb;
-} TEB;
+};
+
+typedef teb TEB;
 
 /* Blocking Thread Block */
 
-class btb : public pool_alloc<type_btb>
+class BlockingThread : public pool_alloc<type_btb>
 {
     public:
-	btb *btb_next;
+	BlockingThread* btb_next;
 	SLONG btb_thread_id;
 };
-typedef btb *BTB;
 
 /* Lock levels */
 

@@ -94,7 +94,7 @@ static void store_privilege(thread_db* tdbb, GBL, const TEXT*, const TEXT*, cons
 static void	set_field_class_name(thread_db* tdbb, GBL, const TEXT*, const TEXT*);
 static void user_operation(thread_db* tdbb, GBL global, int verb, const UCHAR**);
 
-void DYN_ddl(thread_db* tdbb, att* attachment, jrd_tra* transaction, USHORT length, const UCHAR* ddl)
+void DYN_ddl(thread_db* tdbb, Attachment* attachment, Transaction* transaction, USHORT length, const UCHAR* ddl)
 {
 /**************************************
  *
@@ -141,7 +141,7 @@ void DYN_ddl(thread_db* tdbb, att* attachment, jrd_tra* transaction, USHORT leng
 		}
 	catch (OSRIException&) 
 		{
-		const sav* savepoint = transaction->tra_save_point;
+		const Savepoint* savepoint = transaction->tra_save_point;
 		
 		if (savepoint && savepoint->sav_verb_count)
 			{
@@ -713,7 +713,7 @@ USHORT DYN_put_blr_blob(thread_db* tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* b
 
 	try 
 		{
-		BLB blob = BLB_create(tdbb, gbl->gbl_transaction, (BID)blob_id);
+		blb* blob = BLB_create(tdbb, gbl->gbl_transaction, (BID)blob_id);
 		BLB_put_segment(tdbb, blob, p, length);
 		BLB_close(tdbb, blob);
 		}
@@ -754,7 +754,7 @@ USHORT DYN_put_text_blob(thread_db* tdbb, GBL gbl, const UCHAR** ptr, ISC_QUAD* 
 	const UCHAR* end = NULL;
 
 	try {
-		BLB blob = BLB_create(tdbb, gbl->gbl_transaction, (BID)blob_id);
+		blb* blob = BLB_create(tdbb, gbl->gbl_transaction, (BID)blob_id);
 
 		for (end = p + length; p < end; p += TEXT_BLOB_LENGTH)
 		{
@@ -1584,7 +1584,7 @@ static void revoke_permission(thread_db* tdbb, GBL gbl, const UCHAR** ptr)
 
 /* Stash away a copy of the revoker's name, in uppercase form */
 
-	usr* revoking_user = tdbb->tdbb_attachment->att_user;
+	UserId* revoking_user = tdbb->tdbb_attachment->att_user;
 	{ // this block to make sure there's no other bug due to wrong  scope
 	TEXT* q = revoking_user_name;
 

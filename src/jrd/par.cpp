@@ -123,13 +123,13 @@ static void warning(CompilerScratch*, ...);
 
 
 JRD_NOD PAR_blr(thread_db* tdbb,
-			JRD_REL		relation,
-			const UCHAR*	blr,
-			CompilerScratch*	view_csb,
-			CompilerScratch**	csb_ptr,
-			JRD_REQ*	request_ptr,
-			BOOLEAN	trigger,
-			USHORT	flags)
+			Relation* relation,
+			const UCHAR* blr,
+			CompilerScratch* view_csb,
+			CompilerScratch** csb_ptr,
+			Request** request_ptr,
+			BOOLEAN trigger,
+			USHORT flags)
 {
 /**************************************
  *
@@ -725,7 +725,7 @@ static JRD_NOD par_cast(thread_db* tdbb, CompilerScratch* csb)
 	jrd_nod* node = PAR_make_node(tdbb, e_cast_length);
 	node->nod_count = count_table[blr_cast];
 
-	fmt* format = fmt::newFmt(*tdbb->tdbb_default, 1);
+	Format* format = Format::newFmt(*tdbb->tdbb_default, 1);
 	format->fmt_count = 1;
 	node->nod_arg[e_cast_fmt] = (JRD_NOD) format;
 
@@ -1081,7 +1081,7 @@ static JRD_NOD par_field(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_
  *	Parse a field.
  *
  **************************************/
-	JRD_REL relation;
+	Relation* relation;
 	TEXT name[32];
 	SSHORT id;
 	csb_repeat *tail;
@@ -1221,7 +1221,7 @@ static JRD_NOD par_function(thread_db* tdbb, CompilerScratch* csb)
 	TEXT name[32];
 	const USHORT count = par_name(csb, name);
 
-	Function * function = FUN_lookup_function(tdbb, name, !(tdbb->tdbb_attachment->att_flags & ATT_gbak_attachment));
+	UserFunction* function = FUN_lookup_function(tdbb, name, !(tdbb->tdbb_attachment->att_flags & ATT_gbak_attachment));
 
 	if (!function) 
 		{
@@ -1238,7 +1238,7 @@ static JRD_NOD par_function(thread_db* tdbb, CompilerScratch* csb)
 		error(csb, isc_funnotdef, isc_arg_string, ERR_cstring(name), 0);
 		}
 
-	Function* homonyms;
+	UserFunction* homonyms;
 	
 	for (homonyms = function; homonyms; homonyms = homonyms->fun_homonym) 
 		if (homonyms->fun_entrypoint)
@@ -1446,12 +1446,12 @@ static JRD_NOD par_message(thread_db* tdbb, CompilerScratch* csb)
    out the format block */
 
 	n = BLR_WORD;
-	fmt* format = fmt::newFmt(*tdbb->tdbb_default, n);
+	Format* format = Format::newFmt(*tdbb->tdbb_default, n);
 	node->nod_arg[e_msg_format] = (JRD_NOD) format;
 	format->fmt_count = n;
 	ULONG offset = 0;
 
-	fmt::fmt_desc_iterator desc, end;
+	Format::fmt_desc_iterator desc, end;
 	for (desc = format->fmt_desc.begin(), end = desc + n; desc < end; desc++) {
 		const USHORT alignment = PAR_desc(csb, &*desc);
 		if (alignment)
@@ -1600,7 +1600,7 @@ static JRD_NOD par_plan(thread_db* tdbb, CompilerScratch* csb)
 
 		jrd_nod* relation_node = par_relation(tdbb, csb, n, FALSE);
 		plan->nod_arg[e_retrieve_relation] = relation_node;
-		jrd_rel* relation = (JRD_REL) relation_node->nod_arg[e_rel_relation];
+		Relation* relation = (Relation*) relation_node->nod_arg[e_rel_relation];
 
 		n = BLR_BYTE;
 		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
@@ -1827,7 +1827,7 @@ static void par_procedure_parms(thread_db* tdbb,
 		*message_ptr = message;
 		message->nod_count = 0;
 		message->nod_arg[e_msg_number] = (JRD_NOD)(long) n;
-		const fmt* format = input_flag ? procedure->findInputFormat() : procedure->findOutputFormat();
+		const Format* format = input_flag ? procedure->findInputFormat() : procedure->findOutputFormat();
 		
 		/* dimitr: procedure (with its parameter formats) is allocated out of
 				   its own pool (prc_request->req_pool) and can be freed during
@@ -1847,7 +1847,7 @@ static void par_procedure_parms(thread_db* tdbb,
 		message->nod_arg[e_msg_format] = (JRD_NOD) format;
 		*/
 		
-		fmt* fmt_copy = fmt::newFmt(*tdbb->tdbb_default, format->fmt_count);
+		Format* fmt_copy = Format::newFmt(*tdbb->tdbb_default, format->fmt_count);
 		*fmt_copy = *format;
 		message->nod_arg[e_msg_format] = (JRD_NOD) fmt_copy;
 		
@@ -1925,7 +1925,7 @@ static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operat
 	/* Find relation either by id or by name */
 	
 	str* alias_string = NULL;
-	jrd_rel* relation = 0;
+	Relation* relation = 0;
 	
 	if (operator_ == blr_rid || operator_ == blr_rid2) 
 		{
@@ -2650,7 +2650,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 		node->nod_arg[e_arg_message] = message;
 		n = BLR_WORD;
 		node->nod_arg[e_arg_number] = (JRD_NOD) (long) n;
-		const fmt* format = (FMT) message->nod_arg[e_msg_format];
+		const Format* format = (Format*) message->nod_arg[e_msg_format];
 		
 		if (n >= format->fmt_count)
 			error(csb, isc_badparnum, 0);

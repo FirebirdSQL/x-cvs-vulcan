@@ -68,13 +68,13 @@ class Connection;
 class Transaction;
 class vec;
 class IndexLock;
-class idb;
-class fmt;
+class IndexBlock;
+class Format;
 class RecordSelExpr;
 class vcl;
-class vcx;
+class ViewContext;
 class ext;
-class sbm;
+class SparseBitmap;
 class lck;
 class dsql_rel;
 
@@ -114,16 +114,16 @@ public:
 	USHORT			rel_flags;
 	USHORT			rel_current_fmt;		/* Current format number */
 	UCHAR			rel_length;				/* length of ascii relation name */
-	fmt				*rel_current_format;	/* Current record format */
+	Format*			rel_current_format;		/* Current record format */
 	JString			rel_name;				/* pointer to ascii relation name */
 	//vec*			rel_formats;			/* Known record formats */
-	SVector<fmt*>	rel_formats;			/* Known record formats */
+	SVector<Format*> rel_formats;			/* Known record formats */
 	JString			rel_owner_name;			/* pointer to ascii owner */
 	SIVector<SLONG>	rel_pages;				/* vector of pointer page numbers */
 	SVector<Field*>	rel_fields;				/* vector of field blocks */
 
 	RecordSelExpr*	rel_view_rse;			/* view record select expression */
-	vcx				*rel_view_contexts;		/* linked list of view contexts */
+	ViewContext*	rel_view_contexts;		/* linked list of view contexts */
 
 	TEXT			*rel_security_name;		/* pointer to security class name for relation */
 	ext				*rel_file;				/* external file name */
@@ -133,7 +133,7 @@ public:
 	vec*			rel_gc_rec;				/* vector of records for garbage collection */
 
 //#ifdef GARBAGE_THREAD
-	sbm			*rel_gc_bitmap;			/* garbage collect bitmap of data page sequences */
+	SparseBitmap*	rel_gc_bitmap;			/* garbage collect bitmap of data page sequences */
 //#endif
 
 	USHORT		rel_slot_space;			/* lowest pointer page with slot space */
@@ -153,7 +153,7 @@ public:
 	ULONG		rel_lock_total;			/* count of records locked since database first attached */
 
 	IndexLock*		rel_index_locks;	/* index existence locks */
-	idb *			rel_index_blocks;	/* index blocks for caching index info */
+	IndexBlock*		rel_index_blocks;	/* index blocks for caching index info */
 	Triggers		*rel_pre_erase; 	/* Pre-operation erase trigger */
 	Triggers		*rel_post_erase;	/* Post-operation erase trigger */
 	Triggers		*rel_pre_modify;	/* Pre-operation modify trigger */
@@ -185,9 +185,9 @@ public:
 	int incrementUseCount(void);
 	int decrementUseCount(void);
 	Field* findField(int id);
-	fmt* getFormat(thread_db* tdbb, int formatVersion);
-	fmt* getCurrentFormat(thread_db* tdbb);
-	void setFormat(fmt* format);
+	Format* getFormat(thread_db* tdbb, int formatVersion);
+	Format* getCurrentFormat(thread_db* tdbb);
+	void setFormat(Format* format);
 	void scanRelation(thread_db* tdbb, int csb_flags);
 };
 

@@ -127,7 +127,7 @@ struct index_insertion {
 	index_desc* iib_descriptor;				/* index descriptor */
 	Relation *iib_relation;				/* relation block */
 	struct temporary_key* iib_key;		/* varying string for insertion */
-	struct sbm *iib_duplicates;			/* spare bit map of duplicates */
+	struct SparseBitmap* iib_duplicates;			/* spare bit map of duplicates */
 	class Transaction *iib_transaction;	/* insertion transaction */
 };
 
@@ -152,9 +152,9 @@ struct temporary_key {
 struct index_sort_record {
 	// RecordNumber should be at the first place, because it's used
 	// for determing sort by creating index (see idx.cpp)
-	ULONG isr_record_number;
 	USHORT isr_key_length;
 	USHORT isr_flags;
+	ULONG isr_record_number;
 };
 
 #define ISR_secondary	1	// Record is secondary version

@@ -109,23 +109,23 @@ static SLONG bump_transaction_id(thread_db*, WIN *);
 #else
 static header_page* bump_transaction_id(thread_db*, WIN *);
 #endif
-static void retain_context(thread_db*, JRD_TRA, const bool);
+static void retain_context(thread_db*, Transaction*, const bool);
 #ifdef VMS
-static void compute_oldest_retaining(thread_db*, JRD_TRA, const bool);
+static void compute_oldest_retaining(thread_db*, Transaction*, const bool);
 #endif
 #ifdef PC_ENGINE
-static void downgrade_lock(JRD_TRA);
+static void downgrade_lock(Transaction*);
 #endif
-static void expand_view_lock(thread_db* tdbb, JRD_TRA, JRD_REL, SCHAR);
+static void expand_view_lock(thread_db* tdbb, Transaction*, Relation*, SCHAR);
 static tx_inv_page* fetch_inventory_page(thread_db*, WIN *, SLONG, USHORT);
 static SLONG inventory_page(thread_db*, SLONG);
 static SSHORT limbo_transaction(thread_db*, SLONG);
-static void restart_requests(thread_db*, JRD_TRA);
+static void restart_requests(thread_db*, Transaction*);
 #ifdef SWEEP_THREAD
 static BOOLEAN start_sweeper(thread_db*, DBB);
 static void THREAD_ROUTINE sweep_database(Database*);
 #endif
-static void transaction_options(thread_db*, JRD_TRA, const UCHAR*, USHORT);
+static void transaction_options(thread_db*, Transaction*, const UCHAR*, USHORT);
 #ifdef VMS
 static BOOLEAN vms_convert(LCK, SLONG *, SCHAR, BOOLEAN);
 #endif
@@ -187,7 +187,7 @@ BOOLEAN TRA_active_transactions(thread_db* tdbb, DBB dbb)
 
 	base = oldest & ~TRA_MASK;
 
-	trans = FB_NEW_RPT(*dbb->dbb_permanent, (number - base + TRA_MASK) / 4) jrd_tra();
+	trans = FB_NEW_RPT(*dbb->dbb_permanent, (number - base + TRA_MASK) / 4) Transaction();
 
 /* Build transaction bitmap to scan for active transactions. */
 
@@ -239,7 +239,7 @@ void TRA_cleanup(thread_db* tdbb)
 	DBB dbb;
 	header_page* header;
 	tx_inv_page* tip;
-	ATT attachment;
+	Attachment* attachment;
 	UCHAR *byte;
 	SSHORT shift, state;
     SLONG	number, ceiling, active, trans_per_tip;
@@ -351,7 +351,7 @@ void TRA_cleanup(thread_db* tdbb)
 }
 
 
-void TRA_commit(thread_db* tdbb, Transaction *transaction, const bool retaining_flag)
+void TRA_commit(thread_db* tdbb, Transaction* transaction, const bool retaining_flag)
 {
 /**************************************
  *
@@ -731,7 +731,7 @@ void TRA_init(thread_db* tdbb)
 	dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-	dbb->dbb_sys_trans = trans = FB_NEW_RPT(*dbb->dbb_permanent, 0) jrd_tra();
+	dbb->dbb_sys_trans = trans = FB_NEW_RPT(*dbb->dbb_permanent, 0) Transaction();
 	trans->tra_flags |= TRA_system | TRA_ignore_limbo;
 	trans->tra_pool = dbb->dbb_permanent;
 }
@@ -750,7 +750,7 @@ void TRA_invalidate(DBB database, ULONG mask)
  *	modified a page that couldn't be written.
  *
  **************************************/
-	ATT attachment;
+	Attachment* attachment;
 	Transaction *transaction;
 	ULONG transaction_mask;
 
@@ -768,7 +768,7 @@ void TRA_invalidate(DBB database, ULONG mask)
 }
 
 
-void TRA_link_transaction(thread_db* tdbb, Transaction *transaction)
+void TRA_link_transaction(thread_db* tdbb, Transaction* transaction)
 {
 /**************************************
  *
@@ -780,7 +780,7 @@ void TRA_link_transaction(thread_db* tdbb, Transaction *transaction)
  *	Link transaction block into database attachment.
  *
  **************************************/
-	ATT attachment;
+	Attachment* attachment;
 
 	SET_TDBB(tdbb);
 
@@ -790,7 +790,7 @@ void TRA_link_transaction(thread_db* tdbb, Transaction *transaction)
 }
 
 
-void TRA_post_resources(thread_db* tdbb, Transaction *transaction, Resource* resources)
+void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* resources)
 {
 /**************************************
  *
@@ -936,7 +936,7 @@ BOOLEAN TRA_precommited(thread_db* tdbb, SLONG old_number, SLONG new_number)
 }
 
 
-void TRA_prepare(thread_db* tdbb, Transaction *transaction, USHORT length,
+void TRA_prepare(thread_db* tdbb, Transaction* transaction, USHORT length,
 	const UCHAR* msg)
 {
 /**************************************
@@ -1008,7 +1008,7 @@ void TRA_prepare(thread_db* tdbb, Transaction *transaction, USHORT length,
 }
 
 
-jrd_tra* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
+Transaction* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
 {
 /**************************************
  *
@@ -1030,7 +1030,7 @@ jrd_tra* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
 
 
 	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	jrd_tra* trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) jrd_tra();
+	Transaction* trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction();
 	trans->tra_pool = tdbb->tdbb_default;
 	trans->tra_number = gds__vax_integer(id, length);
 	trans->tra_flags |= TRA_prepared | TRA_reconnected | TRA_write;
@@ -1073,7 +1073,7 @@ jrd_tra* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
 }
 
 
-void TRA_release_transaction(thread_db* tdbb, Transaction *transaction)
+void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 {
 /**************************************
  *
@@ -1151,7 +1151,7 @@ void TRA_release_transaction(thread_db* tdbb, Transaction *transaction)
 }
 
 
-void TRA_rollback(thread_db* tdbb, Transaction *transaction, const bool retaining_flag)
+void TRA_rollback(thread_db* tdbb, Transaction* transaction, const bool retaining_flag)
 {
 /**************************************
  *
@@ -1178,7 +1178,7 @@ void TRA_rollback(thread_db* tdbb, Transaction *transaction, const bool retainin
 
 	BOOLEAN tran_sav = FALSE;
 
-	for (SAV temp = transaction->tra_save_point; temp; temp=temp->sav_next)
+	for (Savepoint* temp = transaction->tra_save_point; temp; temp=temp->sav_next)
 		if (temp->sav_flags & SAV_trans_level) 
 			{
 			tran_sav = TRUE;
@@ -1191,7 +1191,7 @@ void TRA_rollback(thread_db* tdbb, Transaction *transaction, const bool retainin
 	SLONG count = SAV_LARGE;
 	
 	if (tran_sav) 
-		for (SAV temp = transaction->tra_save_point; temp; temp=temp->sav_next) 
+		for (Savepoint* temp = transaction->tra_save_point; temp; temp=temp->sav_next) 
 			{
 		    count = VIO_savepoint_large(temp, count);
 			if (count < 0)
@@ -1215,7 +1215,7 @@ void TRA_rollback(thread_db* tdbb, Transaction *transaction, const bool retainin
 
 		while (transaction->tra_save_point && transaction->tra_save_point->sav_flags & SAV_user) 
 			{
-			SAV next=transaction->tra_save_point->sav_next;
+			Savepoint* next=transaction->tra_save_point->sav_next;
 			transaction->tra_save_point->sav_next = NULL;
 			VIO_verb_cleanup(tdbb, transaction);
 			transaction->tra_save_point = next;				
@@ -1295,7 +1295,7 @@ void TRA_rollback(thread_db* tdbb, Transaction *transaction, const bool retainin
 }
 
 
-void TRA_set_state(thread_db* tdbb, Transaction *transaction, SLONG number, SSHORT state)
+void TRA_set_state(thread_db* tdbb, Transaction* transaction, SLONG number, SSHORT state)
 {
 /**************************************
  *
@@ -1381,7 +1381,7 @@ void TRA_set_state(thread_db* tdbb, Transaction *transaction, SLONG number, SSHO
 }
 
 
-void TRA_shutdown_attachment(thread_db* tdbb, ATT attachment)
+void TRA_shutdown_attachment(thread_db* tdbb, Attachment* attachment)
 {
 /**************************************
  *
@@ -1420,7 +1420,7 @@ void TRA_shutdown_attachment(thread_db* tdbb, ATT attachment)
 }
 
 
-int TRA_snapshot_state(thread_db* tdbb, Transaction *trans, SLONG number)
+int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 {
 /**************************************
  *
@@ -1474,7 +1474,7 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction *trans, SLONG number)
 }
 
 
-jrd_tra* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
+Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 {
 /**************************************
  *
@@ -1495,7 +1495,7 @@ jrd_tra* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 	WIN window(-1);
 
 	if (dbb->dbb_ast_flags & DBB_shut_tran)
@@ -1508,7 +1508,7 @@ jrd_tra* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	   make up the real transaction block. */
 
 	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	Transaction *temp = FB_NEW_RPT(*tdbb->tdbb_default, 0) jrd_tra;
+	Transaction *temp = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction;
 	temp->tra_pool = tdbb->tdbb_default;
 	transaction_options(tdbb, temp, tpb, tpb_length);
 	LCK lock = TRA_transaction_lock(tdbb, reinterpret_cast < blk * >(temp));
@@ -1547,9 +1547,9 @@ jrd_tra* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	base = oldest & ~TRA_MASK;
 
 	if (temp->tra_flags & TRA_read_committed)
-		trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) jrd_tra;
+		trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction;
 	else 
-		trans = FB_NEW_RPT(*tdbb->tdbb_default, (number - base + TRA_MASK) / 4) jrd_tra;
+		trans = FB_NEW_RPT(*tdbb->tdbb_default, (number - base + TRA_MASK) / 4) Transaction;
 
 	trans->tra_pool = temp->tra_pool;
 	trans->tra_relation_locks = temp->tra_relation_locks;
@@ -1814,7 +1814,7 @@ int TRA_state(UCHAR * bit_vector, ULONG oldest, ULONG number)
 }
 
 
-int TRA_sweep(thread_db* tdbb, Transaction *trans)
+int TRA_sweep(thread_db* tdbb, Transaction* trans)
 {
 /**************************************
  *
@@ -1994,7 +1994,7 @@ LCK TRA_transaction_lock(thread_db* tdbb, BLK object)
 }
 
 
-int TRA_wait(thread_db* tdbb, Transaction *trans, SLONG number, USHORT wait)
+int TRA_wait(thread_db* tdbb, Transaction* trans, SLONG number, USHORT wait)
 {
 /**************************************
  *
@@ -2136,7 +2136,7 @@ static header_page* bump_transaction_id(thread_db* tdbb, WIN * window)
 #ifdef VMS
 static void compute_oldest_retaining(
 									 TDBB tdbb,
-									 Transaction *transaction, const bool write_flag)
+									 Transaction* transaction, const bool write_flag)
 {
 /**************************************
  *
@@ -2238,7 +2238,7 @@ static void compute_oldest_retaining(
 #endif
 
 #ifdef PC_ENGINE
-static void downgrade_lock(Transaction *transaction)
+static void downgrade_lock(Transaction* transaction)
 {
 /**************************************
  *
@@ -2292,7 +2292,7 @@ static void downgrade_lock(Transaction *transaction)
 }
 #endif
 
-static void expand_view_lock(thread_db* tdbb,Transaction *transaction, JRD_REL relation, SCHAR lock_type)
+static void expand_view_lock(thread_db* tdbb,Transaction* transaction, Relation* relation, SCHAR lock_type)
 {
 /**************************************
  *
@@ -2312,14 +2312,14 @@ static void expand_view_lock(thread_db* tdbb,Transaction *transaction, JRD_REL r
 
 	lock->lck_logical = lock_type;
 
-	VCX ctx = relation->rel_view_contexts;
+	ViewContext* ctx = relation->rel_view_contexts;
 	if (!ctx) {
 		return;
 	}
 
 	for (; ctx; ctx = ctx->vcx_next)
 	{
-		JRD_REL rel = MET_lookup_relation(tdbb,
+		Relation* rel = MET_lookup_relation(tdbb,
 								reinterpret_cast<const char*>(ctx->vcx_relation_name->str_data));
 		if (!rel)
 		{
@@ -2455,7 +2455,7 @@ static SSHORT limbo_transaction(thread_db* tdbb, SLONG id)
 }
 
 
-static void restart_requests(thread_db* tdbb, Transaction *trans)
+static void restart_requests(thread_db* tdbb, Transaction* trans)
 {
 /**************************************
  *
@@ -2499,7 +2499,7 @@ static void restart_requests(thread_db* tdbb, Transaction *trans)
 }
 
 
-static void retain_context(thread_db* tdbb, Transaction *transaction, const bool commit)
+static void retain_context(thread_db* tdbb, Transaction* transaction, const bool commit)
 {
 /**************************************
  *
@@ -2621,7 +2621,7 @@ static void retain_context(thread_db* tdbb, Transaction *transaction, const bool
 	
 	while (transaction->tra_save_point && transaction->tra_save_point->sav_flags & SAV_user) 
 		{
-		SAV next=transaction->tra_save_point->sav_next;
+		Savepoint* next=transaction->tra_save_point->sav_next;
 		transaction->tra_save_point->sav_next = NULL;
 		VIO_verb_cleanup(tdbb, transaction);
 		transaction->tra_save_point = next;				
@@ -2802,7 +2802,7 @@ static void transaction_options(thread_db* tdbb,
  *	Process transaction options.
  *
  **************************************/
-	JRD_REL relation;
+	Relation* relation;
 	LCK lock;
 	UCHAR *p;
 	TEXT name[32], text[128];
@@ -3045,7 +3045,7 @@ void Transaction::deleteBlob(blb* blob)
 
 Transaction::~Transaction(void)
 {
-	for (Relation *relation; relation = pendingRelations;)
+	for (Relation* relation; relation = pendingRelations;)
 		{
 		pendingRelations = relation->rel_next;
 		delete relation;

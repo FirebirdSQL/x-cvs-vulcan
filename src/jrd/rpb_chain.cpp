@@ -32,7 +32,7 @@
 #define ExecAssert(x) x
 #endif //DEBUG_GDS_ALLOC
 
-int traRpbList::PushRpb(struct rpb *value) 
+int traRpbList::PushRpb(struct record_param* value) 
 	{
 	if (value->rpb_relation->rel_view_rse || value->rpb_relation->rel_file) 
 		return -1;
@@ -63,7 +63,7 @@ int traRpbList::PushRpb(struct rpb *value)
 	return level;
 }
 
-bool traRpbList::PopRpb(struct rpb *value, int Level) 
+bool traRpbList::PopRpb(struct record_param* value, int Level) 
 	{
 	if (Level < 0) 
 		return false;

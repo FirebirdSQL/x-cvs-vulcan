@@ -55,8 +55,8 @@ void (*dmp_active) (void) = DMP_active,
 
 extern IB_FILE *dbg_file = stdout;
 
-static void btc_printer(SLONG, BDB, SCHAR *);
-static void btc_printer_errors(SLONG, BDB, SCHAR *);
+static void btc_printer(SLONG, bdb*, SCHAR *);
+static void btc_printer_errors(SLONG, bdb*, SCHAR *);
 static void complement_key(UCHAR *, int);
 static double decompress(SCHAR *);
 static void dmp_blob(blob_page*);
@@ -96,7 +96,7 @@ void DMP_active(void)
  **************************************/
 	DBB dbb;
 	BCB bcb;
-	BDB bdb;
+	bdb* bdb;
 	USHORT i;
 
 	dbb = GET_DBB;
@@ -109,7 +109,7 @@ void DMP_active(void)
 		{
 			if (*dbg_block != NULL)
 			{
-				reinterpret_cast<void (*)(BDB)>(*dbg_block)(bdb);
+				reinterpret_cast<void (*)(bdb*)>(*dbg_block)(bdb);
 			}
 			DMP_page(bdb->bdb_page, 0);
 		}
@@ -130,7 +130,7 @@ void DMP_btc(void)
  *
  **************************************/
 	DBB dbb;
-	BDB bdb;
+	bdb* bdb;
 	SLONG level;
 	SCHAR buffer[250];
 
@@ -161,7 +161,7 @@ void DMP_btc_errors(void)
  *
  **************************************/
 	DBB dbb;
-	BDB bdb;
+	bdb* bdb;
 	SLONG level;
 	SCHAR buffer[250];
 
@@ -187,7 +187,8 @@ void DMP_btc_ordered(void)
  *
  **************************************/
 	DBB dbb;
-	BDB bdb, next;
+	bdb* bdb;
+	bdb* next;
 	int i;
 	SLONG max_seen;
 
@@ -255,7 +256,7 @@ void DMP_dirty(void)
  **************************************/
 	DBB dbb;
 	BCB bcb;
-	BDB bdb;
+	bdb* bdb;
 	USHORT i;
 
 	dbb = GET_DBB;
@@ -268,7 +269,7 @@ void DMP_dirty(void)
 		{
 			if (*dbg_block != NULL)
 			{
-				reinterpret_cast<void (*)(BDB)>(*dbg_block)(bdb);
+				reinterpret_cast<void (*)(bdb*)>(*dbg_block)(bdb);
 			}
 			DMP_page(bdb->bdb_page, 0);
 		}
@@ -375,7 +376,7 @@ void DMP_page(SLONG number, USHORT page_size)
 }
 
 
-static void btc_printer(SLONG level, BDB bdb, SCHAR * buffer)
+static void btc_printer(SLONG level, bdb* bdb, SCHAR * buffer)
 {
 /**************************************
  *
@@ -412,7 +413,7 @@ static void btc_printer(SLONG level, BDB bdb, SCHAR * buffer)
 }
 
 
-static void btc_printer_errors(SLONG level, BDB bdb, SCHAR * buffer)
+static void btc_printer_errors(SLONG level, bdb* bdb, SCHAR * buffer)
 {
 /**************************************
  *
@@ -941,7 +942,7 @@ static void dmp_pip(page_inv_page* page, ULONG sequence)
  *
  **************************************/
 	DBB dbb;
-	PGC control;
+	PageControl* control;
 	int n;
 
 	dbb = GET_DBB;

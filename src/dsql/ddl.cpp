@@ -890,7 +890,7 @@ static bool is_array_or_blob(const dsql_nod* node)
 		case nod_udf:
 			{
 			//const dsql_udf* userFunc = (dsql_udf*) node->nod_arg[0];
-			Function* userFunc = (Function*) node->nod_arg[0];
+			UserFunction* userFunc = (UserFunction*) node->nod_arg[0];
 			dsc desc = userFunc->fun_rpt[userFunc->fun_return_arg].fun_desc;
 			return (desc.dsc_dtype == dtype_blob) || (desc.dsc_dtype == dtype_array);
 			}

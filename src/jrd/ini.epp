@@ -532,13 +532,13 @@ void INI_init(thread_db* tdbb)
 		//relation->rel_fields = fields = vec::newVector(*dbb->dbb_permanent, n);
 		//field = (JRD_FLD *) fields->vec_object;
 		relation->rel_fields.checkSize(n - 1, n);
-		FMT format = fmt::newFmt(*dbb->dbb_permanent, n);
+		Format* format = Format::newFmt(*dbb->dbb_permanent, n);
 		relation->rel_current_format = format;
 		//VEC formats = relation->rel_formats =  vec::newVector(*dbb->dbb_permanent, 1);
 		//(*formats)[0] = format;
 		relation->setFormat(format);
 		format->fmt_count = n;
-		fmt::fmt_desc_iterator desc = format->fmt_desc.begin();
+		Format::fmt_desc_iterator desc = format->fmt_desc.begin();
 		//vec::iterator itr = fields->begin();
 		int fieldId = 0;
 		
@@ -573,14 +573,14 @@ void INI_init2(thread_db* tdbb)
  *	the database when it was created.
  *
  **************************************/
-	Relation		*relation;
-	FMT				format;
-	int				n;
+	Relation* relation;
+	Format* format;
+	int	n;
 	//const UCHAR*	relfld;
 	const UCHAR*	fld;
-	fmt::fmt_desc_iterator			desc;
+	Format::fmt_desc_iterator desc;
 	//TDBB			tdbb;
-	USHORT			id;
+	USHORT id;
 	//VEC	vector;
 
 	DBB dbb = tdbb->tdbb_database;
@@ -595,7 +595,7 @@ void INI_init2(thread_db* tdbb)
 			{
 			// free the space allocated for RDB$ROLES
 			id = relfld[RFLD_R_ID];
-			relation = (JRD_REL)(*vector)[id];
+			relation = (Relation*)(*vector)[id];
 			delete relation->rel_current_format;
 			(*vector)[id] = NULL;
 			fld = relfld + RFLD_RPT;
@@ -681,12 +681,12 @@ void INI_init2(thread_db* tdbb)
 }
 
 
-const jrd_trg* INI_lookup_sys_trigger(JRD_REL				relation,
-							const jrd_trg*			trigger,
-							const UCHAR**	blr,
-							UCHAR*			trigger_type,
-							const SCHAR**	trigger_name,
-							USHORT*			trig_flags)
+const jrd_trg* INI_lookup_sys_trigger(Relation* relation,
+							const jrd_trg* trigger,
+							const UCHAR** blr,
+							UCHAR* trigger_type,
+							const SCHAR** trigger_name,
+							USHORT* trig_flags)
 {
 /**************************************
  *
@@ -897,8 +897,8 @@ static void add_index_set(thread_db* tdbb,
  *	ODS (major_version,minor_version).
  *
  **************************************/
-	JRD_REL		relation;
-	TEXT	string[32];
+	Relation* relation;
+	TEXT string[32];
 	const ini_idx_t::ini_idx_segment_t* segment;
 	index_desc idx;
 	index_desc::idx_repeat* tail;

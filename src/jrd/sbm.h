@@ -45,15 +45,15 @@
 
 // Sparse bit map
 
-class sbm : public pool_alloc<type_sbm>
+class SparseBitmap : public pool_alloc<type_sbm>
 {
     public:
-	sbm(MemoryPool& p, int len)
+	SparseBitmap(MemoryPool& p, int len)
 	:	sbm_segments(len, p, type_sbm)
 	{
 	}
 
-	sbm*			sbm_next;
+	SparseBitmap*	sbm_next;
 	JrdMemoryPool*	sbm_pool;
 	UCHAR			sbm_state;			// State of bitmap
 	UCHAR			sbm_type;			// Root or bucket
@@ -66,7 +66,7 @@ class sbm : public pool_alloc<type_sbm>
 
 	vector_type				sbm_segments;
 };
-typedef sbm* SBM;
+//typedef sbm* SBM;
 
 /* States */
 

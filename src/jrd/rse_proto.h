@@ -35,14 +35,14 @@ BOOLEAN RSE_find_record(thread_db*, class RecordSource*, USHORT, USHORT,
 #endif
 BOOLEAN RSE_get_record(thread_db*, class RecordSource*, enum rse_get_mode);
 #ifdef PC_ENGINE
-struct bkm *RSE_get_bookmark(thread_db*, class RecordSource*);
+struct Bookmark* RSE_get_bookmark(thread_db*, class RecordSource*);
 void RSE_mark_crack(thread_db*, class RecordSource*, USHORT);
 #endif
 void RSE_open(thread_db*, class RecordSource*);
 #ifdef PC_ENGINE
-BOOLEAN RSE_reset_position(thread_db*, class RecordSource*, struct rpb *);
-BOOLEAN RSE_set_bookmark(thread_db*, class RecordSource*, struct rpb *,
-								struct bkm *);
+BOOLEAN RSE_reset_position(thread_db*, class RecordSource*, struct record_param* );
+BOOLEAN RSE_set_bookmark(thread_db*, class RecordSource*, struct record_param* ,
+								struct Bookmark*);
 #endif
 
 #ifdef PC_ENGINE

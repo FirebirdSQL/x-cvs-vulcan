@@ -74,7 +74,7 @@ BOOLEAN SHUT_blocking_ast(thread_db* tdbb, DBB dbb)
  **************************************/
 	SDATA data;
 	SSHORT flag, delay;
-	ATT attachment;
+	Attachment* attachment;
 
 	data.data_long = LCK_read_data(dbb->dbb_lock);
 	flag = data.data_items.flag;
@@ -121,7 +121,7 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
  *
  **************************************/
 	thread_db* tdbb;
-	ATT attachment;
+	Attachment* attachment;
 	header_page* header;
 	SSHORT timeout, exclusive;
 
@@ -302,7 +302,8 @@ static BOOLEAN shutdown_locks(thread_db* tdbb, DBB dbb)
  *	locks if database is quiet.
  *
  **************************************/
-	ATT attachment, shut_attachment;
+	Attachment* attachment;
+	Attachment* shut_attachment;
 
 /* Mark database and all active attachments as shutdown. */
 

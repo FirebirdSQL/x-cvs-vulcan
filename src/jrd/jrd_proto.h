@@ -151,13 +151,13 @@ void jrd_vtof(const char*, char*, SSHORT);
 #endif /* SERVER_SHUTDOWN */
 
 //void	JRD_set_cache_default(ULONG *);
-void	JRD_blocked(Attachment *, struct btb **);
+void	JRD_blocked(Attachment *, struct BlockingThread**);
 //void	JRD_mutex_lock(struct mutx_t *);
 //void	JRD_mutex_unlock(struct mutx_t *);
 BOOLEAN	JRD_reschedule(struct thread_db*, SLONG, bool);
 void	JRD_restore_context(void);
 void	JRD_set_context(struct thread_db*);
-void	JRD_unblock(struct btb **);
+void	JRD_unblock(struct BlockingThread**);
 //void	JRD_wlck_lock(struct mutx_t *);
 //void	JRD_wlck_unlock(struct mutx_t *);
 

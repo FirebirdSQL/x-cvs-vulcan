@@ -77,7 +77,7 @@ public:
 	Relation* rsb_relation;				// relation, if appropriate
 	struct str*	rsb_alias;				// SQL alias for relation
 	Procedure* rsb_procedure;			// procedure, if appropriate
-	struct fmt* rsb_format;				// format, if appropriate
+	struct Format* rsb_format;			// format, if appropriate
 	struct jrd_nod* rsb_any_boolean;	// any/all boolean
 	RecordSource* rsb_arg[1];
 };
@@ -123,7 +123,7 @@ const int RSB_LEFT_count			= 7;
 
 struct merge_file 
 {
-	struct sfb *mfb_sfb;				// merge file uses SORT I/O routines
+	class sort_work_file* mfb_sfb;				// merge file uses SORT I/O routines
 	ULONG mfb_equal_records;			// equality group cardinality
 	ULONG mfb_record_size;				// matches sort map length
 	ULONG mfb_current_block;			// current merge block in buffer
@@ -164,7 +164,7 @@ struct irsb_index {
 	ULONG irsb_flags;
 	SLONG irsb_number;
 	SLONG irsb_prefetch_number;
-	class sbm **irsb_bitmap;
+	class SparseBitmap** irsb_bitmap;
 };
 
 typedef irsb_index *IRSB_INDEX;
@@ -178,8 +178,8 @@ typedef irsb_sort *IRSB_SORT;
 
 struct irsb_procedure {
 	ULONG irsb_flags;
-	Request *irsb_req_handle;
-	struct str *irsb_message;
+	Request* irsb_req_handle;
+	struct str* irsb_message;
 };
 
 typedef irsb_procedure *IRSB_PROCEDURE;
@@ -203,8 +203,8 @@ struct irsb_sim {
 	ULONG irsb_flags;
 	USHORT irsb_sim_rid;				// next relation id
 	USHORT irsb_sim_fid;				// next field id
-	Request *irsb_sim_req1;		// request handle #1
-	Request *irsb_sim_req2;		// request handle #2
+	Request* irsb_sim_req1;		// request handle #1
+	Request* irsb_sim_req2;		// request handle #2
 };
 
 typedef irsb_sim *IRSB_SIM;
@@ -225,8 +225,8 @@ struct irsb_nav {
 	SLONG irsb_nav_page;					// index page number
 	SLONG irsb_nav_incarnation;				// buffer/page incarnation counter
 	ULONG irsb_nav_count;					// record count of last record returned
-	struct sbm **irsb_nav_bitmap;			// bitmap for inversion tree
-	struct sbm *irsb_nav_records_visited;	// bitmap of records already retrieved
+	class SparseBitmap** irsb_nav_bitmap;			// bitmap for inversion tree
+	class SparseBitmap* irsb_nav_records_visited;	// bitmap of records already retrieved
 	USHORT irsb_nav_offset;					// page offset of current index node
 	USHORT irsb_nav_lower_length;			// length of lower key value
 	USHORT irsb_nav_upper_length;			// length of upper key value
@@ -266,18 +266,17 @@ struct smb_repeat {
 	struct jrd_nod *smb_node;	// expression node
 };
 
-class smb : public pool_alloc_rpt<smb_repeat, type_smb>
+class SortMap : public pool_alloc_rpt<smb_repeat, type_smb>
 {
 public:
 	USHORT smb_keys;			// number of keys
 	USHORT smb_count;			// total number of fields
 	USHORT smb_length;			// sort record length
 	USHORT smb_key_length;		// key length in longwords
-	struct skd *smb_key_desc;	// address of key descriptors
+	struct sort_key_def* smb_key_desc;	// address of key descriptors
 	USHORT smb_flags;			// misc sort flags
     smb_repeat smb_rpt[1];
 };
-typedef smb *SMB;
 
 // values for smb_field_id
 
@@ -294,14 +293,14 @@ const USHORT SMB_tag = 2;		// beast is a tag sort
 // indexed relationships block (IRL) holds 
 // information about potential join orders
 
-class irl : public pool_alloc<type_irl>
+class IndexedRelationship : public pool_alloc<type_irl>
 {
 public:
-	struct irl *irl_next;		// next irl block for stream
-	USHORT irl_stream;			// stream reachable by relation
-	USHORT irl_unique;			// is this stream reachable by unique index?
+	class IndexedRelationship* irl_next;	// next irl block for stream
+	USHORT irl_stream;						// stream reachable by relation
+	USHORT irl_unique;						// is this stream reachable by unique index?
 };
-typedef irl *IRL;
+
 
 
 // Must be less then MAX_SSHORT. Not used for static arrays.
@@ -327,7 +326,7 @@ typedef irl *IRL;
 
 // General optimizer block
 
-class Opt : public pool_alloc<type_opt>
+class OptimizerBlk : public pool_alloc<type_opt>
 {
 public:
 	class CompilerScratch* opt_csb;						// compiler scratch block
@@ -355,17 +354,16 @@ public:
 	};
 	struct opt_stream {
 		// Streams and their options
-		IRL opt_relationships;				// streams directly reachable by index
-		double opt_best_stream_cost;		// best cost of retrieving first n = streams
-		USHORT opt_best_stream;				// stream in best join order seen so far
-		USHORT opt_stream_number;			// stream in position of join order
+		IndexedRelationship* opt_relationships;	// streams directly reachable by index
+		double opt_best_stream_cost;			// best cost of retrieving first n = streams
+		USHORT opt_best_stream;					// stream in best join order seen so far
+		USHORT opt_stream_number;				// stream in position of join order
 		UCHAR opt_stream_flags;
 	};
 	firebird::HalfStaticArray<opt_conjunct, OPT_STATIC_ITEMS> opt_conjuncts;
 	firebird::HalfStaticArray<opt_stream, OPT_STATIC_ITEMS> opt_streams;
-	Opt(JrdMemoryPool* pool) : opt_conjuncts(pool), opt_streams(pool) {}
+	OptimizerBlk(JrdMemoryPool* pool) : opt_conjuncts(pool), opt_streams(pool) {}
 };
-typedef Opt* OPT;
 
 // values for opt_stream_flags
 
@@ -382,8 +380,9 @@ const USHORT opt_g_stream = 1;				// indicate that this is a blr_stream
 
 
 // River block - used to hold temporary information about a group of streams
+// CVC: River is a "secret" of opt.cpp, maybe a new opt.h would be adequate.
 
-class riv : public pool_alloc_rpt<SCHAR, type_riv>
+class River : public pool_alloc_rpt<SCHAR, type_riv>
 {
 public:
 	struct RecordSource *riv_rsb;		// record source block for river
@@ -391,17 +390,17 @@ public:
 	UCHAR riv_count;			// count of streams
 	UCHAR riv_streams[1];		// actual streams
 };
-typedef riv *RIV;
 
 
 // bookmark block, used to hold information about the current position 
 // within an index; a pointer to this block is passed to the user as a
 // handle to facilitate returning to this position
 
-class bkm : public pool_alloc_rpt<SCHAR, type_bkm>
+// AB: AFAIK This is only used by PC_ENGINE define?
+class Bookmark : public pool_alloc_rpt<SCHAR, type_bkm>
 {
 public:
-	struct bkm *bkm_next;
+	class Bookmark* bkm_next;
 	struct dsc bkm_desc;		// bookmark descriptor describing the bookmark handle
 	ULONG bkm_handle;			// bookmark handle containing pointer to this block
 	SLONG bkm_number;			// current record number
@@ -413,7 +412,6 @@ public:
 	struct dsc bkm_key_desc;	// descriptor containing current key value
 	UCHAR bkm_key_data[1];		// current key value
 };
-typedef bkm *BKM;
 
 const USHORT bkm_bof = 1;
 const USHORT bkm_eof = 2;
@@ -422,13 +420,15 @@ const USHORT bkm_forced_crack = 8;
 
 // types for navigating through a stream
 
-typedef enum rse_get_mode {
+enum rse_get_mode {
 	RSE_get_forward,
 	RSE_get_backward,
 	RSE_get_current,
 	RSE_get_first,
 	RSE_get_last,
 	RSE_get_next
-} RSE_GET_MODE;
+};
+
+typedef rse_get_mode RSE_GET_MODE;
 
 #endif // JRD_RSE_H

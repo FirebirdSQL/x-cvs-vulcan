@@ -225,9 +225,9 @@ dsc* EVL_assign_to(thread_db* tdbb, JRD_NOD node)
  *
  **************************************/
 	dsc* desc;
-	FMT format;
+	Format* format;
 	JRD_NOD message;
-	REC record;
+	Record* record;
 
 	//SET_TDBB(tdbb);
 	//DEV_BLKCHK(node, type_nod);
@@ -245,7 +245,7 @@ dsc* EVL_assign_to(thread_db* tdbb, JRD_NOD node)
 		{
 		case nod_argument:
 			message = node->nod_arg[e_arg_message];
-			format = (FMT) message->nod_arg[e_msg_format];
+			format = (Format*) message->nod_arg[e_msg_format];
 			arg_number = (int) (IPTR)node->nod_arg[e_arg_number];
 			desc = &format->fmt_desc[arg_number];
 			impure->vlu_desc.dsc_address =
@@ -331,7 +331,7 @@ dsc* EVL_assign_to(thread_db* tdbb, JRD_NOD node)
 }
 
 
-SBM* EVL_bitmap(thread_db* tdbb, JRD_NOD node)
+SparseBitmap** EVL_bitmap(thread_db* tdbb, JRD_NOD node)
 {
 /**************************************
  *
@@ -822,7 +822,7 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 				}
 				
 			const jrd_nod* message = node->nod_arg[e_arg_message];
-			const fmt* format = (FMT) message->nod_arg[e_msg_format];
+			const Format* format = (Format*) message->nod_arg[e_msg_format];
 			desc = &format->fmt_desc[(int)(long) node->nod_arg[e_arg_number]];
 
 			impure->vlu_desc.dsc_address = IMPURE (request, message->nod_impure) + (long) desc->dsc_address;
@@ -844,7 +844,7 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 
 		case nod_field:
 			{
-			rec* record = request->req_rpb[(int) (IPTR)node->nod_arg[e_fld_stream]].rpb_record;
+			Record* record = request->req_rpb[(int) (IPTR)node->nod_arg[e_fld_stream]].rpb_record;
 			
 			/* In order to "map a null to a default" value (in EVL_field()), 
 			* the relation block is referenced. 
@@ -861,7 +861,7 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 			}
 
 		case nod_function:
-			FUN_evaluate(tdbb, reinterpret_cast<fun*>(node->nod_arg[e_fun_function]),
+			FUN_evaluate(tdbb, reinterpret_cast<UserFunction*>(node->nod_arg[e_fun_function]),
 						node->nod_arg[e_fun_args], impure);
 			/*request->req_flags |= req_null; THIS IS A TEST ONLY.
 			return NULL;*/
@@ -1228,7 +1228,7 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 }
 
 
-bool EVL_field(JRD_REL relation, REC record, USHORT id, dsc* desc)
+bool EVL_field(Relation* relation, Record* record, USHORT id, dsc* desc)
 {
 /**************************************
  *
@@ -1249,7 +1249,7 @@ bool EVL_field(JRD_REL relation, REC record, USHORT id, dsc* desc)
 		return false;
 		}
 
-	fmt* format = record->rec_format;
+	Format* format = record->rec_format;
 
 	if (format) 
 		*desc = format->fmt_desc[id];
@@ -1711,7 +1711,7 @@ USHORT EVL_group(thread_db* tdbb, RecordSource* rsb, JRD_NOD node, USHORT state)
 		delete vtemp.vlu_string;
 		
 	dsc temp;
-	rec* record;
+	Record* record;
 	USHORT id;
 	double d;
 	SINT64 i;
@@ -3144,7 +3144,7 @@ static dsc* cast(thread_db* tdbb, const dsc* value, const jrd_nod* node, impure_
 
 	/* value is present; make the conversion */
 
-	const fmt* format = (FMT) node->nod_arg[e_cast_fmt];
+	const Format* format = (Format*) node->nod_arg[e_cast_fmt];
 	impure->vlu_desc = format->fmt_desc[0];
 	impure->vlu_desc.dsc_address = (UCHAR *) & impure->vlu_misc;
 	
@@ -3388,8 +3388,8 @@ static dsc* dbkey(thread_db* tdbb, const jrd_nod* node, impure_value* impure)
 
 	jrd_req* request = tdbb->tdbb_request;
 	impure = (impure_value*) IMPURE (request, node->nod_impure);
-	const RPB* rpb = &request->req_rpb[(int) (IPTR) node->nod_arg[0]];
-	const jrd_rel* relation = rpb->rpb_relation;
+	const record_param* rpb = &request->req_rpb[(int) (IPTR) node->nod_arg[0]];
+	const Relation* relation = rpb->rpb_relation;
 
 /* Format dbkey as vector of relation id, record number */
 
@@ -3766,7 +3766,7 @@ static void init_agg_distinct(thread_db* tdbb, const jrd_nod* node)
 
 	const AggregateSort* agSortBlk = (AggregateSort*) node->nod_arg[1];
 	impure_agg_sort* asb_impure = (impure_agg_sort*) IMPURE (request, agSortBlk->nod_impure);
-	const skd* sort_key = agSortBlk->asb_key_desc;
+	const sort_key_def* sort_key = agSortBlk->asb_key_desc;
 
 	sort_context* handle =
 		SORT_init(tdbb,
@@ -3797,7 +3797,7 @@ static dsc* lock_record(thread_db* tdbb, JRD_NOD node, impure_value* impure)
 	dsc* desc;
 	USHORT lock_level;
 	RecordSource* rsb;
-	RPB *rpb;
+	record_param* rpb;
 	LCK lock = NULL;
 
 	SET_TDBB(tdbb);
@@ -3835,7 +3835,7 @@ static dsc* lock_record(thread_db* tdbb, JRD_NOD node, impure_value* impure)
 	impure->vlu_misc.vlu_long = (ULONG) lock;
 #else
 	{
-		ATT att;
+		Attachment* att;
 		ULONG slot;
 
 		/* The lock pointer can't be stored in a ULONG.  Therefore we must
@@ -3897,7 +3897,7 @@ static dsc* lock_relation(thread_db* tdbb, JRD_NOD node, impure_value* impure)
 /* perform the actual lock (or unlock) */
 
 	relation_node = node->nod_arg[e_lockrel_relation];
-	relation = (JRD_REL) relation_node->nod_arg[e_rel_relation];
+	relation = (Relation*) relation_node->nod_arg[e_rel_relation];
 	if (!lock_level)
 		RLCK_unlock_relation(0, relation);
 	else
@@ -4417,7 +4417,7 @@ static dsc* record_version(thread_db* tdbb, const jrd_nod* node, impure_value* i
 
 	jrd_req* request = tdbb->tdbb_request;
 	impure = (impure_value*) IMPURE (request, node->nod_impure);
-	RPB* rpb = &request->req_rpb[(int) (IPTR) node->nod_arg[0]];
+	record_param* rpb = &request->req_rpb[(int) (IPTR) node->nod_arg[0]];
 
 /* If the current transaction has updated the record, the record version
  * coming in from DSQL will have the original transaction # (or current
@@ -4832,7 +4832,7 @@ static dsc* substring(
 	{
 		/* Source string is a blob, things get interesting. */
 
-		BLB blob = BLB_open(tdbb, tdbb->tdbb_request->req_transaction,
+		blb* blob = BLB_open(tdbb, tdbb->tdbb_request->req_transaction,
 							reinterpret_cast<BID>(value->dsc_address));
 		if (!blob->blb_length || blob->blb_length <= offset)
 		{

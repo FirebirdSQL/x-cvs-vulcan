@@ -73,7 +73,7 @@ typedef IPTR SORT_PTR;
    the back pointer is not written to the disk, this is how the records
    look in the run files. */
 
-typedef struct sort_record
+struct sort_record
 {
 	ULONG sort_record_key[1];
 	/* Sorting key.  Mangled by diddle_key to
@@ -101,9 +101,9 @@ typedef struct sort_record
                                                  sizeof(sr_bckptr)
 */
 
-} SORT_RECORD;
+};
 
-#define MAX_SORT_RECORD		65535	/* bytes */
+const ULONG MAX_SORT_RECORD		= 65535;	/* bytes */
 
 /* the record struct actually contains the keyids etc, and the back_pointer
    which points to the SORT_RECORD structure. */
@@ -132,123 +132,120 @@ until we are out of records to sort or memory.
 
 /* Sort key definition block */
 
-typedef struct skd
+struct sort_key_def
 {
 	UCHAR	skd_dtype;			/* Data type */
 	UCHAR	skd_flags;			/* Flags */
 	USHORT	skd_length;			/* Length if string */
 	USHORT	skd_offset;			/* Offset from beginning */
 	USHORT	skd_vary_offset;	/* Offset to varying/cstring length */
-} SKD;
+};
 
 /* skd_dtype */
 
-#define SKD_long		1
-#define SKD_ulong		2
-#define SKD_short		3
-#define SKD_ushort		4
-#define SKD_text		5
-#define SKD_float		6
-#define SKD_double		7
-#define SKD_quad		8
-#define SKD_timestamp1	9		/* Timestamp as Float */
-#define SKD_bytes		10
-#define SKD_d_float		11
-#define SKD_varying		12		/* non-international */
-#define SKD_cstring		13		/* non-international */
+const int SKD_long			= 1;
+const int SKD_ulong			= 2;
+const int SKD_short			= 3;
+const int SKD_ushort		= 4;
+const int SKD_text			= 5;
+const int SKD_float			= 6;
+const int SKD_double		= 7;
+const int SKD_quad			= 8;
+const int SKD_timestamp1	= 9;		/* Timestamp as Float */
+const int SKD_bytes			= 10;
+const int SKD_d_float		= 11;
+const int SKD_varying		= 12;		/* non-international */
+const int SKD_cstring		= 13;		/* non-international */
 
-#define SKD_sql_time	14
-#define SKD_sql_date	15
-#define SKD_timestamp2	16		/* Timestamp as Quad */
+const int SKD_sql_time		= 14;
+const int SKD_sql_date		= 15;
+const int SKD_timestamp2	= 16;		/* Timestamp as Quad */
 
-#define SKD_int64	17
+const int SKD_int64			= 17;
 
 /* Historical alias for pre V6 code */
-#define SKD_date	SKD_timestamp1
+const int SKD_date	= SKD_timestamp1;
 
 /* skd_flags */
 
-#define SKD_ascending	0		/* default initializer */
-#define SKD_descending	1
-#define SKD_insensitive	2
-#define SKD_binary		4
+const UCHAR SKD_ascending		= 0;	/* default initializer */
+const UCHAR SKD_descending	= 1;
+const UCHAR SKD_insensitive	= 2;
+const UCHAR SKD_binary		= 4;
 
-#define TYPE_RUN	0
-#define TYPE_MRG	1
+const int TYPE_RUN	= 0;
+const int TYPE_MRG	= 1;
 
 /* Run/merge common block header */
 
-typedef struct rmh
+struct run_merge_hdr
 {
-	SSHORT		rmh_type;			/* TYPE_RUN or TYPE_MRG */
-	struct mrg*	rmh_parent;
-} *RMH;
+	SSHORT	rmh_type;			/* TYPE_RUN or TYPE_MRG */
+	struct merge_control* rmh_parent;
+};
 
 /* Run control block */
 
-typedef struct run
+struct run_control
 {
-	struct rmh	run_header;
-	struct run*	run_next;			/* Next (actually last) run */
+	struct run_merge_hdr run_header;
+	struct run_control* run_next;	/* Next (actually last) run */
 	ULONG		run_records;		/* Records (remaining) in run */
 #ifdef SCROLLABLE_CURSORS
 	ULONG		run_max_records;	/* total number of records in run */
 #endif
 	USHORT		run_depth;			/* Number of "elementary" runs */
-	struct sfb*	run_sfb;			/* Run sort file block */
+	class sort_work_file* run_sfb;	/* Run sort file block */
 	ULONG		run_seek;			/* Offset in file of run */
 	ULONG		run_size;			/* Length of run in work file */
 #ifdef SCROLLABLE_CURSORS
 	ULONG		run_cached;			/* amount of cached data from run file */
 #endif
-	SORT_RECORD*run_record;			/* Next record in run */
+	sort_record*run_record;			/* Next record in run */
 	SORTP*		run_buffer;			/* Run buffer */
 	SORTP*		run_end_buffer;		/* End of buffer */
 	ULONG		run_buff_alloc;		/* ALlocated buffer flag */
-} *RUN;
+};
 
 /* Merge control block */
 
-typedef struct mrg
+struct merge_control
 {
-	struct rmh		mrg_header;
-	SORT_RECORD*	mrg_record_a;
-	struct rmh*		mrg_stream_a;
-	SORT_RECORD*	mrg_record_b;
-	struct rmh*		mrg_stream_b;
-} *MRG;
+	struct run_merge_hdr	mrg_header;
+	sort_record*			mrg_record_a;
+	struct run_merge_hdr*	mrg_stream_a;
+	sort_record*			mrg_record_b;
+	struct run_merge_hdr*	mrg_stream_b;
+};
 
 /* Work file space control block */
 
-typedef struct wfs
+struct work_file_space
 {
-	struct wfs*	wfs_next;
-	ULONG		wfs_position;			/* Starting position of free space */
-	ULONG		wfs_size;				/* Length of free space */
-} *WFS;
+	struct work_file_space*	wfs_next;
+	ULONG	wfs_position;			/* Starting position of free space */
+	ULONG	wfs_size;				/* Length of free space */
+};
 
 /* Sort work file control block */
 
-class sfb
+class sort_work_file
 {
 public:
-	sfb (Database *database);
-	ConfObject	*configuration;
-	struct sfb *sfb_next;
+	sort_work_file(Database *database);
+	ConfObject* configuration;
+	class sort_work_file* sfb_next;
 	int sfb_file;				/* File descriptor */
 	TEXT *sfb_file_name;		/* ALLOC: File name for deletion */
 	ULONG sfb_file_size;		/* Real size of the work file */
-	struct wfs *sfb_file_space;	/* ALLOC: Available space in work file */
-	struct wfs *sfb_free_wfs;	/* ALLOC: Free space in work file */
+	struct work_file_space* sfb_file_space;	/* ALLOC: Available space in work file */
+	struct work_file_space* sfb_free_wfs;	/* ALLOC: Free space in work file */
 	DLS sfb_dls;				/* Place where file is created */
 	SortMem* sfb_mem;
 };
 
-typedef sfb *SFB;
-
 /* Sort Context Block */
-
-struct tdbb;
+// Context or Control???
 
 // Used by SORT_init
 typedef bool (*FPTR_REJECT_DUP_CALLBACK)(const UCHAR*, const UCHAR*, void*);
@@ -260,8 +257,8 @@ struct sort_context
 	SORTP *scb_end_memory;		/* End of memory */
 	ULONG scb_size_memory;		/* Bytes allocated */
 	SR *scb_last_record;		/* Address of last record */
-	SORT_RECORD **scb_first_pointer;	/* Memory for sort */
-	SORT_RECORD **scb_next_pointer;	/* Address for next pointer */
+	sort_record **scb_first_pointer;	/* Memory for sort */
+	sort_record **scb_next_pointer;	/* Address for next pointer */
 #ifdef SCROLLABLE_CURSORS
 	SORTP **scb_last_pointer;	/* Address for last pointer in block */
 #endif
@@ -271,21 +268,21 @@ struct sort_context
 	ULONG scb_key_length;		/* Key length */
 	ULONG scb_records;			/* Number of records */
 	UINT64 scb_max_records;		/* Maximum number of records to store */
-	struct sfb *scb_sfb;		/* ALLOC: List of scratch files, if open */
-	struct run *scb_runs;		/* ALLOC: Run on scratch file, if any */
-	struct mrg *scb_merge;		/* Top level merge block */
-	struct run *scb_free_runs;	/* ALLOC: Currently unused run blocks */
+	class sort_work_file* scb_sfb;		/* ALLOC: List of scratch files, if open */
+	struct run_control* scb_runs;		/* ALLOC: Run on scratch file, if any */
+	struct merge_control* scb_merge;		/* Top level merge block */
+	struct run_control* scb_free_runs;	/* ALLOC: Currently unused run blocks */
 	SORTP* scb_merge_space;		/* ALLOC: memory space to do merging */
 	ULONG scb_flags;			/* see flag bits below */
 	//ISC_STATUS *scb_status_vector;	/* Status vector for errors */
-	tdbb	*scb_threadData;	/* thread data for caller */
+	struct thread_db* scb_threadData;	/* thread data for caller */
 	FPTR_REJECT_DUP_CALLBACK scb_dup_callback;	/* Duplicate handling callback */
 	void *scb_dup_callback_arg;	/* Duplicate handling callback arg */
 	struct dls *scb_dls;
-	struct mrg *scb_merge_pool;	/* ALLOC: pool of mrg blocks */
+	struct merge_control* scb_merge_pool;	/* ALLOC: pool of mrg blocks */
 	Attachment *scb_attachment;	/* back pointer to attachment */
 	struct irsb_sort *scb_impure;	/* back pointer to request's impure area */
-	SKD scb_description[1];
+	sort_key_def scb_description[1];
 };
 
 /* flags as set in scb_flags */
@@ -293,7 +290,7 @@ struct sort_context
 #define scb_initialized		1
 #define scb_sorted		2		/* stream has been sorted */
 
-#define SCB_LEN(n_k)	(sizeof (struct sort_context) + (SLONG)(n_k) * sizeof (SKD))
+#define SCB_LEN(n_k)	(sizeof (struct sort_context) + (SLONG)(n_k) * sizeof (sort_key_def))
 
 #endif // JRD_SORT_H
 

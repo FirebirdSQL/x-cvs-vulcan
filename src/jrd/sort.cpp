@@ -126,18 +126,18 @@ static ULONG high_key[] = {
 		ULONG_MAX, ULONG_MAX, ULONG_MAX, ULONG_MAX, ULONG_MAX, ULONG_MAX, ULONG_MAX, ULONG_MAX};
 
 #ifdef SCROLLABLE_CURSORS
-static SORT_RECORD *get_merge(MRG, sort_context*, RSE_GET_MODE);
+static sort_record* get_merge(merge_control*, sort_context*, RSE_GET_MODE);
 #else
 static void diddle_key(UCHAR *, sort_context*, bool);
-static SORT_RECORD *get_merge(MRG, sort_context*);
+static sort_record* get_merge(merge_control*, sort_context*);
 #endif
 
 static UCHAR* sort_alloc(sort_context*, ULONG);
 static void memoryError();
-static ULONG find_file_space(sort_context*, ULONG, SFB *);
-static void free_file_space(sort_context*, SFB, ULONG, ULONG);
+static ULONG find_file_space(sort_context*, ULONG, sort_work_file* *);
+static void free_file_space(sort_context*, sort_work_file*, ULONG, ULONG);
 static void init(sort_context*);
-static bool local_fini(sort_context*, ATT);
+static bool local_fini(sort_context*, Attachment*);
 static void merge_runs(sort_context*, USHORT);
 static void quick(SLONG, SORTP **, USHORT);
 static ULONG order(sort_context*);
@@ -150,7 +150,7 @@ static void validate(sort_context*);
 #endif
 
 #ifdef DEBUG_SORT_TRACE
-static void write_trace(UCHAR *, SFB, ULONG, BLOB_PTR *, ULONG);
+static void write_trace(UCHAR *, sort_work_file*, ULONG, BLOB_PTR *, ULONG);
 #include "../jrd/ib_stdio.h"
 IB_FILE *trace_file = NULL;
 #endif
@@ -187,8 +187,8 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
  *      direction - true for SORT_put() and false for SORT_get()
  *
  **************************************/
-	const skd* key = scb->scb_description;
-	for (const skd* const end = key + scb->scb_keys; key < end; key++)
+	const sort_key_def* key = scb->scb_description;
+	for (const sort_key_def* const end = key + scb->scb_keys; key < end; key++)
 	{
 		UCHAR* p = record + key->skd_offset;
 		USHORT n = key->skd_length;
@@ -312,8 +312,8 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 	double *dp;
 #endif
 
-	const skd* key = scb->scb_description;
-	for (const skd* const end = key + scb->scb_keys; key < end; key++)
+	const sort_key_def* key = scb->scb_description;
+	for (const sort_key_def* const end = key + scb->scb_keys; key < end; key++)
 	{
 		BLOB_PTR* p = (BLOB_PTR *) record + key->skd_offset;
 		USHORT* wp = (USHORT *) p;
@@ -510,7 +510,7 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 #endif
 
 
-void SORT_error(SFB sfb, const TEXT* string, ISC_STATUS operation, int errcode)
+void SORT_error(sort_work_file* sfb, const TEXT* string, ISC_STATUS operation, int errcode)
 {
 /**************************************
  *
@@ -541,7 +541,7 @@ void SORT_error(SFB sfb, const TEXT* string, ISC_STATUS operation, int errcode)
 }
 
 
-void SORT_fini(sort_context* scb, ATT att)
+void SORT_fini(sort_context* scb, Attachment* att)
 {
 /**************************************
  *
@@ -575,7 +575,7 @@ void SORT_get(thread_db* threadData,
  *      If the stream is exhausted, SORT_get puts NULL in <record_address>.
  *
  **************************************/
-	SORT_RECORD* record;
+	sort_record* record;
 
 	//scb->scb_status_vector = status_vector;
 
@@ -668,7 +668,7 @@ void SORT_get(thread_db* threadData, sort_context* scb, ULONG ** record_address)
  *      If the stream is exhausted, SORT_get puts NULL in <record_address>.
  *
  **************************************/
-	SORT_RECORD* record;
+	sort_record* record;
 
 	//scb->scb_status_vector = status_vector;
 
@@ -699,10 +699,10 @@ void SORT_get(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 sort_context* SORT_init(thread_db* threadData,
 			  USHORT record_length,
 			  USHORT keys,
-			  const skd* key_description,
+			  const sort_key_def* key_description,
 			  FPTR_REJECT_DUP_CALLBACK call_back,
 			  void* user_arg,
-			  ATT att,
+			  Attachment* att,
 			  UINT64 max_records)
 {
 /**************************************
@@ -756,8 +756,8 @@ sort_context* SORT_init(thread_db* threadData,
 
 	scb->scb_max_records = max_records;
 
-	skd* p = scb->scb_description;
-	const skd* q = key_description;
+	sort_key_def* p = scb->scb_description;
+	const sort_key_def* q = key_description;
 	do {
 		*p++ = *q++;
 	} while (--keys);
@@ -803,7 +803,7 @@ sort_context* SORT_init(thread_db* threadData,
 
 	scb->scb_end_memory =
 		(SORTP *) ((BLOB_PTR *) scb->scb_memory + scb->scb_size_memory);
-	scb->scb_first_pointer = (SORT_RECORD **) scb->scb_memory;
+	scb->scb_first_pointer = (sort_record**) scb->scb_memory;
 
 	// Set up to receive the first record
 
@@ -866,7 +866,7 @@ void SORT_put(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 	{
 		put_run(scb);
 		while (true) {
-			RUN run = scb->scb_runs;
+			run_control* run = scb->scb_runs;
 			const USHORT depth = run->run_depth;
 			if (depth == MAX_MERGE_LEVEL)
 				break;
@@ -903,7 +903,7 @@ void SORT_read_block(
 #else
 ULONG SORT_read_block(
 #endif
-						 SFB sfb,
+						 sort_work_file* sfb,
 						 ULONG seek, BLOB_PTR * address, ULONG length)
 {
 /**************************************
@@ -968,7 +968,7 @@ ULONG SORT_read_block(
 }
 
 
-void SORT_shutdown(ATT att)
+void SORT_shutdown(Attachment* att)
 {
 /**************************************
  *
@@ -1010,10 +1010,13 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
  *
  **************************************/
 	ULONG count, run_count, size, temp;
-	RUN run;
-	RMH *m1, *m2, *streams, streams_local[200];
-	MRG merge;
-	MRG merge_pool;
+	run_control* run;
+	run_merge_hdr** m1;
+	run_merge_hdr** m2;
+	run_merge_hdr** streams;
+	run_merge_hdr* streams_local[200];
+	merge_control* merge;
+	merge_control* merge_pool;
 	SORTP *buffer;
 
 	//scb->scb_status_vector = status_vector;
@@ -1058,9 +1061,9 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 	}
 
 	try {
-		if ((run_count * sizeof(RMH)) > sizeof(streams_local))
+		if ((run_count * sizeof(run_merge_hdr*)) > sizeof(streams_local))
 			streams =
-				(RMH *) gds__alloc((SLONG) run_count * sizeof(RMH));
+				(run_merge_hdr* *) gds__alloc((SLONG) run_count * sizeof(run_merge_hdr*));
 			// FREE: streams is freed later in this routine
 		else
 			streams = streams_local;
@@ -1070,7 +1073,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 
 	m1 = streams;
 	for (run = scb->scb_runs; run; run = run->run_next)
-		*m1++ = (RMH) run;
+		*m1++ = (run_merge_hdr*) run;
 	count = run_count;
 
 	// We're building a b-tree of the sort merge blocks, we have (count)
@@ -1082,7 +1085,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 		try 
 			{
 			scb->scb_merge_pool =
-				(MRG) gds__alloc((SLONG) (count - 1)*sizeof(struct mrg));
+				(merge_control*) gds__alloc((SLONG) (count - 1)*sizeof(struct merge_control));
 			// FREE: smb_merge_pool freed in local_fini() when the scb is released
 			merge_pool = scb->scb_merge_pool;
 			} 
@@ -1091,12 +1094,12 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 			gds__free(streams);
 			memoryError();
 			}
-		memset(merge_pool, 0, (count - 1) * sizeof(struct mrg));
+		memset(merge_pool, 0, (count - 1) * sizeof(struct merge_control));
 		}
 	else {
 		// Merge of 1 or 0 runs doesn't make sense
 		fb_assert(false);				// We really shouldn't get here
-		merge = (MRG) * streams;	// But if we do...
+		merge = (merge_control*) * streams;	// But if we do...
 	}
 
 	// Each pass through the vector builds a level of the merge tree
@@ -1130,7 +1133,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 			merge->mrg_record_a = NULL;
 			merge->mrg_record_b = NULL;
 
-			*m2++ = (RMH) merge;
+			*m2++ = (run_merge_hdr*) merge;
 			count -= 2;
 		}
 
@@ -1202,7 +1205,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 }
 
 
-ULONG SORT_write_block(SFB sfb, ULONG seek, BLOB_PTR * address, ULONG length)
+ULONG SORT_write_block(sort_work_file* sfb, ULONG seek, BLOB_PTR * address, ULONG length)
 {
 /**************************************
  *
@@ -1468,7 +1471,7 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 	USHORT w;
 #endif
 
-	for (SKD* key = scb->scb_description, *end = key + scb->scb_keys;
+	for (sort_key_def* key = scb->scb_description, *end = key + scb->scb_keys;
 		 key < end; key++)
 	{
 		BLOB_PTR* p = (BLOB_PTR *) record + key->skd_offset;
@@ -1687,7 +1690,7 @@ static void memoryError()
 }
 
 
-static ULONG find_file_space(sort_context* scb, ULONG size, SFB * ret_sfb)
+static ULONG find_file_space(sort_context* scb, ULONG size, sort_work_file** ret_sfb)
 {
 /**************************************
  *
@@ -1701,15 +1704,18 @@ static ULONG find_file_space(sort_context* scb, ULONG size, SFB * ret_sfb)
  *      available, allocate space at the end.
  *
  **************************************/
-	WFS space, *ptr;
-	SFB sfb, *sfb_ptr, best_sfb;
+	work_file_space* space;
+	work_file_space** ptr;
+	sort_work_file* sfb;
+	sort_work_file** sfb_ptr;
+	sort_work_file* best_sfb;
 	TEXT file_name[128];
 
 	// Find the best available space. This is defined as the smallest free space
 	// that is big enough. This preserves large blocks.
 
-	WFS* best = NULL;
-	SFB last_sfb = NULL;
+	work_file_space** best = NULL;
+	sort_work_file* last_sfb = NULL;
 	file_name[0] = '\0';
 
 	// Search through the available space in the work file list
@@ -1745,7 +1751,7 @@ static ULONG find_file_space(sort_context* scb, ULONG size, SFB * ret_sfb)
 		if (!sfb || !DLS_get_temp_space(size, sfb) ||
 			(sfb->sfb_file_size + size >= MAX_TEMPFILE_SIZE)) {
 
-			sfb = (SFB) sort_alloc(scb, (ULONG) sizeof(struct sfb));
+			sfb = (sort_work_file*) sort_alloc(scb, (ULONG) sizeof(struct sort_work_file));
 			// FREE: scb_sfb chain is freed in local_fini()
 
 			// Is the last DLS at it's size limit? If so, add a new DLS dir
@@ -1819,7 +1825,7 @@ static ULONG find_file_space(sort_context* scb, ULONG size, SFB * ret_sfb)
 }
 
 
-static void free_file_space(sort_context* scb, SFB sfb, ULONG position, ULONG size)
+static void free_file_space(sort_context* scb, sort_work_file* sfb, ULONG position, ULONG size)
 {
 /**************************************
  *
@@ -1831,7 +1837,9 @@ static void free_file_space(sort_context* scb, SFB sfb, ULONG position, ULONG si
  *      Release a segment of work file.
  *
  **************************************/
-	WFS space, *ptr, next;
+	work_file_space* space;
+	work_file_space** ptr;
+	work_file_space* next;
 
 	fb_assert(size > 0);
 	fb_assert(position < sfb->sfb_file_size);	// Block starts in file
@@ -1880,7 +1888,7 @@ static void free_file_space(sort_context* scb, SFB sfb, ULONG position, ULONG si
 	if ( (space = sfb->sfb_free_wfs) )
 		sfb->sfb_free_wfs = space->wfs_next;
 	else
-		space = (WFS) sort_alloc(scb, (ULONG) sizeof(struct wfs));
+		space = (work_file_space*) sort_alloc(scb, (ULONG) sizeof(struct work_file_space));
 		// FREE: wfs_next chain is freed in local_fini()
 
 	space->wfs_next = *ptr;
@@ -1890,7 +1898,7 @@ static void free_file_space(sort_context* scb, SFB sfb, ULONG position, ULONG si
 }
 
 
-static SORT_RECORD *get_merge(MRG merge, sort_context* scb
+static sort_record* get_merge(merge_control* merge, sort_context* scb
 #ifdef SCROLLABLE_CURSORS
 							  , RSE_GET_MODE mode
 #endif
@@ -1915,14 +1923,14 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 	ULONG n;
 #endif
 
-	SORT_RECORD* record = NULL;
+	sort_record* record = NULL;
 	bool eof = false;
 
 	while (merge) {
 		// If node is a run, get the next record (or not) and back to parent
 
 		if (merge->mrg_header.rmh_type == TYPE_RUN) {
-			RUN run = (RUN) merge;
+			run_control* run = (run_control*) merge;
 			merge = run->run_header.rmh_parent;
 
 			// check for end-of-file condition in either direction
@@ -1936,7 +1944,7 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 			if (run->run_records == 0)
 #endif
 			{
-				record = (SORT_RECORD *) - 1;
+				record = (sort_record*) - 1;
 				eof = true;
 				continue;
 			}
@@ -1949,8 +1957,8 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 			if (mode == RSE_get_forward) {
 				run->run_record = NEXT_RUN_RECORD(run->run_record);
 #endif
-				if ((record = (SORT_RECORD *) run->run_record) <
-					(SORT_RECORD *) run->run_end_buffer) {
+				if ((record = (sort_record*) run->run_record) <
+					(sort_record*) run->run_end_buffer) {
 #ifndef SCROLLABLE_CURSORS
 					run->run_record =
 						reinterpret_cast<sort_record*>(NEXT_RUN_RECORD(run->run_record));
@@ -1975,7 +1983,7 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 			}
 			else {
 				run->run_record = PREV_RUN_RECORD(run->run_record);
-				if ((record = (SORT_RECORD *) run->run_record) >=
+				if ((record = (sort_record*) run->run_record) >=
 					run->run_buffer) {
 					++run->run_records;
 					continue;
@@ -2023,7 +2031,7 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 				++run->run_records;
 			}
 
-			run->run_record = (SORT_RECORD *) record;
+			run->run_record = (sort_record*) record;
 #endif
 			continue;
 		}
@@ -2050,13 +2058,13 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 		eof = false;
 
 		if (!merge->mrg_record_a && merge->mrg_stream_a) {
-			merge = (MRG) merge->mrg_stream_a;
+			merge = (merge_control*) merge->mrg_stream_a;
 			continue;
 		}
 
 		if (!merge->mrg_record_b)
 			if (merge->mrg_stream_b) {
-				merge = (MRG) merge->mrg_stream_b;
+				merge = (merge_control*) merge->mrg_stream_b;
 				continue;
 			}
 			else if ( (record = merge->mrg_record_a) ) {
@@ -2066,7 +2074,7 @@ static SORT_RECORD *get_merge(MRG merge, sort_context* scb
 			}
 			else {
 				eof = true;
-				record = (SORT_RECORD *) - 1;
+				record = (sort_record*) - 1;
 				merge = merge->mrg_header.rmh_parent;
 				continue;
 			}
@@ -2156,11 +2164,11 @@ static void init(sort_context* scb)
 	scb->scb_next_pointer = scb->scb_first_pointer;
 	scb->scb_last_record = (SR *) scb->scb_end_memory;
 
-	*scb->scb_next_pointer++ = reinterpret_cast<sort_record *>(low_key);
+	*scb->scb_next_pointer++ = reinterpret_cast<sort_record*>(low_key);
 }
 
 
-static bool local_fini(sort_context* scb, ATT att)
+static bool local_fini(sort_context* scb, Attachment* att)
 {
 /**************************************
  *
@@ -2172,9 +2180,9 @@ static bool local_fini(sort_context* scb, ATT att)
  *      Finish sort, and release all resources.
  *
  **************************************/
-	WFS space;
-	RUN run;
-	SFB sfb;
+	work_file_space* space;
+	run_control* run;
+	sort_work_file* sfb;
 	ULONG **merge_buf;
 	sort_context* *ptr;
 
@@ -2295,14 +2303,16 @@ static void merge_runs(sort_context* scb, USHORT n)
  *
  **************************************/
 	USHORT count, rec_size, buffers;
-	SORT_RECORD *p;
-	SORT_RECORD *q;
+	sort_record* p;
+	sort_record* q;
 	ULONG size, seek;
-	RUN run;
-	struct mrg blks[32];
-	struct run temp_run;
-	MRG merge;
-	RMH *m1, *m2, streams[32];
+	run_control* run;
+	struct merge_control blks[32];
+	struct run_control temp_run;
+	merge_control* merge;
+	run_merge_hdr** m1;
+	run_merge_hdr** m2;
+	run_merge_hdr* streams[32];
 	BLOB_PTR *buffer;
 
 	fb_assert((n - 1) <= FB_NELEM(blks));	// stack var big enough?
@@ -2324,7 +2334,7 @@ static void merge_runs(sort_context* scb, USHORT n)
 
 	for (run = scb->scb_runs, count = 0; count < n;
 		 run = run->run_next, count++) {
-		*m1++ = (RMH) run;
+		*m1++ = (run_merge_hdr*) run;
 
 		// size = 0 indicates the record is too big to divvy up the
 		// big sort buffer, so separate buffers must be allocated
@@ -2383,7 +2393,7 @@ static void merge_runs(sort_context* scb, USHORT n)
 
 			merge->mrg_record_a = NULL;
 			merge->mrg_record_b = NULL;
-			*m2++ = (RMH) merge;
+			*m2++ = (run_merge_hdr*) merge;
 			merge++;
 			count -= 2;
 		}
@@ -2408,7 +2418,7 @@ static void merge_runs(sort_context* scb, USHORT n)
 	while ( (p = get_merge(merge, scb)) )
 #endif
 	{
-		if (q >= (SORT_RECORD *) temp_run.run_end_buffer) {
+		if (q >= (sort_record*) temp_run.run_end_buffer) {
 			size = (BLOB_PTR *) q - (BLOB_PTR *) temp_run.run_buffer;
 			seek = temp_run.run_sfb->sfb_mem->write(seek,
 													reinterpret_cast<char*>(temp_run.run_buffer),
@@ -2647,9 +2657,9 @@ static ULONG order(sort_context* scb)
  *
  **************************************/
 	SR *record;
-	SORT_RECORD *output;
+	sort_record* output;
 	SORT_PTR *lower_limit;
-	SORT_RECORD **ptr;
+	sort_record** ptr;
 	SORTP* buffer = 0;
 	SSHORT length;
 	ULONG temp[1024];
@@ -2771,12 +2781,12 @@ static void put_run(sort_context* scb)
  *      were sorted.
  *
  **************************************/
-	RUN run;
+	run_control* run;
 
 	if ( (run = scb->scb_free_runs) )
 		scb->scb_free_runs = run->run_next;
 	else {
-		run = (RUN) sort_alloc(scb, (ULONG) sizeof(struct run));
+		run = (run_control*) sort_alloc(scb, (ULONG) sizeof(struct run_control));
 		// FREE: run will be either on the scb_runs or scb_free_runs list,
 		//       which are freed in local_fini()
 	}
@@ -2967,7 +2977,7 @@ static void validate(sort_context* scb)
 #ifdef DEBUG_SORT_TRACE
 static void write_trace(
 						UCHAR * operation,
-						SFB sfb, ULONG seek, BLOB_PTR * address, ULONG length)
+						sort_work_file* sfb, ULONG seek, BLOB_PTR * address, ULONG length)
 {
 /**************************************
  *

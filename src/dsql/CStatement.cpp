@@ -523,9 +523,9 @@ dsql_rel* CStatement::findViewRelation(const TEXT *viewName, const TEXT *relatio
 	return NULL;
 }
 
-Function* CStatement::findFunction(const TEXT *functionName)
+UserFunction* CStatement::findFunction(const TEXT *functionName)
 {
-	Function *function = FUN_lookup_function (threadData, functionName, false);
+	UserFunction* function = FUN_lookup_function (threadData, functionName, false);
 
 	return function;
 }

@@ -122,7 +122,7 @@ STR GRANT_realloc_acl(STR		start_ptr,
 }
 #endif
 
-int GRANT_privileges( thread_db* tdbb, SSHORT phase, DFW work)
+int GRANT_privileges( thread_db* tdbb, SSHORT phase, DeferredWork* work)
 {
 /**************************************
  *
@@ -874,7 +874,7 @@ static void save_security_class(thread_db* tdbb,
 	Request *request;
 	USHORT found;
 	ISC_QUAD blob_id;
-	BLB blob;
+	blb* blob;
 
 	SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;

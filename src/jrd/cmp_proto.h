@@ -35,7 +35,7 @@ class Relation;
 class Resource;
 class CompilerScratch;
 struct thread_db;
-class fmt;
+class Format;
 class IndexLock;
 
 struct csb_repeat;
@@ -49,7 +49,7 @@ void		CMP_expunge_transaction(Transaction*);
 void		CMP_decrement_prc_use_count(thread_db*, Procedure*);
 Request*	CMP_find_request(thread_db*, USHORT, USHORT);
 void		CMP_fini(thread_db*);
-fmt*		CMP_format(thread_db*, CompilerScratch*, USHORT);
+Format*		CMP_format(thread_db*, CompilerScratch*, USHORT);
 void		CMP_get_desc(thread_db*, CompilerScratch*, jrd_nod*, dsc*);
 IndexLock*	CMP_get_index_lock(thread_db* tdbb, Relation*, USHORT);
 SLONG		CMP_impure(CompilerScratch*, USHORT);

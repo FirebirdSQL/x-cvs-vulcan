@@ -80,18 +80,18 @@ typedef struct ifl {
 	USHORT ifl_key_length;
 } *IFL;
 
-static IDX_E check_duplicates(thread_db*, REC, index_desc *, index_insertion*, JRD_REL);
-static IDX_E check_foreign_key(thread_db*, REC, JRD_REL, JRD_TRA, index_desc *, JRD_REL *, USHORT *);
-static IDX_E check_partner_index(thread_db*, JRD_REL, REC, JRD_TRA, index_desc *, JRD_REL, SSHORT);
+static IDX_E check_duplicates(thread_db*, Record*, index_desc *, index_insertion*, Relation*);
+static IDX_E check_foreign_key(thread_db*, Record*, Relation*, Transaction*, index_desc *, Relation* *, USHORT *);
+static IDX_E check_partner_index(thread_db*, Relation*, Record*, Transaction*, index_desc *, Relation*, SSHORT);
 static bool duplicate_key(const UCHAR*, const UCHAR*, void*);
-static SLONG get_root_page(thread_db*, JRD_REL);
+static SLONG get_root_page(thread_db*, Relation*);
 static int index_block_flush(void *ast_object);
-static IDX_E insert_key(thread_db*, JRD_REL, REC, JRD_TRA, WIN *, index_insertion*, JRD_REL *, USHORT *);
+static IDX_E insert_key(thread_db*, Relation*, Record*, Transaction*, WIN *, index_insertion*, Relation* *, USHORT *);
 static bool key_equal(const temporary_key*, const temporary_key*);
-static void signal_index_deletion(thread_db*, JRD_REL, USHORT);
+static void signal_index_deletion(thread_db*, Relation*, USHORT);
 
 
-void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, JRD_REL view, JRD_REL relation, JRD_FLD field)
+void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, Relation* view, Relation* relation, JRD_FLD field)
 {
 /**************************************
  *
@@ -122,7 +122,7 @@ void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, JRD_REL view, JRD_R
 			if (!MET_lookup_partner(tdbb, relation, &idx, &NULL_STR)) 
 				continue;
 
-			jrd_rel* referenced_relation = dbb->getRelation(tdbb, idx.idx_primary_relation);
+			Relation* referenced_relation = dbb->getRelation(tdbb, idx.idx_primary_relation);
 			MET_scan_relation(tdbb, referenced_relation);
 			const USHORT index_id = (USHORT) idx.idx_primary_index;
 
@@ -160,11 +160,11 @@ void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, JRD_REL view, JRD_R
 
 
 void IDX_create_index(thread_db* tdbb,
-					  JRD_REL relation,
+					  Relation* relation,
 					  index_desc* idx,
 					  const TEXT* index_name,
 					  USHORT* index_id,
-					  JRD_TRA transaction,
+					  Transaction* transaction,
 					  SelectivityList& selectivity)
 {
 /**************************************
@@ -192,7 +192,8 @@ void IDX_create_index(thread_db* tdbb,
 	if (index_id)
 		*index_id = idx->idx_id;
 
-	RPB primary, secondary;
+	record_param primary;
+	record_param secondary;
 	secondary.rpb_relation = relation;
 	primary.rpb_relation   = relation;
 	primary.rpb_number = -1;
@@ -218,7 +219,7 @@ void IDX_create_index(thread_db* tdbb,
 
 	bool key_is_null = false;
 
-	skd key_desc;
+	sort_key_def key_desc;
 	key_desc.skd_dtype = SKD_bytes;
 	key_desc.skd_flags = SKD_ascending;
 	key_desc.skd_length = key_length;
@@ -236,7 +237,7 @@ void IDX_create_index(thread_db* tdbb,
 	if (!sort_handle)
 		ERR_punt();
 
-	jrd_rel* partner_relation = 0;
+	Relation* partner_relation = 0;
 	USHORT partner_index_id = 0;
 	
 	if (idx->idx_flags & idx_foreign) 
@@ -249,12 +250,12 @@ void IDX_create_index(thread_db* tdbb,
 
 	/* Checkout a garbage collect record block for fetching data. */
 
-	REC gc_record = VIO_gc_record(tdbb, relation);
+	Record* gc_record = VIO_gc_record(tdbb, relation);
 
 	/* Unless this is the only attachment or a database restore, worry about
 	   preserving the page working sets of other attachments. */
 	   
-	att* attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 	
 	if (attachment && attachment->isSoleAttachment())
 		if (attachment->att_flags & ATT_gbak_attachment ||
@@ -302,7 +303,7 @@ void IDX_create_index(thread_db* tdbb,
 
 		while (stack) 
 			{
-			rec* record = (REC) LLS_POP(&stack);
+			Record* record = (Record*) LLS_POP(&stack);
 
 			/* If foreign key index is being defined, make sure foreign
 			   key definition will not be violated */
@@ -341,7 +342,7 @@ void IDX_create_index(thread_db* tdbb,
 				do {
 					if (record != gc_record)
 						delete record;
-				} while (stack && (record = (REC) LLS_POP(&stack)));
+				} while (stack && (record = (Record*) LLS_POP(&stack)));
 				SORT_fini(sort_handle, tdbb->tdbb_attachment);
 				gc_record->rec_flags &= ~REC_gc_active;
 				if (primary.rpb_window.win_flags & WIN_large_scan)
@@ -354,7 +355,7 @@ void IDX_create_index(thread_db* tdbb,
 				do {
 					if (record != gc_record)
 						delete record;
-				} while (stack && (record = (REC) LLS_POP(&stack)));
+				} while (stack && (record = (Record*) LLS_POP(&stack)));
 				SORT_fini(sort_handle, tdbb->tdbb_attachment);
 				gc_record->rec_flags &= ~REC_gc_active;
 				if (primary.rpb_window.win_flags & WIN_large_scan)
@@ -372,7 +373,7 @@ void IDX_create_index(thread_db* tdbb,
 				do {
 					if (record != gc_record)
 						delete record;
-				} while (stack && (record = (REC) LLS_POP(&stack)));
+				} while (stack && (record = (Record*) LLS_POP(&stack)));
 				SORT_fini(sort_handle, tdbb->tdbb_attachment);
 				gc_record->rec_flags &= ~REC_gc_active;
 				if (primary.rpb_window.win_flags & WIN_large_scan)
@@ -431,7 +432,7 @@ void IDX_create_index(thread_db* tdbb,
 }
 
 
-IDB IDX_create_index_block(thread_db* tdbb, JRD_REL relation, USHORT id)
+IndexBlock* IDX_create_index_block(thread_db* tdbb, Relation* relation, USHORT id)
 {
 /**************************************
  *
@@ -450,7 +451,7 @@ IDB IDX_create_index_block(thread_db* tdbb, JRD_REL relation, USHORT id)
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-	IDB index_block = FB_NEW(*dbb->dbb_permanent) idb();
+	IndexBlock* index_block = FB_NEW(*dbb->dbb_permanent) IndexBlock();
 	index_block->idb_id = id;
 
 /* link the block in with the relation linked list */
@@ -476,7 +477,7 @@ IDB IDX_create_index_block(thread_db* tdbb, JRD_REL relation, USHORT id)
 }
 
 
-void IDX_delete_index(thread_db* tdbb, JRD_REL relation, USHORT id)
+void IDX_delete_index(thread_db* tdbb, Relation* relation, USHORT id)
 {
 /**************************************
  *
@@ -499,7 +500,7 @@ void IDX_delete_index(thread_db* tdbb, JRD_REL relation, USHORT id)
 }
 
 
-void IDX_delete_indices(thread_db* tdbb, JRD_REL relation)
+void IDX_delete_indices(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -529,8 +530,8 @@ void IDX_delete_indices(thread_db* tdbb, JRD_REL relation)
 
 
 IDX_E IDX_erase(thread_db* tdbb,
-				RPB * rpb,
-				JRD_TRA transaction, JRD_REL * bad_relation, USHORT * bad_index)
+				record_param* rpb,
+				Transaction* transaction, Relation* * bad_relation, USHORT * bad_index)
 {
 /**************************************
  *
@@ -567,7 +568,7 @@ IDX_E IDX_erase(thread_db* tdbb,
 }
 
 
-void IDX_garbage_collect(thread_db* tdbb, RPB * rpb, LLS going, LLS staying)
+void IDX_garbage_collect(thread_db* tdbb, record_param * rpb, LLS going, LLS staying)
 {
 /**************************************
  *
@@ -599,14 +600,14 @@ void IDX_garbage_collect(thread_db* tdbb, RPB * rpb, LLS going, LLS staying)
 	for (USHORT i = 0; i < root->irt_count; i++) {
 		if (BTR_description(dbb, rpb->rpb_relation, root, &idx, i)) {
 			for (lls* stack1 = going; stack1; stack1 = stack1->lls_next) {
-				REC rec1 = (REC) stack1->lls_object;
+				Record* rec1 = (Record*) stack1->lls_object;
 				BTR_key(tdbb, rpb->rpb_relation, rec1, &idx, &key1, 0);
 
 				/* Cancel index if there are duplicates in the remaining records */
 
 				lls* stack2;
 				for(stack2 = stack1->lls_next; stack2; stack2 = stack2->lls_next) {
-					REC rec2 = (REC) stack2->lls_object;
+					Record* rec2 = (Record*) stack2->lls_object;
 					if (rec2->rec_number == rec1->rec_number) {
 						BTR_key(tdbb, rpb->rpb_relation, rec2, &idx, &key2, 0);
 						if (key_equal(&key1, &key2))
@@ -619,7 +620,7 @@ void IDX_garbage_collect(thread_db* tdbb, RPB * rpb, LLS going, LLS staying)
 				/* Make sure the index doesn't exist in any record remaining */
 
 				for (stack2 = staying; stack2; stack2 = stack2->lls_next) {
-					REC rec2 = (REC) stack2->lls_object;
+					Record* rec2 = (Record*) stack2->lls_object;
 					BTR_key(tdbb, rpb->rpb_relation, rec2, &idx, &key2, 0);
 					if (key_equal(&key1, &key2))
 						break;
@@ -642,9 +643,9 @@ void IDX_garbage_collect(thread_db* tdbb, RPB * rpb, LLS going, LLS staying)
 
 
 IDX_E IDX_modify(thread_db* tdbb,
-				 RPB * org_rpb,
-				 RPB * new_rpb,
-				 JRD_TRA transaction, JRD_REL * bad_relation, USHORT * bad_index)
+				 record_param * org_rpb,
+				 record_param * new_rpb,
+				 Transaction* transaction, Relation* * bad_relation, USHORT * bad_index)
 {
 /**************************************
  *
@@ -698,10 +699,10 @@ IDX_E IDX_modify(thread_db* tdbb,
 
 
 IDX_E IDX_modify_check_constraints(thread_db* tdbb,
-								   RPB * org_rpb,
-								   RPB * new_rpb,
-								   JRD_TRA transaction,
-								   JRD_REL * bad_relation, USHORT * bad_index)
+								   record_param * org_rpb,
+								   record_param * new_rpb,
+								   Transaction* transaction,
+								   Relation* * bad_relation, USHORT * bad_index)
 {
 /**************************************
  *
@@ -773,7 +774,7 @@ IDX_E IDX_modify_check_constraints(thread_db* tdbb,
 }
 
 
-void IDX_statistics(thread_db* tdbb, JRD_REL relation, USHORT id, SelectivityList& selectivity)
+void IDX_statistics(thread_db* tdbb, Relation* relation, USHORT id, SelectivityList& selectivity)
 {
 /**************************************
  *
@@ -794,8 +795,8 @@ void IDX_statistics(thread_db* tdbb, JRD_REL relation, USHORT id, SelectivityLis
 
 
 IDX_E IDX_store(thread_db* tdbb,
-				RPB * rpb,
-				JRD_TRA transaction, JRD_REL * bad_relation, USHORT * bad_index)
+				record_param* rpb,
+				Transaction* transaction, Relation* * bad_relation, USHORT * bad_index)
 {
 /**************************************
  *
@@ -849,9 +850,9 @@ IDX_E IDX_store(thread_db* tdbb,
 
 
 static IDX_E check_duplicates(thread_db* tdbb,
-							  REC record,
+							  Record* record,
 							  index_desc * record_idx,
-							  index_insertion* insertion, JRD_REL relation_2)
+							  index_insertion* insertion, Relation* relation_2)
 {
 /**************************************
  *
@@ -864,7 +865,7 @@ static IDX_E check_duplicates(thread_db* tdbb,
  *	a unique index or a foreign key.
  *
  **************************************/
-	RPB rpb;
+	record_param rpb;
 	DSC desc1, desc2;
 
 	SET_TDBB(tdbb);
@@ -876,7 +877,7 @@ static IDX_E check_duplicates(thread_db* tdbb,
 	rpb.rpb_relation = insertion->iib_relation;
 	rpb.rpb_record = NULL;
 	rpb.rpb_window.win_flags = 0;
-	JRD_REL relation_1 = insertion->iib_relation;
+	Relation* relation_1 = insertion->iib_relation;
 
 	while (SBM_next
 		   (insertion->iib_duplicates, &rpb.rpb_number, RSE_get_forward))
@@ -953,11 +954,12 @@ static IDX_E check_duplicates(thread_db* tdbb,
 
 
 static IDX_E check_foreign_key(thread_db* tdbb,
-							   REC record,
-							   JRD_REL relation,
-							   JRD_TRA transaction,
+							   Record* record,
+							   Relation* relation,
+							   Transaction* transaction,
 							   index_desc * idx,
-JRD_REL * bad_relation, USHORT * bad_index)
+							   Relation** bad_relation, 
+							   USHORT * bad_index)
 {
 /**************************************
  *
@@ -972,7 +974,7 @@ JRD_REL * bad_relation, USHORT * bad_index)
  *
  **************************************/
 	int index_number;
-	JRD_REL partner_relation;
+	Relation* partner_relation;
 	IDX_E result = idx_e_ok;
 
 	if (!MET_lookup_partner(tdbb, relation, idx, &NULL_STR)) 
@@ -1026,11 +1028,12 @@ JRD_REL * bad_relation, USHORT * bad_index)
 
 
 static IDX_E check_partner_index(thread_db* tdbb,
-								 JRD_REL relation,
-								 REC record,
-								 JRD_TRA transaction,
-								 index_desc * idx,
-	JRD_REL partner_relation, SSHORT index_id)
+								 Relation* relation,
+								 Record* record,
+								 Transaction* transaction,
+								 index_desc* idx,
+								 Relation* partner_relation, 
+								 SSHORT index_id)
 {
 /**************************************
  *
@@ -1075,7 +1078,7 @@ static IDX_E check_partner_index(thread_db* tdbb,
 		/* fill out a retrieval block for the purpose of 
 		   generating a bitmap of duplicate records  */
 
-		sbm* bitmap = NULL;
+		SparseBitmap* bitmap = NULL;
 		MOVE_CLEAR(&retrieval, sizeof(struct IndexRetrieval));
 		//retrieval.blk_type = type_irb;
 		retrieval.irb_index = partner_idx.idx_id;
@@ -1146,7 +1149,7 @@ static bool duplicate_key(const UCHAR* record1, const UCHAR* record2, void* ifl_
 }
 
 
-static SLONG get_root_page(thread_db* tdbb, JRD_REL relation)
+static SLONG get_root_page(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -1185,7 +1188,7 @@ static int index_block_flush(void *ast_object)
  *	out and release the lock.
  *
  **************************************/
-	IDB index_block = reinterpret_cast<IDB>(ast_object);
+	IndexBlock* index_block = reinterpret_cast<IndexBlock*>(ast_object);
 	struct thread_db thd_context, *tdbb;
 
 /* Since this routine will be called asynchronously, we must establish
@@ -1222,12 +1225,12 @@ static int index_block_flush(void *ast_object)
 
 
 static IDX_E insert_key(thread_db* tdbb,
-						JRD_REL relation,
-						REC record,
-						JRD_TRA transaction,
+						Relation* relation,
+						Record* record,
+						Transaction* transaction,
 						WIN * window_ptr,
 						index_insertion* insertion,
-						JRD_REL * bad_relation,
+						Relation** bad_relation,
 						USHORT * bad_index)
 {
 /**************************************
@@ -1316,7 +1319,7 @@ static bool key_equal(const temporary_key* key1, const temporary_key* key2)
 }
 
 
-static void signal_index_deletion(thread_db* tdbb, JRD_REL relation, USHORT id)
+static void signal_index_deletion(thread_db* tdbb, Relation* relation, USHORT id)
 {
 /**************************************
  *
@@ -1329,7 +1332,7 @@ static void signal_index_deletion(thread_db* tdbb, JRD_REL relation, USHORT id)
  *	processes to get rid of index info.
  *
  **************************************/
-	IDB index_block;
+	IndexBlock* index_block;
 	LCK lock = NULL;
 	//SET_TDBB(tdbb);
 

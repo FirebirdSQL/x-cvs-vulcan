@@ -504,7 +504,7 @@ void MET_change_fields(thread_db* tdbb, Transaction* transaction, DSC * field_so
 }
 
 #ifdef OBSOLETE
-FMT MET_current(thread_db* tdbb, Relation* relation)
+Format* MET_current(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -656,7 +656,7 @@ SCHAR* MET_exact_name(TEXT* str)
 }
 
 
-FMT MET_format(thread_db* tdbb, Relation* relation, USHORT number)
+Format* MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 {
 /**************************************
  *
@@ -672,7 +672,7 @@ FMT MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 	DBB dbb = tdbb->tdbb_database;
 	Sync sync(&dbb->syncSysTrans, "MET_format");
 	sync.lock(Exclusive);
-	fmt* format = NULL;
+	Format* format = NULL;
 	Request *request = CMP_find_request(tdbb, irq_r_format, IRQ_REQUESTS);
 
 	FOR(REQUEST_HANDLE request)
@@ -684,13 +684,13 @@ FMT MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 
 		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)&X.RDB$DESCRIPTOR);
 		const USHORT count = blob->blb_length / sizeof(OdsDesc);
-		format = fmt::newFmt(*dbb->dbb_permanent, count);
+		format = Format::newFmt(*dbb->dbb_permanent, count);
 		format->fmt_count = count;
 		OdsDesc *odsDescs = new OdsDesc [count];
 		BLB_get_data(tdbb, blob, (UCHAR*) odsDescs, blob->blb_length);
 		OdsDesc *odsDesc = odsDescs;
 		
-		for (fmt::fmt_desc_iterator desc = format->fmt_desc.begin();
+		for (Format::fmt_desc_iterator desc = format->fmt_desc.begin();
 			 desc < format->fmt_desc.end(); ++desc, ++odsDesc)
 			{
 			desc->dsc_dtype = odsDesc->dsc_dtype;
@@ -710,7 +710,7 @@ FMT MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 		REQUEST(irq_r_format) = request;
 
 	if (!format)
-		format = fmt::newFmt(*dbb->dbb_permanent);
+		format = Format::newFmt(*dbb->dbb_permanent);
 
 	format->fmt_version = number;
 
@@ -1909,7 +1909,7 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 	ProcParam * parameter;
 	//JrdMemoryPool *old_pool;
 	//JRD_NOD node;
-	fmt::fmt_desc_iterator desc;
+	Format::fmt_desc_iterator desc;
 	//SSHORT i;
 	DBB dbb = tdbb->tdbb_database;
 	Procedure *procedure = NULL;
@@ -2001,7 +2001,7 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 			if (procedure->hasOutputParameters())
 				{
 				ULONG length;
-				FMT format = fmt::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
+				Format* format = Format::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
 				procedure->setFormat (format);
 				format->fmt_count = procedure->findOutputCount();
 				length = FLAG_BYTES(format->fmt_count);
@@ -2376,7 +2376,7 @@ JRD_NOD MET_parse_blob(thread_db*		tdbb,
 	Sync sync(&dbb->syncSysTrans, "MET_parse_blob");
 	sync.lock(Exclusive);
 	
-	BLB blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
+	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
 	SLONG length = blob->blb_length + 10;
 	TempSpace temp(length);
 	//temp = FB_NEW_RPT(*tdbb->tdbb_default, length) str();
@@ -2533,7 +2533,7 @@ void MET_prepare(thread_db* tdbb, Transaction* transaction, USHORT length,
  **************************************/
 	DBB dbb;
 	Request* request;
-	BLB blob;
+	blb* blob;
 
 	//SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
@@ -2575,7 +2575,7 @@ Procedure* MET_procedure(thread_db* tdbb, int id, BOOLEAN noscan, USHORT flags)
 	ProcParam * parameter;
 	JrdMemoryPool *old_pool;
 	//JRD_NOD node;
-	fmt::fmt_desc_iterator desc;
+	Format::fmt_desc_iterator desc;
 	//SSHORT i;
 
 	//SET_TDBB(tdbb);
@@ -2694,7 +2694,7 @@ Procedure* MET_procedure(thread_db* tdbb, int id, BOOLEAN noscan, USHORT flags)
 				if (procedure->hasOutputParameters())
 					{
 					ULONG length;
-					FMT format = fmt::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
+					Format* format = Format::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
 					procedure->setFormat (format);
 					format->fmt_count = procedure->findOutputCount();
 					length = FLAG_BYTES(format->fmt_count);
@@ -3067,12 +3067,12 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
  *
  **************************************/
 	USHORT n, length, view_context, field_id;
-	ARR array;
+	ArrayField* array;
 	Triggers* triggers[TRIGGER_MAX], *tmp_vector;
 	Field *field;
 	Request* request;
 	CompilerScratch* csb_;
-	BLB blob;
+	blb* blob;
 	UCHAR *p, *q, temp[256];
 	DBB dbb = tdbb->tdbb_database;
 
@@ -3263,7 +3263,7 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 						break;
 
 					case RSR_dimensions:
-						field->fld_array = array = FB_NEW_RPT(*dbb->dbb_permanent, n) arr();
+						field->fld_array = array = FB_NEW_RPT(*dbb->dbb_permanent, n) ArrayField();
 						array->arr_desc.ads_dimensions = n;
 						field->fld_dimensions = n;
 						break;
@@ -3584,7 +3584,7 @@ static void get_trigger(
 	DBB dbb = tdbb->tdbb_database;
 	Sync sync(&dbb->syncSysTrans, "get_trigger");
 	sync.lock(Exclusive);
-	BLB blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
+	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
 	SLONG length = blob->blb_length + 10;
 	STR blr = FB_NEW_RPT(*dbb->dbb_permanent,length) str();
 	BLB_get_data(tdbb, blob, blr->str_data, length);
@@ -3663,7 +3663,8 @@ static void lookup_view_contexts(thread_db* tdbb, Relation* view)
 	Request* request;
 	SSHORT length;
 	STR alias;
-	VCX view_context, *vcx_ptr;
+	ViewContext* view_context;
+	ViewContext** vcx_ptr;
 
 	//SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
@@ -3682,7 +3683,7 @@ static void lookup_view_contexts(thread_db* tdbb, Relation* view)
 		/* allocate a view context block and link it in
 		   to the relation block's linked list */
 
-		view_context = FB_NEW(*tdbb->tdbb_default) vcx();
+		view_context = FB_NEW(*tdbb->tdbb_default) ViewContext();
 		*vcx_ptr = view_context;
 		vcx_ptr = &view_context->vcx_next;
 
@@ -3828,12 +3829,12 @@ static BOOLEAN par_messages(thread_db*	tdbb,
 		const USHORT msg_number = BLR_BYTE;
 		USHORT count = BLR_BYTE;
 		count += (BLR_BYTE) << 8;
-		fmt* format = fmt::newFmt(*tdbb->tdbb_default, count);
+		Format* format = Format::newFmt(*tdbb->tdbb_default, count);
 		format->fmt_count = count;
 		// CVC: This offset should be protected against 32K overflow in the future
 		USHORT offset = 0;
 		
-		for (fmt::fmt_desc_iterator desc = format->fmt_desc.begin(); count;
+		for (Format::fmt_desc_iterator desc = format->fmt_desc.begin(); count;
 			--count, ++desc)
 			{
 			const USHORT align = PAR_desc(csb, &*desc);
@@ -4154,7 +4155,7 @@ static void store_dependencies(thread_db*	tdbb,
 				break;
 			case obj_udf: 
 				{
-				FUN udf = (FUN) node->nod_arg [e_dep_object];
+				UserFunction* udf = (UserFunction*) node->nod_arg [e_dep_object];
 				dpdo_name = udf->fun_symbol->sym_string;
 				break;
 				}

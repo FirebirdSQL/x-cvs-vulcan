@@ -57,7 +57,7 @@ static MDLS DLS_cfg_tmpdir = { NULL };	/* directory list object */
  */
 
 
-BOOLEAN DLS_get_temp_space(ULONG size, SFB sfb)
+BOOLEAN DLS_get_temp_space(ULONG size, sort_work_file* sfb)
 {
 /**************************************
  *
@@ -108,7 +108,7 @@ BOOLEAN DLS_get_temp_space(ULONG size, SFB sfb)
 }
 
 
-void DLS_put_temp_space(SFB sfb)
+void DLS_put_temp_space(sort_work_file* sfb)
 {
 /**************************************
  *

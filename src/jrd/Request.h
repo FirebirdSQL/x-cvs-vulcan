@@ -66,9 +66,9 @@ class AccessItem;
 class Resource;
 class Procedure;
 class rng;
-class sav;
+class Savepoint;
 class StatusXcp;
-struct rpb;
+struct record_param;
 struct thread_db;
 
 class Request: public pool_alloc <type_req>
@@ -122,12 +122,12 @@ public:
 	firebird::Array<struct jrd_nod*> req_invariants;	/* Vector of invariant nodes, if any */
 	USHORT			req_label;			/* label for leave */
 	ULONG			req_flags;			/* misc request flags */
-	sav				*req_proc_sav_point;	/* procedure savepoint list */
+	Savepoint*		req_proc_sav_point;	/* procedure savepoint list */
 	ULONG			req_timestamp;		/* Start time of request */
 	req_ta			req_trigger_action;		/* action that caused trigger to fire */
 	req_s			req_operation;	/* operation for next node */
     StatusXcp		*req_last_xcp;	/* last known exception */
-	rpb				*req_rpb;		/* record parameter blocks */
+	record_param	*req_rpb;		/* record parameter blocks */
 	UCHAR			*req_impure;
 	Request* getInstantiatedRequest(int instantiation);
 	Request* findInstantiatedRequest(int instantiation);

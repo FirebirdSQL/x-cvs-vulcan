@@ -27,7 +27,7 @@
 #include "../jrd/req.h"
 #include "../jrd/sqz.h"
 
-USHORT	SQZ_apply_differences(struct rec*, SCHAR*, SCHAR*);
+USHORT	SQZ_apply_differences(struct Record*, SCHAR*, SCHAR*);
 USHORT	SQZ_compress(class Dcc*, const SCHAR*, SCHAR*, int);
 USHORT	SQZ_compress_length(class Dcc*, SCHAR*, int);
 SCHAR*	SQZ_decompress(const SCHAR*, USHORT, SCHAR*, const SCHAR*);
