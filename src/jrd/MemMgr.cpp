@@ -143,6 +143,10 @@ MemMgr::MemMgr(int rounding, int cutoff, int minAlloc)
 	roundingSize = rounding;
 	threshold = cutoff;
 	minAllocation = minAlloc;
+	maxMemory = 0;
+	currentMemory = 0;
+	blocksAllocated = 0;
+	blocksActive = 0;
 	int vecSize = (cutoff + rounding) / rounding;
 	int l = vecSize * sizeof (void*);
 	freeObjects = (MemBlock**) allocRaw (l);
@@ -151,10 +155,6 @@ MemMgr::MemMgr(int rounding, int cutoff, int minAlloc)
 	smallHunks = NULL;
 	freeBlocks.nextLarger = freeBlocks.priorSmaller = &freeBlocks;
 	junk.nextLarger = junk.priorSmaller = &junk;
-	maxMemory = 0;
-	currentMemory = 0;
-	blocksAllocated = 0;
-	blocksActive = 0;
 }
 
 

@@ -23,7 +23,7 @@ enum OsriCalls {
 	MAX_ENTRYPOINT
 	};
 
-class ExternalLibrary;
+CLASS (ExternalLibrary);
 
 class Gateway : public Subsystem
 {
