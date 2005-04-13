@@ -2409,7 +2409,8 @@ static SSHORT create_db( TEXT * statement, TEXT * d_name)
 						sprintf(local_statement + strlen(local_statement), " PASSWORD \'%s\' ", psw);
 						
 					if (*ISQL_charset && strcmp(ISQL_charset, DEFCHARSET))
-						sprintf(local_statement + strlen(local_statement), " SET NAMES \'%s\' ", ISQL_charset);
+// TBC: changed			sprintf(local_statement + strlen(local_statement), " SET NAMES \'%s\' ", ISQL_charset);
+						sprintf(local_statement + strlen(local_statement), " SET NAMES %s ", ISQL_charset);
 						
 					sprintf(local_statement + strlen(local_statement), "%s", p);
 					}
@@ -2481,7 +2482,8 @@ static SSHORT create_db( TEXT * statement, TEXT * d_name)
 
 		if (*ISQL_charset && strcmp(ISQL_charset, DEFCHARSET))
 			sprintf(temp_str + strlen(temp_str),
-					" SET NAMES \'%s\' ", ISQL_charset);
+// TBC: change		" SET NAMES \'%s\' ", ISQL_charset);
+					" SET NAMES %s ", ISQL_charset);
 
 		if (new_local_statement)
 			temp_str = new_local_statement + strlen(new_local_statement);
