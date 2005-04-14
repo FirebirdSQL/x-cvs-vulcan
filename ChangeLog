@@ -1,3 +1,11 @@
+2005-04-13 18:43  tomcole
+
+	* vulcan/src/isql/isql.epp:
+	
+	ISQL quotes the character set name in the SET NAME clause in CREATE
+	DATABASE, but the parser doesn't want single quotes on the name. 
+	Changing to remove the single quotes when the name is non-empty.
+
 2005-04-01 00:11  awharrison
 
 	* vulcan/src/dsql/pass1.cpp:
