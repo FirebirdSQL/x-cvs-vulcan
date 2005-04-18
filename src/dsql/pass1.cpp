@@ -6155,7 +6155,7 @@ static dsql_nod* pass1_sort( CStatement* request, dsql_nod* input, dsql_nod* sel
 		else if (node1->nod_type == nod_constant && 
 			node1->nod_desc.dsc_dtype == dtype_long) 
 		{
-			const ULONG position = (IPTR) (node1->nod_arg[0]);
+			const ULONG position = *((ULONG*) &(node1->nod_arg[0]));
 			if ((position < 1) || !selectList || 
 				(position > (ULONG) selectList->nod_count))
 			{
