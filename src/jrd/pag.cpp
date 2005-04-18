@@ -140,6 +140,7 @@ static BOOLEAN find_type(thread_db* tdbb, SLONG, WIN *, PAG *, USHORT, USHORT, U
 	   21             FreeBSD/i386
 	   22             NetBSD/i386
        23		Darwin/PowerPC
+       24		MVS
 
 */
 
@@ -207,6 +208,9 @@ static BOOLEAN find_type(thread_db* tdbb, SLONG, WIN *, PAG *, USHORT, USHORT, U
 #define CLASS		23
 #endif
 
+#ifdef MVS
+#define CLASS		24
+#endif
 
 int PAG_add_clump(thread_db* tdbb,
 				  SLONG page_num,

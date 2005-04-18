@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Server Code
  *	MODULE:		rpb_chain.h
@@ -65,7 +66,9 @@ public:
 		
 	int PushRpb(struct record_param* value);
 	bool PopRpb(struct record_param* value, int Level);
+#ifdef SHARED_CACHE
 	SyncObject	syncObject;
+#endif
 };
 
 #endif	//RPB_CHAIN_H

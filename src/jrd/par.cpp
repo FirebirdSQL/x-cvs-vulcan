@@ -1977,7 +1977,7 @@ static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operat
 		}
 	else if (relation->rel_flags & REL_sys_triggers)
 		MET_parse_sys_trigger(tdbb, relation);
-	***
+	***/
 	
 	/* generate a stream for the relation reference, 
 	   assuming it is a real reference */

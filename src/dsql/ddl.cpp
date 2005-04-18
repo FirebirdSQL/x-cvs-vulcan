@@ -68,9 +68,9 @@
 
 /* AB:Sync FB 1.128 */
 
-#include <string.h>
 #include "firebird.h"
 #include "../jrd/ib_stdio.h"
+#include <string.h>
 #include "../dsql/dsql.h"
 #include "../jrd/ibase.h"
 #include "../jrd/thd.h"
@@ -2347,6 +2347,12 @@ static dsql_nod* define_insert_action( CStatement* request)
 		const dsql_str* rel_name =
 			reinterpret_cast<const dsql_str*>(relation_node->nod_arg[e_rln_name]);
 		relation = request->findRelation (*rel_name); //METD_get_relation(request, rel_name);
+
+#ifdef SHARED_CACHE
+		Sync sync(&relation->syncFields, "define_insert_action");
+		sync.lock(Shared);
+#endif
+
 		field_stack = NULL;
 		for (field = relation->rel_fields; field; field = field->fld_next)
 		{
@@ -3100,7 +3106,12 @@ static void define_update_action(
 		dsql_rel* relation = request->findRelation (*rel_name); //METD_get_relation(request, rel_name);
 		//dsql_lls* field_stack = NULL;
 		Stack field_stack;
-		
+
+#ifdef SHARED_CACHE
+		Sync sync(&relation->syncFields, "define_update_action");
+		sync.lock(Shared);
+#endif
+	
 		for (dsql_fld* field = relation->rel_fields; field; field = field->fld_next)
 			{
 			if (field->fld_flags & FLD_computed)
@@ -3331,11 +3342,18 @@ static void define_view( CStatement* request, NOD_TYPE op)
 		dsql_rel* relation = request->findRelation (*view_name); //METD_get_relation(request, view_name);
 		
 		if (relation)
+			{
+#ifdef SHARED_CACHE
+			Sync sync(&relation->syncFields, "define_view");
+			sync.lock(Shared);
+#endif
+
 			for (dsql_fld* field = relation->rel_fields; field; field = field->fld_next)
 				{
 				request->appendDynString(isc_dyn_delete_local_fld, field->fld_name);
 				request->appendUCHAR(isc_dyn_end);
 				}
+			}
 		else
 			ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) -607,
 					  /* isc_arg_gds, isc_dsql_command_err,
@@ -5730,6 +5748,11 @@ static void save_field(CStatement* request, const TEXT* field_name)
 	if (!relation) 
 		return;
 
+#ifdef SHARED_CACHE
+	Sync sync(&relation->syncFields, "save_field");
+	sync.lock(Exclusive);
+#endif
+
 	dsql_fld* field = new dsql_fld;
 	field->fld_name = field_name;
 	field->fld_next = relation->rel_fields;
@@ -5956,6 +5979,10 @@ static void modify_field(CStatement*	request,
 
 	if (relation != NULL)
 		{
+#ifdef SHARED_CACHE
+		Sync sync(&relation->syncFields, "modify_field");
+		sync.lock(Exclusive);
+#endif
 		field->fld_next = relation->rel_fields;
 		relation->rel_fields = field;
 		}

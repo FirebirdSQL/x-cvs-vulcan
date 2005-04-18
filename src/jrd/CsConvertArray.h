@@ -1,3 +1,4 @@
+/* $Id$ */
 #ifndef _CSCONVERTARRAY_H_
 #define _CSCONVERTARRAY_H_
 
@@ -10,6 +11,7 @@
 #include "SVector.h"
 #include "CsConvert.h"
 #include "CharSet.h"
+#include "../common/classes/alloc.h"
 
 #ifndef TTYPE_TO_CHARSET
 #define TTYPE_TO_CHARSET(tt)    ((SSHORT)((tt) & 0x00FF))
@@ -34,10 +36,8 @@ public:
 };
 
 
-class MemoryPool;
+//class MemoryPool;
 class TextType;
-struct thread_db;
-class MemoryPool;
 class CharSet;
 struct thread_db;
 //struct texttype;

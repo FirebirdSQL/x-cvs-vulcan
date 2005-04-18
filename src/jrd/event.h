@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		event.h
@@ -34,6 +35,7 @@
 #include "../jrd/file_params.h"
 
 #define PTR			SLONG
+#undef BASE
 #define BASE                  ((UCHAR *) EVENT_header)
 #define REL_PTR(item)         ((UCHAR *) item - BASE)
 #define ABS_PTR(item)		(BASE + item)
@@ -54,7 +56,7 @@
 
 /* Self-relative que block.  Offsets are from the block itself. */
 
-typedef struct srq {
+typedef struct event_srq {
 	PTR srq_forward;			/* Forward offset */
 	PTR srq_backward;			/* Backward offset */
 } SRQ;

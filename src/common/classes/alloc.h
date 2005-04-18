@@ -41,11 +41,14 @@
 #ifndef ALLOC_H
 #define ALLOC_H
 
+#ifndef __VMS
+#include <cstddef>
+#endif
+
 #include "../../include/fb_types.h"
 #include "../../include/firebird.h"
 #include "../jrd/common.h"
 #include "../jrd/ib_stdio.h"
-#include <cstddef>
 #include "tree.h"
 
 #ifdef HAVE_STDLIB_H
@@ -57,8 +60,6 @@
 //#include "MemMgr.h"
 
 #else	// MEMMGR
-
-#pragma FB_COMPILER_MESSAGE("Does not define MEMMGR?")
 
 #define MEMORY_EXCEPTION	std::bad_alloc
 
@@ -278,7 +279,7 @@ namespace std {
 
 // Define operators as static inline to prevent replacement of STL versions
 
-#ifdef FIREBIRD_ENGINE
+//#ifdef FIREBIRD_ENGINE
 static inline void* operator new(size_t s) {
 #if defined(DEV_BUILD)
 // Do not complain here. It causes client tools to crash on Red Hat 8.0
@@ -334,15 +335,15 @@ void operator delete[](void* mem) throw();
 #endif // SYSTEM_NEW
 #endif
 
-#endif // #ifdef FIREBIRD_ENGINE
+//#endif // #ifdef FIREBIRD_ENGINE
 
 #ifdef DEBUG_GDS_ALLOC
 
-static inline void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
+/*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
 	return pool.allocate(s, 0, file, line);
 //	return pool.calloc(s, 0, file, line);
 }
-static inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
+/*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
 	return pool.allocate(s, 0, file, line);
 //	return pool.calloc(s, 0, file, line);
 }
@@ -352,11 +353,11 @@ static inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* f
 #else
 
 #ifndef SYSTEM_NEW
-static inline void* operator new(size_t s, firebird::MemoryPool& pool) {
+/*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool) {
 	return pool.allocate(s);
 //	return pool.calloc(s);
 }
-static inline void* operator new[](size_t s, firebird::MemoryPool& pool) {
+/*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool) {
 	return pool.allocate(s);
 //	return pool.calloc(s);
 }
@@ -415,10 +416,10 @@ namespace firebird
 		allocator(MemoryPool& p, SSHORT t = 0) : pool(&p), type(t) {}
 		allocator(MemoryPool* p = getDefaultMemoryPool(), SSHORT t = 0) : pool(p), type(t) {}
 	
-                template <class DST>
-                  allocator(const allocator<DST> &alloc)
-                           : pool(alloc.getPool()), type(alloc.getType()) { }
-                    
+		template <class DST>
+		allocator(const allocator<DST> &alloc)
+			: pool(alloc.getPool()), type(alloc.getType()) { }
+
 #ifdef DEBUG_GDS_ALLOC
 		pointer allocate(size_type s, const void* = 0)
 			{ return (pointer) this->pool->allocate(sizeof(T) * s, 0, __FILE__, __LINE__); }
@@ -430,6 +431,17 @@ namespace firebird
 		char* _Charalloc(size_type n)
 			{ return (char*) this->pool->allocate(n, 0); }
 #endif
+/*#ifdef DEBUG_GDS_ALLOC
+		pointer allocate(size_type s, const void * = 0)
+			{ return (pointer) pool->calloc(sizeof(T) * s, 0, __FILE__, __LINE__); }
+		char *_Charalloc(size_type n)
+			{ return (char*) pool->calloc(n, 0, __FILE__, __LINE__); }
+#else
+		pointer allocate(size_type s, const void * = 0)
+			{ return (pointer) pool->calloc(sizeof(T) * s, 0); }
+		char *_Charalloc(size_type n)
+			{ return (char*) pool->calloc(n, 0); }
+#endif*/
 			
 		void deallocate(pointer p, size_type s)	{ this->pool->deallocate(p); }
 		void deallocate(void* p, size_type s) { this->pool->deallocate(p); }

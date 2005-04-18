@@ -31,8 +31,30 @@
 #include <windows.h>
 static const char* defaultExtension =	".dll";
 #else
+
+#ifdef hpux
+#define UINT64 junk_UNINT64
+#endif
+
 #include <dlfcn.h>
+#if defined MVS
+
+#ifdef hpux
+#undef UINT64
+#endif
+
+static const char* defaultExtension =	"";
+#else
+#ifdef __VMS
+static const char* defaultExtension =   ".exe";
+#else
 static const char* defaultExtension =	".so";
+#endif
+#endif
+#endif
+
+#ifdef __VMS
+#define RTLD_LOCAL  3 //all RTLD_* dlopen modes are ignored on VMS
 #endif
 
 ExternalLibrary::ExternalLibrary(const char *name, LibraryHandle libHandle)
@@ -73,7 +95,7 @@ LibraryHandle ExternalLibrary::load(const char* libraryName)
 #ifdef _WIN32
 	return LoadLibrary (libraryName);
 #else
-	return dlopen (libraryName, RTLD_LAZY | RTLD_GLOBAL);
+	return dlopen (libraryName, RTLD_LAZY | RTLD_LOCAL);
 #endif
 }
 

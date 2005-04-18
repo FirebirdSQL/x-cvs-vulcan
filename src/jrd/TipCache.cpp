@@ -79,8 +79,10 @@ int TipCache::getCacheState(thread_db* tdbb, int number)
 		if (TRA_precommited(tdbb, number, number))
 			return tra_precommitted;
 
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "TipCache::getCacheState");
 	sync.lock(Shared);
+#endif
 	
 	/* if the transaction is older than the oldest
 	   transaction in our tip cache, it must be committed */
@@ -114,8 +116,13 @@ int TipCache::getCacheState(thread_db* tdbb, int number)
 void TipCache::initialize(thread_db* tdbb, int number)
 {
 	TPC *tip_cache_ptr, tip_cache;
+#ifdef SHARED_CACHE
+	Sync syncInitialize (&syncObjectInitialize, "TipCache::initialize");
+	syncInitialize.lock(Exclusive);
+
 	Sync sync (&syncObject, "TipCache::initialize");
 	sync.lock(Exclusive);
+#endif
 
 	if (!cache) 
 		{
@@ -233,8 +240,10 @@ void TipCache::updateCache(thread_db* tdbb, tx_inv_page* tip_page, int sequence)
 	TPC tip_cache;
 	USHORT l;
 	SLONG first_trans = sequence * transactionsPerTip;
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "TipCache::updateCache");
 	sync.lock(Exclusive);
+#endif
 
 	/* while we're in the area we can check to see if there are 
 	   any tip cache pages we can release--this is cheaper and 
@@ -283,13 +292,21 @@ void TipCache::updateCache(thread_db* tdbb, tx_inv_page* tip_page, int sequence)
 
 int TipCache::snapshotState(thread_db* tdbb, int number)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "TipCache::snapshotState");
 	sync.lock(Shared);
+#else
+	bool exclusive = 0;
+#endif
 
 	if (!cache)
 		{
+#ifdef SHARED_CACHE
 		sync.unlock();
 		sync.lock(Exclusive);
+#else
+		exclusive = 1;
+#endif
 		
 		if (!cache)
 			cacheTransactions(tdbb, NULL, 0);
@@ -349,7 +366,9 @@ int TipCache::snapshotState(thread_db* tdbb, int number)
 
 				INIT_STATUS(tdbb->tdbb_status_vector);
 				LCK_release(temp_lock.get());
+#ifdef SHARED_CACHE
 				sync.unlock();
+#endif
 				
 				/* as a last resort we must look at the tx_inv_page* page to see
 				  whether the transaction is committed or dead; to minimize 
@@ -360,11 +379,17 @@ int TipCache::snapshotState(thread_db* tdbb, int number)
 				}
 			}
 			
+#ifdef SHARED_CACHE
 		if (sync.state == Exclusive)
+#else
+		if (exclusive)
+#endif
 			break;
-		
+					
+#ifdef SHARED_CACHE
 		sync.unlock();
 		sync.lock(Exclusive);
+#endif
 		}
 
 	/* if the transaction has been started since we
@@ -426,8 +451,10 @@ int TipCache::extendCache(thread_db* tdbb, int number)
 
 void TipCache::setState(thread_db* tdbb, int number, int state)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "TipCache::setState");
 	sync.lock(Exclusive);
+#endif
 	ULONG byte = TRANS_OFFSET(number % transactionsPerTip);
 	SSHORT shift = TRANS_SHIFT(number);
 

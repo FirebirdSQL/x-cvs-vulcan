@@ -68,7 +68,7 @@ $Id$
 #include "Sync.h"
 
 #ifdef VMS
-#define CALL_UDF(ptr, udftype)     (*(udftype (*)(SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG))(ptr)) (args [0], args[1], args[2], args[3], args [4], args [5], args [6], args [7], args [8], args [9]) 
+#define CALL_UDF(ptr, udftype)     (*(udftype (*)(SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG))(ptr)) (args [0], args[1], args[2], args[3], args [4], args [5], args [6], args [7], args [8], args [9])
 #else
 #define CALL_UDF(ptr, udftype)     ((udftype (*)(SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG, SLONG))(ptr)) (args [0], args[1], args[2], args[3], args [4], args [5], args [6], args [7], args [8], args [9])
 #endif
@@ -782,9 +782,10 @@ UserFunction* FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowA
 	fun_repeat *tail, temp[MAX_UDF_ARGUMENTS + 1];
 
 	DBB dbb = tdbb->tdbb_database;
+	Symbol* symbol;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSymbols, "FUN_lookup_function");
 	sync.lock (Shared);
-	Symbol* symbol;
 
 	/* Start by looking for already defined symbol */
 
@@ -796,6 +797,7 @@ UserFunction* FUN_lookup_function(thread_db* tdbb, const TEXT * name, bool ShowA
 	sync.lock (Exclusive);
 	
 	// That didn't work.  Get an exclusive lock and start over, this time in earnest
+#endif
 	
 	for (symbol = SYM_lookup(tdbb, name); symbol; symbol = symbol->sym_homonym)
 	    if (symbol->sym_type == SYM_fun) 

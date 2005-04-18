@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		Relation.h
@@ -119,8 +120,14 @@ public:
 	//vec*			rel_formats;			/* Known record formats */
 	SVector<Format*> rel_formats;			/* Known record formats */
 	JString			rel_owner_name;			/* pointer to ascii owner */
+#ifdef SHARED_CACHE
 	SIVector<SLONG>	rel_pages;				/* vector of pointer page numbers */
-	SVector<Field*>	rel_fields;				/* vector of field blocks */
+	SIVector<Field*>rel_fields;				/* vector of field blocks */
+#else
+	SVector<SLONG>	rel_pages;				/* vector of pointer page numbers */
+	SVector<Field*>rel_fields;				/* vector of field blocks */
+#endif
+
 
 	RecordSelExpr*	rel_view_rse;			/* view record select expression */
 	ViewContext*	rel_view_contexts;		/* linked list of view contexts */
@@ -164,10 +171,13 @@ public:
 	frgn			rel_foreign_refs;	/* foreign references to other relations' primary keys */
 	dsql_rel		*dsqlRelation;
 	
+#ifdef SHARED_CACHE
 	SyncObject		syncObject;
 	SyncObject		syncGarbageCollection;
 	SyncObject		syncTriggers;
 	SyncObject		syncFormats;
+#endif
+
 	Field			*junk;
 	
 	void scan(thread_db* tdbb);

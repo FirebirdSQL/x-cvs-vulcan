@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Dynamic SQL runtime support
  *	MODULE:		all.h
@@ -33,7 +34,11 @@ class DsqlMemoryPool : public MemoryPool
 protected:
 	// Dummy constructor and destructor. Should never be called
 #ifdef MEMMGR
-	DsqlMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384) {}
+#ifdef SHARED_CACHE
+	DsqlMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384, true) {}
+#else
+	DsqlMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384, false) {}
+#endif
 #else
 	DsqlMemoryPool() : MemoryPool(NULL, NULL), lls_cache(*this) {}
 #endif

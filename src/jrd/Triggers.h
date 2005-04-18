@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  
  *     The contents of this file are subject to the Initial 
@@ -30,11 +31,15 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "SIVector.h"
-
 class Trigger;
 
+#ifdef SHARED_CACHE
+#include "SIVector.h"
 class Triggers : public SIVector<Trigger*>
+#else
+#include "SVector.h"
+class Triggers : public SVector<Trigger*>
+#endif
 {
 public:
 	Triggers(void);

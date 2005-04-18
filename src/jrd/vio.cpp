@@ -1621,8 +1621,10 @@ Record* VIO_gc_record(thread_db* tdbb, Relation* relation)
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&relation->syncGarbageCollection, "VIO_gc_record");
 	sync.lock(Exclusive);
+#endif
 	
 	/* Allocate a vector of garbage collect record blocks for relation. */
 	
@@ -4035,11 +4037,17 @@ static int prepare_update(	thread_db* tdbb,
 		{
 			/* There is no reason why this record would disappear for a
 			   snapshot transaction. */
+#if 0
+	/* I can get an error here running mwrite5 with 3 threads */
+	/* without read_committed. Perhaps this signifies an error */
+	/* elsewhere????  */
+			
 			if (!(transaction->tra_flags & TRA_read_committed))
 			{
 				BUGCHECK(186);	/* msg 186 record disappeared */
 			}
 			else
+#endif
 			{
 				/* A read-committed transaction, on the other hand, doesn't
 				   insist on the presence of any version, so versions of records
@@ -4366,8 +4374,10 @@ static Record* replace_gc_record(Relation* relation, Record** gc_record, USHORT 
  *
  **************************************/
 
+#ifdef SHARED_CACHE
 	Sync sync (&relation->syncGarbageCollection, "replace_gc_record");
 	sync.lock(Exclusive);
+#endif
 	vec* vector = relation->rel_gc_rec;
 	vec::iterator rec_ptr, end;
 	

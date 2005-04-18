@@ -79,8 +79,10 @@ void ISC_exception_post(ULONG sig_num, const char* err_msg)
  **************************************/
 	TEXT *log_msg;
 
+#ifdef OBSOLETE
 	if (!SCH_thread_enter_check())
 		THREAD_ENTER;
+#endif
 
 	if (err_msg)
 		log_msg = (TEXT *) gds__alloc(strlen(err_msg) + 256);

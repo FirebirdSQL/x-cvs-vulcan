@@ -826,6 +826,11 @@ IDX_E IDX_store(thread_db* tdbb,
 	idx.idx_id = (USHORT) -1;
 	WIN window(-1);
 
+#ifdef SHARED_CACHE
+	Sync sync(&rpb->rpb_relation->syncObject, "IDX_store");
+	sync.lock(Exclusive);
+#endif
+
 	while (BTR_next_index
 		   (tdbb, rpb->rpb_relation, transaction, &idx, &window)) 
 	{

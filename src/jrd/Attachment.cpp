@@ -118,8 +118,10 @@ DStatement* Attachment::allocateStatement(void)
 InternalConnection* Attachment::getUserConnection(Transaction* transaction)
 {
 	InternalConnection *connection = new InternalConnection (this, transaction);
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Attachment::getUserConnection");
 	sync.lock (Exclusive);
+#endif
 	
 	connection->prior = lastConnection;
 	
@@ -136,8 +138,10 @@ InternalConnection* Attachment::getUserConnection(Transaction* transaction)
 
 void Attachment::closeConnection(InternalConnection* connection)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Attachment::closeConnection");
 	sync.lock (Exclusive);
+#endif
 
 	if (connection->prior)
 		connection->prior->next = connection->next;
@@ -253,8 +257,10 @@ void Attachment::shutdown(thread_db* tdbb)
 	   were hung off this attachment block, to ensure that the attachment
 	   block doesn't get dereferenced after it is released */
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::shutdown");
 	sync.lock(Exclusive);
+#endif
 
 	for (record_lock = att_long_locks; record_lock; record_lock = record_lock->lck_next)
 		record_lock->lck_attachment = NULL;
@@ -268,8 +274,17 @@ void Attachment::shutdown(thread_db* tdbb)
 
 void Attachment::addLongLock(lck* lock)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::addLongLock");
 	sync.lock(Exclusive);
+#endif
+	
+/* check to see if lock is already here ???? */
+#ifdef DEV_BUILD
+	lck *t;
+    for (t = att_long_locks; t; t = t->lck_next)
+	    if (t == lock) fb_assert(false);
+#endif
 	
 	if (lock->lck_next = att_long_locks)
 		lock->lck_next->lck_prior = lock;
@@ -281,9 +296,11 @@ void Attachment::addLongLock(lck* lock)
 
 void Attachment::removeLongLock(lck* lock)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::removeLockLock");
 	sync.lock(Exclusive);
-	
+#endif
+
 	if (lock->lck_prior)
 		{
 		if (lock->lck_prior->lck_next = lock->lck_next)
@@ -307,8 +324,10 @@ void Attachment::removeLongLock(lck* lock)
 
 lck* Attachment::findBlock(lck* lock, int level)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::findBlock");
 	sync.lock(Shared);
+#endif
 
 	for (LCK next = att_long_locks; next; next = next->lck_next)
 		if (lock->lck_attachment != next->lck_attachment &&

@@ -137,9 +137,9 @@
 
 // AB:Sync FB 1.195
 
-#include "firebird.h"
 #include <string.h>
 #include <memory>
+#include "firebird.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/ibase.h"
 #include "../dsql/dsql.h"
@@ -3737,12 +3737,12 @@ static void pass1_expand_select_node(CStatement* request, dsql_nod* node, Stack&
 			}
 		}
 		else if (procedure = context->ctx_procedure) {
-			dsql_fld* field = (procedure->findOutputParameters())->dsqlField;
-			for (; field; field = field->fld_next) {
-				DEV_BLKCHK(field, dsql_type_fld);
-				dsql_nod* select_item = MAKE_field(request->threadData, context, field, 0);
+			for (ProcParam *param = procedure->findOutputParameters(); param; param = param->findNext()) 
+				{
+				dsql_nod* select_item = MAKE_field(request->threadData, context, param->getDsqlField(), 0);
+				select_item->nod_desc = param->paramDescriptor;
 				stack.push(select_item);
-			}
+				}
 		}
 	}
 	else if (node->nod_type == nod_field_name) {
@@ -3922,8 +3922,14 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 						node = MAKE_node(request->threadData, nod_relation, e_rel_count);
 						//node->nod_arg[e_rel_context] = reinterpret_cast<dsql_nod*>(stack->lls_object);
 						node->nod_arg[e_rel_context] = (dsql_nod*) context;
+#ifdef SHARED_CACHE
+						context->ctx_relation->syncFields.unlock();
+#endif
 						return node;
 						}
+#ifdef SHARED_CACHE
+					context->ctx_relation->syncFields.unlock();
+#endif
 					break;
 					}
 
@@ -3940,6 +3946,9 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					// If a qualifier was present and we don't have found
 					// a matching field then we should stop searching.
 					// Column unknown error will be raised at bottom of function.
+#ifdef SHARED_CACHE
+					context->ctx_relation->syncFields.unlock();
+#endif
 					done = true;
 					break;
 					}
@@ -3972,11 +3981,19 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					// AB: But only if we're on different scope level, because a
 					// node inside the same context should have priority.
 					if (node)
+						{
+#ifdef SHARED_CACHE
+						context->ctx_relation->syncFields.unlock();
+#endif
 						continue;
+						}
 
 					if (indices) 
 						indices = PASS1_node(request, indices, false);
 					node = MAKE_field(request->threadData, context, field, indices);
+#ifdef SHARED_CACHE
+					context->ctx_relation->syncFields.unlock();
+#endif
 					}
 				}
 			else if (is_derived_table) 
@@ -4717,6 +4734,11 @@ static dsql_nod* pass1_insert( CStatement* request, dsql_nod* input)
 	DEV_BLKCHK(context, dsql_type_ctx);
 	dsql_rel* relation = context->ctx_relation;
 
+#ifdef SHARED_CACHE
+	Sync sync(&relation->syncFields, "pass1_insert");
+	sync.lock(Shared);
+#endif
+
 	// If there isn't a field list, generate one 
 
 	dsql_nod* fields = input->nod_arg[e_ins_fields];
@@ -4747,7 +4769,7 @@ static dsql_nod* pass1_insert( CStatement* request, dsql_nod* input)
 
                 field_error (bad_rel ? (const TEXT*) bad_rel->rel_name : NULL,
                              bad_fld ? (const TEXT*) bad_fld->fld_name : NULL,
-                             input->nod_arg[e_ins_fields]->nod_arg[ptr - fields->nod_arg]);
+                             input->nod_arg[e_ins_fields]->nod_arg[(dsql_nod **)ptr - fields->nod_arg]);
 				}
 			}
 		}
@@ -7334,7 +7356,12 @@ static dsql_fld* resolve_context( CStatement* request, dsql_str* qualifier,
 		return NULL;
 
 	if (relation)
+	{
+#ifdef SHARED_CACHE
+		relation->syncFields.lock(NULL, Shared);
+#endif
 		return relation->rel_fields;
+	}
 	
 	return (procedure->findOutputParameters())->getDsqlField();
 }

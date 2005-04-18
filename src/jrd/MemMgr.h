@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  
  *     The contents of this file are subject to the Initial 
@@ -112,7 +113,8 @@ public:
 class MemMgr
 {
 public:
-	MemMgr(int rounding=defaultRounding, int cutoff=defaultCutoff, int minAllocation=defaultAllocation);
+	MemMgr(int rounding=defaultRounding, int cutoff=defaultCutoff, 
+		   int minAllocation=defaultAllocation, bool shared=true);
 	~MemMgr(void);
 	
 	int				roundingSize;
@@ -130,6 +132,7 @@ public:
 	int				currentMemory;
 	int				blocksAllocated;
 	int				blocksActive;
+	bool			threadShared;		// Shared across threads, requires locking
 
 protected:
 	MemBlock* alloc(int size);

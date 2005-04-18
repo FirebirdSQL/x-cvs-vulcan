@@ -1,12 +1,14 @@
+/* $Id$ */
 #ifndef __INTERLOCK_H
 #define __INTERLOCK_H
 
-
-#ifdef SOLARIS
+#if defined(SOLARIS) || defined(hpux)
 extern "C"
 {
 extern int cas (volatile int *state, int compare, int exchange);
 extern void* casx (volatile void **state, void* compare, void* exchange);
+extern void membar_flush(void);
+extern void membar_wait(void);
 }
 #define COMPARE_EXCHANGE(target,compare,exchange)\
 	(cas(target,compare,exchange)== compare)
@@ -14,6 +16,78 @@ extern void* casx (volatile void **state, void* compare, void* exchange);
 	(casx((volatile void**)target,(void*)compare,(void*)exchange)== compare)
 #endif
 
+#ifdef SOLARIS
+#define WAIT_FOR_FLUSH_CACHE membar_wait();
+#define FLUSH_CACHE membar_flush();
+#else
+/* I64 hpux currently has mf in the cas asm routines */
+/* (h6icas.s). They should probably be moved here instead */ 
+#endif
+
+
+#ifdef AIX_PPC
+#include <sys/atomic_op.h>
+extern "C"
+{
+static inline int COMPARE_EXCHANGE(volatile int *target, int compare, int exchange)
+{
+	return compare_and_swap((int *)target, &compare, exchange);
+}
+static inline int COMPARE_EXCHANGE_POINTER(volatile void *target, volatile void * compare, void * exchange)
+{
+	return compare_and_swaplp((long *)target, (long*)&compare, (long)exchange);
+}
+
+void asm_isync(void);
+   #pragma  mc_func  asm_isync  {       \
+      "4c00012c" /* isync */        \
+   }
+void asm_sync(void);
+   #pragma  mc_func  asm_sync  {       \
+      "7c0004ac" /* sync */        \
+   }
+
+#define WAIT_FOR_FLUSH_CACHE asm_isync();
+#define FLUSH_CACHE asm_sync();
+}
+#endif
+
+#ifdef MVS
+extern "C" {
+static inline int cas (volatile int *state, int compare, int exchange)
+{
+	__cs((cs_t*)(&compare), (cs_t*)state, (cs_t)exchange);
+	return compare;
+}
+static inline void* casx (volatile void *state, volatile void *compare, void *exchange)
+{
+	__cs((cs_t*)(&compare), (cs_t*)state, (cs_t)exchange);
+	return (void*)compare;
+}
+}
+#define COMPARE_EXCHANGE(target,compare,exchange)\
+	(cas(target,compare,exchange)== compare)
+
+#define COMPARE_EXCHANGE_POINTER(target,compare,exchange)\
+	(casx(target,compare,exchange)== compare)
+
+#endif
+
+#ifdef __VMS
+#include <builtins.h>
+extern "C"
+{
+    static inline int COMPARE_EXCHANGE(volatile int *target, int compare, int exchange)
+    {
+	return __CMP_STORE_LONG(&compare, compare, exchange, target);
+    }
+    static inline int COMPARE_EXCHANGE_POINTER(volatile void *target, volatile void * compare, void * exchange)
+    {
+	return __CMP_STORE_QUAD(compare, (__int64)compare, (__int64)exchange, &target);
+    }
+}
+
+#endif
 
 #ifdef _WIN32
 
@@ -28,18 +102,17 @@ extern void* casx (volatile void **state, void* compare, void* exchange);
 #ifndef InterlockedIncrement
 #define InterlockedIncrement		_InterlockedIncrement
 #define InterlockedDecrement		_InterlockedDecrement
-#define InterlockedCompareExchange	_InterlockedCompareExchange
+//#define InterlockedCompareExchange	_InterlockedCompareExchange
 
 extern "C" 
 	{
-	INTERLOCK_TYPE InterlockedIncrement(volatile INTERLOCK_TYPE* lpAddend);
-	INTERLOCK_TYPE InterlockedDecrement(volatile INTERLOCK_TYPE* lpAddend);
-	INTERLOCK_TYPE InterlockedCompareExchange(volatile INTERLOCK_TYPE *target, INTERLOCK_TYPE exchange, INTERLOCK_TYPE compare);
+	INTERLOCK_TYPE  InterlockedIncrement(volatile INTERLOCK_TYPE* lpAddend);
+	INTERLOCK_TYPE  InterlockedDecrement(volatile INTERLOCK_TYPE* lpAddend);
+	//PVOID InterlockedCompareExchange(volatile PVOID *target, PVOID exchange, PVOID compare);
 	}
-	
 #pragma intrinsic(_InterlockedIncrement)
 #pragma intrinsic(_InterlockedDecrement)
-#pragma intrinsic(_InterlockedCompareExchange)
+//#pragma intrinsic(_InterlockedCompareExchange)
 #endif
 
 #endif
@@ -164,5 +237,19 @@ inline void* inline_cas_pointer (volatile void **target, void *compare, void *ex
 	return NULL;
 #endif
 }
+
+
+/* On some machines, a "wait for flush complete" type instruction must be */
+/* executed to insure cache coherency across processors after the atomic */
+/* lock has been granted */
+#ifndef WAIT_FOR_FLUSH_CACHE
+#define WAIT_FOR_FLUSH_CACHE
+#endif
+
+/* On some machines, the cache must be flushed before an atomic lock is */
+/* released. */
+#ifndef FLUSH_CACHE
+#define FLUSH_CACHE
+#endif
 
 #endif //  __INTERLOCK_H

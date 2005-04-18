@@ -64,6 +64,7 @@
 #ifndef JRD_LICENSE_H
 #define JRD_LICENSE_H
 
+#include "../jrd/common.h"
 #include "../jrd/build_no.h"
 #include "../jrd/isc_version.h"
 
@@ -92,7 +93,7 @@
 #endif
 #endif /* sun */
 
-#ifdef VMS
+#ifdef __VMS
 #ifdef __ALPHA
 #define FB_PLATFORM     "AV"
 #else
@@ -134,6 +135,10 @@
 
 #ifdef DARWIN
 #define FB_PLATFORM     "UP"	/* Darwin/PowerPC */
+#endif
+
+#ifdef MVS
+#define FB_PLATFORM     "MVS" /* MVS */
 #endif
 
 #ifndef FB_VERSION

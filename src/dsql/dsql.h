@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Dynamic SQL runtime support
  *	MODULE:		dsql.h
@@ -264,6 +265,9 @@ enum udf_flags_vals {
 };
 
 // Variables - input, output & local
+#ifdef AIX_PPC
+#define var aix_var   /* avoid conflict in /usr/include/sys/var.h */
+#endif
 
 //! Variable block
 class var : public pool_alloc_rpt<SCHAR, dsql_type_var>
@@ -542,7 +546,7 @@ typedef tsql* TSQL;
 #include "../jrd/tdbb.h"
 #define tsql			tdbb
 #define tsql_status		tdbb_status_vector
-typedef thread_db* TSQL;
+typedef thread_db *TSQL;
 
 #ifdef GET_THREAD_DATA
 #undef GET_THREAD_DATA
@@ -578,7 +582,6 @@ typedef thread_db* TSQL;
 #define BLKCHK(blk, type) if (MemoryPool::blk_type(blk) != (SSHORT) type) ERRD_bugcheck("expected type")
 
 #ifdef DSQL_DEBUG
-	xyzzy
 	extern unsigned DSQL_debug;
 #endif
 
@@ -586,7 +589,7 @@ typedef thread_db* TSQL;
 // Verifies that a pointed to block matches the expected type.
 // Useful to find coding errors & memory globbers.
 
-#define DEV_BLKCHK(blk, typ)	
+#define DEV_BLKCHK(blk, typ)
 	/***
 	{						\
 		if ((blk) && MemoryPool::blk_type(blk) != (SSHORT)typ) {	\

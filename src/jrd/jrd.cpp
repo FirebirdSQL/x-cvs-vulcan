@@ -373,6 +373,7 @@ static void		purge_attachment(thread_db*, ISC_STATUS*, Attachment*, const bool);
 
 static bool				initialized = false;
 static DatabaseManager	databaseManager;
+static Mutex			init_mutex;
 
 
 #ifdef GOVERNOR
@@ -470,6 +471,20 @@ static void SET_TDBB(thread_db*& tdbb)
 	check_tdbb(tdbb);
 }
 
+#ifdef SHARED_CACHE
+#define lockAST(x)
+#define unlockAST(x)
+#else
+static void lockAST(Database *dbb)
+{
+	dbb->syncAst.lock(NULL, Exclusive);
+}
+
+static void unlockAST(Database *dbb)
+{
+	dbb->syncAst.unlock();
+}
+#endif
 
 #define CHECK_HANDLE(blk,type,error)					\
 	if (!blk )	\
@@ -597,12 +612,16 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 		return user_status[1];
 		}
 
+	lockAST(dbb);
+
 	/* Hand off database existence lock to local Sync object */
 	
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncExistence, "jrd8_attach_database");
 	sync.lock(dbb->syncExistence.getState());
 	dbb->syncExistence.unlock();
-		
+#endif
+			
 	dbb->dbb_flags |= DBB_being_opened;
 	threadData.setDatabase (dbb);
 	Attachment* attachment = NULL;
@@ -890,8 +909,10 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 	if (!internal)
 		attachment->authenticateUser(threadData, dpb_length, dpb);
 	
+#ifdef SHARED_CACHE
 	if (sync.state == Exclusive)
 		sync.downGrade(Shared);
+#endif
 		
 	if (options.dpb_shutdown || options.dpb_online)
 		{
@@ -900,7 +921,9 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 		   not timeout for exclusive access and other threads don't have to wait
 		   behind shutdown */
 
+#ifdef SHARED_CACHE
 		sync.unlock();
+#endif
 		
 		if (!SHUT_database(dbb, options.dpb_shutdown, options.dpb_shutdown_delay)) 
 			{
@@ -914,7 +937,9 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
                          0);
 			}
 		
+#ifdef SHARED_CACHE
 		sync.lock(Shared);
+#endif
 		}
 
 #ifdef SUPERSERVER
@@ -1040,8 +1065,10 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 
 		if (options.dpb_sweep & isc_dpb_records)
 			{
+#ifdef SHARED_CACHE
 			sync.unlock();
-			
+#endif
+
 			if (!(TRA_sweep(threadData, 0)))
 				ERR_punt();
 			}
@@ -1057,7 +1084,9 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 		LOG_call(log_handle_returned, *handle);
-#endif	
+#endif
+
+		unlockAST(dbb);
 
 		return return_success(threadData);
 		}
@@ -1066,8 +1095,10 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 		ISC_STATUS_ARRAY temp_status;
 		try
 			{
+#ifdef SHARED_CACHE
 			if (sync.state > None)
 				sync.unlock();
+#endif
 			threadData.setStatusVector (temp_status);
 			dbb->dbb_flags &= ~DBB_being_opened;
 			release_attachment(threadData, attachment);
@@ -1075,6 +1106,8 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 			/* At this point, mutex dbb->dbb_mutexes [DBB_MUTX_init_fini] has been
 			   unlocked and mutex databases_mutex has been locked. */
 			   
+			unlockAST(dbb);
+
 			if (!dbb->dbb_attachments)
 				shutdown_database(threadData, true);
 			else if (attachment)
@@ -1258,6 +1291,8 @@ ISC_STATUS GDS_CANCEL_OPERATION(ISC_STATUS* user_status,
 
 	const Attachment* attach;
 	
+	lockAST(dbb);
+
 	for (attach = dbb->dbb_attachments; attach; attach = attach->att_next)
 		if (attach == attachment)
 			break;
@@ -1282,6 +1317,8 @@ ISC_STATUS GDS_CANCEL_OPERATION(ISC_STATUS* user_status,
 		default:
 			fb_assert(FALSE);
 		}
+
+	unlockAST(dbb);
 
 	return FB_SUCCESS;
 }
@@ -1346,9 +1383,15 @@ ISC_STATUS GDS_COMMIT(ISC_STATUS * user_status, Transaction* * tra_handle)
  **************************************/
 
 	api_entry_point_init(user_status);
+	Database *dbb;
+	
+	dbb = (*tra_handle)->tra_attachment->att_database;
+	lockAST(dbb);
 
 	if (commit(user_status, tra_handle, false))
 		return user_status[1];
+
+	unlockAST(dbb);
 
 	*tra_handle = NULL;
 
@@ -1406,14 +1449,18 @@ ISC_STATUS GDS_COMPILE(ISC_STATUS* user_status,
 	if (check_database(threadData, attachment, user_status))
 		return user_status[1];
 
+	lockAST(attachment->att_database);
+
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_compile, *db_handle, *req_handle, blr_length, blr);
 #endif
 
 	try
 		{
+#ifdef SHARED_CACHE
 		Sync sync(&attachment->syncRequests, "jrd8_compile_request");
 		sync.lock(Exclusive);
+#endif
 		Request* request = CMP_compile2(threadData, blr, FALSE);
 		request->req_attachment = attachment;
 		request->req_request = attachment->att_requests;
@@ -1427,9 +1474,11 @@ ISC_STATUS GDS_COMPILE(ISC_STATUS* user_status,
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -1474,8 +1523,10 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
 	try
 		{
 		transaction = find_transaction(threadData, *tra_handle, isc_segstr_wrong_db);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&transaction->syncInUse, "jrd8_create_blob");
 		syncTransaction.lock(Exclusive);
+#endif
 		blob = BLB_create2(threadData, transaction, blob_id, bpb_length, bpb);
 		*blob_handle = blob;
 	
@@ -1535,11 +1586,15 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		return user_status[1];
 		}
 
+	lockAST(dbb);
+
 	/* Handoff database existence lock to local Sync object */
 	
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncExistence, "jrd8_create_database");
 	sync.lock(Exclusive);
 	dbb->syncExistence.unlock();
+#endif
 	
 	threadData.setDatabase (dbb);
 	dbb->dbb_flags |= DBB_being_opened;
@@ -1781,19 +1836,23 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		CCH_FLUSH(threadData.threadData, (USHORT) FLUSH_FINI, 0);
 		dbb->makeReady();
 		
+		unlockAST(dbb);
 		return return_success(threadData);
 		}
 	catch (OSRIException& exception)
 		{
 		try
 			{
+#ifdef SHARED_CACHE
 			sync.unlock();
+#endif
 			dbb->dbb_flags &= ~DBB_being_opened;
 			release_attachment(threadData, attachment);
 
 			/* At this point, mutex dbb->dbb_mutexes [DBB_MUTX_init_fini] has been
 			   unlocked and mutex databases_mutex has been locked. */
 			   
+			unlockAST(dbb);
 			if (!dbb->dbb_attachments)
 				shutdown_database(threadData, true);
 			else if (attachment)
@@ -1884,13 +1943,17 @@ ISC_STATUS GDS_DDL(ISC_STATUS* user_status,
 
 	try 
 		{
+		lockAST(attachment->att_database);
 		transaction = find_transaction(threadData, *tra_handle, isc_segstr_wrong_db);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&transaction->syncInUse, "jrd8_ddl");
 		syncTransaction.lock(Exclusive);
+#endif
 		DYN_ddl(threadData, attachment, transaction, ddl_length,ddl);
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(attachment->att_database);
 		return error(&exception, user_status);
 		}
 
@@ -1932,10 +1995,13 @@ ISC_STATUS GDS_DDL(ISC_STATUS* user_status,
 				}
 			//tdbb->tdbb_status_vector = user_status;
 			threadData.setStatusVector (user_status);
+			unlockAST(attachment->att_database);
 			return error(&exception, user_status);
 			}
 		};
 
+	unlockAST(attachment->att_database);
+	
 	return return_success(threadData);
 }
 
@@ -1973,8 +2039,10 @@ ISC_STATUS GDS_DETACH(ISC_STATUS * user_status, Attachment* * handle)
 	
 	/* Make sure this is a valid attachment */
 
-	Sync sync (&dbb->syncExistence, "jrd8_detach_database");
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncAttachments, "jrd8_detach_database");
 	sync.lock(Exclusive);
+#endif
 	Attachment* attach;
 	
 	for (attach = dbb->dbb_attachments; attach; attach = attach->att_next)
@@ -1990,6 +2058,8 @@ ISC_STATUS GDS_DETACH(ISC_STATUS * user_status, Attachment* * handle)
 		!(dbb->dbb_flags & DBB_being_opened))
 		dbb->dbb_flags |= DBB_not_in_use;
 		
+	lockAST(dbb); /* this will be unlocked in shutdown_blocking_thread */
+
 	threadData.setDatabase (dbb);
 	threadData.setAttachment (attachment);
 
@@ -2020,7 +2090,9 @@ ISC_STATUS GDS_DETACH(ISC_STATUS * user_status, Attachment* * handle)
 		attachment_flags = (USHORT) attachment->att_flags;
 #endif
 
+#ifdef SHARED_CACHE
 		sync.unlock();
+#endif
 		purge_attachment(threadData, user_status, attachment, false);
 
 #ifdef GOVERNOR
@@ -2094,7 +2166,9 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 			 dbb->dbb_max_memory);
 #endif
 
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncExistence, "jrd8_drop_database");
+#endif
 	
 	try
 		{
@@ -2109,7 +2183,9 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 			ERR_post(isc_shutdown, isc_arg_string,
 					ERR_cstring(attachment->att_filename), 0);
 
+#ifdef SHARED_CACHE
 		sync.lock(Exclusive);
+#endif
 		
 		if (!CCH_EXCLUSIVE(threadData.threadData, LCK_PW, WAIT_PERIOD))
 			ERR_post(isc_lock_timeout, isc_arg_gds, isc_obj_in_use,
@@ -2187,7 +2263,9 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 		return error(&exception, user_status);
 		}
 	
+#ifdef SHARED_CACHE
 	sync.unlock();	
+#endif
 	delete dbb;
 		
 	if (err) 
@@ -2369,8 +2447,10 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 	try
 		{
 		Transaction* transaction = find_transaction(threadData, *tra_handle, isc_segstr_wrong_db);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&transaction->syncInUse, "jrd8_open_blob");
 		syncTransaction.lock(Exclusive);
+#endif
 		blb* blob = BLB_open2(threadData, transaction, blob_id, bpb_length, bpb);
 		*blob_handle = blob;
 	
@@ -2420,8 +2500,15 @@ ISC_STATUS GDS_PREPARE(ISC_STATUS * user_status,
 	LOG_call(log_prepare2, *tra_handle, length, msg);
 #endif
 
+	lockAST(transaction->tra_attachment->att_database);
+
 	if (prepare(threadData, transaction, user_status, length, msg))
+	{
+		unlockAST(transaction->tra_attachment->att_database);
 		return error(NULL, user_status);
+	}
+
+	unlockAST(transaction->tra_attachment->att_database);
 
 	return return_success(threadData);
 }
@@ -2624,6 +2711,8 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 	if (check_database(threadData, request->req_attachment, user_status))
 		return user_status[1];
 
+	lockAST(request->req_attachment->att_database);
+
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_receive2, *req_handle, msg_type, msg_length, level);
 #endif
@@ -2631,8 +2720,10 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 	try
 		{
 		request = request->getInstantiatedRequest(level);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&request->req_transaction->syncInUse, "jrd8_receive");
 		syncTransaction.lock(Exclusive);
+#endif
 		
 	#ifdef SCROLLABLE_CURSORS
 		if (direction)
@@ -2645,14 +2736,17 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 		if (request->req_flags & req_warning) 
 			{
 			request->req_flags &= ~req_warning;
+			unlockAST(request->req_attachment->att_database);
 			return error(NULL, user_status);
 			}
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(request->req_attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(request->req_attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -2690,6 +2784,8 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 	LOG_call(log_reconnect, *db_handle, *tra_handle, length, id);
 #endif
 
+	lockAST(attachment->att_database);
+
 	//tdbb->tdbb_status_vector = user_status;
 	try
 	{
@@ -2702,9 +2798,11 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 	}
 	catch (OSRIException& exception)
 	{
+		unlockAST(attachment->att_database);
 		return error(&exception, user_status);
 	}
 
+	unlockAST(attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -2731,6 +2829,8 @@ ISC_STATUS GDS_RELEASE_REQUEST(ISC_STATUS * user_status, JRD_REQ * req_handle)
 	if (check_database(threadData, attachment, user_status))
 		return user_status[1];
 
+	lockAST(attachment->att_database);
+
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_release_request, *req_handle);
 #endif
@@ -2742,9 +2842,11 @@ ISC_STATUS GDS_RELEASE_REQUEST(ISC_STATUS * user_status, JRD_REQ * req_handle)
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -2780,6 +2882,8 @@ ISC_STATUS GDS_REQUEST_INFO(ISC_STATUS* user_status,
 	if (check_database(threadData, request->req_attachment, user_status))
 		return user_status[1];
 
+	lockAST(request->req_attachment->att_database);
+
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_request_info2, *req_handle, level, item_length, items,
 			 buffer_length);
@@ -2792,9 +2896,11 @@ ISC_STATUS GDS_REQUEST_INFO(ISC_STATUS* user_status,
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(request->req_attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(request->req_attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -2825,12 +2931,18 @@ ISC_STATUS GDS_ROLLBACK_RETAINING(ISC_STATUS* user_status,
 	if (check_database(threadData, transaction->tra_attachment, user_status))
 		return user_status[1];
 
+	lockAST(transaction->tra_attachment->att_database);
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_rollback, *tra_handle);
 #endif
 
 	if (rollback(threadData, transaction, user_status, true))
+	{
+		unlockAST(transaction->tra_attachment->att_database);
 		return error(NULL, user_status);
+	}
+
+	unlockAST(transaction->tra_attachment->att_database);
 
 	return return_success(threadData);
 }
@@ -2855,16 +2967,24 @@ ISC_STATUS GDS_ROLLBACK(ISC_STATUS * user_status, Transaction* * tra_handle)
 	ThreadData threadData (user_status);
 	Transaction* transaction = *tra_handle;
 	CHECK_HANDLE(transaction, type_tra, isc_bad_trans_handle);
+	DBB dbb;
 
 	if (check_database(threadData, transaction->tra_attachment, user_status))
 		return user_status[1];
+
+	lockAST(dbb = transaction->tra_attachment->att_database);
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_rollback, *tra_handle);
 #endif
 
 	if (rollback(threadData, transaction, user_status, false))
+	{
+		unlockAST(transaction->tra_attachment->att_database);
 		return error(NULL, user_status);
+	}
+
+	unlockAST(dbb);
 
 	*tra_handle = NULL;
 	return return_success(threadData);
@@ -2941,6 +3061,7 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 	if (check_database(threadData, request->req_attachment, user_status))
 		return user_status[1];
 
+	lockAST(request->req_attachment->att_database);
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_send, *req_handle, msg_type, msg_length, msg, level);
 #endif
@@ -2948,22 +3069,27 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 	try
 		{
 		request = request->getInstantiatedRequest(level);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&request->req_transaction->syncInUse, "jrd8_send");
 		syncTransaction.lock(Exclusive);
+#endif
 		EXE_send(threadData, request, msg_type, msg_length, msg);
 		check_autocommit(request, threadData);
 	
 		if (request->req_flags & req_warning) 
 			{
 			request->req_flags &= ~req_warning;
+			unlockAST(request->req_attachment->att_database);
 			return error(NULL, user_status);
 			}
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(request->req_attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(request->req_attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -3207,6 +3333,8 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS* user_status,
 	if (check_database(threadData, request->req_attachment, user_status))
 		return user_status[1];
 
+	lockAST(request->req_attachment->att_database);
+
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_start_and_send, *req_handle, *tra_handle, msg_type,
 			 msg_length, msg, level);
@@ -3215,9 +3343,11 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS* user_status,
 	try
 		{
 		Transaction *transaction = find_transaction(threadData, *tra_handle, isc_req_wrong_db);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&transaction->syncInUse, "jrd8_start_and_send");
 		syncTransaction.lock(Exclusive);
-		
+#endif
+	
 		if (level)
 			request = CMP_clone_request(threadData, request, level, false);
 	
@@ -3229,14 +3359,17 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS* user_status,
 		if (request->req_flags & req_warning) 
 			{
 			request->req_flags &= ~req_warning;
+			unlockAST(request->req_attachment->att_database);
 			return error(NULL, user_status);
 			}
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(request->req_attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(request->req_attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -3265,6 +3398,7 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 	if (check_database(threadData, request->req_attachment, user_status))
 		return user_status[1];
 
+	lockAST(request->req_attachment->att_database);
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_start, *req_handle, *tra_handle, level);
 #endif
@@ -3272,8 +3406,10 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 	try
 		{
 		Transaction* transaction = find_transaction(threadData, *tra_handle, isc_req_wrong_db);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&transaction->syncInUse, "jrd8_start");
 		syncTransaction.lock(Exclusive);
+#endif
 		
 		if (level)
 			request = CMP_clone_request(threadData, request, level, false);
@@ -3285,14 +3421,17 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 		if (request->req_flags & req_warning) 
 			{
 			request->req_flags &= ~req_warning;
+			unlockAST(request->req_attachment->att_database);
 			return error(NULL, user_status);
 			}
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(request->req_attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(request->req_attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -3343,6 +3482,7 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 			if (check_database(threadData, attachment, user_status)) 
 				return user_status[1];
 
+			lockAST(attachment->att_database);
 	#ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 			LOG_call(log_start_multiple, *tra_handle, count, vector);
 	#endif
@@ -3352,6 +3492,7 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 			prior = transaction;
 			dbb = threadData.getDatabase(); //tdbb->tdbb_database;
 			dbb->decrementUseCount();
+			unlockAST(dbb);
 			}
 		}
 	catch (OSRIException& exception) 
@@ -3365,6 +3506,7 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 			rollback(threadData, prior, temp_status, false);
 			}
 			
+		unlockAST(dbb);
 		return error(&exception, user_status);
 		}
 
@@ -3464,14 +3606,18 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS*	user_status,
 
 	//tdbb->tdbb_status_vector = user_status;
 
+	Transaction* transaction;
 	try 
 		{
-		Transaction* transaction = find_transaction(threadData, *tra_handle, isc_req_wrong_db);
+		transaction = find_transaction(threadData, *tra_handle, isc_req_wrong_db);
+#ifdef SHARED_CACHE
 		Sync syncTransaction(&transaction->syncInUse, "jrd8_transact");
 		syncTransaction.lock(Exclusive);
+#endif
 
 		old_pool = threadData.getPool();
 		new_pool = JrdMemoryPool::createPool(transaction->tra_attachment->att_database);
+		lockAST(transaction->tra_attachment->att_database);
 		threadData.setPool (new_pool);
 		CompilerScratch* csb = PAR_parse(threadData, reinterpret_cast<const UCHAR*>(blr), FALSE);
 		request = CMP_make_request(threadData, csb);
@@ -3550,6 +3696,7 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS*	user_status,
 		check_autocommit(request, threadData);
 		CMP_release(threadData, request);
 
+		unlockAST(transaction->tra_attachment->att_database);
 		return return_success(threadData);
 		}
 	catch (OSRIException& exception)
@@ -3569,6 +3716,7 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS*	user_status,
 			exception; 
 			}
 
+		unlockAST(transaction->tra_attachment->att_database);
 		return error(&exception, user_status);
 		}
 }
@@ -3608,6 +3756,7 @@ ISC_STATUS GDS_TRANSACTION_INFO(ISC_STATUS* user_status,
 	LOG_call(log_transaction_info2, *tra_handle, item_length, items,
 			 buffer_length);
 #endif
+	lockAST(transaction->tra_attachment->att_database);
 
 	//tdbb->tdbb_status_vector = user_status;
 	try
@@ -3617,9 +3766,11 @@ ISC_STATUS GDS_TRANSACTION_INFO(ISC_STATUS* user_status,
 		}
 	catch (OSRIException& exception)
 		{
+		unlockAST(transaction->tra_attachment->att_database);
 		return error(&exception, user_status);
 		}
 
+	unlockAST(transaction->tra_attachment->att_database);
 	return return_success(threadData);
 }
 
@@ -3671,6 +3822,8 @@ ISC_STATUS GDS_UNWIND(ISC_STATUS * user_status,
 	LOG_call(log_unwind, *req_handle, level);
 #endif
 
+	lockAST(dbb);
+
 /* Set up error handling to restore old state */
 
 	//tdbb->tdbb_status_vector = user_status;
@@ -3696,12 +3849,14 @@ ISC_STATUS GDS_UNWIND(ISC_STATUS * user_status,
 		user_status[0] = isc_arg_gds;
 		user_status[2] = isc_arg_end;
 
+		unlockAST(dbb);
 		return (user_status[1] = FB_SUCCESS);
 		}
 	catch (OSRIException& exception) 
 		{
 		exception;
 		JRD_restore_context();
+		unlockAST(dbb);
 		return user_status[1];
 		}
 }
@@ -5161,7 +5316,8 @@ static DBB init(thread_db* tdbb,
 
 	/* If this is the first time through, initialize local mutexes and set
 	up a cleanup handler.  Regardless, then lock the database mutex. */
-
+	Sync sync(&init_mutex, "init");
+	sync.lock(Exclusive);
 	if (!initialized) 
 		{
 		THD_INIT;
@@ -5181,6 +5337,7 @@ static DBB init(thread_db* tdbb,
 			}
 		//THD_GLOBAL_MUTEX_UNLOCK;
 		}
+	sync.unlock();
 
 	//JRD_SS_MUTEX_LOCK;
 
@@ -5196,7 +5353,9 @@ static DBB init(thread_db* tdbb,
 			return dbb;
 			}
 
+#ifdef SHARED_CACHE
 		dbb->syncExistence.unlock();			
+#endif
 		dbb->release();
 		
 		return NULL;
@@ -5266,7 +5425,9 @@ static DBB init(thread_db* tdbb,
 		if (dbb)
 			{
 			databaseManager.remove(dbb);
+#ifdef SHARED_CACHE
 			dbb->syncExistence.unlock();
+#endif
 			dbb->release();
 			}
 			

@@ -29,7 +29,11 @@
 #endif
 
 #include <stdio.h>
+#if defined(MVS) || defined(__VMS)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <memory.h>
 #include "firebird.h"
 #include "common.h"
@@ -40,10 +44,10 @@
 #include "Interlock.h"
 #include "gen/iberror.h"
 
-#define CONSERVATIVE
 
 static Mutex				defaultMemMgrMutex;
 static NAMESPACE::MemMgr	*defaultMemoryManager;
+
 
 static const int guardBytes = sizeof(long); // * 2048;
 
@@ -138,15 +142,11 @@ static void* operator new[](size_t s, void *p) THROWS_BAD_ALLOC
 	}
 #endif // _WIN32
 
-MemMgr::MemMgr(int rounding, int cutoff, int minAlloc)
+MemMgr::MemMgr(int rounding, int cutoff, int minAlloc, bool shared)
 {
 	roundingSize = rounding;
 	threshold = cutoff;
 	minAllocation = minAlloc;
-	maxMemory = 0;
-	currentMemory = 0;
-	blocksAllocated = 0;
-	blocksActive = 0;
 	int vecSize = (cutoff + rounding) / rounding;
 	int l = vecSize * sizeof (void*);
 	freeObjects = (MemBlock**) allocRaw (l);
@@ -155,6 +155,11 @@ MemMgr::MemMgr(int rounding, int cutoff, int minAlloc)
 	smallHunks = NULL;
 	freeBlocks.nextLarger = freeBlocks.priorSmaller = &freeBlocks;
 	junk.nextLarger = junk.priorSmaller = &junk;
+	maxMemory = 0;
+	currentMemory = 0;
+	blocksAllocated = 0;
+	blocksActive = 0;
+	threadShared = shared;
 }
 
 
@@ -174,19 +179,19 @@ MemMgr::~MemMgr(void)
 		releaseRaw (hunk);
 		}
 		
-	for (MemBigHunk *hunk; hunk = bigHunks;)
+	{
+		for (MemBigHunk *hunk; hunk = bigHunks;)
 		{
 		bigHunks = hunk->nextHunk;
 		releaseRaw (hunk);
 		}
+	}
 }
 
 MemBlock* MemMgr::alloc(int length)
 {
-#ifdef CONSERVATIVE
 	Sync sync (&mutex, "MemMgr::alloc");
-	sync.lock(Exclusive);
-#endif
+	if (threadShared) sync.lock(Exclusive);
 	
 	// If this is a small block, look for it there
 	
@@ -195,18 +200,38 @@ MemBlock* MemMgr::alloc(int length)
 		int slot = length / roundingSize;
 		MemBlock *block;
 		
-		while (block = freeObjects [slot])
+		if (threadShared)
 			{
-			void *next = (void*) block->pool;
-			if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, block, block->pool))
-				return block;
-			}
-
-#ifndef CONSERVATIVE		
-		Sync sync (&mutex, "MemMgr::alloc");
-		sync.lock(Exclusive);
+			while (block = freeObjects [slot])
+				{
+				if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, block, (void *)block->pool))
+					{
+#ifdef MEM_DEBUG
+					if (slot != (-block->length) / roundingSize)
+						{
+						corrupt ("lenght trashed for block in slot");
+						}
 #endif
-		
+					return block;
+					}
+				}
+			}
+		else
+			{
+			block = freeObjects [slot];
+			if (block)
+				{
+				freeObjects[slot] = (MemBlock *)block->pool;
+
+#ifdef MEM_DEBUG
+				if (slot != (-block->length) / roundingSize)
+					{
+					corrupt ("lenght trashed for block in slot");
+					}
+#endif
+				return block;
+				}
+			}
 		// See if some other hunk has unallocated space to use
 		
 		MemSmallHunk *hunk;
@@ -261,10 +286,6 @@ MemBlock* MemMgr::alloc(int length)
 	 */
 	
 	
-#ifndef CONSERVATIVE		
-	Sync sync (&mutex, "MemMgr::alloc");
-	sync.lock(Exclusive);
-#endif
 	MemFreeBlock *freeBlock;
 	
 	for (freeBlock = freeBlocks.nextLarger; freeBlock != &freeBlocks; freeBlock = freeBlock->nextLarger)
@@ -289,7 +310,7 @@ MemBlock* MemMgr::alloc(int length)
 			
 			MemBigObject *newBlock = freeBlock;
 			freeBlock = (MemFreeBlock*) ((UCHAR*) block + length);
-			freeBlock->memHeader.length = tail - sizeof (MemBigHeader); 
+			freeBlock->memHeader.length = tail - sizeof (MemBigObject); 
 			block->length = length;
 			block->pool = this;
 			
@@ -312,10 +333,10 @@ MemBlock* MemMgr::alloc(int length)
 	
 	// If the hunk size is sufficient below minAllocation, allocate extra space
 	
-	if (hunkLength + sizeof(MemBigHeader) + threshold < minAllocation)
+	if (hunkLength + sizeof(MemBigObject) + threshold < minAllocation)
 		{
 		hunkLength = minAllocation;
-		freeSpace = hunkLength - 2 * sizeof(MemBigHeader) - length;
+		freeSpace = hunkLength - 2 * sizeof(MemBigObject) - length;
 		}
 	
 	// Allocate the new hunk
@@ -415,6 +436,7 @@ void MemMgr::releaseBlock(MemBlock *block)
 
 	--blocksActive;
 	int length = block->length;
+
 	
 	// If length is negative, this is a small block
 	
@@ -423,24 +445,32 @@ void MemMgr::releaseBlock(MemBlock *block)
 #ifdef MEM_DEBUG
 		memset (&block->body, DELETE_BYTE, -length - OFFSET(MemBlock*, body));
 #endif
-		for (int slot = -length / roundingSize;;)
+
+		if (threadShared)
+			for (int slot = -length / roundingSize;;)
 			{
 			void *next = freeObjects [slot];
 			block->pool = (MemMgr*) next;
 			if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, next, block))
 				return;
 			}
+
+		int slot = -length / roundingSize;
+		void *next = freeObjects [slot];
+		block->pool = (MemMgr*) next;
+		freeObjects[slot] = block;
+		return;
 		}
 	
 	// OK, this is a large block.  Try recombining with neighbors
+	Sync sync (&mutex, "MemMgr::release");
+	if (threadShared) sync.lock(Exclusive);
 
 #ifdef MEM_DEBUG
 	memset (&block->body, DELETE_BYTE, length - OFFSET(MemBlock*, body));
 #endif
 
 	MemFreeBlock *freeBlock = (MemFreeBlock*) ((UCHAR*) block - sizeof (MemBigHeader));
-	Sync sync (&mutex, "MemMgr::release");
-	sync.lock(Exclusive);
 	block->pool = NULL;
 
 	if (freeBlock->next && !freeBlock->next->memHeader.pool)

@@ -52,8 +52,10 @@ void Trigger::compile(thread_db* _tdbb)
 		return;
 	
 	DBB dbb = _tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "trig::compile");
 	sync.lock(Exclusive);
+#endif
 	
 	if (!request && !compile_in_progress)
 		{

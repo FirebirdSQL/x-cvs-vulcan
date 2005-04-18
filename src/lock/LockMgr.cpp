@@ -65,6 +65,7 @@ $Id$
 #include "Mutex.h"
 #include "LockAcquire.h"
 #include "Thread.h"
+#include "Database.h"
 
 #undef SUPERSERVER
 
@@ -104,10 +105,13 @@ $Id$
 #ifdef WIN_NT
 #include <windows.h>
 #include <process.h>
-#define MUTEX		lock_manager_mutex
 #define ERRNO		GetLastError()
+#define MUTEX		lock_manager_mutex
 #endif
 
+#ifdef SHARED_CACHE
+THREAD_ID LOCK_thread;
+#endif
 
 #ifdef DEV_BUILD
 #define ASSERT_ACQUIRED current_is_active_owner (true,  __LINE__)
@@ -143,7 +147,10 @@ $Id$
 
 #ifdef DEBUG_TRACE
 #define LOCK_TRACE(x)	lockTrace x
+//#define DUMP_LOCK_COUNTS(x)	dumpLockCounts(x, __LINE__)
+//#define PRINT_QUE(x,y)	print_que(x,y,__LINE__)
 #endif
+
 
 #ifdef DEBUG
 SSHORT LOCK_debug_level = 0;
@@ -156,6 +163,12 @@ SSHORT LOCK_debug_level = 0;
 
 #ifndef LOCK_TRACE
 #define LOCK_TRACE(x)			/* nothing */
+#endif
+#ifndef DUMP_LOCK_COUNTS
+#define DUMP_LOCK_COUNTS(x)		/* nothing */
+#endif
+#ifndef PRINT_QUE
+#define PRINT_QUE(x,y)			/* nothing */
 #endif
 
 /* Debug delay is used to create nice big windows for signals or other
@@ -176,14 +189,34 @@ SSHORT LOCK_debug_level = 0;
 #endif
 
 #ifndef MUTEX
+#if defined SHARED_CACHE || defined ONE_LOCK_TABLE
 #define MUTEX		LOCK_table->lhb_mutex
+#else
+#define MUTEX		((Thread::getCurrentThreadId() == blocking_action_thread_id) ? \
+						LOCK_table2->lhb_mutex : LOCK_table->lhb_mutex)
 #endif
+#endif
+
+
+#ifdef hpux
+/* can't map the same file to two locations on HP */
+#undef HAS_MAP_OBJECT
+#else
+#define HAS_MAP_OBJECT 1
+#endif
+
 
 /***
 #ifndef SV_INTERRUPT
 #define SV_INTERRUPT	0
 #endif
 ***/
+
+#undef BASE
+#define BASE                    ((UCHAR*) LOCK_header)
+#define REL_PTR(item)           (PTR) ((UCHAR*) item - BASE)
+#define ABS_PTR(item)           (BASE + item)
+
 
 #define LOCK_BLOCK(ptr)		((LockBlock*) ABS_PTR(ptr))
 #define LOCK_REQUEST(ptr)	((LockRequest*) ABS_PTR(ptr))
@@ -194,19 +227,22 @@ SSHORT LOCK_debug_level = 0;
 #define DUMMY_OWNER_DELETE	(	(PTR) -2)
 #define DUMMY_OWNER_SHUTDOWN	((PTR) -3)
 
+#if 0
 #if (defined HAVE_MMAP)
 #define GET_OWNER(owner_offset)		LOCK_owner
 #else
 #define GET_OWNER(owner_offset)		(LOCK_OWNER(owner_offset))
 #endif
+#endif
 
+#ifdef SHARED_CACHE
 //static LockOwner	LOCK_process_owner;	/* Place holder */
 static SSHORT		LOCK_bugcheck = 0;
 static LHB volatile LOCK_header = NULL;
 static LHB volatile LOCK_table = NULL;
+static LHB volatile LOCK_table_original = NULL;
 static PTR			LOCK_owner_offset = 0;
 static OWN			LOCK_owner = 0;
-static const int	LCK_OWNER_dummy_process = 255;
 
 static int			LOCK_pid = 0;
 static int			LOCK_version = 0;
@@ -233,13 +269,26 @@ static SLONG		LOCK_scan_interval;
 static SH_MEM_T		LOCK_data;
 //static TEXT		LOCK_bug_buffer[128];
 static Mutex		lockManagerMutex;
+static Mutex 		LOCK_table_init_mutex;
 
 #ifdef WIN_NT
 static MTX_T		lock_manager_mutex[1];
-
 //static HANDLE		blocking_event[1];
 //static HANDLE		wakeup_event[1];
 #endif
+
+
+#ifdef WIN_NT
+static HANDLE	blocking_action_thread_handle;
+#else
+static void*	blocking_action_thread_handle;
+#endif
+
+
+#endif
+
+
+
 
 #define GET_TIME	time (NULL)
 
@@ -263,20 +312,49 @@ static MTX_T		lock_manager_mutex[1];
 
 #define QUE_INIT(que)   {que.srq_forward = que.srq_backward = REL_PTR (&que);}
 #define QUE_EMPTY(que)  (que.srq_forward == REL_PTR (&que))
-#define QUE_NEXT(que)   (SRQ) ABS_PTR (que.srq_forward)
+#define QUE_NEXT(que)   (PSRQ) ABS_PTR (que.srq_forward)
 
 #define SRQ_LOOP(header,que)    for (que = QUE_NEXT (header);\
 	que != &header; que = QUE_NEXT ((*que)))
 
+/* Lock block types */
 
+#define type_null       0
+#define type_lhb        1
+#define type_prb        2
+#define type_lrq        3
+#define type_lbl        4
+#define type_his        5
+#define type_smb        6
+#define type_shb        7
+#define type_own        8
 
+#define type_MAX        type_own
+
+const int	LCK_OWNER_dummy_process = 255;
+INTERLOCK_TYPE lock_file_count;
+
+#ifndef SHARED_CACHE
+#ifdef ONE_LOCK_TABLE
+LHB			LockMgr::LOCK_table_static;
+SH_MEM_T	LockMgr::LOCK_data;
+Mutex 		LockMgr::LOCK_table_init_mutex;
 #ifdef WIN_NT
-static HANDLE	blocking_action_thread_handle;
-#else
-static void*	blocking_action_thread_handle;
+MTX_T		LockMgr::lock_manager_mutex[1];
+#endif
+#endif
+#endif
+
+
+#if 0
+int num_blocking_wakeups;
+int num_long_waits;
+int num_acquires;
+extern int sync_locks, long_sync_locks;
 #endif
 
 static const UCHAR compatibility[] = {
+
 
 /*				Shared	Prot	Shared	Prot
 		none	null	 Read	Read	Write	Write	Exclusive */
@@ -292,14 +370,66 @@ static const UCHAR compatibility[] = {
 
 #define COMPATIBLE(st1, st2)	compatibility [st1 * LCK_max + st2]
 
+void dumpLockCounts(LBL lock, int line)
+{
+	int i;
+	printf("line %d: lock %p\n", line, lock);
+	for (i = 0; i < LCK_max; i++)
+	{
+		printf("count[%d] = %d\n", i, lock->lbl_counts[i]);
+		if (lock->lbl_counts[i] == 2)
+			printf("*********\n");
+	}
+	printf("\n");
+}
 
 
 LockMgr::LockMgr(void)
 {
+#ifndef SHARED_CACHE
+	LOCK_header = NULL;
+	LOCK_table = NULL;
+	LOCK_bugcheck = 0;
+	LOCK_owner_offset = 0;
+	LOCK_owner = 0;
+
+	LOCK_pid = 0;
+	LOCK_version = 0;
+	LOCK_shm_size;
+	LOCK_sem_count;
+	LOCK_solaris_stall;
+	LOCK_trace_stop = 80;
+
+	shutdown = false;
+	shutdownCount = 0;
+
+	debugRequest = 0;
+
+	LOCK_ordering = 0;
+	LOCK_hash_slots = 0;
+	LOCK_scan_interval = 0;
+
+#ifndef ONE_LOCK_TABLE
+	memset(&LOCK_data, 0, sizeof(LOCK_data));
+	memset(&LOCK_data2, 0, sizeof(LOCK_data2));
+#ifdef POSIX_THREADS
+	LOCK_data.sh_file_count = LOCK_data2.sh_file_count = &lock_file_count;
+#endif
+#endif
+	
+	blocking_action_thread_handle = NULL;
+	memset(&blocking_action_thread_id, 0xff, sizeof(blocking_action_thread_id));
+#endif
 }
 
 LockMgr::~LockMgr(void)
 {
+#if 0
+	printf("Num acquires = %d, Num long waits = %d, num blocking wakeups = %d\n", 
+			num_acquires, num_long_waits, num_blocking_wakeups);
+			
+	printf("sync_locks = %d, long_sync_locks = %d\n", sync_locks, long_sync_locks);
+#endif
 }
 
 void LockMgr::LOCK_ast_inhibit() 
@@ -329,10 +459,11 @@ int LockMgr::LOCK_convert(PTR		request_offset,
  *	Perform a lock conversion, if possible.
  *
  **************************************/
-	LOCK_TRACE(("LOCK_convert (%d, %d)\n", type, lck_wait));
+	LOCK_TRACE(("LOCK_convert owner: %ld (%d, %d)\n", request_offset, type, lck_wait));
 
 	LRQ request = get_request(request_offset);
 	acquire(request->lrq_owner);
+	request = get_request(request_offset); /* in case of remap */
 	OWN owner = LOCK_OWNER(request->lrq_owner);
 	
 	if (!owner->own_count)
@@ -373,7 +504,12 @@ int LockMgr::LOCK_deq( PTR request_offset)
 	LOCK_TRACE(("LOCK_deq (%ld)\n", request_offset));
 
 	LRQ request = get_request(request_offset);
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(request->lrq_owner);
+#else
+	LockAcquire lockAcquire(request->lrq_owner, this);
+#endif
+	request = get_request(request_offset); /* in case of remap */
 	PTR owner_offset = request->lrq_owner;
 	OWN owner = LOCK_OWNER(owner_offset);
 	
@@ -410,7 +546,12 @@ UCHAR LockMgr::LOCK_downgrade(PTR request_offset, ISC_STATUS * status_vector)
 	LOCK_TRACE(("LOCK_downgrade (%ld)\n", request_offset));
 
 	LRQ request = get_request(request_offset);
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(request->lrq_owner);
+#else
+	LockAcquire lockAcquire(request->lrq_owner, this);
+#endif
+	request = get_request(request_offset); /* in case of remap */
 	PTR owner_offset = request->lrq_owner;
 	OWN owner = LOCK_OWNER(owner_offset);
 	
@@ -428,7 +569,7 @@ UCHAR LockMgr::LOCK_downgrade(PTR request_offset, ISC_STATUS * status_vector)
 	/* Loop thru requests looking for pending conversions
 	   and find the highest requested state */
 
-	SRQ que;
+	PSRQ que;
 
 	SRQ_LOOP(lock->lbl_requests, que) 
 		{
@@ -503,7 +644,11 @@ SLONG LockMgr::LOCK_enq(	PTR		prior_request,
 	if (!owner_offset)
 		return 0;
 		
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(owner_offset);
+#else
+	LockAcquire lockAcquire(owner_offset, this);
+#endif
 	OWN owner = LOCK_OWNER(owner_offset);
 	
 	if (!owner->own_count)
@@ -679,7 +824,7 @@ void LockMgr::LOCK_fini( ISC_STATUS *status_vector, PTR *owner_offset)
 		
 	LOCK_header->lhb_active_owner = DUMMY_OWNER_DELETE;
 	int count = 0;
-	SRQ que;
+	PSRQ que;
 	
 	SRQ_LOOP(LOCK_header->lhb_owners, que)
 		{
@@ -700,7 +845,9 @@ void LockMgr::LOCK_fini( ISC_STATUS *status_vector, PTR *owner_offset)
 
 	if (LOCK_owner) 
 		{
+#ifdef HAS_MAP_OBJECT
 		ISC_unmap_object(status_vector, &LOCK_data,(UCHAR**)&LOCK_owner, sizeof(LockOwner));
+#endif
 		LOCK_owner_offset = 0;
 		}
 #endif
@@ -723,7 +870,11 @@ void LockMgr::LOCK_fini( ISC_STATUS *status_vector, PTR *owner_offset)
 }
 
 
+#ifdef SHARED_CACHE
 int LockMgr::LOCK_init(ISC_STATUS * status_vector,
+#else
+int LockMgr::LOCK_init(Database *dbb, ISC_STATUS * status_vector,
+#endif
 			  ConfObject *configuration, 
 			  long owner_id, UCHAR owner_type, SLONG * owner_handle)
 {
@@ -744,12 +895,13 @@ int LockMgr::LOCK_init(ISC_STATUS * status_vector,
  *	Return FB_SUCCESS or FB_FAILURE.
  *
  **************************************/
+#ifdef SHARED_CACHE
 	Sync sync (&lockManagerMutex, "LOCK_init");
 	sync.lock (Exclusive);
+#endif
 	LOCK_TRACE(("LOCK_init (ownerid=%ld)\n", owner_id));
 
 	/* If everything is already initialized, just bump the use count. */
-
 	if (*owner_handle) 
 		{
 		acquire(*owner_handle);
@@ -759,6 +911,15 @@ int LockMgr::LOCK_init(ISC_STATUS * status_vector,
 		
 		return FB_SUCCESS;
 		}
+
+#ifndef SHARED_CACHE
+	LOCK_dbb = dbb;
+#endif
+
+#if defined ONE_LOCK_TABLE || defined SHARED_CACHE
+	Sync sync2(&LOCK_table_init_mutex, "LOCK_init");
+	sync2.lock(Exclusive);
+#endif
 
 	if (!LOCK_table) 
 		{
@@ -788,12 +949,26 @@ int LockMgr::LOCK_init(ISC_STATUS * status_vector,
 	   on synchronization variables embedded in the owner block
 	   don't have to coordinate during lock table unmapping. */
 	   
+#ifdef HAS_MAP_OBJECT
 	if (LOCK_owner_offset &&
 		!(LOCK_owner = (OWN) ISC_map_object(status_vector, &LOCK_data, LOCK_owner_offset, sizeof(LockOwner)))) 
 		{
 		release(*owner_handle);
 		return FB_FAILURE;
 		}
+#else
+
+	if (LOCK_owner_offset &&
+		!(LOCK_owner = (OWN) (((char *)LOCK_table) +  sizeof(LockOwner)))) 
+		{
+		release(*owner_handle);
+		return FB_FAILURE;
+		}
+	
+
+#endif
+
+
 #endif
 
 	AST_ALLOC;
@@ -805,8 +980,13 @@ int LockMgr::LOCK_init(ISC_STATUS * status_vector,
 		shutdownCount = shutdownComplete.clear();
 		LockEvent *event = allocEvent(owner);
 		owner->own_blocking_event = REL_PTR(event);
+#ifdef SHARED_CACHE
 		ULONG status = gds__thread_start(blocking_action_thread, &LOCK_owner_offset, THREAD_high, 0, 
 										&blocking_action_thread_handle);
+#else
+		ULONG status = gds__thread_start(blocking_action_thread, (void *)this, THREAD_high, 0, 
+										&blocking_action_thread_handle);
+#endif
 
 		if (status) 
 			{
@@ -847,7 +1027,9 @@ SLONG LockMgr::LOCK_query_data(PTR parent_request, USHORT series, USHORT aggrega
  *
  **************************************/
 	LRQ parent;
-	SRQ que;
+	PSRQ que;
+
+	LOCK_TRACE(("LOCK_query_data (%ld)\n", parent_request));
 
 	/* Get root of lock hierarchy */
 
@@ -859,11 +1041,15 @@ SLONG LockMgr::LOCK_query_data(PTR parent_request, USHORT series, USHORT aggrega
 		return 0;
 		}
 
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(parent->lrq_owner);
+#else
+	LockAcquire lockAcquire(parent->lrq_owner, this);
+#endif
 	parent = LOCK_REQUEST(parent_request);	/* remap */
 
 	++LOCK_header->lhb_query_data;
-	SRQ data_header = &LOCK_header->lhb_data[series];
+	PSRQ data_header = &LOCK_header->lhb_data[series];
 	SLONG data;
 	SLONG count = 0;
 
@@ -877,8 +1063,8 @@ SLONG LockMgr::LOCK_query_data(PTR parent_request, USHORT series, USHORT aggrega
 		case LCK_AVG:
 		case LCK_SUM:
 		case LCK_ANY:
-			for (que = (SRQ) ABS_PTR(data_header->srq_forward);
-				que != data_header; que = (SRQ) ABS_PTR(que->srq_forward)) 
+			for (que = (PSRQ) ABS_PTR(data_header->srq_forward);
+				que != data_header; que = (PSRQ) ABS_PTR(que->srq_forward)) 
 				{
 				LBL lock = (LBL) ((UCHAR *) que - OFFSET(LBL, lbl_lhb_data));
 				CHECK(lock->lbl_series == series);
@@ -916,8 +1102,8 @@ SLONG LockMgr::LOCK_query_data(PTR parent_request, USHORT series, USHORT aggrega
 			break;
 
 		case LCK_MAX:
-			for (que = (SRQ) ABS_PTR(data_header->srq_backward);
-				que != data_header; que = (SRQ) ABS_PTR(que->srq_backward)) 
+			for (que = (PSRQ) ABS_PTR(data_header->srq_backward);
+				que != data_header; que = (PSRQ) ABS_PTR(que->srq_backward)) 
 				{
 				LBL lock = (LBL) ((UCHAR *) que - OFFSET(LBL, lbl_lhb_data));
 				CHECK(lock->lbl_series == series);
@@ -954,7 +1140,12 @@ SLONG LockMgr::LOCK_read_data(PTR request_offset)
 	LOCK_TRACE(("LOCK_read_data(%ld)\n", request_offset));
 
 	LRQ request = get_request(request_offset);
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(request->lrq_owner);
+#else
+	LockAcquire lockAcquire(request->lrq_owner, this);
+#endif
+	request = get_request(request_offset); /* in case of remap */
 	//acquire(request->lrq_owner);
 	++LOCK_header->lhb_read_data;
 	request = LOCK_REQUEST(request_offset);	/* Re-init after a potential remap */
@@ -993,7 +1184,11 @@ SLONG LockMgr::LOCK_read_data2(PTR parent_request,
 	USHORT junk;
 
 	LOCK_TRACE(("LOCK_read_data2(%ld)\n", parent_request));
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(owner_offset);
+#else
+	LockAcquire lockAcquire(owner_offset, this);
+#endif
 	//acquire(owner_offset);
 	++LOCK_header->lhb_read_data;
 	
@@ -1038,7 +1233,11 @@ void LockMgr::LOCK_re_post( lock_ast_t ast, void *arg, PTR owner_offset)
 
 	//printf ("LOCK_re_post\n");
 	LOCK_TRACE(("LOCK_re_post(%ld)\n", owner_offset));
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(owner_offset);
+#else
+	LockAcquire lockAcquire(owner_offset, this);
+#endif
 	//acquire(owner_offset);
 
 	/* Allocate or reuse a lock request block */
@@ -1050,7 +1249,7 @@ void LockMgr::LOCK_re_post( lock_ast_t ast, void *arg, PTR owner_offset)
 	request->lrq_ast_argument = arg;
 	request->lrq_requested = LCK_none;
 	request->lrq_owner = owner_offset;
-	insert_tail(&owner->own_blocks, &request->lrq_own_pending);
+	insert_tail(&owner->own_blocks, &request->lrq_own_blocks);
 
 	DEBUG_DELAY;
 	signal_owner(LOCK_OWNER(owner_offset), (PTR) NULL);
@@ -1093,7 +1292,12 @@ SLONG LockMgr::LOCK_write_data(PTR request_offset, SLONG data)
 	LOCK_TRACE(("LOCK_write_data (%ld)\n", request_offset));
 
 	LRQ request = get_request(request_offset);
+#ifdef SHARED_CACHE
 	LockAcquire lockAcquire(request->lrq_owner);
+#else
+	LockAcquire lockAcquire(request->lrq_owner, this);
+#endif
+	request = get_request(request_offset); /* in case of remap */
 	//acquire(request->lrq_owner);
 	++LOCK_header->lhb_write_data;
 	request = LOCK_REQUEST(request_offset);	/* Re-init after a potential remap */
@@ -1128,7 +1332,9 @@ void LockMgr::acquire( PTR owner_offset)
  **************************************/
 	SLONG length;
 	LHB header;
+	SH_MEM_T *ld;
 
+//num_acquires++;
 	/***
 	if (LOCK_table == LOCK_header)
 		printf ("lock table in use\n");
@@ -1150,7 +1356,7 @@ void LockMgr::acquire( PTR owner_offset)
 
 	PTR prior_active = LOCK_table->lhb_active_owner;
 
-	if (LOCK_owner) 
+	if (LOCK_owner && !shutdown) 
 		{
 		/* Record a "timestamp" of when this owner requested the lock table */
 		LOCK_owner->own_acquire_time = LOCK_table->lhb_acquires;
@@ -1168,7 +1374,25 @@ void LockMgr::acquire( PTR owner_offset)
 	if (ISC_mutex_lock(MUTEX)) 
 		bug(NULL, "semop failed (acquire)");
 
+	LOCK_thread = Thread::getCurrentThreadId(); 
+
 	LOCK_header = LOCK_table;
+	ld = &LOCK_data;
+
+#if !defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+	if (LOCK_thread == blocking_action_thread_id)
+	{
+		LOCK_header = LOCK_table2;
+		ld = &LOCK_data2;
+	}
+#endif
+
+#if defined WIN_NT || !defined HAS_MAP_OBJECT
+	// Make sure we have the right version of the LOCK_owner
+	// Other platforms use directly mapped objects
+	if (LOCK_owner) LOCK_owner = LOCK_OWNER(LOCK_owner_offset);
+#endif
+
 	++LOCK_header->lhb_acquires;
 	
 	if (prior_active) 
@@ -1180,7 +1404,7 @@ void LockMgr::acquire( PTR owner_offset)
 	if (LOCK_owner) 
 		LOCK_owner->own_ast_hung_flags &= ~OWN_hung;	/* Can't be hung by OS if we got here */
 
-	if (LOCK_header->lhb_length > LOCK_data.sh_mem_length_mapped) 
+	if (LOCK_header->lhb_length > ld->sh_mem_length_mapped) 
 		{
 		length = LOCK_header->lhb_length;
 		
@@ -1191,7 +1415,7 @@ void LockMgr::acquire( PTR owner_offset)
 		
 #if (defined HAVE_MMAP || defined WIN_NT)
 		ISC_STATUS_ARRAY status_vector;
-		header = (LHB) ISC_remap_file(status_vector, &LOCK_data, length, FALSE);
+		header = (LHB) ISC_remap_file(status_vector, ld, length, FALSE);
 		
 		if (!header)
 #endif
@@ -1201,8 +1425,14 @@ void LockMgr::acquire( PTR owner_offset)
 			}
 			
 		LOCK_header = header;
+#if !defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+		if (LOCK_thread == blocking_action_thread_id)
+			LOCK_table2 = LOCK_header;
+		else
+#endif
+			LOCK_table = LOCK_header;
 		
-#ifdef WIN_NT
+#if defined WIN_NT || !defined HAS_MAP_OBJECT
 		// Other platforms use directly mapped objects
 		LOCK_owner = LOCK_OWNER(LOCK_owner_offset);
 #endif
@@ -1223,16 +1453,16 @@ void LockMgr::acquire( PTR owner_offset)
 			{
 			/* There was a remove_que operation in progress when the prior_owner died */
 			DEBUG_MSG(0, ("Got to the funky shb_remove_node code\n"));
-			remove_que((SRQ) ABS_PTR(recover->shb_remove_node));
+			remove_que((PSRQ) ABS_PTR(recover->shb_remove_node));
 			}
 		else if (recover->shb_insert_que && recover->shb_insert_prior) 
 			{
 			/* There was a insert_que operation in progress when the prior_owner died */
 			DEBUG_MSG(0, ("Got to the funky shb_insert_que code\n"));
 
-			SRQ que = (SRQ) ABS_PTR(recover->shb_insert_que);
+			PSRQ que = (PSRQ) ABS_PTR(recover->shb_insert_que);
 			que->srq_backward = recover->shb_insert_prior;
-			que = (SRQ) ABS_PTR(recover->shb_insert_prior);
+			que = (PSRQ) ABS_PTR(recover->shb_insert_prior);
 			que->srq_forward = recover->shb_insert_que;
 			recover->shb_insert_que = 0;
 			recover->shb_insert_prior = 0;
@@ -1301,6 +1531,7 @@ UCHAR *LockMgr::alloc( SSHORT size, ISC_STATUS * status_vector)
  *
  **************************************/
 	ULONG block;
+	SH_MEM_T *ld;
 
 	size = FB_ALIGN(size, ALIGNMENT);
 	ASSERT_ACQUIRED;
@@ -1323,20 +1554,37 @@ UCHAR *LockMgr::alloc( SSHORT size, ISC_STATUS * status_vector)
 	   coherent memory mappings of different size on Windows to apply
 	   ISC_map_object approach
 	*/
+
+		LOCK_thread = Thread::getCurrentThreadId(); 
+		ld = &LOCK_data;
+#if !defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+		if (LOCK_thread == blocking_action_thread_id)
+		{
+			ld = &LOCK_data2;
+		}
+#endif
 	
 #if defined WIN_NT || (defined HAVE_MMAP)
-		ULONG length = LOCK_data.sh_mem_length_mapped + EXTEND_SIZE;
-		LHB header = (LHB) ISC_remap_file(status_vector, &LOCK_data, length, TRUE);
+		ULONG length = ld->sh_mem_length_mapped + EXTEND_SIZE;
+		LHB header;
+		header = (LHB) ISC_remap_file(status_vector, ld, length, TRUE);
 		
 		if (header) 
 			{
 			LOCK_header = header;
-#ifdef WIN_NT
+#if !defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+			if (LOCK_thread == blocking_action_thread_id)
+				LOCK_table2 = LOCK_header;
+			else
+#endif
+				LOCK_table = LOCK_header;
+				
+#if defined WIN_NT || !defined HAS_MAP_OBJECT
 			// Other platforms use directly mapped objects
 			LOCK_owner = LOCK_OWNER(LOCK_owner_offset);
 #endif
 			ASSERT_ACQUIRED;
-			LOCK_header->lhb_length = LOCK_data.sh_mem_length_mapped;
+			LOCK_header->lhb_length = ld->sh_mem_length_mapped;
 			LOCK_header->lhb_used += size;
 			}
 		else
@@ -1383,7 +1631,7 @@ LBL LockMgr::alloc_lock( USHORT length, ISC_STATUS * status_vector)
  *
  **************************************/
 	LBL lock;
-	SRQ que;
+	PSRQ que;
 
 	length = (length + 3) & ~3;
 	ASSERT_ACQUIRED;
@@ -1494,7 +1742,7 @@ void LockMgr::blocking_action2( PTR blocking_owner_offset, PTR blocked_owner_off
 
 	while (owner->own_count) 
 		{
-		SRQ que = QUE_NEXT(owner->own_blocks);
+		PSRQ que = QUE_NEXT(owner->own_blocks);
 		
 		if (que == &owner->own_blocks) 
 			{
@@ -1506,10 +1754,10 @@ void LockMgr::blocking_action2( PTR blocking_owner_offset, PTR blocked_owner_off
 			break;
 			}
 			
-		LRQ request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_own_pending));
+		LRQ request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_own_blocks));
 		lock_ast_t routine = request->lrq_ast_routine;
 		void *arg = request->lrq_ast_argument;
-		remove_que(&request->lrq_own_pending);
+		remove_que(&request->lrq_own_blocks);
 		
 		if (request->lrq_flags & LRQ_blocking) 
 			{
@@ -1535,7 +1783,17 @@ void LockMgr::blocking_action2( PTR blocking_owner_offset, PTR blocked_owner_off
 }
 
 
+#ifndef SHARED_CACHE
 int LockMgr::blocking_action_thread(void *arg)
+{
+	LockMgr *lockMgr = (LockMgr *)arg;
+	return lockMgr->blocking_action_thread();
+}
+
+int LockMgr::blocking_action_thread()
+#else
+int LockMgr::blocking_action_thread(void *arg)
+#endif
 {
 /**************************************
  *
@@ -1548,10 +1806,28 @@ int LockMgr::blocking_action_thread(void *arg)
  *	will send to itself.
  *
  **************************************/
+	ISC_STATUS_ARRAY status_vector;
+
+#ifndef SHARED_CACHE
+	blocking_action_thread_id = Thread::getCurrentThreadId(); 
+
+#if !defined ONE_LOCK_TABLE
+	if (!(LOCK_header2 = (LHB) ISC_map_file(status_vector, lock_buffer,
+										   lock_initialize2, this,
+										   LOCK_shm_size, &LOCK_data2))) 
+		return status_vector[1];
+
+	LOCK_table2 = LOCK_header2;
+#endif
+#endif
 
 	try
 		{
-		PTR ownerOffset = *(PTR*) arg;
+#ifdef SHARED_CACHE
+		PTR ownerOffset = *(PTR*)arg;
+#else
+		PTR ownerOffset = LOCK_owner_offset;
+#endif
 		acquire(ownerOffset);
 		LockOwner *owner = LOCK_OWNER(ownerOffset);
 
@@ -1567,29 +1843,58 @@ int LockMgr::blocking_action_thread(void *arg)
 		while(!shutdown)
 			{
 			SLONG eventCount = event->event.clear();
+			
 			release(ownerOffset);
 			
 			if (!(owner->own_ast_flags & OWN_signaled))
 				event->event.wait(eventCount, INFINITE);
 			
+//			num_blocking_wakeups++;
+			
+#ifndef SHARED_CACHE
+			if (!shutdown)
+				LOCK_dbb->syncAst.lock(NULL, Exclusive);
+#endif
+
 			//printf ("blocking action wakeup on event %d\n", owner->own_blocking_event);
 			acquire(ownerOffset);
 			
-			if (!shutdown)
-				blocking_action(ownerOffset);
+			if (shutdown)
+			{
+#ifndef SHARED_CACHE
+				if (LOCK_dbb->syncAst.ourExclusiveLock())
+					LOCK_dbb->syncAst.unlock();
+#endif
+				break;
+			}
+			
+			/* this will release and reacquire, potentially remapping the lock table */
+			blocking_action(ownerOffset);
+
+			owner = LOCK_OWNER(ownerOffset);
+			event = LOCK_EVENT(owner->own_blocking_event);
+
+#ifndef SHARED_CACHE
+			LOCK_dbb->syncAst.unlock();
+#endif
 			}
 		
+		owner = LOCK_OWNER(ownerOffset);
+		event = LOCK_EVENT(owner->own_blocking_event);
 		owner->own_blocking_event = 0;
 		releaseEvent(event);
+		release(ownerOffset);
+#if !defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+		ISC_unmap_file(status_vector, &LOCK_data2, 0);
+#endif
 		shutdownComplete.post();
 		blocking_action_thread_handle = NULL;
-		release(ownerOffset);
-		
 		return 0;
 		}
 	catch (...)
 		{
 		shutdownComplete.post();
+		blocking_action_thread_handle = NULL;
 		throw;
 		}
 }
@@ -1611,6 +1916,10 @@ void LockMgr::bug_assert( const TEXT * string, ULONG line)
 	TEXT buffer[100];
 	LockHeader LOCK_header_copy;
 
+#ifdef WIN_NT
+	DebugBreak();
+	return;
+#endif
 	sprintf((char *) buffer, "%s %ld: lock assertion failure: %s\n",
 			__FILE__, line, string);
 
@@ -1640,6 +1949,11 @@ void LockMgr::bug( ISC_STATUS * status_vector, const TEXT * string)
 	sprintf(s, "Fatal lock manager error: %s, errno: %d", string, ERRNO);
 	gds__log(s);
 	ib_fprintf(ib_stderr, "%s\n", s);
+
+#if defined DEV_BUILD && defined WIN_NT
+	DebugBreak();
+	return;
+#endif
 
 #if !(defined WIN_NT)
 	/* The  strerror()  function  returns  the appropriate description string,
@@ -1726,6 +2040,8 @@ bool LockMgr::convert(PTR		request_offset,
  *
  **************************************/
 
+	LOCK_TRACE(("convert (%ld)\n", request_offset));
+
 	ASSERT_ACQUIRED;
 	LRQ request = get_request(request_offset);
 	LBL lock = LOCK_BLOCK(request->lrq_lock);
@@ -1735,6 +2051,7 @@ bool LockMgr::convert(PTR		request_offset,
 	request->lrq_flags &= ~LRQ_blocking_seen;
 
 	/* Compute the state of the lock without the request. */
+	DUMP_LOCK_COUNTS(lock);
 
 	--lock->lbl_counts[request->lrq_state];
 	UCHAR temp = lock_state(lock);
@@ -1749,10 +2066,12 @@ bool LockMgr::convert(PTR		request_offset,
 		grant(request, lock);
 		post_pending(lock);
 		release(owner_offset);
+		DUMP_LOCK_COUNTS(lock);
 		return true;
 		}
 
 	++lock->lbl_counts[request->lrq_state];
+	DUMP_LOCK_COUNTS(lock);
 
 	/* If we weren't requested to wait, just forget about the whole thing. 
 	   Otherwise wait for the request to be granted or rejected */
@@ -1762,32 +2081,42 @@ bool LockMgr::convert(PTR		request_offset,
 		bool new_ast = request->lrq_ast_routine != ast_routine || 
 					   request->lrq_ast_argument != ast_argument;;
 
-		if (wait_for_request(request, lck_wait, status_vector)) 
+		if (lock->lbl_flags & LBL_converting)
+			{
+			/* someone else is already trying to convert this lock */
+			/* return deadlock */
+			goto done;
+			}
+
+		lock->lbl_flags |= LBL_converting;
+
+		if (wait_for_request(request, lck_wait, status_vector, NULL)) 
 			{
 			ASSERT_RELEASED;
 			return false;
 			}
 			
+		acquire(owner_offset);
 		request = LOCK_REQUEST(request_offset);
+		lock = LOCK_BLOCK(request->lrq_lock);
+		lock->lbl_flags &= ~LBL_converting;
 		
 		if (!(request->lrq_flags & LRQ_rejected)) 
 			{
 			if (new_ast) 
 				{
-				acquire(owner_offset);
-				request = LOCK_REQUEST(request_offset);
+//				acquire(owner_offset);
+//				request = LOCK_REQUEST(request_offset);
 				request->lrq_ast_routine = ast_routine;
 				request->lrq_ast_argument = ast_argument;
-				release(owner_offset);
+//				release(owner_offset);
 				}
 			release(owner_offset);
 			ASSERT_RELEASED;
 			return true;
 			}
 			
-		acquire(owner_offset);
-		request = get_request(request_offset);
-		lock = LOCK_BLOCK(request->lrq_lock);
+//		request = get_request(request_offset);
 		post_pending(lock);
 		}
 
@@ -1799,6 +2128,7 @@ bool LockMgr::convert(PTR		request_offset,
 	if (lck_wait < 0)
 		++LOCK_header->lhb_timeouts;
 		
+done:
 	release(owner_offset);
 	*status_vector++ = isc_arg_gds;
 	*status_vector++ = (lck_wait > 0) ? isc_deadlock :
@@ -1823,7 +2153,7 @@ LockOwner* LockMgr::create_owner(ISC_STATUS*	status_vector,
  *	Create an owner block.
  *
  **************************************/
-	SRQ que;
+	PSRQ que;
 	OWN owner;
 	USHORT new_block;
 
@@ -1847,7 +2177,11 @@ LockOwner* LockMgr::create_owner(ISC_STATUS*	status_vector,
 		{
 		owner = (OWN) ((UCHAR *) que - OFFSET(OWN, own_lhb_owners));
 		
-		if (owner->own_owner_id == (ULONG) owner_id && (UCHAR)owner->own_owner_type == owner_type)
+		if (owner->own_owner_id == (ULONG) owner_id && (UCHAR)owner->own_owner_type == owner_type
+#ifndef SHARED_CACHE
+		    && owner->own_dbb == LOCK_dbb
+#endif
+			)
 			{
 			purge_owner(DUMMY_OWNER_CREATE, owner);	/* purging owner_offset has not been set yet */
 			break;
@@ -1955,8 +2289,16 @@ void LockMgr::current_is_active_owner(bool expect_acquired, ULONG line)
 		return;
 
 	/* Find the active owner, and see if it is us */
+	OWN owner;
+	if (!expect_acquired)
+	{
+		/* LOCK_header may be -1 if not acquired, so get the owner from */
+		/* LOCK_table instead */
+		owner = (OWN) ((UCHAR*) LOCK_table + owner_ptr);
+	}
+	else
+		owner = LOCK_OWNER(owner_ptr);
 	
-	OWN owner = LOCK_OWNER(owner_ptr);
 
 	/* SUPERSERVER uses the same pid for all threads, so the tests
 	   below are of limited utility and can cause bogus errors */
@@ -1966,6 +2308,12 @@ void LockMgr::current_is_active_owner(bool expect_acquired, ULONG line)
 	if (owner->own_process_id == LOCK_pid) 
 		{
 		if (expect_acquired)
+			{
+			if (Thread::getCurrentThreadId() == LOCK_thread)
+				return;
+			}
+		
+		if (Thread::getCurrentThreadId() != LOCK_thread)
 			return;
 			
 		/* Save a copy for the debugger before we abort */
@@ -2001,15 +2349,16 @@ void LockMgr::deadlock_clear(void)
  *	in preparation for a deadlock scan.
  *
  **************************************/
-	SRQ que;
+	PSRQ que;
 
+	LOCK_TRACE(("deadlock_clear\n"));
 	ASSERT_ACQUIRED;
 	
 	SRQ_LOOP(LOCK_header->lhb_owners, que) 
 		{
 		OWN owner = (OWN) ((UCHAR *) que - OFFSET(OWN, own_lhb_owners));
 		//PTR pending_offset = owner->own_pending_request;
-		SRQ inner;
+		PSRQ inner;
 		
 		SRQ_LOOP(owner->own_pending, inner)
 			{
@@ -2078,7 +2427,7 @@ LRQ LockMgr::deadlock_walk(LRQ request, bool * maybe_deadlock)
  *	occured.
  *
  **************************************/
-	SRQ que;
+	PSRQ que;
 
 	/* If this request was scanned for deadlock earlier than don't
 	   visit it again. */
@@ -2176,7 +2525,7 @@ LRQ LockMgr::deadlock_walk(LRQ request, bool * maybe_deadlock)
 
 		LRQ target = LOCK_REQUEST(pending_offset);
 		***/
-		SRQ que2;
+		PSRQ que2;
 		
 		SRQ_LOOP(owner->own_pending, que2)
 			{
@@ -2286,7 +2635,16 @@ if ((delay_count % 500) == 0)
 #endif
 
 
+#ifndef SHARED_CACHE
 void LockMgr::exit_handler( void *arg)
+{
+	LockMgr *lockMgr = (LockMgr *)arg;
+	lockMgr->exit_handler();
+}
+void LockMgr::exit_handler()
+#else
+void LockMgr::exit_handler(void *arg)
+#endif
 {
 /**************************************
  *
@@ -2306,6 +2664,12 @@ void LockMgr::exit_handler( void *arg)
 	if (!LOCK_table) 
 		return;
 
+#ifdef WIN_NT
+	/* On Windows, by the time we get to the exit handler, all other threads */
+	/* are long gone, so NULL the blocking action thread  */
+	blocking_action_thread_handle = NULL;
+#endif
+
 	LOCK_header = LOCK_table;
 	
 	/* For a superserver (e.g. Netware), since the server is going away, 
@@ -2313,7 +2677,7 @@ void LockMgr::exit_handler( void *arg)
 	   all the threads are going away -- so don't get into any trouble 
 	   by doing purge_owner() below. */
 
-	SRQ que;
+	PSRQ que;
 	PTR owner_offset;
 
 	/* Get rid of all the owners belonging to the current process */
@@ -2336,7 +2700,7 @@ void LockMgr::exit_handler( void *arg)
 			OWN owner = (OWN) ((UCHAR *) que - OFFSET(OWN, own_lhb_owners));
 			if (owner->own_process_id == LOCK_pid) 
 				{
-				que = (SRQ) ABS_PTR(que->srq_backward);
+				que = (PSRQ) ABS_PTR(que->srq_backward);
 				purge_owner(REL_PTR(owner), owner);
 				break;
 				}
@@ -2347,6 +2711,9 @@ void LockMgr::exit_handler( void *arg)
 		}
 
 	ISC_unmap_file(local_status, &LOCK_data, 0);
+#if defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+	LOCK_table_static = NULL;
+#endif
 }
 
 
@@ -2386,10 +2753,10 @@ LBL LockMgr::find_lock(PTR parent,
 
 	USHORT hash_slot = *slot = (USHORT) (hash_value % LOCK_header->lhb_hash_slots);
 	ASSERT_ACQUIRED;
-	SRQ hash_header = &LOCK_header->lhb_hash[hash_slot];
+	PSRQ hash_header = &LOCK_header->lhb_hash[hash_slot];
 
-	for (SRQ que = (SRQ) ABS_PTR(hash_header->srq_forward);
-		 que != hash_header; que = (SRQ) ABS_PTR(que->srq_forward)) 
+	for (PSRQ que = (PSRQ) ABS_PTR(hash_header->srq_forward);
+		 que != hash_header; que = (PSRQ) ABS_PTR(que->srq_forward)) 
 		{
 		LBL lock = (LBL) ((UCHAR *) que - OFFSET(LBL, lbl_lhb_hash));
 		if (lock->lbl_series != series ||
@@ -2426,7 +2793,20 @@ LRQ LockMgr::get_request( PTR offset)
 	//TEXT s[32];
 	
 	//LRQ request = LOCK_REQUEST(offset);
-	LRQ request = (LRQ) ((UCHAR*) LOCK_table + offset);
+	LRQ request;
+	
+
+#if !defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+	if (blocking_action_thread_id == Thread::getCurrentThreadId())
+	{
+		request = (LRQ) ((UCHAR*) LOCK_table2 + offset);
+	}
+	else
+#endif
+	{
+		request = (LRQ) ((UCHAR*) LOCK_table + offset);
+	}
+	
 	
 	if ((SLONG) offset == -1 || request->lrq_type != type_lrq) 
 		{
@@ -2448,7 +2828,6 @@ LRQ LockMgr::get_request( PTR offset)
 	return request;
 }
 
-
 void LockMgr::grant( LRQ request, LBL lock)
 {
 /**************************************
@@ -2464,6 +2843,8 @@ void LockMgr::grant( LRQ request, LBL lock)
  **************************************/
 
 	/* Request must be for THIS lock */
+	
+	LOCK_TRACE(("grant (%ld)\n", request->lrq_lock));
 	
 	CHECK(REL_PTR(lock) == request->lrq_lock);
 	post_history(his_grant, request->lrq_owner, request->lrq_lock, REL_PTR(request), true);
@@ -2487,6 +2868,7 @@ void LockMgr::grant( LRQ request, LBL lock)
 		
 	//post_wakeup(LOCK_OWNER(request->lrq_owner), REL_PTR(request));
 	postWakeup(request);
+	DUMP_LOCK_COUNTS(lock);
 }
 
 
@@ -2509,6 +2891,8 @@ PTR LockMgr::grant_or_que( LRQ request, LBL lock, SSHORT lck_wait)
 	PTR request_offset = REL_PTR(request);
 	request->lrq_lock = REL_PTR(lock);
 
+	LOCK_TRACE(("grant (%ld) (%ld)\n", request_offset, request->lrq_lock));
+
 	/* Compatible requests are easy to satify.  Just post the request
 	   to the lock, update the lock state, release the data structure,
 	   and we're done. */
@@ -2529,8 +2913,10 @@ PTR LockMgr::grant_or_que( LRQ request, LBL lock, SSHORT lck_wait)
 
 	if (lck_wait)
 		{
-		wait_for_request(request, lck_wait, NULL);
-		acquire(request->lrq_owner);
+		int lrq_owner;
+		wait_for_request(request, lck_wait, NULL, &lrq_owner);
+
+		acquire(lrq_owner);
 
 		/* For performance reasons, we're going to look at the 
 		 * request's status without re-acquiring the lock table.
@@ -2625,18 +3011,41 @@ ISC_STATUS LockMgr::init_lock_table( ISC_STATUS * status_vector, ConfObject *con
 	LOCK_data.sh_mem_semaphores = LOCK_sem_count;
 #endif
 
-	if (!(LOCK_header = (LHB) ISC_map_file(status_vector, lock_file,
+#if defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+	if (LOCK_table_static)
+		LOCK_header = LOCK_table_static;
+	else			
+#endif
+		if (!(LOCK_header = (LHB) ISC_map_file(status_vector, lock_file,
+#ifdef SHARED_CACHE
 										   lock_initialize, 0,
+#else
+										   lock_initialize, this,
+#endif
 										   LOCK_shm_size, &LOCK_data))) 
-		return status_vector[1];
+			return status_vector[1];
 
-	LOCK_table = LOCK_header;
+#ifndef SHARED_CACHE
+	strcpy(lock_buffer, lock_file);
+#endif
 	
+	LOCK_table = LOCK_header;
+
+#if defined ONE_LOCK_TABLE && !defined SHARED_CACHE
+	LOCK_table_static = LOCK_table;
+#endif
+
 	/* Now get the globally consistent value of LOCK_ordering from the 
 	   shared lock table. */
 
 	LOCK_ordering = (LOCK_header->lhb_flags & LHB_lock_ordering) ? TRUE : FALSE;
+
+// BUG BUG SEK
+// Doesn't work now, as the LockMgr class is most likely already freed */
+// Need and alternative.
+#ifdef SHARED_CACHE
 	gds__register_cleanup(exit_handler, 0);
+#endif
 
 	/* Define a place holder process owner block */
 
@@ -2691,6 +3100,10 @@ void LockMgr::init_owner_block(OWN owner, UCHAR owner_type, ULONG owner_id, USHO
 	owner->own_acquire_time = 0;
 	owner->own_acquire_realtime = 0;
 	owner->own_semaphore = 0;
+	
+#ifndef SHARED_CACHE
+	owner->own_dbb = LOCK_dbb;
+#endif
 
 #if defined(WIN_NT)
 	// Skidder: This Win32 EVENT is deleted when our process is closing
@@ -2712,7 +3125,7 @@ void LockMgr::init_owner_block(OWN owner, UCHAR owner_type, ULONG owner_id, USHO
 		ISC_event_init(owner->own_wakeup, 0, 1);
 #endif
 
-#ifdef POSIX_THREADS 
+#ifdef POSIX_THREADS
 		ISC_event_init(owner->own_wakeup, 0, 0);
 #endif
 
@@ -2753,7 +3166,23 @@ void LockMgr::lock_alarm_handler(void* event)
 }
 
 
+#ifndef SHARED_CACHE
+void LockMgr::lock_initialize2(void* arg, SH_MEM shmem_data, bool initialize)
+{
+	/* nothing to do in the blocking thread's version */
+}
+
+
 void LockMgr::lock_initialize(void* arg, SH_MEM shmem_data, bool initialize)
+{
+	LockMgr *lockMgr = (LockMgr *)arg;
+	lockMgr->lock_initialize(shmem_data, initialize);
+}
+
+void LockMgr::lock_initialize(SH_MEM shmem_data, bool initialize)
+#else
+void LockMgr::lock_initialize(void *arg, SH_MEM shmem_data, bool initialize)
+#endif
 {
 /**************************************
  *
@@ -2768,7 +3197,7 @@ void LockMgr::lock_initialize(void* arg, SH_MEM shmem_data, bool initialize)
  **************************************/
 	SSHORT length;
 	USHORT i, j;
-	SRQ que;
+	PSRQ que;
 	HIS history;
 	PTR *prior;
 
@@ -2891,14 +3320,14 @@ void LockMgr::insert_data_que( LBL lock)
  *
  **************************************/
 	LBL lock2;
-	SRQ data_header, que;
+	PSRQ data_header, que;
 
 	if (lock->lbl_series < LCK_MAX_SERIES && lock->lbl_parent
 		&& lock->lbl_data) {
 		data_header = &LOCK_header->lhb_data[lock->lbl_series];
 
-		for (que = (SRQ) ABS_PTR(data_header->srq_forward);
-			 que != data_header; que = (SRQ) ABS_PTR(que->srq_forward)) {
+		for (que = (PSRQ) ABS_PTR(data_header->srq_forward);
+			 que != data_header; que = (PSRQ) ABS_PTR(que->srq_forward)) {
 			lock2 = (LBL) ((UCHAR *) que - OFFSET(LBL, lbl_lhb_data));
 			CHECK(lock2->lbl_series == lock->lbl_series);
 			if (lock2->lbl_parent != lock->lbl_parent)
@@ -2913,7 +3342,7 @@ void LockMgr::insert_data_que( LBL lock)
 }
 
 
-void LockMgr::insert_tail( SRQ que, SRQ node)
+void LockMgr::insert_tail( PSRQ que, PSRQ node)
 {
 /**************************************
  *
@@ -2934,8 +3363,10 @@ void LockMgr::insert_tail( SRQ que, SRQ node)
  *	prior to the insertion being started.
  *
  **************************************/
-	SRQ prior;
+	PSRQ prior;
 	SHB recover;
+
+	PRINT_QUE(que, node);
 
 	ASSERT_ACQUIRED;
 	recover = (SHB) ABS_PTR(LOCK_header->lhb_secondary);
@@ -2950,7 +3381,7 @@ void LockMgr::insert_tail( SRQ que, SRQ node)
 	node->srq_backward = que->srq_backward;
 
 	DEBUG_DELAY;
-	prior = (SRQ) ABS_PTR(que->srq_backward);
+	prior = (PSRQ) ABS_PTR(que->srq_backward);
 	DEBUG_DELAY;
 	prior->srq_forward = REL_PTR(node);
 	DEBUG_DELAY;
@@ -2961,8 +3392,10 @@ void LockMgr::insert_tail( SRQ que, SRQ node)
 	DEBUG_DELAY;
 	recover->shb_insert_prior = 0;
 	DEBUG_DELAY;
+	
+	PRINT_QUE(que, node);
+	
 }
-
 
 USHORT LockMgr::lock_state( LBL lock)
 {
@@ -3019,6 +3452,8 @@ LockRequest* LockMgr::post_blockage(LRQ request, LBL lock, bool force)
  *
  **************************************/
 
+	LOCK_TRACE(("post_blockage (%ld)\n", request->lrq_lock));
+
 	OWN owner = LOCK_OWNER(request->lrq_owner);
 	ASSERT_ACQUIRED;
 	//CHECK(owner->own_pending_request == REL_PTR(request));
@@ -3026,9 +3461,9 @@ LockRequest* LockMgr::post_blockage(LRQ request, LBL lock, bool force)
 	PTR next_que_offset;
 	LockRequest *blockingRequest = NULL;
 	
-	for (SRQ que = QUE_NEXT(lock->lbl_requests); que != &lock->lbl_requests; que = (SRQ) ABS_PTR(next_que_offset)) 
+	for (PSRQ que = QUE_NEXT(lock->lbl_requests); que != &lock->lbl_requests; que = (PSRQ) ABS_PTR(next_que_offset)) 
 		{
-		SRQ next_que = QUE_NEXT((*que));
+		PSRQ next_que = QUE_NEXT((*que));
 		next_que_offset = REL_PTR(next_que);
 		LockRequest *block = (LockRequest*) ((UCHAR *) que - OFFSET(LRQ, lrq_lbl_requests));
 
@@ -3058,7 +3493,7 @@ LockRequest* LockMgr::post_blockage(LRQ request, LBL lock, bool force)
 
 		if (!(block->lrq_flags & LRQ_blocking)) 
 			{
-			insert_tail(&blocking_owner->own_blocks, &block->lrq_own_pending);
+			insert_tail(&blocking_owner->own_blocks, &block->lrq_own_blocks);
 			block->lrq_flags |= LRQ_blocking;
 			block->lrq_flags &= ~LRQ_blocking_seen;
 			}
@@ -3066,12 +3501,16 @@ LockRequest* LockMgr::post_blockage(LRQ request, LBL lock, bool force)
 		if (force) 
 			blocking_owner->own_ast_flags &= ~OWN_signaled;
 
-		if (blocking_owner != owner && signal_owner(blocking_owner, REL_PTR(owner))) 
+		if ( 
+#ifdef SHARED_CACHE
+		     blocking_owner != owner && 
+#endif
+		     signal_owner(blocking_owner, REL_PTR(owner))) 
 			{
 			/* We can't signal the blocking_owner, assume he has died
 			   and purge him out */
 
-			que = (SRQ) ABS_PTR(que->srq_backward);
+			que = (PSRQ) ABS_PTR(que->srq_backward);
 			purge_owner(REL_PTR(owner), blocking_owner);
 			}
 			
@@ -3101,6 +3540,8 @@ void LockMgr::post_history(USHORT operation,
  **************************************/
 	HIS history;
 
+	LOCK_TRACE(("post_history (%ld)\n", request));
+
 	if (old_version) {
 		history = (HIS) ABS_PTR(LOCK_header->lhb_history);
 		ASSERT_ACQUIRED;
@@ -3120,7 +3561,6 @@ void LockMgr::post_history(USHORT operation,
 	history->his_lock = lock;
 	history->his_request = request;
 }
-
 
 void LockMgr::post_pending( LBL lock)
 {
@@ -3148,7 +3588,7 @@ void LockMgr::post_pending( LBL lock)
 	   be granted for compatibility reason, post_wakeup () that owner so that
 	   it can post_blockage() to the newly granted owner of the lock. */
 
-	SRQ que;
+	PSRQ que;
 
 	SRQ_LOOP(lock->lbl_requests, que) 
 		{
@@ -3159,6 +3599,7 @@ void LockMgr::post_pending( LBL lock)
 			
 		if (request->lrq_state)
 			{
+			DUMP_LOCK_COUNTS(lock);
 			--lock->lbl_counts[request->lrq_state];
 			UCHAR  temp_state = lock_state(lock);
 			
@@ -3280,7 +3721,7 @@ bool LockMgr::probe_owners( PTR probing_owner_offset)
  **************************************/
 	bool purged = false;
 	ASSERT_ACQUIRED;
-	SRQ que;
+	PSRQ que;
 	
 	SRQ_LOOP(LOCK_header->lhb_owners, que) 
 		{
@@ -3292,7 +3733,7 @@ bool LockMgr::probe_owners( PTR probing_owner_offset)
 		if (owner->own_process_id != LOCK_pid &&
 			!ISC_check_process_existence(owner->own_process_id, owner->own_process_uid, FALSE)) 
 			{
-			que = (SRQ) ABS_PTR(que->srq_backward);
+			que = (PSRQ) ABS_PTR(que->srq_backward);
 			purge_owner(probing_owner_offset, owner);
 			purged = true;
 			}
@@ -3314,10 +3755,10 @@ void LockMgr::purge_owner(PTR purging_owner_offset, OWN owner)
  *	Purge an owner and all of its associated locks.
  *
  **************************************/
-	SRQ que;
+	PSRQ que;
 	LRQ request;
 
-	//printf ("LockMgr::purge_owner %d (%d)\n", REL_PTR(owner), owner->own_process_id);
+	ASSERT_ACQUIRED;
 
 	LOCK_TRACE(("purge_owner (%ld)\n", purging_owner_offset));
 	post_history(his_del_owner, purging_owner_offset, REL_PTR(owner), 0, false);
@@ -3334,8 +3775,8 @@ void LockMgr::purge_owner(PTR purging_owner_offset, OWN owner)
 
 	while ((que = QUE_NEXT(owner->own_blocks)) != &owner->own_blocks) 
 		{
-		request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_own_pending));
-		remove_que(&request->lrq_own_pending);
+		request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_own_blocks));
+		remove_que(&request->lrq_own_blocks);
 		request->lrq_type = type_null;
 		insert_tail(&LOCK_header->lhb_free_requests, &request->lrq_lbl_requests);
 		}
@@ -3370,7 +3811,7 @@ void LockMgr::purge_owner(PTR purging_owner_offset, OWN owner)
 }
 
 
-void LockMgr::remove_que( SRQ node)
+void LockMgr::remove_que( PSRQ node)
 {
 /**************************************
  *
@@ -3393,7 +3834,7 @@ void LockMgr::remove_que( SRQ node)
  *	work only based on what is in <node>.  
  *
  **************************************/
-	SRQ que;
+	PSRQ que;
 	SHB recover;
 
 	ASSERT_ACQUIRED;
@@ -3402,7 +3843,9 @@ void LockMgr::remove_que( SRQ node)
 	recover->shb_remove_node = REL_PTR(node);
 	DEBUG_DELAY;
 
-	que = (SRQ) ABS_PTR(node->srq_forward);
+	que = (PSRQ) ABS_PTR(node->srq_forward);
+
+	PRINT_QUE(que, node);
 
 /* The next link might point back to us, or our prior link should
  * the backlink change occur before a crash
@@ -3413,7 +3856,7 @@ void LockMgr::remove_que( SRQ node)
 	que->srq_backward = node->srq_backward;
 
 	DEBUG_DELAY;
-	que = (SRQ) ABS_PTR(node->srq_backward);
+	que = (PSRQ) ABS_PTR(node->srq_backward);
 
 /* The prior link might point forward to us, or our following link should
  * the change occur before a crash
@@ -3426,6 +3869,8 @@ void LockMgr::remove_que( SRQ node)
 	DEBUG_DELAY;
 	recover->shb_remove_node = 0;
 	DEBUG_DELAY;
+
+	PRINT_QUE(que, NULL);
 
 /* To prevent trying to remove this entry a second time, which could occur
  * for instance, when we're removing an owner, and crash while removing
@@ -3455,6 +3900,8 @@ void LockMgr::release( PTR owner_offset)
 
 	OWN owner;
 	
+	LOCK_TRACE(("release (%ld)\n", owner_offset));
+
 	if (owner_offset && LOCK_header->lhb_active_owner != owner_offset)
 		bug(NULL, "release when not owner");
 
@@ -3477,7 +3924,7 @@ void LockMgr::release( PTR owner_offset)
 
 		if (owner_offset && owner->own_flags & OWN_starved) 
 			{
-			SRQ que;
+			PSRQ que;
 			owner->own_flags &= ~(OWN_starved | OWN_blocking);
 
 			SRQ_LOOP(LOCK_header->lhb_owners, que) 
@@ -3500,6 +3947,11 @@ void LockMgr::release( PTR owner_offset)
 		validate_lhb(LOCK_header);
 #endif
 
+#ifdef MVS
+	memset(&LOCK_thread, 0xff, sizeof(LOCK_thread));
+#else
+	LOCK_thread = (THREAD_ID)-1;
+#endif
 	LOCK_header = (LHB) -1;
 	release_mutex();
 }
@@ -3560,7 +4012,7 @@ void LockMgr::release_request( LRQ request)
 
 	if (request->lrq_flags & LRQ_blocking)
 		{
-		remove_que(&request->lrq_own_pending);
+		remove_que(&request->lrq_own_blocks);
 		request->lrq_flags &= ~LRQ_blocking;
 		}
 
@@ -3598,6 +4050,7 @@ void LockMgr::release_request( LRQ request)
 	/* Re-compute the state of the lock and post any compatible pending
 	   requests. */
 
+	DUMP_LOCK_COUNTS(lock);
 	if ((request->lrq_state != LCK_none) && !(--lock->lbl_counts[request->lrq_state]))
 		{
 		lock->lbl_state = lock_state(lock);
@@ -3641,8 +4094,15 @@ void LockMgr::shutdown_blocking_thread(LockOwner *owner)
 	shutdown = true;
 	LockEvent *event = LOCK_EVENT(owner->own_blocking_event);
 	release(ownerOffset);
+	
+#ifndef SHARED_CACHE
+	if (LOCK_dbb->syncAst.ourExclusiveLock())
+		LOCK_dbb->syncAst.unlock();
+#endif
+	
 	event->event.post();
 	shutdownComplete.wait(shutdownCount, 2000000);
+	shutdownComplete.fini();
 	acquire(ownerOffset);
 }
 
@@ -3757,7 +4217,7 @@ void LockMgr::validate_lhb( LHB LockHeader)
  *
  **************************************/
 
-	SRQ que, que_next;
+	PSRQ que, que_next;
 	OWN owner;
 	LBL lock;
 	LRQ request;
@@ -3843,7 +4303,7 @@ void LockMgr::validate_lock( PTR lock_ptr, USHORT freed, PTR lrq_ptr)
  *
  **************************************/
 	LBL lock;
-	SRQ que, que_next;
+	PSRQ que, que_next;
 	LRQ request;
 	USHORT found;
 	UCHAR highest_request;
@@ -3972,8 +4432,8 @@ void LockMgr::validate_owner( PTR own_ptr, USHORT freed)
  *	Validate the owner structure and everything that hangs off of it.
  *
  **************************************/
-	SRQ que, que_next;
-	SRQ que2, que2_next;
+	PSRQ que, que_next;
+	PSRQ que2, que2_next;
 	LRQ request;
 	LRQ request2;
 	USHORT found;
@@ -4027,7 +4487,7 @@ void LockMgr::validate_owner( PTR own_ptr, USHORT freed)
 	SRQ_LOOP(owner->own_requests, que) 
 		{
 		/* Validate that the next backpointer points back to us */
-		SRQ que_next = QUE_NEXT((*que));
+		PSRQ que_next = QUE_NEXT((*que));
 		CHECK(que_next->srq_backward == REL_PTR(que));
 
 		CHECK(freed == EXPECT_inuse);	/* should not be in loop for freed owner */
@@ -4047,7 +4507,7 @@ void LockMgr::validate_owner( PTR own_ptr, USHORT freed)
 				
 				que2_next = QUE_NEXT((*que2));
 				CHECK(que2_next->srq_backward == REL_PTR(que2));
-				request2 = (LRQ) ((UCHAR *) que2 - OFFSET(LRQ, lrq_own_pending));
+				request2 = (LRQ) ((UCHAR *) que2 - OFFSET(LRQ, lrq_own_blocks));
 				CHECK(request2->lrq_owner == own_ptr);
 
 				if (REL_PTR(request2) == REL_PTR(request))
@@ -4069,7 +4529,7 @@ void LockMgr::validate_owner( PTR own_ptr, USHORT freed)
 
 		CHECK(freed == EXPECT_inuse);	/* should not be in loop for freed owner */
 
-		request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_own_pending));
+		request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_own_blocks));
 		validate_request(REL_PTR(request), EXPECT_inuse, RECURSE_not);
 
 		LOCK_TRACE(("Validate own_block: %ld\n", REL_PTR(request)));
@@ -4112,7 +4572,7 @@ void LockMgr::validate_owner( PTR own_ptr, USHORT freed)
 		LRQ request;
 		LBL lock;
 		LRQ pending;
-		SRQ que_of_lbl_requests;
+		PSRQ que_of_lbl_requests;
 
 		/* Make sure pending request is valid, and we LockOwner it */
 		
@@ -4244,7 +4704,7 @@ void LockMgr::validate_shb( PTR shb_ptr)
 
 
 USHORT LockMgr::wait_for_request(LRQ request,
-							   SSHORT lck_wait, ISC_STATUS * status_vector)
+							   SSHORT lck_wait, ISC_STATUS * status_vector, int *req_owner)
 {
 /**************************************
  *
@@ -4284,6 +4744,9 @@ USHORT LockMgr::wait_for_request(LRQ request,
 	PTR lock_offset = request->lrq_lock;
 	LBL lock = LOCK_BLOCK(lock_offset);
 	lock->lbl_pending_lrq_count++;
+
+	LOCK_TRACE(("wait_for_request (%ld)\n", owner_offset));
+
 	
 	/* If ordering is in effect, and this is a conversion of
 		an existing lock in LCK_none state - put the lock to the
@@ -4390,8 +4853,9 @@ USHORT LockMgr::wait_for_request(LRQ request,
 #endif
 
 		CHECK(request->lrq_requested != request->lrq_state);
-		wait(owner, &request->lrq_wakeup_event, LOCK_scan_interval * 1000000);		
-		ret = FB_SUCCESS;
+
+		ret = wait(owner, request, LOCK_scan_interval * 1000000);		
+//		ret = FB_SUCCESS;
 		LOCK_TRACE(("lock wait wakeup for %d\n", request_offset));
 		
 
@@ -4484,6 +4948,22 @@ USHORT LockMgr::wait_for_request(LRQ request,
 		   
 		deadlock_timeout = current_time + scan_interval;
 
+
+#if 0
+		if (status_vector)
+		{
+			/* deadlock condition, return an error */
+			request->lrq_flags |= LRQ_rejected;
+			clearPending(request);
+
+			*status_vector++ = isc_arg_gds;
+			*status_vector++ = isc_deadlock;
+			*status_vector++ = isc_arg_end;
+			release(owner_offset);
+			return FB_FAILURE;
+		}
+#endif
+
 		/* Handle lock event first */
 		
 		if (ret == FB_SUCCESS)
@@ -4530,7 +5010,11 @@ USHORT LockMgr::wait_for_request(LRQ request,
 				
 			OWN blocking_owner = LOCK_OWNER(blocking_request->lrq_owner);
 			//blocking_owner->own_pending_request = 0;
-			remove_que(&blocking_request->lrq_own_pending);
+			if (blocking_request->lrq_flags & LRQ_blocking)
+			{
+				remove_que(&blocking_request->lrq_own_blocks);
+				blocking_request->lrq_flags &= ~LRQ_blocking;
+			}
 			blocking_owner->own_flags &= ~OWN_scanned;
 			
 			if (blocking_request != request)
@@ -4574,14 +5058,20 @@ USHORT LockMgr::wait_for_request(LRQ request,
 
 /* NOTE: lock table is not acquired at this point */
 
-#ifdef DEV_BUILD
 	request = LOCK_REQUEST(request_offset);
+	if (req_owner)
+		*req_owner = request->lrq_owner;
+		
+#ifdef DEV_BUILD
 	CHECK(!(request->lrq_flags & LRQ_pending));
 #endif /* DEV_BUILD */
 
 	owner = LOCK_OWNER(owner_offset);
 	//owner->own_pending_request = 0;
 	release(owner_offset);
+
+	LOCK_TRACE(("wait_for_request returning, granted = %d\n", !(request->lrq_flags & LRQ_rejected)));
+
 
 	return FB_SUCCESS;
 }
@@ -4598,10 +5088,10 @@ void LockMgr::lockTrace(const char* text, ...)
 	strcpy (p, ctime(&t));
 	***/
 	
-	if (LOCK_header)
-		sprintf (p, "%d:", ++LOCK_header->lhb_sequence);
+	if (LOCK_table)
+		sprintf (p, "%d %d:", Thread::getCurrentThreadId(), ++LOCK_table->lhb_sequence);
 	else
-		sprintf (p, "?:");
+		sprintf (p, "%d ?:", Thread::getCurrentThreadId() );
 		
 	while (*p && *p != '\n')
 		++p;
@@ -4612,7 +5102,7 @@ void LockMgr::lockTrace(const char* text, ...)
 	ib_fflush (ib_stdout); 
 	gds__log (temp);
 
-	if (LOCK_header && LOCK_header->lhb_sequence == LOCK_trace_stop)
+	if (LOCK_table && LOCK_table->lhb_sequence == LOCK_trace_stop)
 		lockBreak();
 }
 
@@ -4629,8 +5119,12 @@ void LockMgr::validate(void)
 
 void LockMgr::checkReleased(PTR ownerOffset)
 {
+#if 0
+	/* this check does not appear valid, as a second thread with the */
+	/* same ownerOffset can acquire just as the first has released */
 	if (LOCK_table->lhb_active_owner == ownerOffset)
 		bug(NULL, "missing lock table release");
+#endif
 }
 
 void LockMgr::clearPending(LRQ request)
@@ -4668,7 +5162,7 @@ LockEvent* LockMgr::allocEvent(LockOwner* lockOwner)
 #else
 	event->event.init(LOCK_header->lhb_semid, ++LOCK_header->lhb_event_number);
 #endif
-
+	
 	return event;		
 }
 
@@ -4697,18 +5191,58 @@ void LockMgr::postWakeup(LockRequest* request)
 		}
 }
 
-void LockMgr::wait(LockOwner *owner, PTR *wakeup, int waitTime)
+int LockMgr::wait(LockOwner *owner, LRQ request, int waitTime)
 {
+	int rc;
+	int num_locks = 0;
+	
 	PTR ownerOffset = REL_PTR(owner);
+	PTR requestOffset = REL_PTR(request);
+
 	LockEvent *event = allocEvent(owner);
-	*wakeup = REL_PTR(event);
+	PTR eventOffset = REL_PTR(event);
+	request->lrq_wakeup_event = REL_PTR(event);
 	int eventCount = event->event.clear();
+
+	LOCK_TRACE(("Going into long wait for thread = %x, owner = %d, request = %d, event = %d\n", 
+			Thread::getCurrentThreadId(), ownerOffset, requestOffset, eventOffset));
+
 	release(ownerOffset);
-	event->event.wait(eventCount, waitTime);
-	//printf ("got wakeup on event %d\n", *wakeup);
+#ifndef SHARED_CACHE
+	while(LOCK_dbb->syncAst.ourExclusiveLock())
+	{
+		LOCK_dbb->syncAst.unlock();
+		num_locks++;
+	}
+#endif
+
+//num_long_waits++;
+
+	rc = event->event.wait(eventCount, waitTime);   /****** NOT THREAD SAFE, as the mem for event may be remapped *****/
+	
+	LOCK_TRACE(("Back from wait for thread = %x, owner = %d, request = %d, event = %d\n", 
+			Thread::getCurrentThreadId(),ownerOffset, requestOffset, eventOffset));
+
+#ifndef SHARED_CACHE
+	while(num_locks)
+	{
+		LOCK_dbb->syncAst.lock(NULL, Exclusive);
+		num_locks--;
+	}
+#endif
+
 	acquire(ownerOffset);
-	*wakeup = 0;
+
+	LOCK_TRACE(("Back from acquire for thread = %x, owner = %d, request = %d, event = %d\n", 
+		Thread::getCurrentThreadId(),ownerOffset, requestOffset, eventOffset));
+
+	event = LOCK_EVENT(eventOffset);
+	request = LOCK_REQUEST(requestOffset);
+	owner = LOCK_OWNER(ownerOffset);	
+	request->lrq_wakeup_event = 0;
 	releaseEvent(event, owner);
+	
+	return rc;
 }
 
 LockRequest* LockMgr::allocRequest(void)
@@ -4730,9 +5264,10 @@ LockRequest* LockMgr::allocRequest(void)
 	request->lrq_data = 0;
 	request->lrq_ast_routine = NULL;
 	request->lrq_ast_argument = NULL;
-	request->lrq_thread_id = Thread::getCurrentThreadId();
+#ifndef SHARED_CACHE
+	request->lrq_dbb = LOCK_dbb;
+#endif
 	request->lrq_wakeup_event = (PTR) 0;
 	request->lrq_lock = (PTR) 0;
-	
 	return request;
 }

@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  The contents of this file are subject to the Initial
  *  Developer's Public License Version 1.0 (the "License");
@@ -35,6 +36,8 @@
 #include "JString.h"
 #include "Subsystem.h"
 #include "HandleManager.h"
+#include "Sync.h"
+#include "SyncObject.h"
 
 static const int traceCalls		= 1;
 static const int traceResults	= 2;
@@ -234,7 +237,8 @@ protected:
 	HandleManager	statementHandles;
 	HandleManager	blobHandles;
 	HandleManager	transactionHandles;
-	
+	SyncObject	syncProvider;
+		
 public:
 	void trace(const char* method, ...);
 	YTransaction* getTransaction(TraHandle* traHandle);

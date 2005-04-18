@@ -23,6 +23,9 @@
  */
  
 #include <string.h>
+#ifdef MVS
+#include <strings.h> // for strcasecmp
+#endif
 #include "firebird.h"
 #include "common.h"
 #include "SecurityDb.h"

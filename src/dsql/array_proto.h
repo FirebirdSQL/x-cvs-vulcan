@@ -28,7 +28,7 @@ ISC_STATUS API_ROUTINE isc_array_gen_sdl(ISC_STATUS*, const ISC_ARRAY_DESC*,
 										SSHORT*, UCHAR*, SSHORT*);
 ISC_STATUS API_ROUTINE isc_array_get_slice(ISC_STATUS*, isc_handle*, isc_handle*,
 											ISC_QUAD*, const ISC_ARRAY_DESC*,
-											void*, SLONG*);
+											void*, ISC_LONG*);
 ISC_STATUS API_ROUTINE isc_array_lookup_bounds(ISC_STATUS*,isc_handle*, isc_handle*,
 												SCHAR*, SCHAR*,
 												ISC_ARRAY_DESC*);

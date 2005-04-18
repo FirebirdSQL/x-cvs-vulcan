@@ -492,8 +492,10 @@ JRD_REQ EXE_find_request(thread_db* tdbb, JRD_REQ request, bool validate)
 		BUGCHECK /* REQUEST */ (167);	/* msg 167 invalid SEND request */
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncClone, "EXE_find_request");
 	sync.lock(Exclusive);
+#endif
 	//THD_MUTEX_LOCK(dbb->dbb_mutexes + DBB_MUTX_clone);
 	JRD_REQ clone = NULL;
 	USHORT count = 0;
@@ -880,6 +882,11 @@ void EXE_start(thread_db* tdbb, JRD_REQ request, Transaction* transaction)
 
 	TRA_post_resources(tdbb, transaction, request->req_resources);
 
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncCmpClone, "EXE_start");
+	sync.lock(Exclusive);
+#endif
+
 	request->req_transaction = transaction;
 	request->req_flags &= REQ_FLAGS_INIT_MASK;
 	request->req_flags |= req_active;
@@ -900,6 +907,10 @@ void EXE_start(thread_db* tdbb, JRD_REQ request, Transaction* transaction)
 	request->req_top_view_store = NULL;
 	request->req_top_view_modify = NULL;
 	request->req_top_view_erase = NULL;
+
+#ifdef SHARED_CACHE
+	sync.unlock();
+#endif
 
 	// Store request start time for timestamp work
 	
@@ -993,6 +1004,11 @@ void EXE_unwind(thread_db* tdbb, JRD_REQ request)
 
 	if (request->req_proc_sav_point && (request->req_flags & req_proc_fetch))
 		release_proc_save_points(request);
+
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncClone, "EXE_unwind");
+	sync.lock(Exclusive);
+#endif
 
 	request->req_flags &= ~(req_active | req_proc_fetch | req_reserved);
 	request->req_flags |= req_abort | req_stall;
@@ -1425,7 +1441,7 @@ static void exec_sql(thread_db* tdbb, JRD_REQ request, DSC* dsc)
 
 	delete v;
 }
-#endif // TOTALLY_BROKEN	this needs to be rewritten with the DSQL 
+#endif // TOTALLY_BROKEN	this needs to be rewritten with the DSQL
 
 
 static void execute_procedure(thread_db* tdbb, JRD_NOD node)
@@ -1555,8 +1571,10 @@ static JRD_REQ execute_triggers(thread_db* tdbb,
  *
  **************************************/
 
+#ifdef SHARED_CACHE
 	Sync sync (&relation->syncTriggers, "execute_triggers");
 	sync.lock(Shared);
+#endif
 	
 	if (!*triggers) 
 		return NULL;
@@ -2584,7 +2602,7 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 					}
 				}
 				break;
-#endif //TOTALLY_BROKEN	this needs to be rewritten with the DSQL 
+#endif //TOTALLY_BROKEN	this needs to be rewritten with the DSQL
 
 			case nod_post:
 				{
@@ -2840,6 +2858,11 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 /* if there is no node, assume we have finished processing the 
    request unless we are in the middle of processing an asynchronous message */
 
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncCmpClone, "EXE_recieve");
+#endif
+	
+
 	if (!node
 #ifdef SCROLLABLE_CURSORS
 		&& !(request->req_flags & req_async_processing)
@@ -2855,6 +2878,9 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 					RSE_close(tdbb, (RecordSource*) *ptr);
 			}
 
+#ifdef SHARED_CACHE
+		sync.lock(Exclusive);
+#endif
 		request->req_flags &= ~(req_active | req_reserved);
 		request->req_timestamp = 0;
 		release_blobs(tdbb, request);
@@ -3256,9 +3282,11 @@ static void release_blobs(thread_db* tdbb, JRD_REQ request)
 
 	if ( (transaction = request->req_transaction) ) 
 		{
+#ifdef SHARED_CACHE
 		Sync sync (&transaction->syncObject, "release_blobs");
 		sync.lock (Exclusive);
-		
+#endif
+
 		/* Release blobs assigned by this request */
 
 		for (blb** blob = &transaction->tra_blobs; *blob;) 

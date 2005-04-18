@@ -146,8 +146,10 @@ SINT64 DYN_UTIL_gen_unique_id(thread_db*	tdbb,
 		req_handle = CMP_compile2(tdbb, reinterpret_cast<const UCHAR*>(blr), TRUE);
 		}
 		
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "DYN_UTIL_gen_unique_id");
 	sync.lock(Exclusive);
+#endif
 	*request = req_handle;
 	EXE_start(tdbb, req_handle, dbb->dbb_sys_trans);
 	EXE_receive(tdbb, req_handle, 0, sizeof(value), (UCHAR*)&value);

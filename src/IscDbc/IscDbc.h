@@ -27,7 +27,7 @@
 #endif
 
 typedef unsigned char	UCHAR;
-typedef unsigned long	ULONG;
+//typedef unsigned long	ULONG;
 typedef __int64			QUAD;
 typedef unsigned __int64			UQUAD;
 

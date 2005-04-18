@@ -40,7 +40,6 @@
  */
 
 #include "firebird.h"
-#include "common.h"
 #include <limits.h>
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
@@ -890,7 +889,7 @@ void API_ROUTINE gds__event_block_s(
 
 
 void API_ROUTINE isc_event_counts(
-					ULONG* result_vector,
+					ISC_ULONG* result_vector,
 					SSHORT buffer_length,
 					SCHAR* event_buffer,
 					const SCHAR* result_buffer)
@@ -907,7 +906,7 @@ void API_ROUTINE isc_event_counts(
  *	for GPRE support of events.
  *
  **************************************/
-	ULONG* vec = result_vector;
+	ISC_ULONG* vec = result_vector;
 	TEXT* p = event_buffer;
 	const TEXT* q = result_buffer;
 	USHORT length = buffer_length;

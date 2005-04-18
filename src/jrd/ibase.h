@@ -54,15 +54,9 @@ $Id$
 
 #include <limits.h>
 
-#if LONG_MAX > 2147483647
 typedef	int				ISC_LONG;
 typedef	unsigned int	ISC_ULONG;
-typedef int				isc_handle;
-#else
-typedef	long			ISC_LONG;
-typedef	unsigned long	ISC_ULONG;
-typedef void*			isc_handle;
-#endif
+typedef unsigned int    isc_handle;
 
 typedef	signed short	ISC_SHORT;
 typedef	unsigned short	ISC_USHORT;
@@ -116,7 +110,7 @@ typedef struct
 typedef GDS_QUAD GDS__QUAD;
 //#endif /* !(defined __cplusplus) */
 
-typedef struct GDS_QUAD_t ISC_QUAD;
+// typedef struct GDS_QUAD_t ISC_QUAD; /* already defined in fb_types.h */
 
 typedef struct
 {
@@ -1632,6 +1626,7 @@ enum  info_db_implementations
 
 	isc_info_db_impl_linux_sparc = 65,
 	isc_info_db_impl_linux_amd64 = 66,
+	isc_info_db_impl_mvs = 67,
 
 	isc_info_db_impl_last_value   /* Leave this LAST! */
     };
@@ -1986,10 +1981,9 @@ enum info_db_provider
 #define isc_info_sql_sqlda_start          20
 #define isc_info_sql_stmt_type            21
 #define isc_info_sql_get_plan             22
-#define isc_info_sql_records              23
-#define isc_info_sql_batch_fetch          24
-#define isc_info_sql_relation_alias       25
-
+#define isc_info_sql_records		  23
+#define isc_info_sql_batch_fetch	  24
+#define isc_info_sql_relation_alias	  25
 
 /*********************************/
 /* SQL information return values */

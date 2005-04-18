@@ -1340,7 +1340,7 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 	UCHAR *fill_pos, fill_char;
 	USHORT l, fill, flag;
 
-	for (SKD* key = scb->scb_description, *end = key + scb->scb_keys;
+	for (sort_key_def* key = scb->scb_description, *end = key + scb->scb_keys;
 		 key < end; key++)
 	{
 		UCHAR* p = record + key->skd_offset;

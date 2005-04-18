@@ -614,7 +614,7 @@ int SCH_schedule(void)
 	return schedule_active(FALSE);
 }
 
-
+#ifdef OBSOLETE
 BOOLEAN SCH_thread_enter_check(void)
 {
 /**************************************
@@ -637,7 +637,7 @@ BOOLEAN SCH_thread_enter_check(void)
 	return (FALSE);
 
 }
-
+#endif
 
 BOOLEAN SCH_validate(void)
 {
@@ -730,6 +730,7 @@ static THREAD alloc_thread(void)
 }
 
 
+#ifdef OBSOLETE
 static BOOLEAN ast_enable(void)
 {
 /**************************************
@@ -763,7 +764,6 @@ static BOOLEAN ast_enable(void)
 	return FALSE;
 }
 
-#ifdef OBSOLETE
 static void ast_disable(void)
 {
 /**************************************

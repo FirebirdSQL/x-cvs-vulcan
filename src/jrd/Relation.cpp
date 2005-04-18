@@ -304,8 +304,10 @@ void Relation::fetchFields(Transaction* transaction)
 
 void Relation::dropField(thread_db* tdbb, const char* fieldName)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "Relation::dropField");
 	sync.lock(Exclusive);
+#endif
 	Field *field = getField(tdbb, fieldName);
 	
 	if (field)
@@ -321,8 +323,10 @@ void Relation::dropField(thread_db* tdbb, const char* fieldName)
 
 Field* Relation::addField(int id, const char* name)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "Relation::addField");
 	sync.lock(Exclusive);
+#endif
 	Field *field = new Field(name);
 	rel_fields.checkSize(id, id + 1);
 	field->fld_id = id;
@@ -355,15 +359,21 @@ Field* Relation::findField(int id)
 Format* Relation::getFormat(thread_db* tdbb, int formatVersion)
 {
 	Format* format;
+#ifdef SHARED_CACHE
 	Sync sync(&syncFormats, "Relation::getFormat");
 	sync.lock(Shared);
+#endif
 	
 	if (formatVersion < rel_formats.size() && (format = rel_formats [formatVersion]))
 		return format;
 	
+#ifdef SHARED_CACHE
 	sync.unlock();
+#endif
 	format = MET_format(tdbb, this, formatVersion);
+#ifdef SHARED_CACHE
 	sync.lock(Exclusive);
+#endif
 	rel_formats.checkSize(formatVersion, formatVersion+1);
 	
 	if (rel_formats[formatVersion])
@@ -387,8 +397,10 @@ Format* Relation::getCurrentFormat(thread_db* tdbb)
 
 void Relation::setFormat(Format* format)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncFormats, "Relation::setFormat");
 	sync.lock(Exclusive);
+#endif
 	int formatVersion = format->fmt_version;
 	rel_formats.checkSize(formatVersion, formatVersion+1);
 	rel_formats[formatVersion] = format;
@@ -399,7 +411,14 @@ void Relation::scanRelation(thread_db* tdbb, int csb_flags)
 	if ((!(rel_flags & REL_scanned) || (rel_flags & REL_being_scanned)) &&
 		((rel_flags & REL_force_scan) || !(csb_flags & csb_internal)))
 		{
+#ifdef SHARED_CACHE
+		Sync sync(&syncObject, "Relation::scanRelation");
+		sync.lock(Exclusive);
+#endif
 		rel_flags &= ~REL_force_scan;
+#ifdef SHARED_CACHE
+		sync.unlock();
+#endif
 		MET_scan_relation(tdbb, this);
 		}
 	else if (rel_flags & REL_sys_triggers)

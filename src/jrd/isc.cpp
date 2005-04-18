@@ -458,7 +458,11 @@ int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
 		{
 		euid = (SLONG) geteuid();
 		egid = (SLONG) getegid();
+#ifdef __VMS
+                const struct passwd* password = (struct passwd*) getpwuid(euid);
+#else
 		const struct passwd* password = getpwuid(euid);
+#endif
 		if (password)
 			userName = password->pw_name;
 		else

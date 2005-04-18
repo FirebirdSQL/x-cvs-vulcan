@@ -117,6 +117,13 @@ typedef struct itm {
 #ifdef HAVE_SYS_MNTTAB_H
 #include <sys/mnttab.h>	/* get MNTTAB/_PATH_MNTTAB */
 #endif
+#if defined(_AIX)
+#include <sys/mntctl.h>
+extern "C"
+{
+     int mntctl (int Command, int Size, char *Buffer);
+}
+#endif
 
 /* EKU: if you get a compiler warning/error about redefinition of MTAB,
         please remove the define from the platform-specific section below
@@ -184,7 +191,7 @@ typedef struct mnt {
 #define INET_FLAG	':'
 #endif
 
-#if (!defined NO_NFS || defined FREEBSD || defined NETBSD || defined SINIXZ)
+#if !defined WIN_NT && !defined VMS
 static int expand_filename2(const TEXT*, USHORT, TEXT*);
 #endif
 
@@ -520,7 +527,7 @@ bool ISC_check_if_remote(const TEXT* file_name,
 }
 
 
-#if (!defined NO_NFS || defined FREEBSD || defined NETBSD || defined SINIXZ)
+#if !defined WIN_NT && !defined VMS
 int ISC_expand_filename(const TEXT* from_buff, USHORT length, TEXT* to_buff)
 {
 /**************************************
@@ -1089,7 +1096,7 @@ int ISC_strip_extension(TEXT* file_name)
 #endif
 
 
-#if (!defined NO_NFS || defined FREEBSD || defined NETBSD || defined SINIXZ)
+#if !defined WIN_NT && !defined VMS
 static int expand_filename2(const TEXT* from_buff, USHORT length, TEXT* to_buff)
 {
 /**************************************
@@ -1365,7 +1372,7 @@ static BOOLEAN get_mounts(
 
 		l = *(SLONG *) mnt_buffer;
 		/* FREE: in get_mounts() */
-		if (!(*buffer = gds__alloc((SLONG) l)) ||
+		if (!(*buffer = (char *)gds__alloc((SLONG) l)) ||
 			(*count = mntctl(MCTL_QUERY, l, *buffer)) <= 0)
 			return FALSE;		/* NOMEM: */
 	}
@@ -1409,7 +1416,7 @@ static BOOLEAN get_mounts(
 }
 #endif // (defined AIX || defined AIX_PPC)
 
-#if defined(HAVE_GETMNTENT) && !defined(SOLARIS)
+#if defined(HAVE_GETMNTENT) && !defined(SOLARIS) && !defined(_AIX)
 #define GET_MOUNTS
 #if defined(GETMNTENT_TAKES_TWO_ARGUMENTS) /* SYSV stylish */
 static BOOLEAN get_mounts(MNT * mount, TEXT * buffer, IB_FILE * file)
@@ -1456,7 +1463,7 @@ static BOOLEAN get_mounts(MNT * mount, TEXT * buffer, IB_FILE * file)
 	else
 		return FALSE;
 }
-#else // !GETMNTENT_TAKES_TWO_ARGUMENTS 
+#else // !GETMNTENT_TAKES_TWO_ARGUMENTS
 static BOOLEAN get_mounts(MNT * mount, TEXT * buffer, IB_FILE * file)
 {
 /**************************************

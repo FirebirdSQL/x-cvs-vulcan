@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		Attachment.h
@@ -60,6 +61,7 @@ const ULONG ATT_notify_gc			= 1024;	// Notify garbage collector to expunge, purg
 const ULONG ATT_disable_notify_gc	= 2048;	// Temporarily perform own garbage collection
 const ULONG ATT_garbage_collector	= 4096;	// I'm a garbage collector
 
+
 #define ATT_NO_CLEANUP	(ATT_no_cleanup | ATT_notify_gc)
 #else
 #define ATT_NO_CLEANUP	ATT_no_cleanup
@@ -85,6 +87,7 @@ const int DBB_backout_count			= 5;
 const int DBB_purge_count			= 6;
 const int DBB_expunge_count			= 7;
 const int DBB_max_count				= 8;
+
 
 
 class Database;
@@ -122,16 +125,16 @@ public:
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
 	Request*	att_requests;		// Requests belonging to attachment
-	sort_context* att_active_sorts;	// Active sorts
+	sort_context*		att_active_sorts;	// Active sorts
 	lck*		att_id_lock;		// Attachment lock (if any)
 	SLONG		att_attachment_id;	// Attachment ID
 	SLONG		att_lock_owner_handle;	// Handle for the lock manager
 	SLONG		att_event_session;	// Event session id, if any
-	SecurityClass* att_security_class;	// security class for database
-	SecurityClass* att_security_classes;	// security classes
+	SecurityClass*		att_security_class;	// security class for database
+	SecurityClass*		att_security_classes;	// security classes
 	vcl*		att_counts[DBB_max_count];
 	vec*		att_relation_locks;	// explicit persistent locks for relations
-	Bookmark*	att_bookmarks;		// list of bookmarks taken out using this attachment
+	Bookmark*		att_bookmarks;		// list of bookmarks taken out using this attachment
 	lck*		att_record_locks;	// explicit or implicit record locks taken out during attachment
 	vec*		att_bkm_quick_ref;	// correspondence table of bookmarks
 	vec*		att_lck_quick_ref;	// correspondence table of locks
@@ -149,17 +152,19 @@ public:
 	InternalConnection	*firstConnection;
 	InternalConnection	*lastConnection;
 	
+#ifdef SHARED_CACHE
 	SyncObject	syncObject;
 	SyncObject	syncLongLocks;
 	SyncObject	syncRequests;
+#endif
 
 	bool isSoleAttachment(void);
 	Cursor* findCursor(const char* name);
 	void deleteCursor(Cursor* cursor);
 	void endTransaction(Transaction* transaction);
-	void updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb);
+	void updateAccountInfo(thread_db *tdbb, int apbLength, const UCHAR* apb);
 	void authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb);
-	void shutdown(thread_db* tdbb);
+	void shutdown(thread_db *tdbb);
 	void addLongLock(lck* lock);
 	void removeLongLock(lck* lock);
 	lck* findBlock(lck* lock, int level);

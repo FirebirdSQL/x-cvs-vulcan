@@ -928,9 +928,11 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 			materialized_blob = true;
 		else 
 			{
+#ifdef SHARED_CACHE
 			Sync sync (&transaction->syncObject, "BLB_move");
 			sync.lock (Shared);
-			
+#endif
+		
 			for (blob = transaction->tra_blobs; blob; blob = blob->blb_next)
 				if (blob->temporaryId == source->bid_stuff.bid_number)
 					{
@@ -1138,14 +1140,18 @@ blb* BLB_open2(thread_db* tdbb,
 			/* Search the list of transaction blobs for a match */
 			const blb* new_blob;
 
+#ifdef SHARED_CACHE
 			Sync sync (&transaction->syncObject, "BLB_open2");
 			sync.lock (Shared);
+#endif
 			
 			for (new_blob = transaction->tra_blobs; new_blob; new_blob = new_blob->blb_next) 
 				if (new_blob->temporaryId == blob_id->bid_stuff.bid_number) 
 					break;
 
+#ifdef SHARED_CACHE
 			sync.unlock();
+#endif
 			check_BID_validity(new_blob, tdbb);
 
 			blob->blb_lead_page = new_blob->blb_lead_page;
@@ -1176,6 +1182,11 @@ blb* BLB_open2(thread_db* tdbb,
 	   not a good idea.  On the other hand, if we don't already
 	   know about the relation, the blob id has got to be invalid
 	   anyway. */
+
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncRelations, "BLB_open2");
+	sync.lock(Exclusive);
+#endif
 
 	/***
 	SVector<Relation*> *vector = &dbb->dbb_relations;

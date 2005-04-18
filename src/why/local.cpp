@@ -148,7 +148,7 @@ static void eventAst (UCHAR *buffer, int length, EventArg *eventArg)
 ISC_STATUS API_ROUTINE isc_event_wait (ISC_STATUS *status, isc_db_handle* dbHandle, USHORT eventLength, SCHAR *events, SCHAR *buffer)
 	{
 	EventArg eventArg;
-	SLONG eventId;
+	ISC_LONG eventId;
 
 	SLONG eventCount = ISC_event_clear (&eventArg.event);
 

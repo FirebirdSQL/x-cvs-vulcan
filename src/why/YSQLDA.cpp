@@ -103,6 +103,7 @@ void YSQLDA::init(void)
 	blrLength = 0;
 	msgLength = 0;
 	allocLength = 0;
+	dscLength = 0;
 	sqlvars = NULL;
 }
 
@@ -117,7 +118,8 @@ YSQLDA::~YSQLDA()
 	if (sqlvars && sqlvars != localSqlvars)
 		delete [] sqlvars;
 		
-	delete [] descriptors;
+	if (descriptors && descriptors != localDescriptors)
+		delete [] descriptors;
 }
 
 void YSQLDA::allocBuffer()
@@ -175,6 +177,20 @@ void YSQLDA::allocateMessage(void)
 	
 	msg = new UCHAR [msgLength];
 	allocLength = msgLength;
+}
+
+void YSQLDA::allocateDescriptors(void)
+{
+	if (dscLength <= sizeof (localDescriptors) / sizeof(dsc))
+		{
+		descriptors = localDescriptors;
+		return;
+		}
+	
+	if (descriptors && descriptors != localDescriptors)
+		delete [] descriptors;
+	
+	descriptors = new dsc [dscLength];
 }
 
 void YSQLDA::populateSqlda(const UCHAR *info, int infoLength)
@@ -355,7 +371,11 @@ void YSQLDA::genBlr()
 	stuff (p, blr_message);
 	stuff (p, 0);
 	stuffWord (p, parameters);
-	descriptors = new dsc [sqlda->sqld * 2];
+	if (sqlda->sqld * 2 > dscLength)
+	{
+		dscLength = sqlda->sqld * 2;
+		allocateDescriptors();
+	}
 	memset (descriptors, 0, sizeof (dsc) * sqlda->sqld * 2);
 	dsc *desc = descriptors;
 	
@@ -449,7 +469,9 @@ void YSQLDA::copyToMessage(void)
 			{
 			case dtype_varying:
 				((vary*) to)->vary_length = ((vary*) from)->vary_length;
-				memcpy (((vary*) to)->vary_string, ((vary*)from)->vary_string, ((vary*)from)->vary_length);
+				if (!*variable->sqlind) /* this seems to be the check that FB15 uses for NULL */
+										/* NULL data. (see null_ind in utld.cpp, near line 628 */
+					memcpy (((vary*) to)->vary_string, ((vary*)from)->vary_string, ((vary*)from)->vary_length);
 				break;
 			
 			default:

@@ -37,8 +37,10 @@ int traRpbList::PushRpb(struct record_param* value)
 	if (value->rpb_relation->rel_view_rse || value->rpb_relation->rel_file) 
 		return -1;
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "traRpbList::PushRpb");
 	sync.lock(Exclusive);
+#endif
 	
 	int pos = add(traRpbListElement(value, ~0));
 	int level = -1;
@@ -68,8 +70,10 @@ bool traRpbList::PopRpb(struct record_param* value, int Level)
 	if (Level < 0) 
 		return false;
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "traRpbList::PopRpb");
 	sync.lock(Exclusive);
+#endif
 	int pos = -1;
 	ExecAssert(find(traRpbListElement(value, Level), pos));
 	bool rc = (*this)[pos].lr_rpb->rpb_stream_flags & RPB_s_refetch;

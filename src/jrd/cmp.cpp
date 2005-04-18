@@ -258,6 +258,11 @@ JRD_REQ CMP_clone_request(thread_db* tdbb, JRD_REQ request, USHORT level, bool v
 	if (!level)
 		return request;
 
+#ifdef SHARED_CACHE
+	Sync sync(&tdbb->tdbb_database->syncCmpClone, "CMP_clone_request");
+	sync.lock(Exclusive);
+#endif
+
 	VEC vector = request->req_sub_requests;
 
 	if (vector && level < vector->count() && (clone = (JRD_REQ) (*vector)[level]))
@@ -420,8 +425,10 @@ void CMP_expunge_transaction(Transaction* transaction)
 	vec::iterator sub, end;
 	Attachment *attachment = transaction->tra_attachment;
 	
+#ifdef SHARED_CACHE
 	Sync sync(&attachment->syncRequests, "CMP_expunge_transaction");
 	sync.lock(Shared);
+#endif
 	
 	for (request = attachment->att_requests; request; request = request->req_request) 
 		{
@@ -454,8 +461,10 @@ JRD_REQ CMP_find_request(thread_db* tdbb, USHORT id, USHORT which)
 	// there're nothing to do
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncCmpClone, "CMP_find_request");
 	sync.lock(Exclusive);
+#endif
 	Request *request;
 
 	if ((which == IRQ_REQUESTS && !(request = REQUEST(id))) ||
@@ -1820,11 +1829,14 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 					
 				case rsc_index:
 					{
+
 					Relation *relation = resource->rsc_rel;
-					IndexLock* index = CMP_get_index_lock(tdbb, relation, resource->rsc_id);
+#ifdef SHARED_CACHE
 					Sync sync(&relation->syncObject, "CMP_make_request");
 					sync.lock(Exclusive);
-					
+#endif
+					IndexLock* index = CMP_get_index_lock(tdbb, relation, resource->rsc_id);
+
 					if (index)
 						{
 						if (!index->idl_count)
@@ -2178,8 +2190,10 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 
 	if (attachment) 
 		{
+#ifdef SHARED_CACHE
 		Sync sync(&attachment->syncRequests, "CMP_release");
 		sync.lock(Exclusive);
+#endif
 		
 		for (JRD_REQ *next = &attachment->att_requests;  *next; next = &(*next)->req_request)
 			if (*next == request) 
@@ -2206,10 +2220,10 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 /* Memory leak on some ports; must delete both pool and request objects. SAS SEK */
 
 	JrdMemoryPool *pool = request->req_pool;
-#ifdef HPUX
+#ifdef hpux
 	/* HP-UX complains "delete request" undef'd, so do it brute force */
 	delete request->req_last_xcp;
-	delete [] request->req_access-rpb;
+	delete [] request->req_rpb;
 	delete [] request->req_impure;
 #else
 	delete request;
@@ -3460,6 +3474,11 @@ static void pass1_erase(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 		tail = &csb->csb_rpt[stream];
 		tail->csb_flags |= csb_erase;
 		relation = csb->csb_rpt[stream].csb_relation;
+
+#ifdef SHARED_CACHE
+		Sync sync(&relation->syncTriggers, "pass1_erase");
+		sync.lock(Shared);
+#endif
 		view = (relation->rel_view_rse) ? relation : view;
 		
 		if (!parent)
@@ -5358,8 +5377,10 @@ static void post_trigger_access(thread_db* tdbb, CompilerScratch* csb, Relation*
 	if (!triggers)
 		return;
 
+#ifdef SHARED_CACHE
 	Sync sync (&owner_relation->syncTriggers, "post_trigger_access");
 	sync.lock(Shared);
+#endif
 	
 	for (int n = 0; n < triggers->size(); ++n)
 		{

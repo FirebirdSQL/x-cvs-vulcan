@@ -39,7 +39,7 @@ SLONG ISC_EXPORT isc_sqlcode(const ISC_STATUS * status_vector)
 	return gds__sqlcode(status_vector);
 }
 
-SLONG API_ROUTINE_VARARG isc_event_block(SCHAR ** event_buffer,
+ISC_LONG API_ROUTINE_VARARG isc_event_block(SCHAR ** event_buffer,
 										 SCHAR ** result_buffer,
 										 USHORT count, ...)
 {
@@ -135,7 +135,7 @@ void API_ROUTINE gds__event_counts(
 								  SSHORT length,
 								  SCHAR* before, const SCHAR* after)
 {
-	isc_event_counts(result_vector, length, before, after);
+	isc_event_counts((ISC_ULONG *)result_vector, length, before, after);
 }
 
 ISC_STATUS API_ROUTINE isc_print_blr(const SCHAR * blr,
@@ -163,7 +163,7 @@ ISC_STATUS API_ROUTINE isc_interprete(char * buffer, ISC_STATUS ** status_vector
 }
 
 
-SLONG API_ROUTINE isc_vax_integer(const SCHAR * input, SSHORT length)
+ISC_LONG API_ROUTINE isc_vax_integer(const SCHAR * input, SSHORT length)
 {
 	return gds__vax_integer((UCHAR *) input, length);
 }
@@ -188,7 +188,7 @@ SSHORT API_ROUTINE isc_msg_lookup(void* handle,
 
 }		// extern "C"
 
-SLONG API_ROUTINE isc_ftof(const char* string1,
+ISC_LONG API_ROUTINE isc_ftof(const char* string1,
 						   USHORT length1, SCHAR * string2, USHORT length2)
 {
 	return gds__ftof(string1, length1, string2, length2);
@@ -220,7 +220,7 @@ void API_ROUTINE isc_qtoq(GDS_QUAD * quad1, GDS_QUAD * quad2)
 	gds__qtoq(quad1, quad2);
 }
 
-SLONG API_ROUTINE isc_free(SCHAR * blk)
+ISC_LONG API_ROUTINE isc_free(SCHAR * blk)
 {
 	return gds__free((SLONG *) blk);
 }

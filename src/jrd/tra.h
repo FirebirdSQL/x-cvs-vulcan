@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		tra.h
@@ -83,8 +84,10 @@ public:
 	traRpbList		*tra_rpblist;			/* active RPB's of given transaction */
 	UCHAR			tra_use_count;			/* use count for safe AST delivery */
 	UCHAR			tra_callback_count;		/* callback count for 'execute statement' */
+#ifdef SHARED_CACHE
 	SyncObject		syncObject;
 	SyncObject		syncInUse;
+#endif
 	UCHAR			tra_transactions[1];
 	
 	~Transaction(void);

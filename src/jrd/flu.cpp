@@ -49,7 +49,7 @@ $Id$
 #include <string.h>
 
 #include "firebird.h"
-#include "common.h"
+#include "../jrd/common.h"
 //#include "../common/config/config.h"
 //#include "../common/config/dir_list.h"
 //#include "../jrd/os/path_utils.h"
@@ -99,8 +99,18 @@ static int condition_handler(int *, int *, int *);
 #include <libgen.h>
 #endif
 
-#if (defined SOLARIS || defined SCO_EV || defined LINUX || defined AIX_PPC || defined SINIXZ || defined FREEBSD)
+#if (defined SOLARIS || defined SCO_EV || defined LINUX || defined AIX_PPC || defined SINIXZ || defined FREEBSD || defined MVS || defined hpux)
+
+#ifdef hpux
+#define UINT64 junk_UINT64
+#endif
+
 #include <dlfcn.h>
+
+#ifdef hpux
+#undef UINT64
+#endif
+
 #define DYNAMIC_SHARED_LIBRARIES
 #include <unistd.h>
 #include <libgen.h>
@@ -219,7 +229,7 @@ void FLU_unregister_module(MOD module)
 	shl_unload(module->mod_handle);
 #endif
 
-#if defined(SOLARIS) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD) || defined (AIX_PPC) || defined(SINIXZ)
+#if defined(SOLARIS) || defined(LINUX) || defined(FREEBSD) || defined(NETBSD) || defined (AIX_PPC) || defined(SINIXZ) || defined(hpux)
 	dlclose(module->mod_handle);
 #endif
 #ifdef WIN_NT

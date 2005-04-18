@@ -59,7 +59,7 @@ static isc_db_handle
 
 static isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-static long
+static ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 static SLONG

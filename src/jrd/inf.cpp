@@ -449,8 +449,10 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 
 		case isc_info_user_names:
 			{
+#ifdef SHARED_CACHE
 			Sync sync (&dbb->syncAttachments, "INF_database_info");
 			sync.lock (Shared);
+#endif
 			for (att = dbb->dbb_attachments; att; att = att->att_next) 
 				{
 				if (att->att_flags & ATT_shutdown)
@@ -460,7 +462,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 				if (user) 
 					{
 					const char* user_name = (!user->usr_user_name.IsEmpty()) ?
-						user->usr_user_name : "(SQL Server)";
+						(const char *)user->usr_user_name : "(SQL Server)";
 					p = buffer;
 					*p++ = l = strlen (user_name);
 					for (q = user_name; l; l--)

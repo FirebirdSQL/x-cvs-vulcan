@@ -223,8 +223,8 @@ void ProcManager::validateCache (thread_db* tdbb)
 	for (; procedure; procedure = procedure->findNext())
 		{
 		if (procedure->hasRequest() ) 
-			fb_assert(procedure->findInternalUseCount() == 0);
-			
+		// SAS S0291798: fb_assert(procedure->findInternalUseCount() == 0)
+			;
 		procedure->setDependencies();
 		}
 		

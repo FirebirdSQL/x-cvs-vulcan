@@ -166,7 +166,7 @@ static const TEXT *status_name;
 
 #define SET_SQLCODE	if (action->act_flags & ACT_sql) printa (column, "SQLCODE = isc_sqlcode (%s);", status_name)
 #define NULL_STRING	"(char *)0"
-#define NULL_STATUS	"(long*) 0L"
+#define NULL_STATUS	"(ISC_STATUS*) 0L"
 #define NULL_SQLDA	"(XSQLDA*) 0L"
 
 #ifdef VMS
@@ -1555,7 +1555,7 @@ static void gen_database( ACT action, int column)
 		printa(column + INDENT, "%s;\t\t/* default transaction handle */",
 			   transaction_name);
 
-	printa(column, "%slong", scope);
+	printa(column, "%sISC_STATUS", scope);
 	column += INDENT;
 	printa(column, "%s [20],\t/* status vector */", status_name);
 	printa(column, "%s2 [20];\t/* status vector */", status_name);

@@ -39,6 +39,8 @@ MsgFile::~MsgFile(void)
 int MsgFile::lookupMsg(int facility, int number, int length, TEXT* buffer, USHORT* flags)
 {
 	int status = -1;
+	Sync sync(&syncObject, "lookupMsg"); 
+	sync.lock(Exclusive); // protect lseeks
 
 	/* Search down index levels to the leaf.  If we get lost, punt */
 

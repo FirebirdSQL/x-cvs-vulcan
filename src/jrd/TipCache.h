@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		tpc.h
@@ -38,7 +39,10 @@ public:
 	~TipCache(void);
 	
 	Database	*database;
+#ifdef SHARED_CACHE
 	SyncObject	syncObject;
+	SyncObject	syncObjectInitialize;
+#endif
 	tpc			*cache;
 	int			transactionsPerTip;
 	

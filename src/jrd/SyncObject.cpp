@@ -110,7 +110,10 @@ void SyncObject::lock(Sync *sync, LockType type)
 				break;
 			int newState = oldState + 1;
 			if (COMPARE_EXCHANGE(&lockState,oldState,newState))
+				{
+				WAIT_FOR_FLUSH_CACHE
 				return;
+				}
 			}
 			
 		mutex.lock();
@@ -131,14 +134,6 @@ void SyncObject::lock(Sync *sync, LockType type)
 			}
 			
 		thread = Thread::getThread("SyncObject::lock");
-		
-		if (thread == exclusiveThread)
-			{
-			++monitorCount;
-			bumpWaiters(-1);
-			mutex.release();
-			return;
-			}
 		}
 	else
 		{
@@ -159,6 +154,7 @@ void SyncObject::lock(Sync *sync, LockType type)
 			if (COMPARE_EXCHANGE(&lockState,oldState,-1))
 				{
 				exclusiveThread = thread;
+				WAIT_FOR_FLUSH_CACHE
 				return; 
 				}
 			}
@@ -195,7 +191,10 @@ bool SyncObject::lockConditional(LockType type)
 				break;
 			int newState = oldState + 1;
 			if (COMPARE_EXCHANGE(&lockState,oldState,newState))
+				{
+				WAIT_FOR_FLUSH_CACHE
 				return true;
+				}
 			}
 		
 		return false;	
@@ -218,6 +217,7 @@ bool SyncObject::lockConditional(LockType type)
 				break;
 			if (COMPARE_EXCHANGE(&lockState,oldState,-1))
 				{
+				WAIT_FOR_FLUSH_CACHE
 				exclusiveThread = thread;
 				return true; 
 				}
@@ -229,6 +229,8 @@ bool SyncObject::lockConditional(LockType type)
 
 void SyncObject::unlock(Sync *sync, LockType type)
 {
+	ASSERT ((type == Shared && lockState > 0) || (type == Exclusive && lockState == -1));
+	
 	if (monitorCount)
 		{
 		ASSERT (monitorCount > 0);
@@ -236,14 +238,14 @@ void SyncObject::unlock(Sync *sync, LockType type)
 		return;
 		}
 		
-	ASSERT ((type == Shared && lockState > 0) || (type == Exclusive && lockState == -1));
-	
 	for (;;)
 		{
 		int oldState = lockState;
 		int newState = (type == Shared) ? oldState - 1 : 0;
 		exclusiveThread = NULL;
-		
+
+		FLUSH_CACHE
+
 		if (COMPARE_EXCHANGE(&lockState, oldState, newState))
 			{
 			if (waiters)
@@ -258,6 +260,8 @@ void SyncObject::downGrade(LockType type)
 	ASSERT (monitorCount == 0);
 	ASSERT (type == Shared);
 	ASSERT (lockState == -1);
+	
+	FLUSH_CACHE
 	
 	for (;;)
 		if (COMPARE_EXCHANGE(&lockState, -1, 1))

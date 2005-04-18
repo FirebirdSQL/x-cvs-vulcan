@@ -1796,7 +1796,7 @@ static gbak_action open_files(const TEXT* file1,
 #ifndef WIN_NT
 				signal(SIGPIPE, SIG_IGN);
 #endif
-				fil->fil_fd = reinterpret_cast<DESC>(GBAK_STDOUT_DESC());
+				fil->fil_fd = (DESC)(GBAK_STDOUT_DESC());
 				break;
 			}
 			else
@@ -1807,7 +1807,7 @@ static gbak_action open_files(const TEXT* file1,
 											 CREATE_ALWAYS)) == INVALID_HANDLE_VALUE)
 #else
 				if ((fil->fil_fd = open(fil->fil_name, MODE_WRITE, open_mask)) == -1)
-#endif // WIN_NT 
+#endif // WIN_NT
 
 				{
 
@@ -1907,7 +1907,7 @@ static gbak_action open_files(const TEXT* file1,
 
 	tdgbl->action->act_action = ACT_restore;
 	if (!strcmp(fil->fil_name, "stdin")) {
-		fil->fil_fd = reinterpret_cast<DESC>(GBAK_STDIN_DESC());
+		fil->fil_fd = (DESC)(GBAK_STDIN_DESC());
 		tdgbl->file_desc = fil->fil_fd;
 		tdgbl->gbl_sw_files = fil->fil_next;
 	}

@@ -1484,6 +1484,9 @@ dsql_rel* METD_get_relation(dsql_req* request, const dsql_str* name)
 
 // Lookup field stuff 
 
+	Sync sync(&relation->rel_fields, "METD_get_relation");
+	sync.lock(Shared);
+
 	ptr = &relation->rel_fields;
 
 	THREAD_EXIT;
@@ -1969,6 +1972,8 @@ static void free_relation( dsql_rel* relation)
 	dsql_fld* temp;
 
 // release the field blocks 
+	Sync sync(&relation->syncFields, "free_relation");
+	sync.lock(Exclusive);
 
 	for (field = relation->rel_fields; field;) {
 		temp = field;

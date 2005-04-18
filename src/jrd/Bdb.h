@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:		JRD access method
  *	MODULE:			PageCache.h
@@ -122,7 +123,9 @@ public:
 	thread_db*		bdb_shared[BDB_max_shared];	/* threads holding shared latches */
 	bool			exclusive;
 	//bool			bdb_lru_chained;
+#ifdef SHARED_CACHE
 	SyncObject		syncPage;
+#endif
 	//SyncObject		syncBdb;
 	int				writers;
 	

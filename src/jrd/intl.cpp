@@ -508,7 +508,7 @@ static FPTR_SHORT lookup_init_function(thread_db* tdbb,
 	INTL_TRACE(("INTL: trying %s %s\n", INTL_MODULE1, INTL_LOOKUP_ENTRY1));
 	const char *tempStr = INTL_LOOKUP_ENTRY1;
 
-#ifdef PLUGIN_MANAGER	
+#ifdef PLUGIN_MANAGER
 	if ( intlMod1 && (lookup_fn = (USHORT(*)(USHORT, USHORT(**)(), short, short))
 		(intlMod1.lookupSymbol(tempStr))) ) 
 		{
@@ -936,6 +936,11 @@ int INTL_convert_string(const dsc* to, const dsc* from, FPTR_ERROR err)
 
 	CHARSET_ID from_cs = INTL_charset(tdbb, INTL_TTYPE(from), err);
 	CHARSET_ID to_cs = INTL_charset(tdbb, INTL_TTYPE(to), err);
+
+	if ((INTL_TTYPE(from) == CS_dynamic) && (from_cs == CS_NONE))
+		from_cs = to_cs;
+	else if ((INTL_TTYPE(to) == CS_dynamic) && (to_cs == CS_NONE))
+		to_cs = from_cs;
 
 	UCHAR* p = to->dsc_address;
 

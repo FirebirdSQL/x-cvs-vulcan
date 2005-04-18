@@ -28,6 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <string.h>
 #include "firebird.h"
 #include "common.h"
 #include "iberror.h"
@@ -49,6 +50,8 @@ YTransaction::YTransaction(int dbCount)
 		databases = new TranDb [numberDatabases];
 	else
 		databases = localDatabases;
+
+	memset(databases, 0, dbCount * sizeof(*databases));
 
 	/***
 	for (int n = 0; n < numberDatabases; ++n)

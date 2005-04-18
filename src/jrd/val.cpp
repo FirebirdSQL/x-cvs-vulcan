@@ -1755,7 +1755,11 @@ static RTN walk_pointer_page(	thread_db* tdbb,
 	USHORT slot;
 	SLONG *pages, seq;
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	SIVector<SLONG> *vector = &relation->rel_pages;
+#else
+	SVector<SLONG> *vector = &relation->rel_pages;
+#endif
 
 	if (!vector || sequence >= vector->size())
 		return corrupt(tdbb, control, VAL_P_PAGE_LOST, relation, sequence);

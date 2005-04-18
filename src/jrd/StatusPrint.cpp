@@ -6,6 +6,7 @@
 #include "ibase.h"
 #include "StatusPrint.h"
 #include "gds_proto.h"
+#include "ib_stdio.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -45,13 +46,18 @@ ISC_STATUS StatusPrint::printStatus(const ISC_STATUS *statusVector)
 
 void StatusPrint::putError(const char *text)
 {
-	printf ("%s\n", text);
+//	printf ("%s\n", text);
+	ib_fputs(text, ib_stderr);
+	ib_fputc('\n', ib_stderr);
+	ib_fflush(ib_stderr);
 }
 
 ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const ISC_STATUS** vectorPtr)
 {
 	const ISC_STATUS *vector = *vectorPtr;
 	
+	if (vector[0] == isc_arg_tkts_error) vector += 2;
+
 	if (!*vector)
 		return 0;
 

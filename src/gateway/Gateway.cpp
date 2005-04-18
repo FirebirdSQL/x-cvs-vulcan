@@ -68,7 +68,7 @@ ISC_STATUS Gateway::databaseInfo(ISC_STATUS* userStatus, DbHandle *dbHandle, int
 
 ISC_STATUS Gateway::detachDatabase(ISC_STATUS* userStatus, DbHandle *dbHandle)
 {
-	ENTRY (isc_detach_database, (long*, void*))
+	ENTRY (isc_detach_database, (ISC_STATUS*, void*))
 			(userStatus, dbHandle);
 
 	return entrypointUnavailable (userStatus);
@@ -84,7 +84,7 @@ ISC_STATUS Gateway::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 ISC_STATUS Gateway::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, teb *tebs)
 {
-	ENTRY (isc_start_multiple, (long*, void*, int, void*))
+	ENTRY (isc_start_multiple, (ISC_STATUS*, void*, int, void*))
 			(userStatus, traHandle, count, tebs);
 
 	return entrypointUnavailable (userStatus);
@@ -117,7 +117,7 @@ ISC_STATUS Gateway::commitRetaining(ISC_STATUS *userStatus, TraHandle *traHandle
 
 ISC_STATUS Gateway::commitTransaction(ISC_STATUS* userStatus, TraHandle *traHandle)
 {
-	ENTRY (isc_commit_transaction, (long*, void*))
+	ENTRY (isc_commit_transaction, (ISC_STATUS*, void*))
 			(userStatus, traHandle);
 
 	return entrypointUnavailable (userStatus);
@@ -139,7 +139,7 @@ ISC_STATUS Gateway::rollbackTransaction(ISC_STATUS *userStatus, TraHandle *traHa
 
 ISC_STATUS Gateway::compileRequest(ISC_STATUS* userStatus, DbHandle *dbHandle, ReqHandle *reqHandle, int blrLength, const UCHAR* blr)
 {
-	ENTRY (isc_compile_request, (long*, void*, void*, int, const UCHAR*))
+	ENTRY (isc_compile_request, (ISC_STATUS*, void*, void*, int, const UCHAR*))
 			(userStatus, dbHandle, reqHandle, blrLength, blr);
 
 	return entrypointUnavailable (userStatus);
@@ -154,7 +154,7 @@ ISC_STATUS Gateway::compileRequest2(ISC_STATUS* userStatus, DbHandle *dbHandle, 
 
 ISC_STATUS Gateway::startRequest(ISC_STATUS* userStatus, ReqHandle *reqHandle, TraHandle *traHandle, int level)
 {
-	ENTRY (isc_start_request, (long*, void*, void*, int))
+	ENTRY (isc_start_request, (ISC_STATUS*, void*, void*, int))
 			(userStatus, reqHandle, traHandle, level);
 
 	return entrypointUnavailable (userStatus);
@@ -181,7 +181,7 @@ ISC_STATUS Gateway::requestInfo(ISC_STATUS* userStatus, ReqHandle *reqHandle, in
 
 ISC_STATUS Gateway::receive(ISC_STATUS* userStatus, ReqHandle *reqHandle, int msgType, int msgLength, UCHAR* msg, int level)
 {
-	ENTRY (isc_receive, (long*, void*, int, int, UCHAR*, int))
+	ENTRY (isc_receive, (ISC_STATUS*, void*, int, int, UCHAR*, int))
 			(userStatus, reqHandle, msgType, msgLength, msg, level);
 
 	return entrypointUnavailable (userStatus);
@@ -196,7 +196,7 @@ ISC_STATUS Gateway::unwindRequest(ISC_STATUS* userStatus, ReqHandle *reqHandle, 
 
 ISC_STATUS Gateway::releaseRequest(ISC_STATUS*userStatus, ReqHandle *reqHandle)
 {
-	ENTRY (isc_release_request, (long*, void*))
+	ENTRY (isc_release_request, (ISC_STATUS*, void*))
 			(userStatus, reqHandle);
 
 	return entrypointUnavailable (userStatus);

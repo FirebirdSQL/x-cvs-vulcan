@@ -26,6 +26,10 @@
  *
  */
 
+#ifdef _AIX
+#define ALIGN 1  /* prevents define of ALIGNMENT in socket.h */
+#endif
+
 #include "firebird.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/common.h"

@@ -35,11 +35,11 @@
  *    2002.10.29 Nickolay Samofatov: Added support for savepoints
  */
 
+#include "firebird.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <memory.h>
-#include "firebird.h"
 
 #include "../jrd/common.h"
 #include "../jrd/jrd.h"
@@ -130,8 +130,17 @@ void DYN_ddl(thread_db* tdbb, Attachment* attachment, Transaction* transaction, 
 
 	try 
 		{
+#ifdef SHARED_CACHE
 		Sync sync(&dbb->syncDyn, "DYN_ddl");
 		sync.lock(Exclusive);
+#else
+		/* Serialize all DLL as concurent DLL can cause a deadlock in */
+		/* the lock manager */
+		dbb->syncAst.unlock();
+		Sync sync(&dbb->databaseManager->syncDDL, "DYN_ddl");
+		sync.lock(Exclusive);
+		dbb->syncAst.lock(NULL, Exclusive);
+#endif
 		
 		VIO_start_save_point(tdbb, transaction);
 		transaction->tra_save_point->sav_verb_count++;
@@ -297,7 +306,7 @@ void DYN_error_punt(thread_db* tdbb, OSRIException *exception,
 					arg1, arg2, arg3, arg4, arg5);
 	throw OSRIException (exception, isc_no_meta_update, 
 						 isc_arg_gds, isc_random,
-						 isc_arg_string, error_buffer, 0);	
+						 isc_arg_string, error_buffer, 0);
 }
 
 

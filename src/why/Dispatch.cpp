@@ -32,12 +32,13 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <dlfcn.h>
+//#include <dlfcn.h>
 #endif
 
 #include "firebird.h"
 #include "ibase.h"
 #include "common.h"
+#include "../jrd/dsc.h"
 #include "Dispatch.h"
 #include "SubsysHandle.h"
 #include "StatusVector.h"
@@ -582,13 +583,13 @@ ISC_STATUS Dispatch::compileRequest(ISC_STATUS* userStatus, DbHandle *dbHandle, 
 ISC_STATUS Dispatch::compileRequest2(ISC_STATUS* userStatus, DbHandle *dbHandle, ReqHandle *reqHandle, int blrLength, const UCHAR* blr)
 {
 	trace ("compileRequest2");
-	DbHandle *orgPointer = reqHandle;
+	//DbHandle *orgPointer = dbHandle;
 	ISC_STATUS ret = compileRequest (userStatus, dbHandle, reqHandle, blrLength, blr);
 
 	if (!ret)
 		{
 		YRequest *request = getRequest (reqHandle);
-		request->userPtr = orgPointer;
+		request->userPtr = reqHandle; //orgPointer;
 		}
 
 	return ret;
@@ -720,7 +721,18 @@ ISC_STATUS Dispatch::receive(ISC_STATUS* userStatus, ReqHandle *reqHandle, int m
 ISC_STATUS Dispatch::unwindRequest(ISC_STATUS* userStatus, ReqHandle *reqHandle, int level)
 {
 	trace ("unwindRequest");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YRequest *request = getRequest (reqHandle);
+
+	if (!request)
+		return statusVector.postAndReturn (isc_bad_req_handle);
+
+	request->subsystem->subsystem->unwindRequest(
+			statusVector, 
+			&request->handle, 
+			level);
+
+	return statusVector.getReturn();
 }
 
 
@@ -927,17 +939,76 @@ ISC_STATUS Dispatch::cancelBlob(ISC_STATUS* userStatus, BlbHandle *blbHandle)
 
 
 
-ISC_STATUS Dispatch::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, SLONG sliceLength, UCHAR* slice)
+ISC_STATUS Dispatch::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
+							  SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, 
+							  SLONG sliceLength, UCHAR* slice)
 {
 	trace ("putSlice");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	TraHandle trHandle = transaction->getDbHandle (handle);
+
+	if (!trHandle)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	handle->subsystem->putSlice(statusVector,
+									&handle->handle,
+									&trHandle,
+									arrayId, 
+									sdlLength, 
+									sdl, 
+									paramLength, 
+									param, 
+									sliceLength, 
+									slice);
+	
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
+ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
+							  SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, 
+							  SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
 	trace ("getSlice");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	TraHandle trHandle = transaction->getDbHandle (handle);
+
+	if (!trHandle)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	handle->subsystem->getSlice(statusVector,
+									&handle->handle,
+									&trHandle,
+									arrayId, 
+									sdlLength, 
+									sdl, 
+									paramLength, 
+									param, 
+									sliceLength, 
+									slice,
+									returnLength);
+	
+	return statusVector.getReturn();
 }
 
 
@@ -987,8 +1058,30 @@ ISC_STATUS Dispatch::dsqlAllocateStatement(ISC_STATUS* userStatus, DbHandle *dbH
 
 ISC_STATUS Dispatch::dsqlAllocateStatement2(ISC_STATUS* userStatus, DbHandle *dbHandle, DsqlHandle *dsqlHandle)
 {
-	trace ("dsqlAllocateStatement2");
-	return entrypointUnavailable (userStatus);
+	trace ("dsqlAllocateStatement");
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	if (*(isc_stmt_handle*) dsqlHandle)
+		return statusVector.postAndReturn (isc_bad_stmt_handle);
+
+	DsqlHandle tempHandle = NULL;
+
+	if (!handle->subsystem->dsqlAllocateStatement (
+			statusVector, 
+			&handle->handle, 
+			&tempHandle))
+		{
+		YStatement *statement = new YStatement (handle, tempHandle);
+		statement->userPtr = dsqlHandle;
+		*(isc_stmt_handle*) dsqlHandle = (isc_stmt_handle) statementHandles.allocateHandle (statement);
+		//*dsqlHandle = (DsqlHandle*) statement;
+		}
+
+	return statusVector.getReturn();
 }
 
 
@@ -1891,6 +1984,16 @@ Provider* Dispatch::getProvider(JString providerName)
 {
 	Provider *provider;
 	
+	Sync sync(&syncProvider, "getProvider");
+	sync.lock(Shared);
+	
+	for (provider = providers; provider; provider = provider->next)
+		if (provider->name == providerName)
+			return provider;
+	
+	sync.unlock();
+	
+	sync.lock(Exclusive);
 	for (provider = providers; provider; provider = provider->next)
 		if (provider->name == providerName)
 			return provider;

@@ -218,11 +218,17 @@ public:
 
 namespace firebird {
 
+/* Since this is only used in NBAK, and NBAK is not functional in Vulcan yet */
+/* I'm going to remove these locks for the private cache mode, because they */
+/* cause failures on MVS when one thread initialized a lock, and another thread */
+/* uses it. SEK */
+
 class RWLock {
 private:
 	pthread_rwlock_t lock;
 public:
 	RWLock() {		
+#ifdef SHARED_CACHE
 #ifdef LINUX
 		pthread_rwlockattr_t attr;
 		if (pthread_rwlockattr_init(&attr) ||
@@ -239,38 +245,53 @@ public:
 			system_call_failed::raise();
 		}
 #endif
+#endif
 	}
 	~RWLock() {
+#ifdef SHARED_CACHE
 		if (pthread_rwlock_destroy(&lock))
 			system_call_failed::raise();
+#endif
 	}
 	void beginRead() {
+#ifdef SHARED_CACHE
 		if (pthread_rwlock_rdlock(&lock))	
 			system_call_failed::raise();
+#endif
 	}
 	bool tryBeginRead() {
+#ifdef SHARED_CACHE
 		int code = pthread_rwlock_tryrdlock(&lock);
 		if (code == EBUSY) return false;
 		if (code) system_call_failed::raise();
+#endif
 		return true;
 	}
 	void endRead() {
+#ifdef SHARED_CACHE
 		if (pthread_rwlock_unlock(&lock))	
 			system_call_failed::raise();
+#endif
 	}
 	bool tryBeginWrite() {
+#ifdef SHARED_CACHE
 		int code = pthread_rwlock_trywrlock(&lock);
 		if (code == EBUSY) return false;
 		if (code) system_call_failed::raise();
+#endif
 		return true;
 	}
 	void beginWrite() {
+#ifdef SHARED_CACHE
 		if (pthread_rwlock_wrlock(&lock))	
 			system_call_failed::raise();
+#endif
 	}
 	void endWrite() {
+#ifdef SHARED_CACHE
 		if (pthread_rwlock_unlock(&lock))	
 			system_call_failed::raise();
+#endif
 	}
 };
 

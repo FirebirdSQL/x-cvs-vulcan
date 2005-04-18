@@ -33,7 +33,11 @@ Triggers::Triggers(void)
 }
 
 
+#ifdef SHARED_CACHE
 Triggers::Triggers(int initialSize) : SIVector<Trigger*>(initialSize)
+#else
+Triggers::Triggers(int initialSize) : SVector<Trigger*>(initialSize)
+#endif
 {
 }
 

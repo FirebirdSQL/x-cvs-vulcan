@@ -290,8 +290,10 @@ static void define_default_class(
 	DSC desc;
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "define_default_class");
 	sync.lock(Exclusive);
+#endif
 
 	if (!*default_class) 
 		{
@@ -674,8 +676,10 @@ static USHORT save_field_privileges(thread_db* tdbb,
 	Generate	fieldAclStart;
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "save_field_privileges");
 	sync.lock(Exclusive);
+#endif
 
 	/* initialize the field-level acl buffer to include all relation-level privs */
 
@@ -878,6 +882,11 @@ static void save_security_class(thread_db* tdbb,
 
 	SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
+
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncSysTrans, "save_security_class");
+	sync.lock(Exclusive);
+#endif
 
 	blob = BLB_create(tdbb, dbb->dbb_sys_trans, (BID)&blob_id);
 	BLB_put_segment(tdbb, blob, buffer, length);

@@ -3,7 +3,7 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version SO-V2.0.0.4027 Vulcan 1.0 Development **********************/
 #line 1 "restore.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
@@ -68,103 +68,103 @@ $Id$
 #include <ibase.h>
 #endif
 
-static ISC_QUAD
+static const ISC_QUAD
    isc_blob_null = {0,0};	/* initializer for blobs */
 static isc_db_handle
    DB = 0;		/* database handle */
 
 static isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-static long
+static ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 static SLONG
    isc_array_length, 	/* array return size */
    SQLCODE;		/* SQL status code */
-static char
+static const char
    isc_tpb_26 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_25 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_24 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_23 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_22 [5] = {1,9,15,6,18};
 
-static char
+static const char
    isc_tpb_21 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_20 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_19 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_18 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_17 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_16 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_15 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_14 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_13 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_12 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_11 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_10 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_9 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_8 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_7 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_6 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_5 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_4 [6] = {1,9,15,6,18,20};
 
-static char
+static const char
    isc_tpb_3 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_2 [6] = {1,9,15,6,18,20};
 
-static char
+static const char
    isc_tpb_1 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_0 [6] = {1,9,15,6,18,20};
 
-static short
+static const short
    isc_27l = 254;
-static char
+static const char
    isc_27 [] = {
       blr_version4,
       blr_begin, 
@@ -233,9 +233,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_27 */
 
-static short
+static const short
    isc_43l = 59;
-static char
+static const char
    isc_43 [] = {
       blr_version4,
       blr_begin, 
@@ -253,9 +253,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_43 */
 
-static short
+static const short
    isc_46l = 168;
-static char
+static const char
    isc_46 [] = {
       blr_version4,
       blr_begin, 
@@ -312,9 +312,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_46 */
 
-static short
+static const short
    isc_56l = 138;
-static char
+static const char
    isc_56 [] = {
       blr_version4,
       blr_begin, 
@@ -363,9 +363,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_56 */
 
-static short
+static const short
    isc_63l = 156;
-static char
+static const char
    isc_63 [] = {
       blr_version4,
       blr_begin, 
@@ -415,9 +415,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_63 */
 
-static short
+static const short
    isc_71l = 140;
-static char
+static const char
    isc_71 [] = {
       blr_version4,
       blr_begin, 
@@ -467,9 +467,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_71 */
 
-static short
+static const short
    isc_79l = 139;
-static char
+static const char
    isc_79 [] = {
       blr_version4,
       blr_begin, 
@@ -499,9 +499,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_79 */
 
-static short
+static const short
    isc_85l = 243;
-static char
+static const char
    isc_85 [] = {
       blr_version4,
       blr_begin, 
@@ -551,9 +551,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_85 */
 
-static short
+static const short
    isc_99l = 150;
-static char
+static const char
    isc_99 [] = {
       blr_version4,
       blr_begin, 
@@ -589,9 +589,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_99 */
 
-static short
+static const short
    isc_108l = 113;
-static char
+static const char
    isc_108 [] = {
       blr_version4,
       blr_begin, 
@@ -617,9 +617,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_108 */
 
-static short
+static const short
    isc_113l = 130;
-static char
+static const char
    isc_113 [] = {
       blr_version4,
       blr_begin, 
@@ -658,9 +658,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_113 */
 
-static short
+static const short
    isc_118l = 311;
-static char
+static const char
    isc_118 [] = {
       blr_version4,
       blr_begin, 
@@ -719,9 +719,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_118 */
 
-static short
+static const short
    isc_135l = 254;
-static char
+static const char
    isc_135 [] = {
       blr_version4,
       blr_begin, 
@@ -770,9 +770,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_135 */
 
-static short
+static const short
    isc_148l = 111;
-static char
+static const char
    isc_148 [] = {
       blr_version4,
       blr_begin, 
@@ -799,9 +799,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_148 */
 
-static short
+static const short
    isc_154l = 82;
-static char
+static const char
    isc_154 [] = {
       blr_version4,
       blr_begin, 
@@ -825,9 +825,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_154 */
 
-static short
+static const short
    isc_160l = 235;
-static char
+static const char
    isc_160 [] = {
       blr_version4,
       blr_begin, 
@@ -871,9 +871,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_160 */
 
-static short
+static const short
    isc_174l = 321;
-static char
+static const char
    isc_174 [] = {
       blr_version4,
       blr_begin, 
@@ -936,9 +936,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_174 */
 
-static short
+static const short
    isc_195l = 192;
-static char
+static const char
    isc_195 [] = {
       blr_version4,
       blr_begin, 
@@ -977,9 +977,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_195 */
 
-static short
+static const short
    isc_207l = 212;
-static char
+static const char
    isc_207 [] = {
       blr_version4,
       blr_begin, 
@@ -1018,9 +1018,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_207 */
 
-static short
+static const short
    isc_216l = 276;
-static char
+static const char
    isc_216 [] = {
       blr_version4,
       blr_begin, 
@@ -1071,9 +1071,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_216 */
 
-static short
+static const short
    isc_231l = 127;
-static char
+static const char
    isc_231 [] = {
       blr_version4,
       blr_begin, 
@@ -1121,9 +1121,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_231 */
 
-static short
+static const short
    isc_240l = 186;
-static char
+static const char
    isc_240 [] = {
       blr_version4,
       blr_begin, 
@@ -1166,9 +1166,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_240 */
 
-static short
+static const short
    isc_246l = 112;
-static char
+static const char
    isc_246 [] = {
       blr_version4,
       blr_begin, 
@@ -1194,9 +1194,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_246 */
 
-static short
+static const short
    isc_251l = 314;
-static char
+static const char
    isc_251 [] = {
       blr_version4,
       blr_begin, 
@@ -1255,9 +1255,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_251 */
 
-static short
+static const short
    isc_268l = 846;
-static char
+static const char
    isc_268 [] = {
       blr_version4,
       blr_begin, 
@@ -1403,9 +1403,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_268 */
 
-static short
+static const short
    isc_321l = 879;
-static char
+static const char
    isc_321 [] = {
       blr_version4,
       blr_begin, 
@@ -1556,9 +1556,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_321 */
 
-static short
+static const short
    isc_376l = 261;
-static char
+static const char
    isc_376 [] = {
       blr_version4,
       blr_begin, 
@@ -1606,9 +1606,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_376 */
 
-static short
+static const short
    isc_388l = 294;
-static char
+static const char
    isc_388 [] = {
       blr_version4,
       blr_begin, 
@@ -1661,9 +1661,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_388 */
 
-static short
+static const short
    isc_402l = 214;
-static char
+static const char
    isc_402 [] = {
       blr_version4,
       blr_begin, 
@@ -1705,9 +1705,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_402 */
 
-static short
+static const short
    isc_411l = 192;
-static char
+static const char
    isc_411 [] = {
       blr_version4,
       blr_begin, 
@@ -1746,9 +1746,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_411 */
 
-static short
+static const short
    isc_420l = 176;
-static char
+static const char
    isc_420 [] = {
       blr_version4,
       blr_begin, 
@@ -1786,9 +1786,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_420 */
 
-static short
+static const short
    isc_428l = 134;
-static char
+static const char
    isc_428 [] = {
       blr_version4,
       blr_begin, 
@@ -1818,9 +1818,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_428 */
 
-static short
+static const short
    isc_434l = 566;
-static char
+static const char
    isc_434 [] = {
       blr_version4,
       blr_begin, 
@@ -1921,9 +1921,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_434 */
 
-static short
+static const short
    isc_469l = 114;
-static char
+static const char
    isc_469 [] = {
       blr_version4,
       blr_begin, 
@@ -1951,9 +1951,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_469 */
 
-static short
+static const short
    isc_476l = 176;
-static char
+static const char
    isc_476 [] = {
       blr_version4,
       blr_begin, 
@@ -2009,9 +2009,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_476 */
 
-static short
+static const short
    isc_486l = 255;
-static char
+static const char
    isc_486 [] = {
       blr_version4,
       blr_begin, 
@@ -2060,9 +2060,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_486 */
 
-static short
+static const short
    isc_502l = 102;
-static char
+static const char
    isc_502 [] = {
       blr_version4,
       blr_begin, 
@@ -2086,9 +2086,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_502 */
 
-static short
+static const short
    isc_508l = 339;
-static char
+static const char
    isc_508 [] = {
       blr_version4,
       blr_begin, 
@@ -2147,9 +2147,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_508 */
 
-static short
+static const short
    isc_528l = 110;
-static char
+static const char
    isc_528 [] = {
       blr_version4,
       blr_begin, 
@@ -2181,9 +2181,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_528 */
 
-static short
+static const short
    isc_531l = 108;
-static char
+static const char
    isc_531 [] = {
       blr_version4,
       blr_begin, 
@@ -2215,9 +2215,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_531 */
 
-static short
+static const short
    isc_534l = 73;
-static char
+static const char
    isc_534 [] = {
       blr_version4,
       blr_begin, 
@@ -2239,9 +2239,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_534 */
 
-static short
+static const short
    isc_538l = 148;
-static char
+static const char
    isc_538 [] = {
       blr_version4,
       blr_begin, 
@@ -2291,9 +2291,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_538 */
 
-static short
+static const short
    isc_546l = 233;
-static char
+static const char
    isc_546 [] = {
       blr_version4,
       blr_begin, 
@@ -2358,9 +2358,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_546 */
 
-static short
+static const short
    isc_558l = 207;
-static char
+static const char
    isc_558 [] = {
       blr_version4,
       blr_begin, 
@@ -2421,9 +2421,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_558 */
 
-static short
+static const short
    isc_569l = 339;
-static char
+static const char
    isc_569 [] = {
       blr_version4,
       blr_begin, 
@@ -2504,9 +2504,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_569 */
 
-static short
+static const short
    isc_583l = 265;
-static char
+static const char
    isc_583 [] = {
       blr_version4,
       blr_begin, 
@@ -2580,9 +2580,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_583 */
 
-static short
+static const short
    isc_596l = 176;
-static char
+static const char
    isc_596 [] = {
       blr_version4,
       blr_begin, 
@@ -2927,8 +2927,8 @@ int RESTORE_restore (const TEXT* file_name,
  *	Recreate a database from a backup.
  *
  **************************************/
-	isc_req_handle  req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 = NULL_HANDLE;
-	isc_req_handle	req_handle4 = NULL_HANDLE;
+	isc_req_handle  req_handle1 = NULL, req_handle2 = NULL, req_handle3 = NULL;
+	isc_req_handle	req_handle4 = NULL;
 	/*BASED_ON RDB$INDICES.RDB$INDEX_NAME index_name;*/
 	char
 	   index_name[32];
@@ -2955,7 +2955,7 @@ int RESTORE_restore (const TEXT* file_name,
 
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 266 "restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
@@ -2977,12 +2977,12 @@ int RESTORE_restore (const TEXT* file_name,
 					 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name*/
 					{
                                         if (!req_handle3)
-                                           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_596), (char *) isc_596);
+                                           isc_compile_request ( NULL, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_596), (char *) isc_596);
 					isc_vtov ((char*)index_name, (char*)isc_597.isc_598, 32);
-                                        isc_start_and_send ((long*) 0L, (isc_req_handle*) &req_handle3, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_597, (short) 0);
+                                        isc_start_and_send ( NULL, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_597, (short) 0);
 					while (1)
 					   {
-                                           isc_receive ((long*) 0L, (isc_req_handle*) &req_handle3, (short) 1, (short) 4, &isc_599, (short) 0);
+                                           isc_receive ( NULL, (isc_handle*) &req_handle3, (short) 1, (short) 4, &isc_599, (short) 0);
 					   if (!isc_599.isc_600) break;
 #line 281 "restore.epp"
 					 {
@@ -3012,11 +3012,11 @@ int RESTORE_restore (const TEXT* file_name,
 						/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 						/*END_MODIFY;*/
 						isc_602.isc_603 = isc_599.isc_601;
-                                                isc_send ((long*) 0L, (isc_req_handle*) &req_handle3, (short) 2, (short) 2, &isc_602, (short) 0);
+                                                isc_send ( NULL, (isc_handle*) &req_handle3, (short) 2, (short) 2, &isc_602, (short) 0);
 						}
 #line 304 "restore.epp"
 					/*END_FOR;*/
-                                           isc_send ((long*) 0L, (isc_req_handle*) &req_handle3, (short) 3, (short) 2, &isc_604, (short) 0);
+                                           isc_send ( NULL, (isc_handle*) &req_handle3, (short) 3, (short) 2, &isc_604, (short) 0);
 					   }
 					}
 #line 305 "restore.epp"
@@ -3029,7 +3029,7 @@ int RESTORE_restore (const TEXT* file_name,
 			}
 			/*COMMIT*/
 			{
-			isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 313 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -3054,14 +3054,14 @@ int RESTORE_restore (const TEXT* file_name,
 		{
 			/*EXEC SQL SET TRANSACTION ISOLATION LEVEL READ COMMITTED NO_AUTO_UNDO;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_0);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_0);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 326 "restore.epp"
 			if (gds_status[1])
 				/*EXEC SQL SET TRANSACTION;*/
 				{
-				isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
+				isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
 				SQLCODE = isc_sqlcode (isc_status);
 				}
 #line 328 "restore.epp"
@@ -3072,14 +3072,14 @@ int RESTORE_restore (const TEXT* file_name,
 				IDS.RDB$FOREIGN_KEY MISSING*/
 			{
                         if (!req_handle1)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_583), (char *) isc_583);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_583), (char *) isc_583);
 			isc_584.isc_585 = DEFERRED_ACTIVE;
 			if (req_handle1)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 2, &isc_584, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 2, &isc_584, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 36, &isc_586, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 36, &isc_586, (short) 0);
 			   if (!isc_586.isc_588 || isc_status [1]) break;
 #line 333 "restore.epp"
 					/*MODIFY IDS USING*/
@@ -3088,7 +3088,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 334 "restore.epp"
 				/*END_MODIFY;*/
 				isc_594.isc_595 = isc_586.isc_589;
-                                isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 4, (short) 2, &isc_594, (short) 0);;
+                                isc_send (isc_status, (isc_handle*) &req_handle1, (short) 4, (short) 2, &isc_594, (short) 0);;
 #line 335 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -3102,7 +3102,7 @@ int RESTORE_restore (const TEXT* file_name,
 
 				/*SAVE*/
 				{
-				isc_commit_retaining (isc_status, (isc_tr_handle*) &gds_trans);;
+				isc_commit_retaining (isc_status, (isc_handle*) &gds_trans);;
 #line 340 "restore.epp"
 				// existing ON_ERROR continues past error, beck 
 				/*ON_ERROR*/
@@ -3121,7 +3121,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 346 "restore.epp"
 					/*END_MODIFY;*/
 					isc_590.isc_591 = isc_586.isc_589;
-                                        isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 2, (short) 2, &isc_590, (short) 0);;
+                                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 2, &isc_590, (short) 0);;
 #line 347 "restore.epp"
 					/*ON_ERROR*/
 					if (isc_status [1])
@@ -3140,7 +3140,7 @@ int RESTORE_restore (const TEXT* file_name,
 						  isc_586.isc_587, NULL, NULL, NULL, NULL);
 #line 352 "restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 3, (short) 2, &isc_592, (short) 0);
+                           isc_send (isc_status, (isc_handle*) &req_handle1, (short) 3, (short) 2, &isc_592, (short) 0);
 			   }
 			   };
 #line 353 "restore.epp"
@@ -3156,7 +3156,7 @@ int RESTORE_restore (const TEXT* file_name,
 			MISC_release_request_silent(req_handle1);
 			/*COMMIT;*/
 			{
-			isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 358 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -3172,14 +3172,14 @@ int RESTORE_restore (const TEXT* file_name,
 
 		/*EXEC SQL SET TRANSACTION ISOLATION LEVEL READ COMMITTED NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_2);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_2);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 365 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 367 "restore.epp"
@@ -3196,15 +3196,15 @@ int RESTORE_restore (const TEXT* file_name,
 			IDS.RDB$INDEX_INACTIVE EQ DEFERRED_ACTIVE*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_569), (char *) isc_569);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_569), (char *) isc_569);
 		isc_vtov ((char*)FOREIGN_KEY, (char*)isc_570.isc_571, 12);
 		isc_570.isc_572 = DEFERRED_ACTIVE;
 		if (req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 14, &isc_570, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 14, &isc_570, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 36, &isc_573, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 36, &isc_573, (short) 0);
 		   if (!isc_573.isc_575 || isc_status [1]) break;
 #line 378 "restore.epp"
 
@@ -3217,7 +3217,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 382 "restore.epp"
 			/*END_MODIFY;*/
 			isc_581.isc_582 = isc_573.isc_576;
-                        isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 4, (short) 2, &isc_581, (short) 0);;
+                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 4, (short) 2, &isc_581, (short) 0);;
 #line 383 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -3231,7 +3231,7 @@ int RESTORE_restore (const TEXT* file_name,
 
 			/*SAVE*/
 			{
-			isc_commit_retaining (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_commit_retaining (isc_status, (isc_handle*) &gds_trans);;
 #line 388 "restore.epp"
 			// existing ON_ERROR continues past error, beck 
 			/*ON_ERROR*/
@@ -3250,7 +3250,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 394 "restore.epp"
 				/*END_MODIFY;*/
 				isc_577.isc_578 = isc_573.isc_576;
-                                isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 2, (short) 2, &isc_577, (short) 0);;
+                                isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 2, &isc_577, (short) 0);;
 #line 395 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -3269,7 +3269,7 @@ int RESTORE_restore (const TEXT* file_name,
 					  isc_573.isc_574, NULL, NULL, NULL, NULL);
 #line 400 "restore.epp"
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 3, (short) 2, &isc_579, (short) 0);
+                   isc_send (isc_status, (isc_handle*) &req_handle1, (short) 3, (short) 2, &isc_579, (short) 0);
 		   }
 		   };
 #line 401 "restore.epp"
@@ -3285,7 +3285,7 @@ int RESTORE_restore (const TEXT* file_name,
 		MISC_release_request_silent(req_handle1);
 		/*COMMIT;*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 406 "restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
@@ -3304,7 +3304,7 @@ int RESTORE_restore (const TEXT* file_name,
 		// msg 68 committing meta data 
 		/*EXEC SQL COMMIT TRANSACTION tdgbl->global_trans;*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &tdgbl->global_trans);
+		isc_commit_transaction (isc_status, (isc_handle*) &tdgbl->global_trans);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 416 "restore.epp"
@@ -3320,14 +3320,14 @@ int RESTORE_restore (const TEXT* file_name,
 
 	/*EXEC SQL SET TRANSACTION ISOLATION LEVEL READ COMMITTED NO_AUTO_UNDO;*/
 	{
-	isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_4);
+	isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_4);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
 #line 427 "restore.epp"
 	if (gds_status[1])
 		/*EXEC SQL SET TRANSACTION;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_5);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_5);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 429 "restore.epp"
@@ -3344,14 +3344,14 @@ int RESTORE_restore (const TEXT* file_name,
 				X IN RDB$PROCEDURES WITH X.RDB$PROCEDURE_NAME EQ procedure->prc_name*/
 			{
                         if (!req_handle4)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle4, (short) sizeof (isc_558), (char *) isc_558);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle4, (short) sizeof (isc_558), (char *) isc_558);
 			isc_vtov ((char*)procedure->prc_name, (char*)isc_559.isc_560, 32);
 			if (req_handle4)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle4, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_559, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_559, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 66, &isc_561, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle4, (short) 1, (short) 66, &isc_561, (short) 0);
 			   if (!isc_561.isc_564 || isc_status [1]) break;
 #line 440 "restore.epp"
 
@@ -3363,7 +3363,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 443 "restore.epp"
 				/*END_MODIFY;*/
 				isc_ftof (isc_561.isc_563, 32, isc_565.isc_566, 32);
-                                isc_send (isc_status, (isc_req_handle*) &req_handle4, (short) 2, (short) 32, &isc_565, (short) 0);;
+                                isc_send (isc_status, (isc_handle*) &req_handle4, (short) 2, (short) 32, &isc_565, (short) 0);;
 #line 444 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -3381,7 +3381,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 450 "restore.epp"
 
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_req_handle*) &req_handle4, (short) 3, (short) 2, &isc_567, (short) 0);
+                           isc_send (isc_status, (isc_handle*) &req_handle4, (short) 3, (short) 2, &isc_567, (short) 0);
 			   }
 			   };
 #line 452 "restore.epp"
@@ -3410,14 +3410,14 @@ int RESTORE_restore (const TEXT* file_name,
 				X IN RDB$RELATIONS WITH X.RDB$RELATION_NAME EQ relation->rel_name*/
 			{
                         if (!req_handle2)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_546), (char *) isc_546);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_546), (char *) isc_546);
 			isc_vtov ((char*)relation->rel_name, (char*)isc_547.isc_548, 32);
 			if (req_handle2)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 98, &isc_549, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 98, &isc_549, (short) 0);
 			   if (!isc_549.isc_553 || isc_status [1]) break;
 #line 469 "restore.epp"
 				/*MODIFY X*/
@@ -3428,7 +3428,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 471 "restore.epp"
 				/*END_MODIFY;*/
 				isc_ftof (isc_549.isc_552, 32, isc_554.isc_555, 32);
-                                isc_send (isc_status, (isc_req_handle*) &req_handle2, (short) 2, (short) 32, &isc_554, (short) 0);;
+                                isc_send (isc_status, (isc_handle*) &req_handle2, (short) 2, (short) 32, &isc_554, (short) 0);;
 #line 472 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -3449,7 +3449,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 479 "restore.epp"
 
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_req_handle*) &req_handle2, (short) 3, (short) 2, &isc_556, (short) 0);
+                           isc_send (isc_status, (isc_handle*) &req_handle2, (short) 3, (short) 2, &isc_556, (short) 0);
 			   }
 			   };
 #line 481 "restore.epp"
@@ -3477,13 +3477,13 @@ int RESTORE_restore (const TEXT* file_name,
 		X IN RDB$DATABASE*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_538), (char *) isc_538);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_538), (char *) isc_538);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 34, &isc_539, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 34, &isc_539, (short) 0);
 		   if (!isc_539.isc_541 || isc_status [1]) break;
 #line 497 "restore.epp"
 			/*MODIFY X USING*/
@@ -3497,7 +3497,7 @@ int RESTORE_restore (const TEXT* file_name,
 #line 500 "restore.epp"
 			/*END_MODIFY;*/
 			isc_ftof (isc_539.isc_540, 32, isc_542.isc_543, 32);
-                        isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 32, &isc_542, (short) 0);;
+                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 32, &isc_542, (short) 0);;
 #line 501 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -3510,7 +3510,7 @@ int RESTORE_restore (const TEXT* file_name,
 			}
 #line 505 "restore.epp"
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 2, (short) 2, &isc_544, (short) 0);
+                   isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 2, &isc_544, (short) 0);
 		   }
 		   };
 #line 506 "restore.epp"
@@ -3530,7 +3530,7 @@ int RESTORE_restore (const TEXT* file_name,
 
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 515 "restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
@@ -4223,7 +4223,7 @@ void add_files (const UCHAR* file_name)
  *	addresses & commit this much.
  *
  **************************************/
-	isc_req_handle  req_handle1 = NULL_HANDLE;
+	isc_req_handle  req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -4242,7 +4242,7 @@ void add_files (const UCHAR* file_name)
 			{
 			
                         if (!req_handle1)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_534), (char *) isc_534);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_534), (char *) isc_534);
 			if (req_handle1)
 			   {
 #line 674 "restore.epp"
@@ -4254,7 +4254,7 @@ void add_files (const UCHAR* file_name)
 #line 676 "restore.epp"
 			/*END_STORE;*/
 			   
-                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 258, &isc_535, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 258, &isc_535, (short) 0);
 			   };
 #line 677 "restore.epp"
 			/*ON_ERROR*/
@@ -4267,14 +4267,14 @@ void add_files (const UCHAR* file_name)
 			}
 #line 680 "restore.epp"
 				MISC_release_request_silent(req_handle1);
-			BURP_verbose (57, file->fil_name, (void*) (long) start, NULL, NULL, NULL);
+			BURP_verbose (57, file->fil_name, (void*) start, NULL, NULL, NULL);
 			// msg 57 adding file %s, starting at page %ld 
 		}
 		else if (((signed long )file->fil_length) >= start - 1)
 			file->fil_length -= start - 1;
 		else
 		{
-			BURP_print (96, (void*) (long) file->fil_length, (void*) (long) (start - 1), NULL,
+			BURP_print (96, (void*) file->fil_length, (void*) (start - 1), NULL,
 						NULL, NULL);
 			// msg 96  length given for initial file (%ld) is less than minimum (%ld)
 			file->fil_length = 0;
@@ -4289,7 +4289,7 @@ void add_files (const UCHAR* file_name)
 		  // msg 70 committing secondary files
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 702 "restore.epp"
 		// existing ON_ERROR continues past error, beck
 		/*ON_ERROR*/
@@ -4301,7 +4301,7 @@ void add_files (const UCHAR* file_name)
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 708 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -4319,14 +4319,14 @@ void add_files (const UCHAR* file_name)
 
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_6);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_6);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 714 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_7);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_7);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 716 "restore.epp"
@@ -4371,13 +4371,13 @@ void bad_attribute (scan_attr_t		scan_next_attr,
 		{
 			skip_count = tdgbl->gbl_sw_skip_count;
 			get_skip(tdgbl, skip_count);
-			BURP_print (203, (void*) (long) skip_count, (void*) (long) bad_attr, NULL, NULL, NULL);
+			BURP_print (203, (void*) skip_count, (void*) bad_attr, NULL, NULL, NULL);
 			//msg 203: skipped %d bytes after reading a bad attribute %d 
 		}
 		else
 		{
 			++skip_count;
-			BURP_print (205, (void*) (long) skip_count, (void*) (long) bad_attr, NULL, NULL, NULL);
+			BURP_print (205, (void*) skip_count, (void*) bad_attr, NULL, NULL, NULL);
 			// msg 205: skipped %d bytes looking for next valid attribute, encountered attribute %d 
 		}
 		scan_next_attr = AFTER_SKIP;
@@ -4396,7 +4396,7 @@ USHORT check_db_version()
  *	Find the version number of the database.
  *
  **************************************/
-	isc_req_handle  req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE;
+	isc_req_handle  req_handle1 = NULL, req_handle2 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -4406,13 +4406,13 @@ USHORT check_db_version()
 		WITH X.RDB$RELATION_NAME = "RDB$TRIGGERS"*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_531), (char *) isc_531);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_531), (char *) isc_531);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 2, &isc_532, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 2, &isc_532, (short) 0);
 	   if (!isc_532.isc_533 || isc_status [1]) break;
 #line 790 "restore.epp"
 		db_version = DB_VERSION_DDL5;
@@ -4435,13 +4435,13 @@ USHORT check_db_version()
 		WITH X.RDB$RELATION_NAME = "RDB$PROCEDURES"*/
 	{
         if (!req_handle2)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_528), (char *) isc_528);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_528), (char *) isc_528);
 	if (req_handle2)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 2, &isc_529, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 0, (short) 2, &isc_529, (short) 0);
 	   if (!isc_529.isc_530 || isc_status [1]) break;
 #line 799 "restore.epp"
 		db_version = DB_VERSION_DDL8;
@@ -4548,8 +4548,8 @@ void create_database (const TEXT* file_name)
 	if (tdgbl->gbl_sw_page_size &&
 		(tdgbl->gbl_sw_page_size < page_size))
 	{
-		BURP_print (110, (void*) (long) page_size,
-					(void*) (long) tdgbl->gbl_sw_page_size, NULL, NULL, NULL);
+		BURP_print (110, (void*) page_size,
+					(void*) (ULONG) tdgbl->gbl_sw_page_size, NULL, NULL, NULL);
 		// msg 110 Reducing the database page size from %ld bytes to %ld bytes 
 	}
 
@@ -4678,7 +4678,7 @@ void create_database (const TEXT* file_name)
 		isc_version(&DB, BURP_output_version, (void*) "\t%s\n");
 	}
 
-	BURP_verbose (74, file_name, (void*) (long) page_size, NULL, NULL, NULL);
+	BURP_verbose (74, file_name, (void*) page_size, NULL, NULL, NULL);
 	// msg 74 created database %s, page_size %ld bytes 
 }
 
@@ -4711,8 +4711,8 @@ void decompress(UCHAR* buffer,
 		{
 			if (end - p < count)
 			{
-				BURP_print (202, (void*) (long) count,
-							(void*) (long) (end - p), NULL, NULL, NULL);
+				BURP_print (202, (void*) (SLONG) count,
+							(void*) (ULONG) (end - p), NULL, NULL, NULL);
 				// msg 202: adjusting a decompression length error: invalid length  %d was adjusted to %d 
 				count = end - p;
 			}
@@ -4722,8 +4722,8 @@ void decompress(UCHAR* buffer,
 		{
 			if (end + count < p)
 			{
-				BURP_print(202, (void*) (long) count,
-						   (void*) (long) (p - end), NULL, NULL, NULL);
+				BURP_print(202, (void*) (SLONG) count,
+						   (void*) (ULONG) (p - end), NULL, NULL, NULL);
 				// msg 202: adjusting a decompression length error: invalid length %d was adjusted to %d 
 				count = p - end;
 			}
@@ -4842,7 +4842,7 @@ bool get_acl (const TEXT	*owner_nm,
 	ISC_STATUS_ARRAY	status_vector;
 	// Open the blob and get it's vital statistics 
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 
 	if (isc_open_blob (status_vector, &DB,  &gds_trans, &blob, blob_id))
 	{
@@ -4894,7 +4894,7 @@ bool get_acl (const TEXT	*owner_nm,
 
 		default:
 			// msg 79 don't understand blob info item %ld  
-			BURP_print (79, (void*) (long) item, NULL, NULL, NULL, NULL);
+			BURP_print (79, (void*) (ULONG) item, NULL, NULL, NULL, NULL);
 			// CVC: do you return, without closing the blob, dear function???
 			if (isc_close_blob (status_vector,  &blob))
 				BURP_error_redirect (status_vector, 23, NULL, NULL);
@@ -4971,7 +4971,7 @@ bool get_acl (const TEXT	*owner_nm,
 		new_len++;
 	}
 
-	isc_blob_handle	blob_handle = NULL_HANDLE;
+	isc_blob_handle	blob_handle = NULL;
 	if (isc_create_blob2 (status_vector, &DB, &gds_trans,
 						  &blob_handle, new_blob_id, 0, NULL))
 	{
@@ -5583,7 +5583,7 @@ void get_blob (const burp_fld* fields,
 	// Create new blob 
 
 	ISC_QUAD* blob_id = (ISC_QUAD*) ((UCHAR*) record_buffer + field->fld_offset);
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 	ISC_STATUS_ARRAY status_vector;
 
 	if (isc_create_blob (status_vector, &DB, &gds_trans, &blob, blob_id))
@@ -5656,7 +5656,7 @@ void get_blr_blob (ISC_QUAD	*blob_id,
 	else
 		local_trans = gds_trans;
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 	if (isc_create_blob (status_vector, &DB, &local_trans, &blob, blob_id))
 	{
 		BURP_error_redirect (status_vector, 37, 0, 0);
@@ -5721,7 +5721,7 @@ bool get_character_set()
 	{
 	
         if (!tdgbl->handles_get_character_sets_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_character_sets_req_handle1, (short) sizeof (isc_508), (char *) isc_508);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_character_sets_req_handle1, (short) sizeof (isc_508), (char *) isc_508);
 	if (tdgbl->handles_get_character_sets_req_handle1)
 	   {
 	   isc_509.isc_511 = isc_blob_null;
@@ -5853,7 +5853,7 @@ bool get_character_set()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_character_sets_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 164, &isc_509, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_character_sets_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 164, &isc_509, (short) 0);
 	   };
 #line 2134 "restore.epp"
 	/*ON_ERROR*/
@@ -5891,7 +5891,7 @@ bool get_chk_constraint()
 	{
 	
         if (!tdgbl->handles_get_chk_constraint_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (short) sizeof (isc_502), (char *) isc_502);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (short) sizeof (isc_502), (char *) isc_502);
 	if (tdgbl->handles_get_chk_constraint_req_handle1)
 	   {
 #line 2160 "restore.epp"
@@ -5932,7 +5932,7 @@ bool get_chk_constraint()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 68, &isc_503, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 68, &isc_503, (short) 0);
 	   };
 #line 2184 "restore.epp"
 	/*ON_ERROR*/
@@ -5970,7 +5970,7 @@ bool get_collation()
 	{
 	
         if (!tdgbl->handles_get_collation_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_collation_req_handle1, (short) sizeof (isc_486), (char *) isc_486);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_collation_req_handle1, (short) sizeof (isc_486), (char *) isc_486);
 	if (tdgbl->handles_get_collation_req_handle1)
 	   {
 	   isc_487.isc_489 = isc_blob_null;
@@ -6083,7 +6083,7 @@ bool get_collation()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_collation_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 94, &isc_487, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_collation_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 94, &isc_487, (short) 0);
 	   };
 #line 2273 "restore.epp"
 	/*ON_ERROR*/
@@ -6111,7 +6111,7 @@ rec_type get_data (BURP_REL	relation)
  *	Write data records for a relation.
  *
  **************************************/
-	isc_req_handle  req_handle = NULL_HANDLE;
+	isc_req_handle  req_handle = NULL;
 	/*BASED_ON RDB$INDICES.RDB$INDEX_NAME index_name;*/
 	char
 	   index_name[32];
@@ -6218,7 +6218,7 @@ rec_type get_data (BURP_REL	relation)
 			break;
 
 		default:
-			BURP_error (26, true, isc_arg_number, (void*) (long) field->fld_type,
+			BURP_error (26, true, isc_arg_number, (void*) (SLONG) field->fld_type,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 			// msg 26 datatype %ld not understood 
 			break;
@@ -6289,7 +6289,7 @@ rec_type get_data (BURP_REL	relation)
 	isc_print_blr (reinterpret_cast<const char*>(blr_buffer), NULL, NULL, 0);
 #endif
 
-	isc_handle request = NULL_HANDLE;
+	isc_handle request = NULL;
 	ISC_STATUS_ARRAY status_vector;
 	USHORT blr_length = blr - blr_buffer;
 
@@ -6334,8 +6334,8 @@ rec_type get_data (BURP_REL	relation)
 				old_length = recompute_length (relation);
 			if (l != old_length)
 			{
-				BURP_error(40, true, isc_arg_number, (void*)(long)length,
-							 isc_arg_number, (void*) (long) l,
+				BURP_error(40, true, isc_arg_number, (void*)length,
+							 isc_arg_number, (void*) (ULONG) l,
 							 0, NULL, 0, NULL, 0, NULL);
 				// msg 40 wrong length record, expected %ld encountered %ld 
 			}
@@ -6385,7 +6385,7 @@ rec_type get_data (BURP_REL	relation)
 		records++;
 
 		if ((records % RESTORE_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(107, (void*) (long) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(107, (void*) (SLONG) records, NULL, NULL, NULL, NULL);
 
 		for (field = relation->rel_fields; field; field = field->fld_next)
 			if ((field->fld_type == blr_blob) || (field->fld_flags & FLD_array))
@@ -6447,7 +6447,7 @@ rec_type get_data (BURP_REL	relation)
 		// msg 72  committing data for relation %s 
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 2623 "restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
@@ -6471,12 +6471,12 @@ rec_type get_data (BURP_REL	relation)
 						 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name*/
 						{
                                                 if (!req_handle)
-                                                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle, (short) sizeof (isc_476), (char *) isc_476);
+                                                   isc_compile_request ( NULL, (isc_handle*) &DB, (isc_handle*) &req_handle, (short) sizeof (isc_476), (char *) isc_476);
 						isc_vtov ((char*)index_name, (char*)isc_477.isc_478, 32);
-                                                isc_start_and_send ((long*) 0L, (isc_req_handle*) &req_handle, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_477, (short) 0);
+                                                isc_start_and_send ( NULL, (isc_handle*) &req_handle, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_477, (short) 0);
 						while (1)
 						   {
-                                                   isc_receive ((long*) 0L, (isc_req_handle*) &req_handle, (short) 1, (short) 4, &isc_479, (short) 0);
+                                                   isc_receive ( NULL, (isc_handle*) &req_handle, (short) 1, (short) 4, &isc_479, (short) 0);
 						   if (!isc_479.isc_480) break;
 #line 2640 "restore.epp"
 							/*MODIFY IDX USING*/
@@ -6503,11 +6503,11 @@ rec_type get_data (BURP_REL	relation)
 							/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 							/*END_MODIFY;*/
 							isc_482.isc_483 = isc_479.isc_481;
-                                                        isc_send ((long*) 0L, (isc_req_handle*) &req_handle, (short) 2, (short) 2, &isc_482, (short) 0);
+                                                        isc_send ( NULL, (isc_handle*) &req_handle, (short) 2, (short) 2, &isc_482, (short) 0);
 							}
 #line 2660 "restore.epp"
 						/*END_FOR;*/
-                                                   isc_send ((long*) 0L, (isc_req_handle*) &req_handle, (short) 3, (short) 2, &isc_484, (short) 0);
+                                                   isc_send ( NULL, (isc_handle*) &req_handle, (short) 3, (short) 2, &isc_484, (short) 0);
 						   }
 						}
 #line 2661 "restore.epp"
@@ -6516,7 +6516,7 @@ rec_type get_data (BURP_REL	relation)
 						// commit one more time 
 						/*COMMIT*/
 						{
-						isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+						isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 2665 "restore.epp"
 						/*ON_ERROR*/
 						if (isc_status [1])
@@ -6534,7 +6534,7 @@ rec_type get_data (BURP_REL	relation)
 						BURP_print_status (tdgbl->status_vector);
 						/*ROLLBACK;*/
 						{
-						isc_rollback_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+						isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 2674 "restore.epp"
 						/*ON_ERROR*/
 						if (isc_status [1])
@@ -6555,19 +6555,19 @@ rec_type get_data (BURP_REL	relation)
 
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_8);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_8);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 2683 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_9);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_9);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 2685 "restore.epp"
 	}
-	BURP_verbose (107, (void*) (long) records, NULL, NULL, NULL, NULL);
+	BURP_verbose (107, (void*) (SLONG) records, NULL, NULL, NULL, NULL);
 	// msg 107 %ld records restored 
 
 	return record;
@@ -6597,7 +6597,7 @@ bool get_exception(void)
 	{
 	
         if (!tdgbl->handles_get_exception_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_exception_req_handle1, (short) sizeof (isc_469), (char *) isc_469);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_exception_req_handle1, (short) sizeof (isc_469), (char *) isc_469);
 	if (tdgbl->handles_get_exception_req_handle1)
 	   {
 	   isc_470.isc_472 = isc_blob_null;
@@ -6659,7 +6659,7 @@ bool get_exception(void)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_exception_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 123, &isc_470, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_exception_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 123, &isc_470, (short) 0);
 	   };
 #line 2749 "restore.epp"
 	/*ON_ERROR*/
@@ -6712,7 +6712,7 @@ BURP_FLD get_field (BURP_REL	relation)
 	{
 	
         if (!tdgbl->handles_get_field_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_field_req_handle1, (short) sizeof (isc_434), (char *) isc_434);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_field_req_handle1, (short) sizeof (isc_434), (char *) isc_434);
 	if (tdgbl->handles_get_field_req_handle1)
 	   {
 	   isc_435.isc_438 = isc_blob_null;
@@ -7003,7 +7003,7 @@ BURP_FLD get_field (BURP_REL	relation)
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_field_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 424, &isc_435, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_field_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 424, &isc_435, (short) 0);
 	   };
 #line 2967 "restore.epp"
 	/*ON_ERROR*/
@@ -7041,7 +7041,7 @@ bool get_field_dimensions()
 	{
 	
         if (!tdgbl->handles_get_field_dimensions_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (short) sizeof (isc_428), (char *) isc_428);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (short) sizeof (isc_428), (char *) isc_428);
 	if (tdgbl->handles_get_field_dimensions_req_handle1)
 	   {
 #line 2993 "restore.epp"
@@ -7082,7 +7082,7 @@ bool get_field_dimensions()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 42, &isc_429, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 42, &isc_429, (short) 0);
 	   };
 #line 3021 "restore.epp"
 	/*ON_ERROR*/
@@ -7121,7 +7121,7 @@ bool get_files()
 	{
 	
         if (!tdgbl->handles_get_files_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_files_req_handle1, (short) sizeof (isc_420), (char *) isc_420);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_files_req_handle1, (short) sizeof (isc_420), (char *) isc_420);
 	if (tdgbl->handles_get_files_req_handle1)
 	   {
 #line 3048 "restore.epp"
@@ -7188,7 +7188,7 @@ bool get_files()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_files_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 268, &isc_421, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_files_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 268, &isc_421, (short) 0);
 	   };
 #line 3090 "restore.epp"
 	/*ON_ERROR*/
@@ -7226,7 +7226,7 @@ bool get_filter()
 	{
 	
         if (!tdgbl->handles_get_filter_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_filter_req_handle1, (short) sizeof (isc_411), (char *) isc_411);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_filter_req_handle1, (short) sizeof (isc_411), (char *) isc_411);
 	if (tdgbl->handles_get_filter_req_handle1)
 	   {
 	   isc_412.isc_415 = isc_blob_null;
@@ -7299,7 +7299,7 @@ bool get_filter()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_filter_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 332, &isc_412, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_filter_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 332, &isc_412, (short) 0);
 	   };
 #line 3161 "restore.epp"
 	/*ON_ERROR*/
@@ -7340,7 +7340,7 @@ bool get_function()
 	{
 	
         if (!tdgbl->handles_get_function_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_function_req_handle1, (short) sizeof (isc_402), (char *) isc_402);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_function_req_handle1, (short) sizeof (isc_402), (char *) isc_402);
 	if (tdgbl->handles_get_function_req_handle1)
 	   {
 	   isc_403.isc_406 = isc_blob_null;
@@ -7414,7 +7414,7 @@ bool get_function()
 #line 3237 "restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_function_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 362, &isc_403, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_function_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 362, &isc_403, (short) 0);
 	   };
 #line 3238 "restore.epp"
 	/*ON_ERROR*/
@@ -7461,7 +7461,7 @@ void get_function_arg()
 		{
 		
                 if (!tdgbl->handles_get_function_arg_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_388), (char *) isc_388);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_388), (char *) isc_388);
 		if (tdgbl->handles_get_function_arg_req_handle1)
 		   {
 #line 3273 "restore.epp"
@@ -7556,7 +7556,7 @@ void get_function_arg()
 			}
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 54, &isc_389, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 54, &isc_389, (short) 0);
 		   };
 #line 3331 "restore.epp"
 		/*ON_ERROR*/
@@ -7577,7 +7577,7 @@ void get_function_arg()
 		{
 		
                 if (!tdgbl->handles_get_function_arg_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_376), (char *) isc_376);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_376), (char *) isc_376);
 		if (tdgbl->handles_get_function_arg_req_handle1)
 		   {
 #line 3340 "restore.epp"
@@ -7660,7 +7660,7 @@ void get_function_arg()
 			}
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 50, &isc_377, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 50, &isc_377, (short) 0);
 		   };
 #line 3392 "restore.epp"
 		/*ON_ERROR*/
@@ -7761,7 +7761,7 @@ bool get_global_field()
 		{
 		
                 if (!tdgbl->handles_get_global_field_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_321), (char *) isc_321);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_321), (char *) isc_321);
 		if (tdgbl->handles_get_global_field_req_handle1)
 		   {
 		   isc_322.isc_324 = isc_blob_null;
@@ -8231,7 +8231,7 @@ bool get_global_field()
 
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 350, &isc_322, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 350, &isc_322, (short) 0);
 		   };
 #line 3743 "restore.epp"
 		/*ON_ERROR*/
@@ -8254,7 +8254,7 @@ bool get_global_field()
 		{
 		
                 if (!tdgbl->handles_get_global_field_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_268), (char *) isc_268);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_268), (char *) isc_268);
 		if (tdgbl->handles_get_global_field_req_handle1)
 		   {
 		   isc_269.isc_271 = isc_blob_null;
@@ -8712,7 +8712,7 @@ bool get_global_field()
 
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 346, &isc_269, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 346, &isc_269, (short) 0);
 		   };
 #line 4014 "restore.epp"
 		/*ON_ERROR*/
@@ -8769,7 +8769,7 @@ bool get_index (const burp_rel* relation)
 	{
 	
         if (!tdgbl->handles_get_index_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle1, (short) sizeof (isc_251), (char *) isc_251);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle1, (short) sizeof (isc_251), (char *) isc_251);
 	if (tdgbl->handles_get_index_req_handle1)
 	   {
 	   isc_252.isc_254 = isc_blob_null;
@@ -8879,7 +8879,7 @@ bool get_index (const burp_rel* relation)
 				{
 				
                                 if (!tdgbl->handles_get_index_req_handle2)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle2, (short) sizeof (isc_246), (char *) isc_246);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle2, (short) sizeof (isc_246), (char *) isc_246);
 				if (tdgbl->handles_get_index_req_handle2)
 				   {
 #line 4111 "restore.epp"
@@ -8895,7 +8895,7 @@ bool get_index (const burp_rel* relation)
 #line 4114 "restore.epp"
 				/*END_STORE;*/
 				   
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 66, &isc_247, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 66, &isc_247, (short) 0);
 				   };
 #line 4115 "restore.epp"
 				/*ON_ERROR*/
@@ -8980,15 +8980,15 @@ bool get_index (const burp_rel* relation)
 			RFR.RDB$RELATION_NAME = relation->rel_name*/
 		{
                 if (!tdgbl->handles_get_index_req_handle3)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle3, (short) sizeof (isc_240), (char *) isc_240);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle3, (short) sizeof (isc_240), (char *) isc_240);
 		isc_vtov ((char*)relation->rel_name, (char*)isc_241.isc_242, 32);
 		isc_vtov ((char*)index_name, (char*)isc_241.isc_243, 32);
 		if (tdgbl->handles_get_index_req_handle3)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle3, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_241, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_241, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle3, (short) 1, (short) 2, &isc_244, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle3, (short) 1, (short) 2, &isc_244, (short) 0);
 		   if (!isc_244.isc_245 || isc_status [1]) break;
 #line 4163 "restore.epp"
 			count++;
@@ -9012,19 +9012,19 @@ bool get_index (const burp_rel* relation)
 				I_S IN RDB$INDEX_SEGMENTS WITH I_S.RDB$INDEX_NAME = index_name*/
 			{
                         if (!tdgbl->handles_get_index_req_handle4)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (short) sizeof (isc_231), (char *) isc_231);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) sizeof (isc_231), (char *) isc_231);
 			isc_vtov ((char*)index_name, (char*)isc_232.isc_233, 32);
 			if (tdgbl->handles_get_index_req_handle4)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_232, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_232, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (short) 1, (short) 2, &isc_234, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) 1, (short) 2, &isc_234, (short) 0);
 			   if (!isc_234.isc_235 || isc_status [1]) break;
 #line 4173 "restore.epp"
 				/*ERASE I_S;*/
 				{
-                                isc_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (short) 2, (short) 2, &isc_236, (short) 0);
+                                isc_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) 2, (short) 2, &isc_236, (short) 0);
 #line 4174 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -9036,7 +9036,7 @@ bool get_index (const burp_rel* relation)
 				}
 #line 4177 "restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (short) 3, (short) 2, &isc_238, (short) 0);
+                           isc_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) 3, (short) 2, &isc_238, (short) 0);
 			   }
 			   };
 #line 4178 "restore.epp"
@@ -9053,7 +9053,7 @@ bool get_index (const burp_rel* relation)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 138, &isc_252, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 138, &isc_252, (short) 0);
 	   };
 #line 4184 "restore.epp"
 	/*ON_ERROR*/
@@ -9098,7 +9098,7 @@ void get_misc_blob (ISC_QUAD	*blob_id,
 	else
 		local_trans = gds_trans;
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 	USHORT bpb_length = 0;
 	UCHAR* bpb = NULL;
 	if (isc_create_blob2 (status_vector, &DB, &local_trans, &blob,
@@ -9219,7 +9219,7 @@ bool get_procedure()
 	{
 	
         if (!tdgbl->handles_get_procedure_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_procedure_req_handle1, (short) sizeof (isc_216), (char *) isc_216);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_procedure_req_handle1, (short) sizeof (isc_216), (char *) isc_216);
 	if (tdgbl->handles_get_procedure_req_handle1)
 	   {
 	   isc_217.isc_218 = isc_blob_null;
@@ -9346,7 +9346,7 @@ bool get_procedure()
 #line 4408 "restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_procedure_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 134, &isc_217, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_procedure_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 134, &isc_217, (short) 0);
 	   };
 #line 4409 "restore.epp"
 	/*ON_ERROR*/
@@ -9398,7 +9398,7 @@ bool get_procedure_prm (GDS_NAME	procptr)
 	{
 	
         if (!tdgbl->handles_get_procedure_prm_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (short) sizeof (isc_207), (char *) isc_207);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (short) sizeof (isc_207), (char *) isc_207);
 	if (tdgbl->handles_get_procedure_prm_req_handle1)
 	   {
 	   isc_208.isc_212 = isc_blob_null;
@@ -9469,7 +9469,7 @@ bool get_procedure_prm (GDS_NAME	procptr)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 110, &isc_208, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 110, &isc_208, (short) 0);
 	   };
 #line 4492 "restore.epp"
 	/*ON_ERROR*/
@@ -9507,7 +9507,7 @@ bool get_ref_constraint()
 	{
 	
         if (!tdgbl->handles_get_ref_constraint_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (short) sizeof (isc_195), (char *) isc_195);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (short) sizeof (isc_195), (char *) isc_195);
 	if (tdgbl->handles_get_ref_constraint_req_handle1)
 	   {
 #line 4518 "restore.epp"
@@ -9584,7 +9584,7 @@ bool get_ref_constraint()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 106, &isc_196, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 106, &isc_196, (short) 0);
 	   };
 #line 4560 "restore.epp"
 	/*ON_ERROR*/
@@ -9762,7 +9762,7 @@ bool get_relation()
 	{
 	
         if (!tdgbl->handles_get_relation_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_relation_req_handle1, (short) sizeof (isc_174), (char *) isc_174);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_relation_req_handle1, (short) sizeof (isc_174), (char *) isc_174);
 	if (tdgbl->handles_get_relation_req_handle1)
 	   {
 	   isc_175.isc_177 = isc_blob_null;
@@ -9831,7 +9831,7 @@ bool get_relation()
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_relation_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 380, &isc_175, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_relation_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 380, &isc_175, (short) 0);
 	   };
 #line 4741 "restore.epp"
 	/*ON_ERROR*/
@@ -9859,7 +9859,7 @@ bool get_relation()
 				// msg 170: committing metadata for relation %s 
 				/*COMMIT*/
 				{
-				isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+				isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 4759 "restore.epp"
 				// existing ON_ERROR continues past error, beck 
 				/*ON_ERROR*/
@@ -9871,7 +9871,7 @@ bool get_relation()
 					BURP_print_status (tdgbl->status_vector);
 					/*ROLLBACK;*/
 					{
-					isc_rollback_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+					isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 4765 "restore.epp"
 					/*ON_ERROR*/
 					if (isc_status [1])
@@ -9888,14 +9888,14 @@ bool get_relation()
 #line 4769 "restore.epp"
 				/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 				{
-				isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_10);
+				isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_10);
 				SQLCODE = isc_sqlcode (isc_status);
 				}
 #line 4770 "restore.epp"
 				if (gds_status[1])
 					/*EXEC SQL SET TRANSACTION;*/
 					{
-					isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_11);
+					isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_11);
 					SQLCODE = isc_sqlcode (isc_status);
 					}
 #line 4772 "restore.epp"
@@ -9931,7 +9931,7 @@ bool get_relation()
 
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 4803 "restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
@@ -9945,14 +9945,14 @@ bool get_relation()
 
 	/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 	{
-	isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_12);
+	isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_12);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
 #line 4808 "restore.epp"
 	if (gds_status[1])
 		/*EXEC SQL SET TRANSACTION;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_13);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_13);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 4810 "restore.epp"
@@ -9984,7 +9984,7 @@ bool get_rel_constraint()
 	{
 	
         if (!tdgbl->handles_get_rel_constraint_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (short) sizeof (isc_160), (char *) isc_160);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (short) sizeof (isc_160), (char *) isc_160);
 	if (tdgbl->handles_get_rel_constraint_req_handle1)
 	   {
 #line 4835 "restore.epp"
@@ -10073,7 +10073,7 @@ bool get_rel_constraint()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 128, &isc_161, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 128, &isc_161, (short) 0);
 	   };
 #line 4883 "restore.epp"
 	/*ON_ERROR*/
@@ -10178,6 +10178,7 @@ bool get_relation_data()
 			break;
 		}
 	}
+        return true;
 }
 
 bool get_sql_roles()
@@ -10204,7 +10205,7 @@ bool get_sql_roles()
 	{
 	
         if (!tdgbl->handles_get_sql_roles_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
 	if (tdgbl->handles_get_sql_roles_req_handle1)
 	   {
 #line 4998 "restore.epp"
@@ -10260,7 +10261,7 @@ bool get_sql_roles()
 		}
 	/*END_STORE*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 68, &isc_155, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 68, &isc_155, (short) 0);
 	   };
 #line 5035 "restore.epp"
 	/*ON_ERROR*/
@@ -10325,7 +10326,7 @@ bool get_security_class()
 	{
 	
         if (!tdgbl->handles_get_security_class_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_security_class_req_handle1, (short) sizeof (isc_148), (char *) isc_148);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_security_class_req_handle1, (short) sizeof (isc_148), (char *) isc_148);
 	if (tdgbl->handles_get_security_class_req_handle1)
 	   {
 	   isc_149.isc_150 = isc_blob_null;
@@ -10409,7 +10410,7 @@ bool get_security_class()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_security_class_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 50, &isc_149, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_security_class_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 50, &isc_149, (short) 0);
 	   };
 #line 5145 "restore.epp"
 	/*ON_ERROR*/
@@ -10448,7 +10449,7 @@ void get_source_blob (
 
 	// Create new blob
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 	isc_tr_handle	local_trans;
 	if (glb_trans && tdgbl->global_trans)
 		local_trans = tdgbl->global_trans;
@@ -10549,7 +10550,7 @@ bool get_trigger_old (
 	{
 	
         if (!tdgbl->handles_get_trigger_old_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (short) sizeof (isc_135), (char *) isc_135);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (short) sizeof (isc_135), (char *) isc_135);
 	if (tdgbl->handles_get_trigger_old_req_handle1)
 	   {
 	   isc_136.isc_139 = isc_blob_null;
@@ -10669,7 +10670,7 @@ bool get_trigger_old (
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 100, &isc_136, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 100, &isc_136, (short) 0);
 	   };
 #line 5349 "restore.epp"
 	/*ON_ERROR*/
@@ -10686,7 +10687,7 @@ bool get_trigger_old (
 	{
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 5356 "restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
@@ -10698,7 +10699,7 @@ bool get_trigger_old (
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 5362 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -10715,14 +10716,14 @@ bool get_trigger_old (
 #line 5366 "restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_14);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_14);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 5367 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_15);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_15);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 5369 "restore.epp"
@@ -10762,7 +10763,7 @@ bool get_trigger()
 	{
 	
         if (!tdgbl->handles_get_trigger_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_req_handle1, (short) sizeof (isc_118), (char *) isc_118);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_req_handle1, (short) sizeof (isc_118), (char *) isc_118);
 	if (tdgbl->handles_get_trigger_req_handle1)
 	   {
 	   isc_119.isc_122 = isc_blob_null;
@@ -10897,7 +10898,7 @@ bool get_trigger()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 108, &isc_119, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 108, &isc_119, (short) 0);
 	   };
 #line 5473 "restore.epp"
 	/*ON_ERROR*/
@@ -10914,7 +10915,7 @@ bool get_trigger()
 	{
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 5480 "restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
@@ -10926,7 +10927,7 @@ bool get_trigger()
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 5486 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -10943,14 +10944,14 @@ bool get_trigger()
 #line 5490 "restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_16);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_16);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 5491 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_17);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_17);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 5493 "restore.epp"
@@ -11006,14 +11007,14 @@ bool get_trigger_message()
 				X.RDB$SYSTEM_FLAG EQ 1 AND X.RDB$TRIGGER_NAME EQ name*/
 			{
                         if (!tdgbl->handles_get_trigger_message_req_handle1)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) sizeof (isc_113), (char *) isc_113);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) sizeof (isc_113), (char *) isc_113);
 			isc_vtov ((char*)name, (char*)isc_114.isc_115, 32);
 			if (tdgbl->handles_get_trigger_message_req_handle1)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_114, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_114, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) 1, (short) 2, &isc_116, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) 1, (short) 2, &isc_116, (short) 0);
 			   if (!isc_116.isc_117 || isc_status [1]) break;
 #line 5531 "restore.epp"
 				flag = true;
@@ -11061,7 +11062,7 @@ bool get_trigger_message()
 	{
 	
         if (!tdgbl->handles_get_trigger_message_req_handle2)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (short) sizeof (isc_108), (char *) isc_108);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (short) sizeof (isc_108), (char *) isc_108);
 	if (tdgbl->handles_get_trigger_message_req_handle2)
 	   {
 #line 5564 "restore.epp"
@@ -11076,7 +11077,7 @@ bool get_trigger_message()
 #line 5567 "restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (isc_req_handle*) &local_trans, (short) 0, (short) 113, &isc_109, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (isc_handle*) &local_trans, (short) 0, (short) 113, &isc_109, (short) 0);
 	   };
 #line 5568 "restore.epp"
 	/*ON_ERROR*/
@@ -11093,7 +11094,7 @@ bool get_trigger_message()
 	{
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 5575 "restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
@@ -11105,7 +11106,7 @@ bool get_trigger_message()
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 5581 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -11122,14 +11123,14 @@ bool get_trigger_message()
 #line 5585 "restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_18);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_18);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 5586 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_19);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_19);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 5588 "restore.epp"
@@ -11162,7 +11163,7 @@ bool get_type()
 	{
 	
         if (!tdgbl->handles_get_type_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_type_req_handle1, (short) sizeof (isc_99), (char *) isc_99);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_type_req_handle1, (short) sizeof (isc_99), (char *) isc_99);
 	if (tdgbl->handles_get_type_req_handle1)
 	   {
 	   isc_100.isc_103 = isc_blob_null;
@@ -11240,7 +11241,7 @@ bool get_type()
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_type_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 80, &isc_100, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_type_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 80, &isc_100, (short) 0);
 	   };
 #line 5660 "restore.epp"
 	/*ON_ERROR*/
@@ -11375,7 +11376,7 @@ bool get_user_privilege()
 	}
 
 	// Check if object exists 
-	isc_tr_handle	local_trans = NULL_HANDLE;
+	isc_tr_handle	local_trans = NULL;
 	bool exists = false;
 	switch (object_type)
 	{
@@ -11420,7 +11421,7 @@ bool get_user_privilege()
 		{
 		
                 if (!tdgbl->handles_get_user_privilege_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (short) sizeof (isc_85), (char *) isc_85);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (short) sizeof (isc_85), (char *) isc_85);
 		if (tdgbl->handles_get_user_privilege_req_handle1)
 		   {
 #line 5796 "restore.epp"
@@ -11521,7 +11522,7 @@ bool get_user_privilege()
 
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 149, &isc_86, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 149, &isc_86, (short) 0);
 		   };
 #line 5862 "restore.epp"
 		/*ON_ERROR*/
@@ -11566,7 +11567,7 @@ bool get_view (BURP_REL		relation)
 	{
 	
         if (!tdgbl->handles_get_view_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_view_req_handle1, (short) sizeof (isc_79), (char *) isc_79);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_view_req_handle1, (short) sizeof (isc_79), (char *) isc_79);
 	if (tdgbl->handles_get_view_req_handle1)
 	   {
 #line 5895 "restore.epp"
@@ -11604,7 +11605,7 @@ bool get_view (BURP_REL		relation)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_view_req_handle1, (isc_req_handle*) &local_trans, (short) 0, (short) 98, &isc_80, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_view_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 98, &isc_80, (short) 0);
 	   };
 #line 5920 "restore.epp"
 	/*ON_ERROR*/
@@ -11836,7 +11837,7 @@ rec_type ignore_data (BURP_REL		relation)
 			break;
 	}
 
-	BURP_verbose (106, (void*) (long) records, NULL, NULL, NULL, NULL);
+	BURP_verbose (106, (void*) records, NULL, NULL, NULL, NULL);
 	// msg 106 %ld records ignored 
 
 	return record;
@@ -11859,14 +11860,16 @@ void realign(UCHAR* buffer,
  *
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
+	UCHAR* p;
+	const UCHAR* q;
 
 	for (const burp_fld* field = relation->rel_fields; field; field = field->fld_next)
 	{
 		if (field->fld_flags & FLD_computed)
 			continue;
 
-		UCHAR* p = buffer + field->fld_offset;
-		const UCHAR* q = buffer + field->fld_old_offset;
+		p = buffer + field->fld_offset;
+		q = buffer + field->fld_old_offset;
 		USHORT l = field->fld_length;
 
 		// CVC: This code assumes fld_offset < fld_old_offset,
@@ -11892,8 +11895,8 @@ void realign(UCHAR* buffer,
 		{
 			if (field->fld_flags & FLD_computed)
 				continue;
-			UCHAR* p = buffer + FB_ALIGN(p - buffer, sizeof(SSHORT));
-			const UCHAR* q = buffer + FB_ALIGN(q - buffer, sizeof(SSHORT));
+			p = buffer + FB_ALIGN(p - buffer, sizeof(SSHORT));
+			q = buffer + FB_ALIGN(q - buffer, sizeof(SSHORT));
 			*p++ = *q++;
 			*p++ = *q++;
 		}
@@ -11982,8 +11985,8 @@ bool restore (const TEXT* file_name,
  **************************************/
 	rec_type	record;
 	ATT_TYPE	attribute;
-	isc_req_handle  req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 = NULL_HANDLE,
-					req_handle5 = NULL_HANDLE;
+	isc_req_handle  req_handle1 = NULL, req_handle2 = NULL, req_handle3 = NULL,
+					req_handle5 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -12004,7 +12007,7 @@ bool restore (const TEXT* file_name,
 
 	if (tdgbl->RESTORE_format < 1 || tdgbl->RESTORE_format > ATT_BACKUP_FORMAT)
 	{
-		BURP_error(44, true, isc_arg_number, (void*)(long)tdgbl->RESTORE_format,
+		BURP_error(44, true, isc_arg_number, (void*)(ULONG)tdgbl->RESTORE_format,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 		// msg 44 Expected backup version 1, 2, or 3.  Found %ld 
 	}
@@ -12013,14 +12016,14 @@ bool restore (const TEXT* file_name,
 
 	/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 	{
-	isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_20);
+	isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_20);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
 #line 6319 "restore.epp"
 	if (gds_status[1])
 		/*EXEC SQL SET TRANSACTION;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_21);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_21);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 6321 "restore.epp"
@@ -12032,7 +12035,7 @@ bool restore (const TEXT* file_name,
 
 	/*EXEC SQL SET TRANSACTION NAME tdgbl->global_trans ISOLATION LEVEL READ COMMITTED;*/
 	{
-	isc_start_transaction (isc_status, (isc_tr_handle*) &tdgbl->global_trans, (short) 1, &DB, (short) 5, isc_tpb_22);
+	isc_start_transaction (isc_status, (isc_handle*) &tdgbl->global_trans, (short) 1, &DB, (short) 5, isc_tpb_22);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
 #line 6328 "restore.epp"
@@ -12040,7 +12043,7 @@ bool restore (const TEXT* file_name,
 	USHORT db_version = check_db_version();
 	if (db_version < DB_VERSION_CURRENT)
 	{
-		BURP_error(51, true, isc_arg_number, (void*) (long) db_version,
+		BURP_error(51, true, isc_arg_number, (void*) (ULONG) db_version,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 		// msg 51 database format %ld is too old to restore to 
 	}
@@ -12066,13 +12069,13 @@ bool restore (const TEXT* file_name,
 				X IN RDB$DATABASE*/
 			{
                         if (!req_handle2)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_71), (char *) isc_71);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_71), (char *) isc_71);
 			if (req_handle2)
-                           isc_start_request (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 10, &isc_72, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 0, (short) 10, &isc_72, (short) 0);
 			   if (!isc_72.isc_74 || isc_status [1]) break;
 #line 6356 "restore.epp"
 				/*MODIFY X USING*/
@@ -12088,7 +12091,7 @@ bool restore (const TEXT* file_name,
 #line 6361 "restore.epp"
 				/*END_MODIFY;*/
 				isc_75.isc_76 = isc_72.isc_73;
-                                isc_send (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 8, &isc_75, (short) 0);;
+                                isc_send (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 8, &isc_75, (short) 0);;
 #line 6362 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -12100,7 +12103,7 @@ bool restore (const TEXT* file_name,
 				}
 #line 6365 "restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_req_handle*) &req_handle2, (short) 2, (short) 2, &isc_77, (short) 0);
+                           isc_send (isc_status, (isc_handle*) &req_handle2, (short) 2, (short) 2, &isc_77, (short) 0);
 			   }
 			   };
 #line 6366 "restore.epp"
@@ -12120,13 +12123,13 @@ bool restore (const TEXT* file_name,
 				X IN RDB$DATABASE*/
 			{
                         if (!req_handle3)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_63), (char *) isc_63);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_63), (char *) isc_63);
 			if (req_handle3)
-                           isc_start_request (isc_status, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 0, (short) 34, &isc_64, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 0, (short) 34, &isc_64, (short) 0);
 			   if (!isc_64.isc_66 || isc_status [1]) break;
 #line 6374 "restore.epp"
 				/*MODIFY X USING*/
@@ -12137,7 +12140,7 @@ bool restore (const TEXT* file_name,
 #line 6376 "restore.epp"
 				/*END_MODIFY;*/
 				isc_ftof (isc_64.isc_65, 32, isc_67.isc_68, 32);
-                                isc_send (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 32, &isc_67, (short) 0);;
+                                isc_send (isc_status, (isc_handle*) &req_handle3, (short) 1, (short) 32, &isc_67, (short) 0);;
 #line 6377 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -12149,7 +12152,7 @@ bool restore (const TEXT* file_name,
 				}
 #line 6380 "restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_req_handle*) &req_handle3, (short) 2, (short) 2, &isc_69, (short) 0);
+                           isc_send (isc_status, (isc_handle*) &req_handle3, (short) 2, (short) 2, &isc_69, (short) 0);
 			   }
 			   };
 #line 6381 "restore.epp"
@@ -12284,7 +12287,7 @@ bool restore (const TEXT* file_name,
 				// msg 68 committing meta data 
 				/*COMMIT;*/
 				{
-				isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+				isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 6505 "restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
@@ -12297,14 +12300,14 @@ bool restore (const TEXT* file_name,
 #line 6508 "restore.epp"
 				/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 				{
-				isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_23);
+				isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_23);
 				SQLCODE = isc_sqlcode (isc_status);
 				}
 #line 6509 "restore.epp"
 					if (gds_status[1])
 						/*EXEC SQL SET TRANSACTION;*/
 						{
-						isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_24);
+						isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_24);
 						SQLCODE = isc_sqlcode (isc_status);
 						}
 #line 6511 "restore.epp"
@@ -12372,7 +12375,7 @@ bool restore (const TEXT* file_name,
 	{
 		/*COMMIT;*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 6574 "restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
@@ -12385,14 +12388,14 @@ bool restore (const TEXT* file_name,
 #line 6577 "restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_25);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_25);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 6578 "restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_26);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_26);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 6580 "restore.epp"
@@ -12411,18 +12414,18 @@ bool restore (const TEXT* file_name,
 			AND FIL.RDB$SHADOW_NUMBER NE 0*/
 		{
                 if (!req_handle5)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle5, (short) sizeof (isc_56), (char *) isc_56);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle5, (short) sizeof (isc_56), (char *) isc_56);
 		if (req_handle5)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle5, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle5, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle5, (short) 0, (short) 2, &isc_57, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle5, (short) 0, (short) 2, &isc_57, (short) 0);
 		   if (!isc_57.isc_58 || isc_status [1]) break;
 #line 6593 "restore.epp"
 		/*ERASE FIL;*/
 		{
-                isc_send (isc_status, (isc_req_handle*) &req_handle5, (short) 1, (short) 2, &isc_59, (short) 0);
+                isc_send (isc_status, (isc_handle*) &req_handle5, (short) 1, (short) 2, &isc_59, (short) 0);
 #line 6594 "restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
@@ -12434,7 +12437,7 @@ bool restore (const TEXT* file_name,
 		}
 #line 6597 "restore.epp"
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_req_handle*) &req_handle5, (short) 2, (short) 2, &isc_61, (short) 0);
+                   isc_send (isc_status, (isc_handle*) &req_handle5, (short) 2, (short) 2, &isc_61, (short) 0);
 		   }
 		   };
 #line 6598 "restore.epp"
@@ -12466,7 +12469,7 @@ void restore_security_class (const TEXT	*owner_nm,
  *	restore the ownership of the relation in the ACL list
  *
  **************************************/
-	isc_req_handle  req_handle2 = NULL_HANDLE;
+	isc_req_handle  req_handle2 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 	isc_tr_handle local_trans = gds_trans;
@@ -12475,14 +12478,14 @@ void restore_security_class (const TEXT	*owner_nm,
 		X IN RDB$SECURITY_CLASSES WITH X.RDB$SECURITY_CLASS EQ sec_class_nm*/
 	{
         if (!req_handle2)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_46), (char *) isc_46);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_46), (char *) isc_46);
 	isc_vtov ((char*)sec_class_nm, (char*)isc_47.isc_48, 32);
 	if (req_handle2)
-           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_47, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_47, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 10, &isc_49, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 10, &isc_49, (short) 0);
 	   if (!isc_49.isc_51 || isc_status [1]) break;
 #line 6627 "restore.epp"
 
@@ -12501,7 +12504,7 @@ void restore_security_class (const TEXT	*owner_nm,
 #line 6635 "restore.epp"
 		/*END_MODIFY;*/
 		isc_52.isc_53 = isc_49.isc_50;
-                isc_send (isc_status, (isc_req_handle*) &req_handle2, (short) 2, (short) 8, &isc_52, (short) 0);;
+                isc_send (isc_status, (isc_handle*) &req_handle2, (short) 2, (short) 8, &isc_52, (short) 0);;
 #line 6636 "restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
@@ -12515,7 +12518,7 @@ void restore_security_class (const TEXT	*owner_nm,
 #line 6640 "restore.epp"
 
 	/*END_FOR;*/
-           isc_send (isc_status, (isc_req_handle*) &req_handle2, (short) 3, (short) 2, &isc_54, (short) 0);
+           isc_send (isc_status, (isc_handle*) &req_handle2, (short) 3, (short) 2, &isc_54, (short) 0);
 	   }
 	   };
 #line 6642 "restore.epp"
@@ -12555,7 +12558,7 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	{
 	
         if (!tdgbl->handles_store_blr_gen_id_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (short) sizeof (isc_43), (char *) isc_43);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (short) sizeof (isc_43), (char *) isc_43);
 	if (tdgbl->handles_store_blr_gen_id_req_handle1)
 	   {
 #line 6669 "restore.epp"
@@ -12564,7 +12567,7 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 #line 6670 "restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_44, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_44, (short) 0);
 	   };
 #line 6671 "restore.epp"
 	/*ON_ERROR*/
@@ -12580,13 +12583,13 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	if (!value)
 	{
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-		BURP_verbose (185, gen_name, (void*) (long) value, NULL, NULL, NULL);
+		BURP_verbose (185, gen_name, (void*) (SLONG) value, NULL, NULL, NULL);
 		// msg 185 restoring generator %s value: %ld 
 		return;
 	}
 
 
-	isc_handle gen_id_reqh = NULL_HANDLE;
+	isc_handle gen_id_reqh = NULL;
 	UCHAR blr_buffer[100];  // enough to fit blr
 	UCHAR* blr = blr_buffer;
 
@@ -12660,7 +12663,7 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	}
 
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-	BURP_verbose (185, gen_name, (void*) (long) value, NULL, NULL, NULL);
+	BURP_verbose (185, gen_name, (void*) (SLONG) value, NULL, NULL, NULL);
 	// msg 185 restoring generator %s value: %ld 
 
 	isc_release_request (status_vector, &gen_id_reqh);
@@ -12700,7 +12703,7 @@ void update_global_field()
  *
  **************************************/
 	USHORT		length;
-	isc_req_handle  req_handle1 = NULL_HANDLE;
+	isc_req_handle  req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -12710,14 +12713,14 @@ void update_global_field()
 			X IN RDB$FIELDS WITH X.RDB$FIELD_NAME EQ gfield->gfld_name*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_27), (char *) isc_27);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_27), (char *) isc_27);
 		isc_vtov ((char*)gfield->gfld_name, (char*)isc_28.isc_29, 32);
 		if (req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_req_handle*) &tdgbl->global_trans, (short) 0, (short) 32, &isc_28, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &tdgbl->global_trans, (short) 0, (short) 32, &isc_28, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 22, &isc_30, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 22, &isc_30, (short) 0);
 		   if (!isc_30.isc_33 || isc_status [1]) break;
 #line 6806 "restore.epp"
 			/*MODIFY X*/
@@ -12780,7 +12783,7 @@ void update_global_field()
 			isc_36.isc_38 = isc_30.isc_31;
 			isc_36.isc_39 = isc_30.isc_35;
 			isc_36.isc_40 = isc_30.isc_34;
-                        isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 2, (short) 20, &isc_36, (short) 0);;
+                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 20, &isc_36, (short) 0);;
 #line 6848 "restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
@@ -12793,7 +12796,7 @@ void update_global_field()
 #line 6851 "restore.epp"
 
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_req_handle*) &req_handle1, (short) 3, (short) 2, &isc_41, (short) 0);
+                   isc_send (isc_status, (isc_handle*) &req_handle1, (short) 3, (short) 2, &isc_41, (short) 0);
 		   }
 		   };
 #line 6853 "restore.epp"

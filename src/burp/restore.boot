@@ -75,7 +75,7 @@ static isc_db_handle
 
 static isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-static long
+static ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 static SLONG
@@ -2977,12 +2977,12 @@ int RESTORE_restore (const TEXT* file_name,
 					 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name*/
 					{
                                         if (!req_handle3)
-                                           isc_compile_request ((long*) 0L, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_596), (char *) isc_596);
+                                           isc_compile_request ( NULL, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_596), (char *) isc_596);
 					isc_vtov ((char*)index_name, (char*)isc_597.isc_598, 32);
-                                        isc_start_and_send ((long*) 0L, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_597, (short) 0);
+                                        isc_start_and_send ( NULL, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_597, (short) 0);
 					while (1)
 					   {
-                                           isc_receive ((long*) 0L, (isc_handle*) &req_handle3, (short) 1, (short) 4, &isc_599, (short) 0);
+                                           isc_receive ( NULL, (isc_handle*) &req_handle3, (short) 1, (short) 4, &isc_599, (short) 0);
 					   if (!isc_599.isc_600) break;
 #line 281 "restore.epp"
 					 {
@@ -3012,11 +3012,11 @@ int RESTORE_restore (const TEXT* file_name,
 						/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 						/*END_MODIFY;*/
 						isc_602.isc_603 = isc_599.isc_601;
-                                                isc_send ((long*) 0L, (isc_handle*) &req_handle3, (short) 2, (short) 2, &isc_602, (short) 0);
+                                                isc_send ( NULL, (isc_handle*) &req_handle3, (short) 2, (short) 2, &isc_602, (short) 0);
 						}
 #line 304 "restore.epp"
 					/*END_FOR;*/
-                                           isc_send ((long*) 0L, (isc_handle*) &req_handle3, (short) 3, (short) 2, &isc_604, (short) 0);
+                                           isc_send ( NULL, (isc_handle*) &req_handle3, (short) 3, (short) 2, &isc_604, (short) 0);
 					   }
 					}
 #line 305 "restore.epp"
@@ -6471,12 +6471,12 @@ rec_type get_data (BURP_REL	relation)
 						 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name*/
 						{
                                                 if (!req_handle)
-                                                   isc_compile_request ((long*) 0L, (isc_handle*) &DB, (isc_handle*) &req_handle, (short) sizeof (isc_476), (char *) isc_476);
+                                                   isc_compile_request ( NULL, (isc_handle*) &DB, (isc_handle*) &req_handle, (short) sizeof (isc_476), (char *) isc_476);
 						isc_vtov ((char*)index_name, (char*)isc_477.isc_478, 32);
-                                                isc_start_and_send ((long*) 0L, (isc_handle*) &req_handle, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_477, (short) 0);
+                                                isc_start_and_send ( NULL, (isc_handle*) &req_handle, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_477, (short) 0);
 						while (1)
 						   {
-                                                   isc_receive ((long*) 0L, (isc_handle*) &req_handle, (short) 1, (short) 4, &isc_479, (short) 0);
+                                                   isc_receive ( NULL, (isc_handle*) &req_handle, (short) 1, (short) 4, &isc_479, (short) 0);
 						   if (!isc_479.isc_480) break;
 #line 2640 "restore.epp"
 							/*MODIFY IDX USING*/
@@ -6503,11 +6503,11 @@ rec_type get_data (BURP_REL	relation)
 							/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 							/*END_MODIFY;*/
 							isc_482.isc_483 = isc_479.isc_481;
-                                                        isc_send ((long*) 0L, (isc_handle*) &req_handle, (short) 2, (short) 2, &isc_482, (short) 0);
+                                                        isc_send ( NULL, (isc_handle*) &req_handle, (short) 2, (short) 2, &isc_482, (short) 0);
 							}
 #line 2660 "restore.epp"
 						/*END_FOR;*/
-                                                   isc_send ((long*) 0L, (isc_handle*) &req_handle, (short) 3, (short) 2, &isc_484, (short) 0);
+                                                   isc_send ( NULL, (isc_handle*) &req_handle, (short) 3, (short) 2, &isc_484, (short) 0);
 						   }
 						}
 #line 2661 "restore.epp"
@@ -10178,6 +10178,7 @@ bool get_relation_data()
 			break;
 		}
 	}
+        return true;
 }
 
 bool get_sql_roles()
@@ -11859,14 +11860,16 @@ void realign(UCHAR* buffer,
  *
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
+	UCHAR* p;
+	const UCHAR* q;
 
 	for (const burp_fld* field = relation->rel_fields; field; field = field->fld_next)
 	{
 		if (field->fld_flags & FLD_computed)
 			continue;
 
-		UCHAR* p = buffer + field->fld_offset;
-		const UCHAR* q = buffer + field->fld_old_offset;
+		p = buffer + field->fld_offset;
+		q = buffer + field->fld_old_offset;
 		USHORT l = field->fld_length;
 
 		// CVC: This code assumes fld_offset < fld_old_offset,
@@ -11892,8 +11895,8 @@ void realign(UCHAR* buffer,
 		{
 			if (field->fld_flags & FLD_computed)
 				continue;
-			UCHAR* p = buffer + FB_ALIGN(p - buffer, sizeof(SSHORT));
-			const UCHAR* q = buffer + FB_ALIGN(q - buffer, sizeof(SSHORT));
+			p = buffer + FB_ALIGN(p - buffer, sizeof(SSHORT));
+			q = buffer + FB_ALIGN(q - buffer, sizeof(SSHORT));
 			*p++ = *q++;
 			*p++ = *q++;
 		}

@@ -29,7 +29,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "firebird.h"
+#include "ibase.h"
 #include "common.h"
+#include "dsc.h"
 #include "YStatement.h"
 #include "SubsysHandle.h"
 #include "StatusVector.h"
@@ -56,7 +58,7 @@ ISC_STATUS YStatement::releaseStatement(StatusVector& statusVector, int option, 
 {
 	if (userPtr)
 		{
-		*userPtr = NULL;
+		*(isc_stmt_handle*)userPtr = NULL;
 		userPtr = NULL;
 		}
 

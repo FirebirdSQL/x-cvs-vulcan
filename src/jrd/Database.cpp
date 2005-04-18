@@ -85,7 +85,10 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 	pageCache = new PageCache (this);
 	charSetManager = new CharSetManager (this);
 	tipCache = new TipCache(this);
+	sweeperCount = 0;
+#ifdef SHARED_CACHE
 	syncReady.lock (NULL, Exclusive);
+#endif
 	int cur_perm = 0, max_perm = 0;
 	dbb_permanent = JrdMemoryPool::createPool(this, &cur_perm, &max_perm);
 	dbb_internal.resize(irq_MAX);
@@ -97,7 +100,11 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 
 	procManager = new ProcManager(this);
 	commitManager = new CommitManager(this);
+#ifdef SHARED_CACHE
 	fileShared = configuration->getValue (DatabaseFileShared,DatabaseFileSharedValue);
+#else
+	fileShared = true; 
+#endif
 	
 	securityPlugin = new SecurityRoot(this);
 	const char *policyName = configuration->getValue(SecurityManager, SecurityManagerValue);
@@ -287,22 +294,28 @@ CharSetContainer* Database::findCollation(thread_db* tdbb, const char* name)
 
 void Database::addPool(JrdMemoryPool* pool)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Database::addPool");
 	sync.lock (Exclusive);
+#endif
 	dbb_pools.append (pool);
 }
 
 void Database::removePool(JrdMemoryPool* pool)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Database::removePool");
 	sync.lock (Exclusive);
+#endif
 	dbb_pools.deleteItem (pool);
 }
 
 Attachment* Database::createAttachment(void)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncAttachments, "Database::createAttachment");
 	sync.lock (Exclusive);
+#endif
 	Attachment *attachment = FB_NEW(*dbb_permanent) Attachment (this);
 
 	attachment->att_next = dbb_attachments;
@@ -313,8 +326,10 @@ Attachment* Database::createAttachment(void)
 
 void Database::deleteAttachment(Attachment* attachment)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncAttachments, "Database::deleteAttachment");
 	sync.lock (Exclusive);
+#endif
 	
 	for (Attachment **ptr = &dbb_attachments; *ptr; ptr = &(*ptr)->att_next)
 		if (*ptr == attachment)
@@ -326,16 +341,20 @@ void Database::deleteAttachment(Attachment* attachment)
 
 void Database::makeReady(void)
 {
+#ifdef SHARED_CACHE
 	syncReady.unlock(NULL, Exclusive);
+#endif
 }
 
 bool Database::isReady(bool waitFlag)
 {
+#ifdef SHARED_CACHE
 	if (!waitFlag)
 		return syncReady.isLocked();
 		
 	Sync sync (&syncReady, "Database::isReady");
 	sync.lock(Shared);
+#endif
 	
 	return true;
 }
@@ -344,8 +363,10 @@ bool Database::isReady(bool waitFlag)
 Relation* Database::lookupRelation(thread_db* tdbb, const char* relationName)
 {
 	int length = strlen(relationName);
+#ifdef SHARED_CACHE
 	Sync sync (&syncRelations, "Database::lookupRelation");
 	sync.lock(Shared);
+#endif
 
 	//for (vec::iterator ptr = dbb_relations->begin(), end = dbb_relations->end(); ptr < end; ptr++)
 	for (int n = 0; n < dbb_relations.size(); ++n)
@@ -376,14 +397,16 @@ Relation* Database::getRelation(thread_db* tdbb, int id)
 		return new Relation(this, id);
 		//return FB_NEW(*dbb_permanent) Relation (this, id);
 
+#ifdef SHARED_CACHE
+	Sync sync (&syncRelations, "Database::getRelation");
+	sync.lock(Exclusive);
+#endif
+
 	dbb_relations.checkSize(id, id + 10);
 	Relation *relation = dbb_relations[id];
 	
 	if (relation)
 		return relation;
-	
-	Sync sync (&syncRelations, "Database::getRelation");
-	sync.lock(Exclusive);
 	
 	if (relation = dbb_relations[id])
 		return relation;

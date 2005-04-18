@@ -66,7 +66,7 @@ isc_db_handle
 
 isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-long
+ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 SLONG
@@ -2288,12 +2288,12 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 		F IN RDB$FIELDS WITH F.RDB$FIELD_NAME EQ name*/
 		{
                 if (!dbb->dbb_domain_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_275), (char *) isc_275);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_275), (char *) isc_275);
 		isc_vtov ((char*)name, (char*)isc_276.isc_277, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_276, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_276, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 24, &isc_278, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 24, &isc_278, (short) 0);
 		   if (!isc_278.isc_279) break; found = TRUE;
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_278.isc_290;
@@ -2348,12 +2348,12 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 		F IN RDB$FIELDS WITH F.RDB$FIELD_NAME EQ name*/
 		{
                 if (!dbb->dbb_domain_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_265), (char *) isc_265);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_265), (char *) isc_265);
 		isc_vtov ((char*)name, (char*)isc_266.isc_267, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_266, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_266, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_268, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_268, (short) 0);
 		   if (!isc_268.isc_269) break; found = TRUE;
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_268.isc_274;
@@ -2438,7 +2438,7 @@ BOOLEAN MET_get_domain_default(DBB dbb,
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
 
@@ -2447,12 +2447,12 @@ BOOLEAN MET_get_domain_default(DBB dbb,
 		GPRE_FLD.RDB$FIELD_NAME EQ name*/
 	{
         if (!dbb->dbb_domain_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_258), (char *) isc_258);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_258), (char *) isc_258);
 	isc_vtov ((char*)name, (char*)isc_259.isc_260, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_259, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_259, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_261, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_261, (short) 0);
 	   if (!isc_261.isc_263) break; if (!/*GPRE_FLD.RDB$DEFAULT_VALUE.NULL*/
       isc_261.isc_264) {
 		blob_id = &/*GPRE_FLD.RDB$DEFAULT_VALUE*/
@@ -2507,7 +2507,7 @@ BOOLEAN MET_get_domain_default(DBB dbb,
 	   }
 	} /*COMMIT;*/
  {
- isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+ isc_commit_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans);
  }
 	return (has_default);
 }
@@ -2568,7 +2568,7 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
 
@@ -2579,13 +2579,13 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 		RFR.RDB$RELATION_NAME EQ relation->rel_symbol->sym_string*/
 	{
         if (!dbb->dbb_field_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_248), (char *) isc_248);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_248), (char *) isc_248);
 	isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_249.isc_250, 32);
 	isc_vtov ((char*)name, (char*)isc_249.isc_251, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_249, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_249, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 22, &isc_252, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 22, &isc_252, (short) 0);
 	   if (!isc_252.isc_255) break;
 		if (!/*RFR.RDB$DEFAULT_VALUE.NULL*/
 		     isc_252.isc_257) {
@@ -2651,7 +2651,7 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 	}
 	/*COMMIT;*/
 	{
-	isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+	isc_commit_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans);
 	}
 	return (has_default);
 }
@@ -2695,7 +2695,7 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
 
@@ -2712,12 +2712,12 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 		SORTED BY Y.RDB$FIELD_POSITION*/
 	{
         if (!dbb->dbb_primary_key_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) sizeof (isc_242), (char *) isc_242);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) sizeof (isc_242), (char *) isc_242);
 	isc_vtov ((char*)name, (char*)isc_243.isc_244, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_primary_key_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_243, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_primary_key_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_243, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) 1, (short) 34, &isc_245, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) 1, (short) 34, &isc_245, (short) 0);
 	   if (!isc_245.isc_247) break;
 		field_name = (str*) MAKE_STRING(/*Y.RDB$FIELD_NAME*/
 						isc_245.isc_246);
@@ -2735,7 +2735,7 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 	   }
 	} /*COMMIT;*/
  {
- isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+ isc_commit_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans);
  }
 
 	return fields;
@@ -2831,13 +2831,13 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 			RFR.RDB$RELATION_NAME EQ relation->rel_symbol->sym_string*/
 		{
                 if (!dbb->dbb_field_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_218), (char *) isc_218);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_218), (char *) isc_218);
 		isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_219.isc_220, 32);
 		isc_vtov ((char*)name, (char*)isc_219.isc_221, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_219, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_219, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 98, &isc_222, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 98, &isc_222, (short) 0);
 		   if (!isc_222.isc_225) break;
 			field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_relation = relation;
@@ -2920,13 +2920,13 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 			RFR.RDB$RELATION_NAME EQ relation->rel_symbol->sym_string*/
 		{
                 if (!dbb->dbb_field_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_203), (char *) isc_203);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_203), (char *) isc_203);
 		isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_204.isc_205, 32);
 		isc_vtov ((char*)name, (char*)isc_204.isc_206, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_204, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_204, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 80, &isc_207, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 80, &isc_207, (short) 0);
 		   if (!isc_207.isc_210) break;
 			field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_relation = relation;
@@ -3055,12 +3055,12 @@ GPRE_NOD MET_fields(GPRE_CTX context)
 		SORTED BY RFR.RDB$FIELD_POSITION*/
 	{
         if (!dbb->dbb_flds_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_flds_request, (short) sizeof (isc_197), (char *) isc_197);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_flds_request, (short) sizeof (isc_197), (char *) isc_197);
 	isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_198.isc_199, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_flds_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_198, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_flds_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_198, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_flds_request, (short) 1, (short) 34, &isc_200, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_flds_request, (short) 1, (short) 34, &isc_200, (short) 0);
 	   if (!isc_200.isc_202) break;
 		for (p = /*RFR.RDB$FIELD_NAME*/
 			 isc_200.isc_201; *p && *p != ' '; p++);
@@ -3101,12 +3101,12 @@ void MET_fini( DBB end)
 			if (gds_trans = dbb->dbb_transaction)
 				/*COMMIT;*/
 				{
-				isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+				isc_commit_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans);
 				}
 			/*FINISH*/
 			{
 			if (DB)
-			   isc_detach_database ((long*) 0L, &DB);
+			   isc_detach_database ((ISC_STATUS *) NULL, &DB);
 			};
 			dbb->dbb_handle = NULL_HANDLE;
 			dbb->dbb_transaction = NULL_HANDLE;
@@ -3312,12 +3312,12 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 	X IN RDB$PROCEDURES WITH X.RDB$PROCEDURE_ID = procedure->prc_id*/
 	{
         if (!dbb->dbb_procedure_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_procedure_request, (short) sizeof (isc_192), (char *) isc_192);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_procedure_request, (short) sizeof (isc_192), (char *) isc_192);
 	isc_193.isc_194 = procedure->prc_id;
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_procedure_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 2, &isc_193, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_procedure_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 2, &isc_193, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_procedure_request, (short) 1, (short) 2, &isc_195, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_procedure_request, (short) 1, (short) 2, &isc_195, (short) 0);
 	   if (!isc_195.isc_196) break;;
 
 	for (type = 0; type < 2; type++) {
@@ -3334,13 +3334,13 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 			SORTED BY DESCENDING Y.RDB$PARAMETER_NUMBER*/
 		{
                 if (!dbb->dbb_proc_prms_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) sizeof (isc_183), (char *) isc_183);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) sizeof (isc_183), (char *) isc_183);
 		isc_vtov ((char*)name, (char*)isc_184.isc_185, 32);
 		isc_184.isc_186 = type;
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prms_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_184, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_proc_prms_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_184, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) 1, (short) 68, &isc_187, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) 1, (short) 68, &isc_187, (short) 0);
 		   if (!isc_187.isc_190) break; count++;
 
 		/*FOR(REQUEST_HANDLE dbb->dbb_proc_prm_fld_request)
@@ -3348,12 +3348,12 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 			Y.RDB$FIELD_SOURCE EQ F.RDB$FIELD_NAME*/
 		{
                 if (!dbb->dbb_proc_prm_fld_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) sizeof (isc_167), (char *) isc_167);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) sizeof (isc_167), (char *) isc_167);
 		isc_vtov ((char*)isc_187.isc_189, (char*)isc_168.isc_169, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_168, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_168, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) 1, (short) 24, &isc_170, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) 1, (short) 24, &isc_170, (short) 0);
 		   if (!isc_170.isc_171) break;
 			field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_procedure = procedure;
@@ -3547,12 +3547,12 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 			SORTED BY DESCENDING UDF_ARG.RDB$ARGUMENT_POSITION*/
 		{
                 if (!dbb->dbb_udf_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_157), (char *) isc_157);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_157), (char *) isc_157);
 		isc_vtov ((char*)name, (char*)isc_158.isc_159, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_158, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_udf_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_158, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 12, &isc_160, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 12, &isc_160, (short) 0);
 		   if (!isc_160.isc_161) break;;
 
 		field = (GPRE_FLD) ALLOC(FLD_LEN);
@@ -3597,12 +3597,12 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 			SORTED BY DESCENDING UDF_ARG.RDB$ARGUMENT_POSITION*/
 		{
                 if (!dbb->dbb_udf_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_145), (char *) isc_145);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_145), (char *) isc_145);
 		isc_vtov ((char*)name, (char*)isc_146.isc_147, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_146, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_udf_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_146, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 16, &isc_148, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 16, &isc_148, (short) 0);
 		   if (!isc_148.isc_149) break;;
 
 		field = (GPRE_FLD) ALLOC(FLD_LEN);
@@ -3688,12 +3688,12 @@ GPRE_REL MET_get_view_relation(GPRE_REQ request,
 		X.RDB$VIEW_NAME EQ view_name*/
 	{
         if (!dbb->dbb_view_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_view_request, (short) sizeof (isc_138), (char *) isc_138);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_view_request, (short) sizeof (isc_138), (char *) isc_138);
 	isc_vtov ((char*)view_name, (char*)isc_139.isc_140, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_view_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_139, (short) level);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_view_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_139, (short) level);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_view_request, (short) 1, (short) 66, &isc_141, (short) level);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_view_request, (short) 1, (short) 66, &isc_141, (short) level);
 	   if (!isc_141.isc_144) break;
 		for (p = /*X.RDB$CONTEXT_NAME*/
 			 isc_141.isc_143; *p && *p != ' '; p++);
@@ -3767,12 +3767,12 @@ IND MET_index(DBB dbb, const TEXT * string)
 	X IN RDB$INDICES WITH X.RDB$INDEX_NAME EQ name*/
 	{
         if (!dbb->dbb_index_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_index_request, (short) sizeof (isc_132), (char *) isc_132);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_index_request, (short) sizeof (isc_132), (char *) isc_132);
 	isc_vtov ((char*)name, (char*)isc_133.isc_134, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_index_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_133, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_index_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_133, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_index_request, (short) 1, (short) 34, &isc_135, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_index_request, (short) 1, (short) 34, &isc_135, (short) 0);
 	   if (!isc_135.isc_137) break;
 		index = (IND) ALLOC(IND_LEN);
 	index->ind_symbol = symbol = MSC_symbol(SYM_index, name, length, (GPRE_CTX) index);
@@ -3915,7 +3915,7 @@ void MET_load_hash_table( DBB dbb)
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS *) NULL, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
 
@@ -3932,11 +3932,11 @@ void MET_load_hash_table( DBB dbb)
 		X.RDB$SYSTEM_FLAG = 1*/
 	{
         if (!handle)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_129), (char *) isc_129);
-        isc_start_request ((long*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_129), (char *) isc_129);
+        isc_start_request ((ISC_STATUS *) NULL, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 2, &isc_130, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &handle, (short) 0, (short) 2, &isc_130, (short) 0);
 	   if (!isc_130.isc_131) break; post_v3_flag = TRUE;
 
 	/*END_FOR;*/
@@ -3954,11 +3954,11 @@ void MET_load_hash_table( DBB dbb)
 		X IN RDB$RELATIONS*/
 		{
                 if (!handle)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_123), (char *) isc_123);
-                isc_start_request ((long*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_123), (char *) isc_123);
+                isc_start_request ((ISC_STATUS *) NULL, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 38, &isc_124, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &handle, (short) 0, (short) 38, &isc_124, (short) 0);
 		   if (!isc_124.isc_126) break; relation = (GPRE_REL) ALLOC(REL_LEN);
 		relation->rel_database = dbb;
 		relation->rel_next = dbb->dbb_relations;
@@ -3989,11 +3989,11 @@ void MET_load_hash_table( DBB dbb)
 		X IN RDB$RELATIONS*/
 		{
                 if (!handle)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_115), (char *) isc_115);
-                isc_start_request ((long*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_115), (char *) isc_115);
+                isc_start_request ((ISC_STATUS *) NULL, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 72, &isc_116, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &handle, (short) 0, (short) 72, &isc_116, (short) 0);
 		   if (!isc_116.isc_119) break; relation = (GPRE_REL) ALLOC(REL_LEN);
 		relation->rel_database = dbb;
 		relation->rel_next = dbb->dbb_relations;
@@ -4136,13 +4136,13 @@ void MET_load_hash_table( DBB dbb)
 			V4ARG.RDB$ARGUMENT_POSITION EQ ARG.RDB$ARGUMENT_POSITION*/
 		{
                 if (!handle2)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle2, (short) sizeof (isc_88), (char *) isc_88);
+                   isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &handle2, (short) sizeof (isc_88), (char *) isc_88);
 		isc_vtov ((char*)isc_97.isc_98, (char*)isc_89.isc_90, 32);
 		isc_89.isc_91 = isc_97.isc_102;
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_89, (short) 0);
+                isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_89, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &handle2, (short) 1, (short) 6, &isc_92, (short) 0);
+                   isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &handle2, (short) 1, (short) 6, &isc_92, (short) 0);
 		   if (!isc_92.isc_93) break;;
 
 		udf->udf_charset_id = /*V4ARG.RDB$CHARACTER_SET_ID*/
@@ -4593,12 +4593,12 @@ BOOLEAN MET_trigger_exists(DBB dbb, const TEXT* trigger_name)
 	TRIG IN RDB$TRIGGERS WITH TRIG.RDB$TRIGGER_NAME EQ name*/
 	{
         if (!dbb->dbb_trigger_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_trigger_request, (short) sizeof (isc_37), (char *) isc_37);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_trigger_request, (short) sizeof (isc_37), (char *) isc_37);
 	isc_vtov ((char*)name, (char*)isc_38.isc_39, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_trigger_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_38, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_trigger_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_38, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_trigger_request, (short) 1, (short) 2, &isc_40, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_trigger_request, (short) 1, (short) 2, &isc_40, (short) 0);
 	   if (!isc_40.isc_41) break; return TRUE;
 
 	/*END_FOR;*/
@@ -4703,12 +4703,12 @@ static void get_array( DBB dbb, const TEXT * field_name, GPRE_FLD field)
 		SORTED BY ASCENDING D.RDB$DIMENSION*/
 	{
         if (!dbb->dbb_dimension_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_dimension_request, (short) sizeof (isc_23), (char *) isc_23);
+           isc_compile_request ((ISC_STATUS *) NULL, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_dimension_request, (short) sizeof (isc_23), (char *) isc_23);
 	isc_vtov ((char*)field_name, (char*)isc_24.isc_25, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_dimension_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_24, (short) 0);
+        isc_start_and_send ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_dimension_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_24, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_dimension_request, (short) 1, (short) 12, &isc_26, (short) 0);
+           isc_receive ((ISC_STATUS *) NULL, (isc_req_handle*) &dbb->dbb_dimension_request, (short) 1, (short) 12, &isc_26, (short) 0);
 	   if (!isc_26.isc_29) break;
 		array_block->ary_rpt[/*D.RDB$DIMENSION*/
 				     isc_26.isc_30].ary_lower = /*D.RDB$LOWER_BOUND*/

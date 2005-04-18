@@ -5620,12 +5620,12 @@ void put_array( BURP_FLD field, BURP_REL relation, ISC_QUAD * blob_id)
 	}
 
 	ISC_STATUS_ARRAY status_vector;
-	ULONG return_length = 0;
+	ISC_LONG return_length = 0;
 	if (isc_get_slice(status_vector, &DB, &gds_trans, blob_id,
 					  blr_length, (const char*) blr_buffer,
 					  0,	// param length for subset of an array handling
 					  NULL,	// param for subset of an array handling
-					  slice_length, slice, (SLONG*) &return_length))
+					  slice_length, slice, &return_length))
 	{
 		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
 		// msg 81 error accessing blob field %s -- continuing 

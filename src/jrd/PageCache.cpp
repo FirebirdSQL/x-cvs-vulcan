@@ -103,7 +103,7 @@ PageCache::~PageCache(void)
 	delete [] hashTable;
 }
 
-void PageCache::initialize(thread_db* tdbb, int numberBuffers)
+void PageCache::initialize(thread_db *tdbb, int numberBuffers)
 {
 	SLONG count;
 	int number = numberBuffers;
@@ -222,13 +222,15 @@ void PageCache::initialize(thread_db* tdbb, int numberBuffers)
 #endif
 }
 
-void PageCache::expandBuffers(thread_db* tdbb, int expandedSize)
+void PageCache::expandBuffers(thread_db * tdbb, int expandedSize)
 {
 	if (expandedSize <= bcb_count || expandedSize > MAX_PAGE_BUFFERS)
 		return;
 
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "PageCache::expandBuffers");
 	sync.lock (Exclusive);
+#endif
 	Bdb **newBdbs = NULL;
 	UCHAR *memory = NULL;
 	Que *newHashTable = NULL;
@@ -304,10 +306,12 @@ void PageCache::expandBuffers(thread_db* tdbb, int expandedSize)
  *
  **************************************/
 
-bool PageCache::writePage(thread_db* tdbb, Bdb* bdb, bool write_thru, bool inAst)
+bool PageCache::writePage(thread_db *tdbb, Bdb* bdb, bool write_thru, bool inAst)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncPageWrite, "PageCache::writePage");
 	sync.lock(Exclusive);
+#endif
 
 	if (!((bdb->bdb_flags & BDB_dirty || (write_thru && bdb->bdb_flags & BDB_db_dirty)) &&
 		 !(bdb->bdb_flags & BDB_marked)))
@@ -481,7 +485,7 @@ void PageCache::journalBuffer(Bdb* bdb)
 {
 }
 
-bool PageCache::setWriteDirection(thread_db* tdbb, Bdb* bdb, int direction)
+bool PageCache::setWriteDirection(thread_db *tdbb, Bdb* bdb, int direction)
 {
 #ifdef SUPERSERVER
 	NBAK_TRACE(("set_write_direction page=%d old=%d new=%d", bdb->bdb_page,
@@ -566,7 +570,7 @@ bool PageCache::setWriteDirection(thread_db* tdbb, Bdb* bdb, int direction)
 	return true;
 }
 
-bool PageCache::rolloverToShadow(thread_db* tdbb, fil* file, bool inAst)
+bool PageCache::rolloverToShadow(thread_db *tdbb, fil* file, bool inAst)
 {
 	/* Is the shadow subsystem yet initialized */
 	
@@ -579,7 +583,7 @@ bool PageCache::rolloverToShadow(thread_db* tdbb, fil* file, bool inAst)
 	return SDW_rollover_to_shadow(tdbb, file, inAst);
 }
 
-bool PageCache::writeAllShadows(thread_db* tdbb, sdw* shadow, Bdb* bdb, int checksum, bool inAst)
+bool PageCache::writeAllShadows(thread_db *tdbb, sdw* shadow, Bdb* bdb, int checksum, bool inAst)
 {
 	SLONG last, *spare_buffer = NULL;
 	FIL next_file, shadow_file;
@@ -725,8 +729,10 @@ void PageCache::removeDirtyPage(Bdb* bdb)
 {
 	if (bdb->bdb_mark_sequence)
 		{
+#ifdef SHARED_CACHE
 		Sync sync (&syncDirtyBdbs, "PageCache::removeDirtyPage");
 		sync.lock(Exclusive);
+#endif
 		
 		if (bdb->bdb_mark_sequence)
 			{
@@ -782,7 +788,7 @@ void PageCache::removeDirtyPage(Bdb* bdb)
 #endif
 }
 
-void PageCache::unwind(thread_db* tdbb, bool punt)
+void PageCache::unwind(thread_db * tdbb, bool punt)
 {
 	/* CCH_unwind is called when any of the following occurs:
 		- IO error
@@ -889,8 +895,13 @@ void PageCache::unwind(thread_db* tdbb, bool punt)
  *
  **************************************/
 
-void PageCache::releaseLatch(thread_db* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
+void PageCache::releaseLatch(thread_db * tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
 {
+#ifdef SHARED_CACHE
+	Sync sync(&syncObject, "PageCache::releaseLatch");
+	sync.lock(Exclusive); /* protect bdb_use_count update in getBuffer */
+#endif
+	
 	bdb->incrementUseCount();
 
 	if (rel_mark_latch)
@@ -921,7 +932,7 @@ void PageCache::releaseLatch(thread_db* tdbb, Bdb* bdb, bool repost, bool downgr
 	else
 		/* If the exclusive latch is not held, then things have to behave much nicer. */
 		{
-		--bdb->bdb_use_count;
+		bdb->decrementUseCount();
 		bdb->bdb_io = 0;
 		}
 
@@ -939,7 +950,7 @@ void PageCache::bugcheck(int msgNumber)
 	BUGCHECK(msgNumber);
 }
 
-void PageCache::flushDatabase(thread_db* tdbb)
+void PageCache::flushDatabase(thread_db * tdbb)
 {
 #ifdef SUPERSERVER
 	// This is called on architectures with shared buffer cache (like SuperServer)
@@ -958,7 +969,7 @@ void PageCache::flushDatabase(thread_db* tdbb)
 		updateWriteDirection(tdbb, bdb);
 		}
 
-#else		
+#else
 	/* Do some fancy footwork to make sure that pages are
 	   not removed from the btc tree at AST level.  Then
 	   restore the flag to whatever it was before. */
@@ -985,7 +996,7 @@ void PageCache::flushDatabase(thread_db* tdbb)
 #endif
 }
 
-void PageCache::updateWriteDirection(thread_db* tdbb, Bdb* bdb)
+void PageCache::updateWriteDirection(thread_db * tdbb, Bdb* bdb)
 {
 	SSHORT write_direction;
 	BackupManager *backupManager = database->backup_manager;
@@ -1090,7 +1101,7 @@ void PageCache::updateWriteDirection(thread_db* tdbb, Bdb* bdb)
 	backupManager->unlock_state(tdbb);
 }
 
-void PageCache::invalidateAndRelease(thread_db* tdbb, Bdb* bdb)
+void PageCache::invalidateAndRelease(thread_db * tdbb, Bdb* bdb)
 {
 	//bdb->bdb_flags |= BDB_not_valid;
 	bdb->setFlags(BDB_not_valid);
@@ -1175,8 +1186,10 @@ void PageCache::insertDirtyPage(Bdb* bdb)
 	if (bdb->bdb_mark_sequence)
 		return;
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncDirtyBdbs, "PageCache::insertDirtyPage");
 	sync.lock(Exclusive);
+#endif
 	
 	if (bdb->bdb_mark_sequence)
 		return;
@@ -1259,7 +1272,7 @@ void PageCache::insertDirtyPage(Bdb* bdb)
  *
  **************************************/
 
-pag* PageCache::fake(thread_db* tdbb, win* window)
+pag* PageCache::fake(thread_db * tdbb, win* window)
 {
 	/* if there has been a shadow added recently, go out and
 	   find it before we grant any more write locks */
@@ -1327,7 +1340,7 @@ pag* PageCache::fake(thread_db* tdbb, win* window)
  *
  **************************************/
 
-Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
+Bdb* PageCache::getBuffer(thread_db * tdbb, SLONG page, int lock_type)
 {
 	QUE que;
 	Bdb *oldest;
@@ -1335,28 +1348,35 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 	int walk = bcb_free_minimum;
 	LockType lockType = (lock_type == LCK_read) ? Shared : Exclusive;
 	//LatchType latch = (lock_type == LCK_read) ? LATCH_shared : LATCH_exclusive;
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "PageCache::getBuffer");
 	sync.lock(Shared);
+#endif
 	Bdb *bdb = findBuffer(page);
 	
 	if (bdb)
 		{
 		bdb->incrementUseCount();
 		bdb->bdb_sequence = database->dbb_fetches++;
-		sync.unlock();
 		
 		if (!(bdb->bdb_flags & BDB_free_pending))
 			recentlyUsed(bdb);
 			
+#ifdef SHARED_CACHE
+		sync.unlock();
+#endif
+		
 		bdb->addRef (tdbb, lockType);
 		bdb->decrementUseCount();
 		
 		return bdb;
 		}
 	
+#ifdef SHARED_CACHE
 	sync.unlock();
 	sync.lock (Exclusive);
 	Sync lru(&syncLRU, "PageCache::getBuffer");
+#endif
 	
 	while (true) 
 		{
@@ -1368,10 +1388,13 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 				{
 				bdb->bdb_sequence = database->dbb_fetches++;
 				bdb->incrementUseCount();
-				sync.unlock();
 				
 				if (!(bdb->bdb_flags & BDB_free_pending))
 					recentlyUsed(bdb);
+
+#ifdef SHARED_CACHE
+				sync.unlock();
+#endif
 					
 				bdb->addRef (tdbb, lockType);
 				bdb->decrementUseCount();
@@ -1386,7 +1409,9 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 			/* This code is only used by the background I/O threads:
 			   cache writer, cache reader and garbage collector. */
 
+#ifdef SHARED_CACHE
 			lru.lock(Exclusive);
+#endif
 			
 			for (que = bcb_in_use.que_backward; que != &bcb_in_use; que = que->que_backward)
 				{
@@ -1423,7 +1448,9 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 				{
 				QUE mod_que = hashTable + (page % bcb_count);
 				QUE_INSERT((*mod_que), (*que));
+#ifdef SHARED_CACHE
 				lru.lock(Exclusive);
+#endif
 				QUE_INSERT(bcb_in_use, bdb->bdb_in_use);
 				}
 
@@ -1455,14 +1482,18 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 			***/
 			
 			bdb->addRef (tdbb, Exclusive);
+#ifdef SHARED_CACHE
 			sync.unlock();
+#endif
 			
 			return bdb;
 			}
 		
 		// Find the oldest available buffer and try that
 
+#ifdef SHARED_CACHE
 		lru.lock(Exclusive);
+#endif
 		
 		if (bcb_lru_chain)
 			requeueRecentlyUsed();
@@ -1500,9 +1531,7 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 					}
 				}
 #endif
-			lru.unlock();
 			bdb = oldest;
-			sync.unlock();
 			recentlyUsed(bdb);
 			bdb->setFlags(BDB_free_pending);
 			bdb->bdb_pending_page = page;
@@ -1514,7 +1543,12 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 				}
 			
 			bdb->addRef(tdbb, Exclusive);
-			
+
+#ifdef SHARED_CACHE
+			lru.unlock();
+			sync.unlock();
+#endif
+		
 			/* If the buffer selected is dirty, arrange to have it written. */
 
 			if (bdb->bdb_flags & (BDB_dirty | BDB_db_dirty)) 
@@ -1555,8 +1589,10 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 
 			if (QUE_NOT_EMPTY(bdb->bdb_higher) || QUE_NOT_EMPTY(bdb->bdb_lower)) 
 				{
+#ifdef SHARED_CACHE
 				Sync syncPrec(&syncPrecedence, "PageCache::getBuffer");
 				syncPrec.lock(Exclusive);
+#endif
 				
 				while (QUE_NOT_EMPTY(bdb->bdb_higher)) 
 					{
@@ -1588,9 +1624,15 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 			
 			if (page >= 0) 
 				{
+#ifdef SHARED_CACHE
+				sync.lock(Exclusive);
+#endif
 				QUE_DELETE(bdb->bdb_que);		// bcb_pending
 				QUE mod_que = hashTable + (page % bcb_count);
 				QUE_INSERT((*mod_que), bdb->bdb_que);
+#ifdef SHARED_CACHE
+				sync.unlock();
+#endif
 				}
 
 			/* This correction for bdb_use_count below is needed to
@@ -1615,6 +1657,10 @@ Bdb* PageCache::getBuffer(thread_db* tdbb, SLONG page, int lock_type)
 
 		if (que == &bcb_in_use)
 			expandBuffers(tdbb, bcb_count + 75);
+
+#ifdef SHARED_CACHE
+		lru.unlock();
+#endif
 		}
 }
 
@@ -1623,8 +1669,10 @@ void PageCache::clearPrecedenceSync(Bdb* bdb)
 	if (QUE_EMPTY(bdb->bdb_lower))
 		return;
 		
+#ifdef SHARED_CACHE
 	Sync sync(&syncPrecedence, "");
 	sync.lock(Exclusive);
+#endif
 	clearPrecedence(bdb);
 }
 
@@ -1681,7 +1729,7 @@ void PageCache::clearPrecedence(Bdb* bdb)
  *
  **************************************/
 
-int PageCache::writeBuffer(thread_db* tdbb, Bdb* bdb, SLONG page, bool write_thru, ISC_STATUS* status, bool write_this_page)
+int PageCache::writeBuffer(thread_db * tdbb, Bdb* bdb, SLONG page, bool write_thru, ISC_STATUS* status, bool write_this_page)
 {
 	QUE que;
 	PRE precedence;
@@ -1711,11 +1759,15 @@ int PageCache::writeBuffer(thread_db* tdbb, Bdb* bdb, SLONG page, bool write_thr
 
 	if (QUE_NOT_EMPTY(bdb->bdb_higher)) 
 		{
+#ifdef SHARED_CACHE
 		Sync sync(&syncPrecedence, "PageCache::writeBuffer");
+#endif
 		
 		for (;;)
 			{
+#ifdef SHARED_CACHE
 			sync.lock(Exclusive);
+#endif
 			
 			if (QUE_EMPTY(bdb->bdb_higher))
 				break;
@@ -1726,19 +1778,37 @@ int PageCache::writeBuffer(thread_db* tdbb, Bdb* bdb, SLONG page, bool write_thr
 			if (precedence->pre_flags & PRE_cleared) 
 				{
 				deletePrecedence(precedence);
+#ifdef SHARED_CACHE
 				sync.unlock();
+#endif
 				}
 			else 
 				{
 				hi_bdb = precedence->pre_hi;
 				hi_page = hi_bdb->bdb_page;
-				sync.unlock();
 				
 				if (hi_bdb->ourExclusiveLock())
+					{
+#ifdef SHARED_CACHE
+					sync.unlock();
+#endif
 					write_status = writeBuffer(tdbb, hi_bdb, hi_page, write_thru, status, false);
+					}
 				else
 					{
-					hi_bdb->addRef (NULL, Shared);
+					if (!hi_bdb->addRefConditional(NULL, Shared))
+						{
+#ifdef SHARED_CACHE
+						sync.unlock();
+#else
+						fb_assert(0);
+#endif
+						THREAD_SLEEP(100);
+						continue;
+						}
+#ifdef SHARED_CACHE
+					sync.unlock();
+#endif
 					write_status = writeBuffer(tdbb, hi_bdb, hi_page, write_thru, status, false);
 					hi_bdb->release(NULL);
 					}
@@ -1801,7 +1871,7 @@ int PageCache::writeBuffer(thread_db* tdbb, Bdb* bdb, SLONG page, bool write_thr
  *
  **************************************/
  
-LockState PageCache::lockBuffer(thread_db* tdbb, Bdb* bdb, int wait, int page_type)
+LockState PageCache::lockBuffer(thread_db * tdbb, Bdb* bdb, int wait, int page_type)
 {
 	ISC_STATUS_ARRAY alt_status;
 	ISC_STATUS *status;
@@ -1813,26 +1883,24 @@ LockState PageCache::lockBuffer(thread_db* tdbb, Bdb* bdb, int wait, int page_ty
 	if (lock->lck_logical >= lock_type)
 		return lsLockedHavePage;
 
-	status = NULL;
+	status = tdbb->tdbb_status_vector;
 
-	if (lock->lck_logical == LCK_none) 
+	if (!lock->lck_id || lock->lck_logical == LCK_none) 
 		{
 		/* Prevent header and TIP pages from generating blocking AST
 		   overhead. The promise is that the lock will unconditionally
 		   be released when the buffer use count indicates it is safe
 		   to do so. */
 
-		/***
 		if (page_type == pag_header || page_type == pag_transactions) 
 			{
-			//fb_assert(lock->lck_ast == bdbBlockingAst);
-			//fb_assert(lock->lck_object == reinterpret_cast<blk*>(bdb));
+			fb_assert(lock->lck_ast == bdbBlockingAst);
+			fb_assert(lock->lck_object == reinterpret_cast<blk*>(bdb));
 			lock->lck_ast = 0;
 			lock->lck_object = NULL;
 			}
 		else
 			fb_assert(lock->lck_ast != NULL);
-		***/
 		
 		lock->lck_key.lck_long = bdb->bdb_page;
 		
@@ -1847,7 +1915,7 @@ LockState PageCache::lockBuffer(thread_db* tdbb, Bdb* bdb, int wait, int page_ty
 				fb_assert(page_type == pag_header || page_type == pag_transactions);
 				lock->lck_ast = bdbBlockingAst;
 				lock->lck_object = reinterpret_cast<blk*>(bdb);
-				//bdb->bdb_flags |= BDB_no_blocking_ast;
+//				bdb->bdb_flags |= BDB_no_blocking_ast;
 				bdb->setFlags(BDB_no_blocking_ast);
 				}
 			return lsLocked;
@@ -1933,7 +2001,7 @@ LockState PageCache::lockBuffer(thread_db* tdbb, Bdb* bdb, int wait, int page_ty
 	return lsError;					/* Added to get rid of Compiler Warning */
 }
 
-void PageCache::mark(thread_db* tdbb, win* window, int mark_system)
+void PageCache::mark(thread_db * tdbb, win* window, int mark_system)
 {
 	Transaction* transaction;
 	ULONG trans_bucket;
@@ -2018,7 +2086,7 @@ void PageCache::mark(thread_db* tdbb, win* window, int mark_system)
  *
  **************************************/
 
-int PageCache::latchBdb(thread_db* tdbb, LatchType type, Bdb* bdb, SLONG page)
+int PageCache::latchBdb(thread_db * tdbb, LatchType type, Bdb* bdb, SLONG page)
 {
 	//bdb->incrementUseCount();
 
@@ -2145,7 +2213,7 @@ int PageCache::blockingAst(Bdb* bdb)
  *
  **************************************/
 
-void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
+void PageCache::downGrade(thread_db * tdbb, Bdb* bdb)
 {
 	QUE que;
 	int in_use, invalid;
@@ -2174,10 +2242,19 @@ void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
 	/* If the BDB is in use and, being written or already
 	   downgraded to read, mark it as blocking and exit. */
 
+#ifdef SHARED_CACHE
+	Sync sync(&syncObject, "PageCache::downGrade");
+	sync.lock(Exclusive); /* protect bdb_use_count in getBuffer */
+#endif
+
 	if (bdb->bdb_use_count || bdb->isLocked())
 		return;
 
 	bdb->incrementUseCount();
+#ifdef SHARED_CACHE
+	sync.unlock();
+#endif
+	
 	bdb->bdb_io = tdbb;
 
 	/* If the page isn't dirty, the lock can be quietly downgraded. */
@@ -2205,6 +2282,11 @@ void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
 		invalid = TRUE;
 
 	/* If there are higher precedence guys, see if they can be written. */
+
+#ifdef SHARED_CACHE
+	Sync syncPrec(&syncPrecedence, "PageCache::getBuffer");
+	syncPrec.lock(Exclusive);
+#endif
 
 	for (que = bdb->bdb_higher.que_forward; que != &bdb->bdb_higher; que = que->que_forward)
 		{
@@ -2247,6 +2329,9 @@ void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
 		}
 
 	/* Everything is clear to write this buffer.  Do so and reduce the lock */
+#ifdef SHARED_CACHE
+	syncPrec.unlock();
+#endif
 
 	if (invalid || !writePage(tdbb, bdb, false, true))
 		{
@@ -2275,6 +2360,10 @@ void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
 	   isn't safe to tweak the que pointers from AST level, just mark the
 	   precedence links as cleared.  Somebody else will clean up the precedence
 	   blocks. */
+
+#ifdef SHARED_CACHE
+	syncPrec.lock(Exclusive);
+#endif
 
 	for (que = bdb->bdb_lower.que_forward; que != &bdb->bdb_lower; que = que->que_forward)
 		{
@@ -2315,10 +2404,15 @@ void PageCache::downGrade(thread_db* tdbb, Bdb* bdb)
  *
  **************************************/
 
-bool PageCache::getExclusive(thread_db* tdbb, int level, int wait_flag)
+bool PageCache::getExclusive(thread_db * tdbb, int level, int wait_flag)
 {
 #ifdef SUPERSERVER
 	if (!getExclusiveAttachment(tdbb, level, wait_flag))
+		return FALSE;
+#endif
+
+#ifndef SHARED_CACHE
+	if (database->databaseManager->countDatabase(database->dbb_filename) > 1)
 		return FALSE;
 #endif
 
@@ -2369,14 +2463,16 @@ bool PageCache::getExclusive(thread_db* tdbb, int level, int wait_flag)
  *
  **************************************/
 
-bool PageCache::getExclusiveAttachment(thread_db* tdbb, int level, int wait_flag)
+bool PageCache::getExclusiveAttachment(thread_db * tdbb, int level, int wait_flag)
 {
 #define CCH_EXCLUSIVE_RETRY_INTERVAL	1	/* retry interval in seconds */
 
 	Attachment* attachment = tdbb->tdbb_attachment;
 	Database *dbb = attachment->att_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncAttachments, "PageCache::getExclusiveAttachment");
 	sync.lock(Exclusive);
+#endif
 	
 	if (attachment->att_flags & ATT_exclusive)
 		return TRUE;
@@ -2456,9 +2552,13 @@ bool PageCache::getExclusiveAttachment(thread_db* tdbb, int level, int wait_flag
 
 		if (remaining > CCH_EXCLUSIVE_RETRY_INTERVAL)
 			{
+#ifdef SHARED_CACHE
 			sync.unlock();
+#endif
 			THREAD_SLEEP(CCH_EXCLUSIVE_RETRY_INTERVAL * 1000);
+#ifdef SHARED_CACHE
 			sync.lock(Exclusive);
+#endif
 			}
 
 #ifdef CANCEL_OPERATION
@@ -2500,7 +2600,7 @@ bool PageCache::getExclusiveAttachment(thread_db* tdbb, int level, int wait_flag
  *
  **************************************/
 
-pag* PageCache::fetch(thread_db* tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow)
+pag* PageCache::fetch(thread_db * tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow)
 {
 	LockState lockState = fetchLock (tdbb, window, lock_type, LCK_WAIT, page_type);
 	Bdb *bdb = window->win_bdb;
@@ -2594,7 +2694,7 @@ pag* PageCache::fetch(thread_db* tdbb, win* window, int lock_type, int page_type
  *
  **************************************/
 
-LockState PageCache::fetchLock(thread_db* tdbb, win* window, int lock_type, int wait, int page_type)
+LockState PageCache::fetchLock(thread_db * tdbb, win* window, int lock_type, int wait, int page_type)
 {
 	/* if there has been a shadow added recently, go out and
 	   find it before we grant any more write locks */
@@ -2645,7 +2745,7 @@ LockState PageCache::fetchLock(thread_db* tdbb, win* window, int lock_type, int 
  *
  **************************************/
 
-void PageCache::fetchPage(thread_db* tdbb, win* window, int compute_checksum, bool read_shadow)
+void PageCache::fetchPage(thread_db * tdbb, win* window, int compute_checksum, bool read_shadow)
 {
 	SSHORT retryCount;
 	Bdb	*bdb = window->win_bdb;
@@ -2756,7 +2856,7 @@ void PageCache::fetchPage(thread_db* tdbb, win* window, int compute_checksum, bo
  *
  **************************************/
 
-void PageCache::pageValidationError(thread_db* tdbb, win* window, int type)
+void PageCache::pageValidationError(thread_db * tdbb, win* window, int type)
 {
 	Bdb *bdb = window->win_bdb;
 	PAG page = bdb->bdb_buffer;
@@ -2797,7 +2897,7 @@ void PageCache::pageValidationError(thread_db* tdbb, win* window, int type)
  *
  **************************************/
 
-pag* PageCache::handoff(thread_db* tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail)
+pag* PageCache::handoff(thread_db * tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -2824,6 +2924,11 @@ pag* PageCache::handoff(thread_db* tdbb, win* window, SLONG page, int lock, int 
 	WIN temp = *window;
 	window->win_page = page;
 	//validate();
+
+	/* This prevents a deadlock with the precedence queue, as shown by */
+	/* mwrite mwrite1 2 mwrite2 2 test.fdb                             */
+	temp.win_bdb->downGrade (Shared);    
+
 	LockState must_read = fetchLock(tdbb, window, lock, LCK_WAIT, page_type);
 
 	/* Latch or lock timeout, return failure. */
@@ -2897,7 +3002,7 @@ pag* PageCache::handoff(thread_db* tdbb, win* window, SLONG page, int lock, int 
  *
  **************************************/
 
-void PageCache::unmark(thread_db* tdbb, win* window)
+void PageCache::unmark(thread_db * tdbb, win* window)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -2927,7 +3032,7 @@ void PageCache::unmark(thread_db* tdbb, win* window)
  *
  **************************************/
 
-void PageCache::release(thread_db* tdbb, win* window, bool release_tail)
+void PageCache::release(thread_db * tdbb, win* window, bool release_tail)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -2957,10 +3062,13 @@ void PageCache::release(thread_db* tdbb, win* window, bool release_tail)
 		window->win_flags &= ~WIN_garbage_collect;
 		}
 
-	//  void PageCache::release(thread_db* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
+	//  void PageCache::release(thread_db * tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch)
 
-	//if (bdb->bdb_use_count == 1)
+#ifdef SHARED_CACHE
 	if (bdb->exclusive && bdb->writers == 1)
+#else
+	if (bdb->bdb_use_count == 1)
+#endif
 		{
 		//bool marked = bdb->bdb_flags & BDB_marked;
 		//bdb->bdb_flags &= ~(BDB_writer | BDB_marked | BDB_faked);
@@ -3070,7 +3178,7 @@ void PageCache::release(thread_db* tdbb, win* window, bool release_tail)
  *
  **************************************/
 
-void PageCache::declarePrecedence(thread_db* tdbb, win* window, SLONG page)
+void PageCache::declarePrecedence(thread_db * tdbb, win* window, SLONG page)
 {
 	/* If the page is zero, the caller isn't really serious */
 
@@ -3088,8 +3196,10 @@ void PageCache::declarePrecedence(thread_db* tdbb, win* window, SLONG page)
 
 	/* Start by finding the buffer containing the high priority page */
 
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "PageCache::declarePrecedence");
 	sync.lock(Shared);
+#endif
 	QUE	mod_que = hashTable + (page % bcb_count);
 	Bdb *high = NULL;
 	QUE que;
@@ -3116,14 +3226,20 @@ void PageCache::declarePrecedence(thread_db* tdbb, win* window, SLONG page)
 	   search was too complex to complete, just write the high page and
 	   forget about about establishing the relationship. */
 
+#ifdef SHARED_CACHE
 	sync.unlock();
 	Sync syncPrec(&syncPrecedence, "PageCache::declarePrecedence");
+#endif
 
 	if (QUE_NOT_EMPTY(high->bdb_lower)) 
 		{
+#ifdef SHARED_CACHE
 		syncPrec.lock(Shared);
+#endif
 		int relationship = related(low, high, PRE_SEARCH_LIMIT);
+#ifdef SHARED_CACHE
 		syncPrec.unlock();
+#endif
 		
 		if (relationship == PRE_EXISTS) 
 			return;
@@ -3146,9 +3262,13 @@ void PageCache::declarePrecedence(thread_db* tdbb, win* window, SLONG page)
 
 	if (QUE_NOT_EMPTY(low->bdb_lower)) 
 		{
+#ifdef SHARED_CACHE
 		syncPrec.lock(Shared);
+#endif
 		int relationship = related(high, low, PRE_SEARCH_LIMIT);
+#ifdef SHARED_CACHE
 		syncPrec.unlock();
+#endif
 		
 		if (relationship == PRE_EXISTS || relationship == PRE_UNKNOWN) 
 			{
@@ -3162,7 +3282,9 @@ void PageCache::declarePrecedence(thread_db* tdbb, win* window, SLONG page)
 	/* We're going to establish a new precedence relationship.  Get a block,
 	   fill in the appropriate fields, and insert it into the various ques */
 
+#ifdef SHARED_CACHE
 	syncPrec.lock(Exclusive);
+#endif
 	PRE precedence = new pre;
 	precedence->pre_low = low;
 	precedence->pre_hi = high;
@@ -3225,7 +3347,7 @@ int PageCache::related(Bdb* low, Bdb* high, int limit)
  *
  **************************************/
 
-void PageCache::prefetch(thread_db* tdbb, SLONG* pages, int count)
+void PageCache::prefetch(thread_db * tdbb, SLONG* pages, int count)
 {
 #ifdef CACHE_READER
 	SLONG page, first_page, *end;
@@ -3288,7 +3410,7 @@ void PageCache::prefetch(thread_db* tdbb, SLONG* pages, int count)
  *
  **************************************/
 
-void PageCache::markMustWrite(thread_db* tdbb, win* window)
+void PageCache::markMustWrite(thread_db * tdbb, win* window)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -3313,7 +3435,7 @@ void PageCache::markMustWrite(thread_db* tdbb, win* window)
  *
  **************************************/
 
-void PageCache::flush(thread_db* tdbb, int flush_flag, int tra_number)
+void PageCache::flush(thread_db * tdbb, int flush_flag, int tra_number)
 {
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
 
@@ -3391,8 +3513,10 @@ void PageCache::flush(thread_db* tdbb, int flush_flag, int tra_number)
 	if (!(database->dbb_file->fil_flags & FIL_force_write) && (max_num || max_time))
 		{
 		const time_t now = time(0);
+#ifdef SHARED_CACHE
 		Sync sync(&database->syncFlushCount, "PageCache::flush");
 		sync.lock(Exclusive);
+#endif
 		
 		// If this is the first commit set last_flushed_write to now
 		
@@ -3444,10 +3568,12 @@ void PageCache::flush(thread_db* tdbb, int flush_flag, int tra_number)
  *
  **************************************/
 
-void PageCache::flushDirtyPages(thread_db* tdbb, int transaction_mask, bool sys_only, ISC_STATUS* status)
+void PageCache::flushDirtyPages(thread_db * tdbb, int transaction_mask, bool sys_only, ISC_STATUS* status)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncDirtyBdbs, "PageCache::flushDirtyPages");
 	sync.lock(Shared);
+#endif
 	SLONG priorPage = -1;
 	int maxSequence = markSequence;
 	
@@ -3464,9 +3590,13 @@ void PageCache::flushDirtyPages(thread_db* tdbb, int transaction_mask, bool sys_
 				{
 				if (bdb->bdb_page < priorPage)
 					{
+#ifdef SHARED_CACHE
 					sync.unlock();
+#endif
 					reorderDirty();
+#ifdef SHARED_CACHE
 					sync.lock(Shared);
+#endif
 					again = true;
 					priorPage = -1;
 					break;
@@ -3480,22 +3610,30 @@ void PageCache::flushDirtyPages(thread_db* tdbb, int transaction_mask, bool sys_
 				if ((bdb->bdb_flags & BDB_marked) || !(bdb->bdb_flags & BDB_dirty) ||
 					 !(bdb->addRefConditional(tdbb, Shared)))
 					{
+#ifdef SHARED_CACHE
 					sync.unlock();
+#endif
 					bdb->addRef(tdbb, Shared);
 					bdb->release(tdbb);
+#ifdef SHARED_CACHE
 					sync.lock(Shared);
+#endif
 					again = true;
 					break;
 					}
 					
+#ifdef SHARED_CACHE
 				sync.unlock();
+#endif
 				int ret = writeBuffer(tdbb, bdb, bdb->bdb_page, false, status, true);
 				bdb->release(tdbb);
 				
 				if (!ret) 
 					unwind(tdbb, TRUE);
 					
+#ifdef SHARED_CACHE
 				sync.lock(Shared);
+#endif
 				again = true;
 				break;
 				}
@@ -3515,7 +3653,7 @@ void PageCache::flushDirtyPages(thread_db* tdbb, int transaction_mask, bool sys_
  *
  **************************************/
 
-void PageCache::releaseExclusive(thread_db* tdbb)
+void PageCache::releaseExclusive(thread_db * tdbb)
 {
 	database->dbb_flags &= ~DBB_exclusive;
 	Attachment *attachment = tdbb->tdbb_attachment;
@@ -3538,7 +3676,7 @@ void PageCache::releaseExclusive(thread_db* tdbb)
  *
  **************************************/
 
-void PageCache::shutdownDatabase(thread_db* tdbb)
+void PageCache::shutdownDatabase(thread_db * tdbb)
 {
 	for (int n = 0; n < bcb_count; ++n)
 		{
@@ -3664,7 +3802,7 @@ bool PageCache::validate(win* window)
  *
  **************************************/
 
-void PageCache::recoverShadow(thread_db* tdbb, SparseBitmap* sbm_rec)
+void PageCache::recoverShadow(thread_db * tdbb, SparseBitmap* sbm_rec)
 {
 	SLONG page_no = -1;
 	int result;
@@ -3718,7 +3856,7 @@ void PageCache::recoverShadow(thread_db* tdbb, SparseBitmap* sbm_rec)
  *
  **************************************/
 
-void PageCache::fini(thread_db* tdbb)
+void PageCache::fini(thread_db * tdbb)
 {
 	BOOLEAN flush_error;
 #ifdef CACHE_WRITER
@@ -3839,7 +3977,7 @@ Bdb* PageCache::findBuffer(SLONG pageNumber)
 		
 	for (que = bcb_pending.que_forward; que != &bcb_pending; que = que->que_forward)
 		{
-		Bdb *bdb = BLOCK(que, Bdb*, bdb_in_use);
+		Bdb *bdb = BLOCK(que, Bdb*, bdb_que /* bdb_in_use */);
 		if (bdb->bdb_pending_page == pageNumber)
 			return bdb;
 		}
@@ -3883,8 +4021,10 @@ void PageCache::validate(Que* quePtr)
 
 void PageCache::reorderDirty(void)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncDirtyBdbs, "PageCache::reorderDirty");
 	sync.lock(Exclusive);
+#endif
 	int count = 0;
 	Que *que;
 	SLONG priorPage = -1;

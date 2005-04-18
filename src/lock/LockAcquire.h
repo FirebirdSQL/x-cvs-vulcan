@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  
  *     The contents of this file are subject to the Initial 
@@ -34,16 +35,24 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
+class LockMgr;
 
 class LockAcquire
 {
 public:
+#ifdef SHARED_CACHE
 	LockAcquire(int offset);
+#else
+	LockAcquire(int offset, LockMgr *lm);
+#endif
 	~LockAcquire(void);
 	void released(void);
 
 	int		ptr;
 	bool	wasReleased;
+#ifndef SHARED_CACHE
+	LockMgr *lockMgr;
+#endif
 };
 
 #endif

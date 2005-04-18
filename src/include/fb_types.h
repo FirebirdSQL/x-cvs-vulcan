@@ -32,6 +32,21 @@
 #ifndef INCLUDE_FB_TYPES_H
 #define INCLUDE_FB_TYPES_H
 
+#include <stddef.h>
+
+#if defined(WIN32) || defined(_WIN32)
+
+#if !defined(_INTPTR_T_DEFINED)
+typedef long intptr_t;
+typedef unsigned long uintptr_t;
+#endif
+
+#else
+#if !defined(SSA_OS_MVS) || defined(MVS_VULCAN) /* MVS headers conflict with system headers */
+#include <inttypes.h>
+#endif
+
+#endif
 
 /******************************************************************/
 /* Define type, export and other stuff based on c/c++ and Windows */
@@ -49,37 +64,47 @@
 /*******************************************************************/
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__)) && !defined(__GNUC__)
+#ifndef _BASETSD_H_ /* avoid redefinition from windows headers */
 typedef int					INT32;
 typedef unsigned int		UINT32;
 typedef __int64				INT64;
+#endif
 typedef __int64				ISC_INT64;
 typedef unsigned __int64	ISC_UINT64;
 #else
 typedef int						INT32;
 typedef unsigned int			UINT32;
 typedef long long int			INT64;
-typedef unsigned long long int	UINT64;
+//typedef unsigned long long int	UINT64; /* conflicts on H6I */
+typedef uint64_t				UINT64;
 typedef long long int			ISC_INT64;
 typedef unsigned long long int	ISC_UINT64;
 #endif
 
-#if SIZEOF_LONG == 8
-	// EKU: Firebird requires (S)LONG to be 32 bit
-	typedef INT32 SLONG;
-	typedef UINT32 ULONG;
-	typedef INT64 SQUAD;
-	typedef UINT64 UQUAD;
-#   define NATIVE_QUAD
-	typedef unsigned int FB_API_HANDLE;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+/* too bad the Windows header files define SLONG and ULONG like this */
+typedef long SLONG;
+typedef unsigned long ULONG;
 #else
-	typedef long SLONG;
-	typedef unsigned long ULONG;
-	typedef struct {
-		SLONG high;
-		ULONG low;
-	} SQUAD;
-	typedef void* FB_API_HANDLE;
+typedef INT32 SLONG;
+typedef UINT32 ULONG;
+#endif
+
+#if SIZEOF_LONG == 8
+// EKU: Firebird requires (S)LONG to be 32 bit
+typedef INT64 SQUAD;
+typedef UINT64 UQUAD;
+#define NATIVE_QUAD
+typedef unsigned int FB_API_HANDLE;
+#else
+typedef struct {
+	SLONG high;
+	ULONG low;
+} SQUAD;
+typedef unsigned int FB_API_HANDLE;
 #endif // SIZEOF_LONG == 8
+
+
 
 struct GDS_QUAD_t {
 	INT32 gds_quad_high;
@@ -133,9 +158,9 @@ typedef char TEXT;				/* To be expunged over time */
 typedef unsigned char UTEXT;	Unsigned text - not used */
 typedef unsigned char BYTE;		/* Unsigned byte - common */
 /*typedef char SBYTE;			Signed byte - not used */
-typedef long ISC_STATUS;
-typedef long IPTR;
-typedef unsigned long U_IPTR;
+typedef intptr_t ISC_STATUS;
+typedef intptr_t IPTR;
+typedef uintptr_t U_IPTR;
 typedef void (*FPTR_VOID) ();
 typedef void (*FPTR_VOID_PTR) (void*);
 typedef int (*FPTR_INT) ();

@@ -75,6 +75,7 @@
 #include "PStatement.h"
 #include "RSet.h"
 #include "Procedure.h"
+#include "Interlock.h"
 #include "TipCache.h"
 #include "PBGen.h"
 #include "dyn.h"
@@ -379,8 +380,10 @@ void TRA_commit(thread_db* tdbb, Transaction* transaction, const bool retaining_
 		ERR_post(isc_trans_invalid, 0);
 
 	tdbb->tdbb_default = transaction->tra_pool;
+#ifdef SHARED_CACHE
 	Sync sync(&transaction->syncObject, "TRA_commit");
 	sync.lock(Exclusive);
+#endif
 	
 	/* Perform any meta data work deferred */
 
@@ -441,7 +444,9 @@ void TRA_commit(thread_db* tdbb, Transaction* transaction, const bool retaining_
 		LCK_convert(tdbb, lock, LCK_write, TRUE);
 		
 	--transaction->tra_use_count;
+#ifdef SHARED_CACHE
 	sync.unlock();
+#endif
 	
 	TRA_release_transaction(tdbb, transaction);
 }
@@ -807,8 +812,10 @@ void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* res
 
 	JrdMemoryPool *old_pool = tdbb->tdbb_default;
 	tdbb->tdbb_default = transaction->tra_pool;
+#ifdef SHARED_CACHE
 	Sync sync (&transaction->syncObject, "TRA_post_resources");
 	sync.lock(Exclusive);
+#endif
 	
 	for (Resource* rsc = resources; rsc; rsc = rsc->rsc_next)
 		if (rsc->rsc_type == rsc_relation || rsc->rsc_type == rsc_procedure) 
@@ -1055,7 +1062,10 @@ Transaction* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
 		}
 
 		const SLONG number = trans->tra_number;
-		JrdMemoryPool::deletePool(trans->tra_pool);
+		JrdMemoryPool *tra_pool = trans->tra_pool;
+		delete trans;
+		
+		JrdMemoryPool::deletePool(tra_pool);
 
 		TEXT text[128];
 		USHORT flags;
@@ -1145,9 +1155,11 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 	delete transaction->tra_rpblist;
 
 	/* Release the transaction pool. */
+	JrdMemoryPool *tra_pool = transaction->tra_pool;
+	delete transaction; /* need to do a delete so the mutex destructor gets called */
 
-	if (transaction->tra_pool)
-		JrdMemoryPool::deletePool(transaction->tra_pool);
+	if (tra_pool)
+		JrdMemoryPool::deletePool(tra_pool);
 }
 
 
@@ -2355,8 +2367,15 @@ static tx_inv_page* fetch_inventory_page(thread_db* tdbb,
  *	in the tx_inv_page* cache.
  *
  **************************************/
- 
 	window->win_page = inventory_page(tdbb, (int) sequence);
+
+#ifdef SHARED_CACHE
+	Sync sync(&tdbb->tdbb_database->tipCache->syncObjectInitialize, "fetch_inventory_page");
+	if (lock_level >= LCK_write)
+		sync.lock(Shared); /* prevent the sweeper thread from initializing if we're */
+						   /* about to take out a write lock that could deadlock it */
+#endif
+
 	tx_inv_page* tip = (tx_inv_page*) CCH_FETCH(tdbb, window, lock_level, pag_transactions);
 	//TPC_update_cache(tdbb, tip, sequence);
 	tdbb->tdbb_database->tipCache->updateCache(tdbb, tip, sequence);
@@ -2474,8 +2493,10 @@ static void restart_requests(thread_db* tdbb, Transaction* trans)
 	USHORT level;
 	Attachment *attachment = trans->tra_attachment;
 	
+#ifdef SHARED_CACHE
 	Sync sync(&attachment->syncRequests, "restart_requests");
 	sync.lock(Shared);
+#endif
 	
 	for (request = attachment->att_requests; request; request = request->req_request) 
 		{
@@ -2668,6 +2689,12 @@ static BOOLEAN start_sweeper(thread_db* tdbb, DBB dbb)
 	if ((dbb->dbb_flags & DBB_sweep_in_progress) || (dbb->dbb_ast_flags & DBB_shutdown))
 		return FALSE;
 
+	if (INTERLOCKED_INCREMENT(dbb->sweeperCount) > 1)
+		{
+		INTERLOCKED_DECREMENT(dbb->sweeperCount);
+		return FALSE;
+		}
+
 	lck temp_lock;
 	temp_lock.lck_dbb			= dbb;
 	temp_lock.lck_type			= LCK_sweep;
@@ -2784,6 +2811,8 @@ static void THREAD_ROUTINE sweep_database(Database *dbb)
 	if (db_handle)
 		jrd8_detach_database(status_vector, &db_handle);
 
+	INTERLOCKED_DECREMENT(dbb->sweeperCount);
+	
 }
 #endif
 
@@ -3020,8 +3049,10 @@ static BOOLEAN vms_convert(LCK lock, SLONG * data, SCHAR type, BOOLEAN wait)
 
 blb* Transaction::allocateBlob(thread_db* tdbb)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Transaction::allocateBlob");
 	sync.lock (Exclusive);
+#endif
 	
 	blb* blob = FB_NEW_RPT(*tra_pool, tdbb->tdbb_database->dbb_page_size) blb(tdbb, this);
 	blob->blb_next = tra_blobs;
@@ -3032,8 +3063,10 @@ blb* Transaction::allocateBlob(thread_db* tdbb)
 
 void Transaction::deleteBlob(blb* blob)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Transaction::deleteBlob");
 	sync.lock (Exclusive);
+#endif
 	
 	for (blb **ptr = &tra_blobs; *ptr; ptr = &(*ptr)->blb_next)
 		if (*ptr == blob)
@@ -3045,11 +3078,24 @@ void Transaction::deleteBlob(blb* blob)
 
 Transaction::~Transaction(void)
 {
+	VEC vector;
+	LCK lock;
+	int i;
+	
 	for (Relation* relation; relation = pendingRelations;)
 		{
 		pendingRelations = relation->rel_next;
 		delete relation;
 		}
+	if (tra_lock) delete tra_lock;
+	
+	vector = tra_relation_locks;
+	if (vector)
+	for (i = 0; i < vector->count(); i++)
+	{
+		lock = (LCK)((*vector)[i]);
+		if (lock) delete lock;
+	}
 }
 
 Transaction::Transaction(void)

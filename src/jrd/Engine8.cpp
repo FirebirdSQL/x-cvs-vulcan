@@ -295,9 +295,9 @@ ISC_STATUS Engine8::transactionInfo(ISC_STATUS* statusVector, TraHandle *traHand
 	return entrypointUnavailable (statusVector);
 }
 
-ISC_STATUS Engine8::unwindRequest(ISC_STATUS *statusVector, ReqHandle *reqHandle, int)
+ISC_STATUS Engine8::unwindRequest(ISC_STATUS *statusVector, ReqHandle *reqHandle, int level)
 {
-	return entrypointUnavailable (statusVector);
+	return exitSystem (jrd8_unwind_request(statusVector, (Request **)reqHandle, level));
 }
 
 ISC_STATUS Engine8::commitRetaining(ISC_STATUS *statusVector, TraHandle *traHandle )
@@ -327,14 +327,24 @@ ISC_STATUS Engine8::executeDDL(ISC_STATUS *statusVector, DbHandle *dbHandle, Tra
 								 ddlLength, ddl));
 }
 
-ISC_STATUS Engine8::getSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, SLONG *, int, UCHAR *, int, UCHAR *, SLONG, UCHAR *, SLONG *)
+ISC_STATUS Engine8::getSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
+							 SLONG *arrayId, int sdlLength, UCHAR *sdl, int paramLength, 
+							 UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
-	return entrypointUnavailable (statusVector);
+	enterSystem();
+
+	return exitSystem (jrd8_get_slice(statusVector, (Attachment**) dbHandle, (Transaction**) traHandle, 
+					   arrayId, sdlLength, sdl, paramLength, param, sliceLength, slice, returnLength));
 }
 
-ISC_STATUS Engine8::putSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, SLONG *, int, UCHAR *, int, UCHAR *, SLONG, UCHAR *)
+ISC_STATUS Engine8::putSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
+							 SLONG *arrayId, int sdlLength, UCHAR *sdl, int paramLength, 
+							 UCHAR *param, SLONG sliceLength, UCHAR *slice)
 {
-	return entrypointUnavailable (statusVector);
+	enterSystem();
+
+	return exitSystem (jrd8_put_slice(statusVector, (Attachment**) dbHandle, (Transaction**) traHandle, 
+					   arrayId, sdlLength, sdl, paramLength, param, sliceLength, slice));
 }
 
 ISC_STATUS Engine8::transactRequest(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *)

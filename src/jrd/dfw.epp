@@ -467,8 +467,10 @@ void DFW_perform_system_work(thread_db* tdbb)
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "DFW_perform_system_work");
 	sync.lock(Exclusive);
+#endif
 	
 	DFW_perform_work(tdbb, dbb->dbb_sys_trans);
 }
@@ -686,6 +688,11 @@ void DFW_update_index(thread_db* tdbb, const TEXT* name, USHORT id, const Select
 	Request *request;
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_update_index");
+	sync.lock(Exclusive);
+#endif
+
 	if (dbb->dbb_ods_version >= ODS_VERSION11) {
 
 		request =  CMP_find_request(tdbb, irq_m_index_seg, IRQ_REQUESTS);
@@ -743,6 +750,11 @@ static bool add_file(thread_db* tdbb, SSHORT phase, DeferredWork* work, Transact
 	TEXT temp[MAXPATHLEN];
 
 	DBB dbb = tdbb->tdbb_database;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_add_file");
+	sync.lock(Exclusive);
+#endif
 
 	switch (phase)
 		{
@@ -871,6 +883,11 @@ static bool add_shadow( thread_db* tdbb, SSHORT phase, DeferredWork* work, Trans
 	TEXT expanded_fname[1024];
 
 	DBB dbb = tdbb->tdbb_database;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_add_shadow");
+	sync.lock(Exclusive);
+#endif
 
 	switch (phase)
 	{
@@ -1225,6 +1242,11 @@ static void check_dependencies(thread_db* tdbb,
 	for (i = 0; i < (USHORT) obj_count; i++)
 		dep_counts[i] = 0;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_check_dependencies");
+	sync.lock(Exclusive);
+#endif
+
 	if (field_name)
 		{
 		request = CMP_find_request(tdbb, irq_ch_f_dpd, IRQ_REQUESTS);
@@ -1422,6 +1444,11 @@ static bool compute_security(	thread_db* tdbb,
 	SecurityClass* s_class;
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "compute_security");
+	sync.lock(Exclusive);
+#endif
+
 	switch (phase)
 	{
 	case 1:
@@ -1500,8 +1527,12 @@ static bool create_index(	thread_db* tdbb,
 	Request* handle;
 
 	DBB dbb = tdbb->tdbb_database;
-	Sync sync (&dbb->syncCreateIndex, "create_index");
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncDyn, "create_index");
 	sync.lock(Exclusive);
+	Sync sync2 (&dbb->syncSysTrans, "create_index");
+	sync2.lock(Exclusive);
+#endif
 
 	switch (phase)
 		{
@@ -1813,6 +1844,11 @@ static bool create_log(thread_db* tdbb, SSHORT phase, DeferredWork* work, Transa
 	TEXT temp[MAXPATHLEN];
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "create_log");
+	sync.lock(Exclusive);
+#endif
+
 	switch (phase)
 	{
 	case 0:
@@ -1939,6 +1975,13 @@ static bool create_relation(thread_db* tdbb,
 	DBB dbb = tdbb->tdbb_database;
 	USHORT major_version = (SSHORT) dbb->dbb_ods_version;
 	USHORT minor_original = (SSHORT) dbb->dbb_minor_original;
+
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncDyn, "create_relation");
+	sync.lock(Exclusive);
+	Sync sync2 (&dbb->syncSysTrans, "create_relation");
+	sync2.lock(Exclusive);
+#endif
 
 	if (ENCODE_ODS(major_version, minor_original) < ODS_9_0)
 		local_min_relation_id = MIN_RELATION_ID;
@@ -2246,6 +2289,11 @@ static bool delete_field(	thread_db* tdbb,
 
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "delete_field");
+	sync.lock(Exclusive);
+#endif
+
 	switch (phase)
 	{
 	case 1:
@@ -2313,6 +2361,11 @@ static bool delete_global(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tra
 	Request *handle;
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "delete_global");
+	sync.lock(Exclusive);
+#endif
+
 	switch (phase)
 	{
 	case 1:
@@ -2356,6 +2409,13 @@ static bool delete_index(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 	USHORT id, wait;
 
 	//SET_TDBB(tdbb);
+
+#ifdef SHARED_CACHE
+	Sync sync (&tdbb->tdbb_database->syncDyn, "delete_index");
+	sync.lock(Exclusive);
+	Sync sync2 (&tdbb->tdbb_database->syncSysTrans, "delete_index");
+	sync2.lock(Exclusive);
+#endif
 
 	switch (phase)
 		{
@@ -2704,6 +2764,13 @@ static bool delete_relation(thread_db* tdbb, SSHORT phase, DeferredWork* work, T
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncDyn, "delete_relation");
+	sync.lock(Exclusive);
+	Sync sync2 (&dbb->syncSysTrans, "delete_relation");
+	sync2.lock(Exclusive);
+#endif
+
 	switch (phase)
 		{
 		case 0:
@@ -2794,6 +2861,10 @@ static bool delete_relation(thread_db* tdbb, SSHORT phase, DeferredWork* work, T
 			if (!relation) 
 				return false;
 
+#ifdef SHARED_CACHE
+			Sync sync3 (&relation->syncObject, "delete_relation");
+			sync3.lock(Exclusive);
+#endif
 			/* Flag relation delete in progress so that active sweep or
 			   garbage collector threads working on relation can skip over it. */
 
@@ -2897,6 +2968,11 @@ static bool delete_rfr(thread_db* tdbb, SSHORT phase, DeferredWork* work, Transa
 	Request *handle;
 	TEXT f[32];
 	DBB dbb = tdbb->tdbb_database;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "delete_rfr");
+	sync.lock(Exclusive);
+#endif
 
 	switch (phase)
 		{
@@ -3108,6 +3184,11 @@ static bool find_depend_in_dfw(	thread_db* tdbb,
 	DBB dbb = tdbb->tdbb_database;
 	MET_exact_name(object_name);
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "find_depend_in_dfw");
+	sync.lock(Exclusive);
+#endif
+
 	switch (dep_type)
 		{
 		case obj_view:
@@ -3193,6 +3274,11 @@ static void get_array_desc(thread_db* tdbb, const TEXT* field_name, ads* desc)
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_perform_system_work");
+	sync.lock(Exclusive);
+#endif
+
 	Request *request =  CMP_find_request(tdbb, irq_r_fld_dim, IRQ_REQUESTS);
 
 	ads::ads_repeat* ranges = 0;
@@ -3251,6 +3337,12 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
 	JrdMemoryPool *old_pool;
 
 	DBB dbb = tdbb->tdbb_database;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_perform_system_work");
+	sync.lock(Exclusive);
+#endif
+
 	Procedure *procedure = NULL;
 	Request *handle = CMP_find_request(tdbb, irq_c_prc_dpd, IRQ_REQUESTS);
 
@@ -3311,6 +3403,12 @@ static void get_trigger_dependencies(thread_db* tdbb,  DeferredWork* work)
 	Request *request;
 	Database *dbb = tdbb->tdbb_database;
 	Relation *relation = NULL;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_perform_system_work");
+	sync.lock(Exclusive);
+#endif
+
 	Request *handle =  CMP_find_request(tdbb, irq_c_trigger, IRQ_REQUESTS);
 
 	FOR(REQUEST_HANDLE handle)
@@ -3361,8 +3459,10 @@ static void load_trigs(thread_db* tdbb, Relation* relation, Triggers* * triggers
  **************************************/
 	Triggers* tmp_vector;
 
+#ifdef SHARED_CACHE
 	Sync sync (&relation->syncTriggers, "load_trigs");
 	sync.lock(Exclusive);
+#endif
 	
 	tmp_vector = relation->rel_pre_store;
 	relation->rel_pre_store = triggers[TRIGGER_PRE_STORE];
@@ -3517,8 +3617,10 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 	/* Store format in system relation */
 
 	request =  CMP_find_request(tdbb, irq_format3, IRQ_REQUESTS);
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "make_format");
 	sync.lock(Exclusive);
+#endif
 	
 	STORE(REQUEST_HANDLE request)
 		FMT IN RDB$FORMATS 
@@ -3600,6 +3702,11 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 
 			for (n = 0; n < TRIGGER_MAX; n++) 
 				triggers[n] = NULL;
+
+#ifdef SHARED_CACHE
+			Sync sync(&dbb->syncSysTrans, "make_version");
+			sync.lock(Exclusive);
+#endif
 
 			Request *request_fmt1 = CMP_find_request(tdbb, irq_format1, IRQ_REQUESTS);
 
@@ -4169,6 +4276,11 @@ static void put_summary_blob(thread_db* tdbb, blb* blob, RSR_T type, SLONG blob_
 
 	// Go ahead and open blob
 
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncSysTrans, "put_summary_blob");
+	sync.lock(Exclusive);
+#endif
+
 	blb* blr = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
 	fb_assert(blr->blb_length <= MAX_USHORT);
 	USHORT length = (USHORT)blr->blb_length;
@@ -4291,6 +4403,11 @@ static bool shadow_defined(thread_db* tdbb)
 	bool result = false;
 	Request *handle = NULL;
 
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "shadow_defined");
+	sync.lock(Exclusive);
+#endif
+
 	FOR(REQUEST_HANDLE handle) FIRST 1 X IN RDB$FILES 
         WITH X.RDB$SHADOW_NUMBER > 0
 		result = true;
@@ -4359,6 +4476,11 @@ static blb* setup_triggers(thread_db* tdbb, Relation* relation, bool null_view,
 
 	DBB dbb = tdbb->tdbb_database;
 	Request *request_fmtx;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "setup_triggers");
+	sync.lock(Exclusive);
+#endif
 
 	/* system triggers */
 
@@ -4522,6 +4644,11 @@ static bool wal_defined(thread_db* tdbb)
 	DBB dbb = tdbb->tdbb_database;
 	bool result = false;
 	Request * handle = NULL;
+
+#ifdef SHARED_CACHE
+	Sync sync (&dbb->syncSysTrans, "DFW_perform_system_work");
+	sync.lock(Exclusive);
+#endif
 
 	FOR(REQUEST_HANDLE handle) FIRST 1 X IN RDB$LOG_FILES
 		result = true;

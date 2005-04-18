@@ -1033,8 +1033,10 @@ static void add_relation_fields(thread_db* tdbb,  USHORT minor_version)
 	Request *s_handle = NULL;
 	Request *m_handle = NULL;
 	const UCHAR*	fld;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "add_relation_fields");
 	sync.lock(Exclusive);
+#endif
 		
 	for (const UCHAR* relfld = relfields; relfld[RFLD_R_NAME]; relfld = fld + 1)
 		{
@@ -1103,8 +1105,10 @@ static void add_security_to_sys_rel(thread_db*	tdbb,
 	strcpy(sec_class_name, "SQL$");
 	strcat(sec_class_name, rel_name);
 
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "add_security_to_sys_rel");
 	sync.lock(Exclusive);
+#endif
     ISC_QUAD blob_id_1;
 	blb* blob = BLB_create(tdbb, dbb->dbb_sys_trans, (BID)&blob_id_1);
 	BLB_put_segment(tdbb, blob, acl, acl_length);
@@ -1280,8 +1284,10 @@ static void store_global_field(thread_db* tdbb, GFLD* gfield, Request **handle)
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "store_global_field");
 	sync.lock(Exclusive);
+#endif
 	Transaction *trans = dbb->dbb_sys_trans;
 
 	STORE(REQUEST_HANDLE * handle) X IN RDB$FIELDS
@@ -1518,8 +1524,10 @@ static void store_trigger(thread_db* tdbb, const jrd_trg* trigger, Request **han
 
 	DBB dbb = tdbb->tdbb_database;
 	Transaction* trans = dbb->dbb_sys_trans;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "store_trigger");
 	sync.lock(Exclusive);
+#endif
 
 	/* indicate that the relation format needs revising */
 	

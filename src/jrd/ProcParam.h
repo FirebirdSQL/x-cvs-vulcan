@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  
  *     The contents of this file are subject to the Initial 
@@ -82,13 +83,14 @@ protected:
 	int			paramFlags;
 
 // values used in paramflags
-
+#if !defined(MVS)
 static const int
 	paramComputed	= 1,
 	paramDrop		= 2,
 	paramDbKey		= 4,
 	paramNational	= 8, //!< field uses NATIONAL character set
 	paramNullable	= 16;
+#endif
 public:
 	dsql_fld* getDsqlField(void);
 };

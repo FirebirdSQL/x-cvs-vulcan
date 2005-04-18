@@ -26,10 +26,9 @@
  *
  */
 
-#include <errno.h>
-#include <memory.h>
 #include "firebird.h"
 #include "../jrd/ib_stdio.h"
+#include <errno.h>
 #include "../jrd/common.h"
 #include "../jrd/thd.h"
 #include "../jrd/isc.h"
@@ -37,6 +36,9 @@
 #include "../jrd/gds_proto.h"
 #include "../jrd/isc_s_proto.h"
 #include "../jrd/gdsassert.h"
+#include "Mutex.h"
+#include <string.h>
+
 
 
 #ifdef WIN_NT
@@ -52,7 +54,7 @@
 #endif
 
 
-#ifdef SOLARIS
+#if defined SOLARIS || defined _AIX
 #include <sched.h>
 #endif
 
@@ -71,6 +73,17 @@
    COMPILE.  IT IS NOT CORRECT AND MUST BE REMOVED AT SOME POINT. */
 THDD gdbb;
 #endif
+
+#ifdef MVS
+extern "C"
+{
+static void init(void);
+static void init_tkey(void);
+typedef void *(*start_routine)(void*);
+}
+#endif
+
+
 
 static void init(void);
 static void init_tkey(void);
@@ -100,6 +113,9 @@ static DWORD t_key;
 #endif // ANY_THREADING
 
 
+static Mutex	threadInitMutex;
+
+
 int API_ROUTINE gds__thread_start(
 								  FPTR_INT_VOID_PTR entrypoint,
 								  void *arg,
@@ -120,6 +136,7 @@ int API_ROUTINE gds__thread_start(
 }
 
 
+#ifdef OBSOLETE
 long THD_get_thread_id(void)
 {
 /**************************************
@@ -147,6 +164,11 @@ long THD_get_thread_id(void)
 
 	id = (long) (pthread_self().field1);
 
+#elif defined MVS
+   pthread_t pid;
+   pid = pthread_self();
+   memcpy(&id, ((char *)&pid)+4, sizeof(id));
+
 #else
 
 	id = (long) pthread_self();
@@ -156,6 +178,7 @@ long THD_get_thread_id(void)
 
 	return id;
 }
+#endif
 
 
 #ifdef ANY_THREADING
@@ -180,6 +203,14 @@ THDD THD_get_specific(int subSystem)
 
 	pthread_getspecific(specificKeys [subSystem - 1], (pthread_addr_t *) & current_context);
 	return current_context;
+
+#elif defined MVS
+
+	void* current_context;
+
+	pthread_getspecific(specificKeys [subSystem - 1], &current_context);
+	return (THDD)current_context;
+
 
 #else
 
@@ -236,7 +267,18 @@ THDD THD_get_specific(int subSystem)
 #ifdef THREAD_SCHEDULER
 	return THPS_GET((THDD)TlsGetValue(specificKeys [subSystem - 1]));
 #else
-	return (THDD)TlsGetValue(specificKeys [subSystem - 1]);
+	void *p = TlsGetValue(specificKeys [subSystem - 1]);
+#ifdef DEV_BUILD
+	if (p == NULL)
+	{
+	    long ret = GetLastError();
+	    if (ret != NO_ERROR)
+	    {
+		fb_assert(0);
+	    }
+	}
+#endif
+	return (THDD)p;
 #endif
 }
 #endif
@@ -282,7 +324,7 @@ void THD_getspecific_data(void **t_data)
    the work only if t_init is initialised */
 	if (t_init) {
 #ifdef POSIX_THREADS
-#ifdef HP10
+#if defined HP10 || defined MVS
 		pthread_getspecific(t_key, t_data);
 #else
 		*t_data = (void *) pthread_getspecific(t_key);
@@ -527,6 +569,7 @@ THDD THD_restore_specific(int subSystem)
 
 	current_context = THD_get_specific(subSystem);
 
+#pragma FB_COMPILER_MESSAGE("Fix! Bad struct ptr type cast.")
 	put_specific(reinterpret_cast < THDD >
 				 (current_context->thdd_prior_context), subSystem);
 
@@ -690,10 +733,14 @@ void THD_yield(void)
    instead of _POSIX_PRIORITY_SCHEDULING.
 */
 
-#if (defined _POSIX_PRIORITY_SCHEDULING || defined _POSIX_THREAD_PRIORITY_SCHEDULING)
+#if (defined _POSIX_PRIORITY_SCHEDULING || defined _POSIX_THREAD_PRIORITY_SCHEDULING) || defined(_AIX)
 	sched_yield();
 #else
+#ifdef MVS
+	pthread_yield(NULL);
+#else
 	pthread_yield();
+#endif
 #endif /* _POSIX_PRIORITY_SCHEDULING */
 #endif
 
@@ -796,8 +843,13 @@ static void init(void)
  *
  **************************************/
 
+	threadInitMutex.lock();
+	
 	if (initialized)
+	{
+		threadInitMutex.release();
 		return;
+	}
 
 	initialized = TRUE;
 
@@ -835,12 +887,16 @@ static void init(void)
 		specificKeys [n] = TlsAlloc();
 #endif /* WIN_NT */
 
-	gds__register_cleanup(reinterpret_cast < FPTR_VOID_PTR > (THD_cleanup), 0);
+#pragma FB_COMPILER_MESSAGE("Fix! Bad function ptr type cast.")
+	gds__register_cleanup(reinterpret_cast < FPTR_VOID_PTR > (THD_cleanup),
+						  0);
 #ifdef THREAD_SCHEDULER
 #ifdef WIN_NT
 	THPS_INIT();
 #endif
 #endif
+	threadInitMutex.release();
+
 #endif /* ANY_THREADING */
 }
 
@@ -946,6 +1002,13 @@ static void put_specific(THDD new_context, int subSystem)
 	THPS_SET(TlsSetValue(specificKeys [subSystem - 1], (LPVOID) new_context), new_context);
 #else
 	TlsSetValue(specificKeys [subSystem - 1], (LPVOID) new_context);
+#ifdef DEV_BUILD
+	long ret = GetLastError();
+	if (ret != NO_ERROR)
+	{
+		fb_assert(0);
+	}
+#endif
 #endif
 }
 #endif
@@ -992,87 +1055,81 @@ static int thread_start(
 	pthread_attr_t pattr;
 	int state;
 
-#if ( !defined HP10 && !defined LINUX && !defined FREEBSD )
-	
-	if (state = pthread_attr_init(&pattr))
+#if ( !defined HP10 && !defined LINUX && !defined FREEBSD && !defined MVS)
+		state = pthread_attr_init(&pattr);
+	if (state)
 		return state;
 
-	/* Do not make thread bound for superserver/client */
+/* Do not make thread bound for superserver/client */
 
-/***
 #if (!defined (SUPERCLIENT) && !defined (SUPERSERVER))
 	pthread_attr_setscope(&pattr, PTHREAD_SCOPE_SYSTEM);
 #endif
-***/
 
 	pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
 	state = pthread_create(&thread, &pattr, (void*(*)(void*))routine, arg);
-	pthread_attr_destroy(&pattr);
 	memcpy(thd_id, &thread, sizeof(void *));
-	
+	pthread_attr_destroy(&pattr);
 	return state;
 
 #else
-#if ( defined LINUX || defined FREEBSD )
-
-	if (state = pthread_create(&thread, NULL, (void*(*)(void*))routine, arg))
+#if ( defined LINUX || defined FREEBSD || defined MVS)
+		if (state = pthread_create(&thread, NULL, (void*(*)(void*))routine, arg))
 		return state;
-		
-	return pthread_detach(thread);
+	memcpy(thd_id, &thread, sizeof(void *));
+#ifdef MVS
+	return pthread_detach(&thread);
 #else
-	long stack_size;
+	return pthread_detach(thread);
+#endif
+#else
+		long stack_size;
 
-	if (state = pthread_attr_create(&pattr)) 
-		{
+	state = pthread_attr_create(&pattr);
+	if (state) {
 		fb_assert(state == -1);
 		return errno;
-		}
+	}
 
-	/* The default HP's stack size is too small. HP's documentation
-	   says it is "machine specific". My test showed it was less
-	   than 64K. We definitly need more stack to be able to execute
-	   concurrently many (at least 100) copies of the same request
-	   (like, for example in case of recursive stored prcedure).
-	   The following code sets threads stack size up to 256K if the
-	   default stack size is less than this number
-	*/
-	
+/* The default HP's stack size is too small. HP's documentation
+   says it is "machine specific". My test showed it was less
+   than 64K. We definitly need more stack to be able to execute
+   concurrently many (at least 100) copies of the same request
+   (like, for example in case of recursive stored prcedure).
+   The following code sets threads stack size up to 256K if the
+   default stack size is less than this number
+*/
 	stack_size = pthread_attr_getstacksize(pattr);
-	
 	if (stack_size == -1)
 		return errno;
 
-	if (stack_size < 0x40000L) 
-		if (state = pthread_attr_setstacksize(&pattr, 0x40000L))
-			{
+	if (stack_size < 0x40000L) {
+		state = pthread_attr_setstacksize(&pattr, 0x40000L);
+		if (state) {
 			fb_assert(state == -1);
 			return errno;
-			}
+		}
+	}
 
-	/* HP's Posix threads implementation does not support
-	  bound attribute. It just a user level library.
-	*/
-	
-	if (state = pthread_create(&thread, pattr, routine, arg))
-		{
+/* HP's Posix threads implementation does not support
+   bound attribute. It just a user level library.
+*/
+	state = pthread_create(&thread, pattr, routine, arg);
+	if (state) {
 		fb_assert(state == -1);
 		return errno;
-		}
-		
-	if (state = pthread_detach(&thread)) 
-		{
+	}
+	state = pthread_detach(&thread);
+	if (state) {
 		fb_assert(state == -1);
 		return errno;
-		}
-		
-	if (state = pthread_attr_delete(&pattr))
-		{
+	}
+	state = pthread_attr_delete(&pattr);
+	if (state) {
 		fb_assert(state == -1);
 		return errno;
-		}
-		
+	}
 	memcpy(thd_id, &thread, sizeof(void *));
-
 	return 0;
 
 #endif /* linux */

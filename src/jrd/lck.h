@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		lck.h
@@ -117,6 +118,9 @@ public:
 	UCHAR		lck_logical;			/* Logical lock level */
 	UCHAR		lck_physical;			/* Physical lock level */
 	SLONG		lck_data;				/* Data associated with a lock */
+#ifdef SHARED_CACHE
+	SyncObject	syncObject;
+#endif
 	bool		lck_long_lock;
 	enum lck_t lck_type;
 	union {

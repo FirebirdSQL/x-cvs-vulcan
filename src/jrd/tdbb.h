@@ -1,5 +1,10 @@
+/* $Id$ */
 #ifndef __TDBB_H_
 #define __TDBB_H_
+
+#ifdef MVS
+#include <setjmp.h>
+#endif
 
 #include "thd.h"
 

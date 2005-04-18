@@ -75,12 +75,23 @@
 
 /* AB:Sync FB 1.169 */
 
-#include "firebird.h"
+#if defined _AIX || defined MVS
+#define SAVE_PAGE_SIZE PAGE_SIZE
+#undef PAGE_SIZE
+#endif
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../jrd/common.h"
 #include <stdarg.h>
+#include "firebird.h"
+#include "../jrd/common.h"
+
+#if defined _AIX || defined MVS
+#undef PAGE_SIZE
+#define PAGE_SIZE SAVE_PAGE_SIZE
+#endif
 
 #include "gen/iberror.h"
 #include "../dsql/dsql.h"
@@ -101,7 +112,6 @@
 #include "OSRIException.h"
 #include "Procedure.h"
 #include "val.h"
-
 static void	yyerror(const TEXT*);
 
 /* since UNIX isn't standard, we have to define

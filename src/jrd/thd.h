@@ -107,7 +107,9 @@ $Id$
 #endif
 
 #ifdef SUPERSERVER
+#ifdef SHARED_CACHE
 #define SWEEP_THREAD
+#endif
 #else
 #define AST_THREAD
 #endif
@@ -160,7 +162,7 @@ typedef thdd *THDD;
 #define THDD_TYPE_TALICE 7		/* used by gfix */
 #define THDD_TYPE_TSEC	8		/* used by gsec */
 #define THDD_TYPE_SRVR	9		/* used by server */
-#define THDD_TYPE_MAX	9	
+#define THDD_TYPE_MAX	9
 
 /* General purpose in use object structure */
 

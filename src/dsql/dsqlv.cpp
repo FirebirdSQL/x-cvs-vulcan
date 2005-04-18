@@ -1118,7 +1118,9 @@ void DSQL_pretty(const dsql_nod* node, int column)
         switch (MemoryPool::blk_type(node->nod_arg[e_udf_name])) 
 			{
 			case dsql_type_udf:
+#if 0
 				trace_line ("%s\"\n", ((dsql_udfx*) node->nod_arg[e_udf_name])->udf_name);
+#endif
 				break;
 			case dsql_type_str:  
 				string = (dsql_str*) node->nod_arg[e_udf_name];

@@ -1379,12 +1379,18 @@ ULONG DPM_get_blob(thread_db* tdbb,
 	else 
 		{
 		VCL vector = blob->blb_pages;
-		
+#ifdef SHARED_CACHE
+		Sync sync(&blob->syncBlb_pages, "DPM_get_blob");
+		sync.lock(Exclusive);
+#endif
 		if (!vector) 
 			vector = blob->blb_pages = vcl::newVector(*blob->blb_transaction->tra_pool, 0);
 			
 		vector->resize(length / sizeof(SLONG));
 		MOVE_FASTER(q, vector->memPtr(), length);
+#ifdef SHARED_CACHE
+		sync.unlock();
+#endif
 		}
 
 	if (!delete_flag) 
@@ -1638,8 +1644,10 @@ void DPM_pages(thread_db* tdbb, SSHORT rel_id, int type, ULONG sequence, SLONG p
 #endif
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncScanPages, "DPM_pages");
 	sync.lock(Exclusive);
+#endif
 	Request *request = CMP_find_request(tdbb, irq_s_pages, IRQ_REQUESTS);
 
 	STORE(REQUEST_HANDLE request)
@@ -1735,11 +1743,20 @@ void DPM_scan_pages( thread_db* tdbb)
 	   has been extended with another pointer page. */
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncScanPages, "DPM_scan_pages");
 	sync.lock(Exclusive);
+
+	Sync sync2(&dbb->syncSysTrans, "DPM_scan_pages");
+	sync2.lock(Exclusive);
+#endif
 	
 	Relation *relation = dbb->getRelation(tdbb, 0);
+#ifdef SHARED_CACHE
 	SIVector<SLONG> *vector = &relation->rel_pages;
+#else
+	SVector<SLONG> *vector = &relation->rel_pages;
+#endif
 	int sequence = vector->size() - 1;
 	WIN window((*vector)[sequence]);
 	pointer_page* ppage = (pointer_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_pointer);

@@ -52,7 +52,7 @@ Bdb::Bdb(thread_db* tdbb, pag* memory)
 	bdb_lock->lck_length = sizeof(SLONG);
 	bdb_lock->lck_dbb = database;
 	bdb_lock->lck_parent = database->dbb_lock;
-	bdb_lock->lck_ast = blockingAstBdb;
+	bdb_lock->lck_ast = PageCache::bdbBlockingAst;
 	bdb_lock->lck_object = reinterpret_cast<blk*>(this);
 }
 
@@ -110,7 +110,7 @@ void Bdb::init(thread_db* tdbb, lck *lock, pag* buffer)
 	bdb_dbb = tdbb->tdbb_database;
 	bdb_buffer = buffer;
 	bdb_lock = lock;
-	bdb_lock->lck_ast = blockingAstBdb;
+	bdb_lock->lck_ast = PageCache::bdbBlockingAst;
 	bdb_lock->lck_object = reinterpret_cast<blk*>(this);
 }
 
@@ -176,7 +176,9 @@ int Bdb::blockingAstBdb(void* argument)
 
 void Bdb::addRef(thread_db* tdbb, LockType lType)
 {
+#ifdef SHARED_CACHE
 	syncPage.lock (NULL, lType);
+#endif
 	incrementUseCount();
 	
 	if (lType == Exclusive)
@@ -192,8 +194,10 @@ void Bdb::addRef(thread_db* tdbb, LockType lType)
 
 bool Bdb::addRefConditional(thread_db* tdbb, LockType lType)
 {
+#ifdef SHARED_CACHE
 	if (!syncPage.lockConditional(lType))
 		return false;
+#endif
 		
 	incrementUseCount();
 	
@@ -212,7 +216,9 @@ bool Bdb::addRefConditional(thread_db* tdbb, LockType lType)
 
 void Bdb::release(thread_db* tdbb)
 {
+#ifdef SHARED_CACHE
 	int oldState = syncPage.getState();
+#endif
 	fb_assert (!(bdb_flags & BDB_marked) || writers > 1);
 	decrementUseCount();
 	
@@ -221,10 +227,14 @@ void Bdb::release(thread_db* tdbb)
 		bdb_exclusive = bdb_io = NULL;
 		if (--writers == 0)
 			exclusive = false;
+#ifdef SHARED_CACHE
 		syncPage.unlock (NULL, Exclusive);
+#endif
 		}
+#ifdef SHARED_CACHE
 	else
 		syncPage.unlock(NULL, Shared);
+#endif
 	
 	if (tdbb)
 		tdbb->clearBdb (this);
@@ -233,7 +243,12 @@ void Bdb::release(thread_db* tdbb)
 
 INTERLOCK_TYPE Bdb::incrementUseCount(void)
 {
+#ifdef SHARED_CACHE
 	return INTERLOCKED_INCREMENT (bdb_use_count);
+#else
+	bdb_use_count++;
+	return bdb_use_count;
+#endif
 }
 
 INTERLOCK_TYPE Bdb::decrementUseCount(void)
@@ -241,7 +256,12 @@ INTERLOCK_TYPE Bdb::decrementUseCount(void)
 	if (bdb_use_count <= 0)
 		bugcheck();
 	
+#ifdef SHARED_CACHE
 	return INTERLOCKED_DECREMENT (bdb_use_count);
+#else
+	bdb_use_count--;
+	return bdb_use_count;
+#endif
 }
 
 void Bdb::downGrade(LockType lType)
@@ -258,7 +278,9 @@ void Bdb::downGrade(LockType lType)
 	if (exclusive)
 		bdb_exclusive = NULL;
 		
+#ifdef SHARED_CACHE
 	syncPage.downGrade (lType);
+#endif
 }
 
 void Bdb::bugcheck(void)
@@ -267,7 +289,11 @@ void Bdb::bugcheck(void)
 
 bool Bdb::isLocked(void)
 {
+#ifdef SHARED_CACHE
 	return syncPage.isLocked();
+#else
+	return bdb_use_count;
+#endif
 }
 
 void Bdb::validate(void)
@@ -279,13 +305,18 @@ bool Bdb::ourExclusiveLock(void)
 	if (!exclusive)
 		return false;
 	
+#ifdef SHARED_CACHE
 	return syncPage.ourExclusiveLock();
+#else
+	return true;
+#endif
 }
 
 int Bdb::clearFlags(int flags)
 {
+#ifdef SHARED_CACHE
 	volatile INTERLOCK_TYPE oldFlags;
-	
+
 	for(;;)
 		{
 		oldFlags = bdb_flags;
@@ -293,14 +324,18 @@ int Bdb::clearFlags(int flags)
 		if (COMPARE_EXCHANGE(&bdb_flags, oldFlags, newFlags))
 			break;
 		}
-	
+#else
+	int oldFlags = bdb_flags;
+	bdb_flags &= ~flags;
+#endif
 	return oldFlags;
 }
 
 int Bdb::setFlags(int flags)
 {
+#ifdef SHARED_CACHE
 	volatile INTERLOCK_TYPE oldFlags;
-	
+
 	for(;;)
 		{
 		oldFlags = bdb_flags;
@@ -308,12 +343,17 @@ int Bdb::setFlags(int flags)
 		if (COMPARE_EXCHANGE(&bdb_flags, oldFlags, newFlags))
 			break;
 		}
+#else
+	int oldFlags = bdb_flags;
+	bdb_flags |= flags;
+#endif
 	
 	return oldFlags;
 }
 
 int Bdb::setFlags(int setBits, int clearBits)
 {
+#ifdef SHARED_CACHE
 	volatile INTERLOCK_TYPE oldFlags;
 	
 	for(;;)
@@ -324,7 +364,11 @@ int Bdb::setFlags(int setBits, int clearBits)
 		if (COMPARE_EXCHANGE(&bdb_flags, oldFlags, newFlags))
 			break;
 		}
-	
+#else
+	int oldFlags = bdb_flags;
+	bdb_flags &= ~clearBits;
+	bdb_flags |= setBits;
+#endif
 	return oldFlags;
 }
 

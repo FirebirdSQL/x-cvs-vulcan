@@ -116,9 +116,15 @@ static SLONG process_lck_owner_handle = 0;
 #define LCK_OWNER_TYPE_DBB			LCK_OWNER_process
 #define LCK_OWNER_TYPE_ATT			LCK_OWNER_process
 
+#ifdef SHARED_CACHE
 #define	LCK_OWNER_HANDLE_PROCESS	process_lck_owner_handle
 #define	LCK_OWNER_HANDLE_DBB		process_lck_owner_handle
 #define LCK_OWNER_HANDLE_ATT		process_lck_owner_handle
+#else
+#define	LCK_OWNER_HANDLE_PROCESS	dbb->dbb_lock_owner_handle
+#define	LCK_OWNER_HANDLE_DBB		dbb->dbb_lock_owner_handle
+#define LCK_OWNER_HANDLE_ATT		dbb->dbb_lock_owner_handle
+#endif
 
 #endif	/* SUPERSERVER */
 
@@ -145,10 +151,15 @@ static const UCHAR compatibility[] = {
 				     internal_enqueue (tdbb, lock, level, wait, FALSE); \
 		                 else enqueue (tdbb, lock, level, wait);
 
+#ifdef SHARED_CACHE
 #define	CONVERT(lock,level,wait) (lock->lck_compatible) ? \
 				 internal_enqueue (tdbb, lock, level, wait, TRUE) : \
                                  LockMgr::LOCK_convert (lock->lck_id, level, wait, lock->lck_ast, lock->lck_object, status)
-
+#else
+#define	CONVERT(lock,level,wait) (lock->lck_compatible) ? \
+				 internal_enqueue (tdbb, lock, level, wait, TRUE) : \
+                                 tdbb->tdbb_database->lockMgr.LOCK_convert (lock->lck_id, level, wait, lock->lck_ast, lock->lck_object, status)
+#endif
 /***
 #define DEQUEUE(lock)		 if (lock->lck_compatible) \
 				     internal_dequeue (tdbb, lock); \
@@ -196,11 +207,15 @@ JMB: As part of the c++ conversion I removed the check for lck block type.
 #endif
 
 void LCK_ast_inhibit() {
+#ifdef SHARED_CACHE
 	LockMgr::LOCK_ast_inhibit();
+#endif
 }
 
 void LCK_ast_enable() {
+#ifdef SHARED_CACHE
 	LockMgr::LOCK_ast_enable();
+#endif
 }
 
 void LCK_assert(thread_db* tdbb, LCK lock)
@@ -241,32 +256,41 @@ int LCK_convert(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
  *	Convert an existing lock to a new level.
  *
  **************************************/
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_convert");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
 	//SET_TDBB(tdbb);
 	DBB dbb = lock->lck_dbb;
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
 	
-	if (tdbb->tdbb_attachment && lock->lck_attachment != tdbb->tdbb_attachment)
+	if (lock->lck_attachment != tdbb->tdbb_attachment)
 		{
-		if (lock->lck_attachment)
+		if (lock->lck_attachment && lock->lck_long_lock)
 			lock->lck_attachment->removeLongLock(lock);
-			
+
 		if (tdbb->tdbb_attachment)
 			tdbb->tdbb_attachment->addLongLock(lock);
 		}
-	//lock->lck_attachment = tdbb->tdbb_attachment;
+	lock->lck_attachment = tdbb->tdbb_attachment;
 	
 	//int result = CONVERT(lock, level, wait);
 	int result = (lock->lck_compatible) ? 
 					internal_enqueue (tdbb, lock, level, wait, TRUE) :
+#ifdef SHARED_CACHE
                     LockMgr::LOCK_convert (lock->lck_id, level, wait, lock->lck_ast, lock->lck_object, status);
+#else
+                    tdbb->tdbb_database->lockMgr.LOCK_convert (lock->lck_id, level, wait, lock->lck_ast, lock->lck_object, status);
+#endif
 
 	if (!result) 
 		{
-		/***
 		if (lock->lck_attachment)
-			lock->lck_attachment->removeLongLock(lock);
-		***/
+			{
+			if (lock->lck_long_lock) lock->lck_attachment->removeLongLock(lock);
+			}
 		
 		switch (status[1])
 			{
@@ -304,22 +328,29 @@ int LCK_convert_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wai
  *
  **************************************/
 
+	if (!wait)	// || !gds__thread_enable(FALSE))
+		return LCK_convert(tdbb, lock, level, wait);
+	
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_convert_non_blocking");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
 	//SET_TDBB(tdbb);
 
 	DBB dbb = lock->lck_dbb;
-	
-	if (lock->lck_long_lock && lock->lck_attachment != tdbb->tdbb_attachment)
+
+	if (lock->lck_attachment != tdbb->tdbb_attachment)
 		{
-		if (lock->lck_attachment)
+		if (lock->lck_attachment && lock->lck_long_lock)
 			lock->lck_attachment->removeLongLock(lock);
+
 		if (tdbb->tdbb_attachment)
 			tdbb->tdbb_attachment->addLongLock(lock);
 		}
-	//lock->lck_attachment = tdbb->tdbb_attachment;
+	lock->lck_attachment = tdbb->tdbb_attachment;
 
-	if (!wait)	// || !gds__thread_enable(FALSE))
-		return LCK_convert(tdbb, lock, level, wait);
 
 	/* Save context and checkout from the scheduler */
 
@@ -337,13 +368,19 @@ int LCK_convert_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wai
 	//int result = CONVERT(lock, level, wait);
 	int result = (lock->lck_compatible) ? 
 					internal_enqueue (tdbb, lock, level, wait, TRUE) :
+#ifdef SHARED_CACHE
                     LockMgr::LOCK_convert (lock->lck_id, level, wait, lock->lck_ast, lock->lck_object, status)
+#else
+                    tdbb->tdbb_database->lockMgr.LOCK_convert (lock->lck_id, level, wait, lock->lck_ast, lock->lck_object, status)
+#endif
 	AST_ENABLE;
 
 	if (!result) 
 		{
 		if (lock->lck_attachment)
-			lock->lck_attachment->removeLongLock(lock);
+			{
+			if (lock->lck_long_lock) lock->lck_attachment->removeLongLock(lock);
+			}
 		if (status[1] == isc_deadlock ||
 			status[1] == isc_lock_conflict || status[1] == isc_lock_timeout)
 			return FALSE;
@@ -374,7 +411,13 @@ int LCK_convert_opt(thread_db* tdbb, LCK lock, USHORT level)
  *
  **************************************/
 	//SET_TDBB(tdbb);
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_convert_opt");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
+
 	USHORT old_level = lock->lck_logical;
 	lock->lck_logical = level;
 	DBB dbb = lock->lck_dbb;
@@ -405,6 +448,11 @@ int LCK_downgrade(thread_db* tdbb, LCK lock)
  *
  **************************************/
 
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_downgrade");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
 	//SET_TDBB(tdbb);
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
@@ -414,7 +462,11 @@ int LCK_downgrade(thread_db* tdbb, LCK lock)
 		{
 		USHORT level = (lock->lck_compatible) ?
 						internal_downgrade (status, lock) :
+#ifdef SHARED_CACHE
 			 			LockMgr::LOCK_downgrade (lock->lck_id, status);
+#else
+			 			tdbb->tdbb_database->lockMgr.LOCK_downgrade (lock->lck_id, status);
+#endif
 		if (!lock->lck_compatible)
 			lock->lck_physical = lock->lck_logical = level;
 		}
@@ -465,7 +517,11 @@ void LCK_fini(thread_db* tdbb, enum lck_owner_t owner_type)
 			break;
 		}
 
+#ifdef SHARED_CACHE
 	LockMgr::LOCK_fini(tdbb->tdbb_status_vector, owner_handle_ptr);
+#else
+	tdbb->tdbb_database->lockMgr.LOCK_fini(tdbb->tdbb_status_vector, owner_handle_ptr);
+#endif
 }
 
 
@@ -562,7 +618,11 @@ void LCK_init(thread_db* tdbb, enum lck_owner_t owner_type)
 			break;
 		}
 
+#ifdef SHARED_CACHE
 	if (LockMgr::LOCK_init(tdbb->tdbb_status_vector, dbb->configuration, 
+#else
+	if (tdbb->tdbb_database->lockMgr.LOCK_init(dbb, tdbb->tdbb_status_vector, dbb->configuration, 
+#endif
 						   owner_id, owner_type, owner_handle_ptr)) 
 		{
 		if (tdbb->tdbb_status_vector[1] == isc_lockmanerr)
@@ -584,13 +644,27 @@ int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
  *	Lock a block.  There had better not have been a lock there.
  *
  **************************************/
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_lock");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
 	//SET_TDBB(tdbb);
 
 	DBB dbb = lock->lck_dbb;
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
 	lock->lck_blocked_threads = NULL;
-	lock->lck_next = lock->lck_prior = NULL;
+	if (!lock->lck_long_lock)
+	    lock->lck_next = lock->lck_prior = NULL;
+	if (lock->lck_attachment != tdbb->tdbb_attachment)
+		{
+		if (lock->lck_attachment && lock->lck_long_lock)
+			lock->lck_attachment->removeLongLock(lock);
+
+		if (tdbb->tdbb_attachment)
+			tdbb->tdbb_attachment->addLongLock(lock);
+		}
 	lock->lck_attachment = tdbb->tdbb_attachment;
 
 	//ENQUEUE(lock, level, wait);
@@ -603,6 +677,10 @@ int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 	
 	if (!lock->lck_id)
 		{
+		if (lock->lck_attachment)
+			{
+			if (lock->lck_long_lock) lock->lck_attachment->removeLongLock(lock);
+			}
 		if (!wait ||
 			status[1] == isc_deadlock || status[1] == isc_lock_conflict || status[1] == isc_lock_timeout) 
 			return FALSE;
@@ -634,24 +712,41 @@ int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
  *
  **************************************/
 
-	//LockMgr::validate();
-	fb_assert(LCK_CHECK_LOCK(lock));
-	//SET_TDBB(tdbb);
-
-	DBB dbb = lock->lck_dbb;
-	Attachment* attachment = lock->lck_attachment = tdbb->tdbb_attachment;
-
 	/* Don't bother for the non-wait or non-multi-threading case */
 
 	if (!wait)	// || !gds__thread_enable(FALSE))
 		return LCK_lock(tdbb, lock, level, wait);
 
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_lock_non_blocking");
+	sync.lock(Exclusive);
+#endif
+
+	//LockMgr::validate();
+	fb_assert(LCK_CHECK_LOCK(lock));
+	//SET_TDBB(tdbb);
+
+	DBB dbb = lock->lck_dbb;
+	Attachment* attachment = tdbb->tdbb_attachment;
+
+	if (!lock->lck_long_lock)
+		lock->lck_next = lock->lck_prior = NULL;
+	if (lock->lck_attachment != tdbb->tdbb_attachment)
+		{
+		if (lock->lck_attachment && lock->lck_long_lock)
+			lock->lck_attachment->removeLongLock(lock);
+
+		if (tdbb->tdbb_attachment)
+			tdbb->tdbb_attachment->addLongLock(lock);
+		}
+	lock->lck_attachment = tdbb->tdbb_attachment;
+
+
 	/* Make sure we're not about to wait for ourselves */
 
 	lock->lck_blocked_threads = NULL;
-	lock->lck_next = lock->lck_prior = NULL;
 	check_lock(lock, level);
-	ISC_STATUS status[20];
+	ISC_STATUS *status = tdbb->tdbb_status_vector;
 	INIT_STATUS(status);
 
 	//ENQUEUE(lock, level, wait);
@@ -666,6 +761,10 @@ int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 
 	if (!lock->lck_id)
 		{
+		if (lock->lck_attachment)
+			{
+			if (lock->lck_long_lock) lock->lck_attachment->removeLongLock(lock);
+			}
 		if (status[1] == isc_deadlock ||
 			status[1] == isc_lock_conflict ||
 			status[1] == isc_lock_timeout) 
@@ -692,7 +791,7 @@ int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 		next->lck_prior = lock;
 	***/
 
-	attachment->addLongLock (lock);
+	//attachment->addLongLock (lock);
 	
 	return TRUE;
 }
@@ -710,6 +809,11 @@ int LCK_lock_opt(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
  *	Assert a lock if the parent is not locked in exclusive mode.
  *
  **************************************/
+
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_lock_opt");
+	sync.lock(Exclusive);
+#endif
 
 	//SET_TDBB(tdbb);
 	fb_assert(LCK_CHECK_LOCK(lock));
@@ -745,7 +849,11 @@ SLONG LCK_query_data(LCK parent, enum lck_t lock_type, USHORT aggregate)
  **************************************/
 
 	fb_assert(LCK_CHECK_LOCK(parent));
+#ifdef SHARED_CACHE
 	return LockMgr::LOCK_query_data(parent->lck_id, lock_type, aggregate);
+#else
+	return parent->lck_dbb->lockMgr.LOCK_query_data(parent->lck_id, lock_type, aggregate);
+#endif
 }
 #endif
 
@@ -765,15 +873,28 @@ SLONG LCK_read_data(LCK lock)
 
 	fb_assert(LCK_CHECK_LOCK(lock));
 	
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_read_data");
+	sync.lock(Shared);
+#endif
+	
 #ifdef VMS
 	if (!LCK_lock(NULL, lock, LCK_null, LCK_NO_WAIT))
 		return 0;
 
+#ifdef SHARED_CACHE
 	SLONG data = LockMgr::LOCK_read_data(lock->lck_id);
+#else
+	SLONG data = tdbb->tdbb_database->lockMgr.LOCK_read_data(lock->lck_id);
+#endif
 	LCK_release(lock);
 #else
 	LCK parent = lock->lck_parent;
+#ifdef SHARED_CACHE
 	SLONG data = LockMgr::LOCK_read_data2(
+#else
+	SLONG data = lock->lck_dbb->lockMgr.LOCK_read_data2(
+#endif
 						   (parent) ? parent->lck_id : 0,
 						   lock->lck_type,
 						   (UCHAR*) &lock->lck_key,
@@ -799,6 +920,11 @@ void LCK_release(LCK lock)
  **************************************/
 
 	//SET_TDBB(tdbb);
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_release");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
 	ISC_STATUS statusVector [20];
 	
@@ -806,7 +932,11 @@ void LCK_release(LCK lock)
 		if (lock->lck_compatible)
 			internal_dequeue (statusVector, lock);
 		else 
+#ifdef SHARED_CACHE
 			LockMgr::LOCK_deq (lock->lck_id);
+#else
+			lock->lck_dbb->lockMgr.LOCK_deq (lock->lck_id);
+#endif
 
 	lock->lck_physical = lock->lck_logical = LCK_none;
 	lock->lck_id = lock->lck_data = 0;
@@ -868,7 +998,11 @@ void LCK_re_post(LCK lock)
 		return;
 		}
 
+#ifdef SHARED_CACHE
 	LockMgr::LOCK_re_post(lock->lck_ast, lock->lck_object, lock->lck_owner_handle);
+#else
+	lock->lck_dbb->lockMgr.LOCK_re_post(lock->lck_ast, lock->lck_object, lock->lck_owner_handle);
+#endif
 	fb_assert(LCK_CHECK_LOCK(lock));
 }
 
@@ -886,8 +1020,17 @@ void LCK_write_data(LCK lock, SLONG data)
  *
  **************************************/
 
+#ifdef SHARED_CACHE
+	Sync sync(&lock->syncObject, "LCK_lock_write_data");
+	sync.lock(Exclusive);
+#endif
+
 	fb_assert(LCK_CHECK_LOCK(lock));
+#ifdef SHARED_CACHE
 	LockMgr::LOCK_write_data(lock->lck_id, data);
+#else
+	lock->lck_dbb->lockMgr.LOCK_write_data(lock->lck_id, data);
+#endif
 	lock->lck_data = data;
 	fb_assert(LCK_CHECK_LOCK(lock));
 }
@@ -993,7 +1136,11 @@ static void enqueue(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 	LCK parent;
 	fb_assert(LCK_CHECK_LOCK(lock));
 
+#ifdef SHARED_CACHE
 	lock->lck_id = LockMgr::LOCK_enq(lock->lck_id,
+#else
+	lock->lck_id = lock->lck_dbb->lockMgr.LOCK_enq(lock->lck_id,
+#endif
 							(parent = lock->lck_parent) ? parent->lck_id : 0,
 							lock->lck_type,
 							(UCHAR *) & lock->lck_key,
@@ -1434,7 +1581,11 @@ static void internal_dequeue(ISC_STATUS *statusVector, LCK lock)
 
 	if (hash_remove_lock(lock, &match)) 
 		{
+#ifdef SHARED_CACHE
 		if (!LockMgr::LOCK_deq(lock->lck_id))
+#else
+		if (!lock->lck_dbb->lockMgr.LOCK_deq(lock->lck_id))
+#endif
 			bug_lck("LOCK_deq() failed in lck:internal_dequeue");
 			
 		lock->lck_id = 0;
@@ -1479,7 +1630,11 @@ static USHORT internal_downgrade(ISC_STATUS *statusVector, LCK first)
 	   locks as having that level */
 
 	if ((level < first->lck_physical) &&
+#ifdef SHARED_CACHE
 		LockMgr::LOCK_convert(first->lck_id,
+#else
+		first->lck_dbb->lockMgr.LOCK_convert(first->lck_id,
+#endif
 					 level,
 					 LCK_NO_WAIT,
 					 external_ast,
@@ -1556,7 +1711,11 @@ static BOOLEAN internal_enqueue(
 
 			if (level > match->lck_physical) 
 				{
+#ifdef SHARED_CACHE
 				if (!LockMgr::LOCK_convert(match->lck_id,
+#else
+				if (!lock->lck_dbb->lockMgr.LOCK_convert(match->lck_id,
+#endif
 								  level,
 								  wait,
 								  external_ast,
@@ -1583,7 +1742,11 @@ static BOOLEAN internal_enqueue(
 	/* enqueue the lock, but swap out the ast and the ast argument
 	  with the local ast handler, passing it the lock block itself */
 
+#ifdef SHARED_CACHE
 	lock->lck_id = LockMgr::LOCK_enq(lock->lck_id,
+#else
+	lock->lck_id = lock->lck_dbb->lockMgr.LOCK_enq(lock->lck_id,
+#endif
 							lock->lck_parent ? lock->lck_parent->lck_id : 0,
 							lock->lck_type,
 							(UCHAR *) & lock->lck_key,

@@ -29,6 +29,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
+#ifdef MVS
+#include <strings.h> // for strcasecmp
+#endif
 #include "firebird.h"
 #include "common.h"
 #include "constants.h"
@@ -388,14 +391,18 @@ dsql_rel* CStatement::findRelation(const char *relationName)
 		return NULL;
 		}
 
+#ifdef SHARED_CACHE
 	Sync sync (&jrdRelation->syncObject, "CStatement::findRelation");
 	sync.lock (Shared);
+#endif
 
 	if (jrdRelation->dsqlRelation)
 		return jrdRelation->dsqlRelation;
 
+#ifdef SHARED_CACHE
 	sync.unlock();
 	sync.lock (Exclusive);
+#endif
 	
 	if (jrdRelation->dsqlRelation)
 		return jrdRelation->dsqlRelation;
@@ -903,6 +910,7 @@ dsql_nod* CStatement::getPrimaryKey(const TEXT *relationName)
 	if (relation)
 		{
 		Field *fields [MAX_INDEX_SEGMENTS];
+		if (relation->jrdRelation == NULL) return NULL;
 		int count = relation->jrdRelation->getPrimaryKey (threadData, MAX_INDEX_SEGMENTS, fields);
 		dsql_nod *list = MAKE_node(threadData, nod_list, count);
 		

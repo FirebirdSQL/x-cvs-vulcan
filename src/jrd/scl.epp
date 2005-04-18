@@ -34,6 +34,9 @@
 #include "firebird.h"
 #include "common.h"
 #include <string.h>
+#if defined(MVS)
+#include <strings.h> // for strcasecmp
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 #include "../jrd/ibase.h"
@@ -232,8 +235,10 @@ void SCL_check_index(thread_db* tdbb, const TEXT* index_name, UCHAR index_id, US
 
     reln_name[0] = aux_idx_name[0] = 0;
 	Request *request = NULL;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_check_index");
 	sync.lock(Exclusive);
+#endif
 	
 	// No need to cache this request handle, it's only used when
 	// new constraints are created
@@ -358,8 +363,10 @@ void SCL_check_procedure(thread_db* tdbb, DSC* dsc_name, USHORT mask)
 	
     MET_exact_name(name);
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_check_procedure");
 	sync.lock(Exclusive);
+#endif
 
 	SecurityClass* s_class = NULL;
 	Request *request = CMP_find_request(tdbb, irq_p_security, IRQ_REQUESTS);
@@ -412,8 +419,10 @@ void SCL_check_relation(thread_db* tdbb, DSC* dsc_name, USHORT mask)
 	
 	MET_exact_name(name);
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_check_relation");
 	sync.lock(Exclusive);
+#endif
 
 	SecurityClass* s_class = NULL;
 	Request *request = CMP_find_request(tdbb, irq_v_security, IRQ_REQUESTS);
@@ -617,8 +626,10 @@ void SCL_init(bool create,
 	if (wheel)
 		strcpy(name, SYSDBA_USER_NAME);
 
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_init");
 	sync.lock(Exclusive);
+#endif
 
 	/***************************************************************
 	**
@@ -1033,8 +1044,10 @@ static SLONG compute_access(thread_db* tdbb,
  *
  **************************************/
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "compute_access");
 	sync.lock(Exclusive);
+#endif
 	SLONG privileges = SCL_scanned;
 	Request *request = CMP_find_request(tdbb, irq_l_security, IRQ_REQUESTS);
 

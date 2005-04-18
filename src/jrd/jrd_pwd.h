@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		jrd_pwd.h
@@ -60,7 +61,9 @@ private:
 	static const UCHAR TPB[4];
 
 	//V4Mutex mutex;
+#ifdef SHARED_CACHE
 	SyncObject		syncObject;
+#endif
 	
 	ISC_STATUS_ARRAY status;
 

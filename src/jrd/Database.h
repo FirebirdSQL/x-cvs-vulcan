@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		Database.h
@@ -47,6 +48,8 @@
 #include "DVector.h"
 #include "SVector.h"
 #include "SIVector.h"
+#include "../lock/LockMgr.h"
+#include "DatabaseManager.h"
 
 static const int HASH_SIZE = 101;
 
@@ -175,8 +178,13 @@ public:
 	lck					*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
 	plc					*dbb_connection;		/* connection block */
 	PageControl			*dbb_pcontrol;			/* page control */
+#ifdef SHARED_CACHE
 	SIVector<SLONG>		dbb_t_pages;			/* pages number for transactions */
 	SIVector<SLONG>		dbb_gen_id_pages;		/* known pages for gen_id */
+#else
+	SVector<SLONG>		dbb_t_pages;			/* pages number for transactions */
+	SVector<SLONG>		dbb_gen_id_pages;		/* known pages for gen_id */
+#endif
 	struct blf			*dbb_blob_filters;		/* known blob filters */
 	struct lls			*dbb_modules;			/* external function/filter modules */
 	SLONG				dbb_sort_size;			/* Size of sort space per sort */
@@ -219,8 +227,13 @@ public:
 
 	LinkedList			dbb_pools;
     USHORT				dbb_next_pool_id;
+#ifdef SHARED_CACHE
 	SIVector<Request*>	dbb_internal;			/* internal requests */
 	SIVector<Request*>	dbb_dyn_req;			/* internal dyn requests */
+#else
+	SVector<Request*>	dbb_internal;			/* internal requests */
+	SVector<Request*>	dbb_dyn_req;			/* internal dyn requests */
+#endif
 
 	SLONG				dbb_oldest_active;		/* Cached "oldest active" transaction */
 	SLONG				dbb_oldest_transaction;	/* Cached "oldest interesting" transaction */
@@ -269,6 +282,8 @@ public:
 	JVector				dbb_charsets;
 
 	PageCache			*pageCache;
+
+#ifdef SHARED_CACHE
 	SyncObject			syncObject;
 	SyncObject			syncAttachments;
 	SyncObject			syncRelations;
@@ -281,17 +296,24 @@ public:
 	SyncObject			syncSecurityClass;
 	SyncObject			syncSysTrans;
 	SyncObject			syncCreateIndex;
-	
-	Mutex				syncDyn;
+	SyncObject			syncDyn;
+	SyncObject			syncCmpClone;
 	Mutex				syncClone;
-	Mutex				syncCmpClone;
+
 	Mutex				syncFlushCount;
+	SIVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
+#else
+	SyncObject			syncAst;
+	DatabaseManager		*databaseManager;
+	SVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
+	LockMgr				lockMgr;
+#endif
 	
 	InternalConnection	*systemConnection;
 			
 	//tpc					*dbb_tip_cache;				/* cache of latest known state of all transactions in system */
 	TipCache			*tipCache;
-	SIVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
+	INTERLOCK_TYPE		sweeperCount;
 	BackupManager		*backup_manager;			/* physical backup manager */
 	Symbol				*dbb_hash_table[HASH_SIZE];	/* keep this at the end */
 

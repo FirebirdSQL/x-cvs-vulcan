@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		blb.h
@@ -58,6 +59,9 @@ class blb : public pool_alloc_rpt<UCHAR, type_blb>
 	struct bid blb_blob_id;		/* Id of materialized blob */
 	Request *blb_request;	/* request that assigned temporary blob */
 	vcl *blb_pages;		/* Vector of pages */
+#ifdef SHARED_CACHE
+    SyncObject syncBlb_pages;
+#endif
 	USHORT blb_pointers;		/* Max pointer on a page */
 	USHORT blb_level;			/* Storage type */
 	USHORT blb_max_segment;		/* Longest segment */

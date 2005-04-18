@@ -60,11 +60,13 @@ nested FOR loops are added.
 #include "../dsql/errd_proto.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/thd_proto.h"
-
+#include "../jrd/Mutex.h"
+#include "../jrd/Sync.h"
 #include "../include/fb_vector.h"
 
 DsqlMemoryPool* DSQL_permanent_pool = 0;
 static bool init_flag = false;
+Mutex dsql_init_mutex;
 
 //typedef firebird::vector<DsqlMemoryPool*> pool_vec_t;
 //static firebird::vector<DsqlMemoryPool*> *pools = 0;
@@ -97,6 +99,9 @@ void ALLD_fini()
 void ALLD_init()
 {
 	TSQL tdsql = GET_THREAD_DATA;
+
+	Sync sync(&dsql_init_mutex, "ALLD_init");
+	sync.lock(Exclusive);
 
 	if (!init_flag)
 		{

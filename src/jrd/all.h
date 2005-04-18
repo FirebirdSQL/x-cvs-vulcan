@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		all.h
@@ -39,7 +40,7 @@ struct thread_db;
 
 TEXT* ALL_cstring(const TEXT* in_string);
 void ALL_fini(void);
-void ALL_init(thread_db* tdbb);
+void ALL_init(thread_db *tdbb);
 //void ALL_push(BLK , LLS *);
 //BLK ALL_pop(LLS *);
 void ALL_print_memory_pool_info(IB_FILE*, Database*);
@@ -53,7 +54,11 @@ class JrdMemoryPool : public MemoryPool
 protected:
 	// Dummy constructor and destructor. Should never be called
 #ifdef MEMMGR
-	JrdMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384), lls_cache(*this) {}
+#ifdef SHARED_CACHE
+	JrdMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384, true), lls_cache(*this) {}
+#else
+	JrdMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384, false), lls_cache(*this) {}
+#endif
 #else
 	JrdMemoryPool() : MemoryPool(NULL, NULL), lls_cache(*this) {}
 #endif
@@ -67,7 +72,7 @@ public:
 	static class blk* ALL_pop(class lls**);
 	static void       ALL_push(class blk*, class lls**);
 
-    class SparseBitmap* plb_buckets;   /* available bit map buckets */
+    class SparseBitmap *plb_buckets;   /* available bit map buckets */
     struct bms* plb_segments;  /* available bit map segments */
 	struct Dcc* plb_dccs;
 

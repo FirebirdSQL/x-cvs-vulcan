@@ -22,6 +22,8 @@
 #ifndef REVENT_H
 #define REVENT_H
 
+#include "ibase.h"
+
 class Port;
 class RDatabase;
 
@@ -36,8 +38,8 @@ public:
 	RDatabase		*rvnt_rdb;
 	FPTR_EVENT_CALLBACK	rvnt_ast;
 	void*			rvnt_arg;
-	SLONG			rvnt_id;
-	SLONG			rvnt_rid;	/* used by server to store client-side id */
+	ISC_LONG		rvnt_id;
+	ISC_LONG		rvnt_rid;	/* used by server to store client-side id */
 	Port			*rvnt_port;	/* used to id server from whence async came */
 	const UCHAR*	rvnt_items;
 	SSHORT			rvnt_length;

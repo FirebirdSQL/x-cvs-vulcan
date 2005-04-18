@@ -49,6 +49,11 @@ dsql_rel::dsql_rel(void)
 
 void dsql_rel::dropField(dsql_fld* field)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::dropField");
+	sync.lock(Exclusive);
+#endif
+
 	for (dsql_fld **ptr = &rel_fields; *ptr; ptr = &(*ptr)->fld_next)
 		if (*ptr == field)
 			{
@@ -78,6 +83,11 @@ dsql_rel::~dsql_rel(void)
 
 dsql_fld* dsql_rel::addField(int id, JString name)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::addField");
+	sync.lock(Exclusive);
+#endif
+	
 	dsql_fld *field = new dsql_fld;
 	field->fld_name = name;
 	field->fld_id = id;
@@ -105,6 +115,11 @@ void dsql_fld::setType(dsc* desc, int dimensions)
 
 void dsql_rel::addField(dsql_fld *field)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::addField");
+	sync.lock(Exclusive);
+#endif
+	
 	for (dsql_fld **ptr = &rel_fields;; ptr = &(*ptr)->fld_next)
 		if (!*ptr)
 			{
@@ -115,6 +130,11 @@ void dsql_rel::addField(dsql_fld *field)
 
 void dsql_rel::purgeTemporaryFields(void)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::purgeTemporaryFields");
+	sync.lock(Exclusive);
+#endif
+	
 	for (dsql_fld *field, **ptr = &rel_fields; field = *ptr;)
 		if (field->fld_flags & FLD_temporary)
 			{
@@ -127,8 +147,10 @@ void dsql_rel::purgeTemporaryFields(void)
 
 void dsql_rel::orderFields(void)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncFields, "dsql_rel::orderFields");
 	sync.lock(Exclusive);
+#endif
 	dsql_fld *fields = rel_fields;
 	rel_fields = NULL;
 	

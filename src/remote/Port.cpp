@@ -2500,7 +2500,7 @@ ISC_STATUS Port::seek_blob(P_SEEK * seek, PACKET* send)
  **************************************/
 	RBL blob;
 	SSHORT mode;
-	SLONG offset, result;
+	ISC_LONG offset, result;
 	ISC_STATUS_ARRAY status_vector;
 
 	CHECK_HANDLE_MEMBER(blob,

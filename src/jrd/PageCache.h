@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:		JRD access method
  *	MODULE:			PageCache.h
@@ -110,6 +111,7 @@ public:
 	SparseBitmap* bcb_prefetch;		/* Bitmap of pages to prefetch */
 	Database	*database;
 	
+#ifdef SHARED_CACHE
 	SyncObject	syncObject;
 	SyncObject	syncDirtyBdbs;
 	SyncObject	syncPageWrite;
@@ -117,6 +119,8 @@ public:
 	SyncObject	syncFlushDirtyBdbs;
 	
 	Mutex		syncLRU;
+#endif
+
 	Bdb			**bdbs;
 	volatile Bdb *bcb_lru_chain;
 	int			markSequence;

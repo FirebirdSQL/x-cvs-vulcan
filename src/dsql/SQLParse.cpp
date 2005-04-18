@@ -36,11 +36,14 @@
 #include "../dsql/parse_proto.h"
 #include "../dsql/keywords.h"
 #include "../dsql/chars.h"
-#include "../dsql/parse.h"
 #include "iberror.h"
 #include "OSRIException.h"
 #include "gds_proto.h"
 #include "TempSpace.h"
+#if defined _AIX || defined MVS
+#undef PAGE_SIZE
+#endif
+#include "parse.h"
 
 #define CHECK_BOUND(to,string)			if ((to - string) >= MAX_TOKEN_LEN) punt (-104, isc_token_too_long)
 #define CHECK_COPY_INCR(to,ch,string)	{ CHECK_BOUND(to,string); *to++ = ch; }

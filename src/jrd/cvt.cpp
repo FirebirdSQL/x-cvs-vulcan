@@ -122,7 +122,7 @@ double MTH$CVT_D_G(), MTH$CVT_G_D();
 #define QUAD_MIN_int    quad_min_int	/* min integer value of quad */
 #define QUAD_MAX_int    quad_max_int	/* max integer value of quad */
 
-#define FLOAT_MAX       3.4e38	/* max float (32 bit) value  */
+#define FLOAT_MAX       FLT_MAX 		/* 3.4e38 max float (32 bit) value  */
 
 #ifndef WORDS_BIGENDIAN
 #define LOW_WORD        0

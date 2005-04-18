@@ -155,7 +155,7 @@ static str* save_name(thread_db*, const TEXT*);
 static void save_trigger_data(thread_db*, Triggers**, Relation*, JRD_REQ, STR,
 	const TEXT*, bool, USHORT);
 static void store_dependencies(thread_db*, CompilerScratch*, const TEXT*, USHORT);
-static void terminate(TEXT*, USHORT);
+static void MET_terminate(TEXT*, USHORT);
 static bool verify_TRG_ignore_perm(thread_db*, const TEXT*);
 //void MET_release_triggers(thread_db* tdbb, Triggers** vector_ptr);
 
@@ -175,7 +175,14 @@ void release_cached_triggers(thread_db* tdbb, Triggers* vector)
 	***/
 	
 	for (int n = 0; n < vector->size(); ++n)
+	{
+#ifdef SHARED_CACHE
 		vector->get(n)->release(tdbb);
+#else
+		Trigger *trigger = (*vector)[n];
+		trigger->release(tdbb);
+#endif
+	}
 }
 
 // Increment int_use_count for all procedures used by triggers
@@ -282,8 +289,10 @@ BOOLEAN MET_clear_cache(thread_db* tdbb, Procedure* proc)
 		
 		if (relation)
 			{
+#ifdef SHARED_CACHE
 			Sync sync (&relation->syncTriggers, "MET_clear_cache");
 			sync.lock(Exclusive);
+#endif
 			release_cached_triggers(tdbb,relation->rel_pre_store);		
 			release_cached_triggers(tdbb,relation->rel_post_store);
 			release_cached_triggers(tdbb,relation->rel_pre_erase);		
@@ -670,8 +679,10 @@ Format* MET_format(thread_db* tdbb, Relation* relation, USHORT number)
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSysTrans, "MET_format");
 	sync.lock(Exclusive);
+#endif
 	Format* format = NULL;
 	Request *request = CMP_find_request(tdbb, irq_r_format, IRQ_REQUESTS);
 
@@ -1993,6 +2004,12 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 				parameter->fld_precision = desc.dsc_length;
 				parameter->fld_dimensions = F.RDB$DIMENSIONS;
 				parameter->fld_sub_type = desc.dsc_sub_type;
+
+				/* This is my attempt to set the NULLABLE flag similar to the */
+				/* way FB 1.5 does it in METD_get_procedure()                 */
+				if (! F.RDB$NULL_FLAG)
+					parameter->paramDescriptor.dsc_flags |= DSC_nullable;
+
 			END_FOR;
 
 			if (!REQUEST(irq_l_params)) 
@@ -2205,8 +2222,10 @@ Relation* MET_lookup_relation(thread_db* tdbb, const char* name)
  *
  **************************************/
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncRelations, "MET_lookup_relation");
 	sync.lock (Shared);
+#endif
 	Relation *relation = dbb->lookupRelation (tdbb, name);
 	
 	if (relation)
@@ -2218,7 +2237,9 @@ Relation* MET_lookup_relation(thread_db* tdbb, const char* name)
 		else
 			return relation;
 
+#ifdef SHARED_CACHE
 	sync.unlock();
+#endif
 	Relation *check_relation = relation;
 	
 	/* We need to look up the relation name in RDB$RELATIONS */
@@ -2293,6 +2314,11 @@ Relation* MET_lookup_relation_id(thread_db* tdbb, SLONG id, BOOLEAN return_delet
 		}
 
 	check_relation = NULL;
+
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncRelations, "MET_lookup_relation_id");
+	sync.lock(Shared);
+#endif
 	
 	if ((id < (SLONG) dbb->dbb_relations.size()) && (relation = dbb->dbb_relations[id]))
 		{
@@ -2310,6 +2336,10 @@ Relation* MET_lookup_relation_id(thread_db* tdbb, SLONG id, BOOLEAN return_delet
 		else
 			return relation;
 		}
+
+#ifdef SHARED_CACHE
+	sync.unlock();
+#endif
 
 	/* We need to look up the relation id in RDB$RELATIONS */
 
@@ -2373,8 +2403,10 @@ JRD_NOD MET_parse_blob(thread_db*		tdbb,
  **************************************/
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSysTrans, "MET_parse_blob");
 	sync.lock(Exclusive);
+#endif
 	
 	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
 	SLONG length = blob->blb_length + 10;
@@ -2405,8 +2437,10 @@ void MET_parse_sys_trigger(thread_db* tdbb, Relation* relation)
 
 	DBB	dbb = tdbb->tdbb_database;
 	relation->rel_flags &= ~REL_sys_triggers;
+#ifdef SHARED_CACHE
 	Sync sync (&relation->syncTriggers, "MET_parse_sys_trigger");
 	sync.lock(Exclusive);
+#endif
 
 	/* release any triggers in case of a rescan */
 
@@ -3076,8 +3110,13 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 	UCHAR *p, *q, temp[256];
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSysTrans, "MET_scan_relation");
 	sync.lock(Exclusive);
+
+	Sync sync2(&relation->syncObject, "MET_scan_relation");
+	sync2.lock(Exclusive);
+#endif
 
 	if (relation->rel_flags & REL_scanned || relation->rel_flags & REL_deleted) 
 		return;
@@ -3283,7 +3322,9 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 				
 		END_FOR;
 
+#ifdef SHARED_CACHE
 		sync.unlock();
+#endif
 		
 		if (csb_)
 			delete csb_;
@@ -3304,9 +3345,10 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 			   block. 
 			*/
 			
+#ifdef SHARED_CACHE
 			Sync sync (&relation->syncTriggers, "MET_scan_relation");
 			sync.lock(Exclusive);
-			
+#endif
 			tmp_vector = relation->rel_pre_store;
 			relation->rel_pre_store = triggers[TRIGGER_PRE_STORE];
 			MET_release_triggers(tdbb, &tmp_vector);
@@ -3332,9 +3374,6 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 			MET_release_triggers(tdbb, &tmp_vector);
 			}
 
-		relation->rel_flags &= ~REL_being_scanned;
-		relation->rel_flags |= REL_scanned;
-		
 		relation->rel_current_format = NULL;
 		tdbb->tdbb_default = old_pool;
 		
@@ -3343,6 +3382,10 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 			relation->getTypeInformation(tdbb);
 			relation->dsqlRelation->orderFields();
 			}
+
+		relation->rel_flags &= ~REL_being_scanned;
+		relation->rel_flags |= REL_scanned;
+		
 		}
 	catch (...) 
 		{
@@ -3582,8 +3625,10 @@ static void get_trigger(
 		return;
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSysTrans, "get_trigger");
 	sync.lock(Exclusive);
+#endif
 	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
 	SLONG length = blob->blb_length + 10;
 	STR blr = FB_NEW_RPT(*dbb->dbb_permanent,length) str();
@@ -4249,7 +4294,7 @@ static void store_dependencies(thread_db*	tdbb,
 }
 
 
-static void terminate(TEXT* str, USHORT len)
+static void MET_terminate(TEXT* str, USHORT len)
 {
 /**************************************
  *
@@ -4310,8 +4355,8 @@ static bool verify_TRG_ignore_perm(thread_db* tdbb, const TEXT* trig_name)
 		}
 
 		EXE_unwind(tdbb, (JRD_REQ)request);
-		terminate(REF.RDB$UPDATE_RULE, sizeof(REF.RDB$UPDATE_RULE));
-		terminate(REF.RDB$DELETE_RULE, sizeof(REF.RDB$DELETE_RULE));
+		MET_terminate(REF.RDB$UPDATE_RULE, sizeof(REF.RDB$UPDATE_RULE));
+		MET_terminate(REF.RDB$DELETE_RULE, sizeof(REF.RDB$DELETE_RULE));
 
 		if (!strcmp(REF.RDB$UPDATE_RULE, RI_ACTION_CASCADE) ||
 			!strcmp(REF.RDB$UPDATE_RULE, RI_ACTION_NULL) ||

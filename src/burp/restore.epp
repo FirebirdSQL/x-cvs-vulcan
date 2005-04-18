@@ -41,7 +41,7 @@ $Id$
 #include "../jrd/thd_proto.h"
 #include "../burp/burp_proto.h"
 #include "../burp/canon_proto.h"
-#include "../burp/misc_proto.h"
+#include "burp_misc_proto.h"
 #include "../burp/mvol_proto.h"
 #include "../burp/resto_proto.h"
 #include "../jrd/gdsassert.h"
@@ -4973,6 +4973,7 @@ bool get_relation_data()
 			break;
 		}
 	}
+	return true;
 }
 
 bool get_sql_roles()
@@ -6164,14 +6165,16 @@ void realign(UCHAR* buffer,
  *
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
+        UCHAR *p = NULL;
+        const UCHAR *q = NULL;
 
 	for (const burp_fld* field = relation->rel_fields; field; field = field->fld_next)
 	{
 		if (field->fld_flags & FLD_computed)
 			continue;
 
-		UCHAR* p = buffer + field->fld_offset;
-		const UCHAR* q = buffer + field->fld_old_offset;
+		p = buffer + field->fld_offset;
+		q = buffer + field->fld_old_offset;
 		USHORT l = field->fld_length;
 
 		// CVC: This code assumes fld_offset < fld_old_offset,
@@ -6197,8 +6200,8 @@ void realign(UCHAR* buffer,
 		{
 			if (field->fld_flags & FLD_computed)
 				continue;
-			UCHAR* p = buffer + FB_ALIGN(p - buffer, sizeof(SSHORT));
-			const UCHAR* q = buffer + FB_ALIGN(q - buffer, sizeof(SSHORT));
+			p = buffer + FB_ALIGN(p - buffer, sizeof(SSHORT));
+			q = buffer + FB_ALIGN(q - buffer, sizeof(SSHORT));
 			*p++ = *q++;
 			*p++ = *q++;
 		}

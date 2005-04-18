@@ -59,7 +59,7 @@ static isc_db_handle
 
 static isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-static long
+static ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 static SLONG
@@ -265,7 +265,7 @@ ISC_STATUS API_ROUTINE isc_array_get_slice(ISC_STATUS* status,
 									   ISC_QUAD* array_id,
 									   const ISC_ARRAY_DESC* desc,
 									   void* array, 
-									   SLONG* slice_length)
+									   ISC_LONG* slice_length)
 {
 /**************************************
  *

@@ -38,8 +38,8 @@
 //#define ISC_TIME_SECONDS_PRECISION_SCALE	-4
 
 #include "firebird.h"
-#include "common.h"
-#include <ibase.h>
+#include "../jrd/common.h"
+#include "ibase.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
@@ -86,13 +86,8 @@
 #include <sys/timeb.h>
 #endif
 
-#ifdef VMS
-#include <file.h>
-#include <ib_perror.h>
-#include <descrip.h>
-#include <types.h>
-#include <stat.h>
-#include <rmsdef.h>
+#ifdef __VMS
+#include <fcntl.h>
 
 #else /* !VMS */
 
@@ -110,7 +105,7 @@
 #if (defined SUPERSERVER) || (defined SOLARIS)
 #include <sys/mman.h>
 #include <sys/resource.h>
-#include "../jrd/err_proto.h"
+#include "err_proto.h"
 #endif
 #endif
 
@@ -212,7 +207,7 @@ typedef struct clean
 static CLEAN		cleanup_handlers = NULL;
 static MsgFile		*defaultMsgFile;
 static bool			initialized = false;
-static Mutex		syncObject;
+static SyncObject	syncObject;
 
 #ifdef DEBUG_GDS_ALLOC
 void* API_ROUTINE gds__alloc_debug(SLONG size_request,
@@ -265,7 +260,11 @@ static struct
 #define EXPAND_PATH(relative, absolute)		_fullpath(absolute, relative, MAXPATHLEN)
 #define COMPARE_PATH(a,b)			_stricmp(a,b)
 #else
+#ifdef __VMS
+#define EXPAND_PATH(relative, absolute)		strcpy(absolute,relative)
+#else
 #define EXPAND_PATH(relative, absolute)		realpath(relative, absolute)
+#endif
 #define COMPARE_PATH(a,b)			strcmp(a,b)
 #endif
 
@@ -1053,6 +1052,14 @@ static MsgFile *getDefaultMsgFile()
  *   Find and/or open default message file.
  *
  **************************************/
+	Sync sync (&syncObject, "getDefaultMsgFile");
+	sync.lock (Shared);
+
+	if (defaultMsgFile)
+		return defaultMsgFile;
+
+	sync.unlock();
+	sync.lock (Exclusive);
 
 	if (defaultMsgFile)
 		return defaultMsgFile;
@@ -1772,6 +1779,8 @@ void API_ROUTINE gds__register_cleanup(FPTR_VOID_PTR routine, void* arg)
  * Ifdef out for windows client.  We have not implemented any way of 
  * determining when a task ends, therefore this never gets called.
 */
+	Sync sync (&syncObject, "gds__register_cleanup");
+	sync.lock (Exclusive);
 
 	if (!initialized)
 		init();

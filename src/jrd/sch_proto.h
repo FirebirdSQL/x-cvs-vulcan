@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access method
  *	MODULE:		sch_proto.h
@@ -23,6 +24,10 @@
 
 #ifndef JRD_SCH_PROTO_H
 #define JRD_SCH_PROTO_H
+
+#ifdef _AIX
+#define thread aix_thread /* avoid conflict on AIX */
+#endif
 
 #include "../jrd/isc.h"
 
