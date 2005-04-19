@@ -132,10 +132,8 @@ void SecurityDatabase::init()
 
 bool SecurityDatabase::lookup_user(const TEXT* securityDatabase, TEXT * user_name, int *uid, int *gid, TEXT * pwd)
 {
-#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "SecurityDatabase::lookup_user");
 	sync.lock(Exclusive);
-#endif
 	bool found = false;		// user found flag
 	TEXT uname[129];		// user name buffer
 	user_record user;		// user record
