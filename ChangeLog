@@ -1,3 +1,69 @@
+2005-04-18 23:18  tomcole
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Fix problem where ORDER BY using column positions not working on
+	big-endian systems.
+
+2005-04-18 22:45  steve_krueger
+
+	* vulcan/src/: IscDbc/IscDbc.h, burp/backup.boot,
+	burp/backup_boot.cpp, burp/burp.cpp, burp/restore.boot,
+	burp/restore.epp, burp/restore_boot.cpp, common/Connection.h,
+	common/classes/alloc.h, common/classes/rwlock.h,
+	config/DirectoryList.cpp, config/Parameters.h, dsql/CStatement.cpp,
+	dsql/DStatement.cpp, dsql/SQLParse.cpp, dsql/all.h, dsql/alld.cpp,
+	dsql/array.boot, dsql/array_boot.cpp, dsql/array_proto.h,
+	dsql/blob.boot, dsql/blob_boot.cpp, dsql/ddl.cpp, dsql/dsql.h,
+	dsql/dsql_rel.cpp, dsql/dsql_rel.h, dsql/dsqlv.cpp, dsql/metd.epp,
+	dsql/parse.y, dsql/pass1.cpp, dsql/user_dsql.cpp,
+	gateway/Gateway.cpp, gpre/boot_meta.cpp, gpre/c_cxx.cpp,
+	gpre/gpre_meta.boot, include/fb_exception.h, include/fb_types.h,
+	include/fb_vector.h, include/gen/iberror.h, jrd/Attachment.cpp,
+	jrd/Attachment.h, jrd/Bdb.cpp, jrd/Bdb.h, jrd/CsConvertArray.h,
+	jrd/Database.cpp, jrd/Database.h, jrd/DatabaseManager.cpp,
+	jrd/DatabaseManager.h, jrd/Engine8.cpp, jrd/ExternalLibrary.cpp,
+	jrd/Interlock.h, jrd/InternalCallableStatement.cpp, jrd/MemMgr.cpp,
+	jrd/MemMgr.h, jrd/Move.cpp, jrd/MsgFile.cpp, jrd/MsgFile.h,
+	jrd/PageCache.cpp, jrd/PageCache.h, jrd/ProcManager.cpp,
+	jrd/ProcParam.h, jrd/Relation.cpp, jrd/Relation.h,
+	jrd/SecurityDb.cpp, jrd/StatusPrint.cpp, jrd/SyncObject.cpp,
+	jrd/Synchronize.cpp, jrd/Thread.cpp, jrd/TipCache.cpp,
+	jrd/TipCache.h, jrd/Trigger.cpp, jrd/Triggers.cpp, jrd/Triggers.h,
+	jrd/all.h, jrd/blb.cpp, jrd/blb.h, jrd/cas.il, jrd/cmp.cpp,
+	jrd/common.h, jrd/cvt.cpp, jrd/dfw.epp, jrd/dpm.epp, jrd/dyn.epp,
+	jrd/dyn_util.epp, jrd/event.h, jrd/exe.cpp, jrd/flu.cpp, jrd/flu.h,
+	jrd/fun.epp, jrd/gds.cpp, jrd/grant.epp, jrd/ibase.h, jrd/idx.cpp,
+	jrd/inf.cpp, jrd/ini.epp, jrd/intl.cpp, jrd/isc.cpp, jrd/isc.h,
+	jrd/isc_exception.cpp, jrd/isc_file.cpp, jrd/isc_sync.cpp,
+	jrd/jrd.cpp, jrd/jrd_pwd.h, jrd/jrn.cpp, jrd/lck.cpp, jrd/lck.h,
+	jrd/license.h, jrd/met.epp, jrd/pag.cpp, jrd/par.cpp, jrd/pwd.cpp,
+	jrd/rpb_chain.cpp, jrd/rpb_chain.h, jrd/sch.cpp, jrd/sch_proto.h,
+	jrd/scl.epp, jrd/sort.cpp, jrd/support.cpp, jrd/tdbb.h,
+	jrd/thd.cpp, jrd/thd.h, jrd/tra.cpp, jrd/tra.h, jrd/utl.cpp,
+	jrd/utl_proto.h, jrd/val.cpp, jrd/vio.cpp, jrd/vms.h, jrd/y_ref.h,
+	jrd/os/posix/isc_ipc.cpp, jrd/os/posix/pio.cpp,
+	jrd/os/posix/unix.cpp, lock/LockAcquire.cpp, lock/LockAcquire.h,
+	lock/LockMgr.cpp, lock/LockMgr.h, lock/print.cpp, qli/format.cpp,
+	remote/Port.cpp, remote/REvent.h, why/Dispatch.cpp, why/Dispatch.h,
+	why/SubsysHandle.cpp, why/YSQLDA.cpp, why/YSQLDA.h,
+	why/YStatement.cpp, why/YTransaction.cpp, why/alt2.cpp,
+	why/local.cpp:
+	
+	local cache mode, change ISC_STATUS to intptr_t
+
+2005-04-18 22:18  steve_krueger
+
+	* vulcan/src/jrd/opt.cpp:
+	
+	Copy perfomance improvement from FB 2.0
+
+2005-04-18 13:42  tomcole
+
+	* vulcan/src/isql/isql.epp:
+	
+	Undo incorrection solution to quoted name parsing issue.
+
 2005-04-13 18:43  tomcole
 
 	* vulcan/src/isql/isql.epp:
