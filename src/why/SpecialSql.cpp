@@ -151,8 +151,8 @@ Element* SpecialSql::parseCreateDatabase(void)
 				{
 				if (!match("NAMES"))
 					syntaxError ("names", token);
-					
-				element->addAttribute ("set_names", getName());
+	
+				element->addAttribute ("set_names", getCharSetName());
 				}				
 			else if (match ("DEFAULT"))
 				{
@@ -162,7 +162,7 @@ Element* SpecialSql::parseCreateDatabase(void)
 				if (!match ("SET"))
 					syntaxError ("set", token);
 					
-				element->addAttribute ("charset", getName());
+				element->addAttribute ("charset", getCharSetName());
 				}
 			else if (match ("DIFFERENCES"))
 				{
