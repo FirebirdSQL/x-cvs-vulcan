@@ -329,9 +329,14 @@ JString	SpecialSql::genAlterStatement ()
 	return command.getJString();
 }
 
+/* Same as Lex::getName() but used for charset names which can be quoted */
+JString SpecialSql::getCharSetName()
+{
+	if ((tokenType != NAME)&& (tokenType != SINGLE_QUOTED_STRING))
+		syntaxError ("character set name", token);
 
-
-
-
-
-
+	JString name = token;
+	getToken();
+	
+	return name;	
+}

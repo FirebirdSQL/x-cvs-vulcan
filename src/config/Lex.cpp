@@ -277,18 +277,6 @@ JString Lex::getName()
 	return name;	
 }
 
-/* Same as getName() but used for charset names which can be quoted */
-JString Lex::getCharSetName()
-{
-	if ((tokenType != NAME)&& (tokenType != SINGLE_QUOTED_STRING))
-		syntaxError ("name");
-
-	JString name = token;
-	getToken();
-	
-	return name;	
-}
-
 void Lex::syntaxError(const char *expected)
 {
 	AdminException exception ("expected %s, got \"%s\"", expected, token);

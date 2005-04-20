@@ -74,7 +74,6 @@ public:
 	void setContinuationChar (char c);
 	virtual void syntaxError (const char* expected);
 	JString getName();
-	JString getCharSetName();
 	JString reparseFilename();
 	bool match (const char *word);
 	bool isKeyword (const char *word);
