@@ -2926,11 +2926,19 @@ pag* PageCache::handoff(thread_db * tdbb, win* window, SLONG page, int lock, int
 	//validate();
 
 	/* This prevents a deadlock with the precedence queue, as shown by */
-	/* mwrite mwrite1 2 mwrite2 2 test.fdb                             */
-	temp.win_bdb->downGrade (Shared);    
+	/* mwrite mwrite1 2 mwrite2 2 test.fdb  
+	                           */
+	//temp.win_bdb->downGrade (Shared);
+	int wait = (window->win_bdb->ourExclusiveLock()) ? LCK_NO_WAIT : LCK_WAIT;
 
-	LockState must_read = fetchLock(tdbb, window, lock, LCK_WAIT, page_type);
+	LockState must_read = fetchLock(tdbb, window, lock, wait, page_type);
 
+	if (must_read == lsLockTimeout && wait == LCK_NO_WAIT)
+		{
+		temp.win_bdb->downGrade (Shared);
+		must_read = fetchLock(tdbb, window, LCK_WAIT, wait, page_type);
+		}
+		
 	/* Latch or lock timeout, return failure. */
 
 	//if (must_read == lsLatchTimeout || must_read == lsLockTimeout) 

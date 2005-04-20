@@ -102,9 +102,6 @@ public:
 	SLONG			bdb_incarnation;
 	ULONG			bdb_transactions;		/* vector of dirty flags to reduce commit overhead */
 	SLONG			bdb_mark_transaction;	/* hi-water mark transaction to defer header page I/O */
-	//Bdb*			bdb_left;				/* dirty page binary tree link */
-	//Bdb*			bdb_right;				/* dirty page binary tree link */
-	//Bdb*			bdb_parent;				/* dirty page binary tree link */
 	Que				bdb_lower;				/* lower precedence que */
 	Que				bdb_higher;				/* higher precedence que */
 	Que				bdb_waiters;			/* latch wait que */
@@ -122,11 +119,9 @@ public:
 											   Used in CS only. */
 	thread_db*		bdb_shared[BDB_max_shared];	/* threads holding shared latches */
 	bool			exclusive;
-	//bool			bdb_lru_chained;
 #ifdef SHARED_CACHE
 	SyncObject		syncPage;
 #endif
-	//SyncObject		syncBdb;
 	int				writers;
 	
 	volatile INTERLOCK_TYPE bdb_use_count;			/* Number of active users */
