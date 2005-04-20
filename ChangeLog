@@ -1,3 +1,16 @@
+2005-04-19 20:15  tomcole
+
+	* vulcan/src/: config/Lex.cpp, config/Lex.h, why/SpecialSql.cpp:
+	
+	Better fix for CREATE DATABASE parsing of SET NAMES and DEFAULT
+	CHARACTER SET clauses where character set name is in quotes.
+
+2005-04-19 18:42  steve_krueger
+
+	* vulcan/src/jrd/: pwd.cpp, jrd_pwd.h:
+	
+	Need this sync even in local cache mode
+
 2005-04-18 23:18  tomcole
 
 	* vulcan/src/dsql/pass1.cpp:
