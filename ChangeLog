@@ -1,3 +1,25 @@
+2005-04-20 23:53  jimstarkey
+
+	* vulcan/src/jrd/: Bdb.h, PageCache.cpp:
+	
+	Made a good stab at fixing the quite rare internal cache Bdb
+	deadlock bug.
+
+2005-04-20 14:25  tomcole
+
+	* vulcan/src/why/SpecialSql.h:
+	
+	Clean up missing void in declaration, will cause warning on some
+	compilers.
+
+2005-04-20 14:03  tomcole
+
+	* vulcan/src/: config/Lex.cpp, config/Lex.h, why/SpecialSql.cpp,
+	why/SpecialSql.h:
+	
+	Move getCharSetName() method to SpecialSql class per request from
+	JAS.
+
 2005-04-19 20:15  tomcole
 
 	* vulcan/src/: config/Lex.cpp, config/Lex.h, why/SpecialSql.cpp:
