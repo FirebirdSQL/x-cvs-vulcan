@@ -256,20 +256,22 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 		printTrace ("attachDatabase %s", translatedName);
 	else
 		trace ("attachDatabase %s", translatedName);
-		
-	StatusVector statusVector (userStatus, traceFlags);
 	
+	StatusVector localVector (userStatus, traceFlags);
+	StatusVector *statusVector = &localVector;
+	ISC_STATUS	localStatus[20];
+
 	if (*((isc_db_handle*) dbHandle))
-		return statusVector.postAndReturn (isc_bad_db_handle);
+		return statusVector->postAndReturn (isc_bad_db_handle);
 
 	if (!translatedName)
 		{
-		statusVector.post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
-		return statusVector.getReturn();
+		statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+		return statusVector->getReturn();
 		}
 
 	if (dpbLength > 0 && !dpb)
-		return statusVector.postAndReturn (isc_bad_dpb_form);
+		return statusVector->postAndReturn (isc_bad_dpb_form);
 
 	JString dbName = translatedName;
 	JString prior;
@@ -287,15 +289,15 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 			
 			if (!confObject)
 				{
-				statusVector.post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
-				return statusVector.getReturn();
+				statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+				return statusVector->getReturn();
 				}
 			}
 		catch (AdminException& exception)
 			{
 			exception;
-			statusVector.post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
-			return statusVector.getReturn();
+			statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+			return statusVector->getReturn();
 			}
 		
 		dbName = confObject->getValue ("filename", (const char*) dbName);
@@ -319,17 +321,22 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 					if (!subsystem)
 						break;
 					DbHandle tempHandle = NULL;
-					if (subsystem->attachDatabase (statusVector, orgName, dbName, &tempHandle, 
+					if (subsystem->attachDatabase (*statusVector, orgName, dbName, &tempHandle, 
 												   extendedDpbLength, extendedDpb, 
 												   confObject, provider->configuration))
+						{
+						if (!haveError)
+							memcpy (localStatus, statusVector->statusVector, sizeof(localStatus));
+
 						haveError = true;
+						}
 					else
 						{
 						SubsysHandle *handle = new SubsysHandle (subsystem, tempHandle);
 						*((isc_db_handle*) dbHandle) = (isc_db_handle) databaseHandles.allocateHandle (handle);
 						if (extendedDpb != dpb)
 							delete [] extendedDpb;
-						return statusVector.getCode();
+						return statusVector->getCode();
 						}
 					}
 			}
@@ -339,8 +346,10 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 		delete [] extendedDpb;
 
 	if (haveError)
-		return statusVector.getReturn();
-
+		{
+		memcpy (statusVector->statusVector, localStatus, sizeof(localStatus));
+		return statusVector->getReturn();
+		}
 	return entrypointUnavailable (userStatus);
 }
 
