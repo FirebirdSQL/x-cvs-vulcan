@@ -1,3 +1,13 @@
+2005-04-21 23:11  awharrison
+
+	* vulcan/src/why/Dispatch.cpp:
+	
+	When an attach fails with all providers, return the error from the
+	first provider which is the local engine, rather than the last.  
+	The calling program may be looking specifically for "file not
+	found".  That's the way the Y-valve has worked for a donkey's
+	years.
+
 2005-04-20 23:53  jimstarkey
 
 	* vulcan/src/jrd/: Bdb.h, PageCache.cpp:
