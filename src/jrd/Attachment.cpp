@@ -280,10 +280,11 @@ void Attachment::addLongLock(lck* lock)
 #endif
 	
 /* check to see if lock is already here ???? */
+
 #ifdef DEV_BUILD
-	lck *t;
-    for (t = att_long_locks; t; t = t->lck_next)
-	    if (t == lock) fb_assert(false);
+    for (lck *t = att_long_locks; t; t = t->lck_next)
+	    if (t == lock) 
+			fb_assert(false);
 #endif
 	
 	if (lock->lck_next = att_long_locks)

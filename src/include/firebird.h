@@ -68,6 +68,10 @@ using namespace NAMESPACE;
 #define ATTRIBUTE_FORMAT(a,b)
 #endif
 
+#ifndef NO_SHARED_CACHE
+#define SHARED_CACHE
+#endif
+
 #ifdef __cplusplus
 #include "fb_exception.h"
 #endif

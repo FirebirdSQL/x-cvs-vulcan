@@ -813,7 +813,6 @@ void PageCache::unwind(thread_db * tdbb, bool punt)
 		if (bdb)
 			{
 			if (bdb->exclusive)
-				//bdb->bdb_flags &= ~(BDB_writer | BDB_faked | BDB_must_write);
 				bdb->clearFlags(BDB_writer | BDB_faked | BDB_must_write);
 			bdb->release(tdbb);
 			}
@@ -831,7 +830,6 @@ void PageCache::unwind(thread_db * tdbb, bool punt)
 		if (bdb->bdb_flags & BDB_marked) 
 			bugcheck(268);	// msg 268 buffer marked during cache unwind 
 		
-		//bdb->bdb_flags &= ~BDB_writer;
 		bdb->clearFlags(BDB_writer);
 		
 		while (bdb->bdb_use_count) 
@@ -848,7 +846,6 @@ void PageCache::unwind(thread_db * tdbb, bool punt)
 			if (bdb->bdb_flags & BDB_dirty)
 				set_write_direction(database, bdb, BDB_write_undefined);
 
-			//bdb->bdb_flags &= ~(BDB_dirty | BDB_writer | BDB_marked | BDB_faked | BDB_db_dirty);
 			bdb->clearFlags(BDB_dirty | BDB_writer | BDB_marked | BDB_faked | BDB_db_dirty);
 			LCK_release(bdb->bdb_lock);
 			bdb->decrementUseCount();
@@ -1294,7 +1291,6 @@ pag* PageCache::fake(thread_db * tdbb, win* window)
 	else if (QUE_NOT_EMPTY(bdb->bdb_lower)) 
 		clearPrecedenceSync(bdb);	// Clear residual precedence left over from AST-level I/O.
 
-	//bdb->bdb_flags = (BDB_writer | BDB_faked);
 	bdb->setFlags(BDB_writer | BDB_faked, ~BDB_lru_chained);
 	bdb->bdb_scan_count = 0;
 
@@ -2707,7 +2703,6 @@ LockState PageCache::fetchLock(thread_db * tdbb, win* window, int lock_type, int
 	Bdb *bdb = getBuffer(tdbb, window->win_page, lock_type);
 					  
 	if (lock_type >= LCK_write)
-		//bdb->bdb_flags |= BDB_writer;
 		bdb->setFlags(BDB_writer);
 
 	/* the expanded index buffer is only good when the page is
@@ -2928,24 +2923,20 @@ pag* PageCache::handoff(thread_db * tdbb, win* window, SLONG page, int lock, int
 	/* This prevents a deadlock with the precedence queue, as shown by */
 	/* mwrite mwrite1 2 mwrite2 2 test.fdb  
 	                           */
-	temp.win_bdb->downGrade (Shared);
-	LockState must_read = fetchLock(tdbb, window, lock, LCK_WAIT, page_type);
+	//temp.win_bdb->downGrade (Shared);
+	//LockState must_read = fetchLock(tdbb, window, lock, LCK_WAIT, page_type);
 	
-	/***
 	int wait = (window->win_bdb->ourExclusiveLock()) ? LCK_NO_WAIT : LCK_WAIT;
 	LockState must_read = fetchLock(tdbb, window, lock, wait, page_type);
 
 	if (must_read == lsLockTimeout && wait == LCK_NO_WAIT)
 		{
-		*window = temp;
 		temp.win_bdb->downGrade (Shared);
-		must_read = fetchLock(tdbb, window, LCK_WAIT, wait, page_type);
+		must_read = fetchLock(tdbb, window, lock, LCK_WAIT, page_type);
 		}
-	***/
 	
 	/* Latch or lock timeout, return failure. */
 
-	//if (must_read == lsLatchTimeout || must_read == lsLockTimeout) 
 	if (must_read == lsLockTimeout) 
 		{
 		*window = temp;
@@ -3083,7 +3074,6 @@ void PageCache::release(thread_db * tdbb, win* window, bool release_tail)
 #endif
 		{
 		//bool marked = bdb->bdb_flags & BDB_marked;
-		//bdb->bdb_flags &= ~(BDB_writer | BDB_marked | BDB_faked);
 		int oldFlags = bdb->clearFlags(BDB_writer | BDB_marked | BDB_faked);
 		/***			
 		if (marked)

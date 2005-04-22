@@ -650,13 +650,14 @@ int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 #endif
 
 	fb_assert(LCK_CHECK_LOCK(lock));
-	//SET_TDBB(tdbb);
 
 	DBB dbb = lock->lck_dbb;
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
 	lock->lck_blocked_threads = NULL;
+	
 	if (!lock->lck_long_lock)
 	    lock->lck_next = lock->lck_prior = NULL;
+	    
 	if (lock->lck_attachment != tdbb->tdbb_attachment)
 		{
 		if (lock->lck_attachment && lock->lck_long_lock)
@@ -665,9 +666,9 @@ int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 		if (tdbb->tdbb_attachment)
 			tdbb->tdbb_attachment->addLongLock(lock);
 		}
+		
 	lock->lck_attachment = tdbb->tdbb_attachment;
 
-	//ENQUEUE(lock, level, wait);
 	if (lock->lck_compatible)
 		internal_enqueue (tdbb, lock, level, wait, FALSE);
 	else 
@@ -677,15 +678,16 @@ int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 	
 	if (!lock->lck_id)
 		{
-		if (lock->lck_attachment)
-			{
-			if (lock->lck_long_lock) lock->lck_attachment->removeLongLock(lock);
-			}
-		if (!wait ||
-			status[1] == isc_deadlock || status[1] == isc_lock_conflict || status[1] == isc_lock_timeout) 
+		if (lock->lck_attachment && lock->lck_long_lock) 
+			lock->lck_attachment->removeLongLock(lock);
+			
+		if (!wait || status[1] == isc_deadlock || 
+			 status[1] == isc_lock_conflict || status[1] == isc_lock_timeout) 
 			return FALSE;
+			
 		if (status[1] == isc_lockmanerr)
 			dbb->dbb_flags |= DBB_bugcheck;
+			
 		ERR_punt();
 		}
 
