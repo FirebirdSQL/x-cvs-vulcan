@@ -131,11 +131,7 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 				instantiateRequest (thread);
 				break;
 			
-			case REQ_DDL: 
-				if (statement->ddlNode->nod_type == nod_def_database)
-						ERRD_post(isc_sqlerr, isc_arg_number, -530,
-					  		isc_arg_gds, isc_dsql_crdb_prepare_err, 0);
-			
+			case REQ_DDL: 			
 			case REQ_COMMIT: 
 			case REQ_ROLLBACK: 
 			case REQ_EMBED_SELECT:
