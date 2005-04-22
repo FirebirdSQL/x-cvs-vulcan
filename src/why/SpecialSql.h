@@ -39,7 +39,7 @@ CLASS(Element);
 class SpecialSql : public Lex
 {
 public:
-	SpecialSql(const char *sql, int userDialect);
+	SpecialSql(int length, const char *sql, int userDialect);
 	virtual ~SpecialSql(void);
 	Element	*syntax;
 	Element* parseStatement(void);

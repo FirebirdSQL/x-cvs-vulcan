@@ -32,9 +32,13 @@
 #include "PBGen.h"
 #include "Stream.h"
 	
-SpecialSql::SpecialSql(const char *sql, int userDialect) : Lex ("=()[].,;+-*/", LEX_upcase)
+SpecialSql::SpecialSql(int length, const char *sql, int userDialect) : Lex ("=()[].,;+-*/", LEX_upcase)
 {
 	InputStream *stream = new InputStream (sql);
+
+	if (length)
+		stream->segmentLength = length;
+
 	pushStream (stream);
 	stream->release();
 	syntax = NULL;
