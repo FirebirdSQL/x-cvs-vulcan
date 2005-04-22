@@ -1359,7 +1359,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 		{
 		try
 			{
-			SpecialSql hack (sql, dialect);
+			SpecialSql hack (sqlLength, sql, dialect);
 			Element *element = hack.parse();
 			const char *fileName = element->getAttributeValue("filename", NULL);
 			
@@ -1613,7 +1613,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbH
 		{
 		try
 			{
-			SpecialSql hack (sql, dialect);
+			SpecialSql hack (sqlLength, sql, dialect);
 			Element *element = hack.parse();
 			const char *fileName = element->getAttributeValue("filename", NULL);
 			
