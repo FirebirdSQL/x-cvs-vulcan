@@ -67,24 +67,24 @@ bool		CCH_write_all_shadows(TDBB, sdw*, bdb*,
 /* macros for dealing with cache pages */
 
 #define NEW_PAGE_CACHE
-#define DEFAULT_FETCH	1,1,1
-#define NO_CHKSUM	0,1,1
+#define DEFAULT_FETCH	1,1
+#define NO_CHKSUM	0,1
 
 #ifdef NEW_PAGE_CACHE
 #define CACHE(tdbb)	tdbb->tdbb_database->pageCache
 #define CCH_FETCH(tdbb, window, lock, type)				  CACHE(tdbb)->fetch (tdbb, window, lock, type, DEFAULT_FETCH)
-#define CCH_FETCH_NO_SHADOW(tdbb, window, lock, type)	  CACHE(tdbb)->fetch (tdbb, window, lock, type, 1, 1, 0)
-#define CCH_FETCH_NO_CHECKSUM(tdbb, window, lock, type)   CACHE(tdbb)->fetch (tdbb, window, lock, type, 0, 1, 1)
-#define CCH_FETCH_TIMEOUT(tdbb, window, lock, type, latch_wait)   CACHE(tdbb)->fetch (tdbb, window, lock, type, 0, latch_wait, 1)
+#define CCH_FETCH_NO_SHADOW(tdbb, window, lock, type)	  CACHE(tdbb)->fetch (tdbb, window, lock, type, 1, 0)
+#define CCH_FETCH_NO_CHECKSUM(tdbb, window, lock, type)   CACHE(tdbb)->fetch (tdbb, window, lock, type, 0, 1)
+#define CCH_FETCH_TIMEOUT(tdbb, window, lock, type, latch_wait)   CACHE(tdbb)->fetch (tdbb, window, lock, type, 0, 1)
 #define CCH_FETCH_LOCK(tdbb, window, lock, wait, latch_wait, type) CACHE(tdbb)->fetchLock (tdbb, window, lock, wait, latch_wait, type)
 #define CCH_FETCH_PAGE(tdbb, window, checksum, read_shadow)       CACHE(tdbb)->fetchPage (tdbb, window, checksum, read_shadow)
 #define CCH_RELEASE(tdbb, window)                         CACHE(tdbb)->release (tdbb, window, FALSE)
 #define CCH_RELEASE_TAIL(tdbb, window)                    CACHE(tdbb)->release (tdbb, window, TRUE)
 #define CCH_MARK(tdbb, window)                            CACHE(tdbb)->mark (tdbb, window, 0)
 #define CCH_MARK_SYSTEM(tdbb, window)                     CACHE(tdbb)->mark (tdbb, window, 1)
-#define CCH_HANDOFF(tdbb, window, page, lock, type)       CACHE(tdbb)->handoff (tdbb, window, page, lock, type, 1, 0)
-#define CCH_HANDOFF_TIMEOUT(tdbb, window, page, lock, type, latch_wait)   CACHE(tdbb)->handoff (tdbb, window, page, lock, type, latch_wait, 0)
-#define CCH_HANDOFF_TAIL(tdbb, window, page, lock, type)  CACHE(tdbb)->handoff (tdbb, window, page, lock, type, 1, 1)
+#define CCH_HANDOFF(tdbb, window, page, lock, type)       CACHE(tdbb)->handoff (tdbb, window, page, lock, type, 0)
+#define CCH_HANDOFF_TIMEOUT(tdbb, window, page, lock, type, latch_wait)   CACHE(tdbb)->handoff (tdbb, window, page, lock, type, 0)
+#define CCH_HANDOFF_TAIL(tdbb, window, page, lock, type)  CACHE(tdbb)->handoff (tdbb, window, page, lock, type, 1)
 #define CCH_MARK_MUST_WRITE(tdbb, window)                 CACHE(tdbb)->markMustWrite (tdbb, window)
 #define CCH_PREFETCH(tdbb, pages, count)				  CACHE(tdbb)->prefetch (tdbb, pages, count)
 #define CCH_PRECEDENCE(tdbb, window, page)				  CACHE(tdbb)->declarePrecedence (tdbb, window, page)

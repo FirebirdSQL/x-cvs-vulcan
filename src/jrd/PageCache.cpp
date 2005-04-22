@@ -2596,7 +2596,8 @@ bool PageCache::getExclusiveAttachment(thread_db * tdbb, int level, int wait_fla
  *
  **************************************/
 
-pag* PageCache::fetch(thread_db * tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow)
+//pag* PageCache::fetch(thread_db * tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow)
+pag* PageCache::fetch(thread_db * tdbb, win* window, int lock_type, int page_type, int checksum, int read_shadow)
 {
 	LockState lockState = fetchLock (tdbb, window, lock_type, LCK_WAIT, page_type);
 	Bdb *bdb = window->win_bdb;
@@ -2892,7 +2893,8 @@ void PageCache::pageValidationError(thread_db * tdbb, win* window, int type)
  *
  **************************************/
 
-pag* PageCache::handoff(thread_db * tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail)
+//pag* PageCache::handoff(thread_db * tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail)
+pag* PageCache::handoff(thread_db * tdbb, win* window, SLONG page, int lock, int page_type, int release_tail)
 {
 	Bdb *bdb = window->win_bdb;
 
@@ -3827,7 +3829,7 @@ void PageCache::recoverShadow(thread_db * tdbb, SparseBitmap* sbm_rec)
 		while (SBM_next(sbm_rec, &page_no, RSE_get_forward)) 
 			{
 			window.win_page = page_no;
-			fetch(tdbb, &window, LCK_write, pag_undefined, 1,1,1);
+			fetch(tdbb, &window, LCK_write, pag_undefined, 1, 1);
 			result = writeAllShadows (tdbb, 0, window.win_bdb, 1, false);
 			release(tdbb, &window);
 			}

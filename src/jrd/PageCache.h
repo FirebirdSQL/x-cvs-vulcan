@@ -154,11 +154,11 @@ public:
 	void downGrade(thread_db* tdbb, Bdb* bdb);
 	bool getExclusive(thread_db* tdbb, int level, int wait_flag);
 	bool getExclusiveAttachment(thread_db* tdbb, int level, int wait_flag);
-	pag* fetch(thread_db* tdbb, win* window, int lock_type, int page_type, int checksum, int latch_wait, int read_shadow);
+	pag* fetch(thread_db* tdbb, win* window, int lock_type, int page_type, int checksum, int read_shadow);
 	LockState fetchLock(thread_db* tdbb, win* window, int lock_type, int wait, int page_type);
 	void fetchPage(thread_db* tdbb, win* window, int compute_checksum, bool read_shadow);
 	void pageValidationError(thread_db* tdbb, win* window, int type);
-	pag* handoff(thread_db* tdbb, win* window, SLONG page, int lock, int page_type, int latch_wait, int release_tail);
+	pag* handoff(thread_db* tdbb, win* window, SLONG page, int lock, int page_type, int release_tail);
 	void unmark(thread_db* tdbb, win* window);
 	void release(thread_db* tdbb, win* window, bool release_tail = false);
 	void declarePrecedence(thread_db* tdbb, win* window, SLONG page);

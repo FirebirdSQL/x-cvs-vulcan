@@ -2967,26 +2967,26 @@ ISC_STATUS GDS_ROLLBACK(ISC_STATUS * user_status, Transaction* * tra_handle)
 	ThreadData threadData (user_status);
 	Transaction* transaction = *tra_handle;
 	CHECK_HANDLE(transaction, type_tra, isc_bad_trans_handle);
-	DBB dbb;
 
 	if (check_database(threadData, transaction->tra_attachment, user_status))
 		return user_status[1];
 
-	lockAST(dbb = transaction->tra_attachment->att_database);
+	DBB dbb = transaction->tra_attachment->att_database;
+	lockAST(dbb);
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_rollback, *tra_handle);
 #endif
 
 	if (rollback(threadData, transaction, user_status, false))
-	{
+		{
 		unlockAST(transaction->tra_attachment->att_database);
 		return error(NULL, user_status);
-	}
+		}
 
 	unlockAST(dbb);
-
 	*tra_handle = NULL;
+	
 	return return_success(threadData);
 }
 

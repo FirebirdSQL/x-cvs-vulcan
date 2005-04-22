@@ -1806,12 +1806,13 @@ int LockMgr::blocking_action_thread(void *arg)
  *	will send to itself.
  *
  **************************************/
-	ISC_STATUS_ARRAY status_vector;
 
 #ifndef SHARED_CACHE
 	blocking_action_thread_id = Thread::getCurrentThreadId(); 
 
 #if !defined ONE_LOCK_TABLE
+	ISC_STATUS_ARRAY status_vector;
+
 	if (!(LOCK_header2 = (LHB) ISC_map_file(status_vector, lock_buffer,
 										   lock_initialize2, this,
 										   LOCK_shm_size, &LOCK_data2))) 
