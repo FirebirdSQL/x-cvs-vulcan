@@ -1355,7 +1355,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 	StatusVector statusVector (userStatus, traceFlags);
 	SubsysHandle *subsystem = getDatabase (dbHandle);
 
-//	if (!subsystem)
+	if (!subsystem)
 		{
 		try
 			{
@@ -1609,7 +1609,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbH
 	
 	SubsysHandle *subsystem = getDatabase (dbHandle);
 
-//	if (!subsystem)
+	if (!subsystem)
 		{
 		try
 			{
