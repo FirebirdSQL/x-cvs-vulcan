@@ -4295,6 +4295,7 @@ static bool pass1_found_aggregate(const dsql_nod* node, USHORT check_scope_level
 		case nod_user_name:
 		case nod_current_role:
 		case nod_internal_info:
+		case nod_dom_value:
 			return false;
 
 		default:
