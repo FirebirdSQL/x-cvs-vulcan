@@ -259,7 +259,7 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 	
 	StatusVector localVector (userStatus, traceFlags);
 	StatusVector *statusVector = &localVector;
-	ISC_STATUS	localStatus[20];
+	ISC_STATUS	localStatus[ISC_STATUS_LENGTH];
 
 	if (*((isc_db_handle*) dbHandle))
 		return statusVector->postAndReturn (isc_bad_db_handle);
@@ -1355,7 +1355,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 	StatusVector statusVector (userStatus, traceFlags);
 	SubsysHandle *subsystem = getDatabase (dbHandle);
 
-	if (!subsystem)
+//	if (!subsystem)
 		{
 		try
 			{
@@ -1609,8 +1609,34 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbH
 	
 	SubsysHandle *subsystem = getDatabase (dbHandle);
 
-	if (!subsystem)
+//	if (!subsystem)
+		{
+		try
+			{
+			SpecialSql hack (sql, dialect);
+			Element *element = hack.parse();
+			const char *fileName = element->getAttributeValue("filename", NULL);
+			
+			if (fileName)
+				{
+				PBGen dpb;
+				int dpbLength = hack.genDPB(&dpb);
+				dbHandle = NULL;
+				if (!createDatabase(statusVector, fileName, fileName, dbHandle, 
+							dpbLength, dpb.buffer,0, NULL, NULL))
+					if (element->children)
+						alterDatabase (statusVector, dbHandle, &hack);
+
+				return statusVector.getReturn();
+				}
+			}
+		catch (OSRIException& exception)
+			{
+			return exception.copy (statusVector);
+			}
+
 		return statusVector.postAndReturn (isc_bad_db_handle);
+		}
 
 	YTransaction *transaction = getTransaction (traHandle);
 
