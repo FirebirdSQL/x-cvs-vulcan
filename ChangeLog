@@ -1,3 +1,71 @@
+2005-04-22 23:36  awharrison
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	Allow execute_immediate on CREATE DATABASE/SCHEMA statements. 
+	Seems odd, but that's the way older versions of fbclient do it -
+	they create a simple database, then use a transaction and database
+	handle from that database to the engine which replaces it.  Scary.
+
+2005-04-22 23:13  awharrison
+
+	* vulcan/src/why/Dispatch.cpp:
+	
+	Undo a side-effect of last commit
+
+2005-04-22 23:09  awharrison
+
+	* vulcan/src/why/Dispatch.cpp:
+	
+	Include the SpecialSql fix.
+
+2005-04-22 22:50  awharrison
+
+	* vulcan/src/why/: SpecialSql.cpp, SpecialSql.h:
+	
+	Handle non-terminated sql strings better
+
+2005-04-22 21:18  jimstarkey
+
+	* vulcan/src/: jrd/PageCache.cpp, jrd/PageCache.h, jrd/cch_proto.h,
+	jrd/jrd.cpp, lock/LockMgr.cpp:
+	
+	Eliminated obsolete "latch_wait" parameters from PageCache::fetch
+	and PageCache::handoff
+
+2005-04-22 20:46  jimstarkey
+
+	* vulcan/src/: include/firebird.h, jrd/Attachment.cpp,
+	jrd/PageCache.cpp, jrd/lck.cpp:
+	
+	Two things.  First, reintroduced a fix to the Bdb handoff deadlock
+	bug.  Hopefully, this one will take.  Second, changed the default
+	build type from "no shared cache" to "shared cache".  Also did some
+	minor formatting cleanups to expose the logic.
+
+2005-04-22 17:28  jimstarkey
+
+	* vulcan/src/jrd/PageCache.cpp:
+	
+	Backout bad fix to handoff deadlock bug
+
+2005-04-22 15:54  awharrison
+
+	* vulcan/src/why/Dispatch.cpp:
+	
+	use the ISC_STATUS_LENGTH macro
+
+2005-04-22 13:50  tomcole
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Fix syntax error handling for some syntactically invalid uses of 
+	VALUE keyword, such as forgetting to quote it when it is used as a
+	column name in function argument lists.  Specifically,
+	field_aggregate() needs to ignore this token rather than
+	assert/abend on it so it can be succesfully reported as a syntax
+	error later in pass1 processing.
+
 2005-04-21 23:11  awharrison
 
 	* vulcan/src/why/Dispatch.cpp:
