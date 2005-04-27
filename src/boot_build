@@ -16,7 +16,7 @@ rm -f $VULCAN/bin/*.so \
 	$VULCAN/databases/msg.fdb \
 	$VULCAN/help/help.fdb > /dev/null 2>&1
 
-for x in why config gpre remote jrd burp msgs qli isql server intlcpp lock IscDbc XLoad; do
+for x in why config gpre remote jrd burp msgs qli isql server intlcpp IscDbc lock XLoad; do
 	(
 	cd $x
 	echo

@@ -6,7 +6,7 @@ export VULCAN
 export PATH
 export LD_LIBRARY_PATH
 
-for x in config why gpre remote jrd intlcpp burp isql qli server lock IscDbc XLoad ; do
+for x in config why gpre remote jrd intlcpp burp isql qli server IscDbc lock XLoad ; do
 	(
 	cd $x
 	echo
