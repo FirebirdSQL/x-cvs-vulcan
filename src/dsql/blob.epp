@@ -32,7 +32,6 @@
 #include "firebird.h"
 #include "../jrd/common.h"
 #include <stdarg.h>
-//#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
 #include "../jrd/intl.h"
 #include "../jrd/constants.h"

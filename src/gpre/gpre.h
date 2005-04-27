@@ -86,7 +86,7 @@
 /* If the C compiler supports the ANSI const directive, we emit it before
    BLR string definitions */
 
-#if (defined (SOLARIS) || defined (AIX) || defined (WIN_NT))
+#if (defined (SOLARIS) || defined (AIX) || defined (WIN_NT) || defined (LINUX))
 static const char* const CONST_STR	= "const ";
 #else
 static const char* const CONST_STR	= "";

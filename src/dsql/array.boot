@@ -337,7 +337,7 @@ ISC_STATUS API_ROUTINE isc_array_lookup_bounds(ISC_STATUS* status,
            isc_compile_request2 (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &isc_12, (short) sizeof (isc_13), (char *) isc_13);
 	isc_vtov ((char*)global, (char*)isc_14.isc_15, 32);
 	if (isc_12)
-           isc_start_and_send (isc_status, (isc_req_handle*) &isc_12, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_14, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &isc_12, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_14, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
@@ -762,7 +762,7 @@ static ISC_STATUS lookup_desc(ISC_STATUS* status,
 	isc_vtov ((char*)desc->array_desc_field_name, (char*)isc_2.isc_3, 32);
 	isc_vtov ((char*)desc->array_desc_relation_name, (char*)isc_2.isc_4, 32);
 	if (isc_0)
-           isc_start_and_send (isc_status, (isc_req_handle*) &isc_0, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_2, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &isc_0, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_2, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {

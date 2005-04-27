@@ -1270,7 +1270,7 @@ static void gen_compile( ACT action, int column)
 	BLB blob;
 	PAT args;
 	const TEXT *pattern1 =
-		"isc_compile_request%IF2%EN (%V1, (FB_API_HANDLE*) &%DH, (FB_API_HANDLE*) &%RH, (short) sizeof (%RI), (char *) %RI);",
+		"isc_compile_request%IF2%EN (%V1, (isc_db_handle*) &%DH, (isc_req_handle*) &%RH, (short) sizeof (%RI), (char *) %RI);",
 		*pattern2 = "if (!%RH%IF && %S1%EN)";
 
 	args.pat_request = request = action->act_request;
@@ -3420,7 +3420,7 @@ static void gen_receive( ACT action, int column, POR port)
 {
 	PAT args;
 	const TEXT *pattern =
-		"isc_receive (%V1, (FB_API_HANDLE*) &%RH, (short) %PN, (short) %PL, &%PI, (short) %RL);";
+		"isc_receive (%V1, (isc_req_handle*) &%RH, (short) %PN, (short) %PL, &%PI, (short) %RL);";
 
 	args.pat_request = action->act_request;
 	args.pat_vector1 = status_vector(action);
@@ -3977,8 +3977,8 @@ static void gen_start( ACT action, POR port, int column, BOOLEAN sending)
 {
 	PAT args;
 	const TEXT *pattern1 =
-		"isc_start_and_send (%V1, (FB_API_HANDLE*) &%RH, (FB_API_HANDLE*) &%S1, (short) %PN, (short) %PL, &%PI, (short) %RL);";
-	const TEXT *pattern2 = "isc_start_request (%V1, (FB_API_HANDLE*) &%RH, (FB_API_HANDLE*) &%S1, (short) %RL);";
+		"isc_start_and_send (%V1, (isc_req_handle*) &%RH, (isc_tr_handle*) &%S1, (short) %PN, (short) %PL, &%PI, (short) %RL);";
+	const TEXT *pattern2 = "isc_start_request (%V1, (isc_req_handle*) &%RH, (isc_tr_handle*) &%S1, (short) %RL);";
 	REF reference;
 
 	if (port && sending) {

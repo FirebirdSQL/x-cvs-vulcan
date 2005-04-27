@@ -41,7 +41,7 @@ $Id$
 #include "../jrd/thd_proto.h"
 #include "../burp/burp_proto.h"
 #include "../burp/canon_proto.h"
-#include "burp_misc_proto.h"
+#include "../burp/misc_proto.h"
 #include "../burp/mvol_proto.h"
 #include "../burp/resto_proto.h"
 #include "../jrd/gdsassert.h"
