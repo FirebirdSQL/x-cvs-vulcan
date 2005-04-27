@@ -135,6 +135,23 @@ int API_ROUTINE gds__thread_start(
 	return thread_start(entrypoint, arg, priority, flags, thd_id);
 }
 
+int API_ROUTINE gds__thread_wait(void *thd_id)
+{
+#ifdef WIN_NT
+	WaitForSingleObject(*(HANDLE*)thd_id, INFINITE );
+	CloseHandle(*(HANDLE*)thd_id);
+#endif	
+
+#ifdef POSIX_THREADS
+	void *value_ptr;
+	pthread_t thread;
+	memcpy(&thread, thd_id, sizeof(thread));
+	pthread_join(thread, &value_ptr);
+#endif	
+
+	return 0;
+}
+
 
 #ifdef OBSOLETE
 long THD_get_thread_id(void)
@@ -1068,7 +1085,7 @@ static int thread_start(
 
 	pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
 	state = pthread_create(&thread, &pattr, (void*(*)(void*))routine, arg);
-	memcpy(thd_id, &thread, sizeof(void *));
+	memcpy(thd_id, &thread, sizeof(thread));
 	pthread_attr_destroy(&pattr);
 	return state;
 
@@ -1076,7 +1093,7 @@ static int thread_start(
 #if ( defined LINUX || defined FREEBSD || defined MVS)
 		if (state = pthread_create(&thread, NULL, (void*(*)(void*))routine, arg))
 		return state;
-	memcpy(thd_id, &thread, sizeof(void *));
+	memcpy(thd_id, &thread, sizeof(thread));
 #ifdef MVS
 	return pthread_detach(&thread);
 #else
@@ -1129,7 +1146,7 @@ static int thread_start(
 		fb_assert(state == -1);
 		return errno;
 	}
-	memcpy(thd_id, &thread, sizeof(void *));
+	memcpy(thd_id, &thread, sizeof(thread));
 	return 0;
 
 #endif /* linux */

@@ -2248,6 +2248,7 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 		/* Unlink attachment from database */
 
 		release_attachment(threadData, attachment);
+		delete attachment;
 		shutdown_database(threadData, false);
 
 		/* drop the files here. */
@@ -6155,26 +6156,13 @@ static void purge_attachment(thread_db* tdbb,
 		for (SecurityClass* sec_class; sec_class = attachment->att_security_classes;)
 			SCL_release(tdbb, sec_class);
 		
-		if (attachment->att_user) 
-			delete attachment->att_user;
-		
-		
-		for (Bookmark* bookmark; bookmark = attachment->att_bookmarks;) 
-			{
-			attachment->att_bookmarks = bookmark->bkm_next;
-			delete bookmark;
-			}
-		
-		if (attachment->att_bkm_quick_ref)
-			delete attachment->att_bkm_quick_ref;
-			
-		if (attachment->att_lck_quick_ref)
-			delete attachment->att_lck_quick_ref;
-
 		delete attachment;
 		}
 	else
+		{
+		delete attachment;
 		shutdown_database(tdbb, true);
+		}
 }
 
 
@@ -6217,6 +6205,11 @@ static void verify_request_synchronization(Request*& request, SSHORT level)
 static bool verify_database_name(const TEXT* name, ISC_STATUS* status)
 {
 	static TEXT securityNameBuffer[MAXPATHLEN];
+	static SyncObject syncObject;
+	Sync sync(&syncObject, "verify_database_name");
+	
+	sync.lock(Exclusive); // sync around possible static variable write
+	
 	//static TEXT ExpandedSecurityNameBuffer[MAXPATHLEN];
 	static JString expandedSecurityName;
 	
@@ -6227,6 +6220,8 @@ static bool verify_database_name(const TEXT* name, ISC_STATUS* status)
 		expandedSecurityName = PathName::expandFilename (securityNameBuffer);
 		}
 	
+        sync.unlock();
+        
 	//if (strcmp(securityNameBuffer, name) == 0)
 	if (PathName::pathsEquivalent (securityNameBuffer, name) ||
 		PathName::pathsEquivalent (expandedSecurityName, name))

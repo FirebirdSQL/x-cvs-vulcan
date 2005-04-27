@@ -64,7 +64,7 @@
 DATABASE DB = FILENAME "ODS.RDB";
 
 #define PAD(string, field) jrd_vtof ((const char*)(string), field, sizeof (field))
-#define MAX_ACL_SIZE    4096
+#define FB_MAX_ACL_SIZE    4096
 #define DEFAULT_CLASS   "SQL$DEFAULT"
 
 #ifdef NOT_USED_OR_REPLACED
@@ -426,7 +426,7 @@ void INI_format(thread_db* tdbb, const TEXT* owner, const TEXT* charset)
 	======================================================================
 	*/
 
-	UCHAR buffer[MAX_ACL_SIZE];
+	UCHAR buffer[FB_MAX_ACL_SIZE];
 	UCHAR* acl = buffer;
 	*acl++ = ACL_version;
 	*acl++ = ACL_id_list;

@@ -59,6 +59,7 @@ int		ISC_mutex_init(struct mtx*, SLONG);
 int		ISC_mutex_lock(struct mtx *);
 int		ISC_mutex_lock_cond(struct mtx *);
 int		ISC_mutex_unlock(struct mtx *);
+void	        ISC_mutex_delete(struct mtx *);
 
 #ifdef HAVE_MMAP
 UCHAR*	ISC_map_object(ISC_STATUS *, SH_MEM, SLONG, SLONG);

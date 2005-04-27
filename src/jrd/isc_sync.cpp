@@ -3281,6 +3281,12 @@ int ISC_mutex_unlock(MTX mutex)
 }
 #endif
 
+void ISC_mutex_delete(MTX mutex)
+{
+#ifdef WIN_NT
+	CloseHandle(mutex->mtx_handle);
+#endif
+}
 
 #ifndef MUTEX
 int ISC_mutex_init(MTX mutex, SLONG dummy)
@@ -3371,35 +3377,6 @@ UCHAR *ISC_remap_file(ISC_STATUS * status_vector,
 	return address;
 }
 
-UCHAR *ISC_remap_file_no_free(ISC_STATUS * status_vector,
-					  SH_MEM shmem_data, SLONG new_length, USHORT flag)
-{
-/**************************************
- *
- *	I S C _ r e m a p _ f i l e		( U N I X - m m a p )
- *
- **************************************
- *
- * Functional description
- *	Try to re-map a given file.
- *
- **************************************/
-	UCHAR *address;
-
-	if (flag)
-		ftruncate(shmem_data->sh_mem_handle, new_length);
-
-	address =
-		(UCHAR *) mmap(0, new_length, PROT_READ | PROT_WRITE, MAP_SHARED,
-					   shmem_data->sh_mem_handle, 0);
-	if ((U_IPTR) address == (U_IPTR) -1)
-		return NULL;
-
-	shmem_data->sh_mem_address = address;
-	shmem_data->sh_mem_length_mapped = new_length;
-
-	return address;
-}
 #endif
 #endif
 

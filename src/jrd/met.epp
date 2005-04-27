@@ -3322,6 +3322,9 @@ void MET_scan_relation(thread_db* tdbb, Relation* relation)
 				
 		END_FOR;
 
+		if (!REQUEST(irq_r_fields))
+			REQUEST(irq_r_fields) = request;
+
 #ifdef SHARED_CACHE
 		sync.unlock();
 #endif

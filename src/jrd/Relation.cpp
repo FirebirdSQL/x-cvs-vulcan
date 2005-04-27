@@ -47,7 +47,7 @@
 #include "RSet.h"
 #include "tra.h"
 #include "Sync.h"
-
+#include "Triggers.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -107,6 +107,14 @@ Relation::~Relation()
 		delete dsqlRelation;
 
 	int n;
+
+	if (rel_pre_erase) delete rel_pre_erase;
+	if (rel_post_erase) delete rel_post_erase;
+	if (rel_pre_modify) delete rel_pre_modify;
+	if (rel_post_modify) delete rel_post_modify;
+	if (rel_pre_store) delete rel_pre_store;
+	if (rel_post_store) delete rel_post_store;
+
 	
 	for (n = 0; n < rel_fields.size(); ++n)
 		delete rel_fields[n];

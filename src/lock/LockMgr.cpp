@@ -281,7 +281,7 @@ static MTX_T		lock_manager_mutex[1];
 #ifdef WIN_NT
 static HANDLE	blocking_action_thread_handle;
 #else
-static void*	blocking_action_thread_handle;
+static pthread_t blocking_action_thread_handle;
 #endif
 
 
@@ -430,6 +430,11 @@ LockMgr::~LockMgr(void)
 			
 	printf("sync_locks = %d, long_sync_locks = %d\n", sync_locks, long_sync_locks);
 #endif
+#if !defined SHARED_CACHE && !defined ONE_LOCK_TABLE
+	LOCK_owner_offset = 0;
+	exit_handler();
+#endif
+	ISC_mutex_delete(MUTEX);
 }
 
 void LockMgr::LOCK_ast_inhibit() 
@@ -1889,13 +1894,11 @@ int LockMgr::blocking_action_thread(void *arg)
 		ISC_unmap_file(status_vector, &LOCK_data2, 0);
 #endif
 		shutdownComplete.post();
-		blocking_action_thread_handle = NULL;
 		return 0;
 		}
 	catch (...)
 		{
 		shutdownComplete.post();
-		blocking_action_thread_handle = NULL;
 		throw;
 		}
 }
@@ -2664,12 +2667,6 @@ void LockMgr::exit_handler(void *arg)
 	
 	if (!LOCK_table) 
 		return;
-
-#ifdef WIN_NT
-	/* On Windows, by the time we get to the exit handler, all other threads */
-	/* are long gone, so NULL the blocking action thread  */
-	blocking_action_thread_handle = NULL;
-#endif
 
 	LOCK_header = LOCK_table;
 	
@@ -3809,6 +3806,11 @@ void LockMgr::purge_owner(PTR purging_owner_offset, OWN owner)
 	owner->own_owner_id = 0;
 	owner->own_process_id = 0;
 	owner->own_flags = 0;
+	
+#ifndef SHARED_CACHE
+	/* this is resued in SHARED_CACHE mode so we can't release it */
+	ISC_event_fini(owner->own_stall);
+#endif
 }
 
 
@@ -4102,6 +4104,8 @@ void LockMgr::shutdown_blocking_thread(LockOwner *owner)
 #endif
 	
 	event->event.post();
+	gds__thread_wait(&blocking_action_thread_handle);
+	blocking_action_thread_handle = NULL;
 	shutdownComplete.wait(shutdownCount, 2000000);
 	shutdownComplete.fini();
 	acquire(ownerOffset);

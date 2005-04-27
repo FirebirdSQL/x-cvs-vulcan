@@ -43,7 +43,8 @@ Trigger::Trigger(void)
 
 Trigger::~Trigger(void)
 {
-	delete blr;
+	if (request) delete request;
+	if (blr) delete blr;
 }
 
 void Trigger::compile(thread_db* _tdbb)

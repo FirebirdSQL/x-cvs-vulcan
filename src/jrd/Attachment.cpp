@@ -45,6 +45,7 @@
 #include "event_proto.h"
 #include "../jrd/met_proto.h"
 #include "Relation.h"
+#include "scl.h"
 
 // User info items
 
@@ -97,6 +98,21 @@ Attachment::Attachment(Database *database)
 
 Attachment::~Attachment()
 {
+	if (att_user) 
+		delete att_user;
+		
+	for (Bookmark* bookmark; bookmark = att_bookmarks;) 
+		{
+		att_bookmarks = bookmark->bkm_next;
+		delete bookmark;
+		}
+		
+	if (att_bkm_quick_ref)
+		delete att_bkm_quick_ref;
+			
+	if (att_lck_quick_ref)
+		delete att_lck_quick_ref;
+
 	while (firstConnection)
 		firstConnection->close();
 }
