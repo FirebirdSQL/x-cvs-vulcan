@@ -477,12 +477,14 @@ static void SET_TDBB(thread_db*& tdbb)
 #else
 static void lockAST(Database *dbb)
 {
+	dbb->syncConnection.lock(NULL, Exclusive);
 	dbb->syncAst.lock(NULL, Exclusive);
 }
 
 static void unlockAST(Database *dbb)
 {
 	dbb->syncAst.unlock();
+	dbb->syncConnection.unlock();
 }
 #endif
 
@@ -6205,13 +6207,12 @@ static void verify_request_synchronization(Request*& request, SSHORT level)
 static bool verify_database_name(const TEXT* name, ISC_STATUS* status)
 {
 	static TEXT securityNameBuffer[MAXPATHLEN];
-	static SyncObject syncObject;
-	Sync sync(&syncObject, "verify_database_name");
-	
-	sync.lock(Exclusive); // sync around possible static variable write
-	
 	//static TEXT ExpandedSecurityNameBuffer[MAXPATHLEN];
 	static JString expandedSecurityName;
+	static SyncObject syncObject;
+	Sync sync(&syncObject, "verify_database_name");
+
+	sync.lock(Exclusive); // sync around possible static variable write
 	
 	if (!securityNameBuffer[0]) 
 		{

@@ -576,10 +576,11 @@ private:
 #endif
 
 #ifdef WIN_NT
-HANDLE	blocking_action_thread_handle;
+	HANDLE	blocking_action_thread_handle;
 #else
-void*	blocking_action_thread_handle;
+	void*	blocking_action_thread_handle;
 #endif
+	bool blocking_action_thread_initialized;
 
 	THREAD_ID LOCK_thread;
 	THREAD_ID blocking_action_thread_id;

@@ -284,10 +284,8 @@ static HANDLE	blocking_action_thread_handle;
 static pthread_t blocking_action_thread_handle;
 #endif
 
-
+static bool blocking_action_thread_initialized;
 #endif
-
-
 
 
 #define GET_TIME	time (NULL)
@@ -417,7 +415,7 @@ LockMgr::LockMgr(void)
 #endif
 #endif
 	
-	blocking_action_thread_handle = NULL;
+	blocking_action_thread_initialized = false;
 	memset(&blocking_action_thread_id, 0xff, sizeof(blocking_action_thread_id));
 #endif
 }
@@ -978,7 +976,7 @@ int LockMgr::LOCK_init(Database *dbb, ISC_STATUS * status_vector,
 
 	AST_ALLOC;
 	
-	if (!blocking_action_thread_handle)
+	if (!blocking_action_thread_initialized)
 		{
 		shutdown = false;
 		shutdownComplete.init();
@@ -1007,6 +1005,7 @@ int LockMgr::LOCK_init(Database *dbb, ISC_STATUS * status_vector,
 			*status_vector++ = isc_arg_end;
 			return FB_FAILURE;
 			}
+		blocking_action_thread_initialized = true;
 		}
 	else
 		bug(NULL, "blocking thread already running");
@@ -4090,7 +4089,7 @@ void LockMgr::shutdown_blocking_thread(LockOwner *owner)
  *
  **************************************/
 
-	if (!blocking_action_thread_handle || !owner->own_blocking_event)
+	if (!blocking_action_thread_initialized || !owner->own_blocking_event)
 		return;
 	
 	PTR ownerOffset = REL_PTR(owner);
@@ -4101,11 +4100,14 @@ void LockMgr::shutdown_blocking_thread(LockOwner *owner)
 #ifndef SHARED_CACHE
 	if (LOCK_dbb->syncAst.ourExclusiveLock())
 		LOCK_dbb->syncAst.unlock();
+
+	if (LOCK_dbb->syncConnection.ourExclusiveLock())
+		LOCK_dbb->syncConnection.unlock();
 #endif
 	
 	event->event.post();
 	gds__thread_wait(&blocking_action_thread_handle);
-	blocking_action_thread_handle = NULL;
+	blocking_action_thread_initialized = false;
 	shutdownComplete.wait(shutdownCount, 2000000);
 	shutdownComplete.fini();
 	acquire(ownerOffset);

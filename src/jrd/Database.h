@@ -304,6 +304,7 @@ public:
 	SIVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
 #else
 	SyncObject			syncAst;
+	SyncObject			syncConnection;				/* Enforce 1 thread per connection */
 	DatabaseManager		*databaseManager;
 	SVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
 	LockMgr				lockMgr;

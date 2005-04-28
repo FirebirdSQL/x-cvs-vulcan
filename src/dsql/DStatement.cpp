@@ -98,6 +98,7 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 		reset();
 		transaction = trans;
 #ifndef SHARED_CACHE
+		trans->tra_attachment->att_database->syncConnection.lock(NULL, Exclusive);
 		trans->tra_attachment->att_database->syncAst.lock(NULL, Exclusive);
 #endif
 		statement = new CStatement (attachment);
@@ -146,6 +147,7 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			}
 #ifndef SHARED_CACHE
 		trans->tra_attachment->att_database->syncAst.unlock();
+		trans->tra_attachment->att_database->syncConnection.unlock();
 #endif
 
 		return getSqlInfo (statusVector, itemLength, items, bufferLength, buffer);
@@ -154,6 +156,7 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 		{
 #ifndef SHARED_CACHE
 		trans->tra_attachment->att_database->syncAst.unlock();
+		trans->tra_attachment->att_database->syncConnection.unlock();
 #endif
 	reset();
 		return exception.copy (statusVector);
@@ -161,6 +164,7 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 	
 #ifndef SHARED_CACHE
 	trans->tra_attachment->att_database->syncAst.unlock();
+	trans->tra_attachment->att_database->syncConnection.unlock();
 #endif
 return FB_SUCCESS;
 }
