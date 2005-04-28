@@ -1,3 +1,27 @@
+2005-04-27 15:24  steve_krueger
+
+	* vulcan/src/: jrd/Attachment.cpp, jrd/Database.cpp,
+	jrd/Relation.cpp, jrd/Trigger.cpp, jrd/ini.epp, jrd/isc_s_proto.h,
+	jrd/isc_sync.cpp, jrd/jrd.cpp, jrd/met.epp, jrd/thd.cpp,
+	jrd/thd_proto.h, lock/LockMgr.cpp:
+	
+	Fix memory leaks revealed in create/show/drop database sequence
+
+2005-04-27 04:27  paulkent
+
+	* vulcan/src/: boot_build, build:
+	
+	Lock needs libIscDbc, so change order built
+
+2005-04-27 03:52  paulkent
+
+	* vulcan/src/: burp/restore.epp, dsql/array.boot, dsql/array.epp,
+	dsql/array_boot.cpp, dsql/blob.boot, dsql/blob.epp,
+	dsql/blob_boot.cpp, gpre/c_cxx.cpp, gpre/gpre.h, why/vulcan.conf:
+	
+	get src/dsql/*.epp back in sync with 2 boot versions of same. (gpre
+	array.epp now matches array.boot)
+
 2005-04-22 23:36  awharrison
 
 	* vulcan/src/dsql/DStatement.cpp:
