@@ -3110,8 +3110,10 @@ void LockMgr::init_owner_block(OWN owner, UCHAR owner_type, ULONG owner_id, USHO
 	***/
 #endif
 
+#ifdef SHARED_CACHE
 	if (new_block == OWN_BLOCK_new)
-		{
+#endif
+	{
 		//ISC_event_init(owner->own_blocking, 0, 1);
 		ISC_event_init(owner->own_stall, 0, 1);
 
