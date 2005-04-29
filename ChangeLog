@@ -1,3 +1,10 @@
+2005-04-28 20:34  steve_krueger
+
+	* vulcan/src/: dsql/DStatement.cpp, jrd/Database.h, jrd/jrd.cpp,
+	lock/LockMgr.cpp, lock/LockMgr.h:
+	
+	Add connection level sync for "local cache" mode only
+
 2005-04-27 15:24  steve_krueger
 
 	* vulcan/src/: jrd/Attachment.cpp, jrd/Database.cpp,
