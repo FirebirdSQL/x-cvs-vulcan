@@ -145,16 +145,13 @@ Database::~Database()
 	int i;
 	
 	for (i = 0; i < dbb_relations.size(); i++)
-	{
-		if (dbb_relations[i])
-			delete dbb_relations[i];
-	}
+		delete dbb_relations[i];
 
 	for (i = 0; i < dbb_internal.size(); i++)
-	{
-		if (dbb_internal[i])
-			delete dbb_internal[i];
-	}
+		delete dbb_internal[i];
+
+	for (i = 0; i < dbb_dyn_req.size(); i++)
+		delete dbb_dyn_req[i];
         
 	delete charSetManager;
 	delete pageCache;

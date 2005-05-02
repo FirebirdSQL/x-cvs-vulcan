@@ -108,6 +108,7 @@ void InternalStatement::close()
 	FOR_OBJECTS (InternalResultSet*, resultSet, &resultSets)
 		resultSet->close();
 	END_FOR;
+	delete statement;
 }
 
 bool InternalStatement::execute(const char * sqlString)
