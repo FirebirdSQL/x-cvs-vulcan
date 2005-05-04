@@ -227,7 +227,11 @@ double DPM_cardinality(thread_db* tdbb, Relation* relation, const Format* format
 	// from the data-page.
 
 	if (dataPages == 1) {
+#ifdef SHARED_CACHE
 		SIVector<SLONG> *vector = &relation->rel_pages;
+#else
+		SVector<SLONG> *vector = &relation->rel_pages;
+#endif
 		if (relation->rel_pages.size()) {
 			WIN window(-1);
 			window.win_page = (*vector)[0];
