@@ -2806,10 +2806,8 @@ static bool node_match(const dsql_nod* node1, const dsql_nod* node2,
  **/
 static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype)
 {
-	//DEV_BLKCHK(request, dsql_type_req);
 	DEV_BLKCHK(input, dsql_type_nod);
 
-	//dsql_nod* select_expr = input->nod_arg[1];
 	void* base = request->context.mark();
 
 	// create a derived table representing our subquery
@@ -2836,56 +2834,6 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 	// create output node
 	dsql_nod* node = MAKE_node(request->threadData, ntype, 1);
 	node->nod_arg[0] = rse;
-
-
-/*
-	dsql_nod* node = MAKE_node(request->threadData, ntype, 1);
-	dsql_nod* temp = MAKE_node(request->threadData, input->nod_type, 2);
-	
-	// Build first the node from our base-context so that the right context is
-	// used while parsing the nodes
-
-	temp->nod_arg[0] = PASS1_node(request, input->nod_arg[0], false);
-	dsql_nod* rse = PASS1_rse(request, select_expr, NULL);
-	node->nod_arg[0] = rse;
-
-	const dsql_nod* const query_spec = select_expr->nod_arg[e_sel_query_spec];
-
-	if (query_spec->nod_type == nod_list)
-		ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 104, isc_arg_gds, 
-				  isc_token_err, // Token unknown 
-				  isc_arg_gds, isc_random, isc_arg_string, "UNION", 0);
-
-// adjust the scope level back to the sub-rse, so that 
-// the fields in the select list will be properly recognized
-	request->scopeLevel++;
-	request->req_in_select_list++;
-	dsql_nod* const column = query_spec->nod_arg[e_qry_list]->nod_arg[0];
-	temp->nod_arg[1] = PASS1_node(request, column, false);
-	request->req_in_select_list--;
-	request->scopeLevel--;
-
-// AB: Check if this is an aggregate so we know where to add 
-// it to the where-clause. 
-// 2004-12-16 Optimizer is now clever enough to optimize 
-// this self, thus only correct mapping is needed.
-// SF BUG # [ 213859 ] Subquery connected with 'IN' clause
-	if (rse->nod_arg[e_rse_streams] && 
-		(rse->nod_arg[e_rse_streams]->nod_type == nod_list) &&
-		(rse->nod_arg[e_rse_streams]->nod_arg[0]) &&
-		(rse->nod_arg[e_rse_streams]->nod_arg[0]->nod_type == nod_aggregate)) 
-	{
-		dsql_nod* aggregate = rse->nod_arg[e_rse_streams]->nod_arg[0];
-		request->scopeLevel++;
-		dsql_ctx* parent_context = (dsql_ctx*) aggregate->nod_arg[e_agg_context];
-		temp->nod_arg[1] = 
-			remap_field(request, temp->nod_arg[1], parent_context , request->scopeLevel);
-		request->scopeLevel--;
-	} 
-
-	rse->nod_arg[e_rse_boolean] = 
-			compose(request, rse->nod_arg[e_rse_boolean], temp, nod_and);
-*/
 
 	request->context.pop (base);
 
