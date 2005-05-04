@@ -135,7 +135,7 @@
  */
 
 
-// AB:Sync FB 1.203
+// AB:Sync FB 1.208
 
 #include <string.h>
 #include <memory>
@@ -232,6 +232,7 @@ static dsql_nod* pass1_join(CStatement*, dsql_nod*, bool);
 static dsql_nod* pass1_label(CStatement*, dsql_nod*);
 static dsql_nod* pass1_lookup_alias(CStatement*, const dsql_str*, dsql_nod*);
 static dsql_nod* pass1_make_derived_field(CStatement*, TSQL, dsql_nod*);
+static dsql_nod* pass1_not(CStatement*, const dsql_nod*, bool, bool);
 static void	pass1_put_args_on_stack(CStatement*, dsql_nod*, Stack*, bool);
 static dsql_nod* pass1_relation(CStatement*, dsql_nod*);
 static dsql_nod* pass1_rse(CStatement*, dsql_nod*, dsql_nod*, dsql_nod*, dsql_nod*, USHORT);
@@ -912,6 +913,9 @@ dsql_nod* PASS1_node(CStatement* request, dsql_nod* input, bool proc_flag)
 
 		case nod_join:
 			return pass1_join(request, input, proc_flag);
+
+		case nod_not:
+			return pass1_not(request, input, proc_flag, true);
 
 		default:
 			break;
@@ -2754,9 +2758,6 @@ static bool node_match(const dsql_nod* node1, const dsql_nod* node2,
 
 	if (node1->nod_type == nod_variable) 
 		{
-		if (node1->nod_type != node2->nod_type) 
-			return false;
-
 		const var* var1 = reinterpret_cast<var*>(node1->nod_arg[e_var_variable]);
 		const var* var2 = reinterpret_cast<var*>(node2->nod_arg[e_var_variable]);
 		DEV_BLKCHK(var1, dsql_type_var);
@@ -2770,6 +2771,14 @@ static bool node_match(const dsql_nod* node1, const dsql_nod* node2,
 			return false;
 
 		return true;
+		}
+
+	if (node1->nod_type == nod_parameter) 
+		{
+		// Parameters are equal when there index is the same
+		par* parameter1 = (par*) node1->nod_arg[e_par_parameter];
+		par* parameter2 = (par*) node2->nod_arg[e_par_parameter];
+		return (parameter1->par_index == parameter2->par_index);
 		}
 
 	const dsql_nod* const* ptr1 = node1->nod_arg;
@@ -2800,9 +2809,36 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 	//DEV_BLKCHK(request, dsql_type_req);
 	DEV_BLKCHK(input, dsql_type_nod);
 
-	dsql_nod* select_expr = input->nod_arg[1];
+	//dsql_nod* select_expr = input->nod_arg[1];
 	void* base = request->context.mark();
 
+	// create a derived table representing our subquery
+	dsql_nod* dt = MAKE_node(request->threadData, nod_derived_table, e_derived_table_count);
+	// Ignore validation for columnames that must be exists for "user" derived tables.
+	dt->nod_flags |= NOD_DT_IGNORE_COLUMN_CHECK;
+	dt->nod_arg[e_derived_table_rse] = input->nod_arg[1];
+	dsql_nod* from = MAKE_node(request->threadData, nod_list, 1);
+	from->nod_arg[0] = dt;
+	dsql_nod* query_spec = MAKE_node(request->threadData, nod_query_spec, e_qry_count);
+	query_spec->nod_arg[e_qry_from] = from;
+	dsql_nod* select_expr = MAKE_node(request->threadData, nod_select_expr, e_sel_count);
+	select_expr->nod_arg[e_sel_query_spec] = query_spec;
+
+	dsql_nod* rse = PASS1_rse(request, select_expr, NULL);
+
+	// create a conjunct to be injected
+	dsql_nod* temp = MAKE_node(request->threadData, input->nod_type, 2);
+	temp->nod_arg[0] = PASS1_node(request, input->nod_arg[0], false);
+	temp->nod_arg[1] = rse->nod_arg[e_rse_items]->nod_arg[0];
+
+	rse->nod_arg[e_rse_boolean] = temp;
+
+	// create output node
+	dsql_nod* node = MAKE_node(request->threadData, ntype, 1);
+	node->nod_arg[0] = rse;
+
+
+/*
 	dsql_nod* node = MAKE_node(request->threadData, ntype, 1);
 	dsql_nod* temp = MAKE_node(request->threadData, input->nod_type, 2);
 	
@@ -2849,6 +2885,7 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 
 	rse->nod_arg[e_rse_boolean] = 
 			compose(request, rse->nod_arg[e_rse_boolean], temp, nod_and);
+*/
 
 	request->context.pop (base);
 
@@ -3515,20 +3552,20 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 	dsql_nod* const select_expr = input->nod_arg[e_derived_table_rse];
 	dsql_nod* query = select_expr->nod_arg[e_sel_query_spec];
 	bool foundSubSelect = false;
-	if (query->nod_type == nod_query_spec) {
-		foundSubSelect = pass1_found_sub_select(query->nod_arg[e_qry_list]);
-	}
+	if (query->nod_type == nod_query_spec)
+		foundSubSelect = pass1_found_sub_select(query->nod_arg[e_qry_list]);	
 
 	dsql_nod* rse = NULL;
-	if (foundSubSelect) {
+	if (foundSubSelect) 
+		{
 		dsql_nod* union_expr = MAKE_node(request->threadData, nod_list, 1);
 		union_expr->nod_arg[0] = select_expr;
 		union_expr->nod_flags = NOD_UNION_ALL;
 		rse = pass1_union(request, union_expr, NULL, NULL, 0);
-	}
-	else {
+		}
+	else 
 		rse = PASS1_rse(request, select_expr, NULL);
-	}
+	
 	context->ctx_rse = node->nod_arg[e_derived_table_rse] = rse;
 
 	// Finish off by cleaning up contexts and put them into 
@@ -3550,49 +3587,55 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 	request->aliasRelationPrefix = aliasRelationPrefix;
 
 	// If an alias-list is specified process it.
+	bool ignoreColumnChecks = (input->nod_flags & NOD_DT_IGNORE_COLUMN_CHECK);
 	if (node->nod_arg[e_derived_table_column_alias] && 
 		node->nod_arg[e_derived_table_column_alias]->nod_count) 
 		{
 		dsql_nod* list = node->nod_arg[e_derived_table_column_alias];
 
 		// Have both lists the same number of items?
-		if (list->nod_count != rse->nod_arg[e_rse_items]->nod_count) {
+		if (list->nod_count != rse->nod_arg[e_rse_items]->nod_count) 
+			{
 			// Column list by derived table %s [alias-name] has %s [more/fewer] columns 
 			// than the number of items.
 			// 
 			TEXT err_message[200], aliasname[100];
 			aliasname[0] = 0;
-			if (alias) {
+			if (alias) 
+				{
 				int length = alias->str_length;
 				if (length > 99) {
 					length = 99;
 				}
 				const TEXT* src = alias->str_data;
 				TEXT* dest = aliasname;
-				for (; length; length--) {
+				for (; length; length--) 
 					*dest++ = *src++;
-				}
+
 				*dest = 0;
-			}
-			if (list->nod_count > rse->nod_arg[e_rse_items]->nod_count) {
+				}
+			if (list->nod_count > rse->nod_arg[e_rse_items]->nod_count) 
+				{
 				sprintf (err_message, "list by derived table %s has more columns than the number of items.", 
 					aliasname);
-			}
-			else {
+				}
+			else 
+				{
 				sprintf (err_message, "list by derived table %s has fewer columns than the number of items.", 
 					aliasname);
-			}
+				}
 			//
 			// !!! THIS MESSAGE SHOULD BE CHANGED !!!
 			//
 			ERRD_post(isc_sqlerr, isc_arg_number, -104,
-					  isc_arg_gds, isc_dsql_command_err,
-					  isc_arg_gds, isc_field_name,
-					  isc_arg_string, err_message, 0);
-		}
+					isc_arg_gds, isc_dsql_command_err,
+					isc_arg_gds, isc_field_name,
+					isc_arg_string, err_message, 0);
+			}
 
 		// Generate derived fields and assign alias-name to it.
-		for (int count = 0; count < list->nod_count; count++) {
+		for (int count = 0; count < list->nod_count; count++) 
+			{
 			dsql_nod* select_item = rse->nod_arg[e_rse_items]->nod_arg[count];
 			// Make new derived field node
 			dsql_nod* derived_field = MAKE_node(request->threadData, nod_derived_field, e_derived_field_count);
@@ -3602,68 +3645,100 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 			derived_field->nod_desc = select_item->nod_desc;
 
 			rse->nod_arg[e_rse_items]->nod_arg[count] = derived_field;
+			}
 		}
-	}
-	else {
+	else 
+		{
 		// For those select-items where no alias is specified try
 		// to generate one from the field_name.
-		for (int count = 0; count < rse->nod_arg[e_rse_items]->nod_count; count++) {
-			rse->nod_arg[e_rse_items]->nod_arg[count] = 
+		for (int count = 0; count < rse->nod_arg[e_rse_items]->nod_count; count++) 
+			{
+			dsql_nod* select_item = 
 				pass1_make_derived_field(request, request->threadData, rse->nod_arg[e_rse_items]->nod_arg[count]);
+
+			// Auto-create dummy column name for pass_any()
+			if (ignoreColumnChecks && (select_item->nod_type != nod_derived_field)) 
+				{
+				// Make new derived field node
+				dsql_nod* derived_field = 
+					MAKE_node(request->threadData, nod_derived_field, e_derived_field_count);
+				derived_field->nod_arg[e_derived_field_value] = select_item;
+
+				// Construct dummy fieldname
+				char fieldname[25];
+				sprintf (fieldname, "f%d", count);
+				dsql_str* alias = FB_NEW_RPT(*request->threadData->tsql_default, 
+					strlen(fieldname)) dsql_str;
+				strcpy(alias->str_data, fieldname);
+				alias->str_length = strlen(fieldname);
+
+				derived_field->nod_arg[e_derived_field_name] = (dsql_nod*) alias;
+				derived_field->nod_arg[e_derived_field_scope] = 
+					(dsql_nod*)(ULONG) request->scopeLevel;
+				derived_field->nod_desc = select_item->nod_desc;
+				select_item = derived_field;
+				}
+
+			rse->nod_arg[e_rse_items]->nod_arg[count] = select_item;
+			}
 		}
-	}
 
 	int count;
 	// Check if all root select-items have an derived field else show a message.
-	for (count = 0; count < rse->nod_arg[e_rse_items]->nod_count; count++) {
+	for (count = 0; count < rse->nod_arg[e_rse_items]->nod_count; count++) 
+		{
 		const dsql_nod* select_item = rse->nod_arg[e_rse_items]->nod_arg[count];
-		if (select_item->nod_type != nod_derived_field) {
+		if (select_item->nod_type != nod_derived_field) 
+			{
 			// No columnname specified for column number %d
 			//
 			// !!! THIS MESSAGE SHOULD BE CHANGED !!!
 			//
-            TEXT columnnumber[80];
-            sprintf (columnnumber, "%d is specified without a name", count + 1);
+			TEXT columnnumber[80];
+			sprintf (columnnumber, "%d is specified without a name", count + 1);
 			ERRD_post(isc_sqlerr, isc_arg_number, -104,
-					  isc_arg_gds, isc_dsql_command_err,
-					  isc_arg_gds, isc_field_name,
-					  isc_arg_string, columnnumber, 0);
-		}		
-	}
+					isc_arg_gds, isc_dsql_command_err,
+					isc_arg_gds, isc_field_name,
+					isc_arg_string, columnnumber, 0);
+			}		
+		}
 
 	// Check for ambiguous columnnames inside this derived table.
-	for (count = 0; count < rse->nod_arg[e_rse_items]->nod_count; count++) {
+	for (count = 0; count < rse->nod_arg[e_rse_items]->nod_count; count++) 
+		{
 		const dsql_nod* select_item1 = rse->nod_arg[e_rse_items]->nod_arg[count];
 		for (int count2 = (count + 1); count2 < rse->nod_arg[e_rse_items]->nod_count; count2++)
-		{
+			{
 			const dsql_nod* select_item2 = rse->nod_arg[e_rse_items]->nod_arg[count2];
 			dsql_str* name1 = (dsql_str*) select_item1->nod_arg[e_derived_field_name];
 			dsql_str* name2 = (dsql_str*) select_item2->nod_arg[e_derived_field_name];
 			if (!strcmp(reinterpret_cast<const char*>(name1->str_data),
 				reinterpret_cast<const char*>(name2->str_data)))
-			{			
+				{			
 				// The column %s was specified multiple times for derived table %s
 				//
 				// !!! THIS MESSAGE SHOULD BE CHANGED !!!
 				//
 				TEXT columnnumber[80];
-				if (alias) {
+				if (alias) 
+					{
 					sprintf (columnnumber, 
 						"The column %s was specified multiple times for derived table %s", 
 						name1->str_data, alias->str_data);
-				}
-				else {
+					}
+				else 
+					{
 					sprintf (columnnumber, 
 						"The column %s was specified multiple times for derived table %s", 
 						name1->str_data, "unnamed");
-				}
+					}
 				ERRD_post(isc_sqlerr, isc_arg_number, -104,
-						  isc_arg_gds, isc_dsql_command_err,
-						  isc_arg_gds, isc_field_name,
-						  isc_arg_string, columnnumber, 0);
-			}
-		}		
-	}
+						isc_arg_gds, isc_dsql_command_err,
+						isc_arg_gds, isc_field_name,
+						isc_arg_string, columnnumber, 0);
+				}
+			}		
+		}
 
 	return node;
 }
@@ -5238,6 +5313,171 @@ static dsql_nod* pass1_make_derived_field(CStatement* request, TSQL tdsql, dsql_
 	}
 
 	return select_item;
+}
+
+
+/**
+  
+ 	pass1_not
+  
+    @brief	Replace NOT with an appropriately inverted condition, if
+			possible. Get rid of redundant nested NOT predicates.
+ 
+
+    @param request
+    @param input
+	@param proc_flag
+	@param invert
+
+ **/
+static dsql_nod* pass1_not(CStatement* request,
+						   const dsql_nod* input,
+						   bool proc_flag,
+						   bool invert)
+{
+	DEV_BLKCHK(request, dsql_type_req);
+	DEV_BLKCHK(input, dsql_type_nod);
+
+	fb_assert(input->nod_type == nod_not);
+	dsql_nod* sub = input->nod_arg[0];
+
+	if (sub->nod_type == nod_not) {
+		// recurse until different node is found
+		// (every even call means no inversion required)
+		return pass1_not(request, sub, proc_flag, !invert);
+	}
+
+	dsql_nod* node;
+	nod_t node_type = input->nod_type;
+	bool is_between = false, invert_args = false, no_op = false;
+
+	if (invert) {
+		// invert the given boolean
+		switch (sub->nod_type) {
+		case nod_eql:
+			node_type = nod_neq;
+			break;
+		case nod_neq:
+			node_type = nod_eql;
+			break;
+		case nod_lss:
+			node_type = nod_geq;
+			break;
+		case nod_gtr:
+			node_type = nod_leq;
+			break;
+		case nod_leq:
+			node_type = nod_gtr;
+			break;
+		case nod_geq:
+			node_type = nod_lss;
+			break;
+		case nod_eql_all:
+			node_type = nod_neq_any;
+			break;
+		case nod_neq_all:
+			node_type = nod_eql_any;
+			break;
+		case nod_lss_all:
+			node_type = nod_geq_any;
+			break;
+		case nod_gtr_all:
+			node_type = nod_leq_any;
+			break;
+		case nod_leq_all:
+			node_type = nod_gtr_any;
+			break;
+		case nod_geq_all:
+			node_type = nod_lss_any;
+			break;
+		case nod_eql_any:
+			if (sub->nod_arg[1]->nod_type == nod_list) {
+				// this is NOT IN (<list>), don't change it
+				no_op = true;
+			}
+			else {
+				node_type = nod_neq_all;
+			}
+			break;
+		case nod_neq_any:
+			node_type = nod_eql_all;
+			break;
+		case nod_lss_any:
+			node_type = nod_geq_all;
+			break;
+		case nod_gtr_any:
+			node_type = nod_leq_all;
+			break;
+		case nod_leq_any:
+			node_type = nod_gtr_all;
+			break;
+		case nod_geq_any:
+			node_type = nod_lss_all;
+			break;
+		case nod_between:
+			node_type = nod_or;
+			is_between = true;
+			break;
+		case nod_and:
+			node_type = nod_or;
+			invert_args = true;
+			break;
+		case nod_or:
+			node_type = nod_and;
+			invert_args = true;
+			break;
+		case nod_not:
+			// this case is handled in the beginning
+			fb_assert(false);
+		default:
+			no_op = true;
+			break;
+		}
+	}
+	else {
+		// subnode type hasn't been changed
+		node_type = sub->nod_type;
+	}
+
+	if (no_op) {
+		// no inversion is possible, so just recreate the input node
+		// and return immediately to avoid infinite recursion later
+		fb_assert(node_type == nod_not);
+		node = MAKE_node(request->threadData, input->nod_type, 1);
+		node->nod_arg[0] = PASS1_node(request, sub, proc_flag);
+		return node;
+	}
+	else if (is_between) {
+		// handle the special BETWEEN case
+		fb_assert(node_type == nod_or);
+		node = MAKE_node(request->threadData, node_type, 2);
+		node->nod_arg[0] = MAKE_node(request->threadData, nod_lss, 2);
+		node->nod_arg[0]->nod_arg[0] = sub->nod_arg[0];
+		node->nod_arg[0]->nod_arg[1] = sub->nod_arg[1];
+		node->nod_arg[1] = MAKE_node(request->threadData, nod_gtr, 2);
+		node->nod_arg[1]->nod_arg[0] = sub->nod_arg[0];
+		node->nod_arg[1]->nod_arg[1] = sub->nod_arg[2];
+	}
+	else {
+		// create new (possibly inverted) node
+		node = MAKE_node(request->threadData, node_type, sub->nod_count);
+		dsql_nod* const* src = sub->nod_arg;
+		dsql_nod** dst = node->nod_arg;
+		for (const dsql_nod* const* end = src + sub->nod_count;
+			src < end; src++)
+		{
+			if (invert_args) {
+				dsql_nod* temp = MAKE_node(request->threadData, nod_not, 1);
+				temp->nod_arg[0] = *src;
+				*dst++ = temp;
+			}
+			else {
+				*dst++ = *src;
+			}
+		}
+	}
+
+	return PASS1_node(request, node, proc_flag);
 }
 
 
