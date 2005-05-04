@@ -31,7 +31,7 @@ BOOLEAN	SDW_check_conditional(thread_db*);
 void	SDW_close(DBB dbb);
 void	SDW_dump_pages(thread_db*);
 void	SDW_get_shadows(thread_db*);
-void	SDW_init(thread_db*, bool, bool, class SparseBitmap*);
+void	SDW_init(thread_db*, bool, bool, PageBitmap*);
 BOOLEAN	SDW_lck_update(DBB dbb, SLONG);
 void	SDW_notify(thread_db*);
 bool	SDW_rollover_to_shadow(thread_db*, struct fil*, const bool);

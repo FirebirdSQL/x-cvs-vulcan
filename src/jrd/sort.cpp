@@ -29,6 +29,8 @@
  *
  */
 
+// AB:Sync FB 1.73
+
 #include "firebird.h"
 #include <errno.h>
 #include <string.h>
@@ -207,15 +209,15 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 			if (direction) {
 				if (!(scb->scb_flags & scb_sorted)) {
 					*((USHORT *) (record + key->skd_vary_offset)) =
-						((VARY *) p)->vary_length;
+						((vary *) p)->vary_length;
 					const UCHAR fill_char =
 						(key->skd_flags & SKD_binary) ? 0 : ASCII_SPACE;
-					UCHAR* fill_pos = p + sizeof(USHORT) + ((VARY *) p)->vary_length;
-					const USHORT fill = n - sizeof(USHORT) - ((VARY *) p)->vary_length;
+					UCHAR* fill_pos = p + sizeof(USHORT) + ((vary *) p)->vary_length;
+					const USHORT fill = n - sizeof(USHORT) - ((vary *) p)->vary_length;
 					if (fill)
 						memset(fill_pos, fill_char, fill);
 				}
-				((VARY *) p)->vary_length = 0;
+				((vary *) p)->vary_length = 0;
 			}
 			break;
 
@@ -276,7 +278,7 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 
 		if (key->skd_dtype == SKD_varying && !direction) {
 			p = record + key->skd_offset;
-			((VARY *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
+			((vary *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
 		}
 
 		if (key->skd_dtype == SKD_cstring && !direction) {
@@ -344,7 +346,7 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 			if (key->skd_dtype == SKD_varying && direction) {
 				if (!(scb->scb_flags & scb_sorted)) {
 					*((USHORT *) (record + key->skd_vary_offset)) = l =
-						((VARY *) p)->vary_length;
+						((vary *) p)->vary_length;
 					fill_char =
 						(key->skd_flags & SKD_binary) ? 0 : ASCII_SPACE;
 					fill_pos = p + sizeof(USHORT) + l;
@@ -352,7 +354,7 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 					if (fill)
 						memset(fill_pos, fill_char, fill);
 				}
-				((VARY *) p)->vary_length = 0;
+				((vary *) p)->vary_length = 0;
 			}
 
 			if (key->skd_dtype == SKD_cstring && direction) {
@@ -496,7 +498,7 @@ void SORT_diddle_key(UCHAR* record, sort_context* scb, bool direction)
 
 		if (key->skd_dtype == SKD_varying && !direction) {
 			p = (BLOB_PTR *) record + key->skd_offset;
-			((VARY *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
+			((vary *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
 		}
 
 		if (key->skd_dtype == SKD_cstring && !direction) {
@@ -699,6 +701,7 @@ void SORT_get(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 sort_context* SORT_init(thread_db* threadData,
 			  USHORT record_length,
 			  USHORT keys,
+			  USHORT unique_keys,
 			  const sort_key_def* key_description,
 			  FPTR_REJECT_DUP_CALLBACK call_back,
 			  void* user_arg,
@@ -719,6 +722,10 @@ sort_context* SORT_init(thread_db* threadData,
  *      with three argument: the two records and the user supplied
  *      argument.  If the call back routine returns TRUE, the second
  *      duplicate record is eliminated.
+ *
+ * hvlad: when duplicates are eliminating only first unique_keys will be 
+ *		compared. This is used at creation of unique index since sort key 
+ *		includes index key (which must be unique) and record numbers
  *
  **************************************/
 	sort_context* scb;
@@ -756,6 +763,7 @@ sort_context* SORT_init(thread_db* threadData,
 
 	scb->scb_max_records = max_records;
 
+	fb_assert(unique_keys <= keys);
 	sort_key_def* p = scb->scb_description;
 	const sort_key_def* q = key_description;
 	do {
@@ -764,6 +772,13 @@ sort_context* SORT_init(thread_db* threadData,
 
 	--p;
 	scb->scb_key_length =
+		ROUNDUP(p->skd_offset + p->skd_length, sizeof(SLONG)) >> SHIFTLONG;
+
+	while (unique_keys < scb->scb_keys) {
+		p--;
+		unique_keys++;
+	}
+	scb->scb_unique_length =
 		ROUNDUP(p->skd_offset + p->skd_length, sizeof(SLONG)) >> SHIFTLONG;
 
 	// Next, try to allocate a "big block". How big? Big enough!
@@ -1009,17 +1024,9 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
  *      build a merge tree.
  *
  **************************************/
-	ULONG count, run_count, size, temp;
 	run_control* run;
-	run_merge_hdr** m1;
-	run_merge_hdr** m2;
-	run_merge_hdr** streams;
-	run_merge_hdr* streams_local[200];
 	merge_control* merge;
 	merge_control* merge_pool;
-	SORTP *buffer;
-
-	//scb->scb_status_vector = status_vector;
 
 	if (scb->scb_last_record != (SR *) scb->scb_end_memory)
 #ifdef SCROLLABLE_CURSORS
@@ -1052,6 +1059,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 	// in a vector. This is done to allow us to build a merge tree from the
 	// bottom up, ensuring that a balanced tree is built.
 
+	ULONG run_count;
 	for (run_count = 0, run = scb->scb_runs; run; run = run->run_next) {
 		if (run->run_buff_alloc) {
 			gds__free(run->run_buffer);
@@ -1060,6 +1068,8 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 		++run_count;
 	}
 
+	run_merge_hdr** streams;
+	run_merge_hdr* streams_local[200];
 	try {
 		if ((run_count * sizeof(run_merge_hdr*)) > sizeof(streams_local))
 			streams =
@@ -1071,10 +1081,10 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 		memoryError();
 	}
 
-	m1 = streams;
+	run_merge_hdr** m1 = streams;
 	for (run = scb->scb_runs; run; run = run->run_next)
 		*m1++ = (run_merge_hdr*) run;
-	count = run_count;
+	ULONG count = run_count;
 
 	// We're building a b-tree of the sort merge blocks, we have (count)
 	// leaves already, so we *know* we need (count-1) merge blocks.
@@ -1109,7 +1119,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 	// See also kissing cousin of this loop in merge_runs()
 
 	while (count > 1) {
-		m1 = m2 = streams;
+		run_merge_hdr** m2 = m1 = streams;
 
 		// "m1" is used to sequence through the runs being merged, 
 		// while "m2" points at the new merged run
@@ -1144,7 +1154,7 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 
 	if (streams != streams_local)
 		gds__free(streams);
-	buffer = (SORTP *) scb->scb_first_pointer;
+	SORTP* buffer = (SORTP *) scb->scb_first_pointer;
 	merge->mrg_header.rmh_parent = NULL;
 	scb->scb_merge = merge;
 	scb->scb_longs -= SIZEOF_SR_BCKPTR_IN_LONGS;
@@ -1152,7 +1162,8 @@ bool SORT_sort(thread_db* threadData, sort_context* scb)
 	// Divvy up the sort space among buffers for runs. Although something slightly
 	// better could be arranged, for now give them all the same size hunk.
 
-	temp = DIFF_LONGS(scb->scb_end_memory, buffer);
+	ULONG size;
+	const ULONG temp = DIFF_LONGS(scb->scb_end_memory, buffer);
 	count = temp / (scb->scb_longs * run_count);
 	if (count) {
 		size = count * (SSHORT) scb->scb_longs;
@@ -1361,15 +1372,15 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 			if (direction) {
 				if (!(scb->scb_flags & scb_sorted)) {
 					*((USHORT *) (record + key->skd_vary_offset)) =
-						((VARY *) p)->vary_length;
+						((vary *) p)->vary_length;
 					fill_char =
 						(key->skd_flags & SKD_binary) ? 0 : ASCII_SPACE;
-					fill_pos = p + sizeof(USHORT) + ((VARY *) p)->vary_length;
-					fill = n - sizeof(USHORT) - ((VARY *) p)->vary_length;
+					fill_pos = p + sizeof(USHORT) + ((vary *) p)->vary_length;
+					fill = n - sizeof(USHORT) - ((vary *) p)->vary_length;
 					if (fill)
 						memset(fill_pos, fill_char, fill);
 				}
-				((VARY *) p)->vary_length = 0;
+				((vary *) p)->vary_length = 0;
 			}
 			break;
 
@@ -1434,7 +1445,7 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 
 		if (key->skd_dtype == SKD_varying && !direction) {
 			p = record + key->skd_offset;
-			((VARY *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
+			((vary *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
 		}
 
 		if (key->skd_dtype == SKD_cstring && !direction) {
@@ -1505,7 +1516,7 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 			if (key->skd_dtype == SKD_varying && direction) {
 				if (!(scb->scb_flags & scb_sorted)) {
 					*((USHORT *) (record + key->skd_vary_offset)) = l =
-						((VARY *) p)->vary_length;
+						((vary *) p)->vary_length;
 					fill_char =
 						(key->skd_flags & SKD_binary) ? 0 : ASCII_SPACE;
 					fill_pos = p + sizeof(USHORT) + l;
@@ -1513,7 +1524,7 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 					if (fill)
 						memset(fill_pos, fill_char, fill);
 				}
-				((VARY *) p)->vary_length = 0;
+				((vary *) p)->vary_length = 0;
 			}
 
 			if (key->skd_dtype == SKD_cstring && direction) {
@@ -1660,7 +1671,7 @@ static void diddle_key(UCHAR * record, sort_context* scb, bool direction)
 
 		if (key->skd_dtype == SKD_varying && !direction) {
 			p = (BLOB_PTR *) record + key->skd_offset;
-			((VARY *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
+			((vary *) p)->vary_length = *((USHORT *) (record + key->skd_vary_offset));
 		}
 
 		if (key->skd_dtype == SKD_cstring && !direction) {
@@ -2093,7 +2104,8 @@ static sort_record* get_merge(merge_control* merge, sort_context* scb
 
 		p = merge->mrg_record_a->sort_record_key;
 		q = merge->mrg_record_b->sort_record_key;
-		l = scb->scb_key_length;
+		//l = scb->scb_key_length;
+		l = scb->scb_unique_length;
 
 		DO_32_COMPARE(p, q, l);
 
@@ -2124,6 +2136,12 @@ static sort_record* get_merge(merge_control* merge, sort_context* scb
 			diddle_key((UCHAR *) merge->mrg_record_a, scb, true);
 			diddle_key((UCHAR *) merge->mrg_record_b, scb, true);
 #endif
+		}
+
+		if (l == 0) {
+			l = scb->scb_key_length - scb->scb_unique_length;
+			if (l != 0)
+				DO_32_COMPARE(p, q, l);
 		}
 
 #ifdef SCROLLABLE_CURSORS
@@ -2183,8 +2201,6 @@ static bool local_fini(sort_context* scb, Attachment* att)
  *
  **************************************/
 	work_file_space* space;
-	run_control* run;
-	sort_work_file* sfb;
 	ULONG **merge_buf;
 	sort_context* *ptr;
 
@@ -2218,6 +2234,7 @@ static bool local_fini(sort_context* scb, Attachment* att)
 
 	// Loop through the sfb list and close work files
 
+	sort_work_file* sfb;
 	while ( (sfb = scb->scb_sfb) ) {
 		scb->scb_sfb = sfb->sfb_next;
 		DLS_put_temp_space(sfb);
@@ -2261,6 +2278,7 @@ static bool local_fini(sort_context* scb, Attachment* att)
 
 	// Clean up the runs that were used
 
+	run_control* run;
 	while ( (run = scb->scb_runs) ) {
 		scb->scb_runs = run->run_next;
 		if (run->run_buff_alloc)

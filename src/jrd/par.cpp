@@ -144,7 +144,7 @@ JRD_NOD PAR_blr(thread_db* tdbb,
  **************************************/
 	CompilerScratch* csb;
 	SSHORT stream, count;
-	csb_repeat *t1, *t2;
+	CompilerScratch::csb_repeat *t1, *t2;
 
 	//SET_TDBB(tdbb);
 
@@ -801,7 +801,7 @@ static PsqlException* par_condition(thread_db* tdbb, CompilerScratch* csb)
 		dep_node->nod_arg[e_dep_object] =
 			(JRD_NOD) (long) exception_list->xcp_rpt[0].xcp_code;
 		dep_node->nod_arg[e_dep_object_type] = (JRD_NOD) obj_exception;
-		LLS_PUSH(dep_node, &csb->csb_dependencies);
+		csb->csb_dependencies.push(dep_node);
 		break;
 
 	default:
@@ -869,7 +869,7 @@ static PsqlException* par_conditions(thread_db* tdbb, CompilerScratch* csb)
 			dep_node->nod_arg[e_dep_object] =
 				(JRD_NOD) (long) exception_list->xcp_rpt[0].xcp_code;
 			dep_node->nod_arg[e_dep_object_type] = (JRD_NOD) obj_exception;
-			LLS_PUSH(dep_node, &csb->csb_dependencies);
+			csb->csb_dependencies.push(dep_node);
 			break;
 
 		case blr_default_code:
@@ -913,7 +913,7 @@ static SSHORT par_context(CompilerScratch* csb, SSHORT* context_ptr)
 	fb_assert(stream <= MAX_STREAMS);
 	const SSHORT context = (unsigned int) BLR_BYTE;
 	CMP_csb_element(csb, stream);
-	csb_repeat* tail = CMP_csb_element(csb, context);
+	CompilerScratch::csb_repeat* tail = CMP_csb_element(csb, context);
 
 	if (tail->csb_flags & csb_used)
 		error(csb, isc_ctxinuse, 0);
@@ -977,7 +977,7 @@ static void par_dependency(thread_db*   tdbb,
 		field_node->nod_arg[0] = (JRD_NOD) (long) id;
 	}
 
-	LLS_PUSH(node, &csb->csb_dependencies);
+	csb->csb_dependencies.push(node);
 }
 
 
@@ -1017,7 +1017,7 @@ static JRD_NOD par_exec_proc(thread_db* tdbb, CompilerScratch* csb, SSHORT op)
 	dep_node->nod_arg[e_dep_object] = (JRD_NOD) procedure;
 	dep_node->nod_arg[e_dep_object_type] = (JRD_NOD) obj_procedure;
 
-	LLS_PUSH(dep_node, &csb->csb_dependencies);
+	csb->csb_dependencies.push(dep_node);
 
 	return node;
 }
@@ -1084,7 +1084,7 @@ static JRD_NOD par_field(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_
 	Relation* relation;
 	TEXT name[32];
 	SSHORT id;
-	csb_repeat *tail;
+	CompilerScratch::csb_repeat *tail;
 
 	//SET_TDBB(tdbb);
 
@@ -1272,7 +1272,7 @@ static JRD_NOD par_function(thread_db* tdbb, CompilerScratch* csb)
         dep_node->nod_type = nod_dependency;
         dep_node->nod_arg [e_dep_object] = (JRD_NOD) function;
         dep_node->nod_arg [e_dep_object_type] = (JRD_NOD) obj_udf;
-        LLS_PUSH (dep_node, &csb->csb_dependencies);
+        csb->csb_dependencies.push(dep_node);
 		}
 
 	return node;
@@ -1434,7 +1434,7 @@ static JRD_NOD par_message(thread_db* tdbb, CompilerScratch* csb)
    allocate a node to represent the message */
 
 	USHORT n = (unsigned int) BLR_BYTE;
-	csb_repeat* tail = CMP_csb_element(csb, n);
+	CompilerScratch::csb_repeat* tail = CMP_csb_element(csb, n);
 	jrd_nod* node = PAR_make_node(tdbb, e_msg_length);
 	tail->csb_message = node;
 	node->nod_count = 0;
@@ -1498,7 +1498,7 @@ static JRD_NOD par_modify(thread_db* tdbb, CompilerScratch* csb)
 /* Make sure the compiler scratch block is big enough to hold
    everything */
 
-	csb_repeat* tail = CMP_csb_element(csb, context);
+	CompilerScratch::csb_repeat* tail = CMP_csb_element(csb, context);
 	tail->csb_stream = (UCHAR) new_stream;
 	tail->csb_flags |= csb_used;
 
@@ -1819,7 +1819,7 @@ static void par_procedure_parms(thread_db* tdbb,
 		if (n < 2)
 			csb->csb_msg_number = n = 2;
 			
-		csb_repeat* tail = CMP_csb_element(csb, n);
+		CompilerScratch::csb_repeat* tail = CMP_csb_element(csb, n);
 		jrd_nod* message = PAR_make_node(tdbb, e_msg_length);
 		tail->csb_message = message;
 		message->nod_type = nod_message;
@@ -2429,6 +2429,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 	case blr_between:
 		*arg++ = parse(tdbb, csb, sub_type);
 
+	case blr_equiv:
 	case blr_eql:
 	case blr_neq:
 	case blr_geq:
@@ -2573,7 +2574,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
             dep_node->nod_type = nod_dependency;
             dep_node->nod_arg [e_dep_object] = (JRD_NOD) (long) tmp;
             dep_node->nod_arg [e_dep_object_type] = (JRD_NOD) obj_generator;
-            LLS_PUSH (dep_node, &csb->csb_dependencies);
+			csb->csb_dependencies.push(dep_node);
 			}
 		}
 		break;

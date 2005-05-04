@@ -51,6 +51,11 @@ static const TEXT* const names[] =
 };
 #undef NAME
 
+//******************************
+// fields.h
+//******************************
+const UCHAR BLOB_SIZE		= 8;
+const UCHAR TIMESTAMP_SIZE	= 8;
 
 /* Pick up global ids */
 

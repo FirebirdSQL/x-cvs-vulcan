@@ -26,9 +26,13 @@
 
 // fwd. decl.
 class blb;
+class RecordNumber;
+class Relation;
+class Format;
 
 struct pag* DPM_allocate(thread_db*, struct win*);
 void	DPM_backout(thread_db*, struct record_param*);
+double	DPM_cardinality(thread_db*, Relation*, const Format*);
 int		DPM_chain(thread_db*, struct record_param* , struct record_param*);
 int		DPM_compress(thread_db*, struct data_page*);
 void	DPM_create_relation(thread_db*, Relation*);
@@ -40,13 +44,13 @@ SSHORT	DPM_fetch_back(thread_db*, struct record_param*, USHORT, SSHORT);
 void	DPM_fetch_fragment(thread_db*, struct record_param*, USHORT);
 SINT64	DPM_gen_id(thread_db*, SLONG, USHORT, SINT64);
 int		DPM_get(thread_db*, struct record_param*, SSHORT);
-ULONG	DPM_get_blob(thread_db*, blb*, ULONG, USHORT, SLONG);
+ULONG	DPM_get_blob(thread_db*, blb*, RecordNumber, USHORT, SLONG);
 BOOLEAN	DPM_next(thread_db*, struct record_param*, USHORT, BOOLEAN, BOOLEAN);
 void	DPM_pages(thread_db*, SSHORT, int, ULONG, SLONG);
 SLONG	DPM_prefetch_bitmap(struct thread_db*, Relation*, class sbm *, SLONG);
 void	DPM_scan_pages(thread_db*);
 void	DPM_store(thread_db*, struct record_param* , struct lls **, USHORT);
-SLONG	DPM_store_blob(thread_db*, blb*, struct Record*);
+RecordNumber	DPM_store_blob(thread_db*, blb*, struct Record*);
 void	DPM_rewrite_header(thread_db*, struct record_param* );
 void	DPM_update(thread_db*, struct record_param* , struct lls **, Transaction*);
 

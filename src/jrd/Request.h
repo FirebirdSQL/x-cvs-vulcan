@@ -85,23 +85,24 @@ public:
 	JrdMemoryPool*	req_pool;
 	vec*			req_sub_requests;	// vector of sub-requests
 	Transaction*	req_transaction;
-	Request*		req_request;		/* next request in dbb */
-	AccessItem*		req_access;			/* Access items to be checked */
-	//SVector<jrd_nod*> req_variables;	/* Vector of variables, if any */
-	Resource*		req_resources;		/* Resources (relations and indices) */
-	jrd_nod*		req_message;		/* Current message for send/receive */
+	Request*		req_request;		// next request in dbb
+	Request*		req_caller;			// Caller of this request
+	AccessItem*		req_access;			// Access items to be checked
+	//SVector<jrd_nod*> req_variables;	// Vector of variables, if any
+	Resource*		req_resources;		// Resources (relations and indices)
+	jrd_nod*		req_message;		// Current message for send/receive
 #ifdef SCROLLABLE_CURSORS
-	jrd_nod			*req_async_message;	/* Asynchronous message (used in scrolling) */
+	jrd_nod			*req_async_message;	// Asynchronous message (used in scrolling)
 #endif
-	vec*			req_refresh_ranges;	/* Vector of refresh_ranges */
-	rng*			req_begin_ranges;	/* Vector of refresh_ranges */
-	Procedure*		req_procedure;		/* procedure, if any */
-	JString			req_trg_name;		/* name of request (trigger), if any */
-	USHORT			req_length;			/* message length for send/receive */
-	USHORT			req_nmsgs;			/* number of message types */
-	USHORT			req_mmsg;			/* highest message type */
-	USHORT			req_msend;			/* longest send message */
-	USHORT			req_mreceive;		/* longest receive message */
+	vec*			req_refresh_ranges;	// Vector of refresh_ranges 
+	rng*			req_begin_ranges;	// Vector of refresh_ranges 
+	Procedure*		req_procedure;		// procedure, if any 
+	JString			req_trg_name;		// name of request (trigger), if any 
+	USHORT			req_length;			// message length for send/receive 
+	USHORT			req_nmsgs;			// number of message types 
+	USHORT			req_mmsg;			// highest message type 
+	USHORT			req_msend;			// longest send message 
+	USHORT			req_mreceive;		// longest receive message 
 
 	ULONG			req_records_selected;	/* count of records selected by request (meeting selection criteria) */
 	ULONG			req_records_inserted;	/* count of records inserted by request */
@@ -117,7 +118,7 @@ public:
 
 	jrd_nod*		req_top_node;	/* top of execution tree */
 	jrd_nod*		req_next;		/* next node for execution */
-	vec*			req_fors;		/* Vector of for loops, if any */
+	firebird::Array<class RecordSource*> req_fors;	/* Vector of for loops, if any */
 	vec*			req_cursors;	/* Vector of named cursors, if any */
 	firebird::Array<struct jrd_nod*> req_invariants;	/* Vector of invariant nodes, if any */
 	USHORT			req_label;			/* label for leave */

@@ -1,54 +1,111 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-
-<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="Databases" ProjectGUID="{13E7740B-8DE6-41E9-BDE2-47E08A9EB800}" RootNamespace="Databases" Keyword="CustomAppWizProj">
-   <Platforms>
-      <Platform Name="Win32"/>
-   </Platforms>
-   <Configurations>
-      <Configuration Name="Debug|Win32" OutputDirectory="..\..\install" IntermediateDirectory="$(ConfigurationName)" ConfigurationType="1">
-         <Tool Name="VCCLCompilerTool"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-      <Configuration Name="Release|Win32" ConfigurationType="1">
-         <Tool Name="VCCLCompilerTool"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-   </Configurations>
-   <References/>
-   <Files>
-      <Filter Name="Template Files" Filter="txt"/>
-      <File RelativePath="..\..\..\src\misc\help.gbak">
-         <FileConfiguration Name="Debug|Win32">
-            <Tool Name="VCCustomBuildTool" CommandLine="gbak -r  $(InputPath) help.fdb" AdditionalDependencies="" Outputs="$(vulcan)\help\help.fdb"/>
-         </FileConfiguration>
-      </File>
-      <File RelativePath="..\..\..\src\msgs\msg.gbak">
-         <FileConfiguration Name="Debug|Win32">
-            <Tool Name="VCCustomBuildTool" CommandLine="gbak -r  $(InputPath) msg.fdb" AdditionalDependencies="" Outputs="$(vulcan)\databases\msg.fdb"/>
-         </FileConfiguration>
-      </File>
-   </Files>
-   <Globals/>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="Databases"
+	ProjectGUID="{13E7740B-8DE6-41E9-BDE2-47E08A9EB800}"
+	RootNamespace="Databases"
+	Keyword="CustomAppWizProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\install"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Template Files"
+			Filter="txt">
+		</Filter>
+		<File
+			RelativePath="..\..\..\src\misc\help.gbak">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="..\..\..\install\bin\gbak -r  $(InputPath) help.fdb
+"
+					AdditionalDependencies=""
+					Outputs="$(vulcan)\help\help.fdb"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\..\src\msgs\msg.gbak">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="..\..\..\install\bin\gbak -r  $(InputPath) msg.fdb
+"
+					AdditionalDependencies=""
+					Outputs="$(vulcan)\databases\msg.fdb"/>
+			</FileConfiguration>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

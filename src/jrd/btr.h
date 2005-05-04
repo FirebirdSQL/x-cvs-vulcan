@@ -33,6 +33,8 @@
 #include "../include/fb_blk.h"
 
 #include "../jrd/err_proto.h"    /* Index error types */
+#include "../jrd/RecordNumber.h"
+#include "../jrd/sbm.h"
 
 /* 64 turns out not to be enough indexes */
 /* #define MAX_IDX		 64	*/	/* that should be plenty of indexes */
@@ -81,7 +83,7 @@ struct IndexDescAlloc : public pool_alloc_rpt<index_desc> {
 
 const int idx_numeric		= 0;
 const int idx_string		= 1;
-const int idx_timestamp1	= 2;
+// AB: idx_timestamp1 removed
 const int idx_byte_array	= 3;
 const int idx_metadata		= 4;
 const int idx_sql_date		= 5;
@@ -114,23 +116,23 @@ const int idx_plan_starts	= 32;	/* index mentioned in starts clause */
 const int idx_used_with_and	= 64;	/* marker used in procedure sort_indices */
 const int idx_marker		= 128;	/* marker used in procedure sort_indices */
 
-/* Macro to locate the next IDX block */
-
-#define NEXT_IDX(buffer,count)	(index_desc*) (buffer + count)
-
-
 /* Index insertion block -- parameter block for index insertions */
 
 struct index_insertion {
-	SLONG iib_number;					/* record number (or lower level page) */
+	RecordNumber iib_number;			/* record number (or lower level page) */
 	SLONG iib_sibling;					/* right sibling page */
-	index_desc* iib_descriptor;				/* index descriptor */
-	Relation *iib_relation;				/* relation block */
+	index_desc* iib_descriptor;			/* index descriptor */
+	Relation* iib_relation;				/* relation block */
 	struct temporary_key* iib_key;		/* varying string for insertion */
-	struct SparseBitmap* iib_duplicates;			/* spare bit map of duplicates */
-	class Transaction *iib_transaction;	/* insertion transaction */
+	RecordBitmap* iib_duplicates;		/* spare bit map of duplicates */
+	class Transaction* iib_transaction;	/* insertion transaction */
 };
 
+
+/* these flags are for the key_flags */
+
+const int key_empty		= 1;	/* Key contains empty data / empty string */
+const int key_all_nulls	= 2;	/* All key fields are nulls */
 
 /* Temporary key block */
 
@@ -143,7 +145,7 @@ struct temporary_key {
 		// This needs to be on a SHORT boundary. 
 		// This is because key_data is complemented as 
 		// (SSHORT *) if value is negative.
-		//  See compress() (JRD/btr.c) for more details
+		//  See compress() (JRD/btr.cpp) for more details
 };
 
 
@@ -152,9 +154,9 @@ struct temporary_key {
 struct index_sort_record {
 	// RecordNumber should be at the first place, because it's used
 	// for determing sort by creating index (see idx.cpp)
+	RecordNumber isr_record_number;
 	USHORT isr_key_length;
 	USHORT isr_flags;
-	ULONG isr_record_number;
 };
 
 #define ISR_secondary	1	// Record is secondary version
@@ -190,9 +192,9 @@ class IndexRetrieval : public pool_alloc_rpt<jrd_nod*, type_irb>
 #define NEXT_NODE(node)	(btree_nod*)(node->btn_data + node->btn_length)
 #define NEXT_NODE_RECNR(node)	(btree_nod*)(node->btn_data + node->btn_length + sizeof(SLONG))
 
-#define LAST_NODE(page)	(btree_nod*) ((UCHAR*) page + page->btr_length)
+//#define LAST_NODE(page)	(btree_nod*) ((UCHAR*) page + page->btr_length)
 
-//#define NEXT_EXPANDED(xxx,yyy)	(BTX) ((UCHAR*) xxx->btx_data + (yyy)->btn_prefix + (yyy)->btn_length)
+//#define NEXT_EXPANDED(xxx,yyy)	(btree_exp*) ((UCHAR*) xxx->btx_data + (yyy)->btn_prefix + (yyy)->btn_length)
 
 typedef firebird::HalfStaticArray<float, 4> SelectivityList;
 

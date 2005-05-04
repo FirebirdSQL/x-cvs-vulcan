@@ -58,6 +58,7 @@
 #include "AsciiBlob.h"
 #include "dsc.h"
 #include "InternalBlob.h"
+#include "BlobID.h"
 
 #define DECIMAL_POINT		'.'
 #define DIGIT_SEPARATOR		','
@@ -984,8 +985,9 @@ void Value::setValue(dsc* desc, InternalStatement *statement)
 			break;
 		
 		case dtype_blob:
-			if (((ISC_QUAD*) p)->gds_quad_low ||((ISC_QUAD*) p)->gds_quad_high)
-				setValue (new InternalBlob(statement, (ISC_QUAD*) p));
+			//if (((ISC_QUAD*) p)->gds_quad_low ||((ISC_QUAD*) p)->gds_quad_high)
+			if (!((bid*) p)->isEmpty())
+				setValue (new InternalBlob(statement, (bid*) p));
 			else
 				setNull();
 			break;

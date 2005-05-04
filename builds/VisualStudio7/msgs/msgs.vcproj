@@ -45,8 +45,9 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine=".\debug\msgs
-move firebird.msg $(vulcan)
+				CommandLine="path=..\..\..\install\bin;%path% 
+.\debug\msgs
+move firebird.msg ..\..\..\install\
 "/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -132,7 +133,7 @@ move firebird.msg $(vulcan)
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="..\..\..\install\bin\gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -147,7 +148,7 @@ move firebird.msg $(vulcan)
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gbak -r $(InputDir)$(InputName).gbak $(InputName).fdb
+							CommandLine="..\..\..\install\bin\gbak -r $(InputDir)$(InputName).gbak $(InputName).fdb
 "
 							Outputs="$(InputName).fdb"/>
 					</FileConfiguration>
@@ -158,7 +159,7 @@ move firebird.msg $(vulcan)
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gbak -r $(InputDir)$(InputFileName) $(InputName).fdb
+							CommandLine="..\..\..\install\bin\gbak -r $(InputDir)$(InputFileName) $(InputName).fdb
 "
 							Outputs="..\..\..\install\security.fdb"/>
 					</FileConfiguration>

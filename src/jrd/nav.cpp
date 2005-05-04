@@ -21,6 +21,8 @@
  * Contributor(s): ______________________________________.
  */
 
+// AB:Sync FB 1.48
+
 #include "firebird.h"
 #include <string.h>
 #include "memory_routines.h"
@@ -49,7 +51,6 @@
 #include "../jrd/nav_proto.h"
 #include "../jrd/rng_proto.h"
 #include "../jrd/rse_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/vio_proto.h"
 #include "PageCache.h"
@@ -166,7 +167,7 @@ BOOLEAN NAV_find_record(thread_db* tdbb, RecordSource* rsb,
  *	This routine must set BOF, EOF, or CRACK.
  *
  **************************************/
-	JRD_REQ request;
+	Request* request;
 	IRSB_NAV impure;
 	index_desc* idx;
 	temporary_key key_value;
@@ -297,6 +298,7 @@ BOOLEAN NAV_find_record(thread_db* tdbb, RecordSource* rsb,
 		}
 	//	break;  unreachable
 
+	case blr_equiv:
 	case blr_eql:
 		if (find_record(thread_db*, rsb, backwards ? RSE_get_last : RSE_get_first,
 						&key_value, find_key->nod_count, search_flags))
@@ -475,7 +477,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 		|| (!(impure->irsb_flags & irsb_backwards)
 			&& direction != RSE_get_forward))
 	{
-		SBM_reset(&impure->irsb_nav_records_visited);
+		RecordBitmap::reset(impure->irsb_nav_records_visited);
 	}
 
 	if (direction == RSE_get_forward) {
@@ -545,8 +547,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 	exp_index_buf* expanded_page;
 	btree_exp* expanded_node;
 	bool page_changed = false;
-	// AB: I don't see number is initialized? 
-	SLONG number;
+	RecordNumber number;
 	SCHAR flags;
 	UCHAR *p, *q;
 	UCHAR *pointer;
@@ -561,7 +562,6 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 		if (pointer) {
 			BTreeNode::readNode(&node, pointer, flags, true);
 			number = node.recordNumber;
-			//number = get_long(BTN_NUMBER(node));
 		}
 
 #ifdef SCROLLABLE_CURSORS
@@ -593,11 +593,11 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 			// it, do a simple handoff to the right sibling page.
 #endif
 		{
-			if (number == END_LEVEL) {
+			if (node.isEndLevel) {
 				impure->irsb_flags |= irsb_eof;
 				break;
 			}
-			if (number == END_BUCKET) {
+			if (node.isEndBucket) {
 				page = (btree_page*) window.win_buffer;
 				page = (btree_page*) CCH_HANDOFF(tdbb, &window, page->btr_sibling,
 					LCK_read, pag_index);
@@ -705,10 +705,9 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 
 		if ((rsb->rsb_arg[RSB_NAV_inversion] &&
 			 (!impure->irsb_nav_bitmap
-			  || !SBM_test(*impure->irsb_nav_bitmap, number)))
-			|| SBM_test(impure->irsb_nav_records_visited, number)
-			|| ((rsb->rsb_flags & rsb_project)
-				&& !(impure->irsb_flags & irsb_key_changed))) 
+				|| !RecordBitmap::test(*impure->irsb_nav_bitmap, number.getValue())))
+			|| RecordBitmap::test(impure->irsb_nav_records_visited, number.getValue())
+			|| ((rsb->rsb_flags & rsb_project) && !(impure->irsb_flags & irsb_key_changed))) 
 		{
 			if (direction == RSE_get_backward) {
 				nextPointer = BTreeNode::previousNode(&node, pointer, flags, &expanded_node);
@@ -775,18 +774,12 @@ BOOLEAN NAV_reset_position(thread_db* tdbb, RecordSource* rsb, record_param * ne
  *	rsb to the record indicated by the passed rpb.
  *
  **************************************/
-	JRD_REQ request;
-	temporary_key key_value;
-	IRSB_NAV impure;
-	index_desc* idx;
 	WIN window;
-	btree_nod* expanded_node;
-	ULONG record_number;
-
-	request = tdbb->tdbb_request;
-	impure = (IRSB_NAV) IMPURE (request, rsb->rsb_impure);
+	Request* request = tdbb->tdbb_request;
+	irsb_nav* impure = (irsb_nav*) IMPURE (request, rsb->rsb_impure);
 	window.win_flags = 0;
 
+	btree_nod* expanded_node;
 	init_fetch(impure);
 	if (!impure->irsb_nav_page) {
 		nav_open(tdbb, rsb, impure, &window, RSE_get_current, &expanded_node);
@@ -802,13 +795,13 @@ BOOLEAN NAV_reset_position(thread_db* tdbb, RecordSource* rsb, record_param * ne
 	// the same as the one on the rpb, in which case it will 
 	// be updated by find_record()--bug #7426
 
-	record_number = new_rpb->rpb_number;
+	RecordNumber record_number = new_rpb->rpb_number;
 
 	// find the key value of the new position, and set the stream to it
+	temporary_key key_value;
 	BTR_key(tdbb, new_rpb->rpb_relation, new_rpb->rpb_record, idx,
 			&key_value, 0);
-	if (!find_record(tdbb, rsb, RSE_get_first, &key_value, idx->idx_count,	// XXX
-					 0))
+	if (!find_record(tdbb, rsb, RSE_get_first, &key_value, idx->idx_count, 0))	// XXX					 
 		return FALSE;
 
 	// now find the dbkey of the new record within the 
@@ -886,15 +879,11 @@ static SSHORT compare_keys(
  *	index key.
  *
  **************************************/
-	UCHAR *string1, *string2, *segment;
-	USHORT length2, l, remainder;
-	index_desc::idx_repeat* tail;
+	UCHAR* string1 = key_string1;
+	UCHAR* string2 = key2->key_data;
+	USHORT length2 = key2->key_length;
 
-	string1 = key_string1;
-	string2 = key2->key_data;
-	length2 = key2->key_length;
-
-	l = MIN(length1, length2);
+	USHORT l = MIN(length1, length2);
 	if (l) {
 		do {
 			if (*string1++ != *string2++) {
@@ -916,6 +905,8 @@ static SSHORT compare_keys(
 	if ((flags & (irb_partial | irb_starting)) && (length1 > length2)) {
 		// figure out what segment we're on; if it's a 
 		// character segment we've matched the partial string
+		UCHAR *segment = 0;
+		index_desc::idx_repeat* tail;
 		if (idx->idx_count > 1) {
 			segment = key_string1 +
 				((length2 - 1) / (STUFF_COUNT + 1)) * (STUFF_COUNT + 1);
@@ -937,12 +928,26 @@ static SSHORT compare_keys(
 		}
 
 		if (idx->idx_count > 1) {
-			// if we've exhausted the segment, we've found a match
-			if (!(remainder = length2 % (STUFF_COUNT + 1)) &&
-				(*string1 != *segment)) 
-			{
-				return 0;
+
+			// If we search for NULLs at the begin then we're done if the first 
+			// segment isn't the first one possible (0 for ASC, 255 for DESC).
+			if (length2 == 0) {
+				if (flags & irb_descending) {
+					if (*segment != 255) {
+						return 0;
+					}
+				}
+				else {
+					if (*segment != 0) {
+						return 0;
+					}
+				}
 			}
+
+			// if we've exhausted the segment, we've found a match
+			USHORT remainder = length2 % (STUFF_COUNT + 1);
+			if (!remainder && (*string1 != *segment)) 
+				return 0;
 
 			// if the rest of the key segment is 0's, we've found a match
 			if (remainder) {
@@ -986,7 +991,6 @@ static void expand_index(WIN * window)
  *	the prior node.
  *
  **************************************/
-
 	btree_page* page = (btree_page*) window->win_buffer;
 	exp_index_buf* expanded_page = window->win_expanded_buffer;
 	expanded_page->exp_incarnation = CCH_GET_INCARNATION(window);
@@ -999,8 +1003,6 @@ static void expand_index(WIN * window)
 	UCHAR *endPointer = ((UCHAR*) page + page->btr_length);
 
 	SCHAR flags = page->btr_header.pag_flags;
-	UCHAR *p, *q;
-	USHORT l;
 	IndexNode node, priorNode;
 
 	while (pointer < endPointer) {
@@ -1009,8 +1011,9 @@ static void expand_index(WIN * window)
 			pointer = BTreeNode::readNode(&node, pointer, flags);
 		}
 
-		p = key.key_data + node.prefix;
-		q = node.data;
+		UCHAR* p = key.key_data + node.prefix;
+		UCHAR* q = node.data;
+		USHORT l;
 		for (l = node.length; l; l--) {
 			*p++ = *q++;
 		}		
@@ -1061,7 +1064,7 @@ static BOOLEAN find_dbkey(thread_db* tdbb, RecordSource* rsb, ULONG record_numbe
  *	record within a set of equivalent keys.
  *
  **************************************/
-	JRD_REQ request;
+	Request* request;
 	IRSB_NAV impure;
 	RPB *rpb;
 	WIN window;
@@ -1152,7 +1155,7 @@ static BOOLEAN find_record(thread_db* tdbb,
  *	must handle CRACK semantics.
  *
  **************************************/
-	JRD_REQ request;
+	Request* request;
 	IRSB_NAV impure;
 	RPB *rpb;
 	JRD_NOD retrieval_node;
@@ -1363,40 +1366,35 @@ static bool find_saved_node(thread_db* tdbb, RecordSource* rsb, IRSB_NAV impure,
 	// the inner loop goes through the nodes on each page
 	temporary_key key;
 	SCHAR flags = page->btr_header.pag_flags;
-	UCHAR *pointer;
-	UCHAR *endPointer;
-	UCHAR *p, *q;
-	USHORT l;
-	int result;
 	IndexNode node;
 	while (true) {
-		pointer = BTreeNode::getPointerFirstNode(page);
-		endPointer = ((UCHAR*)page + page->btr_length);
+		UCHAR* pointer = BTreeNode::getPointerFirstNode(page);
+		UCHAR* endPointer = ((UCHAR*)page + page->btr_length);
 		while (pointer < endPointer) {
 
 			pointer = BTreeNode::readNode(&node, pointer, flags, true);
 
-			if (node.recordNumber == END_LEVEL) {
+			if (node.isEndLevel) {
 				*return_pointer = node.nodePointer;
 				return false;
 			}
-			if (node.recordNumber == END_BUCKET) {
+			if (node.isEndBucket) {
 				page = (btree_page*) CCH_HANDOFF(tdbb, window, page->btr_sibling,
 					LCK_read, pag_index);
 				break;
 			}
 
 			// maintain the running key value and compare it with the stored value
-			l = node.length;
+			USHORT l = node.length;
 			if (l) {
-				p = key.key_data + node.prefix;
-				q = node.data;
+				UCHAR* p = key.key_data + node.prefix;
+				UCHAR* q = node.data;
 				do {
 					*p++ = *q++;
 				} while (--l);
 			}
 			key.key_length = node.length + node.prefix;
-			result = compare_keys(idx, impure->irsb_nav_data,
+			int result = compare_keys(idx, impure->irsb_nav_data,
 						impure->irsb_nav_length, &key, FALSE);
 
 			// if the keys are equal, return this node even if it is just a duplicate node;
@@ -1570,11 +1568,10 @@ static BOOLEAN get_record(thread_db* tdbb,
  *
  **************************************/
 
-	JRD_REQ request = tdbb->tdbb_request;
+	Request* request = tdbb->tdbb_request;
 	index_desc* idx = (index_desc*) ((SCHAR*) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 
-	temporary_key value;
-	USHORT old_att_flags;
+	USHORT old_att_flags = 0;
 	BOOLEAN result;
 
 	try {
@@ -1598,6 +1595,7 @@ static BOOLEAN get_record(thread_db* tdbb,
 
 	result = VIO_get(tdbb, rpb, rsb, request->req_transaction, request->req_pool);
 
+	temporary_key value;
 	if (result)
 		{
 		BTR_key(tdbb, rpb->rpb_relation, rpb->rpb_record,
@@ -1615,7 +1613,7 @@ static BOOLEAN get_record(thread_db* tdbb,
 			RSE_MARK_CRACK(tdbb, rsb, 0);
 
 			// mark in the navigational bitmap that we have visited this record
-			SBM_set(tdbb, &impure->irsb_nav_records_visited, rpb->rpb_number);
+			RBM_SET(tdbb->tdbb_default, &impure->irsb_nav_records_visited, rpb->rpb_number.getValue());
 			}
 		}
 
@@ -1878,7 +1876,7 @@ static void setup_bitmaps(thread_db* tdbb, RecordSource* rsb, IRSB_NAV impure)
 	// this record; this is to handle the case where there is more
 	// than one leaf node reference to the same record number; the
 	// bitmap allows us to filter out the multiple references.
-	SBM_reset(&impure->irsb_nav_records_visited);
+	RecordBitmap::reset(impure->irsb_nav_records_visited);
 
 	// the first time we open the stream, compute a bitmap
 	// for the inversion tree--this may cause problems for

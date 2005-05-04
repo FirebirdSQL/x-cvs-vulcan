@@ -25,8 +25,10 @@
 #define JRD_PCMET_PROTO_H
 
 class Transaction;
+struct DeferredWork;
+struct index_desc;
 
-int PCMET_expression_index(thread_db*, SSHORT, struct dfw *, class Transaction *);
-void PCMET_lookup_index(Relation *, struct idx *);
+bool PCMET_expression_index(thread_db*, SSHORT, DeferredWork*, Transaction*);
+void PCMET_lookup_index(thread_db*, Relation*, index_desc*);
 
 #endif // JRD_PCMET_PROTO_H

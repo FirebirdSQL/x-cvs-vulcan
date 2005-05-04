@@ -72,10 +72,7 @@ public:
 	static class blk* ALL_pop(class lls**);
 	static void       ALL_push(class blk*, class lls**);
 
-    class SparseBitmap *plb_buckets;   /* available bit map buckets */
-    struct bms* plb_segments;  /* available bit map segments */
 	struct Dcc* plb_dccs;
-
 private:
 	BlockCache<lls> lls_cache;  /* Was plb_lls */
 	Database *database;

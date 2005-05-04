@@ -717,8 +717,12 @@ static void make_port( POR port, int column)
 			break;
 
 		case dtype_quad:
-		case dtype_blob:
 			ib_fprintf(out_file, "    GDS__QUAD  jrd_%d;\t/* %s */",
+					   reference->ref_ident, name);
+			break;
+
+		case dtype_blob:
+			ib_fprintf(out_file, "    bid  jrd_%d;\t/* %s */",
 					   reference->ref_ident, name);
 			break;
 

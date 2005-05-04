@@ -243,7 +243,7 @@ blb* BLB_create2(thread_db* tdbb,
 		if (BLF_create_blob (tdbb,
 							transaction,
 							&blob->blb_filter,
-							reinterpret_cast<SLONG*>(blob_id),
+							blob_id,
 							bpb_length,
 							bpb,
 							// CVC: This cast is very suspicious to me.
@@ -268,10 +268,8 @@ blb* BLB_create2(thread_db* tdbb,
 
 /* Format blob id and return blob handle */
 
-	//blob_id->bid_stuff.bid_blob = blob;
 	blob->temporaryId = dbb->temporaryBlobIds++;
-	blob_id->bid_stuff.bid_number = blob->temporaryId;
-	blob_id->bid_relation_id = 0;
+	blob_id->set_temporary(blob->temporaryId);
 
 	return blob;
 }
@@ -279,8 +277,9 @@ blb* BLB_create2(thread_db* tdbb,
 
 void BLB_garbage_collect(
 						 thread_db* tdbb,
-						 LLS going,
-						 LLS staying, SLONG prior_page, Relation* relation)
+						 RecordStack& going,
+						 RecordStack& staying, 
+						 SLONG prior_page, Relation* relation)
 {
 /**************************************
  *
@@ -307,8 +306,8 @@ void BLB_garbage_collect(
 
 /* Loop thru records on the way out looking for blobs to garbage collect */
 
-	for (lls* stack1 = going; stack1; stack1 = stack1->lls_next) {
-		Record* rec1 = (Record*) stack1->lls_object;
+	for (RecordStack::iterator stack1(going); stack1.hasData(); ++stack1) {
+		Record* rec1 = stack1.object();
 		if (!rec1)
 			continue;
 		const Format* format = (Format*) rec1->rec_format;
@@ -325,33 +324,28 @@ void BLB_garbage_collect(
 
 			/* Got active blob, cancel it out of any remaining records on the way out */
 
-			lls* stack2;
-			for (stack2 = stack1->lls_next; stack2; stack2 = stack2->lls_next) {
-				Record* rec2 = (Record*) stack2->lls_object;
+			RecordStack::iterator stack2(stack1);
+			for (; stack2.hasData(); ++stack2) {
+				Record* rec2 = stack2.object();
 				if (!EVL_field(0, rec2, id, &desc2))
 					continue;
 				const bid* blob2 = (bid*) desc2.dsc_address;
-				if (blob->bid_relation_id == blob2->bid_relation_id &&
-					blob->bid_stuff.bid_number == blob2->bid_stuff.bid_number)
-				{
+				if (*blob == *blob2)
 					SET_NULL(rec2, id);
-				}
 			}
 
 			/* Make sure the blob doesn't stack in any record remaining */
 
-			for (stack2 = staying; stack2; stack2 = stack2->lls_next) {
-				Record* rec2 = (Record*) stack2->lls_object;
-				if (!EVL_field(0, rec2, id, &desc2))
+			RecordStack::iterator stack3(staying);
+			for (; stack3.hasData(); ++stack3) {
+				Record* rec3 = stack3.object();
+				if (!EVL_field(0, rec3, id, &desc2))
 					continue;
-				const bid* blob2 = (bid*) desc2.dsc_address;
-				if (blob->bid_relation_id == blob2->bid_relation_id &&
-					blob->bid_stuff.bid_number == blob2->bid_stuff.bid_number)
-				{
+				const bid* blob3 = (bid*) desc2.dsc_address;
+				if (*blob == *blob3)
 					break;
-				}
 			}
-			if (stack2)
+			if (stack3.hasData())
 				continue;
 
 			/* Get rid of blob */
@@ -875,19 +869,16 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 	/* If nothing changed, do nothing.  If it isn't broken,
 	   don't fix it. */
 
-	if (source->bid_relation_id == destination->bid_relation_id &&
-		source->bid_stuff.bid_number == destination->bid_stuff.bid_number)
+	if (*source == *destination)
 		return;
 
 	/* If either the source value is null or the blob id itself is null (all
 	   zeros, then the blob is null. */
 
-	if ((request->req_flags & req_null) || (!source->bid_relation_id &&
-											!source->bid_stuff.bid_blob))
+	if ((request->req_flags & req_null) || source->isEmpty())
 		{
 		SET_NULL(record, id);
-		destination->bid_relation_id = 0;
-		destination->bid_stuff.bid_number = 0;
+		destination->clear();
 		return;
 		}
 
@@ -913,14 +904,15 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 	   Otherwise find the temporary blob referenced.  */
 
 	ArrayField* array = NULL;
+	//BlobIndex* blobIndex;
 	blb* blob = NULL;
 	bool materialized_blob, refetch_flag;
 	
 	do 
 		{
 		materialized_blob = refetch_flag = false;
-		
-		if (source->bid_relation_id)
+		//blobIndex = NULL;
+		if (source->bid_internal.bid_relation_id)
 			blob = copy_blob(tdbb, source, destination);
 		else if ((to_desc->dsc_dtype == dtype_array) &&
 				 (array = find_array(transaction, source)) &&
@@ -934,7 +926,7 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 #endif
 		
 			for (blob = transaction->tra_blobs; blob; blob = blob->blb_next)
-				if (blob->temporaryId == source->bid_stuff.bid_number)
+				if (blob->temporaryId == source->bid_temp_id())
 					{
 					materialized_blob = true;
 					break;
@@ -955,8 +947,7 @@ void BLB_move(thread_db* tdbb, dsc* from_desc, dsc* to_desc, JRD_NOD field)
 		} while (refetch_flag);
 
 	blob->blb_relation = relation;
-	destination->bid_relation_id = relation->rel_id;
-	destination->bid_stuff.bid_number = DPM_store_blob(tdbb, blob, record);
+	destination->set_permanent(relation->rel_id, DPM_store_blob(tdbb, blob, record));
 
 	if (materialized_blob) 
 		{
@@ -1106,7 +1097,7 @@ blb* BLB_open2(thread_db* tdbb,
 		ctl* control = 0;
 
 		if (BLF_open_blob (tdbb, transaction, &control,
-						  reinterpret_cast<const SLONG*>(blob_id),
+						  blob_id,
 						  bpb_length, bpb,
 						  reinterpret_cast<FPTR_BFILTER_CALLBACK>(blob_filter),
 						  filter))
@@ -1120,13 +1111,12 @@ blb* BLB_open2(thread_db* tdbb,
 		return blob;
 		}
 
-	if (!blob_id->bid_relation_id)
-		if (!blob_id->bid_stuff.bid_number)
-			{
+	if (!blob_id->bid_internal.bid_relation_id)
+		if (blob_id->isEmpty())
+		{
 			blob->blb_flags |= BLB_eof;
-			
 			return blob;
-			}
+		}
 		else 
 			{
 			/* Note: Prior to 1991, we would immediately report bad_segstr_id here,
@@ -1146,7 +1136,7 @@ blb* BLB_open2(thread_db* tdbb,
 #endif
 			
 			for (new_blob = transaction->tra_blobs; new_blob; new_blob = new_blob->blb_next) 
-				if (new_blob->temporaryId == blob_id->bid_stuff.bid_number) 
+				if (new_blob->temporaryId == blob_id->bid_temp_id()) 
 					break;
 
 #ifdef SHARED_CACHE
@@ -1197,10 +1187,10 @@ blb* BLB_open2(thread_db* tdbb,
 	relation = (Relation*)( (*vector)[blob_id->bid_relation_id]);
 	***/
 	
-	if (!(blob->blb_relation = dbb->findRelation(blob_id->bid_relation_id)))
+	if (!(blob->blb_relation = dbb->findRelation(blob_id->bid_internal.bid_relation_id)))
 		ERR_post(isc_bad_segstr_id, 0);
 
-	DPM_get_blob(tdbb, blob, blob_id->bid_stuff.bid_number, FALSE, (SLONG) 0);
+	DPM_get_blob(tdbb, blob, blob_id->get_permanent_number(), FALSE, (SLONG) 0);
 
 	/* If the blob is known to be damaged, ignore it. */
 
@@ -1448,15 +1438,12 @@ void BLB_put_slice(	thread_db*		tdbb,
 	ArrayField* array = 0;
 	slice arg;
 
-	if (blob_id->bid_relation_id)
+	if (blob_id->bid_internal.bid_relation_id)
 		{
 		for (array = transaction->tra_arrays; array; array = array->arr_next)
 			{
 			if (array->arr_blob &&
-				array->arr_blob->blb_blob_id.bid_relation_id ==
-				blob_id->bid_relation_id &&
-				array->arr_blob->blb_blob_id.bid_stuff.bid_number ==
-				blob_id->bid_stuff.bid_number)
+				array->arr_blob->blb_blob_id == *blob_id)
 				{
 				break;
 				}
@@ -1481,7 +1468,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 			(array->arr_blob)->blb_blob_id = *blob_id;
 			}
 		}
-	else if (blob_id->bid_stuff.bid_blob)
+	else if (blob_id->bid_temp_id())
 		{
 		array = find_array(transaction, blob_id);
 		if (!array) 
@@ -1519,10 +1506,8 @@ void BLB_put_slice(	thread_db*		tdbb,
 	if (length > array->arr_effective_length) 
 		array->arr_effective_length = length;
 
-	blob_id->bid_relation_id = 0;
 	array->temporaryId = transaction->tra_attachment->att_database->temporaryBlobIds++;
-	//blob_id->bid_stuff.bid_blob = (blb*) array;
-	blob_id->bid_stuff.bid_number = array->temporaryId;
+	blob_id->set_temporary(array->temporaryId);
 }
 
 
@@ -1978,10 +1963,10 @@ static void delete_blob_id(thread_db* tdbb, const bid* blob_id, ULONG prior_page
 
 	/* If the blob is null, don't bother to delete it.  Reasonable? */
 
-	if (!blob_id->bid_stuff.bid_number && !blob_id->bid_relation_id)
+	if (blob_id->isEmpty())
 		return;
 
-	if (blob_id->bid_relation_id != relation->rel_id)
+	if (blob_id->bid_internal.bid_relation_id != relation->rel_id)
 		CORRUPT(200);			/* msg 200 invalid blob id */
 
 	/* Fetch blob */
@@ -1989,7 +1974,7 @@ static void delete_blob_id(thread_db* tdbb, const bid* blob_id, ULONG prior_page
 	DBB dbb = tdbb->tdbb_database;
 	blb* blob = dbb->dbb_sys_trans->allocateBlob (tdbb);
 	blob->blb_relation = relation;
-	prior_page = DPM_get_blob(tdbb, blob, blob_id->bid_stuff.bid_number, TRUE,  prior_page);
+	prior_page = DPM_get_blob(tdbb, blob, blob_id->get_permanent_number(), TRUE,  prior_page);
 
 	if (!(blob->blb_flags & BLB_damaged))
 		delete_blob(tdbb, blob, prior_page);
@@ -2013,7 +1998,7 @@ static ArrayField* find_array(Transaction* transaction, const bid* blob_id)
 	ArrayField* array = transaction->tra_arrays;
 
 	for (; array; array = array->arr_next) 
-		if (array->temporaryId == blob_id->bid_stuff.bid_number) 
+		if (array->temporaryId == blob_id->bid_temp_id()) 
 			break;
 
 	return array;

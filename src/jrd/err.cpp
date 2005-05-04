@@ -168,8 +168,8 @@ void ERR_duplicate_error(IDX_E code,
  *	Duplicate error during index update.
  *
  **************************************/
-	TEXT  index[32];
-	TEXT  constraint[32];
+	SqlIdentifier index;
+	SqlIdentifier constraint;
 	const TEXT* index_name;
 	const TEXT* constraint_name;
 
@@ -197,11 +197,26 @@ void ERR_duplicate_error(IDX_E code,
 		ERR_punt();
 		break;
 
-	case idx_e_foreign:
+	case idx_e_foreign_target_doesnt_exist:
 		ERR_post(isc_foreign_key,
 				 isc_arg_string, ERR_cstring(constraint_name),
-				 isc_arg_string, 
-				 (const char*) relation->rel_name, 0);
+				 isc_arg_string, (const char*) relation->rel_name, 0);
+		/* TODO:AB
+		ERR_post(isc_foreign_key, isc_arg_string, constraint_name,
+			 	 isc_arg_string, relation->rel_name, 
+			 	 isc_arg_gds, isc_foreign_key_target_doesnt_exist, 0);
+		*/
+		break;
+
+	case idx_e_foreign_references_present:
+		ERR_post(isc_foreign_key,
+				 isc_arg_string, ERR_cstring(constraint_name),
+				 isc_arg_string, (const char*) relation->rel_name, 0);
+		/* TODO:AB
+		ERR_post(isc_foreign_key, isc_arg_string, constraint_name,
+			 	 isc_arg_string, relation->rel_name,
+			 	 isc_arg_gds, isc_foreign_key_references_present, 0);
+		*/
 		break;
 
 	default:

@@ -976,12 +976,11 @@ void EXE_unwind(thread_db* tdbb, JRD_REQ request)
  *	simple since nothing really needs to be done.
  *
  **************************************/
-	vec::iterator ptr, end;
 	DBB dbb = tdbb->tdbb_database;
 	
 	if (request->req_flags & req_active) 
 		{
-		if (request->req_fors) 
+		if (request->req_fors.getCount())
 			{
 			JrdMemoryPool *old_pool = tdbb->tdbb_default;
 			tdbb->tdbb_default = request->req_pool;
@@ -990,9 +989,11 @@ void EXE_unwind(thread_db* tdbb, JRD_REQ request)
 			Transaction* old_transaction = tdbb->tdbb_transaction;
 			tdbb->tdbb_transaction = request->req_transaction;
 			
-			for (ptr = request->req_fors->begin(), end = request->req_fors->end(); ptr < end; ptr++)
+			RecordSource** ptr = request->req_fors.begin();
+			for (const RecordSource* const* const end =
+				 request->req_fors.end(); ptr < end; ptr++)
 				if (*ptr)
-					RSE_close(tdbb, (RecordSource*) *ptr);
+					RSE_close(tdbb, *ptr);
 
 			tdbb->tdbb_default = old_pool;
 			tdbb->tdbb_request = old_request;
@@ -1146,30 +1147,19 @@ static JRD_NOD erase(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
  *	Perform erase operation.
  *
  **************************************/
-	DBB dbb;
-	JRD_REQ request, trigger;
-	record_param* rpb;
-	Relation* relation;
-	Record* record;
-	Format* format;
-	Transaction* transaction;
-#ifdef PC_ENGINE
-	RecordSource* rsb = NULL;
-	IRSB impure;
-#endif
-
 	SET_TDBB(tdbb);
-	dbb = tdbb->tdbb_database;
+	Database* dbb = tdbb->tdbb_database;
 	BLKCHK(node, type_nod);
 
-	request = tdbb->tdbb_request;
-	transaction = request->req_transaction;
-	rpb = &request->req_rpb[(int) (IPTR) node->nod_arg[e_erase_stream]];
-	relation = rpb->rpb_relation;
+	Request* request = tdbb->tdbb_request;
+	Transaction* transaction = request->req_transaction;
+	record_param* rpb = &request->req_rpb[(int) (IPTR) node->nod_arg[e_erase_stream]];
+	Relation* relation = rpb->rpb_relation;
 
 #ifdef PC_ENGINE
 /* for navigational streams, retrieve the rsb */
-
+	RecordSource* rsb = NULL;
+	irsb* impure = NULL;
 	if (node->nod_arg[e_erase_rsb]) {
 		rsb = *(RecordSource* *) node->nod_arg[e_erase_rsb];
 		impure = (IRSB) IMPURE (request, rsb->rsb_impure);
@@ -1178,14 +1168,16 @@ static JRD_NOD erase(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 
 	switch (request->req_operation) {
 	case req_evaluate:
+		{
 		if (!node->nod_arg[e_erase_statement])
 			break;
-		format = rpb->rpb_relation->getCurrentFormat(tdbb);
-		record = VIO_record(tdbb, rpb, format, tdbb->tdbb_default);
+		Format* format = rpb->rpb_relation->getCurrentFormat(tdbb);
+		Record* record = VIO_record(tdbb, rpb, format, tdbb->tdbb_default);
 		rpb->rpb_address = record->rec_data;
 		rpb->rpb_length = format->fmt_length;
 		rpb->rpb_format_number = format->fmt_version;
 		return node->nod_arg[e_erase_statement];
+		}
 
 	case req_return:
 		break;
@@ -1277,6 +1269,7 @@ static JRD_NOD erase(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 		
 /* Handle post operation trigger */
 
+	Request* trigger;
 	if (relation->rel_post_erase &&
 		which_trig != PRE_TRIG &&
 		(trigger = execute_triggers(tdbb, relation, &relation->rel_post_erase,
@@ -1661,11 +1654,10 @@ static JRD_NOD find(thread_db* tdbb, JRD_NOD node)
 		RecordSource* rsb = *((RecordSource* *) node->nod_arg[e_find_rsb]);
 
 		USHORT operator_ =
-			(USHORT) MOV_get_long(EVL_expr(	tdbb,
-											node->nod_arg
-											[e_find_operator]),
-									0);
-		if (operator_ != blr_eql &&
+			(USHORT) MOV_get_long(EVL_expr(	tdbb, node->nod_arg[e_find_operator]), 0);
+
+		if (operator_ != blr_equiv &&
+			operator_ != blr_eql &&
 			operator_ != blr_leq &&
 			operator_ != blr_lss &&
 			operator_ != blr_geq &&
@@ -2934,30 +2926,23 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
  *	Execute a MODIFY statement.
  *
  **************************************/
-	JRD_REQ trigger;
-	Format* org_format;
-	Format* new_format;
-	Record* org_record;
-	Record* new_record;
-#ifdef PC_ENGINE
-	RecordSource* rsb = NULL;
-	LCK record_locking;
-	IRSB irsb;
-#endif
-
-	//SET_TDBB(tdbb);
 	Database* dbb = tdbb->tdbb_database;
 	Request* request = tdbb->tdbb_request;
 	Transaction* transaction = request->req_transaction;
 	impure_state* impure = (impure_state*) IMPURE (request, node->nod_impure);
+
 	SSHORT org_stream = (USHORT)(long) node->nod_arg[e_mod_org_stream];
 	record_param* org_rpb = &request->req_rpb[org_stream];
 	Relation* relation = org_rpb->rpb_relation;
+
 	SSHORT new_stream = (USHORT)(long) node->nod_arg[e_mod_new_stream];
 	record_param* new_rpb = &request->req_rpb[new_stream];
 
 #ifdef PC_ENGINE
 	/* for navigational streams, retrieve the rsb */
+	RecordSource* rsb = NULL;
+	irsb* irsb = NULL;
+	LCK record_locking;
 
 	if (node->nod_arg[e_mod_rsb]) 
 		{
@@ -3013,8 +2998,8 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 			if (impure->sta_state) 
 				{
 				impure->sta_state = 0;
-				org_record = org_rpb->rpb_record;
-				new_record = new_rpb->rpb_record;
+				Record* org_record = org_rpb->rpb_record;
+				Record* new_record = new_rpb->rpb_record;
 				MOVE_FASTER(new_record->rec_data, org_record->rec_data,
 							new_record->rec_length);
 				request->req_operation = req_evaluate;
@@ -3070,6 +3055,7 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 						}
 					}
 
+				Request* trigger;
 				if (relation->rel_post_modify && which_trig != PRE_TRIG &&
 					(trigger = execute_triggers(tdbb, relation, &relation->rel_post_modify,
 												org_rpb->rpb_record,
@@ -3143,7 +3129,7 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 
 			if (which_trig != PRE_TRIG) 
 				{
-				org_record = org_rpb->rpb_record;
+				Record* org_record = org_rpb->rpb_record;
 				org_rpb->rpb_record = new_rpb->rpb_record;
 				new_rpb->rpb_record = org_record;
 				}
@@ -3160,13 +3146,15 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 	   exists for the stream and is big enough, and copying fields from the
 	   original record to the new record. */
 
-	new_format = new_rpb->rpb_relation->getCurrentFormat(tdbb);
-	new_record = VIO_record(tdbb, new_rpb, new_format, tdbb->tdbb_default);
+	Format* new_format = new_rpb->rpb_relation->getCurrentFormat(tdbb);
+	Record* new_record = VIO_record(tdbb, new_rpb, new_format, tdbb->tdbb_default);
 	new_rpb->rpb_address = new_record->rec_data;
 	new_rpb->rpb_length = new_format->fmt_length;
 	new_rpb->rpb_format_number = new_format->fmt_version;
 
-	if (!(org_record = org_rpb->rpb_record)) 
+	Format* org_format;
+	Record* org_record = org_rpb->rpb_record;
+	if (!org_record) 
 		{
 		org_record = VIO_record(tdbb, org_rpb, new_format, tdbb->tdbb_default);
 		org_format = org_record->rec_format;
@@ -3729,12 +3717,13 @@ static void set_error(thread_db* tdbb, const xcp_repeat* exception, JRD_NOD msg_
  *	and jump to handle error accordingly.
  *
  **************************************/
-	TEXT name[32], relation_name[32];
-	const TEXT *s;
-	const TEXT *r;
-	TEXT message[XCP_MESSAGE_LENGTH + 1], temp[XCP_MESSAGE_LENGTH + 1];
-	Request *request = tdbb->tdbb_request;
+	TEXT message[XCP_MESSAGE_LENGTH + 1];
 
+	// since temp used as vary, we need size of vary::vary_length 
+	// (USHORT) extra chars
+	TEXT temp[XCP_MESSAGE_LENGTH + sizeof(USHORT)]; 
+
+	Request *request = tdbb->tdbb_request;
 	if (!exception) 
 		{
 		// retrieve the status vector and punt
@@ -3777,6 +3766,10 @@ static void set_error(thread_db* tdbb, const xcp_repeat* exception, JRD_NOD msg_
 		}
 	message[length] = 0;
 
+	const TEXT *s;
+	SqlIdentifier name;
+	SqlIdentifier relation_name;
+
 	switch (exception->xcp_type) 
 		{
 		case xcp_sql_code:
@@ -3789,7 +3782,7 @@ static void set_error(thread_db* tdbb, const xcp_repeat* exception, JRD_NOD msg_
 											  request->req_trg_name);
 				// const CAST
 				s = (name[0]) ? name : "";
-				r = (relation_name[0]) ? relation_name : "";
+				const TEXT* r = (relation_name[0]) ? relation_name : (TEXT*) "";
 				ERR_post(exception->xcp_code,
 						 isc_arg_string, s,
 						 isc_arg_string, r, 0);

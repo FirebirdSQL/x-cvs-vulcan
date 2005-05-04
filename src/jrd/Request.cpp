@@ -38,15 +38,14 @@
 #include "thd_proto.h"
 #include "cmp_proto.h"
 
-Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool)
+Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool), req_fors(pool)
 {
 	req_rpb = new record_param [rpbCount];
 	memset (req_rpb, 0, sizeof (record_param) * rpbCount);
 	req_impure_size = impureSize;
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
-	req_last_xcp = new StatusXcp;
-	req_fors = NULL;
+	req_last_xcp = new StatusXcp;	
 }
 
 

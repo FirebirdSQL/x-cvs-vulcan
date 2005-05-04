@@ -1786,7 +1786,7 @@ void DYN_define_index(thread_db*	tdbb,
 						break;
 
 					case isc_dyn_fld_computed_source:
-						DYN_put_text_blob(gbl, ptr, &IDX.RDB$EXPRESSION_SOURCE);
+						DYN_put_text_blob(tdbb, gbl, ptr, &IDX.RDB$EXPRESSION_SOURCE);
 						IDX.RDB$EXPRESSION_SOURCE.NULL = FALSE;
 						break;
 #endif

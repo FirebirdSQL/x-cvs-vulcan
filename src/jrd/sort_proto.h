@@ -37,7 +37,7 @@ ULONG	SORT_read_block(struct sort_work_file*, ULONG, BLOB_PTR*, ULONG);
 
 void	SORT_error(struct sort_work_file*, const TEXT *, ISC_STATUS, int);
 void	SORT_fini(struct sort_context*, Attachment *);
-struct sort_context*	SORT_init(thread_db*, USHORT, USHORT, const struct sort_key_def*,
+struct sort_context*	SORT_init(thread_db*, USHORT, USHORT, USHORT, const struct sort_key_def*,
 						FPTR_REJECT_DUP_CALLBACK, void*, Attachment*, UINT64);
 void	SORT_put(thread_db*, struct sort_context*, ULONG**);
 void	SORT_shutdown(Attachment*);

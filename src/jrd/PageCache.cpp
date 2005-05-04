@@ -53,11 +53,11 @@
 #include "status.h"
 #include "tra.h"
 #include "jrd_proto.h"
-#include "sbm_proto.h"
 #include "gds_proto.h"
 #include "BdbSort.h"
 #include "Interlock.h"
 #include "CommitManager.h"
+//#include "../jrd/sbm.h"
 
 #undef CACHE_WRITER
 
@@ -3806,16 +3806,15 @@ bool PageCache::validate(win* window)
  *
  **************************************/
 
-void PageCache::recoverShadow(thread_db * tdbb, SparseBitmap* sbm_rec)
+void PageCache::recoverShadow(thread_db * tdbb, PageBitmap* pages)
 {
-	SLONG page_no = -1;
 	int result;
 
 	ISC_STATUS *status = tdbb->tdbb_status_vector;
 
 	WIN window(-1);
 	
-	if (!sbm_rec) 
+	if (!pages) 
 		{
 		/* Now that shadows are initialized after WAL, write the header
 		   page with the recover bit to shadow. */
@@ -3826,13 +3825,17 @@ void PageCache::recoverShadow(thread_db * tdbb, SparseBitmap* sbm_rec)
 	result = TRUE;
 
 	if (database->dbb_shadow)
-		while (SBM_next(sbm_rec, &page_no, RSE_get_forward)) 
+		{		
+		PageBitmap::Accessor accessor(pages);
+		if (accessor.getFirst()) 
+			do 
 			{
-			window.win_page = page_no;
-			fetch(tdbb, &window, LCK_write, pag_undefined, 1, 1);
-			result = writeAllShadows (tdbb, 0, window.win_bdb, 1, false);
-			release(tdbb, &window);
-			}
+				window.win_page = accessor.current();
+				fetch(tdbb, &window, LCK_write, pag_undefined, 1, 1);
+				result = writeAllShadows (tdbb, 0, window.win_bdb, 1, false);
+				release(tdbb, &window);
+			} while (accessor.getNext());			
+		}
 
 	if (result == FALSE)
 		ERR_punt();
@@ -3846,7 +3849,8 @@ void PageCache::recoverShadow(thread_db * tdbb, SparseBitmap* sbm_rec)
 
 	/* release the bit map */
 
-	SBM_release(sbm_rec);
+	//SBM_release(sbm_rec);
+	pages->clear();
 }
 
 /**************************************

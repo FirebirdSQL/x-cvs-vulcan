@@ -65,7 +65,7 @@ static void dmp_header(header_page*);
 static void dmp_index(btree_page*, USHORT);
 static void dmp_pip(page_inv_page*, ULONG);
 static void dmp_pointer(pointer_page*);
-static void dmp_root(index_root_page*);
+static void dmp_root(thread_db* tdbb, index_root_page*);
 static void dmp_transactions(thread_db* tdbb, tx_inv_page*, ULONG);
 
 static int dmp_descending = 0;
@@ -323,7 +323,7 @@ void DMP_fetched_page(PAG page,
 		break;
 
 	case pag_root:
-		dmp_root((index_root_page*) page);
+		dmp_root(tdbb, (index_root_page*) page);
 		break;
 
 	case pag_index:
@@ -720,10 +720,11 @@ static void dmp_header(header_page* page)
 	minor_version = page->hdr_ods_minor;
 
 	ib_fprintf(dbg_file,
-			   "HEADER PAGE\t checksum %d\t generation %ld\n\tPage size: %d, version: %d.%d(%d), pages: %ld\n",
+			   "HEADER PAGE\t checksum %d\t generation %ld\n\tPage size: %d, version: %d.%d(%d) type %04x, pages: %ld\n",
 			   ((PAG) page)->pag_checksum, ((PAG) page)->pag_generation,
-			   page->hdr_page_size, page->hdr_ods_version, minor_version,
-			   page->hdr_ods_minor_original, page->hdr_PAGES);
+			   page->hdr_page_size, page->hdr_ods_version & ~ODS_TYPE_MASK, 
+			   minor_version, page->hdr_ods_minor_original, 
+			   page->hdr_ods_version & ODS_TYPE_MASK, page->hdr_PAGES);
 
 	isc_decode_timestamp((GDS_TIMESTAMP *) page->hdr_creation_date, &time);
 	ib_fprintf(dbg_file, "\tCreation date:\t%s %d, %d %d:%02d:%02d\n",
@@ -1012,7 +1013,7 @@ static void dmp_pointer(pointer_page* page)
 }
 
 
-static void dmp_root(index_root_page* page)
+static void dmp_root(thread_db* tdbb, index_root_page* page)
 {
 /**************************************
  *
@@ -1023,23 +1024,36 @@ static void dmp_root(index_root_page* page)
  * Functional description
  *
  **************************************/
-	index_root_page::irt_repeat * desc;
-	struct irtd *stuff;
-	USHORT i, j;
-
 	ib_fprintf(dbg_file,
 			   "INDEX ROOT PAGE\t checksum %d\t generation %ld\n\tRelation: %d, Count: %d\n",
 			   ((PAG) page)->pag_checksum, ((PAG) page)->pag_generation,
 			   page->irt_relation, page->irt_count);
-	for (i = 0, desc = page->irt_rpt; i < page->irt_count; i++, desc++) {
+
+	const bool ods11plus =
+		(tdbb->tdbb_database->dbb_ods_version >= ODS_VERSION11);
+
+	USHORT i = 0;
+	for (const index_root_page::irt_repeat* desc = page->irt_rpt;
+		i < page->irt_count; i++, desc++)
+	{
 		ib_fprintf(dbg_file,
 				   "\t%d -- root: %ld, number of keys: %d, flags: %x\n", i,
 				   desc->irt_root, desc->irt_keys, desc->irt_flags);
 		ib_fprintf(dbg_file, "\t     keys (field, type): ");
-		stuff = (struct irtd *) ((SCHAR *) page + desc->irt_desc);
-		for (j = 0; j < desc->irt_keys; j++, stuff++)
-			ib_fprintf(dbg_file, "(%d, %d),", stuff->irtd_field,
-					   stuff->irtd_itype);
+
+		const SCHAR* ptr = (SCHAR *) page + desc->irt_desc;
+		for (USHORT j = 0; j < desc->irt_keys; j++) 
+			{
+
+			if (ods11plus)
+				ptr += sizeof(irtd);
+			else
+				ptr += sizeof(irtd_ods10);
+
+			const irtd* stuff = (irtd*)ptr;
+			ib_fprintf(dbg_file, "(%d, %d),", stuff->irtd_field, stuff->irtd_itype);
+			}
+
 		ib_fprintf(dbg_file, "\n");
 	}
 }

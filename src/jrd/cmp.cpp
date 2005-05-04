@@ -80,7 +80,6 @@
 #include "../jrd/opt_proto.h"
 #include "../jrd/par_proto.h"
 #include "../jrd/rng_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/scl_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/met_proto.h"
@@ -89,6 +88,7 @@
 #include "../jrd/dbg_proto.h"	// DBG_supervisor
 #include "../jrd/ExecuteStatement.h"
 #include "../jrd/Triggers.h"
+#include "../jrd/sbm.h"
 
 /* Pick up relation ids */
 
@@ -384,7 +384,7 @@ JRD_REQ CMP_compile2(thread_db* tdbb, const UCHAR* blr, USHORT internal_flag)
 }
 
 
-csb_repeat* CMP_csb_element(CompilerScratch* csb, USHORT element)
+CompilerScratch::csb_repeat* CMP_csb_element(CompilerScratch* csb, USHORT element)
 {
 /**************************************
  *
@@ -399,7 +399,7 @@ csb_repeat* CMP_csb_element(CompilerScratch* csb, USHORT element)
  **************************************/
 
 	DEV_BLKCHK(csb, type_csb);
-	csb_repeat empty_item;
+	CompilerScratch::csb_repeat empty_item;
 	while (element >= csb->csb_rpt.getCount()) {
 		csb->csb_rpt.add(empty_item);
 	}
@@ -532,7 +532,7 @@ Format* CMP_format(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
  *	Pick up a format for a stream.
  *
  **************************************/
-	csb_repeat *tail;
+	CompilerScratch::csb_repeat *tail;
 
 	SET_TDBB(tdbb);
 
@@ -1671,11 +1671,10 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
  *
  **************************************/
 
-	JRD_REQ request = 0;
-	LLS temp;
+	Request* request = NULL;
 	DEV_BLKCHK(csb, type_csb);
 	//SET_TDBB(tdbb);
-	JRD_REQ old_request = tdbb->tdbb_request;
+	Request* old_request = tdbb->tdbb_request;
 	tdbb->tdbb_request = NULL;
 
 	try 
@@ -1820,14 +1819,14 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 			{
 			switch (resource->rsc_type)
 				{
-				case rsc_relation:
+				case Resource::rsc_relation:
 					{
 					Relation *relation = resource->rsc_rel;
 					MET_post_existence(tdbb, relation);
 					break;
 					}
 					
-				case rsc_index:
+				case Resource::rsc_index:
 					{
 
 					Relation *relation = resource->rsc_rel;
@@ -1847,7 +1846,7 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 					break;
 					}
 					
-				case rsc_procedure:
+				case Resource::rsc_procedure:
 					{
 					Procedure *procedure = resource->rsc_prc;
 					procedure->incrementUseCount();
@@ -1868,8 +1867,8 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 				}
 			}
 
-		csb_repeat* tail = csb->csb_rpt.begin();
-		const csb_repeat* const streams_end  = tail + csb->csb_n_stream;
+		CompilerScratch::csb_repeat* tail = csb->csb_rpt.begin();
+		const CompilerScratch::csb_repeat* const streams_end  = tail + csb->csb_n_stream;
 		DEBUG;
 
 		for (record_param* rpb = request->req_rpb; tail < streams_end; rpb++, tail++)
@@ -1880,31 +1879,19 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 				 rpb->rpb_stream_flags |= RPB_s_update;
 		
 			rpb->rpb_relation = tail->csb_relation;
-			SBM_release(tail->csb_fields);
-			}
 
-		USHORT count;
+			delete tail->csb_fields;
+			tail->csb_fields = 0;
+			}
 
 		// make a vector of all used RSEs
-
-		for (temp = csb->csb_fors, count = 0; temp; count++) 
-			temp = temp->lls_next;
-
-		if (count) 
-			{
-			VEC vector = request->req_fors =
-				vec::newVector(*request->req_pool, request->req_fors, count + 1);
-			vec::iterator ptr = vector->begin();
-			
-			while (csb->csb_fors) 
-				*ptr++ = (BLK) LLS_POP(&csb->csb_fors);
-			}
-
+		request->req_fors = csb->csb_fors;
 
 		// make a vector of all invariant-type nodes, so that we will
 		// be able to easily reinitialize them when we restart the request
 
-		request->req_invariants.join(csb->csb_invariants);
+		request->req_invariants = csb->csb_invariants;
+
 		DEBUG;
 		tdbb->tdbb_request = old_request;
 		}
@@ -2004,7 +1991,7 @@ void CMP_post_access(thread_db* tdbb,
 void CMP_post_resource(thread_db* tdbb,
 						Resource** rsc_ptr,
 						BLK rel_or_prc,
-						enum rsc_s type,
+						Resource::rsc_s type,
 						USHORT id)
 {
 /**************************************
@@ -2033,11 +2020,11 @@ void CMP_post_resource(thread_db* tdbb,
 	resource->rsc_type = type;
 	resource->rsc_id = id;
 	switch (type) {
-	case rsc_relation:
-	case rsc_index:
+	case Resource::rsc_relation:
+	case Resource::rsc_index:
 		resource->rsc_rel = (Relation*) rel_or_prc;
 		break;
-	case rsc_procedure:
+	case Resource::rsc_procedure:
 		resource->rsc_prc = (Procedure *) rel_or_prc;
 		break;
 	default:
@@ -2047,7 +2034,7 @@ void CMP_post_resource(thread_db* tdbb,
 }
 
 
-void CMP_release_resource(Resource** rsc_ptr, enum rsc_s type, USHORT id)
+void CMP_release_resource(Resource** rsc_ptr, enum Resource::rsc_s type, USHORT id)
 {
 /**************************************
  *
@@ -2156,12 +2143,12 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 		for (resource = request->req_resources; resource; resource = resource->rsc_next)
 			switch (resource->rsc_type) 
 				{
-				case rsc_relation:
+				case Resource::rsc_relation:
 					relation = resource->rsc_rel;
 					MET_release_existence(relation);
 					break;
 					
-				case rsc_index:
+				case Resource::rsc_index:
 					relation = resource->rsc_rel;
 					
 					if ( (index = CMP_get_index_lock(tdbb, relation, resource->rsc_id)) )
@@ -2173,7 +2160,7 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 						}
 					break;
 					
-				case rsc_procedure:
+				case Resource::rsc_procedure:
 					CMP_decrement_prc_use_count(tdbb, resource->rsc_prc);
 					break;
 					
@@ -2628,7 +2615,7 @@ static JRD_NOD copy(thread_db* tdbb,
 			node->nod_arg[e_rel_relation] = input->nod_arg[e_rel_relation];
 			node->nod_arg[e_rel_view] = input->nod_arg[e_rel_view];
 
-			csb_repeat* element = CMP_csb_element(csb, new_stream);
+			CompilerScratch::csb_repeat* element = CMP_csb_element(csb, new_stream);
 			element->csb_relation = (Relation*) node->nod_arg[e_rel_relation];
 			element->csb_view = (Relation*) node->nod_arg[e_rel_view];
 			element->csb_view_stream = remap[0];
@@ -2698,7 +2685,7 @@ static JRD_NOD copy(thread_db* tdbb,
 			node->nod_arg[e_prc_stream] = (JRD_NOD) (long) new_stream;
 			remap[stream] = (UCHAR) new_stream;
 			node->nod_arg[e_prc_procedure] = input->nod_arg[e_prc_procedure];
-			csb_repeat* element = CMP_csb_element(csb, new_stream);
+			CompilerScratch::csb_repeat* element = CMP_csb_element(csb, new_stream);
 			// SKIDDER: Maybe we need to check if we really found a procedure?
 			element->csb_procedure = tdbb->tdbb_database->findProcedure(tdbb,
 					(SSHORT)(long) node->nod_arg[e_prc_procedure]);
@@ -2878,7 +2865,7 @@ static void ignore_dbkey(thread_db* tdbb, CompilerScratch* csb, RecordSelExpr* r
 		node = *ptr++;
 		if (node->nod_type == nod_relation) {
 			USHORT stream;
-			csb_repeat *tail;
+			CompilerScratch::csb_repeat *tail;
 			Relation *relation;
 
 			stream = (USHORT)(long) node->nod_arg[e_rel_stream];
@@ -3070,7 +3057,7 @@ static JRD_NOD pass1(thread_db* tdbb,
  **************************************/
 	JRD_NOD sub, *ptr, *end;
 	USHORT stream;
-	csb_repeat *tail;
+	CompilerScratch::csb_repeat *tail;
 	Procedure * procedure;
 
 	SET_TDBB(tdbb);
@@ -3294,7 +3281,7 @@ static JRD_NOD pass1(thread_db* tdbb,
 			procedure = (Procedure *) node->nod_arg[e_esp_procedure];
 			post_procedure_access(tdbb, csb, procedure);
 			CMP_post_resource(tdbb, &csb->csb_resources, (BLK) procedure,
-							rsc_procedure, procedure->findId());
+							Resource::rsc_procedure, procedure->findId());
 			break;
 
 		case nod_store:
@@ -3449,7 +3436,7 @@ static void pass1_erase(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 	UCHAR *map;
 	USHORT stream, new_stream, parent_stream = 0;
 	Triggers* trigger;
-	csb_repeat *tail;
+	CompilerScratch::csb_repeat *tail;
 	USHORT priv;
 
 	//SET_TDBB(tdbb);
@@ -3639,7 +3626,7 @@ static void pass1_modify(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 	UCHAR *map;
 	USHORT view_stream, stream, new_stream, parent_stream = 0;
 	Triggers* trigger;
-	csb_repeat *tail;
+	CompilerScratch::csb_repeat *tail;
 	USHORT priv;
 
 	// if updateable views with triggers are involved, there
@@ -3905,7 +3892,7 @@ static void pass1_source(thread_db*     tdbb,
 	Relation *view;
 	UCHAR *map;
 	USHORT stream;
-	csb_repeat *element;
+	CompilerScratch::csb_repeat *element;
 
 	SET_TDBB(tdbb);
 
@@ -3977,7 +3964,7 @@ static void pass1_source(thread_db*     tdbb,
 		Procedure *procedure = dbb->findProcedure(tdbb, (SSHORT)(long) source->nod_arg[e_prc_procedure]);
 		post_procedure_access(tdbb, csb, procedure);
 		CMP_post_resource(tdbb, &csb->csb_resources, (BLK) procedure,
-						  rsc_procedure, procedure->findId());
+						  Resource::rsc_procedure, procedure->findId());
 		return;
 		}
 
@@ -4002,7 +3989,7 @@ static void pass1_source(thread_db*     tdbb,
 	// relation is accessed.
 
 	view = (Relation*) source->nod_arg[e_rel_relation];
-	CMP_post_resource(tdbb, &csb->csb_resources, (BLK) view, rsc_relation,
+	CMP_post_resource(tdbb, &csb->csb_resources, (BLK) view, Resource::rsc_relation,
 					  view->rel_id);
 	source->nod_arg[e_rel_view] = (JRD_NOD) parent_view;
 
@@ -4143,7 +4130,7 @@ static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 	UCHAR *map;
 	USHORT stream, new_stream, parent_stream = 0;
 	Triggers* trigger;
-	csb_repeat *tail;
+	CompilerScratch::csb_repeat *tail;
 	USHORT priv;
 
 	//SET_TDBB(tdbb);
@@ -4190,7 +4177,7 @@ static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 									parent, parent_stream))) 
 			{
 			CMP_post_resource(tdbb, &csb->csb_resources, (BLK) relation,
-							  rsc_relation, relation->rel_id);
+							  Resource::rsc_relation, relation->rel_id);
 			return very_orig;
 			}
 
@@ -4211,7 +4198,7 @@ static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 		else 
 			{
 			CMP_post_resource(tdbb, &csb->csb_resources, (BLK) relation,
-							  rsc_relation, relation->rel_id);
+							  Resource::rsc_relation, relation->rel_id);
 			trigger_seen = true;
 			view_node = copy(tdbb, csb, node, map, 0, NULL, false);
 			node->nod_arg[e_sto_sub_store] = view_node;
@@ -4686,7 +4673,7 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 			desc = format->fmt_desc.begin();
 			for (id = 0; id < format->fmt_count; id++, desc++)
 				if (desc->dsc_dtype)
-					SBM_set(tdbb, &csb->csb_rpt[stream].csb_fields, id);
+					SBM_SET(tdbb->tdbb_default, &csb->csb_rpt[stream].csb_fields, id);
 			csb->csb_impure += sizeof(impure_state);
 			}
 			break;
@@ -4714,7 +4701,7 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 		case nod_field:
 			stream = (USHORT)(long) node->nod_arg[e_fld_stream];
 			id = (USHORT)(long) node->nod_arg[e_fld_id];
-			SBM_set(tdbb, &csb->csb_rpt[stream].csb_fields, id);
+			SBM_SET(tdbb->tdbb_default, &csb->csb_rpt[stream].csb_fields, id);
 			
 			if (node->nod_flags & nod_value) 
 				{
@@ -4823,6 +4810,7 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 		case nod_matches:
 		case nod_contains:
 		case nod_starts:
+		case nod_equiv:
 		case nod_eql:
 		case nod_neq:
 		case nod_geq:
@@ -5050,7 +5038,7 @@ static void plan_set(CompilerScratch* csb, RecordSelExpr* rse, JRD_NOD plan)
 	Relation* view_relation;
 	Relation* duplicate_relation;
 	STR alias, plan_alias;
-	csb_repeat *tail, *duplicate_tail;
+	CompilerScratch::csb_repeat *tail, *duplicate_tail;
 
 	DEV_BLKCHK(csb, type_csb);
 	DEV_BLKCHK(rse, type_nod);
@@ -5333,7 +5321,7 @@ static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelEx
 		}
 	}
 
-	LLS_PUSH(rsb, &csb->csb_fors);
+	csb->csb_fors.push(rsb);
 #ifdef SCROLLABLE_CURSORS
 	rse->rse_rsb = rsb;
 #endif

@@ -61,6 +61,8 @@
 #include "../jrd/blb_proto.h"
 #endif
 
+#include "../jrd/constants.h"
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -1502,10 +1504,13 @@ int API_ROUTINE blob__display(
  *
  **************************************/
 	// CVC: The old logic passed garbage to BLOB_display if !*name_lenth
-	TEXT temp[32];
+	SqlIdentifier temp;
 	TEXT* p = temp;
 	USHORT l = *name_length;
 	if (l != 0) {
+		if (l >= sizeof(temp))
+			l = sizeof(temp) - 1;
+
 		const TEXT* q = field_name;
 		do {
 			*p++ = *q++;
@@ -1654,10 +1659,13 @@ int API_ROUTINE blob__edit(
  *
  **************************************/
 	// CVC: The old logic passed garbage to BLOB_edit if !*name_length
-	TEXT temp[32];
+	SqlIdentifier temp;
 	TEXT* p = temp;
 	USHORT l = *name_length;
 	if (l != 0) {
+        if (l >= sizeof(temp))
+			l = sizeof(temp) - 1;
+
 		const TEXT* q = field_name;
 		do {
 			*p++ = *q++;

@@ -70,7 +70,6 @@
 #include "../jrd/rlck_proto.h"
 #include "../jrd/rse_proto.h"
 #include "../jrd/rse_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/sort_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/vio_proto.h"
@@ -114,7 +113,7 @@ static UCHAR *get_merge_data(thread_db*, merge_file*, SLONG);
 static BOOLEAN get_procedure(thread_db*, RecordSource*, IRSB_PROCEDURE, record_param*);
 static BOOLEAN get_record(thread_db*, RecordSource*, RecordSource*, RSE_GET_MODE);
 static BOOLEAN get_union(thread_db*, RecordSource*, IRSB);
-static void join_to_nulls(thread_db*, RecordSource*, USHORT);
+static void join_to_nulls(thread_db*, RecordSource*, StreamStack*);
 static void map_sort_data(JRD_REQ, SortMap*, UCHAR *);
 static void open_merge(thread_db*, RecordSource*, IRSB_MRG);
 static void open_procedure(thread_db*, RecordSource*, IRSB_PROCEDURE);
@@ -669,7 +668,7 @@ void RSE_open(thread_db* tdbb, RecordSource* rsb)
 			RLCK_reserve_relation(tdbb, request->req_transaction,
 								  rpb->rpb_relation, FALSE, TRUE);
 
-			rpb->rpb_number = -1;
+			rpb->rpb_number.setValue(BOF_NUMBER);
 			return;
 
 		case rsb_cross:
@@ -728,8 +727,10 @@ void RSE_open(thread_db* tdbb, RecordSource* rsb)
 				/* Initialize the record number of each stream in the union */
 
 				RecordSource** ptr = &rsb->rsb_arg[rsb->rsb_count];
-				for (RecordSource** const end = ptr + (USHORT)(long) * ptr; ++ptr <= end;) {
-					request->req_rpb[(USHORT)(long) * ptr].rpb_number = -1;
+				for (RecordSource** const end = ptr + (USHORT)(long) * ptr; 
+					++ptr <= end;) 
+				{
+					request->req_rpb[(USHORT)(long) * ptr].rpb_number.setValue(BOF_NUMBER);
 				}
 
 				rsb = rsb->rsb_arg[0];
@@ -762,13 +763,12 @@ void RSE_open(thread_db* tdbb, RecordSource* rsb)
 				   stream in the right sub-stream.  The block will be needed
 				   if we join to nulls before opening the rsbs */
 
-				for (lls* stack = (LLS) rsb->rsb_arg[RSB_LEFT_rsbs]; stack;
-					 stack = stack->lls_next)
+				for (RsbStack::iterator stack(*(rsb->rsb_left_rsbs)); 
+					stack.hasData(); ++stack)
 				{
-					RecordSource* right_rsbs = (RecordSource*) stack->lls_object;
 					VIO_record(tdbb,
-							   &request->req_rpb[right_rsbs->rsb_stream],
-							   right_rsbs->rsb_format, tdbb->tdbb_default);
+							   &request->req_rpb[stack.object()->rsb_stream],
+							   stack.object()->rsb_format, tdbb->tdbb_default);
 				}
 				return;
 			}
@@ -1326,10 +1326,10 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 			if (impure->irsb_flags & irsb_mustread)
 			{
 				if (!get_record
-					(tdbb, rsb->rsb_arg[RSB_LEFT_outer], NULL,
-					 RSE_get_forward)) {
-					if (!rsb->rsb_arg[RSB_LEFT_inner_streams])
-						return FALSE;
+					(tdbb, rsb->rsb_arg[RSB_LEFT_outer], NULL, RSE_get_forward)) 
+				{
+					if (rsb->rsb_left_inner_streams->isEmpty())
+						return false;
 
 					/* We have a full outer join.  Open up the inner stream
 					   one more time. */
@@ -1340,10 +1340,10 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 					break;
 				}
 				if (rsb->rsb_arg[RSB_LEFT_boolean] &&
-					!EVL_boolean(tdbb, (JRD_NOD) rsb->rsb_arg[RSB_LEFT_boolean])) {
+					!EVL_boolean(tdbb, (jrd_nod*) rsb->rsb_arg[RSB_LEFT_boolean])) {
 					/* The boolean pertaining to the left sub-stream is false
 					   so just join sub-stream to a null valued right sub-stream */
-					join_to_nulls(tdbb, rsb, RSB_LEFT_streams);
+					join_to_nulls(tdbb, rsb, rsb->rsb_left_streams);
 					return TRUE;
 				}
 				impure->irsb_flags &= ~(irsb_mustread | irsb_joined);
@@ -1370,7 +1370,7 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 			{
 				/* The current left sub-stream record has not been joined
 				   to anything.  Join it to a null valued right sub-stream */
-				join_to_nulls(tdbb, rsb, RSB_LEFT_streams);
+				join_to_nulls(tdbb, rsb, rsb->rsb_left_streams);
 				return TRUE;
 			}
 		}
@@ -1419,7 +1419,7 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 	else if (!get_record(tdbb, full, NULL, RSE_get_forward))
 		return FALSE;
 
-	join_to_nulls(tdbb, rsb, RSB_LEFT_inner_streams);
+	join_to_nulls(tdbb, rsb, rsb->rsb_left_inner_streams);
 
 	return TRUE;
 }
@@ -2196,7 +2196,7 @@ static BOOLEAN get_record(thread_db*	tdbb,
 	{
 	case rsb_sequential:
 		if (impure->irsb_flags & irsb_bof)
-			rpb->rpb_number = -1;
+			rpb->rpb_number.setValue(BOF_NUMBER);
 
 #ifdef PC_ENGINE
 		if (mode == RSE_get_current)
@@ -2222,32 +2222,43 @@ static BOOLEAN get_record(thread_db*	tdbb,
 
 	case rsb_indexed:
 		{
-		int result = FALSE;
-		SparseBitmap** bitmap = ((IRSB_INDEX) impure)->irsb_bitmap;
-		
-		if (bitmap)
-			{
-			while (SBM_next(*bitmap, &rpb->rpb_number, mode))
-				{
-#ifdef SUPERSERVER_V2
-				/* Prefetch next set of data pages from bitmap. */
+		RecordBitmap **pbitmap = ((IRSB_INDEX) impure)->irsb_bitmap;
+		RecordBitmap *bitmap;
+		if (!pbitmap || !(bitmap = *pbitmap))
+			return false;
 
-				if (rpb->rpb_number > ((IRSB_INDEX) impure)->irsb_prefetch_number && (mode == RSE_get_forward))
-					((IRSB_INDEX) impure)->irsb_prefetch_number = DPM_prefetch_bitmap(tdbb, rpb->rpb_relation,
-																						*bitmap, rpb->rpb_number);
-#endif
-				if (VIO_get(tdbb, rpb, rsb, request->req_transaction, request->req_pool))
-					{
-					result = TRUE;
-					break;
-					}
-				}
+		bool result = false;
+
+		// NS: Original code was the following:
+		// while (SBM_next(*bitmap, &rpb->rpb_number, mode))
+		// We assume mode = RSE_get_forward because we do not support
+		// scrollable cursors at the moment.
+		if (rpb->rpb_number.isBof() ? bitmap->getFirst() : bitmap->getNext()) do {
+			rpb->rpb_number.setValue(bitmap->current());
+#ifdef SUPERSERVER_V2
+			/* Prefetch next set of data pages from bitmap. */
+
+			if (rpb->rpb_number >
+				((IRSB_INDEX) impure)->irsb_prefetch_number &&
+				(mode == RSE_get_forward))
+			{
+				((IRSB_INDEX) impure)->irsb_prefetch_number =
+					DPM_prefetch_bitmap(tdbb, rpb->rpb_relation,
+										*bitmap, rpb->rpb_number);
 			}
+#endif
+			if (VIO_get(tdbb, rpb, rsb, request->req_transaction,
+						request->req_pool))
+			{
+				result = true;
+				break;
+			}
+		} while (bitmap->getNext());
 
 		if (result)
 			break;
 			
-		return FALSE;
+		return false;
 		}
 
 	case rsb_navigate:
@@ -2871,7 +2882,7 @@ static BOOLEAN get_union(thread_db* tdbb, RecordSource* rsb, IRSB impure)
 }
 
 
-static void join_to_nulls(thread_db* tdbb, RecordSource* rsb, USHORT streams)
+static void join_to_nulls(thread_db* tdbb, RecordSource* rsb, StreamStack* stream)
 {
 /**************************************
  *
@@ -2886,20 +2897,19 @@ static void join_to_nulls(thread_db* tdbb, RecordSource* rsb, USHORT streams)
  **************************************/
 
 	Request *request = tdbb->tdbb_request;
-	LLS stack = (LLS) rsb->rsb_arg[streams];
-	
-	for (; stack; stack = stack->lls_next) 
-		{
-		record_param* rpb = &request->req_rpb[(USHORT)(long) stack->lls_object];
-		Format* format;
-		Record* record;
+	for (StreamStack::iterator stack(*stream);
+		stack.hasData(); ++stack)
+	{
+		record_param* rpb = &request->req_rpb[stack.object()];
 
 		/* Make sure a record block has been allocated.  If there isn't
 		   one, first find the format, then allocate the record block */
 
-		if (!(record = rpb->rpb_record)) 
+		Record* record = rpb->rpb_record;
+		if (!record)
 			{
-			if (!(format = rpb->rpb_relation->rel_current_format))
+			Format* format = rpb->rpb_relation->rel_current_format;
+			if (!format)
 				format = rpb->rpb_relation->getFormat(tdbb, rpb->rpb_format_number);
 						 //MET_format(tdbb, rpb->rpb_relation, rpb->rpb_format_number);
 						 
@@ -2960,7 +2970,7 @@ static void map_sort_data(JRD_REQ request, SortMap* map, UCHAR * data)
 			if (id == SMB_TRANS_ID)
 				rpb->rpb_transaction = *(SLONG *) (from.dsc_address);
 			else
-				rpb->rpb_number = *(SLONG *) (from.dsc_address);
+				rpb->rpb_number.setValue(*(SINT64 *) (from.dsc_address));
 			rpb->rpb_stream_flags |= RPB_s_refetch;
 			continue;
 		}
@@ -3147,6 +3157,7 @@ static void open_sort(thread_db* tdbb, RecordSource* rsb, IRSB_SORT impure, UINT
 	sort_context* handle = SORT_init(tdbb,
 						   map->smb_length,
 						   map->smb_keys,
+						   map->smb_keys,
 						   map->smb_key_desc,
          				   ((map->smb_flags & SMB_project) ? reject : NULL), 0,
 						   tdbb->tdbb_attachment, max_records);
@@ -3194,7 +3205,7 @@ static void open_sort(thread_db* tdbb, RecordSource* rsb, IRSB_SORT impure, UINT
 					if (item->smb_field_id == SMB_TRANS_ID)
 						*(SLONG *) (to.dsc_address) = rpb->rpb_transaction;
 					else
-						*(SLONG *) (to.dsc_address) = rpb->rpb_number;
+						*(SINT64 *) (to.dsc_address) = rpb->rpb_number.getValue();
 					continue;
 				}
 				if (!EVL_field

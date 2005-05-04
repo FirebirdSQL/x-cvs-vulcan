@@ -103,7 +103,6 @@
 #include "../jrd/os/pio_proto.h"
 #include "../jrd/sch_proto.h"
 #include "../jrd/scl_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/sdw_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/event_proto.h"
@@ -140,7 +139,6 @@ typedef enum rids
 #define MAX_RELATION_ID		32767
 
 #define COMPUTED_FLAG	128
-#define NULL_BLOB(id)	(!id.gds_quad_high && !id.gds_quad_low)
 #define WAIT_PERIOD	-1
 
 DATABASE DB = FILENAME "ODS.RDB";
@@ -197,7 +195,7 @@ static void	load_trigs(thread_db*, Relation*, Triggers* *);
 static Format* make_format(thread_db*, Relation*, USHORT *, TFB);
 static USHORT name_length(const TEXT*);
 static DeferredWork* post_work(Transaction*, SLONG, DeferredWork* *, enum dfw_t, DSC *, USHORT);
-static void put_summary_blob(thread_db* tdbb, blb*, enum rsr_t, SLONG[2]);
+static void put_summary_blob(thread_db* tdbb, blb*, enum rsr_t, bid*);
 static void put_summary_record(thread_db* tdbb, blb*, enum rsr_t, const UCHAR*, USHORT);
 static void	setup_array(thread_db*, blb*, const TEXT*, USHORT, TFB);
 static blb*	setup_triggers(thread_db*, Relation*, bool, Triggers**, blb*);
@@ -1967,10 +1965,12 @@ static bool create_relation(thread_db* tdbb,
 	Request* request;
 	Relation* relation;
 	USHORT rel_id, external_flag;
-	ISC_QUAD blob_id;
 	Request* handle;
 	LCK lock;
 	USHORT local_min_relation_id;
+
+	bid blob_id;
+	blob_id.clear();
 
 	DBB dbb = tdbb->tdbb_database;
 	USHORT major_version = (SSHORT) dbb->dbb_ods_version;
@@ -2064,7 +2064,7 @@ static bool create_relation(thread_db* tdbb,
 					MODIFY Y USING
 						Y.RDB$RELATION_ID = --rel_id;
 						
-						if (NULL_BLOB(blob_id))
+						if (blob_id.isEmpty())
 							Y.RDB$DBKEY_LENGTH = 8;
 						else
 							{
@@ -2108,7 +2108,7 @@ static bool create_relation(thread_db* tdbb,
 
 			/* if this is not a view, create the relation */
 
-			if (NULL_BLOB(blob_id))
+			if (blob_id.isEmpty())
 				if (!external_flag)
 					DPM_create_relation(tdbb, relation);
 				
@@ -3332,7 +3332,6 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
  *	created or when it's modified.
  *
  **************************************/
-	ISC_QUAD blob_id;
 	JRD_REQ request;
 	JrdMemoryPool *old_pool;
 
@@ -3344,6 +3343,9 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
 #endif
 
 	Procedure *procedure = NULL;
+	bid blob_id;
+	blob_id.clear();
+	
 	Request *handle = CMP_find_request(tdbb, irq_c_prc_dpd, IRQ_REQUESTS);
 
 	FOR(REQUEST_HANDLE handle)
@@ -3364,13 +3366,13 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
 
 	/* get any dependencies now by parsing the blr */
 
-	if (procedure && !NULL_BLOB(blob_id))
+	if (procedure && !blob_id.isEmpty())
 		{
 		old_pool = tdbb->tdbb_default;
 		/* Nickolay Samofatov: allocate statement memory pool... */
 		tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-		MET_get_dependencies(tdbb, NULL, NULL, NULL, (SLONG*)&blob_id, &request,
-							NULL, work->dfw_name, obj_procedure);
+		MET_get_dependencies(tdbb, NULL, NULL, NULL, &blob_id, &request,
+							NULL, work->dfw_name, obj_procedure, 0);
 		if (request)
 			CMP_release(tdbb, request);
 		else
@@ -3399,15 +3401,18 @@ static void get_trigger_dependencies(thread_db* tdbb,  DeferredWork* work)
  *	created or when it's modified.
  *
  **************************************/
-	ISC_QUAD blob_id;
 	Request *request;
 	Database *dbb = tdbb->tdbb_database;
 	Relation *relation = NULL;
+	bid blob_id;
+	blob_id.clear();
 
 #ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "DFW_perform_system_work");
 	sync.lock(Exclusive);
 #endif
+
+	UCHAR type = 0;
 
 	Request *handle =  CMP_find_request(tdbb, irq_c_trigger, IRQ_REQUESTS);
 
@@ -3417,6 +3422,7 @@ static void get_trigger_dependencies(thread_db* tdbb,  DeferredWork* work)
         if (!REQUEST(irq_c_trigger))
             REQUEST(irq_c_trigger) = handle;
 		blob_id = X.RDB$TRIGGER_BLR;
+		type = (UCHAR) X.RDB$TRIGGER_TYPE;
 		relation = MET_lookup_relation(tdbb, X.RDB$RELATION_NAME);
 
 	END_FOR;
@@ -3426,13 +3432,17 @@ static void get_trigger_dependencies(thread_db* tdbb,  DeferredWork* work)
 
 	/* get any dependencies now by parsing the blr */
 
-	if (relation && !NULL_BLOB(blob_id))
+	if (relation && !blob_id.isEmpty())
 		{
 		JrdMemoryPool *old_pool = tdbb->tdbb_default;
 		/* Nickolay Samofatov: allocate statement memory pool... */
 		tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-		MET_get_dependencies(tdbb, relation, NULL, NULL, (SLONG*)&blob_id,
-							 &request, NULL, work->dfw_name, obj_trigger);
+
+		const USHORT par_flags = (USHORT)
+			(type & 1) ? csb_pre_trigger : csb_post_trigger;
+
+		MET_get_dependencies(tdbb, relation, NULL, NULL, &blob_id,
+							 &request, NULL, work->dfw_name, obj_trigger, par_flags);
 		if (request)
 			CMP_release(tdbb, request);
 		else
@@ -3510,7 +3520,7 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 	USHORT count;
 	ULONG offset, old_offset;
 	DSC *desc;
-	DBB dbb = tdbb->tdbb_database;
+	Database* dbb = tdbb->tdbb_database;
 
 	/* Figure out the highest field id and allocate a format block */
 
@@ -3559,7 +3569,7 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 		if (desc2->dsc_dtype)
 			{
 			old_offset = offset;
-			offset = MET_align(&*desc2, (USHORT) offset);
+			offset = MET_align(dbb, &*desc2, (USHORT) offset);
 
 			/* see of record too big */
 
@@ -3630,7 +3640,7 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
             
 		FMT.RDB$FORMAT = format->fmt_version;
 		FMT.RDB$RELATION_ID = relation->rel_id;
-		blob = BLB_create(tdbb, dbb->dbb_sys_trans, (BID)&FMT.RDB$DESCRIPTOR);
+		blob = BLB_create(tdbb, dbb->dbb_sys_trans, &FMT.RDB$DESCRIPTOR);
 		int count = format->fmt_count;
 		OdsDesc *odsDescs = new OdsDesc [count];
 		OdsDesc *odsDesc = odsDescs;
@@ -3722,8 +3732,8 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 					return false;
 					}
 					
-				ISC_QUAD blob_id = REL.RDB$VIEW_BLR;
-				null_view = NULL_BLOB(blob_id);
+				const bid blob_id = REL.RDB$VIEW_BLR;
+				null_view = blob_id.isEmpty();
 				external_flag = REL.RDB$EXTERNAL_FILE[0];
 				
 				if (REL.RDB$FORMAT == 255)
@@ -3738,7 +3748,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 					}
 					
 				MODIFY REL USING
-					blb* blob = BLB_create(tdbb, dbb->dbb_sys_trans, (BID)&REL.RDB$RUNTIME);
+					blb* blob = BLB_create(tdbb, dbb->dbb_sys_trans, &REL.RDB$RUNTIME);
 					Request *request_fmtx = CMP_find_request(tdbb, irq_format2, IRQ_REQUESTS);
 					
 					FOR(REQUEST_HANDLE request_fmtx)
@@ -3783,7 +3793,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 									RFR.RDB$UPDATE_FLAG.NULL = FALSE;
 									RFR.RDB$UPDATE_FLAG = 1;
 									
-									if (!NULL_BLOB(FLD.RDB$COMPUTED_BLR))
+									if (!FLD.RDB$COMPUTED_BLR.isEmpty())
 										{
 										RFR.RDB$UPDATE_FLAG = 0;
 										computed_field = TRUE;
@@ -3811,8 +3821,8 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 						put_summary_record(tdbb, blob, RSR_field_id, (UCHAR*)&n, sizeof(n));
 						put_summary_record(tdbb, blob, RSR_field_name, (UCHAR*) RFR.RDB$FIELD_NAME, name_length(RFR.RDB$FIELD_NAME));
 	
-						if (!NULL_BLOB(FLD.RDB$COMPUTED_BLR) && !RFR.RDB$VIEW_CONTEXT)
-							put_summary_blob(tdbb, blob, RSR_computed_blr, (SLONG*)&FLD.RDB$COMPUTED_BLR);
+						if (!FLD.RDB$COMPUTED_BLR.isEmpty() && !RFR.RDB$VIEW_CONTEXT)
+							put_summary_blob(tdbb, blob, RSR_computed_blr, &FLD.RDB$COMPUTED_BLR);
 						else if (!null_view)
 							{
 							n = RFR.RDB$VIEW_CONTEXT;
@@ -3820,12 +3830,12 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 							put_summary_record(tdbb, blob, RSR_base_field, (UCHAR*) RFR.RDB$BASE_FIELD, name_length(RFR.RDB$BASE_FIELD));
 							}
 							
-						put_summary_blob(tdbb, blob, RSR_missing_value, (SLONG*)&FLD.RDB$MISSING_VALUE);
+						put_summary_blob(tdbb, blob, RSR_missing_value, &FLD.RDB$MISSING_VALUE);
 						put_summary_blob(tdbb, blob, RSR_default_value,
-									(SLONG*)((NULL_BLOB(RFR.RDB$DEFAULT_VALUE)) ?
+									(RFR.RDB$DEFAULT_VALUE.isEmpty() ?
 										&FLD.RDB$DEFAULT_VALUE :
 										&RFR.RDB$DEFAULT_VALUE));
-						put_summary_blob(tdbb, blob, RSR_validation_blr, (SLONG*)&FLD.RDB$VALIDATION_BLR);
+						put_summary_blob(tdbb, blob, RSR_validation_blr, &FLD.RDB$VALIDATION_BLR);
 						
 						if (FLD.RDB$NULL_FLAG || RFR.RDB$NULL_FLAG)
 							put_summary_record(tdbb, blob, RSR_field_not_null,
@@ -3878,7 +3888,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 
 						// dimitr: view fields shoudn't be marked as computed
 						
-						if (null_view && !NULL_BLOB(FLD.RDB$COMPUTED_BLR))
+						if (null_view && !FLD.RDB$COMPUTED_BLR.isEmpty())
 							tfb_->tfb_flags |= TFB_computed;
 
 						tfb_->tfb_id = RFR.RDB$FIELD_ID;
@@ -4252,7 +4262,7 @@ static DeferredWork* post_work(Transaction* transaction,
 }
 
 
-static void put_summary_blob(thread_db* tdbb, blb* blob, RSR_T type, SLONG blob_id[2])
+static void put_summary_blob(thread_db* tdbb, blb* blob, RSR_T type, bid* blob_id)
 {
 /**************************************
  *
@@ -4270,9 +4280,8 @@ static void put_summary_blob(thread_db* tdbb, blb* blob, RSR_T type, SLONG blob_
 
 	/* If blob is null, don't both */
 
-	if (!blob_id[0] && !blob_id[1]) {
+	if (blob_id->isEmpty())
 		return;
-	}
 
 	// Go ahead and open blob
 
@@ -4281,7 +4290,7 @@ static void put_summary_blob(thread_db* tdbb, blb* blob, RSR_T type, SLONG blob_
 	sync.lock(Exclusive);
 #endif
 
-	blb* blr = BLB_open(tdbb, dbb->dbb_sys_trans, (BID)blob_id);
+	blb* blr = BLB_open(tdbb, dbb->dbb_sys_trans, blob_id);
 	fb_assert(blr->blb_length <= MAX_USHORT);
 	USHORT length = (USHORT)blr->blb_length;
 	UCHAR* buffer = (length > sizeof(temp)) ?

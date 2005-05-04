@@ -229,6 +229,7 @@ RELATION(nam_gens, rel_gens, ODS_8_0)
 	FIELD(f_gen_name, nam_gen_name, fld_gen_name, 1, 0, 0, 0)
 	FIELD(f_gen_id, nam_gen_id, fld_gen_id, 1, 0, 0, 0)
 	FIELD(f_gen_sys_flag, nam_sys_flag, fld_flag, 1, 0, 0, 0)
+	FIELD(f_gen_desc, nam_description, fld_description, 1, 0, 0, 0)
 END_RELATION 
 RELATION(nam_fld_dims, rel_dims, ODS_8_0)
 	FIELD(f_dims_fname, nam_f_name, fld_f_name, 1, 0, 0, 0)
@@ -315,6 +316,8 @@ END_RELATION
 RELATION(nam_roles, rel_roles, ODS_9_0)
 	FIELD(f_rol_name, nam_role_name, fld_user, 1, 0, 0, 0)
 	FIELD(f_rol_owner, nam_owner, fld_user, 1, 0, 0, 0)
+	FIELD(f_rol_desc, nam_description, fld_description, 1, 0, 0, 0)
+	FIELD(f_rol_sys_flag, nam_sys_flag, fld_flag, 1, 0, 0, 0)
 END_RELATION
 RELATION(nam_backup_history, rel_backup_history, ODS_11_0)
 	FIELD(f_backup_id, nam_backup_id, fld_backup_id, 1, 0, 0, 0)

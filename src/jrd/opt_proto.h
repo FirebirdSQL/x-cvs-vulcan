@@ -30,11 +30,11 @@
 #include "../jrd/lls.h"
 
 
-BOOLEAN OPT_access_path(thread_db*, const Request*, UCHAR*, SSHORT, USHORT*);
-class RecordSource* OPT_compile(thread_db*, class CompilerScratch*, struct RecordSelExpr*, struct lls*);
+bool OPT_access_path(thread_db*, const Request*, UCHAR*, SSHORT, USHORT*);
+class RecordSource* OPT_compile(thread_db*, class CompilerScratch*, struct RecordSelExpr*, NodeStack*);
 struct jrd_nod* OPT_make_dbkey(thread_db*, struct OptimizerBlk*, struct jrd_nod*, USHORT);
 struct jrd_nod* OPT_make_index(thread_db*, struct OptimizerBlk*, Relation*, struct idx*);
-int OPT_match_index(thread_db*, struct OptimizerBlk*, USHORT, struct idx*);
+int OPT_match_index(thread_db*, struct OptimizerBlk*, USHORT, const struct index_desc*);
 void OPT_set_index(thread_db*, Request*, class RecordSource**, Relation*, struct idx*);
 
 #endif // JRD_OPT_PROTO_H

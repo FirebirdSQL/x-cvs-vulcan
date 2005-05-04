@@ -73,7 +73,7 @@
  *   EXECUTE BLOCK statement
  */
 
-/* AB:Sync FB 1.169 */
+/* AB:Sync FB 1.173 */
 
 #if defined _AIX || defined MVS
 #define SAVE_PAGE_SIZE PAGE_SIZE
@@ -513,7 +513,7 @@ top		: statement
 		;
 
 statement	: alter
-		| blob
+		| blob_io
 		| commit
 		| create
 		| declare
@@ -521,8 +521,8 @@ statement	: alter
 		| drop
 		| grant
 		| insert
-		| invoke_procedure
-		| invoke_block		
+		| exec_procedure
+		| exec_block
 		| recreate
 		| replace
 		| revoke
@@ -793,9 +793,8 @@ create	 	: CREATE create_clause
 			{ $$ = $2; }
 				; 
 
-create_clause	: EXCEPTION symbol_exception_name sql_string
-			{ $$ = MAKE_NODE (nod_def_exception, (int) e_xcp_count, 
-						$2, $3); }
+create_clause	: EXCEPTION exception_clause
+			{ $$ = $2; }
 		| unique_opt order_direction INDEX symbol_index_name ON simple_table_name index_definition
 			{ $$ = MAKE_NODE (nod_def_index, (int) e_idx_count, 
 					$1, $2, $4, $6, $7); }
@@ -840,6 +839,8 @@ recreate_clause	: PROCEDURE rprocedure_clause
 		| DOMAIN rdomain_clause
 			{ $$ = $2; }
 */
+		| EXCEPTION rexception_clause
+			{ $$ = $2; }
 		;
 
 replace	: CREATE OR ALTER replace_clause
@@ -854,7 +855,10 @@ replace_clause	: PROCEDURE replace_procedure_clause
 		| VIEW replace_view_clause
 			{ $$ = $2; }
 */
+		| EXCEPTION replace_exception_clause
+			{ $$ = $2; }
 		;
+
 
 upgrade	 	: UPGRADE upgrade_clause
 			{ $$ = $2; }
@@ -863,6 +867,30 @@ upgrade	 	: UPGRADE upgrade_clause
 upgrade_clause	: USER symbol_user_name user_clauses
 			{ $$ = MAKE_NODE (nod_upg_user, 2, $2, MAKE_LIST($3)); }
 				;
+
+
+/* CREATE EXCEPTION */
+
+exception_clause	: symbol_exception_name sql_string
+			{ $$ = MAKE_NODE (nod_def_exception, (int) e_xcp_count, 
+						$1, $2); }
+		;
+
+rexception_clause	: symbol_exception_name sql_string
+			{ $$ = MAKE_NODE (nod_redef_exception, (int) e_xcp_count, 
+						$1, $2); }
+		;
+
+replace_exception_clause	: symbol_exception_name sql_string
+			{ $$ = MAKE_NODE (nod_replace_exception, (int) e_xcp_count, 
+						$1, $2); }
+		;
+
+alter_exception_clause	: symbol_exception_name sql_string
+			{ $$ = MAKE_NODE (nod_mod_exception, (int) e_xcp_count, 
+						$1, $2); }
+		;
+
 
 /* CREATE INDEX */
 
@@ -1575,45 +1603,40 @@ proc_statements	: proc_block
 		;
 
 proc_statement	: assignment ';'
-		| delete ';'
-		| excp_statement
-		| raise_statement
-		| exec_procedure
-		| exec_sql
-		| for_select
-		| if_then_else
 		| insert ';'
-		| post_event
-		| singleton_select
 		| update ';'
-		| while
-		| for_exec_into
-		| exec_into
+		| delete ';'
+		| singleton_select ';'
+		| exec_procedure ';'
+		| exec_sql ';'
+		| exec_into ';'
+		| exec_udf ';'
+		| excp_statement ';'
+		| raise_statement ';'
+		| post_event ';'
+		| cursor_statement ';'
+		| breakleave ';'
 		| SUSPEND ';'
 			{ $$ = MAKE_NODE (nod_return, (int) e_rtn_count, NULL); }
 		| EXIT ';'
 			{ $$ = MAKE_NODE (nod_exit, (int) 0, NULL); }
-		| breakleave
-		| cursor_statement ';'
-		| exec_udf ';'
+		| if_then_else
+		| while
+		| for_select
+		| for_exec_into
 		;
 
-excp_statement	: EXCEPTION symbol_exception_name ';'
+excp_statement	: EXCEPTION symbol_exception_name
 			{ $$ = MAKE_NODE (nod_exception_stmt, (int) e_xcp_count, $2, NULL); }
-		| EXCEPTION symbol_exception_name value ';'
+		| EXCEPTION symbol_exception_name value
 			{ $$ = MAKE_NODE (nod_exception_stmt, (int) e_xcp_count, $2, $3); }
 		;
 
-raise_statement	: EXCEPTION ';'
+raise_statement	: EXCEPTION
 			{ $$ = MAKE_NODE (nod_exception_stmt, (int) e_xcp_count, NULL, NULL); }
 		;
 
-exec_procedure	: EXECUTE PROCEDURE symbol_procedure_name proc_inputs proc_outputs ';'
-			{ $$ = MAKE_NODE (nod_exec_procedure, (int) e_exe_count, $3,
-					  $4, $5); }
-		;
-
-exec_sql	: EXECUTE STATEMENT value ';'
+exec_sql	: EXECUTE STATEMENT value
 			{ $$ = MAKE_NODE (nod_exec_sql, (int) e_exec_sql_count, $3); }
 		;
 
@@ -1626,7 +1649,7 @@ for_exec_into	: label_opt FOR EXECUTE STATEMENT value INTO variable_list DO proc
 			{ $$ = MAKE_NODE (nod_exec_into, (int) e_exec_into_count, $5, $9, MAKE_LIST ($7), $1); }
 		;
 
-exec_into	: EXECUTE STATEMENT value INTO variable_list ';'
+exec_into	: EXECUTE STATEMENT value INTO variable_list
 			{ $$ = MAKE_NODE (nod_exec_into, (int) e_exec_into_count, $3, (int) 0, MAKE_LIST ($5)); }
 		;
 
@@ -1636,7 +1659,7 @@ if_then_else	: IF '(' search_condition ')' THEN proc_block ELSE proc_block
 			{ $$ = MAKE_NODE (nod_if, (int) e_if_count, $3, $6, NULL); }
 		;
 
-post_event	: POST_EVENT value event_argument_opt ';'
+post_event	: POST_EVENT value event_argument_opt
 			{ $$ = MAKE_NODE (nod_post, (int) e_pst_count, $2, $3); }
 		;
 
@@ -1646,7 +1669,7 @@ event_argument_opt	: /*',' value
 			{ $$ = NULL; }
 		;
 
-singleton_select	: select INTO variable_list ';'
+singleton_select	: select INTO variable_list
 			{ $$ = MAKE_NODE (nod_for_select, (int) e_flp_count, $1,
 					  MAKE_LIST ($3), NULL, NULL); }
 		;
@@ -1654,22 +1677,6 @@ singleton_select	: select INTO variable_list ';'
 variable	: ':' symbol_variable_name
 			{ $$ = MAKE_NODE (nod_var_name, (int) e_vrn_count, 
 							$2); }
-		;
-
-proc_inputs	: value_list
-			{ $$ = MAKE_LIST ($1); }
-		| '(' value_list ')'
-			{ $$ = MAKE_LIST ($2); }
-		|
-			{ $$ = NULL; }
-		;
-
-proc_outputs	: RETURNING_VALUES variable_list
-			{ $$ = MAKE_LIST ($2); }
-		| RETURNING_VALUES '(' variable_list  ')'
-			{ $$ = MAKE_LIST ($3); }
-		|
-			{ $$ = NULL; }
 		;
 
 variable_list	: variable
@@ -1690,11 +1697,11 @@ label_opt	: symbol_label_name ':'
 			{ $$ = NULL; }
 		;
 
-breakleave	: KW_BREAK ';'
+breakleave	: KW_BREAK
 			{ $$ = MAKE_NODE (nod_breakleave, (int) e_breakleave_count, NULL); }
-		| LEAVE ';'
+		| LEAVE
 			{ $$ = MAKE_NODE (nod_breakleave, (int) e_breakleave_count, NULL); }
-		| LEAVE symbol_label_name ';'
+		| LEAVE symbol_label_name
 			{ $$ = MAKE_NODE (nod_breakleave, (int) e_breakleave_count,
 				MAKE_NODE (nod_label, (int) e_label_count, $2, NULL)); }
 		;
@@ -1790,14 +1797,30 @@ fetch_seek_opt	:
 */
 /* Direct EXECUTE PROCEDURE */
 
-invoke_procedure : EXECUTE PROCEDURE symbol_procedure_name proc_inputs
-			{ $$ = MAKE_NODE (nod_exec_procedure, (int) e_exe_count, $3,
-				  $4, MAKE_NODE (nod_all, (int) 0, NULL)); }
+exec_procedure : EXECUTE PROCEDURE symbol_procedure_name proc_inputs proc_outputs_opt
+			{ $$ = MAKE_NODE (nod_exec_procedure, (int) e_exe_count, 
+					$3, $4, $5); }
+		;
+		
+proc_inputs	: value_list
+			{ $$ = MAKE_LIST ($1); }
+		| '(' value_list ')'
+			{ $$ = MAKE_LIST ($2); }
+		|
+			{ $$ = NULL; }
+		;
+
+proc_outputs_opt	: RETURNING_VALUES variable_list
+			{ $$ = MAKE_LIST ($2); }
+		| RETURNING_VALUES '(' variable_list  ')'
+			{ $$ = MAKE_LIST ($3); }
+		|
+			{ $$ = NULL; }
 		;
 
 /* EXECUTE BLOCK */
 
-invoke_block : EXECUTE BLOCK block_input_params output_parameters AS 
+exec_block : EXECUTE BLOCK block_input_params output_parameters AS 
 			local_declaration_list
 			full_proc_block
 				{ $$ = MAKE_NODE (nod_exec_block,
@@ -1972,9 +1995,8 @@ alter		: ALTER alter_clause
 			{ $$ = $2; }
 				; 
 
-alter_clause	: EXCEPTION symbol_exception_name sql_string
-			{ $$ = MAKE_NODE (nod_mod_exception, (int) e_xcp_count, 
-						$2, $3); }
+alter_clause	: EXCEPTION alter_exception_clause
+			{ $$ = $2; }
 		| TABLE simple_table_name alter_ops
 			{ $$ = MAKE_NODE (nod_mod_relation, (int) e_alt_count, 
 						$2, MAKE_LIST ($3)); }
@@ -2863,8 +2885,7 @@ table_list	: simple_table_name
 
 
 set_statistics	: SET STATISTICS INDEX symbol_index_name
-			{$$ = MAKE_NODE (nod_set_statistics, 
-				(int)e_stat_count, $4); }
+			{$$ = MAKE_NODE (nod_set_statistics, (int)e_stat_count, $4); }
 		;
 
 
@@ -2875,7 +2896,7 @@ select		: select_expr for_update_clause lock_clause
 		;
 
 for_update_clause : FOR UPDATE for_update_list
-			{ $$ = MAKE_NODE (nod_for_update, 1, $3); }
+			{ $$ = MAKE_NODE (nod_for_update, (int) e_fpd_count, $3); }
 		|
 			{ $$ = NULL; }
 		;
@@ -3287,10 +3308,6 @@ delete_positioned : KW_DELETE FROM table_name cursor_clause
 			{ $$ = MAKE_NODE (nod_delete, (int) e_del_count, $3, NULL, NULL, NULL, NULL, $4); }
 		;
 
-cursor_clause	: WHERE CURRENT OF symbol_cursor_name
-			{ $$ = MAKE_NODE (nod_cursor, (int) e_cur_count, $4, NULL, NULL, NULL); }
-		;
-
 
 /* UPDATE statement */
 
@@ -3308,6 +3325,13 @@ update_positioned : UPDATE table_name SET assignments cursor_clause
 				$2, MAKE_LIST ($4), NULL, NULL, NULL, NULL, $5); }
 		;
 
+cursor_clause	: WHERE CURRENT OF symbol_cursor_name
+			{ $$ = MAKE_NODE (nod_cursor, (int) e_cur_count, $4, NULL, NULL, NULL); }
+		;
+
+
+/* Assignments */
+
 assignments	: assignment
 		| assignments ',' assignment
 			{ $$ = MAKE_NODE (nod_list, 2, $1, $3); }
@@ -3324,33 +3348,34 @@ exec_udf	: udf
 
 /* BLOB get and put */
 
-blob			: READ BLOB simple_column_name FROM simple_table_name filter_clause segment_clause
+blob_io			: READ BLOB simple_column_name FROM simple_table_name filter_clause_io segment_clause_io
 			{ $$ = MAKE_NODE (nod_get_segment, (int) e_blb_count, $3, $5, $6, $7); }
-				| INSERT BLOB simple_column_name INTO simple_table_name filter_clause segment_clause
+				| INSERT BLOB simple_column_name INTO simple_table_name filter_clause_io segment_clause_io
 			{ $$ = MAKE_NODE (nod_put_segment, (int) e_blb_count, $3, $5, $6, $7); }
 		;
 
-filter_clause	: FILTER FROM blob_subtype_value TO blob_subtype_value
+filter_clause_io	: FILTER FROM blob_subtype_value_io TO blob_subtype_value_io
 			{ $$ = MAKE_NODE (nod_list, 2, $3, $5); }
-		| FILTER TO blob_subtype_value
+		| FILTER TO blob_subtype_value_io
 			{ $$ = MAKE_NODE (nod_list, 2, NULL, $3); }
 		|
 		;
 
-blob_subtype_value : blob_subtype
+blob_subtype_value_io : blob_subtype_io
 		| parameter
 		;
 
-blob_subtype	: signed_short_integer
+blob_subtype_io	: signed_short_integer
 			{ $$ = MAKE_CONSTANT ((dsql_str*) $1, CONSTANT_SLONG); }
 		;
 
-segment_clause	: MAX_SEGMENT segment_length
+segment_clause_io	: MAX_SEGMENT segment_length_io
 			{ $$ = $2; }
 		|
+			{ $$ = NULL; }
 		;
 
-segment_length	: unsigned_short_integer
+segment_length_io	: unsigned_short_integer
 			{ $$ = MAKE_CONSTANT ((dsql_str*) $1, CONSTANT_SLONG); }
 		| parameter
 		;

@@ -1254,3 +1254,23 @@ int CStatement::findColumn(const char *columnName)
 	
 	return -1;
 }
+
+bool CStatement::existsException (const TEXT *exceptionName)
+{
+	if (strlen (exceptionName) > MAX_SQL_IDENTIFIER_SIZE)
+		return NULL;
+	 		
+	Connect connection = attachment->getUserConnection(transaction);
+	PStatement statement = connection->prepareStatement (
+		"SELECT"
+		"  e.RDB$EXCEPTION_NAME "
+		"FROM"
+		"  RDB$EXCEPTIONS e "
+		"WHERE"
+		"  e.RDB$EXCEPTION_NAME = ? ");
+		
+	statement->setString(1, exceptionName);
+	RSet resultSet = statement->executeQuery();
+	
+	return resultSet->next();
+}

@@ -32,6 +32,7 @@
 #include "../include/fb_blk.h"
 
 #include "../jrd/exe.h"
+#include "../jrd/RecordNumber.h"
 
 #include <vector>
 
@@ -39,11 +40,11 @@
 
 struct record_param {
 	record_param() : rpb_window(-1) {}
-	SLONG rpb_number;			/* record number in relation */
+	RecordNumber rpb_number;	/* record number in relation */
 	SLONG rpb_transaction;		/* transaction number */
-	Relation* rpb_relation;	/* relation of record */
-	class Record* rpb_record;		/* final record block */
-	class Record* rpb_prior;		/* prior record block if this is a delta record */
+	Relation* rpb_relation;		/* relation of record */
+	class Record* rpb_record;	/* final record block */
+	class Record* rpb_prior;	/* prior record block if this is a delta record */
 	struct SaveRecordParam*  rpb_copy;		/* rpb copy for singleton verification */
 	class Record* rpb_undo;		/* our first version of data if this is a second modification */
 	USHORT rpb_format_number;	/* format number in relation */
@@ -104,7 +105,7 @@ class Record : public pool_alloc_rpt<SCHAR, type_rec>
 	USHORT rec_length;			/* how much there is */
 	class Format* rec_fmt_bk;
 	UCHAR rec_flags;			/* misc record flags */
-	SLONG rec_number;			/* original rpb number - used for undoing multiple updates */
+	RecordNumber rec_number;	/* original rpb number - used for undoing multiple updates */
 	double rec_dummy;			/* this is to force next field to a double boundary */
 	UCHAR rec_data[1];			/* THIS VARIABLE MUST BE ALIGNED ON A DOUBLE BOUNDARY */
 };
@@ -186,11 +187,6 @@ enum {
 /* TMN: Had to remove this enum from bein nested in struct rsc since we now use C++,
  * but this enum is used in the C API. Can you say "legacy"? :-(
  */
-enum rsc_s {
-	rsc_relation,
-	rsc_procedure,
-	rsc_index
-};
 
 class Resource : public pool_alloc<type_rsc>
 {
@@ -199,6 +195,13 @@ class Resource : public pool_alloc<type_rsc>
 	Relation* rsc_rel;			/* Relation block */
 	Procedure* rsc_prc;			/* Relation block */
 	USHORT rsc_id;				/* Id of parent */
+
+	enum rsc_s {
+		rsc_relation,
+		rsc_procedure,
+		rsc_index
+	};
+
 	enum rsc_s rsc_type;
 };
 

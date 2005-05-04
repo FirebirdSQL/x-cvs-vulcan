@@ -1,48 +1,94 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-
-<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="SecurityDatabase" ProjectGUID="{C9233EDB-3345-4293-91EC-65F2EBEA2D6F}" RootNamespace="SecurityDatabase" Keyword="CustomAppWizProj">
-   <Platforms>
-      <Platform Name="Win32"/>
-   </Platforms>
-   <Configurations>
-      <Configuration Name="Debug|Win32" OutputDirectory="..\..\install" IntermediateDirectory="$(ConfigurationName)" ConfigurationType="1">
-         <Tool Name="VCCLCompilerTool"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-      <Configuration Name="Release|Win32" ConfigurationType="1">
-         <Tool Name="VCCLCompilerTool"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-   </Configurations>
-   <References/>
-   <Files>
-      <File RelativePath="..\..\..\src\misc\security.gbak">
-         <FileConfiguration Name="Debug|Win32">
-            <Tool Name="VCCustomBuildTool" CommandLine="gbak -r $(InputPath) security.fdb" Outputs="$(vulcan)\security.fdb"/>
-         </FileConfiguration>
-      </File>
-   </Files>
-   <Globals/>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="SecurityDatabase"
+	ProjectGUID="{C9233EDB-3345-4293-91EC-65F2EBEA2D6F}"
+	RootNamespace="SecurityDatabase"
+	Keyword="CustomAppWizProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\install"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="1">
+			<Tool
+				Name="VCCLCompilerTool"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<File
+			RelativePath="..\..\..\src\misc\security.gbak">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="..\..\..\install\bin\gbak -r $(InputPath) security.fdb
+"
+					Outputs="..\..\..\install\security.fdb"/>
+			</FileConfiguration>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

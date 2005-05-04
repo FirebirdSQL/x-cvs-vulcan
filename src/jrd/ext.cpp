@@ -406,7 +406,7 @@ RecordSource* EXT_optimize(thread_db* tdbb, OptimizerBlk* opt, SSHORT stream, JR
 	SSHORT		i, size;
 	*/
 	SSHORT size;
-	csb_repeat *csb_tail;
+	CompilerScratch::csb_repeat *csb_tail;
 
 	csb = opt->opt_csb;
 	csb_tail = &csb->csb_rpt[stream];

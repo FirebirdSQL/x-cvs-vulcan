@@ -98,8 +98,8 @@ JrdMemoryPool *JrdMemoryPool::createPool(Database *dbb, int *cur_mem, int *max_m
 	JrdMemoryPool* result = (JrdMemoryPool *)internal_create(sizeof(JrdMemoryPool),
 		cur_mem, max_mem);
 #endif
-	result->plb_buckets = NULL;
-	result->plb_segments = NULL;
+	//result->plb_buckets = NULL;
+	//result->plb_segments = NULL;
 	result->plb_dccs = NULL;
 	result->database = dbb;
 	
@@ -126,8 +126,8 @@ JrdMemoryPool *JrdMemoryPool::createPool(Database *dbb)
 #endif
 #endif
 
-	result->plb_buckets = NULL;
-	result->plb_segments = NULL;
+	//result->plb_buckets = NULL;
+	//result->plb_segments = NULL;
 	result->plb_dccs = NULL;
 	result->database = dbb;
 	

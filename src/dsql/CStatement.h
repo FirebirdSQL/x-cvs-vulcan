@@ -91,6 +91,7 @@ struct thread_db;
 class CStatement : public RefObject  
 {
 public:
+	bool existsException (const TEXT *exceptionName);
 	void genMatchingKey (const dsql_nod *for_columns, const dsql_nod *prim_columns);
 	void genFiringCondition (dsql_nod *prim_columns);
 	static void notYetImplemented();

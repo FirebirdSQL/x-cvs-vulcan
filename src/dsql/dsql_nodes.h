@@ -310,6 +310,8 @@ typedef enum nod_t
 	nod_rows,	// ROWS support
 	nod_query_spec,
 	nod_equiv,
+	nod_redef_exception, // RECREATE EXCEPTION
+	nod_replace_exception, // CREATE OR ALTER EXCEPTION
 	nod_def_user,
 	nod_del_user,
 	nod_mod_user,

@@ -33,6 +33,14 @@
 #ifndef JRD_ODS_H
 #define JRD_ODS_H
 
+#include "../jrd/RecordNumber.h"
+
+/*  This macro enables the ability of the engine to connect to databases
+ *  from ODS 8 up to the latest.  If this macro is undefined, the engine
+ *  only opens a database of the current ODS major version.
+ */
+#define ODS_8_TO_CURRENT
+
 /**********************************************************************
 **
 ** NOTE:
@@ -260,7 +268,9 @@ struct IndexNode
 	USHORT length;		// length of data in node
 	SLONG pageNumber;	// page number
 	UCHAR* data;		// Data can be read from here
-	SLONG recordNumber;	// record number
+	RecordNumber recordNumber;	// record number
+	bool isEndBucket;
+	bool isEndLevel;
 };
 
 struct IndexJumpNode
@@ -276,7 +286,6 @@ struct IndexJumpInfo {
 	USHORT firstNodeOffset;		// offset to node in page
 	USHORT jumpAreaSize;		// size area before a new jumpnode is made
 	UCHAR  jumpers;				// nr of jump-nodes in page, with a maximum of 255
-	USHORT keyLength;			// maximum length of key
 };
 
 // pag_flags
@@ -336,9 +345,12 @@ struct index_root_page
 
 /* key descriptor */
 
-struct irtd {
+struct irtd_ods10 {
 	USHORT irtd_field;
 	USHORT irtd_itype;
+};
+
+struct irtd : public irtd_ods10 {
 	float irtd_selectivity;
 };
 

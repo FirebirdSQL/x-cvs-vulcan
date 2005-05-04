@@ -63,6 +63,8 @@
 #include "firebird.h"
 #include "common.h"
 #include <string.h>
+#include "../jrd/ibase.h"
+
 #include "../jrd/jrd.h"
 #include "../jrd/Relation.h"
 #include "../jrd/Field.h"
@@ -104,7 +106,6 @@
 #include "../jrd/rlck_proto.h"
 #include "../jrd/rng_proto.h"
 #include "../jrd/rse_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/scl_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/sort_proto.h"
@@ -169,7 +170,7 @@ static BOOLEAN wc_sleuth_check(TextType, USHORT, const UCS2_CHAR*, const UCS2_CH
 						const UCS2_CHAR*, const UCS2_CHAR*);
 static BOOLEAN wc_sleuth_class(TextType, USHORT, const UCS2_CHAR*, const UCS2_CHAR*,
 						UCS2_CHAR);
-static SSHORT string_boolean(thread_db*, JRD_NOD, dsc*, dsc*);
+static SSHORT string_boolean(thread_db*, JRD_NOD, dsc*, dsc*, bool);
 static SSHORT string_function(thread_db*, JRD_NOD, SSHORT, const UCHAR*, SSHORT, const UCHAR*, USHORT);
 static dsc* substring(thread_db*, impure_value*, dsc*, SLONG, SLONG);
 static dsc* upcase(thread_db*, const dsc*, impure_value*);
@@ -331,7 +332,7 @@ dsc* EVL_assign_to(thread_db* tdbb, JRD_NOD node)
 }
 
 
-SparseBitmap** EVL_bitmap(thread_db* tdbb, JRD_NOD node)
+RecordBitmap** EVL_bitmap(thread_db* tdbb, JRD_NOD node)
 {
 /**************************************
  *
@@ -351,35 +352,47 @@ SparseBitmap** EVL_bitmap(thread_db* tdbb, JRD_NOD node)
 	switch (node->nod_type) 
 		{
 		case nod_bit_and:
-			return SBM_and(EVL_bitmap(tdbb, node->nod_arg[0]),
-						   EVL_bitmap(tdbb, node->nod_arg[1]));
+			return RecordBitmap::bit_and(
+				EVL_bitmap(tdbb, node->nod_arg[0]),
+				EVL_bitmap(tdbb, node->nod_arg[1]));
 
 		case nod_bit_or:
-			return SBM_or(tdbb,EVL_bitmap(tdbb, node->nod_arg[0]),
-						  EVL_bitmap(tdbb, node->nod_arg[1]));
+			return RecordBitmap::bit_or(
+				EVL_bitmap(tdbb, node->nod_arg[0]),
+				EVL_bitmap(tdbb, node->nod_arg[1]));
+
+		case nod_bit_in:
+			{
+				RecordBitmap** inv_bitmap = EVL_bitmap(tdbb, node->nod_arg[0]);
+				BTR_evaluate(tdbb,
+							reinterpret_cast<IndexRetrieval*>(node->nod_arg[1]->nod_arg[e_idx_retrieval]),
+							inv_bitmap);
+				return inv_bitmap;
+			}
 
 		case nod_bit_dbkey:
 			{
 			impure_inversion* impure = (impure_inversion*) IMPURE (tdbb->tdbb_request, node->nod_impure);
-			SBM_reset(&impure->inv_bitmap);
+			RecordBitmap::reset(impure->inv_bitmap);
 			const dsc* desc = EVL_expr(tdbb, node->nod_arg[0]);
 			const USHORT id = 1 + 2 * (USHORT)(long) node->nod_arg[1];
 			const UCHAR* numbers = desc->dsc_address;
-			numbers += id * sizeof(SLONG);
-			SLONG rel_dbkey;
-			MOVE_FAST(numbers, &rel_dbkey, sizeof(SLONG));
-			rel_dbkey -= 1;
-			SBM_set(tdbb, &impure->inv_bitmap, rel_dbkey);
+			numbers += id * sizeof(SLONG) - 1; // Use 40 bits for the record number
+			RecordNumber rel_dbkey;
+			rel_dbkey.bid_decode(numbers);
+			// NS: Why the heck we decrement record number here? I have no idea, but retain the algorithm for now.
+			rel_dbkey.decrement();
+			RBM_SET(tdbb->tdbb_default, &impure->inv_bitmap, rel_dbkey.getValue());
 			return &impure->inv_bitmap;
 			}
 
 		case nod_index:
 			{
 			impure_inversion* impure = (impure_inversion*) IMPURE (tdbb->tdbb_request, node->nod_impure);
+			RecordBitmap::reset(impure->inv_bitmap);
 			BTR_evaluate(tdbb,
-							reinterpret_cast <
-							IndexRetrieval* >(node->nod_arg[e_idx_retrieval]),
-							&impure->inv_bitmap);
+						 reinterpret_cast<IndexRetrieval*>(node->nod_arg[e_idx_retrieval]),
+						 &impure->inv_bitmap);
 			return &impure->inv_bitmap;
 			}
 
@@ -391,7 +404,7 @@ SparseBitmap** EVL_bitmap(thread_db* tdbb, JRD_NOD node)
 }
 
 
-BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
+bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 {
 /**************************************
  *
@@ -407,13 +420,14 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 	USHORT value;
 	SSHORT comparison;
 	impure_value* impure;
+	bool computed_invariant = false;
 	//SET_TDBB(tdbb);
 	//DEV_BLKCHK(node, type_nod);
 
 	/* Handle and pre-processing possible for various nodes.  This includes
 	   evaluating argument and checking NULL flags */
 
-	jrd_req* request = tdbb->tdbb_request;
+	Request* request = tdbb->tdbb_request;
 	jrd_nod** ptr = node->nod_arg;
 
 	switch (node->nod_type)
@@ -422,6 +436,7 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 		case nod_starts:
 		case nod_matches:
 		case nod_like:
+		case nod_equiv:
 		case nod_eql:
 		case nod_neq:
 		case nod_gtr:
@@ -445,15 +460,85 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			request->req_flags &= ~req_clone_data_from_default_clause;
 			force_equal |= request->req_flags & req_same_tx_upd;
 
-			desc[1] = EVL_expr(tdbb, *ptr++);
+			// Currently only nod_like and nod_contains may be marked invariant
+			if (node->nod_flags & nod_invariant) {
+				impure = reinterpret_cast<impure_value*>((SCHAR *)request + node->nod_impure);
 
-			/* restore preserved NULL state */
+				// Check that data type of operand is still the same.
+				// It may change due to multiple formats present in stream
+				// System tables are the good example of such streams -
+				// data coming from ini.epp has ASCII ttype, user data is UNICODE_FSS
+				//
+				// Note that value descriptor may be NULL pointer if value is SQL NULL
+				if ((impure->vlu_flags & VLU_computed) && desc[0] &&
+					(impure->vlu_desc.dsc_dtype != desc[0]->dsc_dtype ||
+					 impure->vlu_desc.dsc_sub_type != desc[0]->dsc_sub_type ||
+					 impure->vlu_desc.dsc_scale != desc[0]->dsc_scale)
+					)
+				{
+					impure->vlu_flags &= ~VLU_computed;
+				}
+
+				if (impure->vlu_flags & VLU_computed) {
+					if (impure->vlu_flags & VLU_null)
+						request->req_flags |= req_null;
+					else
+						computed_invariant = true;
+				} 
+				else {
+					desc[1] = EVL_expr(tdbb, *ptr++);
+					if (request->req_flags & req_null) {
+						impure->vlu_flags |= VLU_computed;
+						impure->vlu_flags |= VLU_null;
+					}
+					else {
+						impure->vlu_flags &= ~VLU_null;
+
+						// Search object depends on operand data type.
+						// Thus save data type which we use to compute invariant
+						if (desc[0]) {
+							impure->vlu_desc.dsc_dtype = desc[0]->dsc_dtype;
+							impure->vlu_desc.dsc_sub_type = desc[0]->dsc_sub_type;
+							impure->vlu_desc.dsc_scale = desc[0]->dsc_scale;
+						} else {
+							// Indicate we do not know type of expression.
+							// This code will force pattern recompile for the next non-null value
+							impure->vlu_desc.dsc_dtype = 0;
+							impure->vlu_desc.dsc_sub_type = 0;
+							impure->vlu_desc.dsc_scale = 0;
+						}
+					}
+				}
+			}
+			else
+				desc[1] = EVL_expr(tdbb, *ptr++);
+
+			// An equivalence operator evaluates to true when both operands
+			// are NULL and behaves like an equality operator otherwise.
+			// Note that this operator never sets req_null flag
+
+			if (node->nod_type == nod_equiv)
+			{
+				if ((flags & req_null) && (request->req_flags & req_null))
+				{
+					request->req_flags &= ~req_null;
+					return true;
+				}
+				else if ((flags & req_null) || (request->req_flags & req_null))
+				{
+					request->req_flags &= ~req_null;
+					return false;
+				}
+			}
+
+			// If either of expressions above returned NULL set req_null flag 
+			// and return false
 
 			if (flags & req_null)
 				request->req_flags |= req_null;
 
 			if (request->req_flags & req_null)
-				return FALSE;
+				return false;
 
 			force_equal |= request->req_flags & req_same_tx_upd;
 
@@ -533,20 +618,20 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			if (!bEvalCompleteExpression && !value && !firstnull)
 				// First term is FALSE, why the whole expression is false.
 				// NULL flag is already turned off a few lines above.
-				return FALSE;
+				return false;
 
 			const USHORT value2 = EVL_boolean(tdbb, *ptr);
 			const USHORT secondnull = request->req_flags & req_null;
 			request->req_flags &= ~req_null;
 
 			if ((!value && !firstnull) || (!value2 && !secondnull))
-				return FALSE;	/* at least one operand was FALSE */
+				return false;	/* at least one operand was FALSE */
 			else if (value && value2) 
-				return TRUE;	/* both true */
+				return true;	/* both true */
 				
 			request->req_flags |= req_null;
 			
-			return FALSE;		/* otherwise, return null */
+			return false;		/* otherwise, return null */
 			}
 
 		case nod_any:
@@ -614,7 +699,7 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 		case nod_starts:
 		case nod_matches:
 		case nod_like:
-			return string_boolean(tdbb, node, desc[0], desc[1]);
+			return string_boolean(tdbb, node, desc[0], desc[1], computed_invariant);
 
 		case nod_sleuth:
 			return sleuth(tdbb, node, desc[0], desc[1]);
@@ -624,7 +709,7 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			
 			if (request->req_flags & req_null) 
 				{
-				value = TRUE;
+				value = true;
 				request->req_flags &= ~req_null;
 				}
 			else 
@@ -635,14 +720,14 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 					request->req_flags &= ~req_clone_data_from_default_clause;
 					}
 				else
-					value = FALSE;
+					value = false;
 				}
 				
 			return value;
 
 		case nod_not:
 			if (request->req_flags & req_null)
-				return FALSE;
+				return false;
 				
 			return !value;
 
@@ -674,14 +759,14 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			if (!bEvalCompleteExpression && value)
 				// First term is TRUE, why the whole expression is true.
 				// NULL flag is already turned off a few lines above.
-				return TRUE;
+				return true;
 			
 			const USHORT value2 = EVL_boolean(tdbb, *ptr);
 			
 			if (value || value2) 
 				{
 				request->req_flags &= ~req_null;
-				return TRUE;
+				return true;
 				}
 
 			/* restore saved NULL state */
@@ -689,7 +774,7 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			if (flags & req_null) 
 				request->req_flags |= req_null;
 
-			return FALSE;
+			return false;
 			}
 
 		case nod_unique:
@@ -739,23 +824,19 @@ BOOLEAN EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			return value;
 			}
 
+		case nod_equiv:
 		case nod_eql:
-			return ((comparison == 0) ? TRUE : FALSE);
-			
+			return (comparison == 0);
 		case nod_neq:
-			return ((comparison != 0) ? TRUE : FALSE);
-			
+			return (comparison != 0);
 		case nod_gtr:
-			return ((comparison > 0) ? TRUE : FALSE);
-			
+			return (comparison > 0);
 		case nod_geq:
-			return ((comparison >= 0) ? TRUE : FALSE);
-			
+			return (comparison >= 0);
 		case nod_lss:
-			return ((comparison < 0) ? TRUE : FALSE);
-			
+			return (comparison < 0);
 		case nod_leq:
-			return ((comparison <= 0) ? TRUE : FALSE);
+			return (comparison <= 0);
 
 		case nod_between:
 			desc[1] = EVL_expr(tdbb, node->nod_arg[2]);
@@ -3398,8 +3479,17 @@ static dsc* dbkey(thread_db* tdbb, const jrd_nod* node, impure_value* impure)
 		impure->vlu_misc.vlu_dbkey[1] = rpb->rpb_b_line;
 	}
 	else {
-		impure->vlu_misc.vlu_dbkey[0] = relation->rel_id;
-		impure->vlu_misc.vlu_dbkey[1] = rpb->rpb_number + 1;
+		// Initialize first 32 bits of DB_KEY
+		impure->vlu_misc.vlu_dbkey[0] = 0;
+
+		// Now, put relation ID into first 16 bits of DB_KEY
+		// We do not assign it as SLONG because of big-endian machines.
+		*(USHORT*)impure->vlu_misc.vlu_dbkey = relation->rel_id;
+
+		// NS: Encode 40-bit record number. Again, I have no idea why we
+		// increment it by one, but retain algorithm as it were before
+		RecordNumber temp(rpb->rpb_number.getValue() + 1);
+		temp.bid_encode(((UCHAR*)impure->vlu_misc.vlu_dbkey) + 3);
 	}
 
 /* Initialize descriptor */
@@ -3687,7 +3777,8 @@ static dsc* get_mask(thread_db* tdbb, JRD_NOD node, impure_value* impure)
 	TEXT* p2 = NULL;
 	const dsc* value = EVL_expr(tdbb, node->nod_arg[0]);
 
-	TEXT relation_name[32], field_name[32];
+	SqlIdentifier relation_name;
+	SqlIdentifier field_name;
 	if (!(request->req_flags & req_null)) {
 		p1 = relation_name;
 		MOV_get_name(value, p1);
@@ -3770,7 +3861,7 @@ static void init_agg_distinct(thread_db* tdbb, const jrd_nod* node)
 
 	sort_context* handle =
 		SORT_init(tdbb,
-				  ROUNDUP_LONG(sort_key->skd_length), 1, sort_key,
+				  ROUNDUP_LONG(sort_key->skd_length), 1, 1, sort_key,
 				  reject_duplicate, 0,
 				  tdbb->tdbb_attachment, 0);
 
@@ -4439,8 +4530,7 @@ static dsc* record_version(thread_db* tdbb, const jrd_nod* node, impure_value* i
 
 		if (request->req_transaction->tra_commit_sub_trans)
 		{
-			if (SBM_test(request->req_transaction->tra_commit_sub_trans,
-			             rpb->rpb_transaction))
+			if (request->req_transaction->tra_commit_sub_trans->test(rpb->rpb_transaction))
 			{
 				 request->req_flags |= req_same_tx_upd;
 			}
@@ -4623,7 +4713,8 @@ static SSHORT sleuth(thread_db* tdbb, JRD_NOD node, dsc* desc1, dsc* desc2)
 }
 
 
-static SSHORT string_boolean(thread_db* tdbb, JRD_NOD node, dsc* desc1, dsc* desc2)
+static SSHORT string_boolean(thread_db* tdbb, JRD_NOD node, dsc* desc1, 
+							 dsc* desc2, bool computed_invariant)
 {
 /**************************************
  *
@@ -4656,10 +4747,12 @@ static SSHORT string_boolean(thread_db* tdbb, JRD_NOD node, dsc* desc1, dsc* des
 
 		/* Get address and length of search string - convert to datatype of data */
 
-		l2 =
-			MOV_make_string2(desc2, type1, &p2,
-							 reinterpret_cast < vary * >(temp2),
-							 TEMP_SIZE(temp2), &match_str);
+		if (!computed_invariant)
+			l2 =
+				MOV_make_string2(desc2, type1, &p2,
+								reinterpret_cast < vary * >(temp2),
+								TEMP_SIZE(temp2), &match_str);
+
 		l1 =
 			MOV_get_string_ptr(desc1, &xtype1, &p1,
 							   reinterpret_cast < vary * >(temp1),
@@ -4675,18 +4768,20 @@ static SSHORT string_boolean(thread_db* tdbb, JRD_NOD node, dsc* desc1, dsc* des
 		 * but don't transliterate character set if the source blob is binary
 		 */
 
-		if (desc1->dsc_sub_type == BLOB_text) {
+		if (desc1->dsc_sub_type == isc_blob_text) {
 			type1 = desc1->dsc_scale;	/* pick up character set of blob */
-			l2 =
-				MOV_make_string2(desc2, type1, &p2,
-								 reinterpret_cast < vary * >(temp2),
-								 TEMP_SIZE(temp2), &match_str);
+			if (!computed_invariant)
+				l2 =
+					MOV_make_string2(desc2, type1, &p2,
+									reinterpret_cast < vary * >(temp2),
+									TEMP_SIZE(temp2), &match_str);
 		}
 		else {
 			type1 = ttype_none;	/* Do byte matching */
-			l2 =
-				MOV_get_string(desc2, &p2, reinterpret_cast < vary * >(temp2),
-							   TEMP_SIZE(temp2));
+			if (!computed_invariant)
+				l2 =
+					MOV_get_string(desc2, &p2, reinterpret_cast < vary * >(temp2),
+								TEMP_SIZE(temp2));
 		}
 
 		blb* blob =
@@ -4833,7 +4928,7 @@ static dsc* substring(
 		/* Source string is a blob, things get interesting. */
 
 		blb* blob = BLB_open(tdbb, tdbb->tdbb_request->req_transaction,
-							reinterpret_cast<BID>(value->dsc_address));
+							reinterpret_cast<bid*>(value->dsc_address));
 		if (!blob->blb_length || blob->blb_length <= offset)
 		{
 			desc.dsc_length = 0;

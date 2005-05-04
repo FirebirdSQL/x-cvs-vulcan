@@ -34,7 +34,7 @@ void   BLB_cancel(thread_db*, blb*);
 void   BLB_close(thread_db*, blb*);
 blb*   BLB_create(thread_db*, Transaction*, bid*);
 blb*   BLB_create2(thread_db*, Transaction*, bid*, USHORT, const UCHAR*);
-void   BLB_garbage_collect(thread_db*, lls*, lls*, SLONG, Relation*);
+void   BLB_garbage_collect(thread_db*, RecordStack&, RecordStack&, SLONG, Relation*);
 blb*   BLB_get_array(thread_db*, Transaction*, const bid*, ads*);
 SLONG  BLB_get_data(thread_db*, blb*, UCHAR*, SLONG);
 int BLB_get_segment(thread_db*, blb*, UCHAR*, int bufferLength);

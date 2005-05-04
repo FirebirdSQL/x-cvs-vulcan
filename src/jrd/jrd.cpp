@@ -122,7 +122,6 @@
 #include "../jrd/pag_proto.h"
 #include "../jrd/par_proto.h"
 #include "../jrd/os/pio_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/sch_proto.h"
 #include "../jrd/scl_proto.h"
 #include "../jrd/sdw_proto.h"
@@ -715,7 +714,6 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 			dbb->dbb_flags |= DBB_lck_init_done;
 			INI_init(threadData);
 			FUN_init();
-			SBM_init();
 			dbb->dbb_file = PIO_open(threadData, expandedName, options.dpb_trace, orgName, dbb->fileShared);
 			SHUT_init(threadData, dbb);
 			PAG_header(threadData, expandedName);
@@ -732,7 +730,9 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 
 			dbb->backup_manager = FB_NEW(*dbb->dbb_permanent) BackupManager(threadData, dbb, nbak_state_unknown);
 			PAG_init2(threadData, 0);		
-			SparseBitmap* sbm_recovery = NULL;
+
+			// AB: The bitmap isn't used, but i leave it at the place
+			PageBitmap* sbm_recovery = NULL;
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 			LOG_init(expanded_name, length_expanded);
@@ -1489,7 +1489,7 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
 							Attachment** db_handle,
 							Transaction** tra_handle,
 							blb** blob_handle,
-							BID blob_id,
+							bid* blob_id,
 							USHORT bpb_length,
 							const UCHAR* bpb)
 {
@@ -1701,7 +1701,6 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		INI_init(threadData);
 		FUN_init();
 		PAG_init(threadData);
-		SBM_init();
 		
 		// Don't run internal handles thru the security gauntlet.
 
@@ -1791,7 +1790,7 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		/* initialize shadowing semaphore as soon as the database is ready for it
 		   but before any real work is done */
 
-		SDW_init(threadData, options.dpb_activate_shadow, options.dpb_delete_shadow, 0);
+		SDW_init(threadData, options.dpb_activate_shadow, options.dpb_delete_shadow, NULL);
 
 #ifdef GARBAGE_THREAD
 		VIO_init(threadData);
@@ -2397,7 +2396,7 @@ ISC_STATUS GDS_GET_SLICE(ISC_STATUS* user_status,
 		else
 			*return_length = BLB_get_slice(threadData,
 									   transaction,
-									   reinterpret_cast<BID>(array_id),
+									   reinterpret_cast<bid*>(array_id),
 									   sdl,
 									   param_length,
 									   (const SLONG*) (param),
@@ -2416,7 +2415,7 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 						Attachment** db_handle,
 						Transaction** tra_handle,
 						blb** blob_handle,
-						BID blob_id,
+						bid* blob_id,
 						USHORT bpb_length,
 						const UCHAR* bpb)
 {
@@ -2604,7 +2603,7 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
 			find_transaction(threadData, *tra_handle, isc_segstr_wrong_db);
 		BLB_put_slice(threadData,
 				  transaction,
-				  reinterpret_cast<BID>(array_id),
+				  reinterpret_cast<bid*>(array_id),
 				  sdl,
 				  param_length,
 				  (const SLONG*) (param), slice_length, slice);

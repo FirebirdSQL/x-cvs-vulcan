@@ -66,7 +66,7 @@
  * 2002.09.12 Nickolay Samofatov: fixed cached metadata errors
  */
 
-/* AB:Sync FB 1.128 */
+/* AB:Sync FB 1.132 */
 
 #include "firebird.h"
 #include "../jrd/ib_stdio.h"
@@ -144,7 +144,8 @@ static void define_upd_cascade_trg(CStatement*, const dsql_nod*, const dsql_nod*
 static void define_view(CStatement*, NOD_TYPE);
 static void define_view_relations(CStatement*, Stack*);
 static void define_view_trigger(CStatement*, dsql_nod*, dsql_nod*, dsql_nod*);
-static void delete_parameters (CStatement *, Procedure*);
+static void delete_exception(CStatement*, dsql_nod*, bool);
+static void delete_parameters(CStatement*, Procedure*);
 static void delete_procedure(CStatement*, dsql_nod*, bool);
 static void delete_relation_view(CStatement*, dsql_nod*, bool);
 static void fix_default_source(dsql_str*);
@@ -842,6 +843,7 @@ static bool is_array_or_blob(const dsql_nod* node)
 		case nod_constant:
 		case nod_null:
 		case nod_via:
+		case nod_substr:
 		case nod_internal_info:
 			return false;
 
@@ -1855,7 +1857,7 @@ static void define_domain(CStatement* request)
 }
 
 
-static void define_exception( CStatement* request, NOD_TYPE op)
+static void define_exception(CStatement* request, NOD_TYPE op)
 {
 /**************************************
  *
@@ -1869,20 +1871,27 @@ static void define_exception( CStatement* request, NOD_TYPE op)
  **************************************/
 	const dsql_nod* ddl_node = request->ddlNode;
 	const dsql_str* name = (dsql_str*) ddl_node->nod_arg[e_xcp_name];
-	const dsql_str* text = (dsql_str*) ddl_node->nod_arg[e_xcp_text];
 
-	if (op == nod_def_exception)
+	if (op == nod_replace_exception) {		
+		//if (METD_get_exception(request, name)) {
+		if (request->existsException(name->str_data)) {
+			define_exception(request, nod_mod_exception);
+		}
+		else {
+			define_exception(request, nod_def_exception);
+		}
+	}
+	else if (op == nod_def_exception || op == nod_redef_exception)
 		request->appendDynString(isc_dyn_def_exception, name->str_data);
 	else if (op == nod_mod_exception)
 		request->appendDynString(isc_dyn_mod_exception, name->str_data);
 	else
-		request->appendDynString(isc_dyn_del_exception, name->str_data);
+		fb_assert(false);
 
-	if (op != nod_del_exception) {
-		fb_assert(text->str_length <= MAX_USHORT);
-		request->appendDynString(isc_dyn_xcp_msg, text->str_data, text->str_length);
-		request->appendUCHAR(isc_dyn_end);
-	}
+	const dsql_str* text = (dsql_str*) ddl_node->nod_arg[e_xcp_text];
+	fb_assert(text->str_length <= MAX_USHORT);
+	request->appendDynString(isc_dyn_xcp_msg, text->str_data, text->str_length);
+	request->appendUCHAR(isc_dyn_end);
 }
 
 
@@ -3063,7 +3072,7 @@ static void define_update_action(
  *
  * Function
  *	Define an action statement which, given a view
- *	definition, will map a update to a  record from
+ *	definition, will map an update to a  record from
  *	a view of a single relation into the
  *	base relation.
  *
@@ -3855,6 +3864,34 @@ static void delete_parameters (CStatement *request, Procedure *procedure)
 }
 
 
+static void delete_exception (CStatement* request,
+                              dsql_nod* node,
+                              bool silent_deletion)
+{
+/**************************************
+ *
+ *	d e l e t e _ e x c e p t i o n
+ *
+ **************************************
+ *
+ * Function
+ *  Do nothing and don't throw error if the exception doesn't exist
+ *  and silent_deletion is true.
+ *
+ **************************************/
+    const dsql_str* name = (dsql_str*) node->nod_arg[e_xcp_name];
+    fb_assert(name);
+    if (node->nod_type == nod_redef_exception || silent_deletion) {
+        //if (!METD_get_exception(request, string)) {
+		if (!request->existsException(name->str_data))
+			return;
+    }
+
+	request->appendDynString(isc_dyn_del_exception, name->str_data);
+	request->appendUCHAR(isc_dyn_end);
+}
+
+
 static void delete_procedure (CStatement*     request,
                               dsql_nod*     node,
                               bool silent_deletion)
@@ -4113,8 +4150,19 @@ static void generate_dyn( CStatement* request, dsql_nod* node)
 
 		case nod_def_exception:
 		case nod_mod_exception:
-		case nod_del_exception:
+		case nod_replace_exception:
 			define_exception(request, node->nod_type);
+			break;
+
+		case nod_redef_exception:
+			stuff(request, isc_dyn_begin);
+			delete_exception(request, node, true);	// silent
+			define_exception(request, node->nod_type);
+			stuff(request, isc_dyn_end);
+			break;
+
+		case nod_del_exception:
+			delete_exception(request, node, false);	// no silent
 			break;
 
 		case nod_def_user:

@@ -37,9 +37,9 @@
 #include "../include/fb_blk.h"
 #include "../common/classes/tree.h"
 #include "../jrd/SyncObject.h"
+#include "../jrd/sbm.h"
 
 class blb;
-class SparseBitmap;
 class Savepoint;
 class DeferredWork;
 class Resource;
@@ -70,7 +70,7 @@ public:
 	ArrayField*		tra_arrays;			/* Linked list of active arrays */
 	lck				*tra_lock;			/* lock for transaction */
 	vec				*tra_relation_locks;	/* locks for relations */
-	SparseBitmap*	tra_commit_sub_trans;	/* commited sub-transactions */
+	UInt32Bitmap*	tra_commit_sub_trans;	/* commited sub-transactions */
 	Savepoint*		tra_save_point;			/* list of savepoints  */
 	SLONG			tra_save_point_number;	/* next save point number to use */
 	ULONG			tra_flags;
@@ -265,7 +265,7 @@ class VerbAction : public pool_alloc<type_vct>
     public:
 	struct VerbAction* vct_next;		/* Next action within verb */
 	Relation* vct_relation;				/* Relation involved */
-	class SparseBitmap* vct_records;	/* Record involved */
+	RecordBitmap* vct_records;			/* Record involved */
 	UndoItemTree* vct_undo;				/* Data for undo records */
 };
 

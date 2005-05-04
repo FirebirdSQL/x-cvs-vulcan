@@ -29,8 +29,8 @@
 class Record;
 
 dsc*		EVL_assign_to(thread_db*, jrd_nod*);
-SparseBitmap**	EVL_bitmap(thread_db*, jrd_nod*);
-BOOLEAN		EVL_boolean(thread_db*, jrd_nod*);
+RecordBitmap**	EVL_bitmap(thread_db*, jrd_nod*);
+bool		EVL_boolean(thread_db*, jrd_nod*);
 dsc*		EVL_expr(thread_db*, jrd_nod*);
 bool		EVL_field(Relation*, Record*, USHORT, DSC*);
 USHORT		EVL_group(thread_db*, RecordSource*, jrd_nod*, USHORT);

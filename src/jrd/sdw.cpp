@@ -570,7 +570,7 @@ void SDW_get_shadows(thread_db* tdbb)
 
 
 
-void SDW_init(thread_db* tdbb, bool activate, bool delete_, SparseBitmap* sbm_rec)
+void SDW_init(thread_db* tdbb, bool activate, bool delete_, PageBitmap* pages)
 {
 /**************************************
  *
@@ -619,8 +619,8 @@ void SDW_init(thread_db* tdbb, bool activate, bool delete_, SparseBitmap* sbm_re
 	CCH_RELEASE(tdbb, &window);
 
 	MET_get_shadow_files(tdbb, delete_);
-	//CCH_recover_shadow(tdbb, sbm_rec);
-	dbb->pageCache->recoverShadow(tdbb, sbm_rec);
+
+	//dbb->pageCache->recoverShadow(tdbb, pages);
 }
 
 

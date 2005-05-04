@@ -32,7 +32,7 @@
  *   EXECUTE BLOCK statement
  */
 
-/* AB:Sync FB 1.78 */
+/* AB:Sync FB 1.79 */
 
 #include "firebird.h"
 #include <string.h>
@@ -699,12 +699,8 @@ void GEN_request( CStatement* request, dsql_nod* node)
 			else 
 				{
 				GEN_port(request, message);
-				// TODO:AB  Why is the line commented?
-				//if (request->req_type != REQ_EXEC_PROCEDURE) 
-					{
-					stuff(request, blr_receive);
-					stuff(request, message->msg_number);
-					}
+				stuff(request, blr_receive);
+				stuff(request, message->msg_number);
 				}
 				
 			message = request->receiveMessage;

@@ -243,7 +243,7 @@ void Procedure::setDependencies()
 		Resource* resource = request->req_resources;
 		for (; resource; resource = resource->rsc_next)
 			{
-			if (resource->rsc_type == rsc_procedure)
+			if (resource->rsc_type == Resource::rsc_procedure)
 				{
 				fb_assert(resource->rsc_prc->findInternalUseCount() >= 0);
 				resource->rsc_prc->incrementInternalUseCount();				

@@ -28,6 +28,7 @@
 #define _INTERNALBLOB_H_
 
 #include "BinaryBlob.h"
+#include "BlobID.h"
 #include "Connection.h"
 
 class InternalStatement;
@@ -41,11 +42,11 @@ public:
 	void			fetchBlob();
 	virtual int		getSegment (int offset, int length, void *address);
 	virtual int		length();
-	InternalBlob(InternalStatement *parentStatement, ISC_QUAD *id);
+	InternalBlob(InternalStatement *parentStatement, bid* id);
 	virtual ~InternalBlob();
 
 	InternalStatement	*statement;
-	ISC_QUAD		blobId;
+	bid				blobId;
 	bool			fetched;
 	char			*string;
 };

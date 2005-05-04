@@ -248,7 +248,7 @@ void ProcManager::validateCache (thread_db* tdbb)
 					for (Resource* resource = prc->findRequest()->req_resources; resource;
 						resource = resource->rsc_next)
 						{
-						if (resource->rsc_type == rsc_procedure)
+						if (resource->rsc_type == Resource::rsc_procedure)
 							if (resource->rsc_prc == procedure) 
 								stream.format ("%d:%s\n", 
 									prc->findId(), (const TEXT *)prc->findName());
@@ -348,7 +348,7 @@ void ProcManager::adjustDependencies(Procedure* procedure)
 		for (Resource* resource = request->req_resources; resource;
 		  resource = resource->rsc_next) 
 			{
-			if (resource->rsc_type == rsc_procedure) 
+			if (resource->rsc_type == Resource::rsc_procedure) 
 				{
 				procedure = resource->rsc_prc;
 				
@@ -373,7 +373,7 @@ bool ProcManager::procedureInUse (thread_db* tdbb, Procedure *proc)
 			for (Resource* resource = procedure->findRequest()->req_resources; resource;
 				 resource = resource->rsc_next)
 				{
-				if (resource->rsc_type == rsc_procedure)
+				if (resource->rsc_type == Resource::rsc_procedure)
 					resource->rsc_prc->incrementInternalUseCount();				
 				}
 			}

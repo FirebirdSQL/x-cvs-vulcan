@@ -1058,7 +1058,7 @@ static SLONG compute_access(thread_db* tdbb,
 			REQUEST(irq_l_security) = request;
 
 		privileges |= SCL_exists;
-		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID) & X.RDB$ACL);
+		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, &X.RDB$ACL);
 		int length = blob->getLength();
 
 		if (length)

@@ -24,19 +24,21 @@
 #ifndef JRD_SDL_H
 #define JRD_SDL_H
 
+#include "../jrd/constants.h"
+
 typedef struct sdl_info {
 	USHORT sdl_info_fid;
 	USHORT sdl_info_rid;
-	TEXT sdl_info_field[32];
-	TEXT sdl_info_relation[32];
-	DSC sdl_info_element;
+	SqlIdentifier sdl_info_field;
+	SqlIdentifier sdl_info_relation;
+	dsc sdl_info_element;
 	USHORT sdl_info_dimensions;
 	SLONG sdl_info_lower[16];
 	SLONG sdl_info_upper[16];
 } *SDL_INFO;
 
 typedef struct slice {
-	DSC slice_desc;
+	dsc slice_desc;
 	const BLOB_PTR* slice_end;
 	const BLOB_PTR* slice_high_water;
 	BLOB_PTR* slice_base;

@@ -409,6 +409,12 @@ typedef struct
 #define ODS_ALIGNMENT           4
 #endif
 
+#ifndef FORMAT_ALIGNMENT
+// Alignment for items in record format. Used for databases after ODS11.
+// Always 64-bit to ensure ODS compatibility with 64-bit versions of the engine
+#define FORMAT_ALIGNMENT           8
+#endif
+
 #ifndef SYSCALL_INTERRUPTED
 #define SYSCALL_INTERRUPTED(err)        ((err) == EINTR)
 #endif

@@ -41,11 +41,12 @@ class logfiles;
 class sdw;
 class Triggers;
 
+struct bid;
 struct dsc;
 struct index_desc;
 
 void		MET_activate_shadow(thread_db*);
-ULONG		MET_align(const dsc*, USHORT);
+ULONG		MET_align(Database*, const dsc*, USHORT);
 void		MET_change_fields(thread_db*, Transaction*, dsc*);
 //fmt*		MET_current(thread_db* tdbb, Relation *);
 void		MET_delete_dependencies(thread_db*, TEXT*, USHORT);
@@ -55,8 +56,8 @@ SCHAR*		MET_exact_name(TEXT*);
 Format*		MET_format(thread_db*, Relation *, USHORT);
 BOOLEAN		MET_get_char_subtype(thread_db*, SSHORT*, const TEXT*, USHORT);
 jrd_nod*	MET_get_dependencies(thread_db*, Relation*, TEXT*,
-								CompilerScratch*, SLONG[2], Request**,
-								CompilerScratch**, const TEXT*, USHORT);
+								CompilerScratch*, bid*, Request**,
+								CompilerScratch**, const TEXT*, USHORT, USHORT);
 Field*		MET_get_field(Relation*, USHORT);
 void		MET_get_shadow_files(thread_db*, bool);
 //ULONG		MET_get_walinfo(thread_db* tdbb, logfiles **, ULONG *, logfiles **);
@@ -77,7 +78,7 @@ Procedure*	MET_lookup_procedure(thread_db*, const TEXT*);
 Relation*	MET_lookup_relation(thread_db*, const char*);
 void		MET_getTypeInformation(thread_db*, Relation* relation);
 Relation*	MET_lookup_relation_id(thread_db*, SLONG, BOOLEAN);
-jrd_nod*	MET_parse_blob(thread_db*, Relation*, SLONG[2], CompilerScratch**, Request **, BOOLEAN, BOOLEAN);
+jrd_nod*	MET_parse_blob(thread_db*, Relation*, bid*, CompilerScratch**, Request **, BOOLEAN, BOOLEAN);
 void		MET_parse_sys_trigger(thread_db*, Relation*);
 int			MET_post_existence(thread_db*, Relation*);
 void		MET_prepare(thread_db*, Transaction*, USHORT, const UCHAR*);

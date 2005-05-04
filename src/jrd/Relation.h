@@ -44,6 +44,8 @@
 #include "SIVector.h"
 #include "SVector.h"
 #include "Interlock.h"
+#include "sbm.h"
+
 
 const USHORT REL_scanned				= 1;		/* Field expressions scanned (or being scanned) */
 const USHORT REL_system					= 2;
@@ -75,7 +77,6 @@ class RecordSelExpr;
 class vcl;
 class ViewContext;
 class ext;
-class SparseBitmap;
 class lck;
 class dsql_rel;
 
@@ -140,7 +141,7 @@ public:
 	vec*			rel_gc_rec;				/* vector of records for garbage collection */
 
 //#ifdef GARBAGE_THREAD
-	SparseBitmap*	rel_gc_bitmap;			/* garbage collect bitmap of data page sequences */
+	PageBitmap*	rel_gc_bitmap;			/* garbage collect bitmap of data page sequences */
 //#endif
 
 	USHORT		rel_slot_space;			/* lowest pointer page with slot space */

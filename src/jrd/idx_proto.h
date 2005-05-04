@@ -38,8 +38,7 @@ void IDX_delete_index(thread_db*, Relation* , USHORT);
 void IDX_delete_indices(thread_db*, Relation* );
 enum idx_e IDX_erase(thread_db*, struct record_param* , Transaction *, Relation* *,
 							USHORT *);
-void IDX_garbage_collect(thread_db*, struct record_param* , struct lls *,
-								struct lls *);
+void IDX_garbage_collect(thread_db*, struct record_param*, RecordStack&, RecordStack&);
 enum idx_e IDX_modify(struct thread_db*, struct record_param* , struct record_param* ,
 							 Transaction *, Relation* *, USHORT *);
 enum idx_e IDX_modify_check_constraints(thread_db*, struct record_param* , struct record_param* ,

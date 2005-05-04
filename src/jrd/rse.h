@@ -33,6 +33,10 @@
 #include "../jrd/constants.h"
 
 #include "../jrd/dsc.h"
+#include "../jrd/lls.h"
+#include "../jrd/sbm.h"
+
+#include "RecordNumber.h"
 
 class Procedure;
 
@@ -61,11 +65,17 @@ typedef rsb_t RSB_T;
 
 class Relation;
 
+// Array which stores relative pointers to impure areas of invariant nodes
+typedef firebird::SortedArray<SLONG> VarInvariantArray;
+typedef firebird::Array<VarInvariantArray*> MsgInvariantArray;
+
 // Record source block
 
 class RecordSource : public pool_alloc_rpt<class RecordSource*, type_rsb>
 {
 public:
+	RecordSource() : rsb_left_inner_streams(0),
+		rsb_left_streams(0), rsb_left_rsbs(0) { }
 	RSB_T rsb_type;						// type of rsb
 	UCHAR rsb_stream;					// stream, if appropriate
 	USHORT rsb_count;					// number of sub arguments
@@ -79,6 +89,15 @@ public:
 	Procedure* rsb_procedure;			// procedure, if appropriate
 	struct Format* rsb_format;			// format, if appropriate
 	struct jrd_nod* rsb_any_boolean;	// any/all boolean
+
+	// AP:	stop saving memory with the price of awful conversions,
+	//		later may be union will help this, because no ~ are
+	//		needed - pool destroyed as whole entity.
+	StreamStack*	rsb_left_inner_streams;
+	StreamStack*	rsb_left_streams;
+	RsbStack*		rsb_left_rsbs;
+	VarInvariantArray *rsb_invariants; /* Invariant nodes bound to top-level RSB */
+
 	RecordSource* rsb_arg[1];
 };
 
@@ -102,21 +121,11 @@ const int RSB_NAV_key_length	= 2;
 const int RSB_NAV_idx_offset	= 3;
 const int RSB_NAV_count			= 4;
 
-// TODO:AB
-//const int RSB_LEFT_outer		= 0;
-//const int RSB_LEFT_inner		= 1;
-//const int RSB_LEFT_boolean		= 2;
-//const int RSB_LEFT_inner_boolean	= 3;
-//const int RSB_LEFT_count			= 4;
-
 const int RSB_LEFT_outer		= 0;
 const int RSB_LEFT_inner		= 1;
 const int RSB_LEFT_boolean		= 2;
-const int RSB_LEFT_streams		= 3;
-const int RSB_LEFT_rsbs			= 4;
-const int RSB_LEFT_inner_boolean	= 5;
-const int RSB_LEFT_inner_streams	= 6;
-const int RSB_LEFT_count			= 7;
+const int RSB_LEFT_inner_boolean	= 3;
+const int RSB_LEFT_count			= 4;
 
 
 // Merge (equivalence) file block
@@ -164,7 +173,7 @@ struct irsb_index {
 	ULONG irsb_flags;
 	SLONG irsb_number;
 	SLONG irsb_prefetch_number;
-	class SparseBitmap** irsb_bitmap;
+	RecordBitmap** irsb_bitmap;
 };
 
 typedef irsb_index *IRSB_INDEX;
@@ -221,12 +230,12 @@ const ULONG irsb_sim_active = 128;		// remote simulated stream request is active
 struct irsb_nav {
 	ULONG irsb_flags;
 	SLONG irsb_nav_expanded_offset;			// page offset of current index node on expanded index page
-	SLONG irsb_nav_number;					// last record number
+	RecordNumber irsb_nav_number;			// last record number
 	SLONG irsb_nav_page;					// index page number
 	SLONG irsb_nav_incarnation;				// buffer/page incarnation counter
 	ULONG irsb_nav_count;					// record count of last record returned
-	class SparseBitmap** irsb_nav_bitmap;			// bitmap for inversion tree
-	class SparseBitmap* irsb_nav_records_visited;	// bitmap of records already retrieved
+	RecordBitmap** irsb_nav_bitmap;			// bitmap for inversion tree
+	RecordBitmap* irsb_nav_records_visited;	// bitmap of records already retrieved
 	USHORT irsb_nav_offset;					// page offset of current index node
 	USHORT irsb_nav_lower_length;			// length of lower key value
 	USHORT irsb_nav_upper_length;			// length of upper key value
@@ -332,7 +341,9 @@ public:
 	class CompilerScratch* opt_csb;						// compiler scratch block
 	SLONG opt_combinations;					// number of partial orders considered
 	double opt_best_cost;					// cost of best join order
-	SSHORT opt_base_conjuncts;				// number of conjuncts in our rse, next conjuncts are from parent
+	SSHORT opt_base_conjuncts;				// number of conjuncts in our rse, next conjuncts are distributed parent
+	SSHORT opt_base_parent_conjuncts;		// number of conjuncts in our rse + distributed with parent, next are parent
+	SSHORT opt_base_missing_conjuncts;		// number of conjuncts in our and parent rse, but without missing
 	USHORT opt_best_count;					// longest length of indexable streams
 	USHORT opt_g_flags;						// global flags
 	// 01 Oct 2003. Nickolay Samofatov: this static array takes as much as 256 bytes.

@@ -34,6 +34,7 @@
 #include "../jrd/jrd_blks.h"
 #include "../common/classes/array.h"
 #include "SVector.h"
+#include "gen/iberror.h"
 
 #define NODE(type, name, keyword) type,
 
@@ -45,6 +46,8 @@ typedef enum nod_t {
 
 #include "../jrd/dsc.h"
 #include "../jrd/rse.h"
+
+#include "../jrd/err_proto.h"
 
 // This macro enables DSQL tracing code
 //#define CMP_DEBUG
@@ -74,16 +77,6 @@ public:
 class jrd_nod : public jrd_node_base
 {
 public:
-/*	jrd_nod()
-	:	nod_parent(0),
-		nod_impure(0),
-		nod_type(nod_nop),
-		nod_flags(0),
-		nod_scale(0),
-		nod_count(0)
-	{
-		nod_arg[0] = 0;
-	}*/
 	jrd_nod*	nod_arg[1];
 };
 
@@ -116,7 +109,7 @@ public:
 	jrd_nod*	rse_projection;
 	jrd_nod*	rse_aggregate;	/* singleton aggregate for optimizing to index */
 	jrd_nod*	rse_plan;		/* user-specified access plan */
-	//VarInvariantArray *rse_invariants; /* Invariant nodes bound to top-level RSE */
+	VarInvariantArray *rse_invariants; /* Invariant nodes bound to top-level RSE */
 #ifdef SCROLLABLE_CURSORS
 	jrd_nod*	rse_async_message;	/* asynchronous message to send for scrolling */
 #endif
@@ -205,7 +198,7 @@ const int VLU_null		= 2;		/* An invariant sub-query computed to null */
 /* Inversion (i.e. nod_index) impure area */
 
 struct impure_inversion {
-	class SparseBitmap* inv_bitmap;
+	RecordBitmap* inv_bitmap;
 };
 
 
@@ -511,61 +504,8 @@ const int e_cursor_stmt_length	= 4;
 
 /* Compile scratch block */
 
-/*
- * TMN: I had to move the enclosed csb_repeat outside this class,
- * since it's part of the C API. Compiling as C++ would enclose it.
- */
-
-struct csb_repeat
-{
-	// We must zero-initialize this one
-	csb_repeat()
-	:	csb_stream(0),
-		csb_view_stream(0),
-		csb_flags(0),
-		csb_indices(0),
-		csb_relation(0),
-		csb_alias(0),
-		csb_procedure(0),
-		csb_view(0),
-		csb_idx(0),
-		csb_idx_allocation(0),
-		csb_message(0),
-		csb_format(0),
-		csb_fields(0),
-		csb_cardinality(0.0f),	// TMN: Non-natural cardinality?!
-		csb_plan(0),
-		csb_map(0),
-		csb_rsb_ptr(0)
-	{}
-
-	UCHAR csb_stream;			/* Map user context to internal stream */
-	UCHAR csb_view_stream;		/* stream number for view relation, below */
-	USHORT csb_flags;
-	USHORT csb_indices;			/* Number of indices */
-
-	Relation* csb_relation;
-	struct str* csb_alias;		/* SQL alias name for this instance of relation */
-	Procedure* csb_procedure;
-	Relation* csb_view;		/* parent view */
-
-	struct index_desc* csb_idx;		/* Packed description of indices */
-	struct str* csb_idx_allocation;	/* Memory allocated to hold index descriptions */
-	jrd_nod* csb_message;			/* Msg for send/receive */
-	struct Format* csb_format;		/* Default fmt for stream */
-	struct SparseBitmap* csb_fields;		/* Fields referenced */
-	float csb_cardinality;		/* Cardinality of relation */
-	jrd_nod* csb_plan;				/* user-specified plan for this relation */
-	UCHAR* csb_map;				/* Stream map for views */
-	RecordSource** csb_rsb_ptr;	/* point to rsb for nod_stream */
-};
-
-typedef firebird::SortedArray<SLONG> VarInvariantArray;
-typedef firebird::Array<VarInvariantArray*> MsgInvariantArray;
-
 class Resource;
 class RecordSelExpr;
-struct lls;
 struct AccessItem;
 struct vec;
 
@@ -578,8 +518,6 @@ public:
 		csb_node(0),
 		csb_access(0),
 		csb_resources(0),
-		csb_dependencies(0),
-		csb_fors(0),
 #ifdef SCROLLABLE_CURSORS
 		csb_current_rse(0),
 #endif
@@ -589,23 +527,34 @@ public:
 		csb_msg_number(0),
 		csb_impure(0),
 		csb_g_flags(0),
+		csb_dependencies(p),
+		csb_fors(p),
 		csb_invariants(&p),
 		csb_current_rses(&p),
+		csb_pool(p),
 		csb_rpt(&p, len)
 	{}
 
 	static CompilerScratch* newCsb(MemoryPool& p, size_t len)
 		{ return FB_NEW(p) CompilerScratch(p, len); }
 
+	int nextStream(bool check = true)
+	{
+		if (csb_n_stream >= MAX_STREAMS && check)
+		{
+			ERR_post(isc_too_many_contexts, 0);
+		}
+		return csb_n_stream++;
+	}
+
 	const UCHAR*		csb_blr;
 	const UCHAR*		csb_running;
 	jrd_nod*			csb_node;
 	AccessItem*			csb_access;		/* Access items to be checked */
 	SVector<jrd_nod*>	csb_variables;
-	//vec*				csb_variables;	/* Vector of variables, if any */
 	Resource*			csb_resources;	/* Resources (relations and indexes) */
-	lls*				csb_dependencies;	/* objects this request depends upon */
-	lls*				csb_fors;		/* stack of fors */
+	NodeStack			csb_dependencies;	/* objects this request depends upon */
+	firebird::Array<RecordSource*> csb_fors;	/* stack of fors */
 	firebird::Array<struct jrd_nod*> csb_invariants;	/* stack of invariant nodes */
 	firebird::Array<RecordSelExpr*> csb_current_rses;	/* rse's within whose scope we are */
 #ifdef SCROLLABLE_CURSORS
@@ -617,15 +566,62 @@ public:
 	USHORT				csb_msg_number;		/* Highest used message number */
 	SLONG				csb_impure;			/* Next offset into impure area */
 	USHORT				csb_g_flags;
+	MemoryPool&			csb_pool;			/* Memory pool to be used by csb */
 
-	typedef				csb_repeat* rpt_itr;
-	firebird::Array<csb_repeat> csb_rpt;
+    struct csb_repeat
+	{
+		// We must zero-initialize this one
+		csb_repeat()
+		:	csb_stream(0),
+			csb_view_stream(0),
+			csb_flags(0),
+			csb_indices(0),
+			csb_relation(0),
+			csb_alias(0),
+			csb_procedure(0),
+			csb_view(0),
+			csb_idx(0),
+			csb_message(0),
+			csb_format(0),
+			csb_fields(0),
+			csb_cardinality(0.0f),	// TMN: Non-natural cardinality?!
+			csb_plan(0),
+			csb_map(0),
+			csb_rsb_ptr(0)
+		{}
+
+		UCHAR csb_stream;			// Map user context to internal stream
+		UCHAR csb_view_stream;		// stream number for view relation, below
+		USHORT csb_flags;
+		USHORT csb_indices;			// Number of indices
+
+		Relation* csb_relation;
+		struct str* csb_alias;		// SQL alias name for this instance of relation 
+		Procedure* csb_procedure;
+		Relation* csb_view;			// parent view 
+
+		struct IndexDescAlloc* csb_idx;	// Packed description of indices 
+		jrd_nod* csb_message;			// Msg for send/receive 
+		struct Format* csb_format;		// Default fmt for stream 
+		UInt32Bitmap* csb_fields;		// Fields referenced 
+		float csb_cardinality;			// Cardinality of relation 
+		jrd_nod* csb_plan;				// user-specified plan for this relation 
+		UCHAR* csb_map;					// Stream map for views 
+		RecordSource** csb_rsb_ptr;		// point to rsb for nod_stream 
+	};
+
+
+	typedef csb_repeat* rpt_itr;
+	typedef const csb_repeat* rpt_const_itr;
+	firebird::HalfStaticArray<csb_repeat, 5> csb_rpt;
 };
 
-const int csb_internal			= 0x1;	/* "csb_g_flag" switch */
-const int csb_get_dependencies	= 0x2;
-const int csb_ignore_perm		= 0x4;	/* ignore permissions checks */
-const int csb_blr_version4		= 0x8;	/* The blr is of version 4 */
+const int csb_internal			= 1;	/* "csb_g_flag" switch */
+const int csb_get_dependencies	= 2;
+const int csb_ignore_perm		= 4;	/* ignore permissions checks */
+const int csb_blr_version4		= 8;	/* The blr is of version 4 */
+const int csb_pre_trigger		= 16;
+const int csb_post_trigger		= 32;
 
 const int csb_active		= 1;
 const int csb_used			= 2;		/* Context has already been defined (BLR parsing only) */

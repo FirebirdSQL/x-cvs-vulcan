@@ -60,7 +60,6 @@
 #include "../jrd/met_proto.h"
 #include "../jrd/mov_proto.h"
 #include "../jrd/rlck_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/sch_proto.h"
 #include "../jrd/thd_proto.h"
 //#include "../jrd/tpc_proto.h"
@@ -818,7 +817,8 @@ void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* res
 #endif
 	
 	for (Resource* rsc = resources; rsc; rsc = rsc->rsc_next)
-		if (rsc->rsc_type == rsc_relation || rsc->rsc_type == rsc_procedure) 
+		if (rsc->rsc_type == Resource::rsc_relation || 
+			rsc->rsc_type == Resource::rsc_procedure) 
 			{
 			Resource* tra_rsc;
 			
@@ -836,12 +836,12 @@ void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* res
 
 				switch (rsc->rsc_type) 
 					{
-					case rsc_relation:
+					case Resource::rsc_relation:
 						new_rsc->rsc_rel = rsc->rsc_rel;
 						MET_post_existence(tdbb, new_rsc->rsc_rel);
 						break;
 						
-					case rsc_procedure:
+					case Resource::rsc_procedure:
 						new_rsc->rsc_prc = rsc->rsc_prc;
 						new_rsc->rsc_prc->incrementUseCount();
 #ifdef DEBUG_PROCS
@@ -1116,7 +1116,7 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 	for (Resource* rsc = transaction->tra_resources; rsc; rsc = rsc->rsc_next)
 		switch (rsc->rsc_type) 
 			{
-			case rsc_procedure:
+			case Resource::rsc_procedure:
 				CMP_decrement_prc_use_count(tdbb, rsc->rsc_prc);
 				break;
 				
@@ -1141,7 +1141,7 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 
 	/* release the sparse bit map used for commit retain transaction */
 
-	SBM_release(transaction->tra_commit_sub_trans);
+	delete transaction->tra_commit_sub_trans;
 
 	if (transaction->tra_flags & TRA_precommitted)
 		TRA_precommited(tdbb, transaction->tra_number, 0);
@@ -1474,7 +1474,10 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 		return tdbb->tdbb_database->tipCache->snapshotState(tdbb, number);
 
 	if (trans->tra_commit_sub_trans &&
-		SBM_test(trans->tra_commit_sub_trans, number)) return tra_committed;
+		UInt32Bitmap::test(trans->tra_commit_sub_trans, number))
+	{
+		return tra_committed;
+	}
 
 	/* If the transaction is younger than we are, it must be considered
 	   active. */
@@ -2547,8 +2550,9 @@ static void retain_context(thread_db* tdbb, Transaction* transaction, const bool
 	`  because it must see the operations of the 'commit-retained' transaction and
 	   its snapshot doesn't contain these operations. */
 
-	if (commit)
-		SBM_set(tdbb, &transaction->tra_commit_sub_trans, transaction->tra_number);
+	// AB:TODO
+	//if (commit)
+	//	SBM_set(tdbb, &transaction->tra_commit_sub_trans, transaction->tra_number);
 
 	/* Create a new transaction lock, inheriting oldest active
 	   from transaction being committed. */
@@ -2831,28 +2835,23 @@ static void transaction_options(thread_db* tdbb,
  *	Process transaction options.
  *
  **************************************/
-	Relation* relation;
-	LCK lock;
-	UCHAR *p;
-	TEXT name[32], text[128];
-	USHORT l, level, op, wait;
-	SCHAR lock_type;
-
 	SET_TDBB(tdbb);
 
 	if (!tpb_length)
 		return;
 
-	wait = 1;
 	const UCHAR* const end = tpb + tpb_length;
 
 	if (*tpb != isc_tpb_version3 && *tpb != isc_tpb_version1)
 		ERR_post(isc_bad_tpb_form, isc_arg_gds, isc_wrotpbver, 0);
 
+	SSHORT wait = 1;
+
 	++tpb;
 
 	while (tpb < end) {
-		switch (op = *tpb++) {
+		const USHORT op = *tpb++;
+		switch (op) {
 		case isc_tpb_consistency:
 			transaction->tra_flags |= TRA_degree3;
 			transaction->tra_flags &= ~TRA_read_committed;
@@ -2907,9 +2906,13 @@ static void transaction_options(thread_db* tdbb,
 
 		case isc_tpb_lock_write:
 		case isc_tpb_lock_read:
-			p = reinterpret_cast < UCHAR * >(name);
-			if ( (l = *tpb++) ) {
+			{
+			SqlIdentifier name;
+			UCHAR* p = reinterpret_cast<UCHAR*>(name);
+			USHORT l = *tpb++;
+			if (l) {
 				if (l >= sizeof(name)) {
+					TEXT text[BUFFER_TINY];
 					USHORT flags;
 					gds__msg_lookup(0, DYN_MSG_FAC, 159, sizeof(text),
 									text, &flags);
@@ -2922,7 +2925,9 @@ static void transaction_options(thread_db* tdbb,
 				} while (--l);
 			}
 			*p = 0;
-			if (!(relation = MET_lookup_relation(tdbb, name)))
+
+			Relation* relation = MET_lookup_relation(tdbb, name);
+			if (!relation)
 				ERR_post(isc_bad_tpb_content,
 						 isc_arg_gds, isc_relnotdef, isc_arg_string,
 						 ERR_cstring(name), 0);
@@ -2930,7 +2935,7 @@ static void transaction_options(thread_db* tdbb,
 			/* force a scan to read view information */
 			MET_scan_relation(tdbb, relation);
 
-			lock_type = (op == isc_tpb_lock_read) ? LCK_none : LCK_SW;
+			SCHAR lock_type = (op == isc_tpb_lock_read) ? LCK_none : LCK_SW;
 			if (tpb < end) {
 				if (*tpb == isc_tpb_shared)
 					tpb++;
@@ -2943,12 +2948,15 @@ static void transaction_options(thread_db* tdbb,
 
 			expand_view_lock(tdbb, transaction, relation, lock_type);
 			break;
+			}
 
 		case isc_tpb_verb_time:
 		case isc_tpb_commit_time:
-			l = *tpb++;
+			{
+			const USHORT l = *tpb++;
 			tpb += l;
 			break;
+			}
 
 		case isc_tpb_autocommit:
 			transaction->tra_flags |= TRA_autocommit;
@@ -2973,15 +2981,16 @@ static void transaction_options(thread_db* tdbb,
    If any can't be seized, release all and try again. */
 
 	for (ULONG id = 0; id < vector->count(); id++) {
-		if (!(lock = (LCK) (*vector)[id]))
+		lck* lock = (lck*) (*vector)[id];
+		if (!lock)
 			continue;
-		level = lock->lck_logical;
+		USHORT level = lock->lck_logical;
 		if (level == LCK_none
 			|| LCK_lock_non_blocking(tdbb, lock, level, wait))
 		{
 			continue;
 		}
-		for (l = 0; l < id; l++)
+		for (USHORT l = 0; l < id; l++)
 			if ( (lock = (LCK) (*vector)[l]) ) {
 				level = lock->lck_logical;
 				LCK_release(lock);

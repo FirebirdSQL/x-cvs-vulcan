@@ -43,7 +43,6 @@
 #include "../jrd/mov_proto.h"
 #include "../jrd/pag_proto.h"
 #include "../jrd/rec_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../wal/walr_proto.h"
 

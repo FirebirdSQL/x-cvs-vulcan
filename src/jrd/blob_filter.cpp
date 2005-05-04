@@ -72,7 +72,7 @@ static const FPTR_BFILTER_CALLBACK filters[] = {
 };
 
 
-static ISC_STATUS open_blob(thread_db*, Transaction*, CTL*, SLONG*, USHORT, const UCHAR*,
+static ISC_STATUS open_blob(thread_db*, Transaction*, CTL*, bid*, USHORT, const UCHAR*,
 							FPTR_BFILTER_CALLBACK,
 							USHORT, BLF);
 
@@ -130,7 +130,7 @@ ISC_STATUS BLF_close_blob(thread_db* tdbb, CTL * filter_handle)
 ISC_STATUS BLF_create_blob(thread_db* tdbb,
 							Transaction* tra_handle,
 							CTL* filter_handle,
-							SLONG* blob_id,
+							bid* blob_id,
 							USHORT bpb_length,
 							const UCHAR* bpb,
 							FPTR_BFILTER_CALLBACK callback,
@@ -241,7 +241,7 @@ BLF BLF_lookup_internal_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 ISC_STATUS BLF_open_blob(thread_db* tdbb,
 						Transaction* tra_handle,
 						CTL* filter_handle,
-						const SLONG* blob_id,
+						const bid* blob_id,
 						USHORT bpb_length,
 						const UCHAR* bpb,
 						FPTR_BFILTER_CALLBACK callback,
@@ -262,7 +262,7 @@ ISC_STATUS BLF_open_blob(thread_db* tdbb,
 // Therefore, throwing const away is safe because it won't be changed.
 // Someone might create some crazy filter that calls put_slice, though.
 	return open_blob(tdbb, tra_handle, filter_handle,
-					 const_cast<SLONG*>(blob_id),
+					 const_cast<bid*>(blob_id),
 					 bpb_length, bpb,
 					 callback,
 					 ACTION_open, filter);
@@ -318,7 +318,7 @@ static ISC_STATUS open_blob(
 					thread_db* tdbb,
 					Transaction* tra_handle,
 					CTL* filter_handle,
-					SLONG* blob_id,
+					bid* blob_id,
 					USHORT bpb_length,
 					const UCHAR* bpb,
 					FPTR_BFILTER_CALLBACK callback,

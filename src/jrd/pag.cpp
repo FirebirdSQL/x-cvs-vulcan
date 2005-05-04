@@ -109,107 +109,182 @@ static BOOLEAN find_type(thread_db* tdbb, SLONG, WIN *, PAG *, USHORT, USHORT, U
 
 #define ERR_POST_IF_DATABASE_IS_READONLY(dbb)	{if (dbb->dbb_flags & DBB_read_only) ERR_post (isc_read_only_database, 0);}
 
-/*  This macro enables the ability of the engine to connect to databases
- *  from ODS 8 up to the latest.  If this macro is undefined, the engine
- *  only opens a database of the current ODS major version.
- */
-#define ODS_8_TO_CURRENT
+// Class definitions (obsolete platforms are commented out)
+// Class constant name consists of OS platform and CPU architecture.
+//
+// For ports created before Firebird 2.0 release 64-bit and 32-bit 
+// sub-architectures of the same CPU should use different classes.
+// For 64-bit ports first created after or as a part of Firebird 2.0
+// release CPU architecture may be the same for both variants.
 
-/* Class definitions
+static const int CLASS_UNKNOWN = 0;
+//static const CLASS_APOLLO_68K = 1;  // Apollo 68K, Dn 10K
+static const int CLASS_SOLARIS_SPARC = 2; // Sun 68k, Sun Sparc, HP 9000/300, MAC AUX, IMP, DELTA, NeXT, UNIXWARE, DG_X86
+static const int CLASS_SOLARIS_I386 = 3;  // Sun 386i
+//static const CLASS_VMS_VAX = 4;     // VMS/VAX
+//static const CLASS_ULTRIX_VAX = 5;  // Ultrix/VAX
+//static const CLASS_ULTRIX_MIPS = 6; // Ultrix/MIPS
+static const int CLASS_HPUX_PA = 7;		  // HP-UX on PA-RISC (was: HP 900/800 (precision))
+static const int CLASS_NETWARE_I386 = 8;  // NetWare
+//static const CLASS_MAC_OS = 9;	  // MAC-OS
+static const int CLASS_AIX_PPC = 10;	  // AIX on PowerPC platform (was: IBM RS/6000)
+//static const CLASS_DG_AVIION = 11;  // DG AViiON
+//static const CLASS_MPE_XL = 12;	  // MPE/XL
+static const int CLASS_IRIX_MIPS = 13;	  // Silicon Graphics/IRIS
+//static const int CLASS_CRAY = 14;		  // Cray
+static const int CLASS_TRU64_ALPHA = 15;  // Tru64 Unix running on Alpha (was: Dec OSF/1)
+static const int CLASS_WINDOWS_I386 = 16; // NT -- post 4.0 (delivered 4.0 as class 8)
+//static const CLASS_OS2 = 17;		  // OS/2
+//static const CLASS_WIN16 = 18;	  // Windows 16 bit
+static const int CLASS_LINUX_I386 = 19;   // LINUX on Intel series
+static const int CLASS_LINUX_SPARC = 20;  // LINUX on sparc systems
+static const int CLASS_FREEBSD_I386 = 21; // FreeBSD/i386
+static const int CLASS_NETBSD_I386 = 22;  // NetBSD/i386
+static const int CLASS_DARWIN_PPC = 23;   // Darwin/PowerPC
+static const int CLASS_LINUX_AMD64 = 24;  // LINUX on AMD64 systems
 
-	1		Apollo 68K, Dn 10K
-	2		Sun 68k, Sun Sparc, HP 9000/300, MAC AUX, IMP, DELTA, NeXT, UNIXWARE, DG_X86
-    3       Sun 386i
-	4		VMS
-	5		Ultrix/VAX
-	6		Ultrix/MIPS
-	7		HP 900/800 (precision)
-	8		NetWare
-	9		MAC-OS
-       10		IBM RS/6000
-       11		DG AViiON
-       12		HP MPE/XL
-       13		Silicon Grpahics/IRIS
-       14		Cray
-       15		Dec OSF/1
-       16		NT -- post 4.0 (delivered 4.0 as class 8)
-       17               OS/2
-       18               Windows 16 bit
-       19             LINUX on Intel series
-       20             LINUX on sparc systems
-	   21             FreeBSD/i386
-	   22             NetBSD/i386
-       23		Darwin/PowerPC
-       24		MVS
+static const int CLASS_MAX10 = CLASS_LINUX_AMD64;
+static const int CLASS_MAX = CLASS_LINUX_AMD64;
 
-*/
+// ARCHITECTURE COMPATIBILITY CLASSES
+
+// For ODS10 and earlier things which normally define ODS compatibility are:
+//  1) endianness (big-endian/little-endian)
+//  2) alignment (32-bit or 64-bit), matters for record formats
+//  3) pointer size (32-bit or 64-bit), also matters for record formats
+//
+// For ODS11 pointers are not stored in database and alignment is always 64-bit. 
+// So the only thing which normally matters for ODS11 is endiannes, but if
+// endianness is wrong we are going to notice it during ODS version check,
+// before architecture compatibility is tested. But we distinguish them here too,
+// for consistency.
+
+enum ArchitectureType { 
+	archUnknown, // Unknown architecture, allow opening database only if CLASS matches exactly
+	archIntel86, // Little-endian platform with 32-bit pointers and 32-bit alignment (ODS10)
+	archLittleEndian, // Any little-endian platform with standard layout of data
+	archBigEndian     // Any big-endian platform with standard layout of data
+};
+
+// Note that Sparc, HP and PowerPC disk structures should be compatible in theory, 
+// but in practice alignment on these platforms varies and actually depends on the 
+// compiler used to produce the build. Yes, some 32-bit RISC builds use 64-bit alignment.
+// This is why we declare all such builds "Unknown" for ODS10.
+
+static ArchitectureType archMatrix10[CLASS_MAX10 + 1] = {
+	archUnknown, // CLASS_UNKNOWN
+	archUnknown, // CLASS_APOLLO_68K
+	archUnknown, // CLASS_SOLARIS_SPARC
+	archIntel86, // CLASS_SOLARIS_I386
+	archUnknown, // CLASS_VMS_VAX
+	archUnknown, // CLASS_ULTRIX_VAX
+	archUnknown, // CLASS_ULTRIX_MIPS
+	archUnknown, // CLASS_HPUX_PA
+	archUnknown, // CLASS_NETWARE_I386
+	archUnknown, // CLASS_MAC_OS
+	archUnknown, // CLASS_AIX_PPC
+	archUnknown, // CLASS_DG_AVIION
+	archUnknown, // CLASS_MPE_XL
+	archUnknown, // CLASS_IRIX_MIPS
+	archUnknown, // CLASS_CRAY
+	archUnknown, // CLASS_TRU64_ALPHA
+	archIntel86, // CLASS_WINDOWS_I386
+	archUnknown, // CLASS_OS2
+	archUnknown, // CLASS_WIN16
+	archIntel86, // CLASS_LINUX_I386
+	archUnknown, // CLASS_LINUX_SPARC
+	archIntel86, // CLASS_FREEBSD_I386
+    archIntel86, // CLASS_NETBSD_I386
+	archUnknown, // CLASS_DARWIN_PPC
+	archUnknown  // CLASS_LINUX_AMD64
+};
+
+static ArchitectureType archMatrix[CLASS_MAX + 1] = {
+	archUnknown,      // CLASS_UNKNOWN
+	archUnknown,      // CLASS_APOLLO_68K
+	archBigEndian,    // CLASS_SOLARIS_SPARC
+	archLittleEndian, // CLASS_SOLARIS_I386
+	archUnknown,      // CLASS_VMS_VAX
+	archUnknown,      // CLASS_ULTRIX_VAX
+	archUnknown, 	  // CLASS_ULTRIX_MIPS
+	archBigEndian,    // CLASS_HPUX_PA
+	archUnknown,      // CLASS_NETWARE_I386
+	archUnknown,      // CLASS_MAC_OS
+	archBigEndian,    // CLASS_AIX_PPC
+	archUnknown,      // CLASS_DG_AVIION
+	archUnknown,      // CLASS_MPE_XL
+	archBigEndian,    // CLASS_IRIX_MIPS
+	archUnknown,      // CLASS_CRAY
+	archBigEndian,    // CLASS_TRU64_ALPHA
+	archLittleEndian, // CLASS_WINDOWS_I386
+	archUnknown,      // CLASS_OS2
+	archUnknown,      // CLASS_WIN16
+	archLittleEndian, // CLASS_LINUX_I386
+	archBigEndian,    // CLASS_LINUX_SPARC
+	archLittleEndian, // CLASS_FREEBSD_I386
+    archLittleEndian, // CLASS_NETBSD_I386
+	archBigEndian,    // CLASS_DARWIN_PPC
+	archLittleEndian  // CLASS_LINUX_AMD64
+};
 
 #ifdef sun
 #ifdef i386
-#define CLASS		3
+const SSHORT CLASS		= CLASS_SOLARIS_I386;
 #else
-#define CLASS		2
+const SSHORT CLASS		= CLASS_SOLARIS_SPARC;
 #endif
 #endif
 
 #ifdef hpux
-#define CLASS		7
+const SSHORT CLASS		= CLASS_HPUX_PA;
 #endif
 
 #ifdef VMS
-#define CLASS		4
+const SSHORT CLASS		= CLASS_VMS_VAX;
 #endif
 
 #ifdef AIX
-#define CLASS		10
+const SSHORT CLASS		= CLASS_AIX_PPC;
 #endif
 
 #ifdef AIX_PPC
-#define CLASS		10
+const SSHORT CLASS		= CLASS_AIX_PPC;
 #endif
 
 #ifdef WIN_NT
-#define CLASS		16
+const SSHORT CLASS		= CLASS_WINDOWS_I386;
 #endif
 
 #ifdef SINIXZ
-#define CLASS       19
+const SSHORT CLASS		= CLASS_LINUX_I386;
 #endif
 
 #ifdef LINUX
-
 #ifdef i386
-#define CLASS           19
+const SSHORT CLASS		= CLASS_LINUX_I386;
 #endif
-
 #ifdef i586
-#define CLASS           19
+const SSHORT CLASS		= CLASS_LINUX_I386;
 #endif
-
-#ifdef AMD64
-#define CLASS           19
-#endif
-
 #ifdef sparc
-#define CLASS           20
+const SSHORT CLASS		= CLASS_LINUX_SPARC;
 #endif
-
 #endif
 
 #ifdef FREEBSD
-#define CLASS           21
+const SSHORT CLASS		= CLASS_FREEBSD_I386;
 #endif
 
 #ifdef NETBSD
-#define CLASS           22
+const SSHORT CLASS		= CLASS_NETBSD_I386;
 #endif
 
 #ifdef DARWIN
-#define CLASS		23
+const SSHORT CLASS		= CLASS_DARWIN_PPC;
 #endif
 
-#ifdef MVS
-#define CLASS		24
+#if defined LINUX && defined AMD64
+const SSHORT CLASS		= CLASS_LINUX_AMD64;
 #endif
 
 int PAG_add_clump(thread_db* tdbb,
@@ -414,7 +489,7 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
    this file in raw_devices_validate_database as a valid database attachment. */
 	MOV_time_stamp(reinterpret_cast <
 				   ISC_TIMESTAMP * >(header->hdr_creation_date));
-	header->hdr_ods_version        = ODS_VERSION;
+	header->hdr_ods_version        = ODS_VERSION | ODS_TYPE_CURRENT;
 	header->hdr_implementation     = CLASS;
 	header->hdr_ods_minor          = ODS_CURRENT;
 	header->hdr_ods_minor_original = ODS_CURRENT;
@@ -851,7 +926,7 @@ void PAG_format_header(thread_db* tdbb)
 	MOV_time_stamp(reinterpret_cast <ISC_TIMESTAMP * >(header->hdr_creation_date));
 	header->hdr_header.pag_type = pag_header;
 	header->hdr_page_size = dbb->dbb_page_size;
-	header->hdr_ods_version = ODS_VERSION;
+	header->hdr_ods_version = ODS_VERSION | ODS_TYPE_CURRENT;
 	header->hdr_implementation = CLASS;
 	header->hdr_ods_minor = ODS_CURRENT;
 	header->hdr_ods_minor_original = ODS_CURRENT;
@@ -866,7 +941,7 @@ void PAG_format_header(thread_db* tdbb)
 	if (dbb->dbb_flags & DBB_DB_SQL_dialect_3)
 		header->hdr_flags |= hdr_SQL_dialect_3;
 
-	dbb->dbb_ods_version = header->hdr_ods_version;
+	dbb->dbb_ods_version = header->hdr_ods_version & ~ODS_TYPE_MASK;
 	dbb->dbb_minor_version = header->hdr_ods_minor;
 	dbb->dbb_minor_original = header->hdr_ods_minor_original;
 
@@ -1009,18 +1084,15 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 	if (header->hdr_header.pag_type != pag_header || header->hdr_sequence)
 		ERR_post(isc_bad_db_format, isc_arg_string, file_name, 0);
 
-#ifdef ODS_8_TO_CURRENT
-	/* This Server understands ODS greater than 8 *ONLY* upto current major
-		ODS_VERSION defined in ods.h, Refuse connections to older or newer ODS's */
-		
-	if ((header->hdr_ods_version < ODS_VERSION8) || (header->hdr_ods_version > ODS_VERSION))
-#else
-	if (header->hdr_ods_version != ODS_VERSION)
-#endif
+	if (!ODS_SUPPORTED(header->hdr_ods_version))
+	{
 		ERR_post(isc_wrong_ods,
-				isc_arg_string, file_name,
-				isc_arg_number, (SLONG) header->hdr_ods_version,
-				isc_arg_number, (SLONG) ODS_VERSION, 0);
+				 isc_arg_string, file_name,
+				 isc_arg_number, (SLONG) (header->hdr_ods_version & ~ODS_TYPE_MASK), 
+				 isc_arg_number, (SLONG) (header->hdr_ods_version & ODS_TYPE_MASK),
+				 isc_arg_number, (SLONG) ODS_VERSION, 
+				 isc_arg_number, (SLONG) ODS_TYPE_CURRENT, 0);
+	}
 
 	/****
 	Note that if this check is turned on, it should be recoded in order that
@@ -1039,6 +1111,19 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 		isc_arg_cstring, file_length,  ERR_string(file_name, file_length), 0);
 	****/
 
+	if (header->hdr_implementation != CLASS &&
+		DECODE_ODS_MAJOR(header->hdr_ods_version) < ODS_VERSION11 ?  
+		  (header->hdr_implementation < 0 || header->hdr_implementation > CLASS_MAX10 ||
+		   archMatrix10[header->hdr_implementation] == archUnknown ||
+		   archMatrix10[header->hdr_implementation] != archMatrix10[CLASS])
+		:
+		  (header->hdr_implementation < 0 || header->hdr_implementation > CLASS_MAX ||
+		   archMatrix[header->hdr_implementation] == archUnknown ||
+		   archMatrix[header->hdr_implementation] != archMatrix[CLASS]))
+		{
+	    ERR_post (isc_bad_db_format, isc_arg_string, file_name, 0);
+		}
+
 	if (header->hdr_page_size < MIN_PAGE_SIZE || header->hdr_page_size > MAX_PAGE_SIZE)
 		ERR_post(isc_bad_db_format, isc_arg_string, file_name, 0);
 
@@ -1051,7 +1136,7 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 			BUGCHECK(267);		/* next transaction older than oldest transaction */
 		}
 
-	dbb->dbb_ods_version = header->hdr_ods_version;
+	dbb->dbb_ods_version = header->hdr_ods_version & ~ODS_TYPE_MASK;
 	dbb->dbb_minor_version = header->hdr_ods_minor;
 	dbb->dbb_minor_original = header->hdr_ods_minor_original;
 
@@ -1131,7 +1216,7 @@ void PAG_init(thread_db* tdbb)
  *
  **************************************/
  
-	DBB dbb = tdbb->tdbb_database;
+	Database* dbb = tdbb->tdbb_database;
 	PageControl* control = dbb->dbb_pcontrol = FB_NEW(*dbb->dbb_permanent) PageControl();
 	control->pgc_bytes = dbb->dbb_page_size - OFFSETA(page_inv_page*, pip_bits);
 	control->pgc_ppp = control->pgc_bytes * 8;
@@ -1149,21 +1234,35 @@ void PAG_init(thread_db* tdbb)
 	/* Compute the number of data pages per pointer page.  Each data page
 	   requires a 32 bit pointer and a 2 bit control field. */
 
-	dbb->dbb_dp_per_pp = (dbb->dbb_page_size - OFFSETA(pointer_page*, ppg_page)) * 8 / (BITS_PER_LONG + 2);
+	dbb->dbb_dp_per_pp = (dbb->dbb_page_size - OFFSETA(pointer_page*, ppg_page)) * 8 / 
+		(BITS_PER_LONG + 2);
 
 	/* Compute the number of records that can fit on a page using the
 	   size of the record index (dpb_repeat) and a record header.  This
 	   gives an artificially high number, reducing the density of db_keys. */
 
 	dbb->dbb_max_records = (dbb->dbb_page_size - sizeof(struct data_page)) /
-								(sizeof(data_page::dpg_repeat) + OFFSETA(RHD, rhd_data));
+		(sizeof(data_page::dpg_repeat) + OFFSETA(RHD, rhd_data));
+
+	// Artifically reduce density of records to test high bits of record number
+	// dbb->dbb_max_records = 32000;
+
+/* Optimize record numbers for new 64-bit sparse bitmap implementation 
+   We need to measure if it is beneficial from performance point of view.
+   Price is slightly reduced density of record numbers, but for
+   ODS11 it doesn't matter because record numbers are 40-bit.
+   Benefit is ~1.5 times smaller sparse bitmaps on average and 
+   faster bitmap iteration. */
+//	if (dbb->dbb_ods_version >= ODS_VERSION11)
+//		dbb->dbb_max_records = FB_ALIGN(dbb->dbb_max_records, 64);
 
 	/* Compute the number of index roots that will fit on an index root page,
 	   assuming that each index has only one key */
 
 	dbb->dbb_max_idx = (dbb->dbb_page_size - OFFSETA(index_root_page*, irt_rpt)) /
-		(sizeof(index_root_page::irt_repeat) + (1 * (sizeof(irtd))));
-
+		(sizeof(index_root_page::irt_repeat) +
+		(1 * (dbb->dbb_ods_version >= ODS_VERSION11) ?
+			sizeof(irtd) : sizeof(irtd_ods10)));
 
 	/* Compute prefetch constants from database page size and maximum prefetch
 	   transfer size. Double pages per prefetch request so that cache reader

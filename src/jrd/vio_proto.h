@@ -44,7 +44,8 @@ void	VIO_erase(thread_db*, struct record_param*, Transaction*);
 bool	VIO_garbage_collect(thread_db*, struct record_param*, Transaction*);
 Record*	VIO_gc_record(thread_db*, Relation*);
 int		VIO_get(thread_db*, struct record_param*, class RecordSource*, Transaction*, JrdMemoryPool*);
-int		VIO_get_current(thread_db*, struct record_param*, Transaction*, JrdMemoryPool*, USHORT);
+bool	VIO_get_current(thread_db*, struct record_param*, struct record_param*, Transaction*, 
+						JrdMemoryPool*, bool, bool&);
 
 #ifdef GARBAGE_THREAD
 void	VIO_init(thread_db*);

@@ -59,6 +59,7 @@ typedef struct dyn_fld {
 } *DYN_FLD;
 
 class OSRIException;
+struct bid;
 
 void	DYN_error(thread_db* tdbb, bool, USHORT, const TEXT*, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*);
@@ -75,12 +76,12 @@ USHORT	DYN_get_string(thread_db* tdbb, const UCHAR**, TEXT*, USHORT, bool);
 
 // This function doesn't need to be exported currently.
 bool	DYN_is_it_sql_role(GBL, const TEXT*, TEXT*, thread_db*);
-USHORT	DYN_put_blr_blob(thread_db* tdbb, GBL, const UCHAR**, ISC_QUAD *);
+USHORT	DYN_put_blr_blob(thread_db* tdbb, GBL, const UCHAR**, bid*);
 
 // This function is not defined anywhere.
 //USHORT	DYN_put_blr_blob2(GBL, const UCHAR**, ISC_QUAD *);
 
-USHORT	DYN_put_text_blob(thread_db* tdbb, GBL, const UCHAR**, ISC_QUAD *);
+USHORT	DYN_put_text_blob(thread_db* tdbb, GBL, const UCHAR**, bid*);
 // This function is not defined anywhere.
 //USHORT	DYN_put_text_blob2(GBL, const UCHAR**, ISC_QUAD *);
 

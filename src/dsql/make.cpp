@@ -32,7 +32,7 @@
  *   potentially interfere with the one made by Claudio one year ago.
  */
 
-/* AB:Sync FB 1.84 */
+/* AB:Sync FB 1.87 */
  
 //This MUST be before any other includes
 #ifdef DARWIN
@@ -1203,7 +1203,7 @@ void MAKE_desc(thread_db* threadData, dsc* desc, dsql_nod* node, dsql_nod* null_
 			if (null_replacement)
 				{
 				MAKE_desc(threadData, desc, null_replacement, NULL);
-				desc->dsc_flags |= DSC_nullable;
+				desc->dsc_flags |= (DSC_nullable | DSC_null);
 				}
 			else
 				make_placeholder_null(desc);
@@ -1335,13 +1335,24 @@ void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 	dsql_nod** arg = node->nod_arg;
 	for (dsql_nod** end = arg + node->nod_count; arg < end; arg++) {
 		dsql_nod* tnod = *arg;
+
+		// If this is an alias pick the source datatype
+		if (tnod->nod_type == nod_alias) {
+			tnod = tnod->nod_arg[e_alias_value];
+		}
+
 		// do we have only literal NULLs?
 		if (tnod->nod_type != nod_null) {
-			all_nulls = false;
+			if (!(tnod->nod_desc.dsc_flags & DSC_null)) {
+				all_nulls = false;
+			}
 		}
 
 		// ignore NULL and parameter value from walking
-		if (tnod->nod_type == nod_null || tnod->nod_type == nod_parameter) {
+		if (tnod->nod_type == nod_null || 
+			tnod->nod_desc.dsc_flags & DSC_null ||
+			tnod->nod_type == nod_parameter) 
+		{
 			continue;
 		}
 
@@ -1496,7 +1507,6 @@ void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 			}
 
 			any_blob = true;
-			/* Fix "=" vs "==" typo.  SAS TRT */
 			if (desc1.dsc_sub_type == 1) {
 				// TEXT BLOB
 				if (!any_text_blob) {
@@ -1523,6 +1533,7 @@ void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 		{
 			make_placeholder_null(desc);
 		}
+		desc->dsc_flags |= DSC_null;
 		return;
 	}
 
@@ -1613,7 +1624,6 @@ void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 		// If all of the arguments are the same BLOB datattype.
 		desc->dsc_dtype  = max_dtype;
 		desc->dsc_sub_type = max_sub_type;
-		/* Fix "=" vs. "==" typo.  SAS TRT */
 		if (max_sub_type == 1) {
 			// TEXT BLOB
 			desc->dsc_scale = ttype;
@@ -1990,7 +2000,7 @@ static void make_placeholder_null(dsc* const desc)
 	desc->dsc_length = 1;
 	desc->dsc_scale = 0;
 	desc->dsc_ttype = 0;
-	desc->dsc_flags = DSC_nullable;
+	desc->dsc_flags = DSC_nullable | DSC_null;
 }
 
 

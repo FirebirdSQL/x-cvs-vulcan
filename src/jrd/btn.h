@@ -56,7 +56,8 @@ const int BTN_ONE_LENGTH_FLAG	= 5;
 //const int BTN_GET_MORE_FLAGS	= 7;
 
 // format of expanded index buffer
-struct exp_index_buf {
+struct exp_index_buf 
+{
 	USHORT exp_length;
 	ULONG exp_incarnation;
 	btree_exp exp_nodes[1];
@@ -64,7 +65,8 @@ struct exp_index_buf {
 
 const size_t EXP_SIZE	= OFFSETA (exp_index_buf*, exp_nodes);
 
-struct dynKey {
+struct dynKey
+{
 	USHORT keyLength;
 	UCHAR* keyData;
 };
@@ -78,14 +80,11 @@ namespace BTreeNode {
 				const UCHAR* string, USHORT length);
 
 	SLONG findPageInDuplicates(const btree_page* page, UCHAR* pointer, 
-				SLONG previousNumber, SLONG findRecordNumber);
+				SLONG previousNumber, RecordNumber findRecordNumber);
 
 	USHORT getJumpNodeSize(const IndexJumpNode* jumpNode, SCHAR flags);
 	USHORT getNodeSize(const IndexNode* indexNode, SCHAR flags, bool leafNode = true);
 	UCHAR* getPointerFirstNode(btree_page* page, IndexJumpInfo* jumpInfo = NULL);
-
-	bool isEndBucket(const IndexNode* indexNode, bool leafNode = true);
-	bool isEndLevel(const IndexNode* indexNode, bool leafNode = true);
 
 	bool keyEquality(USHORT length, const UCHAR* data, const IndexNode* indexNode);
 
@@ -112,6 +111,9 @@ namespace BTreeNode {
 
 	void setEndBucket(IndexNode* indexNode, bool leafNode = true);
 	void setEndLevel(IndexNode* indexNode, bool leafNode = true);
+	void setNode(IndexNode* indexNode, USHORT prefix = 0, USHORT length = 0, 
+		RecordNumber recordNumber = RecordNumber(0), SLONG pageNumber = 0,
+		bool isEndBucket = false, bool isEndLevel = false);
 
 } // namespace BTreeNode
 
