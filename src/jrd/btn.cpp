@@ -529,10 +529,14 @@ UCHAR* readJumpInfo(IndexJumpInfo* jumpInfo, UCHAR* pagePointer)
  *  the read.
  *
  **************************************/
-	jumpInfo->firstNodeOffset = *reinterpret_cast<const USHORT*>(pagePointer);
+	//jumpInfo->firstNodeOffset = *reinterpret_cast<const USHORT*>(pagePointer);
+	memcpy(&jumpInfo->firstNodeOffset, pagePointer, sizeof(USHORT));
 	pagePointer += sizeof(USHORT);
-	jumpInfo->jumpAreaSize = *reinterpret_cast<const USHORT*>(pagePointer);
+
+	//jumpInfo->jumpAreaSize = *reinterpret_cast<const USHORT*>(pagePointer);
+	memcpy(&jumpInfo->jumpAreaSize, pagePointer, sizeof(USHORT));
 	pagePointer += sizeof(USHORT);
+
 	jumpInfo->jumpers = (USHORT)(*pagePointer);
 	++pagePointer;
 	return pagePointer;
@@ -581,7 +585,8 @@ UCHAR* readJumpNode(IndexJumpNode* jumpNode, UCHAR* pagePointer,
 		jumpNode->length = (USHORT)(*pagePointer);
 		pagePointer++;
 	}
-	jumpNode->offset = *reinterpret_cast<const USHORT*>(pagePointer);
+	//jumpNode->offset = *reinterpret_cast<const USHORT*>(pagePointer);
+	memcpy(&jumpNode->offset, pagePointer, sizeof(USHORT));
 	pagePointer += sizeof(USHORT);
 	jumpNode->data = pagePointer;
 	pagePointer += jumpNode->length;
@@ -815,10 +820,14 @@ UCHAR* writeJumpInfo(btree_page* page, const IndexJumpInfo* jumpInfo)
  *
  **************************************/
 	UCHAR* pointer = reinterpret_cast<UCHAR*>(page->btr_nodes);
-	*reinterpret_cast<USHORT*>(pointer) = jumpInfo->firstNodeOffset;
+	//*reinterpret_cast<USHORT*>(pointer) = jumpInfo->firstNodeOffset;
+	memcpy(pointer, &jumpInfo->firstNodeOffset, sizeof(USHORT));
 	pointer += sizeof(USHORT);
-	*reinterpret_cast<USHORT*>(pointer) = jumpInfo->jumpAreaSize;
+
+	//*reinterpret_cast<USHORT*>(pointer) = jumpInfo->jumpAreaSize;
+	memcpy(pointer, &jumpInfo->jumpAreaSize, sizeof(USHORT));
 	pointer += sizeof(USHORT);
+
 	*pointer = (UCHAR) jumpInfo->jumpers;
 	pointer++;
 	return pointer;
@@ -877,7 +886,8 @@ UCHAR* writeJumpNode(IndexJumpNode* jumpNode, UCHAR* pagePointer,
 		*pagePointer = (UCHAR) jumpNode->length;
 		pagePointer++;
 	}
-	*reinterpret_cast<USHORT*>(pagePointer) = jumpNode->offset;
+	//*reinterpret_cast<USHORT*>(pagePointer) = jumpNode->offset;
+	memcpy(pagePointer, &jumpNode->offset, sizeof(USHORT));
 	pagePointer += sizeof(USHORT);
 	memmove(pagePointer, jumpNode->data, jumpNode->length);
 	pagePointer += jumpNode->length;
