@@ -1,3 +1,95 @@
+2005-05-04 22:03  arnobrinkman
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	remove unneeded crap
+
+2005-05-04 21:48  arnobrinkman
+
+	* vulcan/src/dsql/: node.h, pass1.cpp:
+	
+	Merge latest FB2 changes
+
+2005-05-04 20:09  steve_krueger
+
+	* vulcan/src/jrd/dpm.epp:
+	
+	Update for local cache mode
+
+2005-05-04 03:14  arnobrinkman
+
+	* vulcan/builds/VisualStudio7/: server/server.vcproj,
+	why/why.vcproj:
+	
+	Merge newer FB2 code into Vulcan: recordnumber, ODS changes,
+	optimizer, index code and what passed the keyboard Backup up your
+	DB before building and using it.
+
+2005-05-04 03:10  arnobrinkman
+
+	* vulcan/builds/VisualStudio7/: jrd/jrd.vcproj,
+	Databases/Databases.vcproj, gpre/gpre.vcproj, isql/isql.vcproj,
+	msgs/msgs.vcproj, qli/qli.vcproj,
+	SecurityDatabase/SecurityDatabase.vcproj:
+	
+	Merge newer FB2 code into Vulcan: recordnumber, ODS changes,
+	optimizer, index code and what passed the keyboard Backup up your
+	DB before building and using it.
+
+2005-05-04 03:06  arnobrinkman
+
+	* vulcan/src/jrd/: all.cpp, all.h, blb.cpp, blb.h, blb_proto.h,
+	blf_proto.h, blob_filter.cpp, blrtable.cpp, btn.cpp, btn.h,
+	btr.cpp, btr.h, btr_proto.h, cch.cpp, cmp.cpp, InternalBlob.cpp,
+	InternalBlob.h, cmp_proto.h, common.h, cvt2.cpp, dfw.epp, dmp.cpp,
+	dpm.epp, dpm_proto.h, dyn.epp, dyn.h, dyn_def.epp, err.cpp,
+	err_proto.h, evl.cpp, evl_proto.h, exe.cpp, exe.h, ext.cpp,
+	fields.h, fun.epp, grant.epp, idx.cpp, idx_proto.h, ini.epp, ini.h,
+	jrd.cpp, lls.h, met.epp, met_proto.h, nav.cpp, nod.h, ods.h,
+	opt.cpp, PageCache.cpp, PageCache.h, ProcManager.cpp,
+	Procedure.cpp, Relation.h, Request.cpp, Request.h, Stack.h,
+	opt_proto.h, pag.cpp, par.cpp, pcmet.epp, pcmet_proto.h, rec.cpp,
+	relations.h, req.h, rse.cpp, rse.h, sbm.h, scl.epp, sdl.h, sdw.cpp,
+	sdw_proto.h, sort.cpp, sort.h, sort_proto.h, tra.cpp, tra.h,
+	trig.h, utl.cpp, Value.cpp, vio.cpp, vio_proto.h, functions.h,
+	validation.cpp:
+	
+	Merge newer FB2 code into Vulcan: recordnumber, ODS changes,
+	optimizer, index code and what passed the keyboard Backup up your
+	DB before building and using it.
+
+2005-05-04 03:00  arnobrinkman
+
+	* vulcan/src/: common/classes/tree.h, dsql/CStatement.cpp,
+	dsql/CStatement.h, dsql/ddl.cpp, dsql/dsql_nodes.h, dsql/gen.cpp,
+	dsql/make.cpp, dsql/parse.y, dsql/pass1.cpp, gpre/int.cpp,
+	gpre/int_cxx.cpp, include/gen/blrtable.h:
+	
+	Merge newer FB2 code into Vulcan: recordnumber, ODS changes,
+	optimizer, index code and what passed the keyboard Backup up your
+	DB before building and using it.
+
+2005-05-02 15:52  steve_krueger
+
+	* vulcan/src/jrd/: Database.cpp, InternalStatement.cpp:
+	
+	Fix memory leaks
+
+2005-05-02 01:01  arnobrinkman
+
+	* vulcan/src/: common/classes/objects_array.h,
+	common/classes/sparse_bitmap.h, jrd/BlobID.h, jrd/Optimizer.cpp,
+	jrd/Optimizer.h, jrd/RecordNumber.h:
+	
+	Add new files due merging from FB2 into vulcan
+
+2005-04-29 17:31  steve_krueger
+
+	* vulcan/src/lock/LockMgr.cpp:
+	
+	For local cache mode, insure own_stall is recreated, as it is freed
+	when the lock manager goes down.
+
 2005-04-28 20:34  steve_krueger
 
 	* vulcan/src/: dsql/DStatement.cpp, jrd/Database.h, jrd/jrd.cpp,
