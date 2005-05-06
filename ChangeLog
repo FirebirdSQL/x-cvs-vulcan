@@ -1,3 +1,9 @@
+2005-05-05 21:43  steve_krueger
+
+	* vulcan/src/jrd/btn.cpp:
+	
+	Use memcpy() to avoid alignment errors on risc machines
+
 2005-05-04 22:03  arnobrinkman
 
 	* vulcan/src/dsql/pass1.cpp:
