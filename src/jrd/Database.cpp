@@ -142,7 +142,7 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 
 Database::~Database()
 {
-	int i;
+	int i, j, size;
 	
 	for (i = 0; i < dbb_relations.size(); i++)
 		delete dbb_relations[i];
@@ -150,8 +150,17 @@ Database::~Database()
 	for (i = 0; i < dbb_internal.size(); i++)
 		delete dbb_internal[i];
 
-	for (i = 0; i < dbb_dyn_req.size(); i++)
+	size = dbb_dyn_req.size();
+	for (i = 0; i < size; i++)
+	{
+		/* some of these appear in two slots. Avoid a double delete */
+		for (j = i+1; j < size; j++)
+			if (dbb_dyn_req[i] == dbb_dyn_req[j])
+				dbb_dyn_req[j] = NULL;
+				
 		delete dbb_dyn_req[i];
+	}
+		
         
 	delete charSetManager;
 	delete pageCache;
