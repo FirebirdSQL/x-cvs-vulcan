@@ -1,3 +1,9 @@
+2005-05-06 16:58  steve_krueger
+
+	* vulcan/src/jrd/Database.cpp:
+	
+	Avoid attempt to free same request twice
+
 2005-05-05 21:43  steve_krueger
 
 	* vulcan/src/jrd/btn.cpp:
