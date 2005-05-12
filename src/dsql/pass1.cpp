@@ -1198,6 +1198,11 @@ dsql_nod* PASS1_statement(CStatement* request, dsql_nod* input, bool proc_flag)
 
 		case nod_exec_procedure:
 			{
+			// AB:TODO Fix problem with self-referencing procedures 
+			//   Procedures that call themself recursivly are not found
+			//	 by request->findProcedure()
+
+
 			dsql_str* name = (dsql_str*) input->nod_arg[e_exe_procedure];
 			Procedure* procedure = request->findProcedure (*name);
 
@@ -1234,7 +1239,7 @@ dsql_nod* PASS1_statement(CStatement* request, dsql_nod* input, bool proc_flag)
 				std::auto_ptr<dsql_nod> desc_node(FB_NEW_RPT(*getDefaultMemoryPool(), 0) dsql_nod);
 				dsql_nod** ptr = node->nod_arg[e_exe_inputs]->nod_arg;
 				
-				for (ProcParam *param = request->procedure->findInputParameters();
+				for (ProcParam *param = procedure->findInputParameters();
 					param; ptr++, param = param->findNext()) 
 					{
 					// MAKE_desc_from_field(&desc_node.nod_desc, field);
@@ -1250,7 +1255,7 @@ dsql_nod* PASS1_statement(CStatement* request, dsql_nod* input, bool proc_flag)
 			if (proc_flag) 
 				{
 				count = temp ? temp->nod_count : 0;
-				if (count != request->procedure->findInputCount())
+				if (count != procedure->findOutputCount())
 					ERRD_post(isc_prcmismat, isc_arg_string, name->str_data, 0);
 
 				node->nod_arg[e_exe_outputs] = PASS1_node(request, temp, proc_flag);
