@@ -56,12 +56,6 @@ YStatement::~YStatement()
 
 ISC_STATUS YStatement::releaseStatement(StatusVector& statusVector, int option, bool force)
 {
-	if (userPtr)
-		{
-		*(isc_stmt_handle*)userPtr = NULL;
-		userPtr = NULL;
-		}
-
 	if (!subsystem)
 		return 0;
 
@@ -74,6 +68,12 @@ ISC_STATUS YStatement::releaseStatement(StatusVector& statusVector, int option, 
 		{
 		subsystem->removeStatement (this);
 		subsystem = NULL;
+		
+		if (userPtr)
+			{
+			*(isc_stmt_handle*)userPtr = NULL;
+			userPtr = NULL;
+			}
 		}
 
 	return ret;
