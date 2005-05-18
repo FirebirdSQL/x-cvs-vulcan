@@ -567,7 +567,7 @@ install: <value name="file"/>
 
 <template name="SourceDirectories">
 DIRS = $(SRCDIR)/jrd \
-DIRS = $(SRCDIR)/dommon/classes  \
+DIRS = $(SRCDIR)/common/classes  \
 </template>
 
 <template name="Production">

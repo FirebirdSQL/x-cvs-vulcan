@@ -1518,6 +1518,23 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="Optimizer.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\OSRIBugcheck.cpp">
 			</File>
 			<File
@@ -1568,6 +1585,23 @@
 			</File>
 			<File
 				RelativePath=".\PBGen.cpp">
+			</File>
+			<File
+				RelativePath="pcmet.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="perf.cpp">
@@ -1725,23 +1759,6 @@
 			</File>
 			<File
 				RelativePath=".\RSet.cpp">
-			</File>
-			<File
-				RelativePath="sbm.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\config\ScanDir.cpp">
@@ -2184,7 +2201,7 @@
 				RelativePath=".\utl.cpp">
 			</File>
 			<File
-				RelativePath="val.cpp">
+				RelativePath="validation.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -3788,6 +3805,17 @@
 			</File>
 			<File
 				RelativePath="met.epp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+						Outputs="$(InputDir)$(InputName).cpp"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="pcmet.epp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool

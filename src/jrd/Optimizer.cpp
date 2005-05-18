@@ -677,7 +677,7 @@ str* make_alias(thread_db* tdbb, CompilerScratch* csb,
 			q = (TEXT *) csb_tail->csb_alias->str_data;
 		else {
 			q = (!(csb_tail->csb_relation) || !(csb_tail->csb_relation->rel_name))
-				? NULL : csb_tail->csb_relation->rel_name;
+                            ? NULL : (const TEXT *) csb_tail->csb_relation->rel_name;
 		}
 		// go to the end of the alias and copy it backwards
 		if (q) {
