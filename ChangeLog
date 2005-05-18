@@ -1,3 +1,10 @@
+2005-05-18 03:38  paulkent
+
+	* vulcan/: vulcan.build, src/boot_build, src/build,
+	src/jrd/Optimizer.cpp, src/jrd/jrd.vcproj, src/why/why.vcproj:
+	
+	catch up linux32 builds with recent changes by arno
+
 2005-05-12 21:07  arnobrinkman
 
 	* vulcan/src/dsql/pass1.cpp:
