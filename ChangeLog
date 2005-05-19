@@ -1,3 +1,9 @@
+2005-05-18 16:10  jimstarkey
+
+	* vulcan/src/why/YStatement.cpp:
+	
+	[no log message]
+
 2005-05-18 03:38  paulkent
 
 	* vulcan/: vulcan.build, src/boot_build, src/build,
