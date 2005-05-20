@@ -373,6 +373,9 @@
 				RelativePath="..\jrd\sdl_proto.h">
 			</File>
 			<File
+				RelativePath="..\common\classes\sparse_bitmap.h">
+			</File>
+			<File
 				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File

@@ -276,10 +276,10 @@ CallableStatement* InternalConnection::prepareCall(const char * sqlString)
 
 void InternalConnection::commitAuto()
 {
-	rollback();
+	commit();
 }
 
 void InternalConnection::rollbackAuto()
 {
-	commit();
+	rollback();
 }

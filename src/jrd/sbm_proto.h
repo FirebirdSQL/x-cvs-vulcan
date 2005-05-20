@@ -28,11 +28,13 @@
 #include "../jrd/rse.h"
 
 #ifdef DEV_BUILD
+class SparseBitmap;
 #include "../jrd/ib_stdio.h"
 void SBM_dump(IB_FILE *, SparseBitmap*);
 #endif
 
 class sbm;
+class SparseBitmap;
 struct thread_db;
 
 SparseBitmap**	SBM_and(SparseBitmap**, SparseBitmap**);
