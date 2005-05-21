@@ -1,3 +1,10 @@
+2005-05-20 20:31  jimstarkey
+
+	* vulcan/src/: burp/burp.vcproj, jrd/InternalConnection.cpp,
+	jrd/sbm_proto.h:
+	
+	Fixed reversal of auto commit, auto rollback in InternalConnection
+
 2005-05-18 16:10  jimstarkey
 
 	* vulcan/src/why/YStatement.cpp:
