@@ -1723,9 +1723,13 @@ ISC_STATUS Dispatch::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 	if (!statement)
 		return statusVector.postAndReturn (isc_bad_req_handle);
 
+	// call below zeroes what dsqlHandle pointed to
+	// hence we must release a copy of real handle
+	isc_stmt_handle copyHandle = *(isc_stmt_handle*)dsqlHandle;
 	if (!statement->releaseStatement(statusVector, option, false) && (option & DSQL_drop))
 		{
-		releaseHandle(dsqlHandle);
+		//releaseHandle(dsqlHandle);
+		releaseHandle((DsqlHandle*) &copyHandle); 
 		delete statement;
 		}
 
