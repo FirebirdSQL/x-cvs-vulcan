@@ -29,6 +29,7 @@
 #include "common.h"
 #include "HandleManager.h"
 #include "Sync.h"
+#include "gdsassert.h"
 
 static const int INITIAL_ALLOCATION = 100;
 
@@ -89,6 +90,8 @@ void HandleManager::releaseHandle(int handle)
 {
 	Sync sync (&syncObject, "HandleManager::allocateHandle");
 	sync.lock (Exclusive);
+
+	fb_assert(handle != 0);  // make sure we don't try to release a nulled handle
 
 	objects [handle] = (void*) (long) nextAvailable;
 	nextAvailable = handle;
