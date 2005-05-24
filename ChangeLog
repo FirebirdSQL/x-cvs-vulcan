@@ -1,3 +1,16 @@
+2005-05-23 16:21  steve_krueger
+
+	* vulcan/src/jrd/HandleManager.cpp:
+	
+	Assert on attempt to release a nulled handle.
+
+2005-05-23 16:20  steve_krueger
+
+	* vulcan/src/why/Dispatch.cpp:
+	
+	Fix from Vlad: Prevent nulled handle from being add to the free
+	handle list
+
 2005-05-20 20:31  jimstarkey
 
 	* vulcan/src/: burp/burp.vcproj, jrd/InternalConnection.cpp,
