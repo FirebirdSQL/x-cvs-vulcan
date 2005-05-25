@@ -1,3 +1,9 @@
+2005-05-24 16:12  jimstarkey
+
+	* vulcan/src/jrd/PathName.cpp:
+	
+	Switch to standard function "stricmp" to compare Window's pathnames
+
 2005-05-23 16:21  steve_krueger
 
 	* vulcan/src/jrd/HandleManager.cpp:
