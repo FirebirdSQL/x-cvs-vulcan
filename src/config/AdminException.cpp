@@ -69,9 +69,6 @@ AdminException::AdminException(const char *txt, ...)
 		}
 	else
 		text = temp;
-
-	text = temp;
-	lineNumber;
 }
 
 AdminException::~AdminException()
