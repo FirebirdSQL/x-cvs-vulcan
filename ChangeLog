@@ -1,3 +1,9 @@
+2005-06-07 15:47  jimstarkey
+
+	* vulcan/src/: config/AdminException.cpp, jrd/JString.h:
+	
+	Eliminate warnings from some compilers
+
 2005-05-24 16:12  jimstarkey
 
 	* vulcan/src/jrd/PathName.cpp:
