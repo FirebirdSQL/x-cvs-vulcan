@@ -1435,7 +1435,8 @@ static void gen_constant( CStatement* request, dsc* desc, bool negate_value)
 		   which is transmitted to the engine as a string.
 		 */
 		gen_descriptor(request, desc, true);
-		l = (USHORT) desc->dsc_scale;	// length of string literal 
+		l = (USHORT) (UCHAR) desc->dsc_scale;	// length of string literal, cast
+						   						// because could be >127 chars	
 		if (negate_value) {
 			stuff_word(request, l + 1);
 			stuff(request, '-');
