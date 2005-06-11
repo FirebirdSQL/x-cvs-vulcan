@@ -1,3 +1,15 @@
+2005-06-10 19:30  tomcole
+
+	* vulcan/src/dsql/: SQLParse.cpp, gen.cpp:
+	
+	Vulcan changes only.  Relaxed yylex parsing of very long digit
+	strings if they contain a decimal point or exponent; now interprets
+	correctly as float and passes on to engine for later conversion. 
+	Minor tweak in gen_constant because string representation's length
+	was stored in a signed byte, preventing digit strings >127
+	characters from parsing - with this fix, it's still limited to 255
+	characters max.
+
 2005-06-07 15:47  jimstarkey
 
 	* vulcan/src/: config/AdminException.cpp, jrd/JString.h:
