@@ -722,9 +722,9 @@ static void dmp_header(header_page* page)
 	ib_fprintf(dbg_file,
 			   "HEADER PAGE\t checksum %d\t generation %ld\n\tPage size: %d, version: %d.%d(%d) type %04x, pages: %ld\n",
 			   ((PAG) page)->pag_checksum, ((PAG) page)->pag_generation,
-			   page->hdr_page_size, page->hdr_ods_version & ~ODS_TYPE_MASK, 
+			   page->hdr_page_size, page->hdr_ods_version & ~ODS_FIREBIRD_FLAG, 
 			   minor_version, page->hdr_ods_minor_original, 
-			   page->hdr_ods_version & ODS_TYPE_MASK, page->hdr_PAGES);
+			   page->hdr_ods_version & ODS_FIREBIRD_FLAG, page->hdr_PAGES);
 
 	isc_decode_timestamp((GDS_TIMESTAMP *) page->hdr_creation_date, &time);
 	ib_fprintf(dbg_file, "\tCreation date:\t%s %d, %d %d:%02d:%02d\n",

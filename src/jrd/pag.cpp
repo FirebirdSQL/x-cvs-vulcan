@@ -926,7 +926,8 @@ void PAG_format_header(thread_db* tdbb)
 	MOV_time_stamp(reinterpret_cast <ISC_TIMESTAMP * >(header->hdr_creation_date));
 	header->hdr_header.pag_type = pag_header;
 	header->hdr_page_size = dbb->dbb_page_size;
-	header->hdr_ods_version = ODS_VERSION | ODS_TYPE_CURRENT;
+	//header->hdr_ods_version = ODS_VERSION | ODS_TYPE_CURRENT;
+	header->hdr_ods_version = ENCODE_ODS (ODS_VERSION, ODS_CURRENT) | ODS_FIREBIRD_FLAG;
 	header->hdr_implementation = CLASS;
 	header->hdr_ods_minor = ODS_CURRENT;
 	header->hdr_ods_minor_original = ODS_CURRENT;
@@ -941,7 +942,7 @@ void PAG_format_header(thread_db* tdbb)
 	if (dbb->dbb_flags & DBB_DB_SQL_dialect_3)
 		header->hdr_flags |= hdr_SQL_dialect_3;
 
-	dbb->dbb_ods_version = header->hdr_ods_version & ~ODS_TYPE_MASK;
+	dbb->dbb_ods_version = header->hdr_ods_version & ~ODS_FIREBIRD_FLAG;
 	dbb->dbb_minor_version = header->hdr_ods_minor;
 	dbb->dbb_minor_original = header->hdr_ods_minor_original;
 
@@ -1084,15 +1085,16 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 	if (header->hdr_header.pag_type != pag_header || header->hdr_sequence)
 		ERR_post(isc_bad_db_format, isc_arg_string, file_name, 0);
 
-	if (!ODS_SUPPORTED(header->hdr_ods_version))
-	{
-		ERR_post(isc_wrong_ods,
-				 isc_arg_string, file_name,
-				 isc_arg_number, (SLONG) (header->hdr_ods_version & ~ODS_TYPE_MASK), 
-				 isc_arg_number, (SLONG) (header->hdr_ods_version & ODS_TYPE_MASK),
-				 isc_arg_number, (SLONG) ODS_VERSION, 
-				 isc_arg_number, (SLONG) ODS_TYPE_CURRENT, 0);
-	}
+	//if (!ODS_SUPPORTED(header->hdr_ods_version))
+	if (DECODE_ODS_MAJOR(header->hdr_ods_version) != ODS_VERSION ||
+		DECODE_ODS_MINOR(header->hdr_ods_version) > ODS_CURRENT)
+		if (header->hdr_ods_version != (ODS_VERSION | ODS_TYPE_CURRENT)) // temporary fixup hack
+			ERR_post(isc_wrong_ods,
+					isc_arg_string, file_name,
+					isc_arg_number, (SLONG) (header->hdr_ods_version & ~ODS_FIREBIRD_FLAG), 
+					isc_arg_number, (SLONG) (header->hdr_ods_version & ODS_FIREBIRD_FLAG),
+					isc_arg_number, (SLONG) ODS_VERSION, 
+					isc_arg_number, (SLONG) ODS_TYPE_CURRENT, 0);
 
 	/****
 	Note that if this check is turned on, it should be recoded in order that
@@ -1136,7 +1138,7 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 			BUGCHECK(267);		/* next transaction older than oldest transaction */
 		}
 
-	dbb->dbb_ods_version = header->hdr_ods_version & ~ODS_TYPE_MASK;
+	dbb->dbb_ods_version = header->hdr_ods_version & ~ODS_FIREBIRD_FLAG;
 	dbb->dbb_minor_version = header->hdr_ods_minor;
 	dbb->dbb_minor_original = header->hdr_ods_minor_original;
 

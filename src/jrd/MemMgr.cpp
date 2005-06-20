@@ -336,7 +336,8 @@ MemBlock* MemMgr::alloc(int length)
 	if (hunkLength + sizeof(MemBigObject) + threshold < minAllocation)
 		{
 		hunkLength = minAllocation;
-		freeSpace = hunkLength - 2 * sizeof(MemBigObject) - length;
+		//freeSpace = hunkLength - 2 * sizeof(MemBigObject) - length;
+		freeSpace = hunkLength - sizeof(MemBigHunk) - 2 * sizeof(MemBigHeader) - length;
 		}
 	
 	// Allocate the new hunk
@@ -493,6 +494,22 @@ void MemMgr::releaseBlock(MemBlock *block)
 			prior->next->prior = prior;
 		
 		freeBlock = prior;
+		}
+	
+	// If the block has no neighbors, the entire hunk is empty and can be unlinked and
+	// released
+		
+	if (freeBlock->prior == NULL && freeBlock->next == NULL)
+		{
+		for (MemBigHunk **ptr = &bigHunks, *hunk; hunk = *ptr; ptr = &hunk->nextHunk)
+			if (&hunk->blocks == freeBlock)
+				{
+				*ptr = hunk->nextHunk;
+				releaseRaw(hunk);
+				return;
+				}
+
+		corrupt("can't find big hunk");
 		}
 	
 	insert (freeBlock);
