@@ -1087,7 +1087,8 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 
 	//if (!ODS_SUPPORTED(header->hdr_ods_version))
 	if (DECODE_ODS_MAJOR(header->hdr_ods_version) != ODS_VERSION ||
-		DECODE_ODS_MINOR(header->hdr_ods_version) > ODS_CURRENT)
+		DECODE_ODS_MINOR(header->hdr_ods_version) > ODS_CURRENT ||
+		!DECODE_FIREBIRD_FLAG(header->hdr_ods_version))
 		if (header->hdr_ods_version != (ODS_VERSION | ODS_TYPE_CURRENT)) // temporary fixup hack
 			ERR_post(isc_wrong_ods,
 					isc_arg_string, file_name,
