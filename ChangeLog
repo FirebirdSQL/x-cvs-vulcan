@@ -1,3 +1,17 @@
+2005-06-20 20:29  jimstarkey
+
+	* vulcan/src/jrd/pag.cpp:
+	
+	Picked the ods check in PAG_header to accept the now-abandoned FB2
+	ods version number.  This is strictly a temporary measure, and will
+	be removed.
+
+2005-06-20 20:10  jimstarkey
+
+	* vulcan/src/jrd/: MemMgr.cpp, dmp.cpp, ods.h, pag.cpp:
+	
+	[no log message]
+
 2005-06-10 19:30  tomcole
 
 	* vulcan/src/dsql/: SQLParse.cpp, gen.cpp:
