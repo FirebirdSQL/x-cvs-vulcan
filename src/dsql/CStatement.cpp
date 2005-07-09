@@ -136,6 +136,7 @@ CStatement::CStatement(Attachment *attach)
 	pool = DsqlMemoryPool::createPool();
 	oldParameterOrdering = database->configuration->getValue (OldParameterOrdering,OldParameterOrderingValue);
 	transaction = NULL;
+	execBlockNode = NULL;
 }
 
 CStatement::~CStatement()

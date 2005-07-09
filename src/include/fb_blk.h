@@ -17,6 +17,7 @@ struct blk
 };
 typedef blk* BLK;
 
+class JrdMemoryPool;
 
 //typedef PtrWrapper<BLK> BlkPtr;
 typedef blk* BlkPtr;
@@ -56,6 +57,7 @@ class pool_alloc_rpt : public blk
 {
     public:
 		typedef RPT blk_repeat_type;
+		
 #ifdef DEBUG_GDS_ALLOC
         void* operator new(size_t s, MemoryPool& p, int rpt, char* file, int line)
             { return p.calloc(s + sizeof(RPT) * rpt, BLOCK_TYPE, file, line); }
@@ -63,17 +65,28 @@ class pool_alloc_rpt : public blk
         void* operator new(size_t s, MemoryPool& p, int rpt)
             { return p.calloc(s + sizeof(RPT) * rpt, BLOCK_TYPE); }
 #endif
+
         void operator delete(void* mem, MemoryPool& p, int rpt)
             { if (mem) p.deallocate(mem); }
+            
         void operator delete(void* mem) { if (mem) MemoryPool::globalFree(mem); }
 
-    private:
+    //private:
         // These operations are not supported on static repeat-base objects
+        void* operator new(size_t s, JrdMemoryPool *p)
+            { return p->allocate(s); }
+            
         void* operator new[](size_t s, MemoryPool& p)
-            { return 0; }
+            { return p.calloc(s); }
+            
         void operator delete[](void* mem, MemoryPool& p)
-            { }
-        void operator delete[](void* mem) { }
+            {if (mem) MemoryPool::globalFree(mem); }
+            
+        void operator delete[](void* mem) 
+			{
+			if (mem) 
+				p.deallocate(mem); 
+			}
 
 private:
     /* These operators are off-limits */
