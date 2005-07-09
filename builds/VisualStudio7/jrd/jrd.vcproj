@@ -394,6 +394,9 @@
 				RelativePath="..\..\..\src\jrd\CommitManager.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\CompilerScratch.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\config\ConfigFile.cpp">
 			</File>
 			<File
@@ -1625,6 +1628,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RecordSource.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RefObject.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1713,21 +1719,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\rse.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath="..\..\..\src\jrd\RsbMerge.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbProcedure.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSort.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RSet.cpp">
@@ -2371,6 +2369,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\common.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CompilerScratch.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\config\ConfigFile.h">
@@ -3078,6 +3079,9 @@
 				RelativePath="..\..\..\src\jrd\RecordNumber.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RecordSource.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RefObject.h">
 			</File>
 			<File
@@ -3106,6 +3110,15 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\rpb_chain.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbMerge.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbProcedure.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSort.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\rse.h">
@@ -3195,10 +3208,10 @@
 				RelativePath="..\..\..\src\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sqlda.h">
+				RelativePath="..\..\..\src\dsql\sqlda.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\sqlda.h">
+				RelativePath="..\..\..\src\jrd\Sqlda.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\SQLError.h">
