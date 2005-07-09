@@ -1259,7 +1259,7 @@ int CStatement::findColumn(const char *columnName)
 bool CStatement::existsException (const TEXT *exceptionName)
 {
 	if (strlen (exceptionName) > MAX_SQL_IDENTIFIER_SIZE)
-		return NULL;
+		return false;
 	 		
 	Connect connection = attachment->getUserConnection(transaction);
 	PStatement statement = connection->prepareStatement (

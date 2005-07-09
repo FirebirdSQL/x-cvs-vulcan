@@ -23,6 +23,7 @@
  * Refactored July 5, 2005 by James A. Starkey
  */
  
+#include <errno.h>
 #include "firebird.h"
 #include "RsbMerge.h"
 #include "RsbSort.h"

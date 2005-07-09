@@ -32,12 +32,12 @@
  *
  */
  
+#include <errno.h>
 #include "firebird.h"
 #include "RecordSource.h"
 #include "Request.h"
 #include "Relation.h"
 #include "PageCache.h"
-//#include "Procedure.h"
 #include "sort_mem.h"
 #include "jrd.h"
 #include "rse.h"

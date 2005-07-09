@@ -4,7 +4,7 @@
 #ifdef MEMMGR
 #include "MemMgr.h"
 #ifndef MemoryPool
-#define MemoryPool		::MemMgr
+#define MemoryPool		NAMESPACE::MemMgr
 #endif
 #endif
 
