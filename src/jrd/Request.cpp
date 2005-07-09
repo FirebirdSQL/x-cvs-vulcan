@@ -45,7 +45,8 @@ Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invari
 	req_impure_size = impureSize;
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
-	req_last_xcp = new StatusXcp;	
+	req_last_xcp = new StatusXcp;
+	rsbs = NULL;
 }
 
 
@@ -79,6 +80,12 @@ Request::~Request(void)
 	delete req_last_xcp;
 	delete [] req_rpb;
 	delete [] req_impure;
+	
+	for (RecordSource *rsb; rsb = rsbs;)
+		{
+		rsbs = rsb->nextInRequest;
+		delete rsb;
+		}
 }
 
 

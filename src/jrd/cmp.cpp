@@ -1703,6 +1703,7 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 		request->req_impure_size = csb->csb_impure;
 		request->req_top_node = csb->csb_node;
 		request->req_access = csb->csb_access;
+		request->rsbs = csb->stealRsbs();
 		
 		//request->req_variables = csb->csb_variables;
 		/***

@@ -56,9 +56,7 @@
 #include "../jrd/thd_proto.h"
 #include "../jrd/vio_proto.h"
 #include "../jrd/dls_proto.h"
-//#include "../common/config/config.h"
-//#include "../common/config/dir_list.h"
-//#include "../jrd/os/path_utils.h"
+#include "CompilerScratch.h"
 
 #include "DirectoryList.h"
 #include "ConfObject.h"
@@ -444,7 +442,7 @@ if (opt->opt_count)
 */
 
 
-	rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) RecordSource;
+	rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) RecordSource(opt->opt_csb);
 	rsb_->rsb_type = rsb_ext_sequential;
 	size = sizeof(irsb);
 

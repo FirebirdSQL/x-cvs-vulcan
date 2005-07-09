@@ -677,23 +677,26 @@ void SORT_get(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 	// If there weren't any runs, everything fit in memory. Just return stuff.
 
 	if (!scb->scb_merge)
-		while (true) {
-			if (scb->scb_records == 0) {
+		while (true) 
+			{
+			if (scb->scb_records == 0) 
+				{
 				record = NULL;
 				break;
-			}
+				}
+				
 			scb->scb_records--;
+			
 			if ( (record = *scb->scb_next_pointer++) )
 				break;
-		}
+			}
 	else
 		record = get_merge(scb->scb_merge, scb);
 
 	*record_address = (ULONG *) record;
 
-	if (record) {
+	if (record) 
 		diddle_key((UCHAR *) record->sort_record_key, scb, false);
-	}
 }
 #endif
 

@@ -41,7 +41,7 @@ SparseBitmap**	SBM_and(SparseBitmap**, SparseBitmap**);
 int				SBM_clear(SparseBitmap*, SLONG);
 BOOLEAN			SBM_equal(SparseBitmap*, SparseBitmap*);
 void			SBM_init(void);
-int				SBM_next(SparseBitmap*, SLONG*, enum rse_get_mode);
+int				SBM_next(SparseBitmap*, SLONG*, RSE_GET_MODE);
 SparseBitmap**	SBM_or(thread_db*, SparseBitmap**, SparseBitmap**);
 void			SBM_release(SparseBitmap*);
 void			SBM_reset(SparseBitmap**);

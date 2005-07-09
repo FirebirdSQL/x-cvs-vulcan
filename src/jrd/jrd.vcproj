@@ -394,6 +394,9 @@
 				RelativePath=".\CommitManager.cpp">
 			</File>
 			<File
+				RelativePath=".\CompilerScratch.cpp">
+			</File>
+			<File
 				RelativePath="..\config\ConfigFile.cpp">
 			</File>
 			<File
@@ -1653,6 +1656,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RecordSource.cpp">
+			</File>
+			<File
 				RelativePath="RefObject.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1741,21 +1747,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="rse.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath=".\RsbMerge.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbProcedure.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbSort.cpp">
 			</File>
 			<File
 				RelativePath=".\RSet.cpp">
@@ -2274,10 +2272,10 @@
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2410,6 +2408,9 @@
 			</File>
 			<File
 				RelativePath="common.h">
+			</File>
+			<File
+				RelativePath=".\CompilerScratch.h">
 			</File>
 			<File
 				RelativePath="..\config\ConfigFile.h">
@@ -3006,6 +3007,9 @@
 				RelativePath="opt_proto.h">
 			</File>
 			<File
+				RelativePath=".\Optimizer.h">
+			</File>
+			<File
 				RelativePath=".\OSRIBugcheck.h">
 			</File>
 			<File
@@ -3105,6 +3109,9 @@
 				RelativePath="rec_proto.h">
 			</File>
 			<File
+				RelativePath=".\RecordSource.h">
+			</File>
+			<File
 				RelativePath="RefObject.h">
 			</File>
 			<File
@@ -3133,6 +3140,15 @@
 			</File>
 			<File
 				RelativePath="rpb_chain.h">
+			</File>
+			<File
+				RelativePath=".\RsbMerge.h">
+			</File>
+			<File
+				RelativePath=".\RsbProcedure.h">
+			</File>
+			<File
+				RelativePath=".\RsbSort.h">
 			</File>
 			<File
 				RelativePath="rse.h">
@@ -3222,10 +3238,10 @@
 				RelativePath="..\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath=".\Sqlda.h">
+				RelativePath="..\dsql\sqlda.h">
 			</File>
 			<File
-				RelativePath="..\dsql\sqlda.h">
+				RelativePath=".\Sqlda.h">
 			</File>
 			<File
 				RelativePath=".\SQLError.h">
@@ -3815,17 +3831,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="pcmet.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\dsql\parse.y">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -3836,6 +3841,17 @@ move dsql.tab.c  $(InputDir)\parse.cpp
 move dsql.tab.h  $(InputDir)\parse.h
 "
 						Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="pcmet.epp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+						Outputs="$(InputDir)$(InputName).cpp"/>
 				</FileConfiguration>
 			</File>
 			<File

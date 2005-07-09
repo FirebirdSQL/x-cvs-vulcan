@@ -29,8 +29,7 @@
 #ifdef SCROLLABLE_CURSORS
 struct jrd_exp* NAV_expand_index(struct win*, struct irsb_nav*);
 #endif
-BOOLEAN NAV_get_record(thread_db*, class RecordSource*, struct irsb_nav*, struct record_param*,
-							  enum rse_get_mode);
+BOOLEAN NAV_get_record(thread_db*, class RecordSource*, struct irsb_nav*, struct record_param*,RSE_GET_MODE);
 
 #ifdef PC_ENGINE
 BOOLEAN NAV_find_record(thread_db*, class RecordSource*, USHORT, USHORT, struct jrd_nod*);

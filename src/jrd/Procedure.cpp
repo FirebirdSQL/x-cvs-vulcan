@@ -15,6 +15,7 @@
 #include "blr.h"
 #include "blb_proto.h"
 #include "par_proto.h"
+#include "CompilerScratch.h"
 
 #define BLR_BYTE        *(csb->csb_running)++
 

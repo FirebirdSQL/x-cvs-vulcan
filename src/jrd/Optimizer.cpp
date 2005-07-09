@@ -1344,7 +1344,7 @@ RecordSource* OptimizerRetrieval::generateNavigation()
 		//return gen_nav_rsb(tdbb, opt, stream, relation, alias, idx);
 
 		USHORT key_length = ROUNDUP(BTR_key_length(tdbb, relation, idx), sizeof(SLONG));
-		RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource();
+		RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource(csb);
 		rsb->rsb_type = rsb_navigate;
 		rsb->rsb_relation = relation;
 		rsb->rsb_stream = (UCHAR) stream;

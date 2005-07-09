@@ -994,12 +994,14 @@ IDX_E BTR_key(thread_db* tdbb, Relation* relation, Record* record, index_desc* i
 
 		return result;
 
-	}	// try
-	catch(const std::exception& ex) {
+		}	// try
+	//catch(const std::exception& ex) {
+	catch (OSRIException&)
+		{
 		//Firebird::stuff_exception(tdbb->tdbb_status_vector, ex);
 		key->key_length = 0;
 		return idx_e_conversion;
-	}
+		}
 }
 
 

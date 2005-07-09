@@ -25,24 +25,27 @@
 #define JRD_SORT_PROTO_H
 
 struct thread_db;
+struct sort_work_file;
+struct sort_context;
+struct sort_key_def;
 
 #ifdef SCROLLABLE_CURSORS
-void	SORT_diddle_key(UCHAR *, struct sort_context*, bool);
-void	SORT_get(thread_db*, struct sort_context*, ULONG**, RSE_GET_MODE);
-void	SORT_read_block(struct sort_work_file*, ULONG, BLOB_PTR*, ULONG);
+void	SORT_diddle_key(UCHAR *, sort_context*, bool);
+void	SORT_get(thread_db*, sort_context*, ULONG**, RSE_GET_MODE);
 #else
-void	SORT_get(thread_db*, struct sort_context*, ULONG**);
-ULONG	SORT_read_block(struct sort_work_file*, ULONG, BLOB_PTR*, ULONG);
+void	SORT_get(thread_db*, sort_context*, ULONG**);
 #endif
 
-void	SORT_error(struct sort_work_file*, const TEXT *, ISC_STATUS, int);
-void	SORT_fini(struct sort_context*, Attachment *);
-struct sort_context*	SORT_init(thread_db*, USHORT, USHORT, USHORT, const struct sort_key_def*,
+ULONG	SORT_read_block(sort_work_file*, ULONG, BLOB_PTR*, ULONG);
+
+void	SORT_error(sort_work_file*, const TEXT *, ISC_STATUS, int);
+void	SORT_fini(sort_context*, Attachment *);
+struct sort_context*	SORT_init(thread_db*, USHORT, USHORT, USHORT, const sort_key_def*,
 						FPTR_REJECT_DUP_CALLBACK, void*, Attachment*, UINT64);
-void	SORT_put(thread_db*, struct sort_context*, ULONG**);
+void	SORT_put(thread_db*, sort_context*, ULONG**);
 void	SORT_shutdown(Attachment*);
-bool	SORT_sort(thread_db*, struct sort_context*);
-ULONG	SORT_write_block(struct sort_work_file*, ULONG, BLOB_PTR*, ULONG);
+bool	SORT_sort(thread_db*, sort_context*);
+ULONG	SORT_write_block(sort_work_file*, ULONG, BLOB_PTR*, ULONG);
 
 #endif // JRD_SORT_PROTO_H
 

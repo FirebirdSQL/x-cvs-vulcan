@@ -27,7 +27,7 @@
 class jrd_node;
 struct thread_db;
 class Request;
-class Rsb;
+//class Rsb;
 class Transaction;
 
 void EXE_assignment(thread_db*, jrd_nod*);

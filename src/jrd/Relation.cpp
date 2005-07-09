@@ -48,6 +48,7 @@
 #include "tra.h"
 #include "Sync.h"
 #include "Triggers.h"
+#include "CompilerScratch.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

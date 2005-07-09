@@ -43,6 +43,7 @@
 
 #include "../jrd/rse.h"
 #include "../jrd/exe.h"
+#include "CompilerScratch.h"
 
 const double REDUCE_SELECTIVITY_FACTOR_BETWEEN = 0.2;
 const double REDUCE_SELECTIVITY_FACTOR_LESS = 0.5;

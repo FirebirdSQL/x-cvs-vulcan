@@ -68,6 +68,8 @@ class Procedure;
 class rng;
 class Savepoint;
 class StatusXcp;
+class RecordSource;
+
 struct record_param;
 struct thread_db;
 
@@ -130,6 +132,8 @@ public:
     StatusXcp		*req_last_xcp;	/* last known exception */
 	record_param	*req_rpb;		/* record parameter blocks */
 	UCHAR			*req_impure;
+	RecordSource	*rsbs;
+	
 	Request* getInstantiatedRequest(int instantiation);
 	Request* findInstantiatedRequest(int instantiation);
 	int getRequestInfo(thread_db* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);

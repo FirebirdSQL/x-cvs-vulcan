@@ -988,12 +988,12 @@ void EXE_unwind(thread_db* tdbb, JRD_REQ request)
 			tdbb->tdbb_request = request;
 			Transaction* old_transaction = tdbb->tdbb_transaction;
 			tdbb->tdbb_transaction = request->req_transaction;
-			
 			RecordSource** ptr = request->req_fors.begin();
-			for (const RecordSource* const* const end =
-				 request->req_fors.end(); ptr < end; ptr++)
+			
+			for (const RecordSource* const* const end = request->req_fors.end(); ptr < end; ptr++)
 				if (*ptr)
-					RSE_close(tdbb, *ptr);
+					//RSE_close(tdbb, *ptr);
+					(*ptr)->close(request, tdbb);
 
 			tdbb->tdbb_default = old_pool;
 			tdbb->tdbb_request = old_request;
@@ -1955,7 +1955,8 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 					{
 					case req_evaluate:
 						request->req_records_affected = 0;
-						RSE_open(tdbb, (RecordSource*) node->nod_arg[e_for_rsb]);
+						//RSE_open(tdbb, (RecordSource*) node->nod_arg[e_for_rsb]);
+						((RecordSource*) node->nod_arg[e_for_rsb])->open(request, tdbb);
 						// fall thru
 					case req_return:
 						if (node->nod_arg[e_for_stall]) 
@@ -1965,12 +1966,13 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 							}
 						// fall thrue
 					case req_sync:
-						if (RSE_get_record(tdbb, (RecordSource*) node->nod_arg[e_for_rsb],
-		#ifdef SCROLLABLE_CURSORS
+						//if (RSE_get_record(tdbb, (RecordSource*) node->nod_arg[e_for_rsb],
+						if (((RecordSource*) node->nod_arg[e_for_rsb])->get(request, tdbb,
+#ifdef SCROLLABLE_CURSORS
 										RSE_get_next))
-		#else
+#else
 										RSE_get_forward))
-		#endif
+#endif
 							{
 							node = node->nod_arg[e_for_statement];
 							request->req_operation = req_evaluate;
@@ -1980,7 +1982,8 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 						request->req_operation = req_return;
 						// fall thru
 					default:
-						RSE_close(tdbb, (RecordSource*) node->nod_arg[e_for_rsb]);
+						//RSE_close(tdbb, (RecordSource*) node->nod_arg[e_for_rsb]);
+						((RecordSource*) node->nod_arg[e_for_rsb])->close(request, tdbb);
 						node = node->nod_parent;
 					}
 				break;
@@ -2016,7 +2019,8 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 							if (impure->irsb_flags & irsb_open) 
 								ERR_post(isc_invalid_cursor_state, isc_arg_string, "open", 0);
 
-							RSE_open(tdbb, rsb);
+							//RSE_open(tdbb, rsb);
+							rsb->open(request, tdbb);
 							request->req_operation = req_return;
 							}
 						node = node->nod_parent;
@@ -2028,7 +2032,8 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 							if (!(impure->irsb_flags & irsb_open)) 
 								ERR_post(isc_invalid_cursor_state, isc_arg_string, "closed", 0);
 
-							RSE_close(tdbb, rsb);
+							//RSE_close(tdbb, rsb);
+							rsb->close(request, tdbb);
 							request->req_operation = req_return;
 							}
 							
@@ -2053,7 +2058,8 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 								if (!request->req_records_affected) 
 									{
 									// fetch one record
-									if (RSE_get_record(tdbb, rsb,
+									//if (RSE_get_record(tdbb, rsb,
+									if (rsb->get(request, tdbb,
 #ifdef SCROLLABLE_CURSORS
 													RSE_get_next))
 #else
@@ -2867,7 +2873,8 @@ static JRD_NOD looper(thread_db* tdbb, JRD_REQ request, JRD_NOD in_node)
 			for (vec::iterator ptr = request->req_cursors->begin(), 
 				 end = request->req_cursors->end(); ptr < end; ptr++)
 				if (*ptr)
-					RSE_close(tdbb, (RecordSource*) *ptr);
+					//RSE_close(tdbb, (RecordSource*) *ptr);
+					((RecordSource*) *ptr)->close(request, tdbb);
 			}
 
 #ifdef SHARED_CACHE

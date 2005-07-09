@@ -24,6 +24,8 @@
 #ifndef JRD_CMP_PROTO_H
 #define JRD_CMP_PROTO_H
 
+#include "CompilerScratch.h"
+
 // Note: Due to bad planning, the enum "rsc_s" is defined in req.h, which must be include
 // before this file.
 
@@ -33,10 +35,10 @@ class Transaction;
 class Procedure;
 class Relation;
 class Resource;
-class CompilerScratch;
-struct thread_db;
 class Format;
 class IndexLock;
+
+struct thread_db;
 
 bool		CMP_clone_is_active(const Request*);
 jrd_nod*	CMP_clone_node(thread_db*, CompilerScratch*, jrd_nod*);

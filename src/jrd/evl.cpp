@@ -674,9 +674,12 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 					request->req_flags |= req_ansi_all;
 				}
 				
-			RSE_open(tdbb, select);
-			value = RSE_get_record(tdbb, select, g_RSE_get_mode);
-			RSE_close(tdbb, select);
+			//RSE_open(tdbb, select);
+			select->open(request, tdbb);
+			//value = RSE_get_record(tdbb, select, g_RSE_get_mode);
+			value = select->get(request, tdbb, g_RSE_get_mode);
+			//RSE_close(tdbb, select);
+			select->close(request, tdbb);
 			
 			if (node->nod_type == nod_any)
 				request->req_flags &= ~req_null;
@@ -799,15 +802,18 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 					}
 				}
 
-			RSE_open(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]));
-			value = RSE_get_record(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]), g_RSE_get_mode);
+			RecordSource *rsb = (RecordSource*) node->nod_arg[e_any_rsb];
+			//RSE_open(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]));
+			rsb->open(request, tdbb);
+			//value = RSE_get_record(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]), g_RSE_get_mode);
+			value = rsb->get(request, tdbb, g_RSE_get_mode);
 			
 			if (value)
-				value = !RSE_get_record(tdbb,
-								reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]),
-								g_RSE_get_mode);
+				//value = !RSE_get_record(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]),g_RSE_get_mode);
+				value = !rsb->get(request, tdbb, g_RSE_get_mode);
 
-			RSE_close(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]));
+			//RSE_close(tdbb, reinterpret_cast<RecordSource*>(node->nod_arg[e_any_rsb]));
+			rsb->close(request, tdbb);
 
 			/* If this is an invariant node, save the return value. */
 
@@ -1607,70 +1613,73 @@ USHORT EVL_group(thread_db* tdbb, RecordSource* rsb, JRD_NOD node, USHORT state)
 		}
 	}
 
-/* If there isn't a record pending, open the stream and get one */
+	/* If there isn't a record pending, open the stream and get one */
 
 	if ((state == 0) || (state == 3))
-	{
-		RSE_open(tdbb, rsb);
-		if (!RSE_get_record(tdbb, rsb, g_RSE_get_mode))
 		{
-			if (group) {
+		//RSE_open(tdbb, rsb);
+		rsb->open(request, tdbb);
+		
+		//if (!RSE_get_record(tdbb, rsb, g_RSE_get_mode))
+		if (!rsb->get(request, tdbb, g_RSE_get_mode))
+			{
+			if (group) 
 				return 0;
-			}
 			state = 2;
+			}
 		}
-	}
 
 	dsc* desc;
 
-	if (group) {
-		for (ptr = group->nod_arg, end = ptr + group->nod_count; ptr < end;
-			 ptr++) 
-		{
+	if (group) 
+		for (ptr = group->nod_arg, end = ptr + group->nod_count; ptr < end; ptr++) 
+			{
 			jrd_nod* from = *ptr;
 			impure_value_ex* impure = (impure_value_ex*) IMPURE (request, from->nod_impure);
 			desc = EVL_expr(tdbb, from);
+			
 			if (request->req_flags & req_null)
 				impure->vlu_desc.dsc_address = NULL;
 			else
 				EVL_make_value(tdbb, desc,
 							   reinterpret_cast <impure_value*>(impure));
-		}
-	}
+			}
 
-/* Loop thru records until either a value change or EOF */
+	/* Loop thru records until either a value change or EOF */
 
-	while (state != 2) {
+	while (state != 2) 
+		{
 		state = 1;
 
 		/* in the case of a group by, look for a change in value of any of 
 		   the columns; if we find one, stop aggregating and return what we have */
 
 		if (group)
-		{
-			for (ptr = group->nod_arg, end = ptr + group->nod_count;
-				 ptr < end; ptr++)
 			{
+			for (ptr = group->nod_arg, end = ptr + group->nod_count; ptr < end; ptr++)
+				{
 				jrd_nod* from = *ptr;
 				impure_value_ex* impure = (impure_value_ex*) IMPURE (request, from->nod_impure);
+				
 				if (impure->vlu_desc.dsc_address)
 					EVL_make_value(tdbb, &impure->vlu_desc, &vtemp);
 				else
 					vtemp.vlu_desc.dsc_address = NULL;
+					
 				desc = EVL_expr(tdbb, from);
-				if (request->req_flags & req_null) {
+				
+				if (request->req_flags & req_null) 
+					{
 					impure->vlu_desc.dsc_address = NULL;
 					if (vtemp.vlu_desc.dsc_address)
 						goto break_out;
-				}
-				else {
+					}
+				else 
+					{
 					EVL_make_value(tdbb, desc,
 								   reinterpret_cast <impure_value*>(impure));
-					if (!vtemp.vlu_desc.dsc_address
-						|| MOV_compare(tdbb, &vtemp.vlu_desc, desc))
-					{
+					if (!vtemp.vlu_desc.dsc_address || MOV_compare(tdbb, &vtemp.vlu_desc, desc))
 						goto break_out;
-					}
 				}
 			}
 		}
@@ -1778,10 +1787,9 @@ USHORT EVL_group(thread_db* tdbb, RecordSource* rsb, JRD_NOD node, USHORT state)
 			}
 		}
 
-		if (!RSE_get_record(tdbb, rsb, g_RSE_get_mode))
-		{
+		//if (!RSE_get_record(tdbb, rsb, g_RSE_get_mode))
+		if (!rsb->get(request, tdbb, g_RSE_get_mode))
 			  state = 2;
-		}
 	}
 
   break_out:
@@ -3520,172 +3528,188 @@ static dsc* eval_statistical(thread_db* tdbb, JRD_NOD node, impure_value* impure
 	SSHORT result;
 	double d;
 
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
+	//DEV_BLKCHK(node, type_nod);
 
-	DEV_BLKCHK(node, type_nod);
-
-/* Get started by opening stream */
+	/* Get started by opening stream */
 
 	jrd_req* request = tdbb->tdbb_request;
 	dsc* desc = &impure->vlu_desc;
 
-	if (node->nod_flags & nod_invariant) {
+	if (node->nod_flags & nod_invariant) 
+		{
 		invariant_flags = & impure->vlu_flags;
-		if (*invariant_flags & VLU_computed) {
+		
+		if (*invariant_flags & VLU_computed) 
+			{
 			/* An invariant node has already been computed. */
 
 			if (*invariant_flags & VLU_null)
 				request->req_flags |= req_null;
 			else
 				request->req_flags &= ~req_null;
+				
 			return desc;
+			}
 		}
-	}
 
 	ULONG flag = req_null;
-	if ((nod_average2 == node->nod_type)) {
+	
+	if ((nod_average2 == node->nod_type)) 
+		{
 		impure->vlu_misc.vlu_int64 = 0;
 		impure->vlu_desc.dsc_dtype = dtype_int64;
 		impure->vlu_desc.dsc_length = sizeof(SINT64);
 		impure->vlu_desc.dsc_address = (UCHAR *) & impure->vlu_misc.vlu_int64;
 		impure->vlu_desc.dsc_scale = 0;
-	}
-	else {
+		}
+	else 
+		{
 		impure->vlu_misc.vlu_long = 0;
 		impure->vlu_desc.dsc_dtype = dtype_long;
 		impure->vlu_desc.dsc_length = sizeof(SLONG);
 		impure->vlu_desc.dsc_address = (UCHAR *) & impure->vlu_misc.vlu_long;
-	}
+		}
+		
 	SLONG count = 0;
+	RecordSource *rsb = (RecordSource*) node->nod_arg[e_stat_rsb];
+	//RSE_open(tdbb, reinterpret_cast <struct RecordSource*>(rsb));
+	rsb->open(request, tdbb);
 
-	blk* rsb = (BLK) node->nod_arg[e_stat_rsb];
-	RSE_open(tdbb, reinterpret_cast <struct RecordSource*>(rsb));
-
-/* Handle each variety separately */
+	/* Handle each variety separately */
 
 	switch (node->nod_type)
-	{
-	case nod_count:
-		flag = 0;
-		while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),
-							  g_RSE_get_mode))
 		{
-			++impure->vlu_misc.vlu_long;
-		}
-		break;
-
-	case nod_count2:
-		flag = 0;
-		while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),
-							  g_RSE_get_mode))
-		{
-			value = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
-			if (!(request->req_flags & req_null)) {
+		case nod_count:
+			flag = 0;
+			
+			//while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb), g_RSE_get_mode))
+			while(rsb->get(request, tdbb, g_RSE_get_mode))
 				++impure->vlu_misc.vlu_long;
-			}
-		}
-		break;
+			break;
 
-	case nod_min:
-	case nod_max:
-		while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),
-							  g_RSE_get_mode))
-		{
-			value = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
-			if (request->req_flags & req_null) {
-				continue;
-			}
-			if (flag ||
-				((result = MOV_compare(tdbb, value, desc)) < 0 &&
-				 node->nod_type == nod_min) ||
-				(node->nod_type != nod_min && result > 0))
-			{
-				flag = 0;
-				EVL_make_value(tdbb, value, impure);
-			}
-		}
-		break;
+		case nod_count2:
+			flag = 0;
+			
+			//while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),g_RSE_get_mode))
+			while(rsb->get(request, tdbb, g_RSE_get_mode))
+				{
+				value = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
+				if (!(request->req_flags & req_null)) 
+					++impure->vlu_misc.vlu_long;
+				}
+			break;
 
-	case nod_from:
-		if (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),
-						   g_RSE_get_mode))
-		{
-			desc = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
-		}
-		else
-		{
-			if (node->nod_arg[e_stat_default])
-				desc = EVL_expr(tdbb, node->nod_arg[e_stat_default]);
+		case nod_min:
+		case nod_max:
+			//while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),g_RSE_get_mode))
+			while(rsb->get(request, tdbb, g_RSE_get_mode))
+				{
+				value = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
+				
+				if (request->req_flags & req_null)
+					continue;
+
+				if (flag ||
+					((result = MOV_compare(tdbb, value, desc)) < 0 &&
+					node->nod_type == nod_min) ||
+					(node->nod_type != nod_min && result > 0))
+					{
+					flag = 0;
+					EVL_make_value(tdbb, value, impure);
+					}
+				}
+			break;
+
+		case nod_from:
+			//if (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb), g_RSE_get_mode))
+			if (rsb->get(request, tdbb, g_RSE_get_mode))
+				desc = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
 			else
-				ERR_post(isc_from_no_match, 0);
-		}
-		flag = request->req_flags;
-		break;
+				{
+				if (node->nod_arg[e_stat_default])
+					desc = EVL_expr(tdbb, node->nod_arg[e_stat_default]);
+				else
+					ERR_post(isc_from_no_match, 0);
+				}
+				
+			flag = request->req_flags;
+			break;
 
-	case nod_average:			/* total or average with dialect-1 semantics */
-	case nod_total:
-		while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),
-								g_RSE_get_mode))
-		{
-			desc = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
-			if (request->req_flags & req_null) {
-				continue;
-			}
-			/* Note: if the field being SUMed or AVERAGEd is short or long,
-			   impure will stay long, and the first add() will
-			   set the correct scale; if it is approximate numeric,
-			   the first add() will convert impure to double. */
-			add(desc, node, impure);
-			count++;
-		}
-		desc = &impure->vlu_desc;
-		if (node->nod_type == nod_total) {
+		case nod_average:			/* total or average with dialect-1 semantics */
+		case nod_total:
+			//while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb), g_RSE_get_mode))
+			while(rsb->get(request, tdbb, g_RSE_get_mode))
+				{
+				desc = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
+				
+				if (request->req_flags & req_null) 
+					continue;
+
+				/* Note: if the field being SUMed or AVERAGEd is short or long,
+				impure will stay long, and the first add() will
+				set the correct scale; if it is approximate numeric,
+				the first add() will convert impure to double. */
+				add(desc, node, impure);
+				count++;
+				}
+				
+			desc = &impure->vlu_desc;
+			if (node->nod_type == nod_total) 
+				{
+				flag = 0;
+				break;
+				}
+				
+			if (!count)
+				break;
+				
+			d = MOV_get_double(&impure->vlu_desc);
+			impure->vlu_misc.vlu_double = d / count;
+			impure->vlu_desc.dsc_dtype = DEFAULT_DOUBLE;
+			impure->vlu_desc.dsc_length = sizeof(double);
+			impure->vlu_desc.dsc_scale = 0;
 			flag = 0;
 			break;
-		}
-		if (!count)
-			break;
-		d = MOV_get_double(&impure->vlu_desc);
-		impure->vlu_misc.vlu_double = d / count;
-		impure->vlu_desc.dsc_dtype = DEFAULT_DOUBLE;
-		impure->vlu_desc.dsc_length = sizeof(double);
-		impure->vlu_desc.dsc_scale = 0;
-		flag = 0;
-		break;
 
-	case nod_average2:			/* average with dialect-3 semantics */
-		while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb),
-							  g_RSE_get_mode))
-		{
-			desc = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
-			if (request->req_flags & req_null)
-				continue;
-			/* Note: if the field being SUMed or AVERAGEd is exact
-			   numeric, impure will stay int64, and the first add() will
-			   set the correct scale; if it is approximate numeric,
-			   the first add() will convert impure to double. */
-			add(desc, node, impure);
-			count++;
-		}
-		desc = &impure->vlu_desc;
-		if (!count)
+		case nod_average2:			/* average with dialect-3 semantics */
+			//while (RSE_get_record(tdbb, reinterpret_cast<struct RecordSource*>(rsb), g_RSE_get_mode))
+			while(rsb->get(request, tdbb, g_RSE_get_mode))
+				{
+				desc = EVL_expr(tdbb, node->nod_arg[e_stat_value]);
+				if (request->req_flags & req_null)
+					continue;
+				/* Note: if the field being SUMed or AVERAGEd is exact
+				numeric, impure will stay int64, and the first add() will
+				set the correct scale; if it is approximate numeric,
+				the first add() will convert impure to double. */
+				add(desc, node, impure);
+				count++;
+				}
+				
+			desc = &impure->vlu_desc;
+			
+			if (!count)
+				break;
+				
+			/* We know the sum, but we want the average.  To get it, divide
+			   the sum by the count.  Since count is exact, dividing an int64
+			   sum by count should leave an int64 average, while dividing a
+			   double sum by count should leave a double average. */
+			   
+			if (dtype_int64 == impure->vlu_desc.dsc_dtype)
+				impure->vlu_misc.vlu_int64 /= count;
+			else
+				impure->vlu_misc.vlu_double /= count;
+				
+			flag = 0;
 			break;
-		/* We know the sum, but we want the average.  To get it, divide
-		   the sum by the count.  Since count is exact, dividing an int64
-		   sum by count should leave an int64 average, while dividing a
-		   double sum by count should leave a double average. */
-		if (dtype_int64 == impure->vlu_desc.dsc_dtype)
-			impure->vlu_misc.vlu_int64 /= count;
-		else
-			impure->vlu_misc.vlu_double /= count;
-		flag = 0;
-		break;
 
 #ifndef AIX_PPC
-	default:
-		BUGCHECK(233);			/* msg 233 eval_statistical: invalid operation */
+		default:
+			BUGCHECK(233);			/* msg 233 eval_statistical: invalid operation */
 #endif
-	}
+		}
 
 #ifdef AIX_PPC
 	if (node->nod_type != nod_count &&
@@ -3695,29 +3719,33 @@ static dsc* eval_statistical(thread_db* tdbb, JRD_NOD node, impure_value* impure
 		node->nod_type != nod_from &&
 		node->nod_type != nod_average &&
 		node->nod_type != nod_average2 && node->nod_type != nod_total)
-	{
+		{
 		BUGCHECK(233);			/* msg 233 eval_statistical: invalid operation */
-	}
+		}
 #endif
 
-/* Close stream and return value */
+	/* Close stream and return value */
 
-	RSE_close(tdbb, reinterpret_cast <struct RecordSource*>(rsb));
+	//RSE_close(tdbb, reinterpret_cast <struct RecordSource*>(rsb));
+	rsb->close(request, tdbb);
 	request->req_flags &= ~req_null;
 	request->req_flags |= flag;
 
-/* If this is an invariant node, save the return value.  If the
-   descriptor does not point to the impure area for this node then
-   point this node's descriptor to the correct place; copy the whole
-   structure to be absolutely sure */
+	/* If this is an invariant node, save the return value.  If the
+	   descriptor does not point to the impure area for this node then
+	   point this node's descriptor to the correct place; copy the whole
+	   structure to be absolutely sure */
 
-	if (node->nod_flags & nod_invariant) {
+	if (node->nod_flags & nod_invariant) 
+		{
 		*invariant_flags |= VLU_computed;
+		
 		if (request->req_flags & req_null)
 			*invariant_flags |= VLU_null;
+			
 		if (desc && (desc != &impure->vlu_desc))
 			impure->vlu_desc = *desc;
-	}
+		}
 
 	return desc;
 }

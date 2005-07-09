@@ -2091,7 +2091,7 @@ static BOOLEAN get_procedure(thread_db*			tdbb,
  **************************************/
 	//SET_TDBB(tdbb);
 
-	Procedure *procedure = rsb->rsb_procedure;
+	Procedure *procedure = rsb->procedure;
 	Request *request = tdbb->tdbb_request;
 	impure = (IRSB_PROCEDURE) IMPURE (request, rsb->rsb_impure);
 	JRD_REQ proc_request = impure->irsb_req_handle;
@@ -3070,7 +3070,7 @@ static void open_procedure(thread_db* tdbb, RecordSource* rsb, IRSB_PROCEDURE im
 	SET_TDBB(tdbb);
 
 	inputs = (JRD_NOD) rsb->rsb_arg[RSB_PRC_inputs];
-	procedure = rsb->rsb_procedure;
+	procedure = rsb->procedure;
 	request = tdbb->tdbb_request;
 
 	/* get rid of any lingering record */

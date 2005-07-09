@@ -42,6 +42,7 @@ class Procedure;
 
 // Record source block (RSB) types
 
+/***
 enum rsb_t
 {
 	rsb_boolean,						// predicate (logical condition)
@@ -71,6 +72,7 @@ typedef firebird::Array<VarInvariantArray*> MsgInvariantArray;
 
 // Record source block
 
+/***
 class RecordSource : public pool_alloc_rpt<class RecordSource*, type_rsb>
 {
 public:
@@ -96,11 +98,15 @@ public:
 	StreamStack*	rsb_left_inner_streams;
 	StreamStack*	rsb_left_streams;
 	RsbStack*		rsb_left_rsbs;
-	VarInvariantArray *rsb_invariants; /* Invariant nodes bound to top-level RSB */
+	VarInvariantArray *rsb_invariants; // Invariant nodes bound to top-level RSB
 
 	RecordSource* rsb_arg[1];
 };
+***/
 
+#include "RecordSource.h"
+
+/***
 // bits for the rsb_flags field
 
 const USHORT rsb_singular = 1;			// singleton select, expect 0 or 1 records
@@ -126,22 +132,7 @@ const int RSB_LEFT_inner		= 1;
 const int RSB_LEFT_boolean		= 2;
 const int RSB_LEFT_inner_boolean	= 3;
 const int RSB_LEFT_count			= 4;
-
-
-// Merge (equivalence) file block
-
-struct merge_file 
-{
-	class sort_work_file* mfb_sfb;				// merge file uses SORT I/O routines
-	ULONG mfb_equal_records;			// equality group cardinality
-	ULONG mfb_record_size;				// matches sort map length
-	ULONG mfb_current_block;			// current merge block in buffer
-	ULONG mfb_block_size;				// merge block I/O size
-	ULONG mfb_blocking_factor;			// merge equality records per block
-	UCHAR *mfb_block_data;				// merge block I/O buffer
-};
-
-const ULONG MERGE_BLOCK_SIZE	= 65536;
+***/
 
 
 // Impure area formats for the various RSB types
@@ -178,35 +169,6 @@ struct irsb_index {
 
 typedef irsb_index *IRSB_INDEX;
 
-struct irsb_sort {
-	ULONG irsb_flags;
-	struct sort_context* irsb_sort_handle;
-};
-
-typedef irsb_sort *IRSB_SORT;
-
-struct irsb_procedure {
-	ULONG irsb_flags;
-	Request* irsb_req_handle;
-	struct str* irsb_message;
-};
-
-typedef irsb_procedure *IRSB_PROCEDURE;
-
-struct irsb_mrg {
-	ULONG irsb_flags;
-	USHORT irsb_mrg_count;				// next stream in group
-	struct irsb_mrg_repeat {
-		SLONG irsb_mrg_equal;			// queue of equal records
-		SLONG irsb_mrg_equal_end;		// end of the equal queue
-		SLONG irsb_mrg_equal_current;	// last fetched record from equal queue
-		SLONG irsb_mrg_last_fetched;	// first sort merge record of next group
-		SSHORT irsb_mrg_order;			// logical merge order by substream
-		struct merge_file irsb_mrg_file;		// merge equivalence file
-	} irsb_mrg_rpt[1];
-};
-
-typedef irsb_mrg *IRSB_MRG;
 
 struct irsb_sim {
 	ULONG irsb_flags;
@@ -332,45 +294,51 @@ public:
 // in various arrays. Larger numbers will have to be allocated dynamically
 #define OPT_STATIC_ITEMS 16
 
+class CompilerScratch;
+struct jrd_nod;
 
 // General optimizer block
 
 class OptimizerBlk : public pool_alloc<type_opt>
 {
 public:
-	class CompilerScratch* opt_csb;						// compiler scratch block
-	SLONG opt_combinations;					// number of partial orders considered
-	double opt_best_cost;					// cost of best join order
-	SSHORT opt_base_conjuncts;				// number of conjuncts in our rse, next conjuncts are distributed parent
-	SSHORT opt_base_parent_conjuncts;		// number of conjuncts in our rse + distributed with parent, next are parent
-	SSHORT opt_base_missing_conjuncts;		// number of conjuncts in our and parent rse, but without missing
-	USHORT opt_best_count;					// longest length of indexable streams
-	USHORT opt_g_flags;						// global flags
+	CompilerScratch* opt_csb;						// compiler scratch block
+	SLONG			opt_combinations;				// number of partial orders considered
+	double			opt_best_cost;					// cost of best join order
+	SSHORT			opt_base_conjuncts;				// number of conjuncts in our rse, next conjuncts are distributed parent
+	SSHORT			opt_base_parent_conjuncts;		// number of conjuncts in our rse + distributed with parent, next are parent
+	SSHORT			opt_base_missing_conjuncts;		// number of conjuncts in our and parent rse, but without missing
+	USHORT			opt_best_count;					// longest length of indexable streams
+	USHORT			opt_g_flags;					// global flags
+	
 	// 01 Oct 2003. Nickolay Samofatov: this static array takes as much as 256 bytes.
 	// This is nothing compared to original Firebird 1.5 Opt structure size of ~180k
 	// All other arrays had been converted to dynamic to preserve memory 
 	// and improve performance
+	
 	struct opt_segment {
 		// Index segments and their options
-		struct jrd_nod* opt_lower;			// lower bound on index value
-		struct jrd_nod* opt_upper;			// upper bound on index value
-		struct jrd_nod* opt_match;			// conjunct which matches index segment
+		jrd_nod*	opt_lower;			// lower bound on index value
+		jrd_nod*	opt_upper;			// upper bound on index value
+		jrd_nod*	opt_match;			// conjunct which matches index segment
 	} opt_segments[MAX_INDEX_SEGMENTS];
+	
 	struct opt_conjunct {
 		// Conjunctions and their options
-		struct jrd_nod* opt_conjunct_node;	// conjunction
+		jrd_nod*	opt_conjunct_node;	// conjunction
 		// Stream dependencies to compute conjunct
-		ULONG opt_dependencies[(MAX_STREAMS + 1) / 32];
-		UCHAR opt_conjunct_flags;
+		ULONG		opt_dependencies[(MAX_STREAMS + 1) / 32];
+		UCHAR		opt_conjunct_flags;
 	};
 	struct opt_stream {
 		// Streams and their options
-		IndexedRelationship* opt_relationships;	// streams directly reachable by index
-		double opt_best_stream_cost;			// best cost of retrieving first n = streams
-		USHORT opt_best_stream;					// stream in best join order seen so far
-		USHORT opt_stream_number;				// stream in position of join order
-		UCHAR opt_stream_flags;
+		IndexedRelationship* opt_relationships;		// streams directly reachable by index
+		double				opt_best_stream_cost;	// best cost of retrieving first n = streams
+		USHORT				opt_best_stream;		// stream in best join order seen so far
+		USHORT				opt_stream_number;		// stream in position of join order
+		UCHAR				opt_stream_flags;
 	};
+	
 	firebird::HalfStaticArray<opt_conjunct, OPT_STATIC_ITEMS> opt_conjuncts;
 	firebird::HalfStaticArray<opt_stream, OPT_STATIC_ITEMS> opt_streams;
 	OptimizerBlk(JrdMemoryPool* pool) : opt_conjuncts(pool), opt_streams(pool) {}
@@ -431,6 +399,7 @@ const USHORT bkm_forced_crack = 8;
 
 // types for navigating through a stream
 
+/***
 enum rse_get_mode {
 	RSE_get_forward,
 	RSE_get_backward,
@@ -441,5 +410,6 @@ enum rse_get_mode {
 };
 
 typedef rse_get_mode RSE_GET_MODE;
+***/
 
 #endif // JRD_RSE_H
