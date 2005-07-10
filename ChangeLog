@@ -1,3 +1,37 @@
+2005-07-09 21:08  jimstarkey
+
+	* vulcan/src/: dsql/CStatement.cpp, include/fb_blk.h,
+	jrd/CompilerScratch.h, jrd/RecordSource.cpp, jrd/RecordSource.h,
+	jrd/RsbMerge.cpp, jrd/RsbMerge.h, jrd/RsbProcedure.h,
+	jrd/RsbSort.h, lock/gen.proto:
+	
+	Stablizing and port conversion of rsb to type hierarchy
+
+2005-07-09 20:47  jimstarkey
+
+	* vulcan/src/: dsql/CStatement.cpp, include/fb_blk.h:
+	
+	Work in progress on turning rsb into type hierarchy
+
+2005-07-09 20:15  jimstarkey
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Started tranformation of rsb mechanism to type hierarchy.
+
+2005-07-09 20:13  jimstarkey
+
+	* vulcan/src/jrd/: Optimizer.cpp, Optimizer.h, Procedure.cpp,
+	Relation.cpp, Request.cpp, Request.h, btr.cpp, cmp.cpp,
+	cmp_proto.h, dbg.cpp, evl.cpp, exe.cpp, exe.h, exe_proto.h,
+	ext.cpp, jrd.vcproj, nav_proto.h, opt.cpp, pag.cpp, rse.cpp, rse.h,
+	rse_proto.h, sbm_proto.h, sort.cpp, CompilerScratch.cpp,
+	CompilerScratch.h, RecordSource.cpp, RecordSource.h, RsbMerge.cpp,
+	RsbMerge.h, RsbProcedure.cpp, RsbProcedure.h, RsbSort.cpp,
+	RsbSort.h, sort_proto.h:
+	
+	Started conversion of rse.cpp into type hierarchy
+
 2005-06-20 20:29  jimstarkey
 
 	* vulcan/src/jrd/pag.cpp:
