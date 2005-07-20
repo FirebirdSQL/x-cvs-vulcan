@@ -46,3 +46,4 @@ public:
 	bool fetchRecord(Request* request, int n, RSE_GET_MODE mode);
 };
 #endif
+
