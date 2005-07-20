@@ -215,7 +215,7 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 				}
 			
 			case isc_arg_string:
-				stringsLength += strlen (va_arg (args, const char*)) + 1;
+				stringsLength += (int) strlen (va_arg (args, const char*)) + 1;
 				break;
 			
 			case isc_arg_warning:
@@ -462,7 +462,7 @@ int OSRIException::getStringsLength(const ISC_STATUS* vector)
 				break;
 			
 			case isc_arg_string:
-				stringsLength += strlen ((const char*) *input++) + 1;
+				stringsLength += (int) strlen ((const char*) *input++) + 1;
 				break;
 			
 			case isc_arg_warning:

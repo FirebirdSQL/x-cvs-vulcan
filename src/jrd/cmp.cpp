@@ -5283,15 +5283,8 @@ static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelEx
  *	Perform actual optimization of an rse and clear activity.
  *
  **************************************/
-	RecordSource* rsb;
-	JRD_NOD node, *ptr, *end;
-
-	SET_TDBB(tdbb);
-
-	DEV_BLKCHK(csb, type_csb);
-	DEV_BLKCHK(rse, type_nod);
-
-	rsb = OPT_compile(tdbb, csb, rse, NULL);
+ 
+	RecordSource *rsb = OPT_compile(tdbb, csb, rse, NULL);
 
 	if (rse->nod_flags & rse_singular)
 		rsb->rsb_flags |= rsb_singular;
@@ -5304,25 +5297,30 @@ static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelEx
 
 	// mark all the substreams as inactive
 
-	for (ptr = rse->rse_relation, end = ptr + rse->rse_count;
-		 ptr < end; ptr++) {
-		node = *ptr;
-		if (node->nod_type == nod_relation) {
+	for (JRD_NOD *ptr = rse->rse_relation, *end = ptr + rse->rse_count; ptr < end; ptr++) 
+		{
+		JRD_NOD node = *ptr;
+		
+		if (node->nod_type == nod_relation) 
+			{
 			USHORT stream = (USHORT)(long) node->nod_arg[e_rel_stream];
 			csb->csb_rpt[stream].csb_flags &= ~csb_active;
-		}
-		else if (node->nod_type == nod_procedure) {
+			}
+		else if (node->nod_type == nod_procedure) 
+			{
 			USHORT stream = (USHORT)(long) node->nod_arg[e_prc_stream];
 			csb->csb_rpt[stream].csb_flags &= ~csb_active;
-		}
-		else if (node->nod_type == nod_aggregate) {
+			}
+		else if (node->nod_type == nod_aggregate) 
+			{
 			USHORT stream = (USHORT)(long) node->nod_arg[e_agg_stream];
 			fb_assert(stream <= MAX_STREAMS);
 			csb->csb_rpt[stream].csb_flags &= ~csb_active;
+			}
 		}
-	}
 
 	csb->csb_fors.push(rsb);
+	
 #ifdef SCROLLABLE_CURSORS
 	rse->rse_rsb = rsb;
 #endif

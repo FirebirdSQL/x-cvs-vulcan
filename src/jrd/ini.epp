@@ -535,10 +535,10 @@ void INI_init(thread_db* tdbb)
 		//field = (JRD_FLD *) fields->vec_object;
 		relation->rel_fields.checkSize(n - 1, n);
 		Format* format = Format::newFmt(*dbb->dbb_permanent, n);
-		relation->rel_current_format = format;
+		//relation->rel_current_format = format;
 		//VEC formats = relation->rel_formats =  vec::newVector(*dbb->dbb_permanent, 1);
 		//(*formats)[0] = format;
-		relation->setFormat(format);
+		//relation->setFormat(format);
 		format->fmt_count = n;
 		Format::fmt_desc_iterator desc = format->fmt_desc.begin();
 		//vec::iterator itr = fields->begin();
@@ -557,7 +557,9 @@ void INI_init(thread_db* tdbb)
 			//Field *fld = MET_get_field (relation, fieldId);
 			field->setName(names[fld[RFLD_F_NAME]]);
 			}
-	}
+
+		relation->setFormat(format);
+		}
 }
 
 

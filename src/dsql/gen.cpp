@@ -2794,32 +2794,34 @@ static void gen_sort( CStatement* request, dsql_nod* list)
 {
 	stuff(request, blr_sort);
 	stuff(request, list->nod_count);
-
 	dsql_nod* const* ptr = list->nod_arg;
-	for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end;
-		ptr++)
-	{
+	
+	for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
+		{
 		dsql_nod* nulls_placement = (*ptr)->nod_arg[e_order_nulls];
 
-		if (nulls_placement) {
+		if (nulls_placement) 
+			{
 			/* Fix non-64-bit clean access of argument - SAS S0282759 */
 			UCHAR *p = (UCHAR*)nulls_placement->nod_arg;
 			long constval = (long)*(SLONG*)p;
-			switch (constval) {
+			switch (constval) 
+				{
 				case NOD_NULLS_FIRST:
 					stuff(request, blr_nullsfirst);
 					break;
 				case NOD_NULLS_LAST:
 					stuff(request, blr_nullslast);
 					break;
+				}
 			}
-		}
+			
 		if ((*ptr)->nod_arg[e_order_flag])
 			stuff(request, blr_descending);
 		else
 			stuff(request, blr_ascending);
 		GEN_expr(request, (*ptr)->nod_arg[e_order_field]);
-	}
+		}
 }
 
 

@@ -63,11 +63,7 @@ MemMgr* getDefaultMemoryManager()
 		defaultMemMgrMutex.lock();
 		
 		if (!defaultMemoryManager)
-			{
-			MemMgr *memMgr = (MemMgr*) malloc (sizeof (MemMgr));
-			new (memMgr) MemMgr;
-			defaultMemoryManager = memMgr;
-			}
+			defaultMemoryManager = new (malloc (sizeof (MemMgr))) MemMgr;
 			
 		defaultMemMgrMutex.release();
 		}
@@ -116,6 +112,26 @@ void* operator new[](size_t s, MemMgr& pool, char* file, int line)THROWS_BAD_ALL
 	return pool.allocateDebug((int) s, file, line);
 	}
 
+void* operator new(size_t s, MemMgr *pool) THROWS_BAD_ALLOC
+	{
+	return pool->allocate((int) s);
+	}
+	
+void* operator new[](size_t s, MemMgr *pool)THROWS_BAD_ALLOC
+	{
+	return pool->allocate((int) s);
+	}
+	
+void* operator new(size_t s, MemMgr *pool, char* file, int line) THROWS_BAD_ALLOC
+	{
+	return pool->allocateDebug((int) s, file, line);
+	}
+	
+void* operator new[](size_t s, MemMgr *pool, char* file, int line)THROWS_BAD_ALLOC
+	{
+	return pool->allocateDebug((int) s, file, line);
+	}
+
 void operator delete(void* mem) THROWS_NOTHING
 	{
 	if (mem)
@@ -144,6 +160,11 @@ static void* operator new[](size_t s, void *p) THROWS_BAD_ALLOC
 
 MemMgr::MemMgr(int rounding, int cutoff, int minAlloc, bool shared)
 {
+	init(rounding, cutoff, minAlloc, shared);
+}
+
+void MemMgr::init(int rounding, int cutoff, int minAlloc, bool shared)
+{
 	roundingSize = rounding;
 	threshold = cutoff;
 	minAllocation = minAlloc;
@@ -165,7 +186,7 @@ MemMgr::MemMgr(int rounding, int cutoff, int minAlloc, bool shared)
 
 MemMgr::MemMgr(void* arg1, void* arg2)
 {
-	MemMgr();
+	init();
 }
 
 MemMgr::~MemMgr(void)
@@ -674,7 +695,7 @@ void* MemMgr::calloc(size_t size, int type, const char* fileName, int line)
 
 void* MemMgr::calloc(size_t size, int type)
 {
-	void *block = allocate(size);
+	void *block = allocate((int) size);
 	memset (block, 0, size);
 	
 	return block;

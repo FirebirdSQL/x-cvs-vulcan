@@ -338,12 +338,14 @@ void operator delete[](void* mem) throw();
 //#endif // #ifdef FIREBIRD_ENGINE
 
 #ifdef DEBUG_GDS_ALLOC
-
-/*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
+abcv
+//*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
+/*static*/ / void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
 	return pool.allocate(s, 0, file, line);
 //	return pool.calloc(s, 0, file, line);
 }
-/*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
+//*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
+/*static*/ void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
 	return pool.allocate(s, 0, file, line);
 //	return pool.calloc(s, 0, file, line);
 }
@@ -354,10 +356,12 @@ void operator delete[](void* mem) throw();
 
 #ifndef SYSTEM_NEW
 /*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool) {
+//*static*/ void* operator new(size_t s, firebird::MemoryPool& pool) {
 	return pool.allocate(s);
 //	return pool.calloc(s);
 }
 /*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool) {
+//*static*/ void* operator new[](size_t s, firebird::MemoryPool& pool) {
 	return pool.allocate(s);
 //	return pool.calloc(s);
 }

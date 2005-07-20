@@ -38,14 +38,14 @@
 #include "Request.h"
 #include "Relation.h"
 #include "PageCache.h"
-#include "sort_mem.h"
+//#include "sort_mem.h"
 #include "jrd.h"
 #include "rse.h"
 #include "req.h"
-#include "sort.h"
-#include "../jrd/btr.h"					// this really doesn't belong here!
+//#include "sort.h"
+//#include "../jrd/btr.h"					// this really doesn't belong here!
 #include "../jrd/intl.h"
-#include "../jrd/sort_proto.h"
+//#include "../jrd/sort_proto.h"
 #include "../jrd/ext_proto.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/evl_proto.h"
@@ -100,23 +100,24 @@ static void proc_assignment(DSC * from_desc,
 							UCHAR * msg,
 							DSC * to_desc, SSHORT to_id, Record* record);
 							 
-static BOOLEAN get_merge_join(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure, RSE_GET_MODE mode);
-static SSHORT compare(Request *request, thread_db* tdbb, jrd_nod* node1, jrd_nod* node2);
-static SSHORT compare_longs(const SLONG* p, const SLONG* q, USHORT count);
 static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB impure);
 static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_GET_MODE mode);
 static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb);
 static void pop_rpbs(JRD_REQ request, RecordSource* rsb);
-static BOOLEAN get_merge_fetch(Request *request, thread_db* tdbb, RecordSource* rsb, SSHORT stream, RSE_GET_MODE mode);
-static UCHAR *get_merge_data(thread_db* tdbb, MergeFile* mfb, SLONG record);
-static SLONG get_merge_record(Request *request, thread_db* tdbb,
-							  RecordSource* rsb, irsb_mrg::irsb_mrg_repeat * impure, RSE_GET_MODE mode);
-static void write_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block);
 static void join_to_nulls(Request *request, thread_db* tdbb, RecordSource* rsb, StreamStack* stream);
 static void restore_record(record_param * rpb);
 static void save_record(thread_db* tdbb, record_param * rpb);
-static ULONG read_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block);
 
+/***
+static void write_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block);
+static ULONG read_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block);
+static BOOLEAN get_merge_fetch(Request *request, thread_db* tdbb, RecordSource* rsb, SSHORT stream, RSE_GET_MODE mode);
+static UCHAR *get_merge_data(thread_db* tdbb, MergeFile* mfb, SLONG record);
+static SLONG get_merge_record(Request *request, thread_db* tdbb,RecordSource* rsb, irsb_mrg::irsb_mrg_repeat * impure, RSE_GET_MODE mode);
+static BOOLEAN get_merge_join(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure, RSE_GET_MODE mode);
+static SSHORT compare(Request *request, thread_db* tdbb, jrd_nod* node1, jrd_nod* node2);
+static SSHORT compare_longs(const SLONG* p, const SLONG* q, USHORT count);
+***/
 
 RecordSource::RecordSource(CompilerScratch *compilerScratch)
 {
@@ -478,6 +479,7 @@ void RecordSource::close(Request* request, thread_db *tdbb)
 		}
 }
 
+#ifdef OBSOLETE // moved to RsbMerge
 static void close_merge(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure)
 {
 /**************************************
@@ -533,6 +535,7 @@ static void close_merge(Request *request, thread_db* tdbb, RecordSource* rsb, IR
 			}
 		}
 }
+#endif
 
 #ifdef OBSOLETE
 static void open_sort(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB_SORT impure, UINT64 max_records)
@@ -1449,6 +1452,7 @@ static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb
 		}
 }
 
+#ifdef OBSOLETE
 #ifdef SCROLLABLE_CURSORS
 static BOOLEAN get_merge_join(Request *request, thread_db* tdbb,RecordSource* rsb, IRSB_MRG impure, RSE_GET_MODE mode)
 {
@@ -1868,10 +1872,12 @@ static BOOLEAN get_merge_join(Request *request, thread_db* tdbb, RecordSource* r
 	return TRUE;
 }
 #endif
+#endif // OBSOLETE
 
 // It seems strange this function doesn't take two const nodes,
 // but EVL_expr can change node1 and node2' args.
 
+#ifdef OBSOLETE //  moved to RsbMerge
 static SSHORT compare(Request *request, thread_db* tdbb, jrd_nod* node1, jrd_nod* node2)
 {
 /**************************************
@@ -1925,8 +1931,9 @@ static SSHORT compare(Request *request, thread_db* tdbb, jrd_nod* node1, jrd_nod
 
 	return 0;
 }
+#endif // OBSOLETE
 
-
+#ifdef OBSOLETE //  moved to RsbMerge
 static SSHORT compare_longs(const SLONG* p, const SLONG* q, USHORT count)
 {
 /**************************************
@@ -1948,8 +1955,9 @@ static SSHORT compare_longs(const SLONG* p, const SLONG* q, USHORT count)
 
 	return 0;
 }
+#endif	// OBSOLETE
 
-
+#ifdef OBSOLETE
 static UCHAR *get_sort(Request *request, thread_db* tdbb, RecordSource* rsb, RSE_GET_MODE mode)
 {
 /**************************************
@@ -1984,6 +1992,7 @@ static UCHAR *get_sort(Request *request, thread_db* tdbb, RecordSource* rsb, RSE
 
 	return data;
 }
+#endif
 
 #ifdef OBSOLETE
 static void map_sort_data(JRD_REQ request, SortMap* map, UCHAR * data)
@@ -2668,6 +2677,7 @@ static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb)
 		}
 }
 
+#ifdef OBSOLETE
 #ifdef SCROLLABLE_CURSORS
 static BOOLEAN get_merge_fetch(
 							   thread_db* tdbb,
@@ -2812,7 +2822,9 @@ static BOOLEAN get_merge_fetch(Request *request, thread_db* tdbb, RecordSource* 
 	return TRUE;
 }
 #endif
+#endif // OBSOLETE
 
+#ifdef OBSOLETE
 static UCHAR *get_merge_data(thread_db* tdbb, MergeFile* mfb, SLONG record)
 {
 /**************************************
@@ -2837,7 +2849,9 @@ static UCHAR *get_merge_data(thread_db* tdbb, MergeFile* mfb, SLONG record)
 	
 	return (mfb->mfb_block_data + merge_offset);
 }
+#endif // OBSOLETE
 
+#ifdef OBSOLETE
 static SLONG get_merge_record(Request *request, thread_db* tdbb,
 							  RecordSource* rsb, irsb_mrg::irsb_mrg_repeat * impure, RSE_GET_MODE mode)
 {
@@ -2891,7 +2905,9 @@ static SLONG get_merge_record(Request *request, thread_db* tdbb,
 
 	return record;
 }
+#endif
 
+#ifdef OBSOLETE
 static void write_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block)
 {
 /**************************************
@@ -2931,6 +2947,8 @@ static void write_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block)
 						 reinterpret_cast<char*>(mfb->mfb_block_data),
 						 mfb->mfb_block_size);
 }
+#endif // OBSOLETE
+
 
 static void proc_assignment(DSC * from_desc,
 							DSC * flag_desc,
@@ -3130,6 +3148,7 @@ static void save_record(thread_db* tdbb, record_param * rpb)
 		}
 }
 
+#ifdef OBSOLETE // moved to RsbMerge
 static ULONG read_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block)
 {
 /**************************************
@@ -3151,26 +3170,18 @@ static ULONG read_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block)
 
 	return block;
 }
+#endif
 
 void RecordSource::mapSortData(Request* request, SortMap* map, UCHAR* data)
 {
-	SSHORT id;
-	UCHAR flag;
-	DSC from, to;
-	record_param* rpb;
-	JRD_NOD node;
-	Record* record;
-	smb_repeat * item;
-
-	smb_repeat *end_item = map->smb_rpt + map->smb_count;
-
-	for (item = map->smb_rpt; item < end_item; item++) 
+	for (smb_repeat *item = map->smb_rpt, *end_item = item + map->smb_count; item < end_item; item++) 
 		{
-		flag = *(data + item->smb_flag_offset);
-		from = item->smb_desc;
+		UCHAR flag = *(data + item->smb_flag_offset);
+		DSC from = item->smb_desc;
 		from.dsc_address = data + (long) from.dsc_address;
+		JRD_NOD node = item->smb_node;
 		
-		if ((node = item->smb_node) && node->nod_type != nod_field)
+		if (node && node->nod_type != nod_field)
 			continue;
 
 		/* if moving a TEXT item into the KEY portion of
@@ -3186,8 +3197,8 @@ void RecordSource::mapSortData(Request* request, SortMap* map, UCHAR* data)
 			(USHORT)(long) item->smb_desc.dsc_address <map->smb_key_length * sizeof(ULONG)) 
 			continue;
 
-		rpb = &request->req_rpb[item->smb_stream];
-		id = item->smb_field_id;
+		record_param *rpb = &request->req_rpb[item->smb_stream];
+		SSHORT id = item->smb_field_id;
 		
 		if (id < 0) 
 			{
@@ -3200,11 +3211,12 @@ void RecordSource::mapSortData(Request* request, SortMap* map, UCHAR* data)
 			continue;
 			}
 			
-		record = rpb->rpb_record;
+		Record *record = rpb->rpb_record;
 
         if (record && !flag && !record->rec_format && record->rec_fmt_bk) 
             record->rec_format = record->rec_fmt_bk; // restore the format
 
+		DSC to;
 		EVL_field(0, record, id, &to);
 
 		if (flag)

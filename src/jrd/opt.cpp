@@ -88,6 +88,7 @@
 #include "RsbProcedure.h"
 #include "RsbSort.h"
 #include "RsbMerge.h"
+#include "RsbCross.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -2550,12 +2551,15 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 	switch (rsb->rsb_type) {
 	case rsb_cross:
 		*buffer++ = (UCHAR) rsb->rsb_count;
+		/***
 		ptr = rsb->rsb_arg;
-		for (end = ptr + rsb->rsb_count; ptr < end; ptr++) {
-			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) {
+		for (end = ptr + rsb->rsb_count; ptr < end; ptr++) 
+			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) 
 				return false;
-			}
-		}
+		***/
+		for (int n = 0; n < rsb->rsb_count; ++n)
+			if (!dump_rsb(tdbb, request, ((RsbCross*) rsb)->rsbs[n], &buffer, buffer_length))
+				return false;
 		break;
 
 	case rsb_union:
@@ -2571,14 +2575,14 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 
 	case rsb_merge:
 		*buffer++ = (SCHAR) rsb->rsb_count;
+		/***
 		ptr = rsb->rsb_arg;
-		for (end = ptr + rsb->rsb_count * 2; ptr < end;
-			 ptr += 2)
-		{
-			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) {
+		for (end = ptr + rsb->rsb_count * 2; ptr < end; ptr += 2)
+			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) 
 				return false;
-			}
-		}
+		***/
+		for (int n = 0; n < rsb->rsb_count; ++n)
+			if (!dump_rsb(tdbb, request, ((RsbMerge*) rsb)->sortRsbs[n], &buffer, buffer_length))
 		break;
 
 	case rsb_left_cross:
@@ -3512,9 +3516,12 @@ static void find_rsbs(RecordSource* rsb, StreamStack* stream_list, RsbStack* rsb
 
 		case rsb_cross:
 			// Loop through the sub-streams.
-			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end; ptr++) {
+			/***
+			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end; ptr++) 
 				find_rsbs(*ptr, stream_list, rsb_list);
-			}
+			***/
+			for (int n = 0; n < rsb->rsb_count; ++n)
+				find_rsbs(((RsbCross*) rsb)->rsbs[n], stream_list, rsb_list);
 			break;
 
 		case rsb_left_cross:
@@ -3525,16 +3532,13 @@ static void find_rsbs(RecordSource* rsb, StreamStack* stream_list, RsbStack* rsb
 		case rsb_merge:
 			// Loop through the sub-streams
 
-			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count * 2; 
-				ptr < end; ptr += 2)
-			{
+			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count * 2;  ptr < end; ptr += 2)
 				find_rsbs(*ptr, stream_list, rsb_list);
-			}
 			break;
 
         default:   // Shut up compiler warnings
-                break;
-	}
+            break;
+		}
 
 	find_rsbs(rsb->rsb_next, stream_list, rsb_list);
 }
@@ -3726,79 +3730,80 @@ static bool form_river(thread_db* tdbb,
  *	Form streams into rivers (combinations of streams). 
  *
  **************************************/
-	DEV_BLKCHK(opt, type_opt);
-	if (sort_clause) {
-		DEV_BLKCHK(*sort_clause, type_nod);
-	}
-	if (project_clause) {
-		DEV_BLKCHK(*project_clause, type_nod);
-	}
-	DEV_BLKCHK(plan_clause, type_nod);
-
-	SET_TDBB(tdbb);
-
 	CompilerScratch* csb = opt->opt_csb;
 
 	// Allocate a river block and move the best order into it.
+	
 	River* river = FB_NEW_RPT(*tdbb->tdbb_default, count) River();
 	river_stack.push(river);
 	river->riv_count = (UCHAR) count;
 
-	RecordSource* rsb;
-	RecordSource** ptr;
+	RsbCross *rsb;
+	//RecordSource** ptr;
 
-	if (count == 1) {
+	if (count == 1) 
+		{
 		rsb = NULL;
-		ptr = &river->riv_rsb;
-	}
-	else {
-		river->riv_rsb = rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) RecordSource(csb);
-		rsb->rsb_type = rsb_cross;
-		rsb->rsb_count = count;
+		//ptr = &river->riv_rsb;
+		}
+	else 
+		{
+		//river->riv_rsb = rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) RecordSource(csb);
+		rsb = new (tdbb->tdbb_default) RsbCross(csb, count);
+		river->riv_rsb = rsb;
+		//rsb->rsb_type = rsb_cross;
+		//rsb->rsb_count = count;
 		rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
-		ptr = rsb->rsb_arg;
-	}
+		//ptr = rsb->rsb_arg;
+		}
 
 	UCHAR* stream = river->riv_streams;
 	const OptimizerBlk::opt_stream* const opt_end = opt->opt_streams.begin() + count;
-	if (count != streams[0]) {
+	
+	if (count != streams[0]) 
 		sort_clause = project_clause = NULL;
-	}
 
 	OptimizerBlk::opt_stream* tail;
-
-	for (tail = opt->opt_streams.begin(); tail < opt_end; tail++, stream++, ptr++) {
+	int n = 0;
+	
+	for (tail = opt->opt_streams.begin(); tail < opt_end; tail++, stream++, n++) 
+		{
 		*stream = (UCHAR) tail->opt_best_stream;
-		*ptr = gen_retrieval(tdbb, opt, *stream, sort_clause, project_clause,
-					false, false, NULL);
+		RecordSource *subRsb = gen_retrieval(tdbb, opt, *stream, sort_clause, project_clause, false, false, NULL);
+		
+		if (rsb)
+			rsb->rsbs[n] = subRsb;
+		else
+			river->riv_rsb = subRsb;
+			
 		sort_clause = project_clause = NULL;
-	}
+		}
 
 	// determine whether the rsb we just made should be marked as a projection.
-	if (rsb && rsb->rsb_arg[0]
-		&& ((RecordSource*) rsb->rsb_arg[0])->rsb_flags & rsb_project)
-	{
+	
+	if (rsb && rsb->rsbs[0] && (rsb->rsbs[0]->rsb_flags & rsb_project))
 		rsb->rsb_flags |= rsb_project;
-	}
+
 	set_made_river(opt, river);
 	set_inactive(opt, river);
 
 	// Reform "temp" from streams not consumed.
+	
 	stream = temp + 1;
 	const UCHAR* const end_stream = stream + temp[0];
-	if (!(temp[0] -= count)) {
+	
+	if (!(temp[0] -= count)) 
 		return false;
-	}
 
-	for (UCHAR* t2 = stream; t2 < end_stream; t2++) {
-		for (tail = opt->opt_streams.begin(); tail < opt_end; tail++) {
-			if (*t2 == tail->opt_best_stream) {
+	for (UCHAR* t2 = stream; t2 < end_stream; t2++) 
+		{
+		for (tail = opt->opt_streams.begin(); tail < opt_end; tail++) 
+			if (*t2 == tail->opt_best_stream)
 				goto used;
-			}
-		}
+				
 		*stream++ = *t2;
-	  used:;
-	}
+		used:;
+		}
 
 	return true;
 }
@@ -4110,57 +4115,59 @@ static void gen_join(thread_db* tdbb,
 	DEV_BLKCHK(*sort_clause, type_nod);
 	DEV_BLKCHK(*project_clause, type_nod);
 	DEV_BLKCHK(plan_clause, type_nod);
-	SET_TDBB(tdbb);
 
 	Database* dbb = tdbb->tdbb_database;
 	CompilerScratch* csb = opt->opt_csb;
 
-	if (!streams[0]) {
+	if (!streams[0])
 		return;
-	}
 
-	if (dbb->dbb_ods_version >= ODS_VERSION11) {
+	if (dbb->dbb_ods_version >= ODS_VERSION11) 
+		{
 		// For ODS11 and higher databases we can use new calculations
-		if (plan_clause && streams[0] > 1) {
+		
+		if (plan_clause && streams[0] > 1) 
+			{
 			// this routine expects a join/merge
-			form_rivers(tdbb, opt, streams, river_stack, sort_clause,
-						project_clause, plan_clause);
+			form_rivers(tdbb, opt, streams, river_stack, sort_clause, project_clause, plan_clause);
 			return;
+			}
+			
+		OptimizerInnerJoin* innerJoin = FB_NEW(*tdbb->tdbb_default) 
+			OptimizerInnerJoin(tdbb, *tdbb->tdbb_default, opt, streams, river_stack, 
+			sort_clause, project_clause, plan_clause);
+
+		stream_array_t temp;
+		MOVE_FAST(streams, temp, streams[0] + 1);
+
+		USHORT count;
+		do {
+			count = innerJoin->findJoinOrder();
+			} while (form_river(tdbb, opt, count, streams, temp, river_stack,  sort_clause, project_clause, 0));
+
+		delete innerJoin;
+		return;
 		}
-		else {
-			OptimizerInnerJoin* innerJoin = FB_NEW(*tdbb->tdbb_default) 
-				OptimizerInnerJoin(tdbb, *tdbb->tdbb_default, opt, streams, river_stack, 
-				sort_clause, project_clause, plan_clause);
-
-			stream_array_t temp;
-			MOVE_FAST(streams, temp, streams[0] + 1);
-
-			USHORT count;
-			do {
-				count = innerJoin->findJoinOrder();
-			} while (form_river(tdbb, opt, count, streams, temp, river_stack, 
-						sort_clause, project_clause, 0));
-
-			delete innerJoin;
-			return;
-		}
-	}
 
 	// If there is only a single stream, don't bother with a join.
-	if (streams[0] == 1) {
+	
+	if (streams[0] == 1) 
+		{
 		// if a nod_cardinality references this stream,
 		// compute the cardinality even though we don't
 		// need it to optimize retrieval.
 
 		CompilerScratch::csb_repeat* csb_tail = &csb->csb_rpt[streams[1]];
 		fb_assert(csb_tail);
-		if (csb_tail->csb_flags & csb_compute) {
+		
+		if (csb_tail->csb_flags & csb_compute) 
+			{
 			Relation* relation = csb_tail->csb_relation;
 			fb_assert(relation);
 			const Format* format = CMP_format(tdbb, csb, streams[1]);
 			fb_assert(format);
 			csb_tail->csb_cardinality = getRelationCardinality(tdbb, relation, format);
-		}
+			}
 
 		River* river = FB_NEW_RPT(*tdbb->tdbb_default, 1) River();
 		river->riv_count = 1;
@@ -4173,16 +4180,20 @@ static void gen_join(thread_db* tdbb,
 		river->riv_streams[0] = streams[1];
 		river_stack.push(river);
 		return;
-	}
+		}
 
 	// Compute cardinality and indexed relationships for all streams.
+	
 	const UCHAR* const end_stream = streams + 1 + streams[0];
-	for (UCHAR* stream = streams + 1; stream < end_stream; stream++) {
+	
+	for (UCHAR* stream = streams + 1; stream < end_stream; stream++) 
+		{
 		CompilerScratch::csb_repeat* csb_tail = &csb->csb_rpt[*stream];
 		fb_assert(csb_tail);
 		Relation* relation = csb_tail->csb_relation;
 		fb_assert(relation);
 		const Format* format = CMP_format(tdbb, csb, *stream);
+		
 		// if this is an external file, set an arbitrary cardinality; 
 		// if a plan was specified, don't bother computing cardinality;
 		// otherwise give a rough estimate based on the number of data
@@ -4190,56 +4201,58 @@ static void gen_join(thread_db* tdbb,
 		// this is an upper limit since all pages are probably not full
 		// and many of the records on page may be back versions.
 
-		if (plan_clause) {
+		if (plan_clause) 
 			csb_tail->csb_cardinality = (float) 0;
-		}
-		else {
+		else 
 			csb_tail->csb_cardinality = getRelationCardinality(tdbb, relation, format);
-		}
 
 		// find indexed relationships from this stream to every other stream
+		
 		OptimizerBlk::opt_stream* tail = opt->opt_streams.begin() + *stream;
 		csb_tail->csb_flags |= csb_active;
-		for (const UCHAR* t2 = streams + 1; t2 < end_stream; t2++) {
-			if (*t2 != *stream) {
+		
+		for (const UCHAR* t2 = streams + 1; t2 < end_stream; t2++) 
+			if (*t2 != *stream) 
+				{
 				CompilerScratch::csb_repeat* csb_tail2 = &csb->csb_rpt[*t2];
 				csb_tail2->csb_flags |= csb_active;
 				IndexedRelationship* relationship = indexed_relationship(tdbb, opt, *t2);
-				if (relationship) {
+				
+				if (relationship) 
+					{
 					relationship->irl_next = tail->opt_relationships;
 					tail->opt_relationships = relationship;
 					relationship->irl_stream = *t2;
-				}
+					}
+					
 				csb_tail2->csb_flags &= ~csb_active;
-			}
-		}
+				}
+			
 		csb_tail->csb_flags &= ~csb_active;
 
 #ifdef OPT_DEBUG
-		if (opt_debug_flag >= DEBUG_RELATIONSHIPS) {
+		if (opt_debug_flag >= DEBUG_RELATIONSHIPS) 
+			{
 			fprintf(opt_debug_file,
 					   "gen_join () -- relationships from stream %2.2d: ",
 					   *stream);
 			for (IndexedRelationship* relationship = tail->opt_relationships;
-			     relationship;
-			     relationship = relationship->irl_next)
-			{
-					fprintf(opt_debug_file, "%2.2d %s ",
-							   relationship->irl_stream,
-							   (relationship->irl_unique) ? "(unique)" : "");
-			}
+			      relationship; relationship = relationship->irl_next)
+				fprintf(opt_debug_file, "%2.2d %s ",
+							relationship->irl_stream,
+							(relationship->irl_unique) ? "(unique)" : "");
 			fprintf(opt_debug_file, "\n");
-		}
+			}
 #endif
 	}
 
 	// if the user specified a plan, force a join order;
 	// otherwise try to find one
-	if (plan_clause) {
-		form_rivers(tdbb, opt, streams, river_stack, sort_clause,
-					project_clause, plan_clause);
-	}
-	else {
+	
+	if (plan_clause) 
+		form_rivers(tdbb, opt, streams, river_stack, sort_clause, project_clause, plan_clause);
+	else 
+		{
 		// copy the streams vector to a temporary space to be used
 		// to form rivers out of streams
 		stream_array_t temp;
@@ -4248,11 +4261,9 @@ static void gen_join(thread_db* tdbb,
         USHORT count;
 		do {
 			count = find_order(tdbb, opt, temp, 0);
-		} while (form_river
-			   (tdbb, opt, count, streams, temp, river_stack, 
-				sort_clause, project_clause, 0));
+			} while (form_river (tdbb, opt, count, streams, temp, river_stack,  sort_clause, project_clause, 0));
 
-	}
+		}
 }
 
 
@@ -5308,8 +5319,7 @@ static RsbSort* gen_sort(thread_db* tdbb,
 #ifndef WORDS_BIGENDIAN
 		map_length = ROUNDUP(map_length, sizeof(SLONG));
 #endif
-		sort_key->skd_offset = map_item->smb_flag_offset =
-			(USHORT) map_length++;
+		sort_key->skd_offset = map_item->smb_flag_offset = (USHORT) map_length++;
 		sort_key->skd_dtype = SKD_text;
 		sort_key->skd_length = 1;
 		// Handle nulls placement
@@ -6010,22 +6020,28 @@ static RecordSource* make_cross(thread_db* tdbb, OptimizerBlk* opt, RiverStack& 
  *
  **************************************/
 	DEV_BLKCHK(opt, type_opt);
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
+	
 	const int count = stack.getCount();
-	if (count == 1) {
+	
+	if (count == 1) 
 		return stack.pop()->riv_rsb;
-	}
 
 	CompilerScratch* csb = opt->opt_csb;
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) RecordSource(opt->opt_csb);
-	rsb->rsb_type = rsb_cross;
-	rsb->rsb_count = count;
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, count) RecordSource(opt->opt_csb);
+	RsbCross *rsb = new (tdbb->tdbb_default) RsbCross(csb, count);
+	//rsb->rsb_type = rsb_cross;
+	//rsb->rsb_count = count;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
+	
+	/***
 	RecordSource** ptr = rsb->rsb_arg + count;
-	while (stack.hasData()) {
+	while (stack.hasData()) 
 		*--ptr = stack.pop()->riv_rsb;
-	}
-
+	***/
+	
+	for (int n = count - 1; n >= 0; --n)
+		rsb->rsbs[n] = stack.pop()->riv_rsb;
 	return rsb;
 }
 

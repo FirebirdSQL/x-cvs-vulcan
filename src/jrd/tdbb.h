@@ -26,26 +26,25 @@ class Request;
 class Bdb;
 
 struct iuo;
+struct thdd;
 
 /* Thread specific database block */
 
 struct thread_db
 {
-	struct thdd	tdbb_thd_data;
-	Database*	tdbb_database;
-	Attachment*	tdbb_attachment;
-	class Transaction*	tdbb_transaction;
-	Request*	tdbb_request;
+	thdd			tdbb_thd_data;
+	Database*		tdbb_database;
+	Attachment*		tdbb_attachment;
+	Transaction*	tdbb_transaction;
+	Request*		tdbb_request;
 	JrdMemoryPool*	tdbb_default;
 	DsqlMemoryPool*	tsql_default;
-	ISC_STATUS*	tdbb_status_vector;
-	void*		tdbb_setjmp;
-	USHORT		tdbb_inhibit;		/* Inhibit context switch if non-zero */
-	USHORT		tdbb_flags;
-	//iuo		tdbb_mutexes;
-	//iuo		tdbb_rw_locks;
-	iuo			tdbb_pages;
-	Bdb			*tdbb_bdbs [MAX_THREAD_BDBS];
+	ISC_STATUS*		tdbb_status_vector;
+	void*			tdbb_setjmp;
+	USHORT			tdbb_inhibit;		/* Inhibit context switch if non-zero */
+	USHORT			tdbb_flags;
+	iuo				tdbb_pages;
+	Bdb				*tdbb_bdbs [MAX_THREAD_BDBS];
 	
 #if defined(UNIX) && defined(SUPERSERVER)
 #if defined(FREEBSD)

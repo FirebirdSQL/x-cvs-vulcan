@@ -47,6 +47,7 @@
 
 #if defined(WIN_NT)
 #include <io.h> // close
+#include ".\rsbmerge.h"
 #endif
 
 #ifdef SMALL_FILE_NAMES
@@ -59,10 +60,10 @@
 RsbMerge::RsbMerge(CompilerScratch *csb, int count) : RecordSource(csb, rsb_merge)
 {
 	rsb_count = count;
-	//sortRsbs = new (csb->csb_pool) RsbSort* [count];
-	//sortNodes = new (csb->csb_pool) jrd_nod* [count];
-	sortRsbs = new RsbSort* [count];
-	sortNodes = new jrd_nod* [count];
+	sortRsbs = new (csb->csb_pool) RsbSort* [count];
+	sortNodes = new (csb->csb_pool) jrd_nod* [count];
+	//sortRsbs = new RsbSort* [count];
+	//sortNodes = new jrd_nod* [count];
 }
 
 RsbMerge::~RsbMerge(void)

@@ -1336,22 +1336,24 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 	UCHAR* p = to->dsc_address;
 	const UCHAR* q = from->dsc_address;
 
-/* If the datatypes and lengths are identical, just move the
-   stuff byte by byte.  Although this may seem slower than 
-   optimal, it would cost more to find the fast move than the
-   fast move would gain. */
+	/* If the datatypes and lengths are identical, just move the
+	   stuff byte by byte.  Although this may seem slower than 
+	   optimal, it would cost more to find the fast move than the
+	   fast move would gain. */
 
-	if (DSC_EQUIV(from, to)) {
-		if (length) {
+	if (DSC_EQUIV(from, to)) 
+		{
+		if (length) 
 			MOVE_FAST(q, p, length);
-		}
+			
 		return;
-	}
+		}
 
-/* Do data type by data type conversions.  Not all are supported,
-   and some will drop out for additional handling. */
+	/* Do data type by data type conversions.  Not all are supported,
+	    and some will drop out for additional handling. */
 
-	switch (to->dsc_dtype) {
+	switch (to->dsc_dtype) 
+	{
 	case dtype_timestamp:
 		switch (from->dsc_dtype) {
 		case dtype_varying:
@@ -2239,6 +2241,7 @@ static void integer_to_text(const dsc* from, dsc* to, FPTR_ERROR err)
  *      nice, formatted text.
  *
  **************************************/
+ 
 #ifndef NATIVE_QUAD
 /* For now, this routine does not handle quadwords unless this is
    supported by the platform as a native datatype. */
@@ -2249,8 +2252,8 @@ static void integer_to_text(const dsc* from, dsc* to, FPTR_ERROR err)
 
 	SSHORT pad = 0, decimal = 0, neg = 0;
 
-/* Save (or compute) scale of source.  Then convert source to ordinary
-   longword or int64. */
+	/* Save (or compute) scale of source.  Then convert source to ordinary
+       longword or int64. */
 
 	SCHAR scale = from->dsc_scale;
 
@@ -2269,15 +2272,16 @@ static void integer_to_text(const dsc* from, dsc* to, FPTR_ERROR err)
 
 	CVT_move(from, &intermediate, err);
 
-/* Check for negation, then convert the number to a string of digits */
+	/* Check for negation, then convert the number to a string of digits */
 
 	UINT64 u;
 	if (n >= 0)
 		u = n;
-	else {
+	else 
+		{
 		neg = 1;
 		u = -n;
-	}
+		}
 
     UCHAR temp[32];
     UCHAR* p = temp;
@@ -2285,25 +2289,30 @@ static void integer_to_text(const dsc* from, dsc* to, FPTR_ERROR err)
 	do {
 		*p++ = (UCHAR) (u % 10) + '0';
 		u /= 10;
-	} while (u);
+		} while (u);
 
 	SSHORT l = p - temp;
 
-/* if scale < 0, we need at least abs(scale)+1 digits, so add
-   any leading zeroes required. */
-	while (l + scale <= 0) {
+	/* if scale < 0, we need at least abs(scale)+1 digits, so add
+	   any leading zeroes required. */
+	   
+	while (l + scale <= 0) 
+		{
 		*p++ = '0';
 		l++;
-	}
-/* postassertion: l+scale > 0 */
+		}
+		
+	/* postassertion: l+scale > 0 */
+	
 	fb_assert(l + scale > 0);
 
 	// CVC: also, we'll check for buffer overflow directly.
+	
 	fb_assert(temp + sizeof(temp) >= p);
 
-/* Compute the total length of the field formatted.  Make sure it
-   fits.  Keep in mind that routine handles both string and varying
-   string fields. */
+	/* Compute the total length of the field formatted.  Make sure it
+	   fits.  Keep in mind that routine handles both string and varying
+	   string fields. */
 
 	const SSHORT length = l + neg + decimal + pad;
 
@@ -2311,61 +2320,65 @@ static void integer_to_text(const dsc* from, dsc* to, FPTR_ERROR err)
 		(to->dsc_dtype == dtype_cstring && length >= to->dsc_length) ||
 		(to->dsc_dtype == dtype_varying
 		 && length > (SSHORT) (to->dsc_length - sizeof(USHORT))))
-	{
 	    conversion_error(from, err);
-	}
 
 	UCHAR* q = (to->dsc_dtype == dtype_varying) ?
 		to->dsc_address + sizeof(USHORT) : to->dsc_address;
 
-/* If negative, put in minus sign */
+	/* If negative, put in minus sign */
 
 	if (neg)
 		*q++ = '-';
 
-/* If a decimal point is required, do the formatting.  Otherwise just
-   copy number */
+	/* If a decimal point is required, do the formatting.  Otherwise just
+	   copy number */
 
 	if (scale >= 0)
 		do {
 			*q++ = *--p;
-		} while (--l);
-	else {
+			} while (--l);
+	else 
+		{
 		l += scale;				/* l > 0 (see postassertion: l+scale > 0 above) */
+		
 		do {
 			*q++ = *--p;
-		} while (--l);
+		   } while (--l);
+			
 		*q++ = '.';
 		do {
 			*q++ = *--p;
-		} while (++scale);
-	}
+		   } while (++scale);
+		}
 
-/* If padding is required, do it now. */
+	/* If padding is required, do it now. */
 
 	if (pad)
 		do {
 			*q++ = '0';
-		} while (--pad);
+		   } while (--pad);
 
-/* Finish up by padding (if fixed) or computing the actual length
-   (varying string) */
+	/* Finish up by padding (if fixed) or computing the actual length
+	   (varying string) */
 
-	if (to->dsc_dtype == dtype_text) {
-		if ((l = to->dsc_length - length) > 0) {
+	if (to->dsc_dtype == dtype_text) 
+		{
+		if ((l = to->dsc_length - length) > 0) 
+			{
 			do {
 				*q++ = ' ';
-			} while (--l);
-		}
+			   } while (--l);
+			}
 		return;
-	}
+		}
 
-	if (to->dsc_dtype == dtype_cstring) {
+	if (to->dsc_dtype == dtype_cstring) 
+		{
 		*q = 0;
 		return;
-	}
+		}
 
-	*(SSHORT *) (to->dsc_address) = q - to->dsc_address - sizeof(SSHORT);
+	*(SSHORT*) (to->dsc_address) = q - to->dsc_address - sizeof(SSHORT);
 }
 
 

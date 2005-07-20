@@ -413,6 +413,12 @@ void Relation::setFormat(Format* format)
 	int formatVersion = format->fmt_version;
 	rel_formats.checkSize(formatVersion, formatVersion+1);
 	rel_formats[formatVersion] = format;
+	
+	if (!rel_current_format || (formatVersion > rel_current_format->fmt_version))
+		{
+		rel_current_fmt = formatVersion;
+		rel_current_format = format;
+		}
 }
 
 void Relation::scanRelation(thread_db* tdbb, int csb_flags)

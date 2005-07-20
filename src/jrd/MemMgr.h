@@ -154,6 +154,8 @@ public:
 	static void release(void* block);
 	void releaseRaw(void *block);
 	MemMgr(void* arg1, void* arg2);
+	void init (int rounding=defaultRounding, int cutoff=defaultCutoff, 
+		   int minAllocation=defaultAllocation, bool shared=true);
 	
 	// crap for backward compatility with MemoryPool
 	

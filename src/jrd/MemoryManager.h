@@ -77,6 +77,11 @@ void* operator new[](size_t s, MemMgr& pool, char* file, int line) THROWS_BAD_AL
 void* operator new(size_t s) THROWS_BAD_ALLOC;
 void* operator new[](size_t s) THROWS_BAD_ALLOC;
 
+void* operator new(size_t s, MemMgr *pool) THROWS_BAD_ALLOC;
+void* operator new[](size_t s, MemMgr *pool) THROWS_BAD_ALLOC;
+void* operator new(size_t s, MemMgr *pool, char* file, int line) THROWS_BAD_ALLOC;
+void* operator new[](size_t s, MemMgr *pool, char* file, int line) THROWS_BAD_ALLOC;
+
 #ifdef _WIN32
 void* operator new(size_t s, void *p) THROWS_BAD_ALLOC;
 void* operator new[](size_t s, void *p) THROWS_BAD_ALLOC;
