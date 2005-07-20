@@ -111,27 +111,28 @@ public:
 	ULONG			req_records_updated;	/* count of records updated by request */
 	ULONG			req_records_deleted;	/* count of records deleted by request */
 
-	ULONG			req_records_affected; /* count of records affected by the last statement */
+	ULONG			req_records_affected;	/* count of records affected by the last statement */
 
-	USHORT			req_view_flags;		/* special flags for virtual ops on views */
-	Relation*		req_top_view_store;	/* the top view in store(), if any */
+	USHORT			req_view_flags;			/* special flags for virtual ops on views */
+	Relation*		req_top_view_store;		/* the top view in store(), if any */
 	Relation*		req_top_view_modify;	/* the top view in modify(), if any */
-	Relation*		req_top_view_erase;	/* the top view in erase(), if any */
+	Relation*		req_top_view_erase;		/* the top view in erase(), if any */
 
-	jrd_nod*		req_top_node;	/* top of execution tree */
-	jrd_nod*		req_next;		/* next node for execution */
+	jrd_nod*		req_top_node;			/* top of execution tree */
+	jrd_nod*		req_next;				/* next node for execution */
 	firebird::Array<class RecordSource*> req_fors;	/* Vector of for loops, if any */
-	vec*			req_cursors;	/* Vector of named cursors, if any */
+	vec*			req_cursors;			/* Vector of named cursors, if any */
 	firebird::Array<struct jrd_nod*> req_invariants;	/* Vector of invariant nodes, if any */
-	USHORT			req_label;			/* label for leave */
-	ULONG			req_flags;			/* misc request flags */
-	Savepoint*		req_proc_sav_point;	/* procedure savepoint list */
-	ULONG			req_timestamp;		/* Start time of request */
+	USHORT			req_label;				/* label for leave */
+	ULONG			req_flags;				/* misc request flags */
+	Savepoint*		req_proc_sav_point;		/* procedure savepoint list */
+	ULONG			req_timestamp;			/* Start time of request */
 	req_ta			req_trigger_action;		/* action that caused trigger to fire */
-	req_s			req_operation;	/* operation for next node */
-    StatusXcp		*req_last_xcp;	/* last known exception */
-	record_param	*req_rpb;		/* record parameter blocks */
+	req_s			req_operation;			/* operation for next node */
+    StatusXcp		*req_last_xcp;			/* last known exception */
+	record_param	*req_rpb;				/* record parameter blocks */
 	UCHAR			*req_impure;
+	thread_db		*req_tdbb;
 	RecordSource	*rsbs;
 	
 	Request* getInstantiatedRequest(int instantiation);
@@ -139,6 +140,10 @@ public:
 	int getRequestInfo(thread_db* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	void release(void);
 	void release(thread_db* tdbb);
+	void unwind(void);
+	void releaseBlobs(void);
+	void releaseProcedureSavePoints(void);
+	void setThread(thread_db* tdbb);
 };
 
 #endif

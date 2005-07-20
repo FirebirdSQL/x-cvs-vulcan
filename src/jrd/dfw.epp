@@ -1611,7 +1611,8 @@ static bool create_index(	thread_db* tdbb,
 					
 					if (!relation)
 						{
-						EXE_unwind(tdbb, request);
+						//EXE_unwind(tdbb, request);
+						request->unwind();
 						ERR_post(isc_no_meta_update,
 								isc_arg_gds, isc_idx_create_err,
 								isc_arg_string, ERR_cstring(work->dfw_name),
@@ -1625,7 +1626,8 @@ static bool create_index(	thread_db* tdbb,
 						const USHORT id = IDX.RDB$INDEX_ID - 1;
 						IDX_statistics(tdbb, relation, id, selectivity);
 						DFW_update_index(tdbb, work->dfw_name, id, selectivity);
-						EXE_unwind(tdbb, request);
+						//EXE_unwind(tdbb, request);
+						request->unwind();
 						
 						return false;
 						}
@@ -1640,7 +1642,8 @@ static bool create_index(	thread_db* tdbb,
 						
 					if (IDX.RDB$INDEX_INACTIVE)
 						{
-						EXE_unwind(tdbb, request);
+						//EXE_unwind(tdbb, request);
+						request->unwind();
 						return false;
 						}
 						
@@ -1648,7 +1651,8 @@ static bool create_index(	thread_db* tdbb,
 					
 					if (!idx.idx_count || idx.idx_count > MAX_INDEX_SEGMENTS)
 						{
-						EXE_unwind(tdbb, request);
+						//EXE_unwind(tdbb, request);
+						request->unwind();
 						
 						if (!idx.idx_count)
 							ERR_post(isc_no_meta_update,
@@ -1690,7 +1694,8 @@ static bool create_index(	thread_db* tdbb,
 					FLD.RDB$FIELD_TYPE == blr_blob ||
 					!FLD.RDB$DIMENSIONS.NULL)
 					{
-					EXE_unwind(tdbb, request);
+					//EXE_unwind(tdbb, request);
+					request->unwind();
 					
 					if (key_count > idx.idx_count)
 						ERR_post(isc_no_meta_update,
@@ -2051,7 +2056,8 @@ static bool create_relation(thread_db* tdbb,
 
 						if (rel_id == X.RDB$RELATION_ID)
 							{
-							EXE_unwind(tdbb, request);
+							//EXE_unwind(tdbb, request);
+							request->unwind();
 							ERR_post(isc_no_meta_update,
 									isc_arg_gds, isc_table_name,
 									isc_arg_string, ERR_cstring(work->dfw_name),
@@ -3244,7 +3250,8 @@ static bool find_depend_in_dfw(	thread_db* tdbb,
             if (!find_depend_in_dfw(tdbb, RFR.RDB$FIELD_NAME, obj_computed,
                                     REL.RDB$RELATION_ID, transaction))
 				{
-				EXE_unwind(tdbb, request);
+				//EXE_unwind(tdbb, request);
+				request->unwind();
 				return false;
 				}
 		END_FOR;
@@ -3728,7 +3735,8 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 
 				if (!(relation = MET_lookup_relation_id(tdbb, REL.RDB$RELATION_ID, FALSE)))
 					{
-					EXE_unwind(tdbb, request_fmt1);
+					//EXE_unwind(tdbb, request_fmt1);
+					request_fmt1->unwind();
 					return false;
 					}
 					
@@ -3738,7 +3746,8 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 				
 				if (REL.RDB$FORMAT == 255)
 					{
-					EXE_unwind(tdbb, request_fmt1);
+					//EXE_unwind(tdbb, request_fmt1);
+					request_fmt1->unwind();
 					ERR_post(isc_no_meta_update,
 							isc_arg_gds, isc_table_name,
 							isc_arg_string, ERR_cstring(work->dfw_name),
@@ -3877,8 +3886,10 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 						
 						if (!(validate_text_type(tdbb, status, tfb_)))
 							{
-							EXE_unwind(tdbb, request_fmt1);
-							EXE_unwind(tdbb, request_fmtx);
+							//EXE_unwind(tdbb, request_fmt1);
+							request_fmt1->unwind();
+							//(tdbb, request_fmtx);
+							request_fmtx->unwind();
 							ERR_post(isc_no_meta_update,
 									isc_arg_gds, isc_random,
 									isc_arg_string, ERR_cstring(work->dfw_name),

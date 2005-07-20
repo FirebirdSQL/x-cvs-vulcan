@@ -47,9 +47,9 @@ class RsbSort : public RecordSource
 public:
 	RsbSort(CompilerScratch *csb, RecordSource *source, SortMap *sortMap);
 	virtual ~RsbSort(void);
-	virtual void open(Request* request, thread_db* tdbb);
-	virtual bool get(Request* request, thread_db* tdbb, RSE_GET_MODE mode);
-	virtual void close(Request* request, thread_db* tdbb);
+	virtual void open(Request* request);
+	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual void close(Request* request);
 	static bool reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg);
 	
 	SortMap		*map;

@@ -30,6 +30,7 @@
 #include "common.h"
 #include "../common/classes/alloc.h"
 #include "Request.h"
+#include "Database.h"
 #include "jrd.h"
 #include "req.h"
 #include "iberror.h"
@@ -37,6 +38,9 @@
 #include "inf_proto.h"
 #include "thd_proto.h"
 #include "cmp_proto.h"
+#include "../jrd/tra.h"
+#include "../jrd/blb.h"
+#include "../jrd/blb_proto.h"
 
 Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool), req_fors(pool)
 {
@@ -126,4 +130,105 @@ void Request::release(void)
 void Request::release(thread_db* tdbb)
 {
 	CMP_release(tdbb, this);
+}
+
+void Request::unwind(void)
+{
+	//DBB dbb = req_attachment->att_database;
+	//thread_db *tdbb = req_tdbb;
+	
+	if (req_flags & req_active) 
+		{
+		if (req_fors.getCount())
+			{
+			JrdMemoryPool *old_pool = req_tdbb->tdbb_default;
+			req_tdbb->tdbb_default = req_pool;
+			Request *old_request = req_tdbb->tdbb_request;
+			req_tdbb->tdbb_request = this;
+			Transaction* old_transaction = req_tdbb->tdbb_transaction;
+			req_tdbb->tdbb_transaction = req_transaction;
+			RecordSource** ptr = req_fors.begin();
+			
+			for (const RecordSource* const* const end = req_fors.end(); ptr < end; ptr++)
+				if (*ptr)
+					//RSE_close(tdbb, *ptr);
+					(*ptr)->close(this);
+
+			req_tdbb->tdbb_default = old_pool;
+			req_tdbb->tdbb_request = old_request;
+			req_tdbb->tdbb_transaction = old_transaction;
+			}
+			
+		releaseBlobs();
+		}
+
+	if (req_proc_sav_point && (req_flags & req_proc_fetch))
+		releaseProcedureSavePoints();
+
+#ifdef SHARED_CACHE
+	if (req_attachment)
+		{
+		Sync sync(&req_attachment->att_database->syncClone, "Request::unwind");
+		sync.lock(Exclusive);
+		req_flags &= ~(req_active | req_proc_fetch | req_reserved);
+		req_flags |= req_abort | req_stall;
+		req_timestamp = 0;
+		req_tdbb = NULL;
+		
+		return;
+		}
+#endif
+
+	req_flags &= ~(req_active | req_proc_fetch | req_reserved);
+	req_flags |= req_abort | req_stall;
+	req_timestamp = 0;
+	req_tdbb = NULL;
+}
+
+void Request::releaseBlobs(void)
+{
+	if (req_transaction) 
+		{
+#ifdef SHARED_CACHE
+		Sync sync (&req_transaction->syncObject, "Request::releaseBlobs");
+		sync.lock (Exclusive);
+#endif
+
+		/* Release blobs assigned by this request */
+
+		for (blb** blob = &req_transaction->tra_blobs; *blob;) 
+			if ((*blob)->blb_request == this)
+				BLB_cancel(req_tdbb, *blob);
+			else
+				blob = &(*blob)->blb_next;
+
+		/* Release arrays assigned by this request */
+
+		for (ArrayField** array = &req_transaction->tra_arrays; *array;) 
+			if ((*array)->arr_request == this)
+				BLB_release_array(*array);
+			else
+				array = &(*array)->arr_next;
+		}
+}
+
+void Request::releaseProcedureSavePoints(void)
+{
+	Savepoint* sav_point = req_proc_sav_point;
+
+	if (req_transaction) 
+		while (sav_point) 
+			{
+			Savepoint* temp_sav_point = sav_point->sav_next;
+			delete sav_point;
+			sav_point = temp_sav_point;
+			}
+		
+	req_proc_sav_point = NULL;
+}
+
+void Request::setThread(thread_db* tdbb)
+{
+	req_tdbb = tdbb;
+	req_attachment = tdbb->tdbb_attachment;
 }

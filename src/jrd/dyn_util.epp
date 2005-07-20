@@ -153,7 +153,8 @@ SINT64 DYN_UTIL_gen_unique_id(thread_db*	tdbb,
 	*request = req_handle;
 	EXE_start(tdbb, req_handle, dbb->dbb_sys_trans);
 	EXE_receive(tdbb, req_handle, 0, sizeof(value), (UCHAR*)&value);
-	EXE_unwind(tdbb, req_handle);
+	//EXE_unwind(tdbb, req_handle);
+	req_handle->unwind();
 	*request = NULL;
 
 	if (!DYN_REQUEST(id)) 

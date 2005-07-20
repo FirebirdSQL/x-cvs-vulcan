@@ -497,11 +497,14 @@ void DYN_modify_global_field(thread_db* tdbb,
 			case isc_dyn_fld_length:
 				fldlen = true;
 				new_dom->dyn_dsc.dsc_length = DYN_get_number(ptr);
+				
 				if (++field_adjusted_count > 2)
-				{
-					EXE_unwind(tdbb, (JRD_REQ)request);
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 5, err_one_type_change_only, NULL, NULL, NULL, NULL);
-				}
+					}
+					
 				switch (new_dom->dyn_dtype) {
 				
 				case blr_text:
@@ -521,11 +524,13 @@ void DYN_modify_global_field(thread_db* tdbb,
 			case isc_dyn_fld_type:
 				dtype = true;
 				new_dom->dyn_dtype = DYN_get_number(ptr);
+				
 				if (++field_adjusted_count > 2)
-				{
-					EXE_unwind(tdbb, (JRD_REQ)request);
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 5, err_one_type_change_only, NULL, NULL, NULL, NULL);
-				}
+					}
 
 				switch (new_dom->dyn_dtype) {
 
@@ -622,23 +627,27 @@ void DYN_modify_global_field(thread_db* tdbb,
 				break;
 
 			case isc_dyn_single_validation:
-				if (single_validate) {
-					EXE_unwind(tdbb, (JRD_REQ)request);
+				if (single_validate) 
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 160, NULL, NULL, NULL, NULL, NULL);
 					/* msg 160: "Only one constraint allowed for a domain" */
 					break;
-				}
+					}
 				else
 					single_validate = true;
 				break;
 
 			case isc_dyn_fld_validation_blr:
-				if (single_validate && (!FLD.RDB$VALIDATION_BLR.NULL)) {
-					EXE_unwind(tdbb, (JRD_REQ)request);
+				if (single_validate && (!FLD.RDB$VALIDATION_BLR.NULL)) 
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 160, NULL, NULL, NULL, NULL, NULL);
 					/* msg 160: "Only one constraint allowed for a domain" */
 					break;
-				}
+					}
 				else
 					single_validate = true;
 

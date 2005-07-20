@@ -42,12 +42,10 @@
 #include "../jrd/vio_proto.h"
 #include "../jrd/intl.h"
 #include "../jrd/intl_proto.h"
-//#include "../jrd/btr.h"					// this really doesn't belong here!
 #include "../jrd/gds_proto.h"
 
 #if defined(WIN_NT)
 #include <io.h> // close
-#include ".\rsbmerge.h"
 #endif
 
 #ifdef SMALL_FILE_NAMES
@@ -62,8 +60,6 @@ RsbMerge::RsbMerge(CompilerScratch *csb, int count) : RecordSource(csb, rsb_merg
 	rsb_count = count;
 	sortRsbs = new (csb->csb_pool) RsbSort* [count];
 	sortNodes = new (csb->csb_pool) jrd_nod* [count];
-	//sortRsbs = new RsbSort* [count];
-	//sortNodes = new jrd_nod* [count];
 }
 
 RsbMerge::~RsbMerge(void)
@@ -72,8 +68,9 @@ RsbMerge::~RsbMerge(void)
 	delete [] sortRsbs;
 }
 
-void RsbMerge::open(Request* request, thread_db* tdbb)
+void RsbMerge::open(Request* request)
 {
+	thread_db* tdbb = request->req_tdbb;
 	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
 
 	/* do two simultaneous but unrelated things in one loop */
@@ -85,7 +82,7 @@ void RsbMerge::open(Request* request, thread_db* tdbb)
 
 		//RSE_open(tdbb, *ptr);
 		RsbSort *sortRsb = sortRsbs[n];
-		sortRsb->open(request, tdbb);
+		sortRsb->open(request);
 		SortMap *map = sortRsb->map;
 		irsb_mrg::irsb_mrg_repeat *tail = impure->irsb_mrg_rpt + n;
 		
@@ -109,20 +106,14 @@ void RsbMerge::open(Request* request, thread_db* tdbb)
 		}
 }
 
-bool RsbMerge::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
+bool RsbMerge::get(Request* request, RSE_GET_MODE mode)
 {
+	thread_db* tdbb = request->req_tdbb;
 	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
-	//RsbSort* sort_rsb;
-	//RsbSort** ptr;
-	//SortMap* map;
 	SLONG record;
 	int result;
 	UCHAR *first_data, *last_data;
-	//MergeFile* mfb;
 	LLS best_tails;
-	//irsb_mrg::irsb_mrg_repeat * tail, *tail_end;
-	//RsbSort** sortRsbs = (RsbSort**) rsb_arg;
-	//RsbSort** const end = sortRsbs + rsb_count * 2;
 
 	/* If there is a record group already formed, fetch the next combination */
 
@@ -315,8 +306,9 @@ bool RsbMerge::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
 	return TRUE;
 }
 
-void RsbMerge::close(Request* request, thread_db* tdbb)
+void RsbMerge::close(Request* request)
 {
+	//thread_db* tdbb = request->req_tdbb;
 	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
 	
 	//for (RecordSource** const end = ptr + rsb_count * 2; ptr < end; ptr += 2, tail++)
@@ -326,7 +318,7 @@ void RsbMerge::close(Request* request, thread_db* tdbb)
 		/* close all the substreams for the sort-merge */
 
 		//RSE_close(tdbb, *ptr);
-		sortRsbs[n]->close(request, tdbb);
+		sortRsbs[n]->close(request);
 		
 		/* Release memory associated with the merge file block
 		   and the sort file block. Also delete the merge file

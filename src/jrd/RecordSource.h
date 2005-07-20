@@ -141,9 +141,9 @@ public:
 	VarInvariantArray *rsb_invariants; // Invariant nodes bound to top-level RSB
 	RecordSource* rsb_arg[1];
 	
-	virtual void open(Request* request, thread_db *tdbb);
-	virtual bool get(Request* request, thread_db *tdbb, RSE_GET_MODE mode);
-	virtual void close(Request* request, thread_db *tdbb);
+	virtual void open(Request* request);
+	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual void close(Request* request);
 	void init(void);
 	static void mapSortData(Request* request, SortMap* map, UCHAR* data);
 };

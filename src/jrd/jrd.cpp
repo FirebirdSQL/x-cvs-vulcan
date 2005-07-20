@@ -1385,16 +1385,13 @@ ISC_STATUS GDS_COMMIT(ISC_STATUS * user_status, Transaction* * tra_handle)
  **************************************/
 
 	api_entry_point_init(user_status);
-	Database *dbb;
-	
-	dbb = (*tra_handle)->tra_attachment->att_database;
+	Database *dbb = (*tra_handle)->tra_attachment->att_database;
 	lockAST(dbb);
 
 	if (commit(user_status, tra_handle, false))
 		return user_status[1];
 
 	unlockAST(dbb);
-
 	*tra_handle = NULL;
 
 	return FB_SUCCESS;
@@ -3353,7 +3350,8 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS* user_status,
 		if (level)
 			request = CMP_clone_request(threadData, request, level, false);
 	
-		EXE_unwind(threadData, request);
+		//EXE_unwind(threadData, request);
+		request->unwind();
 		EXE_start(threadData, request, transaction);
 		EXE_send(threadData, request, msg_type, msg_length, msg);
 		check_autocommit(request, threadData);
@@ -3416,7 +3414,8 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 		if (level)
 			request = CMP_clone_request(threadData, request, level, false);
 	
-		EXE_unwind(threadData, request);
+		//EXE_unwind(threadData, request);
+		request->unwind();
 		EXE_start(threadData, request, transaction);
 		check_autocommit(request, threadData);
 	
@@ -3842,7 +3841,8 @@ ISC_STATUS GDS_UNWIND(ISC_STATUS * user_status,
 
 		/* Unwind request.  This just tweaks some bits */
 
-		EXE_unwind(threadData, request);
+		//EXE_unwind(threadData, request);
+		request->unwind();
 
 		/* Restore old state and get out */
 

@@ -51,9 +51,9 @@ class RsbProcedure : public RecordSource
 public:
 	RsbProcedure(CompilerScratch *csb, Procedure *proc, jrd_nod *inputsNode, jrd_nod *msgNode);
 	virtual ~RsbProcedure(void);
-	virtual void open(Request* request, thread_db* tdbb);
-	virtual bool get(Request* request, thread_db* tdbb, RSE_GET_MODE mode);
-	virtual void close(Request* request, thread_db* tdbb);
+	virtual void open(Request* request);
+	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual void close(Request* request);
 	void procAssignment(dsc* from_desc, dsc* flag_desc, UCHAR* msg, dsc* to_desc, SSHORT to_id, Record* record);
 
 	Procedure*	procedure;		// procedure, if appropriate

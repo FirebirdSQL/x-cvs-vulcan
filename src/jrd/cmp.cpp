@@ -2170,7 +2170,8 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 					break;
 				}
 
-	EXE_unwind(tdbb, request);
+	//EXE_unwind(tdbb, request);
+	request->unwind();
 
 #ifdef PC_ENGINE
 	RNG_release_ranges(request);

@@ -146,8 +146,9 @@ RecordSource::~RecordSource(void)
 {
 }
 
-void RecordSource::open(Request* request, thread_db *tdbb)
+void RecordSource::open(Request* request)
 {
+	thread_db *tdbb = request->req_tdbb;
 	SINT64 first_records = -1, skip_records = 0;
 	IRSB_INDEX impure = (IRSB_INDEX) IMPURE (request, rsb_impure);
 	impure->irsb_flags |= irsb_first | irsb_open;
@@ -244,7 +245,7 @@ void RecordSource::open(Request* request, thread_db *tdbb)
 				ERR_post(isc_bad_limit_param, 0);
 
 			//rsb = rsb_next;
-			rsb_next->open(request, tdbb);
+			rsb_next->open(request);
 			return;
 
 		case rsb_skip:
@@ -256,12 +257,12 @@ void RecordSource::open(Request* request, thread_db *tdbb)
 			((IRSB_SKIP) impure)->irsb_count++;
 
 			//rsb = rsb_next;
-			rsb_next->open(request, tdbb);
+			rsb_next->open(request);
 			return;
 	
 		case rsb_boolean:
 			//rsb = rsb_next;
-			rsb_next->open(request, tdbb);
+			rsb_next->open(request);
 			return;
 
 		case rsb_union:
@@ -277,7 +278,7 @@ void RecordSource::open(Request* request, thread_db *tdbb)
 				request->req_rpb[(USHORT)(long) * ptr].rpb_number.setValue(BOF_NUMBER);
 
 			//rsb = rsb_arg[0];
-			rsb_arg[0]->open(request, tdbb);
+			rsb_arg[0]->open(request);
 			}
 			break;
 
@@ -301,7 +302,7 @@ void RecordSource::open(Request* request, thread_db *tdbb)
 		case rsb_left_cross:
 			{
 			//RSE_open(tdbb, rsb_arg[RSB_LEFT_outer]);
-			rsb_arg[RSB_LEFT_outer]->open(request, tdbb);
+			rsb_arg[RSB_LEFT_outer]->open(request);
 			impure->irsb_flags &=
 				~(irsb_first | irsb_in_opened | irsb_join_full);
 			impure->irsb_flags |= irsb_mustread;
@@ -323,10 +324,11 @@ void RecordSource::open(Request* request, thread_db *tdbb)
 		}
 }
 
-bool RecordSource::get(Request* request, thread_db *tdbb, RSE_GET_MODE mode)
+bool RecordSource::get(Request* request, RSE_GET_MODE mode)
 {
 	//SET_TDBB(tdbb);
 	//JRD_REQ request = tdbb->tdbb_request;
+	thread_db *tdbb = request->req_tdbb;
 	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
 
 #ifdef SCROLLABLE_CURSORS
@@ -389,7 +391,7 @@ bool RecordSource::get(Request* request, thread_db *tdbb, RSE_GET_MODE mode)
 	return result;
 }
 
-void RecordSource::close(Request* request, thread_db *tdbb)
+void RecordSource::close(Request* request)
 {
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);
 	if (!(impure->irsb_flags & irsb_open))
@@ -405,7 +407,6 @@ void RecordSource::close(Request* request, thread_db *tdbb)
 
 		case rsb_sequential:
 			{
-			JRD_REQ request = tdbb->tdbb_request;
 			record_param* rpb = &request->req_rpb[rsb_stream];
 			if (rpb->rpb_window.win_flags & WIN_large_scan &&
 				rpb->rpb_relation->rel_scan_count)
@@ -418,7 +419,7 @@ void RecordSource::close(Request* request, thread_db *tdbb)
 		case rsb_boolean:
 		case rsb_aggregate:
 			//rsb = rsb_next;
-			rsb_next->close(request, tdbb);
+			rsb_next->close(request);
 			return;
 
 		case rsb_cross:
@@ -426,15 +427,15 @@ void RecordSource::close(Request* request, thread_db *tdbb)
 			RecordSource** ptr = rsb_arg;
 			for (RecordSource** const end = ptr + rsb_count; ptr < end; ptr++)
 				//RSE_close(tdbb, *ptr);
-				(*ptr)->close(request, tdbb);
+				(*ptr)->close(request);
 			return;
 			}
 
 		case rsb_left_cross:
 			//RSE_close(tdbb, rsb_arg[RSB_LEFT_outer]);
 			//RSE_close(tdbb, rsb_arg[RSB_LEFT_inner]);
-			rsb_arg[RSB_LEFT_outer]->close(request, tdbb);
-			rsb_arg[RSB_LEFT_inner]->close(request, tdbb);
+			rsb_arg[RSB_LEFT_outer]->close(request);
+			rsb_arg[RSB_LEFT_inner]->close(request);
 			return;
 
 		/***
@@ -454,7 +455,7 @@ void RecordSource::close(Request* request, thread_db *tdbb)
 			SORT_fini(impure->irsb_sort_handle, tdbb->tdbb_attachment);
 			impure->irsb_sort_handle = NULL;
 			//rsb = rsb_next;
-			rsb_next->close(request, tdbb);
+			rsb_next->close(request);
 			return;
 		***/
 		
@@ -464,14 +465,14 @@ void RecordSource::close(Request* request, thread_db *tdbb)
 			if (i >= rsb_count)
 				return;
 			//rsb = rsb_arg[i];
-			rsb_arg[i]->close(request, tdbb);
+			rsb_arg[i]->close(request);
 			}
 			return;
 
 		case rsb_ext_sequential:
 		case rsb_ext_indexed:
 		case rsb_ext_dbkey:
-			EXT_close(tdbb, this);
+			EXT_close(request->req_tdbb, this);
 			return;
 
 		default:
@@ -505,7 +506,7 @@ static void close_merge(Request *request, thread_db* tdbb, RecordSource* rsb, IR
 		/* close all the substreams for the sort-merge */
 
 		//RSE_close(tdbb, *ptr);
-		(*ptr)->close(request, tdbb);
+		(*ptr)->close(request);
 		
 		/* Release memory associated with the merge file block
 		   and the sort file block. Also delete the merge file
@@ -560,7 +561,7 @@ static void open_sort(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB
 	//JRD_REQ request = tdbb->tdbb_request;
 
 	//RSE_open(tdbb, rsb->rsb_next);
-	rsb->rsb_next->open(request, tdbb);
+	rsb->rsb_next->open(request);
 	SortMap* map = (SortMap*) rsb->rsb_arg[0];
 	ULONG records = 0;
 
@@ -709,7 +710,7 @@ static void open_merge(Request *request, thread_db* tdbb, RecordSource* rsb, IRS
 		/* open all the substreams for the sort-merge */
 
 		//RSE_open(tdbb, *ptr);
-		(*ptr)->open(request, tdbb);
+		(*ptr)->open(request);
 
 		sort_rsb = (RsbSort*) *ptr;
 		//map = (SortMap*) sort_rsb->rsb_arg[0];
@@ -936,7 +937,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 				any_true = FALSE;
 				
 				//while (get_record(request, tdbb, rsb->rsb_next, rsb, mode))
-				while (rsb->rsb_next->get(request, tdbb, mode))
+				while (rsb->rsb_next->get(request, mode))
 					{
 					if (EVL_boolean(tdbb, (JRD_NOD) rsb->rsb_arg[0]))
 						{
@@ -1002,7 +1003,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 				result = FALSE;
 				
 				//while (get_record(request, tdbb, rsb->rsb_next, rsb, mode))
-				while (rsb->rsb_next->get(request, tdbb, mode))
+				while (rsb->rsb_next->get(request, mode))
 					{
 					if (EVL_boolean(tdbb, (JRD_NOD) rsb->rsb_arg[0])) 
 						{
@@ -1038,7 +1039,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 				any_false = FALSE;
 				
 				//while (get_record(request, tdbb, rsb->rsb_next, rsb, mode))
-				while (rsb->rsb_next->get(request, tdbb, mode))
+				while (rsb->rsb_next->get(request, mode))
 					{
 					request->req_flags &= ~req_null;
 
@@ -1090,7 +1091,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 				any_false = FALSE;
 				
 				//while (get_record(request, tdbb, rsb->rsb_next, rsb, mode))
-				while (rsb->rsb_next->get(request, tdbb, mode))
+				while (rsb->rsb_next->get(request, mode))
 					{
 					request->req_flags &= ~req_null;
 
@@ -1139,7 +1140,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 			result = FALSE;
 			
 			//while (get_record(request, tdbb, rsb->rsb_next, rsb, mode))
-			while (rsb->rsb_next->get(request, tdbb, mode))
+			while (rsb->rsb_next->get(request, mode))
 				{
 				if (EVL_boolean(tdbb, (JRD_NOD) rsb->rsb_arg[0])) 
 					{
@@ -1193,7 +1194,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 					((IRSB_FIRST) impure)->irsb_count--;
 					
 					//if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-					if (!rsb->rsb_next->get(request, tdbb, mode))
+					if (!rsb->rsb_next->get(request, mode))
 						return FALSE;
 					break;
 
@@ -1202,7 +1203,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						return FALSE;
 						
 					//if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-					if (!rsb->rsb_next->get(request, tdbb, mode))
+					if (!rsb->rsb_next->get(request, mode))
 						return FALSE;
 						
 					break;
@@ -1211,7 +1212,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 					((IRSB_FIRST) impure)->irsb_count++;
 					
 					//if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-					if (!rsb->rsb_next->get(request, tdbb, mode))
+					if (!rsb->rsb_next->get(request, mode))
 						return FALSE;
 					break;
 				}
@@ -1228,14 +1229,14 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						{
 						((IRSB_SKIP) impure)->irsb_count++;
 						//get_record(request, tdbb, rsb->rsb_next, NULL, mode);
-						rsb->rsb_next->get(request, tdbb, mode);
+						rsb->rsb_next->get(request, mode);
 						return FALSE;
 						}
 						
 					((IRSB_SKIP) impure)->irsb_count++;
 					
 					//if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-					if (!rsb->rsb_next->get(request, tdbb, mode))
+					if (!rsb->rsb_next->get(request, mode))
 						return FALSE;
 					break;
 
@@ -1245,14 +1246,14 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						((IRSB_SKIP) impure)->irsb_count--;
 						
 						//if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-						if (!rsb->rsb_next->get(request, tdbb, mode))
+						if (!rsb->rsb_next->get(request, mode))
 							return FALSE;
 						}
 						
 					((IRSB_SKIP) impure)->irsb_count--;
 					
 					//if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-					if (!rsb->rsb_next->get(request, tdbb, mode))
+					if (!rsb->rsb_next->get(request, mode))
 						return FALSE;
 					break;
 
@@ -1260,7 +1261,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 					if (((IRSB_SKIP) impure)->irsb_count >= 1)
 						return FALSE;
 					//else if (!get_record(request, tdbb, rsb->rsb_next, NULL, mode))
-					else if (!rsb->rsb_next->get(request, tdbb, mode))
+					else if (!rsb->rsb_next->get(request, mode))
 						return FALSE;
 				}
 			break;
@@ -1321,7 +1322,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 				for (i = 0; i < (SSHORT) rsb->rsb_count; i++) 
 					{
 					//RSE_open(tdbb, rsb->rsb_arg[i]);
-					rsb->rsb_arg[i]->open(request, tdbb);
+					rsb->rsb_arg[i]->open(request);
 					
 					if (!fetch_record(request, tdbb, rsb, i, mode))
 						return FALSE;
@@ -1390,7 +1391,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 		impure->irsb_flags |= irsb_checking_singular;
 		
 		//if (get_record(request, tdbb, rsb, parent_rsb, mode)) 
-		if (rsb->get(request, tdbb, mode))
+		if (rsb->get(request, mode))
 			{
 			impure->irsb_flags &= ~irsb_checking_singular;
 			ERR_post(isc_sing_select_err, 0);
@@ -1428,7 +1429,7 @@ static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb
 	RecordSource* sub_rsb = rsb->rsb_arg[n];
 
 	//if (get_record(request, tdbb, sub_rsb, NULL, mode))
-	if (sub_rsb->get(request, tdbb, mode))
+	if (sub_rsb->get(request, mode))
 		return TRUE;
 
 	/* we have exhausted this stream, so close it; if there is 
@@ -1438,16 +1439,16 @@ static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb
 	while (true)
 		{
 		//RSE_close(tdbb, sub_rsb);
-		sub_rsb->close(request, tdbb);
+		sub_rsb->close(request);
 		
 		if (n == 0 || !fetch_record(request, tdbb, rsb, n - 1, mode))
 			return FALSE;
 			
 		//RSE_open(tdbb, sub_rsb);
-		sub_rsb->open(request, tdbb);
+		sub_rsb->open(request);
 
 		//if (get_record(request, tdbb, sub_rsb, NULL, mode))
-		if (sub_rsb->get(request, tdbb, mode))
+		if (sub_rsb->get(request, mode))
 			return TRUE;
 		}
 }
@@ -2091,10 +2092,10 @@ static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, I
 	/* March thru the sub-streams (tributaries?) looking for a record */
 
 	//while (!get_record(request, tdbb, *rsb_ptr, NULL, RSE_get_forward)) 
-	while (!(*rsb_ptr)->get(request, tdbb, RSE_get_forward))
+	while (!(*rsb_ptr)->get(request, RSE_get_forward))
 		{
 		//RSE_close(tdbb, *rsb_ptr);
-		(*rsb_ptr)->close(request, tdbb);
+		(*rsb_ptr)->close(request);
 		impure->irsb_count += 2;
 		
 		if (impure->irsb_count >= rsb->rsb_count)
@@ -2102,7 +2103,7 @@ static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, I
 			
 		rsb_ptr += 2;
 		//RSE_open(tdbb, *rsb_ptr);
-		(*rsb_ptr)->open(request, tdbb);
+		(*rsb_ptr)->open(request);
 		}
 
 	/* We've got a record, map it into the target record */
@@ -2151,7 +2152,7 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_G
 			if (impure->irsb_flags & irsb_mustread)
 				{
 				//if (!get_record(tdbb, rsb->rsb_arg[RSB_LEFT_outer], NULL, mode))
-				if (!rsb->rsb_arg[RSB_LEFT_outer]->get(request, tdbb, mode);
+				if (!rsb->rsb_arg[RSB_LEFT_outer]->get(request, mode);
 					{
 					if (mode == RSE_get_backward)
 						return FALSE;
@@ -2183,13 +2184,13 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_G
 				impure->irsb_flags &= ~(irsb_mustread | irsb_joined);
 				impure->irsb_flags |= irsb_in_opened;
 				//RSE_open(tdbb, rsb->rsb_arg[RSB_LEFT_inner]);
-				rsb->rsb_arg[RSB_LEFT_inner]->open(request, tdbb);
+				rsb->rsb_arg[RSB_LEFT_inner]->open(request);
 				}
 
 			/* fetch records from the inner stream until exhausted */
 
 			//while (get_record(tdbb, rsb->rsb_arg[RSB_LEFT_inner], NULL, mode))
-			while(rsb->rsb_arg[RSB_LEFT_inner]->get(request, tdbb, mode))
+			while(rsb->rsb_arg[RSB_LEFT_inner]->get(request, mode))
 				if (!rsb->rsb_arg[RSB_LEFT_inner_boolean] ||
 					EVL_boolean(tdbb, rsb->rsb_arg[RSB_LEFT_inner_boolean]))
 					{
@@ -2227,7 +2228,7 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_G
 				
 				do {
 					//if (!get_record(tdbb, full, NULL, mode)) 
-					if (!full->get(request, tdbb, mode))
+					if (!full->get(request, mode))
 						{
 						if (mode == RSE_get_forward)
 							return FALSE;
@@ -2236,9 +2237,9 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_G
 						}
 
 					//RSE_open(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-					rsb->rsb_arg[RSB_LEFT_outer]->open(request, tdbb);
+					rsb->rsb_arg[RSB_LEFT_outer]->open(request);
 					
-					while (found = rsb->rsb_arg[RSB_LEFT_outer]->get(request, tdbb, mode))
+					while (found = rsb->rsb_arg[RSB_LEFT_outer]->get(request, mode))
 						   //get_record(tdbb, rsb->rsb_arg[RSB_LEFT_outer], NULL, mode))
 						{
 						if (
@@ -2254,11 +2255,11 @@ static BOOLEAN fetch_left(thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_G
 						}
 						
 					//RSE_close(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-					rsb->rsb_arg[RSB_LEFT_outer]->close(request, tdbb);
+					rsb->rsb_arg[RSB_LEFT_outer]->close(request);
 				} while (found);
 				}
 			//else if (!get_record(tdbb, full, NULL, mode))
-			else if (!full->get(request, tdbb, mode))
+			else if (!full->get(request, mode))
 				{
 				if (mode == RSE_get_forward)
 					return FALSE;
@@ -2273,11 +2274,11 @@ return_to_outer:
 			impure->irsb_flags &= ~(irsb_join_full | irsb_in_opened);
 			impure->irsb_flags |= irsb_mustread;
 			//RSE_close(tdbb, rsb->rsb_arg[RSB_LEFT_inner]);
-			rsb->rsb_arg[RSB_LEFT_inner]->close(request, tdbb);
+			rsb->rsb_arg[RSB_LEFT_inner]->close(request);
 			//RSE_close(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-			rsb->rsb_arg[RSB_LEFT_outer]->close(request, tdbb);
+			rsb->rsb_arg[RSB_LEFT_outer]->close(request);
 			//RSE_open(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-			rsb->rsb_arg[RSB_LEFT_outer]->open(request, tdbb);
+			rsb->rsb_arg[RSB_LEFT_outer]->open(request);
 			}
 		}
 
@@ -2316,7 +2317,7 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 			if (impure->irsb_flags & irsb_mustread)
 				{
 				//if (!get_record(request, tdbb, rsb->rsb_arg[RSB_LEFT_outer], NULL, RSE_get_forward)) 
-				if (!rsb->rsb_arg[RSB_LEFT_outer]->get(request, tdbb, RSE_get_forward))
+				if (!rsb->rsb_arg[RSB_LEFT_outer]->get(request, RSE_get_forward))
 					{
 					if (rsb->rsb_left_inner_streams->isEmpty())
 						return false;
@@ -2325,10 +2326,10 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 					   one more time. */
 
 					//RSE_close(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-					rsb->rsb_arg[RSB_LEFT_outer]->close(request,tdbb);
+					rsb->rsb_arg[RSB_LEFT_outer]->close(request);
 					impure->irsb_flags |= irsb_join_full;
 					//RSE_open(tdbb, rsb->rsb_arg[RSB_LEFT_inner]);
-					rsb->rsb_arg[RSB_LEFT_outer]->open(request,tdbb);
+					rsb->rsb_arg[RSB_LEFT_outer]->open(request);
 					break;
 					}
 					
@@ -2344,11 +2345,11 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 				impure->irsb_flags &= ~(irsb_mustread | irsb_joined);
 				impure->irsb_flags |= irsb_in_opened;
 				//RSE_open(tdbb, rsb->rsb_arg[RSB_LEFT_inner]);
-				rsb->rsb_arg[RSB_LEFT_inner]->open(request, tdbb);
+				rsb->rsb_arg[RSB_LEFT_inner]->open(request);
 				}
 
 			//while (get_record(request, tdbb, rsb->rsb_arg[RSB_LEFT_inner], NULL, RSE_get_forward))
-			while ( rsb->rsb_arg[RSB_LEFT_inner]->get(request, tdbb, RSE_get_forward))
+			while ( rsb->rsb_arg[RSB_LEFT_inner]->get(request, RSE_get_forward))
 				if (!rsb->rsb_arg[RSB_LEFT_inner_boolean]
 						|| EVL_boolean(tdbb,(JRD_NOD) rsb->rsb_arg[RSB_LEFT_inner_boolean]))
 					{
@@ -2357,7 +2358,7 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 					}
 
 			//RSE_close(tdbb, rsb->rsb_arg[RSB_LEFT_inner]);
-			rsb->rsb_arg[RSB_LEFT_inner]->close(request, tdbb);
+			rsb->rsb_arg[RSB_LEFT_inner]->close(request);
 			impure->irsb_flags |= irsb_mustread;
 			
 			if (!(impure->irsb_flags & irsb_joined))
@@ -2384,14 +2385,14 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 		
 		do {
 			//if (!get_record(request, tdbb, full, NULL, RSE_get_forward))
-			if (!full->get(request, tdbb, RSE_get_forward))
+			if (!full->get(request, RSE_get_forward))
 				return FALSE;
 				
 			//RSE_open(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-			rsb->rsb_arg[RSB_LEFT_outer]->open(request, tdbb);
+			rsb->rsb_arg[RSB_LEFT_outer]->open(request);
 			
 			//while ( (found =get_record(request, tdbb, rsb->rsb_arg[RSB_LEFT_outer], NULL,RSE_get_forward)) )
-			while( (found = rsb->rsb_arg[RSB_LEFT_outer]->get(request, tdbb, RSE_get_forward)) )
+			while( (found = rsb->rsb_arg[RSB_LEFT_outer]->get(request, RSE_get_forward)) )
 				{
 				if ((!rsb->rsb_arg[RSB_LEFT_boolean] || EVL_boolean(tdbb,(JRD_NOD) rsb->rsb_arg[RSB_LEFT_boolean]))
 					&& (!rsb->rsb_arg[RSB_LEFT_inner_boolean]
@@ -2407,11 +2408,11 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 					break;
 				}
 			//RSE_close(tdbb, rsb->rsb_arg[RSB_LEFT_outer]);
-			rsb->rsb_arg[RSB_LEFT_outer]->close(request, tdbb);
+			rsb->rsb_arg[RSB_LEFT_outer]->close(request);
 			} while (found);
 		}
 	//else if (!get_record(request, tdbb, full, NULL, RSE_get_forward))
-	else if (!full->get(request, tdbb, RSE_get_forward))
+	else if (!full->get(request, RSE_get_forward))
 		return FALSE;
 
 	join_to_nulls(request, tdbb, rsb, rsb->rsb_left_inner_streams);

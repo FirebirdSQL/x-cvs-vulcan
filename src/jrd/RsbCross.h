@@ -38,11 +38,11 @@ class RsbCross :
 public:
 	RsbCross(CompilerScratch *csb, int count);
 	virtual ~RsbCross(void);
-	virtual void open(Request* request, thread_db* tdbb);
-	virtual bool get(Request* request, thread_db* tdbb, RSE_GET_MODE mode);
-	virtual void close(Request* request, thread_db* tdbb);
+	virtual void open(Request* request);
+	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual void close(Request* request);
 
 	RecordSource	**rsbs;
-	bool fetchRecord(Request* request, thread_db* tdbb, int n, RSE_GET_MODE mode);
+	bool fetchRecord(Request* request, int n, RSE_GET_MODE mode);
 };
 #endif

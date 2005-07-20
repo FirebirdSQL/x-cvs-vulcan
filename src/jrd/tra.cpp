@@ -2505,7 +2505,9 @@ static void restart_requests(thread_db* tdbb, Transaction* trans)
 		{
 		if (request->req_transaction) 
 			{
-			EXE_unwind(tdbb, request);
+			request->unwind();
+			//EXE_unwind(tdbb, request);
+			request->unwind();
 			EXE_start(tdbb, request, trans);
 			}
 
@@ -2516,7 +2518,8 @@ static void restart_requests(thread_db* tdbb, Transaction* trans)
 			for (level = 1; level < vector->count(); level++)
 				if ((clone = (JRD_REQ) (*vector)[level]) && clone->req_transaction) 
 					{
-					EXE_unwind(tdbb, clone);
+					//EXE_unwind(tdbb, clone);
+					clone->unwind();
 					EXE_start(tdbb, clone, trans);
 					}
 		}

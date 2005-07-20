@@ -250,40 +250,49 @@ public:
 // Used by SORT_init
 typedef bool (*FPTR_REJECT_DUP_CALLBACK)(const UCHAR*, const UCHAR*, void*);
 
+class sort_work_file;
+struct run_control;
+struct merge_control;
+struct dls;
+struct irsb_sort;
+struct thread_db;
+
 struct sort_context
 {
-	struct sort_context* scb_next;		/* Next known sort in system */
-	SORTP *scb_memory;			/* ALLOC: Memory for sort */
-	SORTP *scb_end_memory;		/* End of memory */
-	ULONG scb_size_memory;		/* Bytes allocated */
-	SR *scb_last_record;		/* Address of last record */
-	sort_record **scb_first_pointer;	/* Memory for sort */
-	sort_record **scb_next_pointer;	/* Address for next pointer */
+	sort_context*	scb_next;				/* Next known sort in system */
+	SORTP			*scb_memory;			/* ALLOC: Memory for sort */
+	SORTP			*scb_end_memory;		/* End of memory */
+	ULONG			scb_size_memory;		/* Bytes allocated */
+	SR				*scb_last_record;		/* Address of last record */
+	sort_record		**scb_first_pointer;	/* Memory for sort */
+	sort_record		**scb_next_pointer;		/* Address for next pointer */
+	
 #ifdef SCROLLABLE_CURSORS
-	SORTP **scb_last_pointer;	/* Address for last pointer in block */
+	SORTP			**scb_last_pointer;		/* Address for last pointer in block */
 #endif
-	USHORT scb_length;			/* Record length */
-	USHORT scb_longs;			/* Length of record in longwords */
-	ULONG scb_keys;				/* Number of keys */
-	ULONG scb_key_length;		/* Key length */
-	ULONG scb_unique_length;	/* Unique key length, used when duplicates eliminated */
-	ULONG scb_records;			/* Number of records */
-	UINT64 scb_max_records;		/* Maximum number of records to store */
-	class sort_work_file* scb_sfb;		/* ALLOC: List of scratch files, if open */
-	struct run_control* scb_runs;		/* ALLOC: Run on scratch file, if any */
-	struct merge_control* scb_merge;		/* Top level merge block */
-	struct run_control* scb_free_runs;	/* ALLOC: Currently unused run blocks */
-	SORTP* scb_merge_space;		/* ALLOC: memory space to do merging */
-	ULONG scb_flags;			/* see flag bits below */
-	//ISC_STATUS *scb_status_vector;	/* Status vector for errors */
-	struct thread_db* scb_threadData;	/* thread data for caller */
+
+	USHORT			scb_length;				/* Record length */
+	USHORT			scb_longs;				/* Length of record in longwords */
+	ULONG			scb_keys;				/* Number of keys */
+	ULONG			scb_key_length;			/* Key length */
+	ULONG			scb_unique_length;		/* Unique key length, used when duplicates eliminated */
+	ULONG			scb_records;			/* Number of records */
+	UINT64			scb_max_records;		/* Maximum number of records to store */
+	sort_work_file* scb_sfb;				/* ALLOC: List of scratch files, if open */
+	run_control*	scb_runs;				/* ALLOC: Run on scratch file, if any */
+	merge_control*	scb_merge;				/* Top level merge block */
+	run_control*	scb_free_runs;			/* ALLOC: Currently unused run blocks */
+	SORTP*			scb_merge_space;		/* ALLOC: memory space to do merging */
+	ULONG			scb_flags;				/* see flag bits below */
+	//ISC_STATUS *scb_status_vector;		/* Status vector for errors */
+	thread_db*		scb_threadData;			/* thread data for caller */
 	FPTR_REJECT_DUP_CALLBACK scb_dup_callback;	/* Duplicate handling callback */
-	void *scb_dup_callback_arg;	/* Duplicate handling callback arg */
-	struct dls *scb_dls;
-	struct merge_control* scb_merge_pool;	/* ALLOC: pool of mrg blocks */
-	Attachment *scb_attachment;	/* back pointer to attachment */
-	struct irsb_sort *scb_impure;	/* back pointer to request's impure area */
-	sort_key_def scb_description[1];
+	void			*scb_dup_callback_arg;	/* Duplicate handling callback arg */
+	dls				*scb_dls;
+	merge_control*	scb_merge_pool;			/* ALLOC: pool of mrg blocks */
+	Attachment		*scb_attachment;		/* back pointer to attachment */
+	irsb_sort		*scb_impure;			/* back pointer to request's impure area */
+	sort_key_def	scb_description[1];
 };
 
 /* flags as set in scb_flags */

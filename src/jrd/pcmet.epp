@@ -111,38 +111,43 @@ bool PCMET_expression_index(thread_db* tdbb, SSHORT phase, DeferredWork* work,
 				REQUEST(irq_c_exp_index) = request;
 
             if (!relation)
-            {
+				{
 				relation = tdbb->tdbb_database->getRelation(tdbb, REL.RDB$RELATION_ID);
+				
 				if (!relation->rel_name)
-				{
-					relation->rel_name =
-						MET_save_name(tdbb, REL.RDB$RELATION_NAME);
+					{
+					relation->rel_name = MET_save_name(tdbb, REL.RDB$RELATION_NAME);
 					relation->rel_length = strlen(relation->rel_name);
-				}
+					}
+					
 				if (IDX.RDB$INDEX_ID && IDX.RDB$STATISTICS < 0.0)
-				{
+					{
 					SelectivityList selectivity(*tdbb->tdbb_default);
 					const USHORT id = IDX.RDB$INDEX_ID - 1;
 					IDX_statistics(tdbb, relation, id, selectivity);
 					DFW_update_index(tdbb, work->dfw_name, id, selectivity);
 
-					EXE_unwind(tdbb, request);
+					//EXE_unwind(tdbb, request);
+					request->unwind();
 					return false;
-				}
+					}
+					
 				if (IDX.RDB$INDEX_ID)
-				{
+					{
 					IDX_delete_index(tdbb, relation, IDX.RDB$INDEX_ID - 1);
 					MET_delete_dependencies(tdbb, work->dfw_name,
 											obj_expression_index);
 					MODIFY IDX
 						IDX.RDB$INDEX_ID.NULL = TRUE;
 					END_MODIFY;
-				}
+					}
+					
 				if (IDX.RDB$INDEX_INACTIVE)
-				{
-					EXE_unwind(tdbb, request);
+					{
+					//EXE_unwind(tdbb, request);
+					request->unwind();
 					return false;
-				}
+					}
 
 				if (IDX.RDB$SEGMENT_COUNT)
 					ERR_post(isc_no_meta_update,

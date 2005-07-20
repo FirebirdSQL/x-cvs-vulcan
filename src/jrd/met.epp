@@ -4368,7 +4368,8 @@ static bool verify_TRG_ignore_perm(thread_db* tdbb, const TEXT* trig_name)
 			REQUEST(irq_c_trg_perm) = request;
 		}
 
-		EXE_unwind(tdbb, (JRD_REQ)request);
+		//EXE_unwind(tdbb, (JRD_REQ)request);
+		request->unwind();
 		MET_terminate(REF.RDB$UPDATE_RULE, sizeof(REF.RDB$UPDATE_RULE));
 		MET_terminate(REF.RDB$DELETE_RULE, sizeof(REF.RDB$DELETE_RULE));
 

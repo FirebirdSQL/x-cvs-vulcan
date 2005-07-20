@@ -74,9 +74,9 @@ public:
 	
 	RsbMerge(CompilerScratch *csb, int count);
 	virtual ~RsbMerge(void);
-	virtual void open(Request* request, thread_db* tdbb);
-	virtual bool get(Request* request, thread_db* tdbb, RSE_GET_MODE mode);
-	virtual void close(Request* request, thread_db* tdbb);
+	virtual void open(Request* request);
+	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual void close(Request* request);
 	bool getMergeFetch(Request* request, thread_db* tdbb, SSHORT stream, RSE_GET_MODE mode);
 	UCHAR* getMergeData(thread_db* tdbb, MergeFile* mfb, SLONG record);
 	static int compare(Request* request, thread_db* tdbb, jrd_nod* node1, jrd_nod* node2);

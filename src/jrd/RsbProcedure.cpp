@@ -46,7 +46,7 @@ RsbProcedure::~RsbProcedure(void)
 {
 }
 
-void RsbProcedure::open(Request* request, thread_db* tdbb)
+void RsbProcedure::open(Request* request)
 {
 	JRD_NOD *ptr, *end;//, in_message;
 	Request* proc_request;
@@ -55,6 +55,7 @@ void RsbProcedure::open(Request* request, thread_db* tdbb)
 	UCHAR *im;
 	record_param* rpb;
 
+	thread_db* tdbb = request->req_tdbb;
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
 	//JRD_NOD inputs = (JRD_NOD) rsb_arg[RSB_PRC_inputs];
 
@@ -102,7 +103,7 @@ void RsbProcedure::open(Request* request, thread_db* tdbb)
 	proc_request->req_flags |= req_proc_fetch;
 }
 
-bool RsbProcedure::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
+bool RsbProcedure::get(Request* request, RSE_GET_MODE mode)
 {
 	if (request->req_flags & req_abort)
 		return FALSE;
@@ -110,6 +111,7 @@ bool RsbProcedure::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
 	if (!request->req_transaction)
 		return FALSE;
 
+	thread_db* tdbb = request->req_tdbb;
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
 	
 	if (impure->irsb_flags & irsb_singular_processed)
@@ -162,7 +164,7 @@ bool RsbProcedure::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
 	return TRUE;
 }
 
-void RsbProcedure::close(Request* request, thread_db* tdbb)
+void RsbProcedure::close(Request* request)
 {
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
 	Request* proc_request = impure->irsb_req_handle;
@@ -173,7 +175,8 @@ void RsbProcedure::close(Request* request, thread_db* tdbb)
 		   been released, so null it out so as not to dereference it */
 
 		proc_request->req_transaction = NULL;
-		EXE_unwind(tdbb, proc_request);
+		//EXE_unwind(request->req_tdbb, proc_request);
+		proc_request->unwind();
 		proc_request->req_flags &= ~req_in_use;
 		impure->irsb_req_handle = 0;
 		proc_request->req_attachment = NULL;

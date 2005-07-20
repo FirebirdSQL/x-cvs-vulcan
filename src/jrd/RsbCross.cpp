@@ -44,7 +44,7 @@ RsbCross::~RsbCross(void)
 	delete [] rsbs;
 }
 
-void RsbCross::open(Request* request, thread_db* tdbb)
+void RsbCross::open(Request* request)
 {
 	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
 	impure->irsb_flags |= irsb_first | irsb_open;
@@ -53,7 +53,7 @@ void RsbCross::open(Request* request, thread_db* tdbb)
 	//rpb->rpb_window.win_flags = 0;
 }
 
-bool RsbCross::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
+bool RsbCross::get(Request* request, RSE_GET_MODE mode)
 {
 	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
 
@@ -61,9 +61,9 @@ bool RsbCross::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
 		{
 		for (int i = 0; i <rsb_count; i++) 
 			{
-			rsbs[i]->open(request, tdbb);
+			rsbs[i]->open(request);
 			
-			if (!fetchRecord(request, tdbb, i, mode))
+			if (!fetchRecord(request, i, mode))
 				return FALSE;
 			}
 			
@@ -78,22 +78,22 @@ bool RsbCross::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
 
 	if (rsb_flags & rsb_project) 
 		{
-		if (!fetchRecord(request, tdbb, 0, mode))
+		if (!fetchRecord(request, 0, mode))
 			return FALSE;
 		}
-	else if (!fetchRecord(request, tdbb, rsb_count - 1, mode))
+	else if (!fetchRecord(request, rsb_count - 1, mode))
 		return FALSE;
 
 	return true;
 }
 
-void RsbCross::close(Request* request, thread_db* tdbb)
+void RsbCross::close(Request* request)
 {
 	for (int n = 0; n < rsb_count; ++n)
-		rsbs[n]->close(request, tdbb);
+		rsbs[n]->close(request);
 }
 
-bool RsbCross::fetchRecord(Request* request, thread_db* tdbb, int n, RSE_GET_MODE mode)
+bool RsbCross::fetchRecord(Request* request, int n, RSE_GET_MODE mode)
 {
 #ifndef SCROLLABLE_CURSORS
 	mode = RSE_get_forward;
@@ -101,7 +101,7 @@ bool RsbCross::fetchRecord(Request* request, thread_db* tdbb, int n, RSE_GET_MOD
 
 	RecordSource* sub_rsb = rsbs[n];
 
-	if (sub_rsb->get(request, tdbb, mode))
+	if (sub_rsb->get(request, mode))
 		return TRUE;
 
 	/* we have exhausted this stream, so close it; if there is 
@@ -110,14 +110,14 @@ bool RsbCross::fetchRecord(Request* request, thread_db* tdbb, int n, RSE_GET_MOD
 
 	for (;;)
 		{
-		sub_rsb->close(request, tdbb);
+		sub_rsb->close(request);
 		
-		if (n == 0 || !fetchRecord(request, tdbb, n - 1, mode))
+		if (n == 0 || !fetchRecord(request, n - 1, mode))
 			return false;
 			
-		sub_rsb->open(request, tdbb);
+		sub_rsb->open(request);
 
-		if (sub_rsb->get(request, tdbb, mode))
+		if (sub_rsb->get(request, mode))
 			return TRUE;
 		}
 }

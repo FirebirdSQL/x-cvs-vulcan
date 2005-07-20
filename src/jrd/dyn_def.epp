@@ -407,7 +407,8 @@ void DYN_define_constraint(thread_db* tdbb, GBL		gbl,
 				not_null = FALSE;
 				DYN_terminate(RFR.RDB$FIELD_NAME, sizeof(RFR.RDB$FIELD_NAME));
 				strcpy(null_field_name, RFR.RDB$FIELD_NAME);
-				EXE_unwind(tdbb, (JRD_REQ)request);
+				//EXE_unwind(tdbb, (JRD_REQ)request);
+				request->unwind();
 				break;
 				}
 
@@ -474,7 +475,8 @@ void DYN_define_constraint(thread_db* tdbb, GBL		gbl,
 						
 					if (found) 
 						{
-						EXE_unwind(tdbb,(JRD_REQ)request);
+						//EXE_unwind(tdbb,(JRD_REQ)request);
+						request->unwind();
 						break;
 						}
 						
@@ -2010,7 +2012,8 @@ void DYN_define_index(thread_db*	tdbb,
 							
 						if (found) 
 							{
-							EXE_unwind(tdbb,(JRD_REQ)request);
+							//EXE_unwind(tdbb,(JRD_REQ)request);
+							request->unwind();
 							break;
 							}
 							

@@ -558,6 +558,10 @@ void SORT_fini(sort_context* scb, Attachment* att)
 
 	if (scb && local_fini(scb, att))
 		gds__free(scb);
+
+	if (att)
+		for (sort_context *context = att->att_active_sorts; context; context = context->scb_next)
+			;
 }
 
 
@@ -758,8 +762,7 @@ sort_context* SORT_init(thread_db* threadData,
 
 	//scb->scb_status_vector = status_vector;
 	scb->scb_length = record_length;
-	scb->scb_longs =
-		ROUNDUP(record_length + sizeof(SLONG*), sizeof(SLONG*)) >> SHIFTLONG;
+	scb->scb_longs = ROUNDUP(record_length + sizeof(SLONG*), sizeof(SLONG*)) >> SHIFTLONG;
 	scb->scb_dup_callback = call_back;
 	scb->scb_dup_callback_arg = user_arg;
 	scb->scb_keys = keys;
@@ -769,28 +772,32 @@ sort_context* SORT_init(thread_db* threadData,
 	fb_assert(unique_keys <= keys);
 	sort_key_def* p = scb->scb_description;
 	const sort_key_def* q = key_description;
+	
 	do {
 		*p++ = *q++;
-	} while (--keys);
+		} while (--keys);
 
 	--p;
-	scb->scb_key_length =
-		ROUNDUP(p->skd_offset + p->skd_length, sizeof(SLONG)) >> SHIFTLONG;
+	scb->scb_key_length = ROUNDUP(p->skd_offset + p->skd_length, sizeof(SLONG)) >> SHIFTLONG;
 
-	while (unique_keys < scb->scb_keys) {
+	while (unique_keys < scb->scb_keys) 
+		{
 		p--;
 		unique_keys++;
-	}
-	scb->scb_unique_length =
-		ROUNDUP(p->skd_offset + p->skd_length, sizeof(SLONG)) >> SHIFTLONG;
+		}
+		
+	scb->scb_unique_length = ROUNDUP(p->skd_offset + p->skd_length, sizeof(SLONG)) >> SHIFTLONG;
 
 	// Next, try to allocate a "big block". How big? Big enough!
-	try {
+	
+	try 
+		{
 #ifdef DEBUG_MERGE
 		// To debug the merge algorithm, force the in-memory pool to be VERY small
+		
 		scb->scb_size_memory = 2000;
-		scb->scb_memory =
-			(SORTP *) gds__alloc((SLONG) scb->scb_size_memory);
+		scb->scb_memory = (SORTP *) gds__alloc((SLONG) scb->scb_size_memory);
+		
 		// FREE: scb_memory is freed by local_fini()
 #else
 		// Try to get a big chunk of memory, if we can't try smaller and
@@ -798,13 +805,13 @@ sort_context* SORT_init(thread_db* threadData,
 		// too small a chunk - punt and report not enough memory.
 
 		for (scb->scb_size_memory = MAX_SORT_BUFFER_SIZE;;
-			scb->scb_size_memory -= SORT_BUFFER_CHUNK_SIZE)
+			 scb->scb_size_memory -= SORT_BUFFER_CHUNK_SIZE)
 			if (scb->scb_size_memory < MIN_SORT_BUFFER_SIZE)
 				break;
-			else if ( (scb->scb_memory =
-				 (SORTP *) gds__alloc((SLONG) scb->scb_size_memory)) )
-			// FREE: scb_memory is freed by local_fini()
+			else if ( (scb->scb_memory = (SORTP *) gds__alloc((SLONG) scb->scb_size_memory)) )
+				// FREE: scb_memory is freed by local_fini()
 				break;
+				
 #endif // DEBUG_MERGE
 		} 
 	catch(const std::exception&) 
@@ -819,8 +826,7 @@ sort_context* SORT_init(thread_db* threadData,
 		***/
 		}
 
-	scb->scb_end_memory =
-		(SORTP *) ((BLOB_PTR *) scb->scb_memory + scb->scb_size_memory);
+	scb->scb_end_memory = (SORTP *) ((BLOB_PTR *) scb->scb_memory + scb->scb_size_memory);
 	scb->scb_first_pointer = (sort_record**) scb->scb_memory;
 
 	// Set up to receive the first record
@@ -829,11 +835,15 @@ sort_context* SORT_init(thread_db* threadData,
 
 	// If a linked list pointer was given, link in new sort block
 
-	if (att) {
+	if (att) 
+		{
+		for (sort_context *context = att->att_active_sorts; context; context = context->scb_next)
+			fb_assert(context != scb);
+			
 		scb->scb_next = att->att_active_sorts;
 		att->att_active_sorts = scb;
 		scb->scb_attachment = att;
-	}
+		}
 
 	return scb;
 }
@@ -881,37 +891,48 @@ void SORT_put(thread_db* threadData, sort_context* scb, ULONG ** record_address)
 
 	if ((BLOB_PTR *) record < (BLOB_PTR *) (scb->scb_memory + scb->scb_longs)
 		|| (BLOB_PTR *) NEXT_RECORD(record) <= (BLOB_PTR *) (scb->scb_next_pointer + 1))
-	{
+		{
 		put_run(scb);
-		while (true) {
+		
+		while (true) 
+			{
 			run_control* run = scb->scb_runs;
 			const USHORT depth = run->run_depth;
+			
 			if (depth == MAX_MERGE_LEVEL)
 				break;
+				
 			USHORT count = 1;
+			
 			while ((run = run->run_next) && run->run_depth == depth)
 				count++;
+				
 			if (count < RUN_GROUP)
 				break;
+				
 			merge_runs(scb, count);
-		}
+			}
+			
 		init(scb);
 		record = scb->scb_last_record;
-	}
+		}
 
 	record = NEXT_RECORD(record);
 
 	// Make sure the first longword of the record points to the pointer
+	
 	scb->scb_last_record = record;
 	record->sr_bckptr = scb->scb_next_pointer;
 
 	// Move key_id into *scb->scb_next_pointer and then
 	// increment scb->scb_next_pointer
-	*scb->scb_next_pointer++ =
-		reinterpret_cast<sort_record*>(record->sr_sort_record.sort_record_key);
+	
+	*scb->scb_next_pointer++ = reinterpret_cast<sort_record*>(record->sr_sort_record.sort_record_key);
+	
 #ifndef SCROLLABLE_CURSORS
 	scb->scb_records++;
 #endif
+
 	*record_address = (ULONG *) record->sr_sort_record.sort_record_key;
 }
 
@@ -2186,7 +2207,6 @@ static void init(sort_context* scb)
 
 	scb->scb_next_pointer = scb->scb_first_pointer;
 	scb->scb_last_record = (SR *) scb->scb_end_memory;
-
 	*scb->scb_next_pointer++ = reinterpret_cast<sort_record*>(low_key);
 }
 
@@ -2209,24 +2229,26 @@ static bool local_fini(sort_context* scb, Attachment* att)
 
 	bool found_it = true;
 
-	if (att) {
-
+	if (att) 
+		{
 		// Cover case where a posted error caused reuse by another thread
 		
 		if (scb->scb_attachment != att)
 			att = scb->scb_attachment;
+			
 		found_it = false;
-	}
+		}
 
 	// Start by unlinking from que, if present
 
 	if (att)
 		for (ptr = &att->att_active_sorts; *ptr; ptr = &(*ptr)->scb_next)
-			if (*ptr == scb) {
+			if (*ptr == scb) 
+				{
 				*ptr = scb->scb_next;
 				found_it = true;
 				break;
-			}
+				}
 
 	// *NO*. I won't free it if it's not in
     // the pointer list that has been passed
@@ -2238,70 +2260,83 @@ static bool local_fini(sort_context* scb, Attachment* att)
 	// Loop through the sfb list and close work files
 
 	sort_work_file* sfb;
-	while ( (sfb = scb->scb_sfb) ) {
+	
+	while ( (sfb = scb->scb_sfb) ) 
+		{
 		scb->scb_sfb = sfb->sfb_next;
 		DLS_put_temp_space(sfb);
-
 		delete sfb->sfb_mem;
-
 		close(sfb->sfb_file);
 
-		if (sfb->sfb_file_name) {
+		if (sfb->sfb_file_name) 
+			{
 			gds__free(sfb->sfb_file_name);
 			sfb->sfb_file_name = NULL;
-		}
+			}
 
-		while ( (space = sfb->sfb_free_wfs) ) {
+		while ( (space = sfb->sfb_free_wfs) ) 
+			{
 			sfb->sfb_free_wfs = space->wfs_next;
 			gds__free(space);
-		}
+			}
 
-		while ( (space = sfb->sfb_file_space) ) {
+		while ( (space = sfb->sfb_file_space) ) 
+			{
 			sfb->sfb_file_space = space->wfs_next;
 			gds__free(space);
-		}
+			}
 
 		gds__free(sfb);
-	}
+		}
 
 	// Get rid of extra merge space
 
-	while ( (merge_buf = (ULONG **) scb->scb_merge_space) ) {
+	while ( (merge_buf = (ULONG **) scb->scb_merge_space) ) 
+		{
 		scb->scb_merge_space = *merge_buf;
 		gds__free(merge_buf);
-	}
+		}
 
 	// If runs are allocated and not in the big block, release them.
 	// Then release the big block.
 
-	if (scb->scb_memory) {
+	if (scb->scb_memory) 
+		{
 		gds__free(scb->scb_memory);
 		scb->scb_memory = NULL;
-	}
+		}
 
 	// Clean up the runs that were used
 
 	run_control* run;
-	while ( (run = scb->scb_runs) ) {
+	
+	while ( (run = scb->scb_runs) ) 
+		{
 		scb->scb_runs = run->run_next;
+		
 		if (run->run_buff_alloc)
 			gds__free(run->run_buffer);
+			
 		gds__free(run);
-	}
+		}
 
 	// Clean up the free runs also
 	
-	while ( (run = scb->scb_free_runs) ) {
+	while ( (run = scb->scb_free_runs) ) 
+		{
 		scb->scb_free_runs = run->run_next;
+		
 		if (run->run_buff_alloc)
 			gds__free(run->run_buffer);
+			
 		gds__free(run);
-	}
+		}
 
-	if (scb->scb_merge_pool) {
+	if (scb->scb_merge_pool) 
+		{
 		gds__free(scb->scb_merge_pool);
 		scb->scb_merge_pool = NULL;
-	}
+		}
 
 	scb->scb_merge = NULL;
  	scb->scb_attachment = NULL;
@@ -2440,20 +2475,22 @@ static void merge_runs(sort_context* scb, USHORT n)
 #else
 	while ( (p = get_merge(merge, scb)) )
 #endif
-	{
-		if (q >= (sort_record*) temp_run.run_end_buffer) {
+		{
+		if (q >= (sort_record*) temp_run.run_end_buffer) 
+			{
 			size = (BLOB_PTR *) q - (BLOB_PTR *) temp_run.run_buffer;
-			seek = temp_run.run_sfb->sfb_mem->write(seek,
-													reinterpret_cast<char*>(temp_run.run_buffer),
-													size);
+			seek = temp_run.run_sfb->sfb_mem->write(seek, reinterpret_cast<char*>(temp_run.run_buffer), size);
 			q = reinterpret_cast<sort_record*>(temp_run.run_buffer);
-		}
+			}
+			
 		count = scb->scb_longs;
-		do
+		
+		do {
 			*q++ = *p++;
-		while (--count);
+		    } while (--count);
 		++temp_run.run_records;
-	}
+		}
+		
 #ifdef SCROLLABLE_CURSORS
 	temp_run.run_max_records = temp_run.run_records;
 #endif
@@ -2461,30 +2498,31 @@ static void merge_runs(sort_context* scb, USHORT n)
 	// Write the tail of the new run and return any unused space
 
 	if ( (size = (BLOB_PTR *) q - (BLOB_PTR *) temp_run.run_buffer) )
-		seek = temp_run.run_sfb->sfb_mem->write(seek,
-												reinterpret_cast<char*>(temp_run.run_buffer),
-												size);
+		seek = temp_run.run_sfb->sfb_mem->write(seek, reinterpret_cast<char*>(temp_run.run_buffer), size);
 
 	// If the records did not fill the allocated run (such as when duplicates are 
 	// rejected), then free the remainder and diminish the size of the run accordingly
 
-	if (seek - temp_run.run_seek < temp_run.run_size) {
-		free_file_space(scb, temp_run.run_sfb, seek,
-						temp_run.run_seek + temp_run.run_size - seek);
+	if (seek - temp_run.run_seek < temp_run.run_size) 
+		{
+		free_file_space(scb, temp_run.run_sfb, seek, temp_run.run_seek + temp_run.run_size - seek);
 		temp_run.run_size = seek - temp_run.run_seek;
-	}
+		}
 
 	// Make a final pass thru the runs releasing space, blocks, etc.
 
-	for (count = 0; count < n; count++) {
+	for (count = 0; count < n; count++) 
+		{
 		// Remove run from list of in-use run blocks
 		run = scb->scb_runs;
 		scb->scb_runs = run->run_next;
+		
 #ifdef SCROLLABLE_CURSORS
 		seek = run->run_seek + run->run_cached - run->run_size;
 #else
 		seek = run->run_seek - run->run_size;
 #endif
+
 		// Free the sort file space associated with the run
 
 		free_file_space(scb, run->run_sfb, seek, run->run_size);
@@ -2493,13 +2531,16 @@ static void merge_runs(sort_context* scb, USHORT n)
 
 		run->run_next = scb->scb_free_runs;
 		scb->scb_free_runs = run;
-	}
+		}
 
 	scb->scb_free_runs = run->run_next;
-	if (run->run_buff_alloc) {
+	
+	if (run->run_buff_alloc) 
+		{
 		gds__free(run->run_buffer);
 		run->run_buff_alloc = 0;
-	}
+		}
+		
 	temp_run.run_header.rmh_type = TYPE_RUN;
 	temp_run.run_depth = run->run_depth;
 	*run = temp_run;

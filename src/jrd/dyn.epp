@@ -801,7 +801,8 @@ void DYN_rundown_request(thread_db* tdbb, Request * handle, SSHORT id)
 	if (!handle)
 		return;
 		
-	EXE_unwind(tdbb, handle);
+	//EXE_unwind(tdbb, handle);
+	handle->unwind();
 	
 	if (id >= 0 && !DYN_REQUEST(id)) 
 		DYN_REQUEST(id) = handle;

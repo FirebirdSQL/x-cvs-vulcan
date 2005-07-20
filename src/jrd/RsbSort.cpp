@@ -50,8 +50,9 @@ RsbSort::~RsbSort(void)
 {
 }
 
-void RsbSort::open(Request* request, thread_db* tdbb)
+void RsbSort::open(Request* request)
 {
+	thread_db* tdbb = request->req_tdbb;
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);
 	
 #ifdef SCROLLABLE_CURSORS
@@ -81,7 +82,7 @@ void RsbSort::open(Request* request, thread_db* tdbb)
 	//JRD_REQ request = tdbb->tdbb_request;
 
 	//RSE_open(tdbb, rsb->rsb_next);
-	rsb_next->open(request, tdbb);
+	rsb_next->open(request);
 	//SortMap* map = (SortMap*) rsb_arg[0];
 	ULONG records = 0;
 
@@ -89,7 +90,7 @@ void RsbSort::open(Request* request, thread_db* tdbb)
 
 	if (impure->irsb_sort_handle &&
 		impure->irsb_sort_handle->scb_impure == impure)
-		SORT_fini(impure->irsb_sort_handle, tdbb->tdbb_attachment);
+		SORT_fini(impure->irsb_sort_handle, request->req_attachment);
 
 	// Initialize for sort. If this is really a project operation,
 	// establish a callback routine to reject duplicate records.
@@ -114,7 +115,7 @@ void RsbSort::open(Request* request, thread_db* tdbb)
 	// mapping is done in get_sort().
 
 	//while (get_record(request, tdbb, rsb->rsb_next, NULL, RSE_get_forward)) 
-	while (rsb_next->get(request, tdbb, RSE_get_forward)) 
+	while (rsb_next->get(request, RSE_get_forward)) 
 		{
 		records++;
 
@@ -203,8 +204,9 @@ void RsbSort::open(Request* request, thread_db* tdbb)
 		}
 }
 
-bool RsbSort::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
+bool RsbSort::get(Request* request,RSE_GET_MODE mode)
 {
+	thread_db* tdbb = request->req_tdbb;
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);
 	UCHAR *data;
 
@@ -240,12 +242,12 @@ bool RsbSort::get(Request* request, thread_db* tdbb, RSE_GET_MODE mode)
 	return true;
 }
 
-void RsbSort::close(Request* request, thread_db* tdbb)
+void RsbSort::close(Request* request)
 {
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);
-	SORT_fini(impure->irsb_sort_handle, tdbb->tdbb_attachment);
+	SORT_fini(impure->irsb_sort_handle, request->req_attachment);
 	impure->irsb_sort_handle = NULL;
-	rsb_next->close(request, tdbb);
+	rsb_next->close(request);
 }
 
 bool RsbSort::reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg)

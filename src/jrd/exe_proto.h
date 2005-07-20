@@ -35,7 +35,8 @@ Request* EXE_find_request(thread_db*, Request *, bool);
 void EXE_receive(thread_db*, Request*, USHORT, USHORT, UCHAR*);
 void EXE_send(thread_db*, Request *, USHORT, USHORT, const UCHAR *);
 void EXE_start(thread_db*, Request *, Transaction *);
-void EXE_unwind(thread_db*, Request *);
+//void EXE_unwind(Request *);
+
 #ifdef SCROLLABLE_CURSORS
 void EXE_seek(thread_db*, Request *, USHORT, ULONG);
 #endif
