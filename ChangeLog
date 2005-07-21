@@ -1,3 +1,35 @@
+2005-07-21 00:53  jimstarkey
+
+	* vulcan/src/jrd/: RsbCross.h, makefile.in:
+	
+	Added a missing line feed and rebuilt dependencies.
+
+2005-07-21 00:43  jimstarkey
+
+	* vulcan/src/jrd/: RecordSource.cpp, RecordSource.h, Request.cpp,
+	Request.h, RsbCross.cpp, RsbCross.h, RsbMerge.cpp, RsbMerge.h,
+	RsbProcedure.cpp, RsbProcedure.h, RsbSort.cpp, RsbSort.h, cmp.cpp,
+	dfw.epp, dyn.epp, dyn_def.epp, dyn_mod.epp, dyn_util.epp, evl.cpp,
+	exe.cpp, exe_proto.h, jrd.cpp, met.epp, opt.cpp, pcmet.epp,
+	scl.epp, sort.cpp, sort.h, tra.cpp:
+	
+	Refactor EXE_unwind as Request::unwind.  Track down and fix newly
+	introduced bugs from Rsb refactoring, particularly in sort context
+	bookkeeping
+
+2005-07-20 19:26  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/jrd/jrd.vcproj,
+	src/burp/burp.vcproj, src/common/classes/alloc.h, src/dsql/gen.cpp,
+	src/include/fb_blk.h, src/jrd/MemMgr.cpp, src/jrd/MemMgr.h,
+	src/jrd/MemoryManager.h, src/jrd/OSRIException.cpp,
+	src/jrd/RecordSource.cpp, src/jrd/Relation.cpp,
+	src/jrd/RsbMerge.cpp, src/jrd/cmp.cpp, src/jrd/cvt.cpp,
+	src/jrd/ini.epp, src/jrd/jrd.vcproj, src/jrd/opt.cpp,
+	src/jrd/RsbCross.cpp, src/jrd/RsbCross.h, src/jrd/tdbb.h:
+	
+	Split RsbCross out from RecordSource.
+
 2005-07-09 21:08  jimstarkey
 
 	* vulcan/src/: dsql/CStatement.cpp, include/fb_blk.h,
