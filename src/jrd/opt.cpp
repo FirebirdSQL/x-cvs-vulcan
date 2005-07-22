@@ -91,6 +91,8 @@
 #include "RsbCross.h"
 #include "RsbLeftCross.h"
 #include "RsbBoolean.h"
+#include "RsbSequential.h"
+#include "RsbIndexed.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -5113,11 +5115,14 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 
 
 static RecordSource* gen_rsb(thread_db* tdbb,
-				   OptimizerBlk* opt,
-				   RecordSource* rsb,
-				   jrd_nod* inversion,
-				   SSHORT stream,
-				   Relation* relation, str* alias, jrd_nod* boolean, float cardinality)
+							OptimizerBlk* opt,
+							RecordSource* rsb,
+							jrd_nod* inversion,
+							SSHORT stream,
+							Relation* relation, 
+							str* alias, 
+							jrd_nod* boolean, 
+							float cardinality)
 {
 /**************************************
  *
@@ -5129,6 +5134,7 @@ static RecordSource* gen_rsb(thread_db* tdbb,
  *	Generate a record source block to handle either a sort or a project.
  *
  **************************************/
+	/***
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(rsb, type_rsb);
 	DEV_BLKCHK(inversion, type_nod);
@@ -5136,49 +5142,63 @@ static RecordSource* gen_rsb(thread_db* tdbb,
 	DEV_BLKCHK(alias, type_str);
 	DEV_BLKCHK(boolean, type_nod);
 	SET_TDBB(tdbb);
-	if (rsb) {
-		if (rsb->rsb_type == rsb_navigate && inversion) {
+	***/
+	
+	if (rsb) 
+		{
+		if (rsb->rsb_type == rsb_navigate && inversion) 
 			rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
 		}
-	}
-	else {
+	else 
+		{
 		SSHORT size;
-		if (inversion) {
-			rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(opt->opt_csb);
-			rsb->rsb_type = rsb_indexed;
-			rsb->rsb_count = 1;
+		
+		if (inversion) 
+			{
+			//rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(opt->opt_csb);
+			rsb = new (tdbb->tdbb_default) RsbIndexed(opt->opt_csb, stream, relation, alias, inversion);
+			//rsb->rsb_type = rsb_indexed;
+			//rsb->rsb_count = 1;
 			size = sizeof(struct irsb_index);
-			rsb->rsb_arg[0] = (RecordSource*) inversion;
-		}
-		else {
-			rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) RecordSource(opt->opt_csb);
-			rsb->rsb_type = rsb_sequential;
-			size = sizeof(struct irsb);
+			//rsb->rsb_impure = CMP_impure(opt->opt_csb, size);
+			//rsb->rsb_arg[0] = (RecordSource*) inversion;
+			//rsb->rsb_stream = (UCHAR) stream;
+			//rsb->rsb_relation = relation;
+			//rsb->rsb_alias = alias;
+			}
+		else 
+			{
+			//rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) RecordSource(opt->opt_csb);
+			rsb = new (tdbb->tdbb_default) RsbSequential(opt->opt_csb, stream, relation, alias);
+			//rsb->rsb_type = rsb_sequential;
+			//size = sizeof(struct irsb);
+			
 			if (boolean)
 				opt->opt_csb->csb_rpt[stream].csb_flags |= csb_unmatched;
-		}
+			}
 
-		rsb->rsb_stream = (UCHAR) stream;
-		rsb->rsb_relation = relation;
-		rsb->rsb_alias = alias;
+		
 		// if this is a blr_stream, we need to leave room
 		// in the impure area for a navigational-type rsb;
 		// even if this is not currently a navigational rsb, 
 		// OPT_set_index() could be used to convert it to one.
-		if (opt->opt_g_flags & opt_g_stream) {
+		
+		if (opt->opt_g_flags & opt_g_stream) 
+			{
+			fb_assert(false);		// this hasn't been converted yet
 			size = sizeof(impure_inversion);
 			size = nav_rsb_size(rsb, MAX_KEY, size);
+			}
+
 		}
 
-		rsb->rsb_impure = CMP_impure(opt->opt_csb, size);
-	}
-
-	if (boolean) {
+	if (boolean) 
 		rsb = gen_boolean(tdbb, opt, rsb, boolean);
-	}
 
 	// retain the cardinality for use at runtime by blr_cardinality
+	
 	rsb->rsb_cardinality = (ULONG) cardinality;
+	
 	return rsb;
 }
 

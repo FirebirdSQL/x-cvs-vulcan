@@ -36,34 +36,46 @@
 
 #include <vector>
 
+class Record;
+class IndexLock;
+class Format;
+class Resource;
+class AccessItem;
+
+struct SaveRecordParam;
+struct win;
+struct lls;
+struct record_param;
+struct lck;
+
 /* record parameter block */
 
 struct record_param {
 	record_param() : rpb_window(-1) {}
-	RecordNumber rpb_number;	/* record number in relation */
-	SLONG rpb_transaction;		/* transaction number */
-	Relation* rpb_relation;		/* relation of record */
-	class Record* rpb_record;	/* final record block */
-	class Record* rpb_prior;	/* prior record block if this is a delta record */
-	struct SaveRecordParam*  rpb_copy;		/* rpb copy for singleton verification */
-	class Record* rpb_undo;		/* our first version of data if this is a second modification */
-	USHORT rpb_format_number;	/* format number in relation */
+	RecordNumber	rpb_number;			/* record number in relation */
+	SLONG			rpb_transaction;	/* transaction number */
+	Relation*		rpb_relation;		/* relation of record */
+	Record*			rpb_record;			/* final record block */
+	Record*			rpb_prior;			/* prior record block if this is a delta record */
+	SaveRecordParam*  rpb_copy;			/* rpb copy for singleton verification */
+	Record*			rpb_undo;			/* our first version of data if this is a second modification */
+	USHORT			rpb_format_number;	/* format number in relation */
 
-	SLONG rpb_page;				/* page number */
-	USHORT rpb_line;			/* line number on page */
+	SLONG			rpb_page;			/* page number */
+	USHORT			rpb_line;			/* line number on page */
 
-	SLONG rpb_f_page;			/* fragment page number */
-	USHORT rpb_f_line;			/* fragment line number on page */
+	SLONG			rpb_f_page;			/* fragment page number */
+	USHORT			rpb_f_line;			/* fragment line number on page */
 
-	SLONG rpb_b_page;			/* back page */
-	USHORT rpb_b_line;			/* back line */
+	SLONG			rpb_b_page;			/* back page */
+	USHORT			rpb_b_line;			/* back line */
 
-	UCHAR* rpb_address;			/* address of record sans header */
-	USHORT rpb_length;			/* length of record */
-	USHORT rpb_flags;			/* record ODS flags replica */
-	USHORT rpb_stream_flags;	/* stream flags */
-	SSHORT rpb_org_scans;		/* relation scan count at stream open */
-	struct win rpb_window;
+	UCHAR*			rpb_address;		/* address of record sans header */
+	USHORT			rpb_length;			/* length of record */
+	USHORT			rpb_flags;			/* record ODS flags replica */
+	USHORT			rpb_stream_flags;	/* stream flags */
+	SSHORT			rpb_org_scans;		/* relation scan count at stream open */
+	win				rpb_window;
 };
 
 /* Record flags must be an exact replica of ODS record header flags */
@@ -99,15 +111,15 @@ const USHORT DPM_other		= 3;		/* Independent (or don't care) record */
 
 class Record : public pool_alloc_rpt<SCHAR, type_rec>
 {
-    public:
-	class Format* rec_format;	/* what the data looks like */
-	struct lls *rec_precedence;	/* stack of higher precedence pages */
-	USHORT rec_length;			/* how much there is */
-	class Format* rec_fmt_bk;
-	UCHAR rec_flags;			/* misc record flags */
-	RecordNumber rec_number;	/* original rpb number - used for undoing multiple updates */
-	double rec_dummy;			/* this is to force next field to a double boundary */
-	UCHAR rec_data[1];			/* THIS VARIABLE MUST BE ALIGNED ON A DOUBLE BOUNDARY */
+public:
+	Format*		rec_format;			/* what the data looks like */
+	lls			*rec_precedence;	/* stack of higher precedence pages */
+	USHORT		rec_length;			/* how much there is */
+	Format*		rec_fmt_bk;
+	UCHAR		rec_flags;			/* misc record flags */
+	RecordNumber rec_number;		/* original rpb number - used for undoing multiple updates */
+	double		rec_dummy;			/* this is to force next field to a double boundary */
+	UCHAR		rec_data[1];		/* THIS VARIABLE MUST BE ALIGNED ON A DOUBLE BOUNDARY */
 };
 
 // rec_flags
@@ -121,7 +133,7 @@ const UCHAR REC_new_version	= 4;		/* savepoint created new record version and de
 class SaveRecordParam : public pool_alloc<type_srpb>
 {
     public:
-	struct record_param srpb_rpb[1];	/* record parameter blocks */
+	record_param srpb_rpb[1];	/* record parameter blocks */
 };
 
 /* request block */
@@ -167,14 +179,19 @@ const ULONG req_clone_data_from_default_clause \
 											   **   The data of this column was
 											   **   cloned from the default clause.
 											 */
+											 
 const ULONG req_blr_version4	= 0x400000L;	/* Request is of blr_version4 */
+
 /* Mask for flags preserved in a clone of a request */
+
 const ULONG REQ_FLAGS_CLONE_MASK	= (req_sys_trigger | req_internal | req_ignore_perm | req_blr_version4);
 
 /* Mask for flags preserved on initialization of a request */
+
 const ULONG REQ_FLAGS_INIT_MASK	= (req_in_use | req_internal | req_sys_trigger | req_ignore_perm | req_blr_version4);
 
 /* Flags for req_view_flags */
+
 enum {
 	req_first_store_return = 0x1,
 	req_first_modify_return = 0x2,
@@ -190,8 +207,8 @@ enum {
 
 class Resource : public pool_alloc<type_rsc>
 {
-    public:
-	class Resource* rsc_next;	/* Next resource in request */
+public:
+	Resource* rsc_next;			/* Next resource in request */
 	Relation* rsc_rel;			/* Relation block */
 	Procedure* rsc_prc;			/* Relation block */
 	USHORT rsc_id;				/* Id of parent */
@@ -209,9 +226,9 @@ class Resource : public pool_alloc<type_rsc>
 
 class IndexLock : public pool_alloc<type_idl>
 {
-    public:
-	class IndexLock* idl_next;	/* Next index lock block for relation */
-	struct lck*	idl_lock;		/* Lock block */
+public:
+	IndexLock*	idl_next;		/* Next index lock block for relation */
+	lck*		idl_lock;		/* Lock block */
 	Relation*	idl_relation;	/* Parent relation */
 	USHORT		idl_id;			/* Index id */
 	USHORT		idl_count;		/* Use count */
@@ -222,15 +239,15 @@ class IndexLock : public pool_alloc<type_idl>
 
 class AccessItem : public pool_alloc<type_acc>
 {
-    public:
-	class AccessItem* acc_next;
-	TEXT* acc_security_name;	/* WRITTEN into by SCL_get_class() */
-	SLONG acc_view_id;
-	const TEXT*	acc_trg_name;
-	const TEXT*	acc_prc_name;
-	const TEXT*	acc_name;
-	const TEXT*	acc_type;
-	USHORT		acc_mask;
+public:
+	AccessItem*		acc_next;
+	TEXT*			acc_security_name;	/* WRITTEN into by SCL_get_class() */
+	SLONG			acc_view_id;
+	const TEXT*		acc_trg_name;
+	const TEXT*		acc_prc_name;
+	const TEXT*		acc_name;
+	const TEXT*		acc_type;
+	USHORT			acc_mask;
 };
 //typedef acc *ACC;
 

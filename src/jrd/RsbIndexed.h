@@ -1,6 +1,6 @@
 /*
  *	PROGRAM:		JRD Access Method
- *	MODULE:			RsbSequential.h
+ *	MODULE:			RsbIndexed.h
  *	DESCRIPTION:	Record source block definitions
  *
  * The contents of this file are subject to the Interbase Public
@@ -23,8 +23,8 @@
  * Refactored July 22, 2005 by James A. Starkey
  */
 
-#ifndef JRD_RSB_SEQUENTIAL_H
-#define JRD_RSB_SEQUENTIAL_H
+#ifndef JRD_RSB_INDEXED_H
+#define JRD_RSB_INDEXED_H
 
 #if _MSC_VER >= 1000
 #pragma once
@@ -32,16 +32,18 @@
 
 #include "RecordSource.h"
 
-class RsbSequential : public RecordSource
+struct jrd_nod;
+
+class RsbIndexed : public RecordSource
 {
 public:
-	RsbSequential(CompilerScratch *csb, int stream, Relation *rel, str *alias);
-	virtual ~RsbSequential(void);
+	RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *inversion);
+	virtual ~RsbIndexed(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
+	
+	jrd_nod		*inversion;
 };
 
 #endif
-
-

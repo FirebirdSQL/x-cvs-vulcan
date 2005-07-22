@@ -1753,6 +1753,9 @@
 				RelativePath=".\RsbCross.cpp">
 			</File>
 			<File
+				RelativePath=".\RsbIndexed.cpp">
+			</File>
+			<File
 				RelativePath=".\RsbLeftCross.cpp">
 			</File>
 			<File
@@ -3160,6 +3163,9 @@
 				RelativePath=".\RsbCross.h">
 			</File>
 			<File
+				RelativePath=".\RsbIndexed.h">
+			</File>
+			<File
 				RelativePath=".\RsbLeftCross.h">
 			</File>
 			<File
@@ -3262,10 +3268,10 @@
 				RelativePath="..\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath=".\Sqlda.h">
+				RelativePath="..\dsql\sqlda.h">
 			</File>
 			<File
-				RelativePath="..\dsql\sqlda.h">
+				RelativePath=".\Sqlda.h">
 			</File>
 			<File
 				RelativePath=".\SQLError.h">
