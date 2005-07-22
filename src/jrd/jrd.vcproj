@@ -1747,7 +1747,13 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RsbBoolean.cpp">
+			</File>
+			<File
 				RelativePath=".\RsbCross.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbLeftCross.cpp">
 			</File>
 			<File
 				RelativePath=".\RsbMerge.cpp">
@@ -2275,10 +2281,10 @@
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2326,10 +2332,10 @@
 				RelativePath="blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\dsql\blk.h">
+				RelativePath="blk.h">
 			</File>
 			<File
-				RelativePath="blk.h">
+				RelativePath="..\dsql\blk.h">
 			</File>
 			<File
 				RelativePath="..\common\Blob.h">
@@ -3145,7 +3151,13 @@
 				RelativePath="rpb_chain.h">
 			</File>
 			<File
+				RelativePath=".\RsbBoolean.h">
+			</File>
+			<File
 				RelativePath=".\RsbCross.h">
+			</File>
+			<File
+				RelativePath=".\RsbLeftCross.h">
 			</File>
 			<File
 				RelativePath=".\RsbMerge.h">

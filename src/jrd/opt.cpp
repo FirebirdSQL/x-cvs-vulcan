@@ -89,6 +89,8 @@
 #include "RsbSort.h"
 #include "RsbMerge.h"
 #include "RsbCross.h"
+#include "RsbLeftCross.h"
+#include "RsbBoolean.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -2611,16 +2613,13 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 
 	case rsb_left_cross:
 		*buffer++ = 2;
-		if (!dump_rsb(tdbb, request, rsb->rsb_arg[RSB_LEFT_outer], &buffer,
-			 buffer_length))
-		{
+		
+		if (!dump_rsb(tdbb, request, ((RsbLeftCross*) rsb)->outerRsb, &buffer, buffer_length))
 			return false;
-		}
-		if (!dump_rsb(tdbb, request, rsb->rsb_arg[RSB_LEFT_inner], &buffer,
-			 buffer_length)) 
-		{
+
+		if (!dump_rsb(tdbb, request, ((RsbLeftCross*) rsb)->innerRsb, &buffer, buffer_length)) 
 			return false;
-		}
+
 		break;
   
 	default:    // Shut up compiler warnings.
@@ -3515,7 +3514,7 @@ static void find_rsbs(RecordSource* rsb, StreamStack* stream_list, RsbStack* rsb
  *	For unions/aggregates/procedures also save the rsb pointer.
  *
  **************************************/
-	DEV_BLKCHK(rsb, type_rsb);
+	//DEV_BLKCHK(rsb, type_rsb);
 
 	if (!rsb)
 		return;
@@ -3549,8 +3548,10 @@ static void find_rsbs(RecordSource* rsb, StreamStack* stream_list, RsbStack* rsb
 			break;
 
 		case rsb_left_cross:
-			find_rsbs(rsb->rsb_arg[RSB_LEFT_outer], stream_list, rsb_list);
-			find_rsbs(rsb->rsb_arg[RSB_LEFT_inner], stream_list, rsb_list);
+			//find_rsbs(rsb->rsb_arg[RSB_LEFT_outer], stream_list, rsb_list);
+			//find_rsbs(rsb->rsb_arg[RSB_LEFT_inner], stream_list, rsb_list);
+			find_rsbs(((RsbLeftCross*) rsb)->outerRsb, stream_list, rsb_list);
+			find_rsbs(((RsbLeftCross*) rsb)->innerRsb, stream_list, rsb_list);
 			break;
 
 		case rsb_merge:
@@ -3615,8 +3616,8 @@ static void find_used_streams(const RecordSource* rsb, UCHAR* streams)
 			break;
 
 		case rsb_left_cross:
-			find_used_streams(rsb->rsb_arg[RSB_LEFT_inner], streams);
-			find_used_streams(rsb->rsb_arg[RSB_LEFT_outer], streams);
+			find_used_streams(((RsbLeftCross*) rsb)->innerRsb, streams);
+			find_used_streams(((RsbLeftCross*) rsb)->outerRsb, streams);
 			break;
 
         default:	// Shut up compiler warnings.
@@ -3974,7 +3975,7 @@ static RecordSource* gen_aggregate(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* 
 
 
 static RecordSource* gen_boolean(thread_db* tdbb, OptimizerBlk* opt,
-	RecordSource* prior_rsb, jrd_nod* node)
+								 RecordSource* prior_rsb, jrd_nod* node)
 {
 /**************************************
  *
@@ -3987,18 +3988,22 @@ static RecordSource* gen_boolean(thread_db* tdbb, OptimizerBlk* opt,
  *	set of record source blocks (rsb's).
  *
  **************************************/
+	/***
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(node, type_nod);
 	DEV_BLKCHK(prior_rsb, type_rsb);
 	SET_TDBB(tdbb);
+	***/
 
 	CompilerScratch* csb = opt->opt_csb;
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(csb);
-	rsb->rsb_count = 1;
-	rsb->rsb_type = rsb_boolean;
-	rsb->rsb_next = prior_rsb;
-	rsb->rsb_arg[0] = (RecordSource*) node;
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(csb);
+	RecordSource* rsb = new (tdbb->tdbb_default) RsbBoolean(csb, prior_rsb, node);
+	//rsb->rsb_count = 1;
+	//rsb->rsb_type = rsb_boolean;
+	//rsb->rsb_next = prior_rsb;
+	//rsb->rsb_arg[0] = (RecordSource*) node;
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
+	
 	return rsb;
 }
 
@@ -4515,61 +4520,72 @@ static RecordSource* gen_outer(thread_db* tdbb,
 		USHORT stream_num;
 	} stream_o, stream_i, *stream_ptr[2];
 	
+	/***
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(rse, type_nod);
 	DEV_BLKCHK(*sort_clause, type_nod);
 	SET_TDBB(tdbb);
-
+	***/
+	
 	// Determine which stream should be outer and which is inner.
 	// In the case of a left join, the syntactically left stream is the 
 	// outer, and the right stream is the inner.  For all others, swap 
 	// the sense of inner and outer, though for a full join it doesn't 
 	// matter and we should probably try both orders to see which is 
 	// more efficient.
-	if (rse->rse_jointype != blr_left) {
+	
+	if (rse->rse_jointype != blr_left) 
+		{
 		stream_ptr[1] = &stream_o;
 		stream_ptr[0] = &stream_i;
-	}
-	else {
+		}
+	else 
+		{
 		stream_ptr[0] = &stream_o;
 		stream_ptr[1] = &stream_i;
-	}
+		}
 
 	// Loop through the outer join sub-streams in
 	// reverse order because rivers may have been PUSHed
+	
 	River* river;
 	SSHORT i;
 	jrd_nod* node;
-	for (i = 1; i >= 0; i--) {
-		node = rse->rse_relation[i];
-		if (node->nod_type == nod_union ||
-			node->nod_type == nod_aggregate ||
-			node->nod_type == nod_procedure || node->nod_type == nod_rse)
+	
+	for (i = 1; i >= 0; i--) 
 		{
+		node = rse->rse_relation[i];
+		
+		if (node->nod_type == nod_union ||
+			 node->nod_type == nod_aggregate ||
+			 node->nod_type == nod_procedure || 
+			 node->nod_type == nod_rse)
+			{
 			river = river_stack.pop();
 			stream_ptr[i]->stream_rsb = river->riv_rsb;
-		}
-		else {
+			}
+		else 
+			{
 			stream_ptr[i]->stream_rsb = NULL;
-			stream_ptr[i]->stream_num =
-				(USHORT)(long) node->nod_arg[STREAM_INDEX(node)];
+			stream_ptr[i]->stream_num = (USHORT)(long) node->nod_arg[STREAM_INDEX(node)];
+			}
 		}
-	}
 
 	// Generate rsbs for the sub-streams.  For the left sub-stream
 	// we also will get a boolean back
+	
 	jrd_nod* boolean = NULL;
 	jrd_nod* inner_boolean = NULL;
-	if (!stream_o.stream_rsb) {
-		stream_o.stream_rsb =
-			gen_retrieval(tdbb, opt, stream_o.stream_num, sort_clause,
-						  project_clause, true, false, &boolean);
-	}
+	
+	if (!stream_o.stream_rsb) 
+		stream_o.stream_rsb = gen_retrieval(tdbb, opt, stream_o.stream_num, sort_clause,
+											 project_clause, true, false, &boolean);
 
 	// in the case of a full join, we must make sure we don't exclude record from 
 	// the inner stream; otherwise just retrieve it as we would for an inner join
+	
 	if (!stream_i.stream_rsb)
-	{
+		{
 		const bool bFullJoin = rse->rse_jointype == blr_full;
 		const bool bOuter    = bFullJoin;
 		jrd_nod**   ppNod     = bFullJoin ? &inner_boolean : 0;
@@ -4583,35 +4599,36 @@ static RecordSource* gen_outer(thread_db* tdbb,
 			              bOuter,
 			              true,
 			              ppNod);
-	}
+		}
 
 	// generate a parent boolean rsb for any remaining booleans that 
 	// were not satisfied via an index lookup
+	
 	stream_i.stream_rsb = gen_residual_boolean(tdbb, opt, stream_i.stream_rsb);
 
 	// Allocate and fill in the rsb
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_LEFT_count) RecordSource(opt->opt_csb);
-	rsb->rsb_type = rsb_left_cross;
-	rsb->rsb_count = 2;
+	
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_LEFT_count) RecordSource(opt->opt_csb);
+	RsbLeftCross *rsb = new (tdbb->tdbb_default) RsbLeftCross(opt->opt_csb, inner_boolean, stream_i.stream_rsb,
+															  boolean, stream_o.stream_rsb);
+	//rsb->rsb_type = rsb_left_cross;
+	//rsb->rsb_count = 2;
 	rsb->rsb_impure = CMP_impure(opt->opt_csb, sizeof(struct irsb));
-	rsb->rsb_arg[RSB_LEFT_outer] = stream_o.stream_rsb;
-	rsb->rsb_arg[RSB_LEFT_inner] = stream_i.stream_rsb;
-	rsb->rsb_arg[RSB_LEFT_boolean] = (RecordSource*) boolean;
-	rsb->rsb_arg[RSB_LEFT_inner_boolean] = (RecordSource*) inner_boolean;
-	rsb->rsb_left_streams = 
-		FB_NEW(*tdbb->tdbb_default) StreamStack(*tdbb->tdbb_default);
-	rsb->rsb_left_inner_streams = 
-		FB_NEW(*tdbb->tdbb_default) StreamStack(*tdbb->tdbb_default);
-	rsb->rsb_left_rsbs = 
-		FB_NEW(*tdbb->tdbb_default) RsbStack(*tdbb->tdbb_default);
+	//rsb->rsb_arg[RSB_LEFT_outer] = stream_o.stream_rsb;
+	//rsb->rsb_arg[RSB_LEFT_inner] = stream_i.stream_rsb;
+	//rsb->rsb_arg[RSB_LEFT_boolean] = (RecordSource*) boolean;
+	//rsb->rsb_arg[RSB_LEFT_inner_boolean] = (RecordSource*) inner_boolean;
+	rsb->rsb_left_streams = FB_NEW(*tdbb->tdbb_default) StreamStack(*tdbb->tdbb_default);
+	rsb->rsb_left_inner_streams = FB_NEW(*tdbb->tdbb_default) StreamStack(*tdbb->tdbb_default);
+	rsb->rsb_left_rsbs = FB_NEW(*tdbb->tdbb_default) RsbStack(*tdbb->tdbb_default);
+		
 	// find all the outer and inner substreams and push them on a stack.
-	find_rsbs(stream_i.stream_rsb,
-			  rsb->rsb_left_streams,
-			  rsb->rsb_left_rsbs);
-	if (rse->rse_jointype == blr_full) {
-		find_rsbs(stream_o.stream_rsb,
-				  rsb->rsb_left_inner_streams, NULL);
-	}
+	
+	find_rsbs(stream_i.stream_rsb, rsb->rsb_left_streams,  rsb->rsb_left_rsbs);
+	
+	if (rse->rse_jointype == blr_full) 
+		find_rsbs(stream_o.stream_rsb, rsb->rsb_left_inner_streams, NULL);
+
 	return rsb;
 }
 

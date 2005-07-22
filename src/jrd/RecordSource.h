@@ -76,9 +76,11 @@ const USHORT rsb_writelock = 16;		// records should be locked for writing
 
 // special argument positions within the RecordSource
 
+/***
 const int RSB_PRC_inputs		= 0;
 const int RSB_PRC_in_msg		= 1;
 const int RSB_PRC_count			= 2;
+***/
 
 const int RSB_NAV_index			= 0;
 const int RSB_NAV_inversion		= 1;
@@ -86,11 +88,13 @@ const int RSB_NAV_key_length	= 2;
 const int RSB_NAV_idx_offset	= 3;
 const int RSB_NAV_count			= 4;
 
+/***
 const int RSB_LEFT_outer		= 0;
 const int RSB_LEFT_inner		= 1;
 const int RSB_LEFT_boolean		= 2;
 const int RSB_LEFT_inner_boolean	= 3;
 const int RSB_LEFT_count			= 4;
+***/
 
 class Relation;
 class Procedure;
@@ -129,7 +133,7 @@ public:
 	Relation*	rsb_relation;		// relation, if appropriate
 	str*		rsb_alias;			// SQL alias for relation
 	Format*		rsb_format;			// format, if appropriate
-	jrd_nod*	rsb_any_boolean;	// any/all boolean
+	//jrd_nod*	rsb_any_boolean;	// any/all boolean
 	RecordSource *nextInRequest;	// list of rsbs in request
 	
 	// AP:	stop saving memory with the price of awful conversions,

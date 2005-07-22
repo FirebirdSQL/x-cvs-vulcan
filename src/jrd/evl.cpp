@@ -114,6 +114,7 @@
 #include "../jrd/met_proto.h"
 #include "../jrd/cvt_proto.h"
 #include "../jrd/misc_func_ids.h"
+#include "RsbBoolean.h"
 //#include "../jrd/authenticate.h"
 //#include "../common/config/config.h"
 
@@ -662,7 +663,7 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			   the unoptimized boolean expression must be used, since the
 			   processing of these clauses is order dependant (see rse.cpp) */
 
-			RecordSource* select = (RecordSource*) (node->nod_arg[e_any_rsb]);
+			RsbBoolean* select = (RsbBoolean*) (node->nod_arg[e_any_rsb]);
 			
 			if (node->nod_type != nod_any)
 				{

@@ -23,8 +23,8 @@
  * Refactored July 11, 2005 by James A. Starkey
  */
 
-#ifndef JRD_RSB_CROSS_H
-#define JRD_RSB_CROSS_H
+#ifndef JRD_RSB_LEFT_CROSS_H
+#define JRD_RSB_LEFT_CROSS_H
 
 #if _MSC_VER >= 1000
 #pragma once
@@ -32,17 +32,21 @@
 
 #include "RecordSource.h"
 
-class RsbCross : public RecordSource
+
+class RsbLeftCross : public RecordSource
 {
 public:
-	RsbCross(CompilerScratch *csb, int count);
-	virtual ~RsbCross(void);
+	RsbLeftCross(CompilerScratch *csb, jrd_nod *innerBool, RecordSource *innerRsb, jrd_nod *outerBool, RecordSource *outerRsb);
+	virtual ~RsbLeftCross(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
-
-	RecordSource	**rsbs;
-	bool fetchRecord(Request* request, int n, RSE_GET_MODE mode);
+	
+	jrd_nod			*innerBoolean;
+	jrd_nod			*outerBoolean;
+	RecordSource	*innerRsb;
+	RecordSource	*outerRsb;
+	void joinToNulls(Request* request, StreamStack* stream);
 };
-#endif
 
+#endif

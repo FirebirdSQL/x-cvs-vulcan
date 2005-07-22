@@ -28,8 +28,6 @@
 #include "jrd.h"
 #include "rse.h"
 #include "Request.h"
-#include "Procedure.h"
-#include "Relation.h"
 #include "CompilerScratch.h"
 #include "req.h"
 

@@ -1719,7 +1719,13 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbBoolean.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbCross.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbLeftCross.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbMerge.cpp">
@@ -3115,7 +3121,13 @@
 				RelativePath="..\..\..\src\jrd\rpb_chain.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbBoolean.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbCross.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbLeftCross.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbMerge.h">
@@ -3352,10 +3364,10 @@
 				RelativePath="..\..\..\src\jrd\Triggers.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\types.h">
+				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
+				RelativePath="..\..\..\src\jrd\types.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\UserData.h">
