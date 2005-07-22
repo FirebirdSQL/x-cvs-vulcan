@@ -30,7 +30,6 @@
 #include "Request.h"
 #include "CompilerScratch.h"
 #include "req.h"
-#include ".\rsbsequential.h"
 
 RsbSequential::RsbSequential(CompilerScratch *csb) : RecordSource(csb, rsb_sequential)
 {
