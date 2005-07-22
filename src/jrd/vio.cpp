@@ -232,7 +232,7 @@ void VIO_backout(thread_db* tdbb, record_param* rpb, Transaction* transaction)
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES)
 		ib_printf("VIO_backout (rpb %"SLONGFORMAT", transaction %"SLONGFORMAT
-				  ")\n", rpb->rpb_number,
+				  ")\n", rpb->rpb_number.getValue(),
 				  transaction ? transaction->tra_number : 0);
 #endif
 
@@ -503,7 +503,7 @@ int VIO_chase_record_version(thread_db* tdbb, record_param* rpb, RecordSource* r
 		ib_printf
 			("VIO_chase_record_version (rpb %"SLONGFORMAT", transaction %"
 			 SLONGFORMAT", pool %p)\n",
-			 rpb->rpb_number, transaction ? transaction->tra_number : 0,
+			 rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0,
 			 pool );
 	if (debug_flag > DEBUG_TRACE_ALL_INFO)
 		ib_printf
@@ -1065,7 +1065,7 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 	if (debug_flag > DEBUG_READS)
 	{
 		ib_printf("VIO_data (rpb %"SLONGFORMAT", pool %p)\n",
-					rpb->rpb_number,
+					rpb->rpb_number.getValue(),
 					pool);
 	}
 	if (debug_flag > DEBUG_READS_INFO)
@@ -1157,7 +1157,7 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 	{
 #ifdef VIO_DEBUG
 	    if (debug_flag > DEBUG_WRITES)
-			ib_printf ("VIO_erase (rpb %"SLONGFORMAT"d, length %d expected %d)\n", rpb->rpb_number, 
+			ib_printf ("VIO_erase (rpb %"SLONGFORMAT"d, length %d expected %d)\n", rpb->rpb_number.getValue(), 
 			    length, format->fmt_length);
 	
 	    if (debug_flag > DEBUG_WRITES_INFO)
@@ -1196,7 +1196,7 @@ void VIO_erase(thread_db* tdbb, record_param* rpb, Transaction* transaction)
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES)
 		ib_printf("VIO_erase (rpb %"SLONGFORMAT", transaction %"SLONGFORMAT")\n",
-				  rpb->rpb_number, transaction->tra_number);
+				  rpb->rpb_number.getValue(), transaction->tra_number);
 
 	if (debug_flag > DEBUG_WRITES_INFO)
 		ib_printf("   record  %"SLONGFORMAT":%d, rpb_trans %"SLONGFORMAT
@@ -1547,7 +1547,7 @@ bool VIO_garbage_collect(thread_db* tdbb, record_param* rpb, Transaction* transa
 	{
 		ib_printf("VIO_garbage_collect (rpb %"SLONGFORMAT", transaction %"
 				  SLONGFORMAT")\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0);
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0);
 	}
 	if (debug_flag > DEBUG_TRACE_INFO)
 	{
@@ -1717,7 +1717,7 @@ int VIO_get(thread_db* tdbb, record_param* rpb, RecordSource* rsb, Transaction* 
 	if (debug_flag > DEBUG_READS)
 		ib_printf("VIO_get (rpb %"SLONGFORMAT", transaction %"SLONGFORMAT
 				  ", pool %p)\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0,
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0,
 				  pool);
 #endif
 
@@ -1789,7 +1789,7 @@ bool VIO_get_current(thread_db* tdbb,
 	if (debug_flag > DEBUG_TRACE)
 		ib_printf("VIO_get_current (rpb %"SLONGFORMAT", transaction %"
 				  SLONGFORMAT", pool %p)\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0,
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0,
 				  pool );
 #endif
 
@@ -2131,7 +2131,8 @@ void VIO_modify(thread_db* tdbb, record_param* org_rpb, record_param* new_rpb, T
 	if (debug_flag > DEBUG_WRITES)
 		ib_printf("VIO_modify (org_rpb %"SLONGFORMAT", new_rpb %"SLONGFORMAT
 				  ", transaction %"SLONGFORMAT")\n",
-				  org_rpb->rpb_number, new_rpb->rpb_number,
+				  org_rpb->rpb_number.getValue(), 
+				  new_rpb->rpb_number.getValue(),
 				  transaction ? transaction->tra_number : 0);
 	if (debug_flag > DEBUG_WRITES_INFO)
 		ib_printf
@@ -2334,7 +2335,7 @@ BOOLEAN VIO_writelock(thread_db* tdbb, record_param* org_rpb, RecordSource* rsb,
 	if (debug_flag > DEBUG_WRITES) 
 		ib_printf("VIO_writelock (org_rpb %"SLONGFORMAT", transaction %"
 				  SLONGFORMAT")\n",
-				  org_rpb->rpb_number, transaction ? transaction->tra_number : 0);
+				  org_rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0);
 
 	if (debug_flag > DEBUG_WRITES_INFO) {
 		ib_printf
@@ -2467,7 +2468,7 @@ BOOLEAN VIO_next_record(thread_db* tdbb,
 	if (debug_flag > DEBUG_TRACE) {
 		ib_printf("VIO_next_record (rpb %"SLONGFORMAT", transaction %"
 				  SLONGFORMAT", pool %p)\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0,
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0,
 				  pool);
 	}
 	if (debug_flag > DEBUG_TRACE_INFO) {
@@ -2527,7 +2528,7 @@ Record* VIO_record(thread_db* tdbb, record_param* rpb, Format* format, JrdMemory
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_TRACE) {
 		ib_printf("VIO_record (rpb %"SLONGFORMAT", format %d, pool %p)\n",
-				  rpb->rpb_number, format ? format->fmt_version : 0,
+				  rpb->rpb_number.getValue(), format ? format->fmt_version : 0,
 				  pool);
 	}
 #endif
@@ -2615,7 +2616,7 @@ void VIO_store(thread_db* tdbb, record_param* rpb, Transaction* transaction)
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES)
 		ib_printf("VIO_store (rpb %"SLONGFORMAT", transaction %"SLONGFORMAT
-				  ")\n", rpb->rpb_number,
+				  ")\n", rpb->rpb_number.getValue(),
 				  transaction ? transaction->tra_number : 0);
 #endif
 
@@ -3252,7 +3253,7 @@ static void delete_record(thread_db* tdbb, record_param* rpb, SLONG prior_page, 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES) {
 		ib_printf("delete_record (rpb %"SLONGFORMAT", prior_page %ld, pool %p)\n",
-				  rpb->rpb_number, prior_page,
+				  rpb->rpb_number.getValue(), prior_page,
 				  pool);
 	}
 	if (debug_flag > DEBUG_WRITES_INFO) {
@@ -3327,7 +3328,7 @@ static UCHAR *delete_tail(
 	if (debug_flag > DEBUG_WRITES) {
 		ib_printf
 			("delete_tail (rpb %"SLONGFORMAT", prior_page %ld, tail %p, tail_end %p)\n",
-			 rpb->rpb_number, prior_page, tail, tail_end);
+			 rpb->rpb_number.getValue(), prior_page, tail, tail_end);
 	}
 	if (debug_flag > DEBUG_WRITES_INFO) {
 		ib_printf
@@ -3385,7 +3386,7 @@ static void expunge(thread_db* tdbb, record_param* rpb, Transaction* transaction
 	if (debug_flag > DEBUG_WRITES) {
 		ib_printf("expunge (rpb %"SLONGFORMAT", transaction %"SLONGFORMAT
 				  ", prior_page %"SLONGFORMAT")\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0,
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0,
 				  prior_page);
 	}
 #endif
@@ -3459,7 +3460,7 @@ static void garbage_collect(
 	if (debug_flag > DEBUG_WRITES) {
 		ib_printf("garbage_collect (rpb %"SLONGFORMAT", prior_page %"SLONGFORMAT
 				  ", staying)\n",
-				  rpb->rpb_number, prior_page);
+				  rpb->rpb_number.getValue(), prior_page);
 	}
 	if (debug_flag > DEBUG_WRITES_INFO) {
 		ib_printf
@@ -4380,7 +4381,7 @@ static BOOLEAN purge(thread_db* tdbb, record_param* rpb)
 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_TRACE_ALL) {
-		ib_printf("purge (rpb %"SLONGFORMAT")\n", rpb->rpb_number);
+		ib_printf("purge (rpb %"SLONGFORMAT")\n", rpb->rpb_number.getValue());
 	}
 	if (debug_flag > DEBUG_TRACE_ALL_INFO) {
 		ib_printf
@@ -4500,7 +4501,7 @@ static void replace_record(thread_db* tdbb, record_param* rpb, LLS * stack, Tran
 	if (debug_flag > DEBUG_TRACE_ALL) {
 		ib_printf("replace_record (rpb %"SLONGFORMAT", stack, transaction %"
 				  SLONGFORMAT")\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0);
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0);
 	}
 	if (debug_flag > DEBUG_TRACE_ALL_INFO) {
 		ib_printf

@@ -1316,7 +1316,7 @@ ULONG DPM_get_blob(thread_db* tdbb,
 		ib_printf
 			("DPM_get_blob (blob, record_number %"ULONGFORMAT
 			", delete_flag %d, prior_page %"SLONGFORMAT")\n",
-			 record_number, delete_flag, prior_page);
+			 record_number.getValue(), delete_flag, prior_page);
 #endif
 
 	/* Find starting point */
@@ -1874,7 +1874,7 @@ void DPM_store( thread_db* tdbb, record_param * rpb, LLS * stack, USHORT type)
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES)
 		ib_printf("DPM_store (rpb %"SLONGFORMAT", stack, type %d)\n",
-				  rpb->rpb_number, type);
+				  rpb->rpb_number.getValue(), type);
 	if (debug_flag > DEBUG_WRITES_INFO)
 		ib_printf
 			("    record to store %"SLONGFORMAT":%d transaction %"SLONGFORMAT
@@ -2053,7 +2053,7 @@ void DPM_rewrite_header( thread_db* tdbb, record_param * rpb)
 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES)
-		ib_printf("DPM_rewrite_header (rpb %"SLONGFORMAT")\n", rpb->rpb_number);
+		ib_printf("DPM_rewrite_header (rpb %"SLONGFORMAT")\n", rpb->rpb_number.getValue());
 	if (debug_flag > DEBUG_WRITES_INFO)
 		ib_printf("    record  %"SLONGFORMAT":%d\n", rpb->rpb_page, rpb->rpb_line);
 #endif
@@ -2103,7 +2103,7 @@ void DPM_update( thread_db* tdbb, record_param * rpb, LLS * stack, Transaction* 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_WRITES)
 		ib_printf("DPM_update (rpb %"SLONGFORMAT", stack, transaction %"SLONGFORMAT")\n",
-				  rpb->rpb_number, transaction ? transaction->tra_number : 0);
+				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0);
 	if (debug_flag > DEBUG_WRITES_INFO)
 		ib_printf
 			("    record %"SLONGFORMAT":%d transaction %"SLONGFORMAT" back %"
@@ -2351,7 +2351,7 @@ static void fragment(
 			("fragment (rpb %"SLONGFORMAT
 			 ", available_space %d, dcc, length %d, transaction %"
 			 SLONGFORMAT")\n",
-			 rpb->rpb_number, available_space, length,
+			 rpb->rpb_number.getValue(), available_space, length,
 			 transaction ? transaction->tra_number : 0);
 	if (debug_flag > DEBUG_WRITES_INFO)
 		ib_printf

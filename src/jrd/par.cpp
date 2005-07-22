@@ -1805,7 +1805,7 @@ static void par_procedure_parms(thread_db* tdbb,
 		/** They don't match...Hmmm...Its OK if we were dropping the procedure **/
 		
 		if (!(tdbb->tdbb_flags & TDBB_prc_being_dropped)) 
-			error(csb, isc_prcmismat, isc_arg_string, procedure->findName(), 0);
+			error(csb, isc_prcmismat, isc_arg_string, (const char*) procedure->findName(), 0);
 				  
 		mismatch = true;
 		}
@@ -1897,7 +1897,7 @@ static void par_procedure_parms(thread_db* tdbb,
 		}
 	//else if ((input_flag ? procedure->findInputCount() : procedure->findOutputCount()) && !mismatch)
 	else if (procCount && !mismatch)
-		error(csb, isc_prcmismat, isc_arg_string, procedure->findName(), 0);
+		error(csb, isc_prcmismat, isc_arg_string, (const char*) procedure->findName(), 0);
 }
 
 
@@ -2631,7 +2631,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 
 	case blr_variable:
 		n = BLR_WORD;
-		node->nod_arg[e_var_id] = (JRD_NOD)n;
+		node->nod_arg[e_var_id] = (JRD_NOD)(IPTR) n;
 		//vec* vector = csb->csb_variables;
 		
 		if (n >= csb->csb_variables.size() || !(node->nod_arg[e_var_variable] = csb->csb_variables[n]))
