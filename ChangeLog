@@ -1,3 +1,49 @@
+2005-07-22 23:39  jimstarkey
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Split RsbIndexed and RsbSequential out of RecordSource
+
+2005-07-22 23:34  jimstarkey
+
+	* vulcan/src/jrd/: dpm.epp, makefile.in, par.cpp, vio.cpp:
+	
+	Fixed things to compile with Debug and on Linux
+
+2005-07-22 23:09  jimstarkey
+
+	* vulcan/src/jrd/: RsbIndexed.cpp, RsbIndexed.h, RsbSequential.cpp,
+	RsbSequential.h, jrd.vcproj, opt.cpp, req.h:
+	
+	Split out RsbIndexed and RsbSequential from RecordSource.
+
+2005-07-22 19:58  jimstarkey
+
+	* vulcan/src/jrd/: RsbBoolean.h, RsbSequential.cpp,
+	RsbSequential.h:
+	
+	Tweaks to compile on Linux
+
+2005-07-22 19:55  jimstarkey
+
+	* vulcan/src/jrd/: jrd.vcproj, RsbBoolean.cpp, RsbBoolean.h,
+	RsbSequential.cpp, RsbSequential.h:
+	
+	Added RsbBoolean.
+
+2005-07-22 19:37  jimstarkey
+
+	* vulcan/: src/jrd/RecordSource.cpp, src/jrd/RecordSource.h,
+	src/jrd/RsbCross.cpp, src/jrd/RsbCross.h, src/jrd/RsbLeftCross.cpp,
+	src/jrd/RsbLeftCross.h, src/jrd/evl.cpp, src/jrd/jrd.vcproj,
+	src/jrd/opt.cpp, builds/VisualStudio7/IscDbc/IscDbc.vcproj,
+	builds/VisualStudio7/buildgen/buildgen.vcproj,
+	builds/VisualStudio7/config/vulcan.conf,
+	builds/VisualStudio7/gateway/gateway.vcproj,
+	builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Split out RsbLeftCross and RsbBoolean from RecordSource.
+
 2005-07-21 00:53  jimstarkey
 
 	* vulcan/src/jrd/: RsbCross.h, makefile.in:
