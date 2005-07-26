@@ -27,7 +27,6 @@
 class jrd_node;
 struct thread_db;
 class Request;
-//class Rsb;
 class Transaction;
 
 void EXE_assignment(thread_db*, jrd_nod*);
@@ -35,16 +34,11 @@ Request* EXE_find_request(thread_db*, Request *, bool);
 void EXE_receive(thread_db*, Request*, USHORT, USHORT, UCHAR*);
 void EXE_send(thread_db*, Request *, USHORT, USHORT, const UCHAR *);
 void EXE_start(thread_db*, Request *, Transaction *);
-//void EXE_unwind(Request *);
 
 #ifdef SCROLLABLE_CURSORS
 void EXE_seek(thread_db*, Request *, USHORT, ULONG);
 #endif
 
-#ifdef PC_ENGINE
-bool EXE_crack(thread_db*, RecordSource*, USHORT);
-void EXE_mark_crack(thread_db*, RecordSource*, USHORT);
-#endif
 
 
 #endif /* JRD_EXE_PROTO_H */

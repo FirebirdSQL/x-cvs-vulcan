@@ -75,19 +75,17 @@ public:
 	SLONG			tra_save_point_number;	/* next save point number to use */
 	ULONG			tra_flags;
 	
-#ifdef PC_ENGINE
-	SLONG tra_range_id;				/* unique id of cache range within transaction */
-#endif
-
 	DeferredWork*	tra_deferred_work;		/* work deferred to commit time */
 	Resource		*tra_resources;			/* resource existence list */
 	traRpbList		*tra_rpblist;			/* active RPB's of given transaction */
 	UCHAR			tra_use_count;			/* use count for safe AST delivery */
 	UCHAR			tra_callback_count;		/* callback count for 'execute statement' */
+	
 #ifdef SHARED_CACHE
 	SyncObject		syncObject;
 	SyncObject		syncInUse;
 #endif
+
 	UCHAR			tra_transactions[1];
 	
 	~Transaction(void);

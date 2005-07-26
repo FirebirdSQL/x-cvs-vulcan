@@ -70,7 +70,7 @@ bool expression_equal2(thread_db*, OptimizerBlk*, jrd_nod*,
 double getRelationCardinality(thread_db*, Relation*,const Format*);
 str* make_alias(thread_db*, CompilerScratch*, CompilerScratch::csb_repeat*);
 jrd_nod* make_binary_node(thread_db*, NOD_T, jrd_nod*, jrd_nod*, bool);
-USHORT nav_rsb_size(RecordSource*, USHORT, USHORT);
+//USHORT nav_rsb_size(RecordSource*, USHORT, USHORT);
 
 inline int STREAM_INDEX(const jrd_nod* node)
 {

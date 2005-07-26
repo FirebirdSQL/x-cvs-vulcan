@@ -379,33 +379,33 @@ int SBM_next(SparseBitmap* bitmap, SLONG * number, RSE_GET_MODE mode)
 	SLONG relative, slot;
 	BOOLEAN garbage_collect;
 
-/* If the bitmap is completely missing, or is known to be empty,
-   give up immediately.  */
+	/* If the bitmap is completely missing, or is known to be empty,
+	   give up immediately.  */
 
 	if (!bitmap || bitmap->sbm_state == SBM_EMPTY)
 		return FALSE;
 
-/* If the bitmap is singular (represents a single value), return it
-   if appropriate, else indicate bitmap exhausted. */
+	/* If the bitmap is singular (represents a single value), return it
+	   if appropriate, else indicate bitmap exhausted. */
 
-	if (bitmap->sbm_state == SBM_SINGULAR) {
+	if (bitmap->sbm_state == SBM_SINGULAR) 
+		{
 		if (mode == RSE_get_forward && *number >= bitmap->sbm_number)
 			return FALSE;
+			
 		if (mode == RSE_get_backward &&
 			*number <= bitmap->sbm_number && *number != -1)
 			return FALSE;
-#ifdef PC_ENGINE
-		if (mode == RSE_get_current && *number != bitmap->sbm_number)
-			return FALSE;
-#endif
 
 		*number = bitmap->sbm_number;
+		
 		return TRUE;
-	}
+		}
 
-/* Advance the number and search for the next bit set */
+	/* Advance the number and search for the next bit set */
 
-	if (bitmap->sbm_type == SBM_ROOT) {
+	if (bitmap->sbm_type == SBM_ROOT) 
+		{
 		SparseBitmap* bucket;
 
 		if (mode == RSE_get_forward)
@@ -416,13 +416,15 @@ int SBM_next(SparseBitmap* bitmap, SLONG * number, RSE_GET_MODE mode)
 			else if (*number > 0)
 				(*number)--;
 
-		if (*number == -1) {
+		if (*number == -1) 
+			{
 			/* if the number is -1, indicate to get the last bit in the bucket */
 
 			slot = bitmap->sbm_high_water;
 			relative = -1;
-		}
-		else {
+			}
+		else 
+			{
 			/* find the bucket this number fits into, and the relative
 			   position from the beginning of the bucket via a fast modulo */
 
@@ -431,36 +433,42 @@ int SBM_next(SparseBitmap* bitmap, SLONG * number, RSE_GET_MODE mode)
 
 			if (mode == RSE_get_forward && !relative)
 				relative = -1;
-		}
+			}
 
 		/* garbage collection occurs when a bucket is completely empty from beginning 
 		   to end; flag that we started at the beginning of the bucket in this pass */
 
 		garbage_collect = (relative == -1) ? TRUE : FALSE;
 
-		for (;;) {
+		for (;;) 
+			{
 			if (slot < 0 || slot > (SLONG) bitmap->sbm_high_water)
 				break;
 
 			/* recursively find the next bit set within this bucket */
 
-			if ( (bucket = (SparseBitmap*) bitmap->sbm_segments[slot]) ) {
-				if (SBM_next(bucket, &relative, mode)) {
+			if ( (bucket = (SparseBitmap*) bitmap->sbm_segments[slot]) ) 
+				{
+				if (SBM_next(bucket, &relative, mode)) 
+					{
 					*number = ((SLONG) slot << BUCKET_BITS) + relative;
 					return TRUE;
-				}
-				else if (garbage_collect && mode == RSE_get_forward) {
+					}
+				else if (garbage_collect && mode == RSE_get_forward) 
+					{
 					bucket_reset(bucket);
 					bitmap->sbm_segments[slot] = 0;
 					--bitmap->sbm_used;
-					if (slot == bitmap->sbm_high_water) {
+					
+					if (slot == bitmap->sbm_high_water) 
+						{
 						for (; slot > 0; --slot)
 							if (bitmap->sbm_segments[slot])
 								break;
 						bitmap->sbm_high_water = slot;
+						}
 					}
 				}
-			}
 
 			/* when one bucket is exhausted, try the next one in either direction */
 
@@ -475,11 +483,12 @@ int SBM_next(SparseBitmap* bitmap, SLONG * number, RSE_GET_MODE mode)
 
 			relative = -1;
 			garbage_collect = TRUE;
-		}
+			}
 
 		return FALSE;
-	}
-	else {
+		}
+	else 
+		{
 		BMS segment;
 		BUNCH test;
 		SSHORT bit, bunch;
@@ -488,18 +497,13 @@ int SBM_next(SparseBitmap* bitmap, SLONG * number, RSE_GET_MODE mode)
 		/* -1 signifies beginning of bucket in either direction, so
 		   adjust the actual number as appropriate */
 
-		if (*number == -1) {
+		if (*number == -1) 
+			{
 			if (mode == RSE_get_forward)
 				*number = 0;
 			else if (mode == RSE_get_backward)
-				*number =
-					((SLONG) bitmap->sbm_high_water << SEGMENT_BITS) +
-					BITS_SEGMENT - 1;
-#ifdef PC_ENGINE
-			else if (mode == RSE_get_current)
-				return FALSE;
-#endif
-		}
+				*number =((SLONG) bitmap->sbm_high_water << SEGMENT_BITS) + BITS_SEGMENT - 1;
+			}
 
 		/* find the slot within the bucket, and the relative offset from 
 		   the beginning of the bucket */
@@ -519,73 +523,63 @@ int SBM_next(SparseBitmap* bitmap, SLONG * number, RSE_GET_MODE mode)
 		/* go through all the longwords in the segment, and all the bits
 		   in the longword, in either direction */
 
-		if (mode == RSE_get_forward) {
-			for (; slot <= (SLONG) bitmap->sbm_high_water;
-				 slot++, bunch = 0, bit = 0) {
-				if ( (segment = bitmap->sbm_segments[slot]) ) {
+		if (mode == RSE_get_forward) 
+			{
+			for (; slot <= (SLONG) bitmap->sbm_high_water; slot++, bunch = 0, bit = 0) 
+				{
+				if ( (segment = bitmap->sbm_segments[slot]) ) 
+					{
 					for (; bunch < BUNCH_SEGMENT; bunch++, bit = 0)
 						if ( (test = segment->bms_bits[bunch]) )
 							for (; bit < BITS_BUNCH; bit++)
-								if (test & (1 << bit)) {
+								if (test & (1 << bit)) 
+									{
 									*number = ((SLONG) slot << SEGMENT_BITS) +
 										(bunch << BUNCH_BITS) + bit;
 									return TRUE;
-								}
+									}
 
 					/* didn't find any bits in this bucket, so release it */
 
-					if (garbage_collect) {
+					if (garbage_collect) 
+						{
 						pool = segment->bms_pool;
 						segment->bms_next = pool->plb_segments;
 						pool->plb_segments = segment;
 						bitmap->sbm_segments[slot] = 0;
 						--bitmap->sbm_used;
-						if (slot == bitmap->sbm_high_water) {
+						
+						if (slot == bitmap->sbm_high_water) 
+							{
 							for (; slot > 0; --slot)
 								if (bitmap->sbm_segments[slot])
 									break;
 							bitmap->sbm_high_water = slot;
+							}
 						}
 					}
-				}
+					
 				garbage_collect = TRUE;
+				}
 			}
-		}
-		else if (mode == RSE_get_backward) {
+		else if (mode == RSE_get_backward) 
+			{
 			for (; slot >= 0;
 				 slot--, bunch = BUNCH_SEGMENT - 1, bit = BITS_BUNCH - 1)
 				if ( (segment = bitmap->sbm_segments[slot]) )
 					for (; bunch >= 0; bunch--, bit = BITS_BUNCH - 1)
 						if ( (test = segment->bms_bits[bunch]) )
 							for (; bit >= 0; bit--)
-								if (test & (1 << bit)) {
+								if (test & (1 << bit)) 
+									{
 									*number = ((SLONG) slot << SEGMENT_BITS) +
 										(bunch << BUNCH_BITS) + bit;
 									return TRUE;
-								}
-		}
-#ifdef PC_ENGINE
-		else if (mode == RSE_get_current) {
-			if (slot < 0 || slot > bitmap->sbm_high_water)
-				return FALSE;
-			if (!(segment = bitmap->sbm_segments[slot]))
-				return FALSE;
-			if (bunch < 0 || bunch >= BUNCH_SEGMENT)
-				return FALSE;
-			if (!(test = segment->bms_bits[bunch]))
-				return FALSE;
-			if (bit < 0 || bit >= BITS_BUNCH)
-				return FALSE;
-			if (test & (1 << bit)) {
-				*number = ((SLONG) slot << SEGMENT_BITS) +
-					(bunch << BUNCH_BITS) + bit;
-				return TRUE;
+									}
 			}
-		}
-#endif
 
 		return FALSE;
-	}
+		}
 }
 
 

@@ -221,9 +221,9 @@ const ULONG irsb_singular_processed = 256;	// singleton stream already delivered
 const ULONG irsb_last_backwards = 512;		// rsb was last scrolled in the backward direction
 const ULONG irsb_bof = 1024;				// rsb is at beginning of stream
 const ULONG irsb_eof = 2048;				// rsb is at end of stream
-const ULONG irsb_crack = 4096;				// the record at our current position is missing
-const ULONG irsb_forced_crack = 8192;		// the above-mentioned crack was forced by user
-const ULONG irsb_refresh = 16384;			// enter records into refresh range
+//const ULONG irsb_crack = 4096;				// the record at our current position is missing
+//const ULONG irsb_forced_crack = 8192;		// the above-mentioned crack was forced by user
+//const ULONG irsb_refresh = 16384;			// enter records into refresh range
 const ULONG irsb_key_changed = 32768;		// key has changed since record last returned from rsb
 
 
@@ -355,7 +355,7 @@ const USHORT opt_conjunct_matched = 2;		// conjunct matches an index segment
 
 // global optimizer bits used in opt_g_flags
 
-const USHORT opt_g_stream = 1;				// indicate that this is a blr_stream
+//const USHORT opt_g_stream = 1;				// indicate that this is a blr_stream
 
 
 // River block - used to hold temporary information about a group of streams
@@ -376,6 +376,7 @@ public:
 // handle to facilitate returning to this position
 
 // AB: AFAIK This is only used by PC_ENGINE define?
+/***
 class Bookmark : public pool_alloc_rpt<SCHAR, type_bkm>
 {
 public:
@@ -396,20 +397,7 @@ const USHORT bkm_bof = 1;
 const USHORT bkm_eof = 2;
 const USHORT bkm_crack = 4;
 const USHORT bkm_forced_crack = 8;
-
-// types for navigating through a stream
-
-/***
-enum rse_get_mode {
-	RSE_get_forward,
-	RSE_get_backward,
-	RSE_get_current,
-	RSE_get_first,
-	RSE_get_last,
-	RSE_get_next
-};
-
-typedef rse_get_mode RSE_GET_MODE;
 ***/
+
 
 #endif // JRD_RSE_H

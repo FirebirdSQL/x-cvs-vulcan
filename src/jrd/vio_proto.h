@@ -34,10 +34,6 @@ void	VIO_backout(thread_db*, struct record_param* , Transaction *);
 void	VIO_bump_count(thread_db*, USHORT, Relation *, bool);
 int		VIO_chase_record_version(thread_db*, struct record_param* , class RecordSource *,
 									Transaction *, JrdMemoryPool*, BOOLEAN);
-#ifdef PC_ENGINE
-int		VIO_check_if_updated(thread_db*, struct record_param* );
-#endif
-
 void	VIO_data(thread_db*, struct record_param*, JrdMemoryPool*);
 void	VIO_erase(thread_db*, struct record_param*, Transaction*);
 

@@ -47,6 +47,7 @@
 #include "../jrd/jrd.h"
 #include "../jrd/Relation.h"
 #include "../jrd/Procedure.h"
+#include "../jrd/RsbBoolean.h"
 #include "../jrd/val.h"
 #include "../jrd/tra.h"
 #include "../jrd/req.h"
@@ -479,8 +480,12 @@ void VIO_bump_count(thread_db* tdbb, USHORT count_id, Relation* relation, bool e
 }
 
 
-int VIO_chase_record_version(thread_db* tdbb, record_param* rpb, RecordSource* rsb, Transaction* transaction, 
-							 JrdMemoryPool *pool, BOOLEAN writelock)
+int VIO_chase_record_version(thread_db* tdbb, 
+							  record_param* rpb, 
+							  RecordSource* rsb, 
+							  Transaction* transaction, 
+							  JrdMemoryPool *pool, 
+							  BOOLEAN writelock)
 {
 /**************************************
  *
@@ -748,17 +753,6 @@ int VIO_chase_record_version(thread_db* tdbb, record_param* rpb, RecordSource* r
 					 rpb->rpb_transaction, transaction->tra_number);
 #endif
 
-#ifdef PC_ENGINE
-			/* for refresh ranges, we want to know about uncommitted record versions */
-
-			if (rsb) 
-				{
-				const jrd_req* request = tdbb->tdbb_request;
-				const irsb* impure = (IRSB_NAV) IMPURE (request, rsb->rsb_impure);
-				if (impure->irsb_flags & irsb_refresh)
-					RNG_add_uncommitted_record(tdbb, rpb);
-				}
-#endif
 
 			/* we can't use this one so if there aren't any more just stop now. */
 
@@ -951,96 +945,6 @@ int VIO_chase_record_version(thread_db* tdbb, record_param* rpb, RecordSource* r
 		}
 }
 
-
-#ifdef PC_ENGINE
-int VIO_check_if_updated(thread_db* tdbb, record_param* rpb)
-{
-/**************************************
- *
- *	V I O _ c h e c k _ i f _ u p d a t e d
- *
- **************************************
- *
- * Functional description
- *	Check to see if the record specified in the passed
- *	rpb has been updated by an uncommitted transaction.
- *	This involves looking at the latest and greatest
- *	version of the record, checking its transaction id,
- *	then checking the TIP page to see if that transaction
- *	has been committed.
- *
- **************************************/
-	SET_TDBB(tdbb);
-
-/* loop through till we find a real version of the record;
-   one that isn't going to be garbage collected */
-
-	Transaction* transaction = tdbb->tdbb_request->req_transaction;
-
-	while (true) {
-		if (!DPM_get(tdbb, rpb, LCK_read))
-			return FALSE;
-		else
-			CCH_RELEASE(tdbb, &rpb->rpb_window);
-
-		/* if the system transaction updated this record,
-		   it automatically is considered committed */
-
-		if (!rpb->rpb_transaction)
-			return FALSE;
-
-		if (rpb->rpb_transaction == transaction->tra_number)
-			return FALSE;
-
-		/* get the state of the given transaction */
-
-		USHORT state = TRA_get_state(tdbb, rpb->rpb_transaction);
-
-		/* Reset the garbage collect active flag if the transaction state is
-		   in a terminal state. If committed it must have been a precommitted
-		   transaction that was backing out a dead record version and the
-		   system crashed. Clear the flag and set the state to tra_dead to
-		   reattempt the backout. */
-
-		if (rpb->rpb_flags & rpb_gc_active)
-			switch (state) {
-			case tra_committed:
-				state = tra_dead;
-				rpb->rpb_flags &= ~rpb_gc_active;
-				break;
-
-			case tra_dead:
-				rpb->rpb_flags &= ~rpb_gc_active;
-				break;
-
-			default:
-				break;
-			}
-
-		switch (state) {
-		case tra_committed:
-			return FALSE;
-
-		case tra_active:
-			if (!(rpb->rpb_flags & rpb_gc_active))
-				return TRUE;
-
-		case tra_precommitted:
-			THREAD_EXIT;
-			THREAD_SLEEP(100);	/* milliseconds */
-			THREAD_ENTER;
-			break;
-
-		case tra_limbo:
-			return TRUE;
-
-		case tra_dead:
-			VIO_backout(tdbb, rpb, transaction);
-			break;
-		}
-	}
-}
-#endif
 
 
 void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
@@ -1699,7 +1603,11 @@ Record* VIO_gc_record(thread_db* tdbb, Relation* relation)
 }
 
 
-int VIO_get(thread_db* tdbb, record_param* rpb, RecordSource* rsb, Transaction* transaction, JrdMemoryPool *pool)
+int VIO_get(thread_db* tdbb, 
+			record_param* rpb, 
+			RecordSource* rsb, 
+			Transaction* transaction, 
+			JrdMemoryPool *pool)
 {
 /**************************************
  *
@@ -1711,7 +1619,7 @@ int VIO_get(thread_db* tdbb, record_param* rpb, RecordSource* rsb, Transaction* 
  *	Get a specific record from a relation.
  *
  **************************************/
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_READS)
@@ -1721,23 +1629,15 @@ int VIO_get(thread_db* tdbb, record_param* rpb, RecordSource* rsb, Transaction* 
 				  pool);
 #endif
 
-/* Fetch data page from a modify/erase input stream with a write
-   lock. This saves an upward conversion to a write lock when
-   refetching the page in the context of the output stream. */
+	/* Fetch data page from a modify/erase input stream with a write
+	   lock. This saves an upward conversion to a write lock when
+	   refetching the page in the context of the output stream. */
 
-	const USHORT lock_type =
-		(rpb->rpb_stream_flags & RPB_s_update) ? LCK_write : LCK_read;
+	const USHORT lock_type = (rpb->rpb_stream_flags & RPB_s_update) ? LCK_write : LCK_read;
 
 	if (!DPM_get(tdbb, rpb, lock_type) ||
 		!VIO_chase_record_version(tdbb, rpb, rsb, transaction, pool, FALSE))
-	{
 		return FALSE;
-	}
-
-#ifdef PC_ENGINE
-	if (rsb && rsb->rsb_flags & rsb_stream_type)
-		RNG_add_page(tdbb, rpb->rpb_page);
-#endif
 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_READS_INFO)
@@ -2369,12 +2269,13 @@ BOOLEAN VIO_writelock(thread_db* tdbb, record_param* org_rpb, RecordSource* rsb,
 	while (true) 
 		{
 		/* Refetch and release the record if it is needed */
+		
 		if (org_rpb->rpb_stream_flags & RPB_s_refetch) 
 			{
 			// const SLONG tid_fetch = org_rpb->rpb_transaction;
+			
 			if ((!DPM_get(tdbb, org_rpb, LCK_read)) ||
-				(!VIO_chase_record_version
-				 (tdbb, org_rpb, NULL, transaction, tdbb->tdbb_default, TRUE)))
+				(!VIO_chase_record_version(tdbb, org_rpb, NULL, transaction, tdbb->tdbb_default, TRUE)))
 				return FALSE;
 
 			VIO_data(tdbb, org_rpb,tdbb->tdbb_request->req_pool);
@@ -2387,7 +2288,8 @@ BOOLEAN VIO_writelock(thread_db* tdbb, record_param* org_rpb, RecordSource* rsb,
 			for (r = rsb; r && r->rsb_type != rsb_boolean ; r = r->rsb_next)
 				;
 				
-			if (r && !EVL_boolean(tdbb, (JRD_NOD) r->rsb_arg[0]))
+			//if (r && !EVL_boolean(tdbb, (JRD_NOD) r->rsb_arg[0]))
+			if (r && !EVL_boolean(tdbb, ((RsbBoolean*) r)->boolean))
 				return FALSE;
 			}
 
@@ -2455,41 +2357,36 @@ BOOLEAN VIO_next_record(thread_db* tdbb,
  *	Get the next record in a record stream.
  *
  **************************************/
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
-/* Fetch data page from a modify/erase input stream with a write
-   lock. This saves an upward conversion to a write lock when
-   refetching the page in the context of the output stream. */
+	/* Fetch data page from a modify/erase input stream with a write
+	   lock. This saves an upward conversion to a write lock when
+	   refetching the page in the context of the output stream. */
 
 	const USHORT lock_type =
 		(rpb->rpb_stream_flags & RPB_s_update) ? LCK_write : LCK_read;
 
 #ifdef VIO_DEBUG
-	if (debug_flag > DEBUG_TRACE) {
+
+	if (debug_flag > DEBUG_TRACE) 
 		ib_printf("VIO_next_record (rpb %"SLONGFORMAT", transaction %"
 				  SLONGFORMAT", pool %p)\n",
 				  rpb->rpb_number.getValue(), transaction ? transaction->tra_number : 0,
 				  pool);
-	}
-	if (debug_flag > DEBUG_TRACE_INFO) {
+
+	if (debug_flag > DEBUG_TRACE_INFO)
 		ib_printf
 			("   record  %"SLONGFORMAT":%d, rpb_trans %"SLONGFORMAT
 			 ", flags %d, back %"SLONGFORMAT":%d, fragment %"SLONGFORMAT":%d\n",
 			 rpb->rpb_page, rpb->rpb_line, rpb->rpb_transaction,
 			 rpb->rpb_flags, rpb->rpb_b_page, rpb->rpb_b_line,
 			 rpb->rpb_f_page, rpb->rpb_f_line);
-	}
 #endif
 
 	do {
 		if (!DPM_next(tdbb, rpb, lock_type, backwards, onepage))
 			return FALSE;
 	} while (!VIO_chase_record_version(tdbb, rpb, rsb, transaction, pool, FALSE));
-
-#ifdef PC_ENGINE
-	if (rsb && rsb->rsb_flags & rsb_stream_type)
-		RNG_add_page(tdbb, rpb->rpb_page);
-#endif
 
 	if (pool)
 		VIO_data(tdbb, rpb, pool);

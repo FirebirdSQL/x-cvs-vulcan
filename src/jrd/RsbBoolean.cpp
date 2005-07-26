@@ -63,14 +63,6 @@ bool RsbBoolean::get(Request* request, RSE_GET_MODE mode)
 		if (EVL_boolean(request->req_tdbb, boolean))
 			return true;
 
-#ifdef PC_ENGINE
-		/* If we are trying to "RSE_get_current" and there is a
-			* "where" clause which is not true, someone must have
-			* modified it after we positioned on the record
-			*/
-		else if (mode == RSE_get_current)
-			break;
-#endif
 
 		if (request->req_flags & req_null)
 			nullFlag = TRUE;
@@ -154,10 +146,6 @@ bool RsbBoolean::getAny(Request* request, RSE_GET_MODE mode)
 					any_true = TRUE;
 					break;
 					}
-#ifdef PC_ENGINE
-				else if (mode == RSE_get_current)
-					break;
-#endif
 
 				/* check for select stream and nulls */
 
@@ -213,10 +201,6 @@ bool RsbBoolean::getAny(Request* request, RSE_GET_MODE mode)
 					result = TRUE;
 					break;
 					}
-#ifdef PC_ENGINE
-				else if (mode == RSE_get_current)
-					break;
-#endif
 				}
 				
 			request->req_flags &= ~req_null;
@@ -268,10 +252,6 @@ bool RsbBoolean::getAny(Request* request, RSE_GET_MODE mode)
 						break;
 						}
 					}
-#ifdef PC_ENGINE
-				else if (mode == RSE_get_current)
-					break;
-#endif
 				}
 				
 			request->req_flags &= ~req_null;
@@ -315,10 +295,6 @@ bool RsbBoolean::getAny(Request* request, RSE_GET_MODE mode)
 						break;
 						}
 					}
-#ifdef PC_ENGINE
-				else if (mode == RSE_get_current)
-					break;
-#endif
 				}
 				
 			request->req_flags &= ~req_null;

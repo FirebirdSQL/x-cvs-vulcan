@@ -640,15 +640,6 @@ void SORT_get(thread_db* threadData,
 			scb->scb_next_pointer++;
 			break;
 
-#ifdef PC_ENGINE
-		case RSE_get_current:
-			if (scb->scb_next_pointer <= scb->scb_first_pointer ||
-				scb->scb_next_pointer > scb->scb_last_pointer)
-				record = NULL;
-			record = *scb->scb_next_pointer;
-			break;
-#endif
-
 		default:
 			fb_assert(FALSE);
 			break;

@@ -104,7 +104,7 @@ class Request;
 class lck;
 class sort_context;
 class SecurityClass;
-class Bookmark;
+//class Bookmark;
 
 
 class Attachment //: public pool_alloc<type_att>
@@ -117,31 +117,31 @@ public:
 	InternalConnection* getUserConnection(Transaction* transaction);
 	void closeConnection(InternalConnection* connection);
 
-	Database*	att_database;		// Parent databasea block
-	Attachment*	att_next;			// Next attachment to database
-	Attachment*	att_blocking;		// Blocking attachment, if any
-	Cursor		*cursors;			// Active cursors
-	UserId*		att_user;			// User identification
+	Database*	att_database;			// Parent databasea block
+	Attachment*	att_next;				// Next attachment to database
+	Attachment*	att_blocking;			// Blocking attachment, if any
+	Cursor		*cursors;				// Active cursors
+	UserId*		att_user;				// User identification
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
-	Request*	att_requests;		// Requests belonging to attachment
+	Request*	att_requests;			// Requests belonging to attachment
 	sort_context*		att_active_sorts;	// Active sorts
-	lck*		att_id_lock;		// Attachment lock (if any)
-	SLONG		att_attachment_id;	// Attachment ID
+	lck*		att_id_lock;			// Attachment lock (if any)
+	SLONG		att_attachment_id;		// Attachment ID
 	SLONG		att_lock_owner_handle;	// Handle for the lock manager
-	SLONG		att_event_session;	// Event session id, if any
+	SLONG		att_event_session;		// Event session id, if any
 	SecurityClass*		att_security_class;	// security class for database
 	SecurityClass*		att_security_classes;	// security classes
 	vcl*		att_counts[DBB_max_count];
-	vec*		att_relation_locks;	// explicit persistent locks for relations
-	Bookmark*		att_bookmarks;		// list of bookmarks taken out using this attachment
-	lck*		att_record_locks;	// explicit or implicit record locks taken out during attachment
-	vec*		att_bkm_quick_ref;	// correspondence table of bookmarks
-	vec*		att_lck_quick_ref;	// correspondence table of locks
-	ULONG		att_flags;			// Flags describing the state of the attachment
-	SSHORT		att_charset;		// user's charset specified in dpb
-	str*		att_lc_messages;	// attachment's preference for message natural language
-	lck*		att_long_locks;		// outstanding two phased locks
+	vec*		att_relation_locks;		// explicit persistent locks for relations
+	//Bookmark*		att_bookmarks;		// list of bookmarks taken out using this attachment
+	lck*		att_record_locks;		// explicit or implicit record locks taken out during attachment
+	//vec*		att_bkm_quick_ref;		// correspondence table of bookmarks
+	//vec*		att_lck_quick_ref;		// correspondence table of locks
+	ULONG		att_flags;				// Flags describing the state of the attachment
+	SSHORT		att_charset;			// user's charset specified in dpb
+	str*		att_lc_messages;		// attachment's preference for message natural language
+	lck*		att_long_locks;			// outstanding two phased locks
 	vec*		att_compatibility_table;	// hash table of compatible locks
 	vcl*		att_val_errors;
 	//str*		att_working_directory;	// Current working directory is cached

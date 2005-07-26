@@ -78,12 +78,7 @@ void RsbSort::open(Request* request)
 	record_param* rpb;
 	smb_repeat *item, *end_item;
 
-	//SET_TDBB(tdbb);
-	//JRD_REQ request = tdbb->tdbb_request;
-
-	//RSE_open(tdbb, rsb->rsb_next);
 	rsb_next->open(request);
-	//SortMap* map = (SortMap*) rsb_arg[0];
 	ULONG records = 0;
 
 	// Get rid of the old sort areas if this request has been used already

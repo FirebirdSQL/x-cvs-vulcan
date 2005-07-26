@@ -2477,8 +2477,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 			node->nod_arg[e_for_stall] = parse(tdbb, csb, STATEMENT);
 
 		if (BLR_PEEK == (UCHAR) blr_rse ||
-			BLR_PEEK == (UCHAR) blr_singular ||
-			BLR_PEEK == (UCHAR) blr_stream)
+			BLR_PEEK == (UCHAR) blr_singular)
 				node->nod_arg[e_for_re] = parse(tdbb, csb, TYPE_RSE);
 		else
 			node->nod_arg[e_for_re] = par_rse(tdbb, csb, operator_);
@@ -2765,164 +2764,17 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 	case blr_total:
 	case blr_from:
 	case blr_via:
-		if (BLR_PEEK == (UCHAR) blr_stream)
-			node->nod_arg[e_stat_rse] = parse(tdbb, csb, OTHER);
-		else
-			node->nod_arg[e_stat_rse] = parse(tdbb, csb, TYPE_RSE);
+		node->nod_arg[e_stat_rse] = parse(tdbb, csb, TYPE_RSE);
+		
 		if (operator_ != blr_count)
 			node->nod_arg[e_stat_value] = parse(tdbb, csb, VALUE);
+			
 		if (operator_ == blr_via)
 			node->nod_arg[e_stat_default] = parse(tdbb, csb, VALUE);
 		break;
 
 		/* Client/Server Express Features */
 
-	case blr_stream:
-#ifdef PROD_BUILD
-		error(csb, isc_cse_not_supported, 0);
-#endif
-		node = par_stream(tdbb, csb);
-		break;
-
-#ifdef PC_ENGINE
-	case blr_set_index:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_index_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		node->nod_arg[e_index_index] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_find:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_find_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		node->nod_arg[e_find_operator] = parse(tdbb, csb, VALUE);
-		node->nod_arg[e_find_direction] = parse(tdbb, csb, VALUE);
-		node->nod_arg[e_find_args] = par_args(tdbb, csb, VALUE);
-		break;
-
-	case blr_find_dbkey:
-	case blr_find_dbkey_version:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_find_dbkey_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		node->nod_arg[e_find_dbkey_dbkey] = parse(tdbb, csb, VALUE);
-
-		if (operator_ == blr_find_dbkey_version)
-			node->nod_arg[e_find_dbkey_version] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_get_bookmark:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_getmark_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		break;
-
-	case blr_set_bookmark:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_setmark_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		node->nod_arg[e_setmark_id] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_release_bookmark:
-		node->nod_arg[e_relmark_id] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_bookmark:
-		node->nod_arg[e_bookmark_id] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_force_crack:
-	case blr_crack:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[0] = (JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		break;
-
-	case blr_reset_stream:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_reset_from_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_reset_to_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		break;
-
-	case blr_release_lock:
-		node->nod_arg[e_rellock_lock] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_lock_relation:
-		n = BLR_BYTE;
-		if (n != blr_relation && n != blr_relation2 &&
-			n != blr_rid && n != blr_rid2)
-				syntax_error(csb, elements[RELATION]);
-		node->nod_arg[e_lockrel_relation] = par_relation(tdbb, csb, n, FALSE);
-		node->nod_arg[e_lockrel_level] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_lock_record:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_lockrec_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		node->nod_arg[e_lockrec_level] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_begin_range:
-		node->nod_arg[e_brange_number] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_end_range:
-		node->nod_arg[e_erange_number] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_delete_range:
-		node->nod_arg[e_drange_number] = parse(tdbb, csb, VALUE);
-		break;
-
-	case blr_range_relation:
-		node->nod_arg[e_range_relation_number] = parse(tdbb, csb, VALUE);
-		n = BLR_BYTE;
-		if (n != blr_relation && n != blr_relation2 &&
-			n != blr_rid && n != blr_rid2)
-				syntax_error(csb, elements[RELATION]);
-		node->nod_arg[e_range_relation_relation] =
-			par_relation(tdbb, csb, n, FALSE);
-		break;
-
-	case blr_release_locks:
-	case blr_delete_ranges:
-		node = PAR_make_node(tdbb, 0);
-		node->nod_count = 0;
-		break;
-
-	case blr_cardinality:
-		n = BLR_BYTE;
-		if (n >= csb->csb_rpt.getCount() || !(csb->csb_rpt[n].csb_flags & csb_used))
-			error(csb, isc_ctxnotdef, 0);
-		node->nod_arg[e_card_stream] =
-			(JRD_NOD) (long) csb->csb_rpt[n].csb_stream;
-		break;
-#endif
 
 #ifdef SCROLLABLE_CURSORS
 	case blr_seek:

@@ -117,7 +117,7 @@ public:
 	jrd_nod*	rse_relation[1];
 };
 
-const int rse_stream	= 1;	/* flags RecordSelExpr-type node as a blr_stream type */
+//const int rse_stream	= 1;	/* flags RecordSelExpr-type node as a blr_stream type */
 const int rse_singular	= 2;	/* flags RecordSelExpr-type node as from a singleton select */
 const int rse_variant	= 4;	/* flags RecordSelExpr as variant (not invariant?) */
 

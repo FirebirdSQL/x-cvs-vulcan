@@ -164,6 +164,7 @@ void RecordSource::open(Request* request)
 			impure->irsb_bitmap = EVL_bitmap(tdbb, (JRD_NOD) rsb_arg[0]);
 			impure->irsb_prefetch_number = -1;
 
+#ifdef OBSOLETE
 		case rsb_navigate:
 		case rsb_sequential:
 #ifdef SCROLLABLE_CURSORS
@@ -178,8 +179,8 @@ void RecordSource::open(Request* request)
 				DBB dbb = tdbb->tdbb_database;
 
 				/* Unless this is the only attachment, limit the cache flushing
-				effect of large sequential scans on the page working sets of
-				other attachments. */
+				   effect of large sequential scans on the page working sets of
+				   other attachments. */
 
 				Attachment* attachment = tdbb->tdbb_attachment;
 				
@@ -210,10 +211,13 @@ void RecordSource::open(Request* request)
 
 			rpb->rpb_number.setValue(BOF_NUMBER);
 			return;
+#endif // OBSOLETE
 
+		/***	
 		case rsb_cross:
 			return;
-
+		***/
+		
 		/***
 		case rsb_sort:
 #ifdef SCROLLABLE_CURSORS
@@ -409,6 +413,7 @@ void RecordSource::close(Request* request)
 
 	switch (rsb_type) 
 		{
+		/***
 		case rsb_indexed:
 		case rsb_navigate:
 			return;
@@ -421,7 +426,8 @@ void RecordSource::close(Request* request)
 					--rpb->rpb_relation->rel_scan_count;
 			return;
 			}
-
+		***/
+		
 		case rsb_first:
 		case rsb_skip:
 		//case rsb_boolean:
@@ -551,9 +557,6 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 		rsb->rsb_type == rsb_navigate || rsb->rsb_type == rsb_sort)
 		if (((mode == RSE_get_forward) && (impure->irsb_flags & irsb_eof)) ||
 			((mode == RSE_get_backward) && (impure->irsb_flags & irsb_bof)))
-#ifdef PC_ENGINE
-			|| ((mode == RSE_get_current) && (impure->irsb_flags & (irsb_bof | irsb_eof)))
-#endif // PC_ENGINE
 				return FALSE;
 #endif // SCROLLABLE_CURSORS
 
@@ -563,26 +566,14 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 		if (impure->irsb_flags & irsb_bof)
 			rpb->rpb_number.setValue(BOF_NUMBER);
 
-#ifdef PC_ENGINE
-		if (mode == RSE_get_current)
-			{
-			if (!VIO_get(tdbb,
-						rpb,
-						rsb,
-						request->req_transaction,
-						request->req_pool))
+		if (!VIO_next_record(tdbb,
+							rpb,
+							rsb,
+							request->req_transaction,
+							request->req_pool,
+							(mode == RSE_get_backward) ? TRUE : FALSE,
+							FALSE))
 				return FALSE;
-			}
-		else
-#endif // PC_ENGINE
-			if (!VIO_next_record(tdbb,
-								rpb,
-								rsb,
-								request->req_transaction,
-								request->req_pool,
-								(mode == RSE_get_backward) ? TRUE : FALSE,
-								FALSE))
-				 return FALSE;
 		break;
 
 	case rsb_indexed:
@@ -626,6 +617,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 		return false;
 		}
 
+	/***
 	case rsb_navigate:
 	
 #ifdef SCROLLABLE_CURSORS
@@ -636,7 +628,8 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 		if (!NAV_get_record(tdbb, rsb, (IRSB_NAV) impure, rpb, mode))
 			return FALSE;
 		break;
-
+	***/
+	
 #ifdef OBSOLETE
 	case rsb_boolean:
 		{
@@ -704,10 +697,6 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						any_true = TRUE;
 						break;
 						}
-#ifdef PC_ENGINE
-					else if (mode == RSE_get_current)
-						break;
-#endif // PC_ENGINE
 
 					/* check for select stream and nulls */
 
@@ -768,10 +757,6 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						result = TRUE;
 						break;
 						}
-#ifdef PC_ENGINE
-					else if (mode == RSE_get_current)
-						break;
-#endif // PC_ENGINE
 					}
 					
 				request->req_flags &= ~req_null;
@@ -826,10 +811,6 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 							break;
 							}
 						}
-#ifdef PC_ENGINE
-					else if (mode == RSE_get_current)
-						break;
-#endif // PC_ENGINE
 					}
 					
 				request->req_flags &= ~req_null;
@@ -877,10 +858,6 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 							break;
 							}
 						}
-#ifdef PC_ENGINE
-					else if (mode == RSE_get_current)
-						break;
-#endif // PC_ENGINE
 					}
 					
 				request->req_flags &= ~req_null;
@@ -905,14 +882,6 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 					result = TRUE;
 					break;
 					}
-#ifdef PC_ENGINE
-				/* If we are trying to "RSE_get_current" and there is a
-					* "where" clause which is not true, someone must have
-					* modified it after we positioned on the record
-					*/
-				else if (mode == RSE_get_current)
-					break;
-#endif // PC_ENGINE
 
 				if (request->req_flags & req_null)
 					flag = TRUE;

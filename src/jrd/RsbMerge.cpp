@@ -75,12 +75,10 @@ void RsbMerge::open(Request* request)
 
 	/* do two simultaneous but unrelated things in one loop */
 
-	//for (ptr = rsb_arg, end = ptr + rsb_count * 2, tail = impure->irsb_mrg_rpt; ptr < end; ptr += 2, tail++) 
 	for (int n = 0; n < rsb_count; ++n)
 		{
 		/* open all the substreams for the sort-merge */
 
-		//RSE_open(tdbb, *ptr);
 		RsbSort *sortRsb = sortRsbs[n];
 		sortRsb->open(request);
 		SortMap *map = sortRsb->map;
@@ -355,7 +353,6 @@ bool RsbMerge::getMergeFetch(Request* request, thread_db* tdbb, SSHORT stream, R
 	irsb_mrg::irsb_mrg_repeat* tail = impure->irsb_mrg_rpt + stream;
 	SSHORT m = tail->irsb_mrg_order;
 	tail = impure->irsb_mrg_rpt + m;
-	//RecordSource* sub_rsb = rsb_arg[m + m];
 	RsbSort *sub_rsb = sortRsbs[m];
 	SLONG record = tail->irsb_mrg_equal_current;
 	++record;
@@ -445,7 +442,6 @@ SLONG RsbMerge::getMergeRecord(Request* request, thread_db* tdbb, RsbSort* rsb, 
 	if (!sort_data)
 		return -1;
 
-	//map = (SortMap*) rsb->rsb_arg[0];
 	SortMap *map = rsb->map;
 	MergeFile* mfb = &impure->irsb_mrg_file;
 	SLONG record = mfb->mfb_equal_records;

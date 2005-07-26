@@ -39,6 +39,7 @@
 #include "../jrd/Optimizer.h"
 #include "../jrd/Relation.h"
 #include "../jrd/Procedure.h"
+#include "../jrd/RsbNavigate.h"
 
 #include "../jrd/btr_proto.h"
 #include "../jrd/cch_proto.h"
@@ -695,7 +696,7 @@ str* make_alias(thread_db* tdbb, CompilerScratch* csb,
 	return alias;
 }
 
-
+#ifdef OBSOLETE
 USHORT nav_rsb_size(RecordSource* rsb, USHORT key_length, USHORT size)
 {
 /**************************************
@@ -709,23 +710,33 @@ USHORT nav_rsb_size(RecordSource* rsb, USHORT key_length, USHORT size)
  *
  **************************************/
 	DEV_BLKCHK(rsb, type_rsb);
+	
 #ifdef SCROLLABLE_CURSORS
-/* allocate extra impure area to hold the current key, 
-   plus an upper and lower bound key value, for a total 
-   of three times the key length for the index */
+	/* allocate extra impure area to hold the current key, 
+	   plus an upper and lower bound key value, for a total 
+	   of three times the key length for the index */
+	   
 	size += sizeof(struct irsb_nav) + 3 * key_length;
 #else
+
 	size += sizeof(struct irsb_nav) + 2 * key_length;
+	
 #endif
+
 	size = FB_ALIGN(size, ALIGNMENT);
-/* make room for an idx structure to describe the index
-   that was used to generate this rsb */
+	
+	/* make room for an idx structure to describe the index
+	   that was used to generate this rsb */
+	
+	
 	if (rsb->rsb_type == rsb_navigate)
 		rsb->rsb_arg[RSB_NAV_idx_offset] = (RecordSource*) (IPTR) size;
+		
 	size += sizeof(index_desc);
+	
 	return size;
 }
-
+#endif // OBSOLETE
 
 IndexScratchSegment::IndexScratchSegment(MemoryPool& p) :
 	matches(p)
@@ -1344,23 +1355,17 @@ RecordSource* OptimizerRetrieval::generateNavigation()
 		//return gen_nav_rsb(tdbb, opt, stream, relation, alias, idx);
 
 		USHORT key_length = ROUNDUP(BTR_key_length(tdbb, relation, idx), sizeof(SLONG));
-		RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource(csb);
-		rsb->rsb_type = rsb_navigate;
-		rsb->rsb_relation = relation;
-		rsb->rsb_stream = (UCHAR) stream;
-		rsb->rsb_alias = getAlias();
-		rsb->rsb_arg[RSB_NAV_index] = (RecordSource*) makeIndexScanNode(indexScratch[i]);
-		rsb->rsb_arg[RSB_NAV_key_length] = (RecordSource*) (IPTR) key_length;
+		//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource(csb);
+		RsbNavigate *rsb = new (tdbb->tdbb_default) RsbNavigate(csb, stream, relation, getAlias(),
+																makeIndexScanNode(indexScratch[i]),
+																key_length);
+		//rsb->rsb_type = rsb_navigate;
+		//rsb->rsb_relation = relation;
+		//rsb->rsb_stream = (UCHAR) stream;
+		//rsb->rsb_alias = getAlias();
+		//rsb->rsb_arg[RSB_NAV_index] = (RecordSource*) makeIndexScanNode(indexScratch[i]);
+		//rsb->rsb_arg[RSB_NAV_key_length] = (RecordSource*) (IPTR) key_length;
 
-		// if this is a blr_stream, adjust the allocated impure area 
-		// to be based on the maximum key size so that the index may be
-		// reset at any time to another index of larger key length
-		// without adjusting the impure area offsets
-		if (optimizer->opt_g_flags & opt_g_stream) {
-			key_length = MAX_KEY;
-		}
-		const USHORT size = nav_rsb_size(rsb, key_length, 0);
-		rsb->rsb_impure = CMP_impure(optimizer->opt_csb, size);
 		return rsb;
 	}
 

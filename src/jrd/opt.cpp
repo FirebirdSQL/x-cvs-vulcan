@@ -94,6 +94,7 @@
 #include "RsbSequential.h"
 #include "RsbIndexed.h"
 #include "RsbUnion.h"
+#include "RsbNavigate.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -312,11 +313,13 @@ RecordSource* OPT_compile(thread_db*		tdbb,
  **************************************/
 	stream_array_t streams, beds, local_streams, outer_streams, sub_streams,
 		key_streams;
-		
+	
+	/***	
 	DEV_BLKCHK(csb, type_csb);
 	DEV_BLKCHK(rse, type_nod);
-
 	SET_TDBB(tdbb);
+	***/
+	
 	Database* dbb = tdbb->tdbb_database;
 
 #ifdef OPT_DEBUG
@@ -325,16 +328,16 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 #endif
 
 
-/* If there is a boolean, there is some work to be done.  First,
-   decompose the boolean into conjunctions.  Then get descriptions
-   of all indices for all relations in the RecordSelExpr.  This will give
-   us the info necessary to allocate a optimizer block big
-   enough to hold this crud. */
+	/* If there is a boolean, there is some work to be done.  First,
+	   decompose the boolean into conjunctions.  Then get descriptions
+	   of all indices for all relations in the RecordSelExpr.  This will give
+	   us the info necessary to allocate a optimizer block big
+	   enough to hold this crud. */
 
 
-/* Do not allocate the index_desc struct. Let BTR_all do the job. The allocated
-   memory will then be in csb->csb_rpt[stream].csb_idx_allocation, which
-   gets cleaned up before this function exits. */
+	/* Do not allocate the index_desc struct. Let BTR_all do the job. The allocated
+	   memory will then be in csb->csb_rpt[stream].csb_idx_allocation, which
+	   gets cleaned up before this function exits. */
 
 	OptimizerBlk* opt = FB_NEW(*tdbb->tdbb_default) OptimizerBlk(tdbb->tdbb_default);
 	opt->opt_streams.grow(csb->csb_n_stream);
@@ -343,10 +346,6 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 	try 
 		{
 		opt->opt_csb = csb;
-		
-		if (rse->nod_flags & rse_stream)
-			opt->opt_g_flags |= opt_g_stream;
-
 		beds[0] = streams[0] = key_streams[0] = outer_streams[0] = sub_streams[0] = 0;
 		NodeStack conjunct_stack;
 		RiverStack rivers_stack;
@@ -1062,8 +1061,7 @@ jrd_nod* OPT_make_dbkey(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* boolean, US
 }
 
 
-jrd_nod* OPT_make_index(thread_db* tdbb, OptimizerBlk* opt, Relation* relation, 
-						index_desc* idx)
+jrd_nod* OPT_make_index(thread_db* tdbb, OptimizerBlk* opt, Relation* relation, index_desc* idx)
 {
 /**************************************
  *
@@ -1075,92 +1073,95 @@ jrd_nod* OPT_make_index(thread_db* tdbb, OptimizerBlk* opt, Relation* relation,
  *	Build node for index scan.
  *
  **************************************/
+ 
+	/***
 	SET_TDBB(tdbb);
-
 	DEV_BLKCHK(opt_, type_opt);
 	DEV_BLKCHK(relation, type_rel);
-
-/* Allocate both a index retrieval node and block. */
+	***/
+	
+	/* Allocate both a index retrieval node and block. */
 
 	jrd_nod* node = make_index_node(tdbb, relation, opt->opt_csb, idx);
 	IndexRetrieval* retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
 	retrieval->irb_relation = relation;
 
-/* Pick up lower bound segment values */
+	/* Pick up lower bound segment values */
 
 	jrd_nod** lower = retrieval->irb_value;
 	jrd_nod** upper = retrieval->irb_value + idx->idx_count;
 	const OptimizerBlk::opt_segment* const end = opt->opt_segments + idx->idx_count;
 	const OptimizerBlk::opt_segment* tail;
 
-	if (idx->idx_flags & idx_descending) {
+	if (idx->idx_flags & idx_descending) 
+		{
 		for (tail = opt->opt_segments; tail->opt_lower && tail < end; tail++)
 			*upper++ = tail->opt_lower;
+			
 		for (tail = opt->opt_segments; tail->opt_upper && tail < end; tail++)
 			*lower++ = tail->opt_upper;
+			
 		retrieval->irb_generic |= irb_descending;
-	}
-	else {
+		}
+	else 
+		{
 		for (tail = opt->opt_segments; tail->opt_lower && tail < end; tail++)
 			*lower++ = tail->opt_lower;
+			
 		for (tail = opt->opt_segments; tail->opt_upper && tail < end; tail++)
 			*upper++ = tail->opt_upper;
-	}
+		}
 
 	retrieval->irb_lower_count = lower - retrieval->irb_value;
-	retrieval->irb_upper_count =
-		(upper - retrieval->irb_value) - idx->idx_count;
+	retrieval->irb_upper_count = (upper - retrieval->irb_value) - idx->idx_count;
 
 	bool equiv = false;
 
 	for (tail = opt->opt_segments; tail->opt_match && tail < end; tail++)
-	{
 		if (tail->opt_match->nod_type == nod_equiv)
-		{
+			{
 			equiv = true;
 			break;
-		}
-	}
+			}
 
 	// This index is never used for IS NULL, thus we can ignore NULLs
 	// already at index scan. But this rule doesn't apply to nod_equiv
 	// which requires NULLs to be found in the index.
 	// A second exception is when this index is used for navigation.
+	
 	if (!equiv && !(idx->idx_runtime_flags & idx_navigate))
-	{
 		retrieval->irb_generic |= irb_ignore_null_value_key;
-	}
 
-/* Check to see if this is really an equality retrieval */
+	/* Check to see if this is really an equality retrieval */
 
-	if (retrieval->irb_lower_count == retrieval->irb_upper_count) {
+	if (retrieval->irb_lower_count == retrieval->irb_upper_count) 
+		{
 		retrieval->irb_generic |= irb_equality;
 		lower = retrieval->irb_value;
 		upper = retrieval->irb_value + idx->idx_count;
-		for (const jrd_nod* const* const end_node = lower + retrieval->irb_lower_count;
-			lower < end_node;)
-		{
-			if (*upper++ != *lower++) {
+		
+		for (const jrd_nod* const* const end_node = lower + retrieval->irb_lower_count; lower < end_node;)
+			if (*upper++ != *lower++)
+				 {
 				retrieval->irb_generic &= ~irb_equality;
 				break;
-			}
+				}
 		}
-	}
 
-/* If we are matching less than the full index, this is a partial match */
+	/* If we are matching less than the full index, this is a partial match */
 
-	if (idx->idx_flags & idx_descending) {
-		if (retrieval->irb_lower_count < idx->idx_count) {
+	if (idx->idx_flags & idx_descending) 
+		{
+		if (retrieval->irb_lower_count < idx->idx_count) 
 			retrieval->irb_generic |= irb_partial;
 		}
-	}
-	else {
-		if (retrieval->irb_upper_count < idx->idx_count) {
+	else 
+		{
+		if (retrieval->irb_upper_count < idx->idx_count) 
 			retrieval->irb_generic |= irb_partial;
 		}
-	}
 
-/* mark the index as utilized for the purposes of this compile */
+	/* mark the index as utilized for the purposes of this compile */
 
 	idx->idx_runtime_flags |= idx_used;
 
@@ -1211,7 +1212,7 @@ int OPT_match_index(thread_db* tdbb, OptimizerBlk* opt, USHORT stream, index_des
 	return n; // implicit USHORT -> int
 }
 
-
+#ifdef OBSOLETE
 void OPT_set_index(thread_db* tdbb,
 				   jrd_req* request, RecordSource** rsb_ptr, Relation* relation, index_desc* idx)
 {
@@ -1228,45 +1229,50 @@ void OPT_set_index(thread_db* tdbb,
  *	on the specified index.
  *
  **************************************/
+	/***
 	DEV_BLKCHK(request, type_req);
 	DEV_BLKCHK(*rsb_ptr, type_rsb);
 	DEV_BLKCHK(relation, type_rel);
-
 	SET_TDBB(tdbb);
+	***/
+	
 	Database* dbb = tdbb->tdbb_database;
-
 	RecordSource* old_rsb = *rsb_ptr;
 
-/* fix up a boolean rsb to point to the actual stream rsb */
+	/* fix up a boolean rsb to point to the actual stream rsb */
 
-	if (old_rsb->rsb_type == rsb_boolean) {
+	if (old_rsb->rsb_type == rsb_boolean) 
+		{
 		rsb_ptr = &old_rsb->rsb_next;
 		old_rsb = old_rsb->rsb_next;
-	}
+		}
 
-/* check if there is an existing inversion for
-   a boolean expression mapped to an index */
+	/* check if there is an existing inversion for
+	   a boolean expression mapped to an index */
+	   
 	jrd_nod* inversion = NULL;
-	if (old_rsb->rsb_type == rsb_indexed) {
+	
+	if (old_rsb->rsb_type == rsb_indexed) 
 		inversion = (jrd_nod*) old_rsb->rsb_arg[0];
-	}
-	else if (old_rsb->rsb_type == rsb_navigate) {
+	else if (old_rsb->rsb_type == rsb_navigate) 
 		inversion = (jrd_nod*) old_rsb->rsb_arg[RSB_NAV_inversion];
-	}
 
-/* set up a dummy optimizer block just for the purposes 
-   of the set index, to pass information to subroutines */
+	/* set up a dummy optimizer block just for the purposes 
+	   of the set index, to pass information to subroutines */
 
 	OptimizerBlk* opt = FB_NEW(*tdbb->tdbb_default) OptimizerBlk(tdbb->tdbb_default);
 	opt->opt_g_flags |= opt_g_stream;
 
-/* generate a new rsb for the retrieval, making sure to 
-   preserve the inversion generated for the last rsb; note
-   that if the bitmap for the inversion has already been
-   generated, it will be reused since it is already part of
-   the impure area--I can't think of any reason not to reuse it--deej */
+	/* generate a new rsb for the retrieval, making sure to 
+	   preserve the inversion generated for the last rsb; note
+	   that if the bitmap for the inversion has already been
+	   generated, it will be reused since it is already part of
+	   the impure area--I can't think of any reason not to reuse it--deej */
+	   
 	RecordSource* new_rsb;
-	if (idx) {
+	
+	if (idx) 
+		{
 		new_rsb = gen_nav_rsb(tdbb, opt, old_rsb->rsb_stream, relation, 0, idx
 #ifdef SCROLLABLE_CURSORS
 							  , RSE_get_forward
@@ -1274,55 +1280,55 @@ void OPT_set_index(thread_db* tdbb,
 			);
 		new_rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
 		new_rsb->rsb_cardinality = old_rsb->rsb_cardinality;
-	}
-	else {
+		}
+	else 
 		new_rsb = gen_rsb(tdbb, opt, 0, inversion, old_rsb->rsb_stream,
 						  relation, 0, 0, (float) old_rsb->rsb_cardinality);
-	}
 
-/* point the impure area of the new rsb to the impure area of the
-   old; since impure area is pre-allocated it would be difficult 
-   to change now, so just use the same area; NOTE: this implies
-   that we must take some pains to ensure that the impure area is
-   always large enough to handle a maximum-key index */
+	/* point the impure area of the new rsb to the impure area of the
+	   old; since impure area is pre-allocated it would be difficult 
+	   to change now, so just use the same area; NOTE: this implies
+	   that we must take some pains to ensure that the impure area is
+	   always large enough to handle a maximum-key index */
 
 	new_rsb->rsb_impure = old_rsb->rsb_impure;
 
-/* find index node if the old rsb was navigational */
+	/* find index node if the old rsb was navigational */
 
 	jrd_nod* index_node = NULL;
-	if (old_rsb->rsb_type == rsb_navigate) {
+	
+	if (old_rsb->rsb_type == rsb_navigate) 
 		index_node = (jrd_nod*) old_rsb->rsb_arg[RSB_NAV_index];
-	}
 
-/* if the new rsb is navigational, set up impure space in request 
-   for new index node; to convert from non-navigational to navigational,
-   we need to adjust the impure area upwards to make room for an impure_inversion
-   structure, and vice versa to convert the other way */
+	/* if the new rsb is navigational, set up impure space in request 
+	   for new index node; to convert from non-navigational to navigational,
+	   we need to adjust the impure area upwards to make room for an impure_inversion
+	   structure, and vice versa to convert the other way */
 
-	if (idx) {
+	if (idx) 
+		{
 		jrd_nod* new_index_node = (jrd_nod*) new_rsb->rsb_arg[RSB_NAV_index];
+		
 		if (old_rsb->rsb_type == rsb_navigate)
 			new_index_node->nod_impure = index_node->nod_impure;
-		else {
+		else 
+			{
 			new_index_node->nod_impure = old_rsb->rsb_impure;
 			new_rsb->rsb_impure += sizeof(impure_inversion);
+			}
 		}
-	}
-	else if (old_rsb->rsb_type == rsb_navigate) {
+	else if (old_rsb->rsb_type == rsb_navigate) 
 		new_rsb->rsb_impure -= sizeof(impure_inversion);
-	}
 
 	/* if there was a previous index, release its lock 
 	   and remove its resource from the request */
 
 	if (old_rsb->rsb_type == rsb_navigate) 
 		{
-		IndexRetrieval* retrieval =
-			(IndexRetrieval*) index_node->nod_arg[e_idx_retrieval];
+		IndexRetrieval* retrieval = (IndexRetrieval*) index_node->nod_arg[e_idx_retrieval];
 		const USHORT index_id = retrieval->irb_index;
-
 		IndexLock* index = CMP_get_index_lock(tdbb, relation, index_id);
+		
 		if (index) 
 			{
 			if (index->idl_count)
@@ -1351,25 +1357,23 @@ void OPT_set_index(thread_db* tdbb,
 	   request, and replace the old with the new */
 
 	for (size_t i = 0; i < request->req_fors.getCount(); i++) 
-		{
 		if (request->req_fors[i] == old_rsb) 
 			{
 			request->req_fors[i] = new_rsb;
 			break;
 			}
-		}
 
 	/* release unneeded blocks */
 
 	delete opt;
-	if (index_node) {
+	
+	if (index_node) 
 		delete index_node;
-	}
-	delete old_rsb;
 
+	delete old_rsb;
 	*rsb_ptr = new_rsb;
 }
-
+#endif // OBSOLETE
 
 static bool augment_stack(jrd_nod* node, NodeStack& stack)
 {
@@ -2437,33 +2441,34 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 		{
 		case rsb_indexed:
 			*buffer++ = isc_info_rsb_indexed;
-			if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[0], &buffer, buffer_length)) {
+			if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[0], &buffer, buffer_length)) 
 				return false;
-			}
 			break;
 
 		case rsb_navigate:
 			*buffer++ = isc_info_rsb_navigate;
-			if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[RSB_NAV_index], 
-							&buffer, buffer_length)) 
-			{
+			
+			//if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[RSB_NAV_index], &buffer, buffer_length)) 
+			if (!dump_index(tdbb, ((RsbNavigate*) rsb)->inversion, &buffer, buffer_length)) 
 				return false;
-			}
+
 			// dimitr:	here we report indicies used to limit
 			//			the navigational-based retrieval
-			if (rsb->rsb_arg[RSB_NAV_inversion]) {
+			
+			//if (rsb->rsb_arg[RSB_NAV_inversion]) 
+			if (((RsbNavigate*) rsb)->inversion) 
+				{
 				*buffer_length -= 2;
-				if (*buffer_length < 0) {
+				
+				if (*buffer_length < 0) 
 					return false;
-				}
+
 				*buffer++ = isc_info_rsb_type;
 				*buffer++ = isc_info_rsb_indexed;
-				if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[RSB_NAV_inversion],
-								&buffer, buffer_length))
-				{
+				
+				if (!dump_index(tdbb, ((RsbNavigate*) rsb)->inversion, &buffer, buffer_length))
 					return false;
 				}
-			}
 			break;
 
 		case rsb_sequential:
@@ -4474,32 +4479,28 @@ static RecordSource* gen_nav_rsb(thread_db* tdbb,
 	SET_TDBB(tdbb);
 
 	USHORT key_length = ROUNDUP(BTR_key_length(tdbb, relation, idx), sizeof(SLONG));
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource(opt->opt_csb);
-	rsb->rsb_type = rsb_navigate;
-	rsb->rsb_relation = relation;
-	rsb->rsb_stream = (UCHAR) stream;
-	rsb->rsb_alias = alias;
-	rsb->rsb_arg[RSB_NAV_index] = (RecordSource*) OPT_make_index(tdbb, opt, relation, idx);
-	rsb->rsb_arg[RSB_NAV_key_length] = (RecordSource*) (long) key_length;
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource(opt->opt_csb);
+	RsbNavigate *rsb = new (tdbb->tdbb_default) RsbNavigate(opt->opt_csb, stream, relation, alias,
+															  OPT_make_index(tdbb, opt, relation, idx),
+															  key_length);
+	//rsb->rsb_type = rsb_navigate;
+	//rsb->rsb_relation = relation;
+	//rsb->rsb_stream = (UCHAR) stream;
+	//rsb->rsb_alias = alias;
+	//rsb->rsb_arg[RSB_NAV_index] = (RecordSource*) OPT_make_index(tdbb, opt, relation, idx);
+	//rsb->rsb_arg[RSB_NAV_key_length] = (RecordSource*) (long) key_length;
+	//rsb->keyLength = key_length;
 
 #ifdef SCROLLABLE_CURSORS
 	// indicate that the index needs to be navigated in a mirror-image   
 	// fashion; that when the user wants to go backwards we actually go 
 	// forwards and vice versa
-	if (mode == RSE_get_backward) {
+	
+	if (mode == RSE_get_backward) 
 		rsb->rsb_flags |= rsb_descending;
-	}
+
 #endif
 
-	// if this is a blr_stream, adjust the allocated impure area 
-	// to be based on the maximum key size so that the index may be
-	// reset at any time to another index of larger key length
-	// without adjusting the impure area offsets
-	if (opt->opt_g_flags & opt_g_stream) {
-		key_length = MAX_KEY;
-	}
-	const USHORT size = nav_rsb_size(rsb, key_length, 0);
-	rsb->rsb_impure = CMP_impure(opt->opt_csb, size);
 	return rsb;
 }
 
@@ -5154,7 +5155,8 @@ static RecordSource* gen_rsb(thread_db* tdbb,
 	if (rsb) 
 		{
 		if (rsb->rsb_type == rsb_navigate && inversion) 
-			rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
+			//rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
+			((RsbNavigate*) rsb)->inversion = inversion;
 		}
 	else 
 		{
@@ -5190,13 +5192,14 @@ static RecordSource* gen_rsb(thread_db* tdbb,
 		// even if this is not currently a navigational rsb, 
 		// OPT_set_index() could be used to convert it to one.
 		
+		/***
 		if (opt->opt_g_flags & opt_g_stream) 
 			{
 			fb_assert(false);		// this hasn't been converted yet
 			size = sizeof(impure_inversion);
 			size = nav_rsb_size(rsb, MAX_KEY, size);
 			}
-
+		***/
 		}
 
 	if (boolean) 

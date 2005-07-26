@@ -37,6 +37,7 @@
 #include "../jrd/dpm_proto.h"
 #include "../jrd/rlck_proto.h"
 #include "../jrd/vio_proto.h"
+#include ".\rsbsequential.h"
 
 RsbSequential::RsbSequential(CompilerScratch *csb, int stream, Relation *relation, str *alias) : RecordSource(csb, rsb_sequential)
 {
@@ -93,8 +94,7 @@ void RsbSequential::open(Request* request)
 			}
 		}
 
-	RLCK_reserve_relation(tdbb, request->req_transaction, rpb->rpb_relation, FALSE, TRUE);
-	rpb->rpb_number.setValue(BOF_NUMBER);
+	reserveRelation(request);
 }
 
 bool RsbSequential::get(Request* request, RSE_GET_MODE mode)
@@ -118,17 +118,9 @@ bool RsbSequential::get(Request* request, RSE_GET_MODE mode)
 	if (impure->irsb_flags & irsb_bof)
 		rpb->rpb_number.setValue(BOF_NUMBER);
 
-#ifdef PC_ENGINE
-	if (mode == RSE_get_current)
-		{
-		if (!VIO_get(tdbb, rpb, this, req_transaction, req_pool))
+	if (!VIO_next_record(tdbb, rpb, this, request->req_transaction, request->req_pool,
+							(mode == RSE_get_backward) ? TRUE : FALSE, FALSE))
 			return FALSE;
-		}
-	else
-#endif // PC_ENGINE
-		if (!VIO_next_record(tdbb, rpb, this, request->req_transaction, request->req_pool,
-							 (mode == RSE_get_backward) ? TRUE : FALSE, FALSE))
-				return FALSE;
 	
 	return true;
 }
@@ -145,4 +137,13 @@ void RsbSequential::close(Request* request)
 	
 	if (rpb->rpb_window.win_flags & WIN_large_scan && rpb->rpb_relation->rel_scan_count)
 		--rpb->rpb_relation->rel_scan_count;
+}
+
+void RsbSequential::reserveRelation(Request* request)
+{
+	thread_db *tdbb = request->req_tdbb;
+	record_param* rpb = &request->req_rpb[rsb_stream];
+
+	RLCK_reserve_relation(tdbb, request->req_transaction, rpb->rpb_relation, FALSE, TRUE);
+	rpb->rpb_number.setValue(BOF_NUMBER);
 }

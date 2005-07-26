@@ -65,7 +65,7 @@ class Relation;
 class AccessItem;
 class Resource;
 class Procedure;
-class rng;
+//class rng;
 class Savepoint;
 class StatusXcp;
 class RecordSource;
@@ -93,11 +93,13 @@ public:
 	//SVector<jrd_nod*> req_variables;	// Vector of variables, if any
 	Resource*		req_resources;		// Resources (relations and indices)
 	jrd_nod*		req_message;		// Current message for send/receive
+	
 #ifdef SCROLLABLE_CURSORS
 	jrd_nod			*req_async_message;	// Asynchronous message (used in scrolling)
 #endif
+
 	vec*			req_refresh_ranges;	// Vector of refresh_ranges 
-	rng*			req_begin_ranges;	// Vector of refresh_ranges 
+	//rng*			req_begin_ranges;	// Vector of refresh_ranges 
 	Procedure*		req_procedure;		// procedure, if any 
 	JString			req_trg_name;		// name of request (trigger), if any 
 	USHORT			req_length;			// message length for send/receive 

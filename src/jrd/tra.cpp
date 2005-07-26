@@ -109,13 +109,13 @@ static SLONG bump_transaction_id(thread_db*, WIN *);
 #else
 static header_page* bump_transaction_id(thread_db*, WIN *);
 #endif
+
 static void retain_context(thread_db*, Transaction*, const bool);
+
 #ifdef VMS
 static void compute_oldest_retaining(thread_db*, Transaction*, const bool);
 #endif
-#ifdef PC_ENGINE
-static void downgrade_lock(Transaction*);
-#endif
+
 static void expand_view_lock(thread_db* tdbb, Transaction*, Relation*, SCHAR);
 static tx_inv_page* fetch_inventory_page(thread_db*, WIN *, SLONG, USHORT);
 static SLONG inventory_page(thread_db*, SLONG);
@@ -415,10 +415,6 @@ void TRA_commit(thread_db* tdbb, Transaction* transaction, const bool retaining_
 #endif
 
 	/* signal refresh range relations for ExpressLink */
-
-#ifdef PC_ENGINE
-	RLCK_signal_refresh(transaction);
-#endif
 
 	if (retaining_flag) 
 		{
@@ -1578,12 +1574,6 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	trans->tra_lock = lock;
 	lock->lck_key.lck_long = number;
 
-	/* Support refresh range notification in ExpressLink */
-
-#ifdef PC_ENGINE
-	lock->lck_ast = downgrade_lock;
-#endif
-
 	/* Put the TID of the oldest active transaction (from the header page)
 	   in the new transaction's lock. */
 
@@ -2252,60 +2242,6 @@ static void compute_oldest_retaining(
 }
 #endif
 
-#ifdef PC_ENGINE
-static void downgrade_lock(Transaction* transaction)
-{
-/**************************************
- *
- *	d o w n g r a d e _ l o c k
- *
- **************************************
- *
- * Functional description
- *	Someone is trying to establish an interest
- *	lock in this transaction.  Downgrade to a
- *	shared write, to allow transactions to wait
- *	on this transaction or, alternatively, be
- *	notified if and when the transaction commits.
- *
- **************************************/
-	LCK lock;
-	struct tdbb thd_context, *tdbb;
-
-	ISC_ast_enter();
-
-	/* Since this routine will be called asynchronously, we must establish
-	   a thread context. */
-
-	SET_THREAD_DATA;
-
-	/* Ignore the request if the transaction or lock block does not appear
-	   to be valid or if the lock is not a write lock. */
-
-	if (!transaction->tra_use_count)
-		{
-		tdbb->tdbb_database = transaction->tra_attachment->att_database;
-		tdbb->tdbb_attachment = transaction->tra_attachment;
-		tdbb->tdbb_request = NULL;
-		tdbb->tdbb_transaction = transaction;
-		++transaction->tra_use_count;
-		
-		if ((lock = transaction->tra_lock) && lock->lck_logical == LCK_write) 
-			{
-			lock->lck_ast = NULL;
-			LCK_convert(tdbb, lock, LCK_SW, TRUE);
-			}
-			
-		--transaction->tra_use_count;
-		}
-
-	/* Restore the prior thread context */
-
-	RESTORE_THREAD_DATA;
-
-	ISC_ast_exit();
-}
-#endif
 
 static void expand_view_lock(thread_db* tdbb,Transaction* transaction, Relation* relation, SCHAR lock_type)
 {
@@ -2580,11 +2516,6 @@ static void retain_context(thread_db* tdbb, Transaction* transaction, const bool
 		new_lock->lck_key.lck_long = new_number;
 		new_lock->lck_data = transaction->tra_lock->lck_data;
 
-		/* Support refresh range notification in ExpressLink */
-
-#ifdef PC_ENGINE
-		new_lock->lck_ast = downgrade_lock;
-#endif
 
 		if (!LCK_lock_non_blocking(tdbb, new_lock, LCK_write, TRUE)) 
 			{

@@ -88,7 +88,7 @@
 #include "../jrd/gdsassert.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/all_proto.h"
-#include "../jrd/bookmark.h"
+//#include "../jrd/bookmark.h"
 #include "../jrd/blb_proto.h"
 #include "../jrd/btr_proto.h"
 #include "../jrd/cvt_proto.h"
@@ -105,7 +105,7 @@
 #include "../jrd/pag_proto.h"
 #include "../jrd/rlck_proto.h"
 #include "../jrd/rng_proto.h"
-#include "../jrd/rse_proto.h"
+//#include "../jrd/rse_proto.h"
 #include "../jrd/scl_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/sort_proto.h"
@@ -151,10 +151,7 @@ static SINT64 get_day_fraction(const dsc* d);
 static dsc* get_mask(thread_db*, JRD_NOD, impure_value*);
 static SINT64 get_timestamp_to_isc_ticks(const dsc* d);
 static void init_agg_distinct(thread_db*, const jrd_nod*);
-#ifdef PC_ENGINE
-static dsc* lock_record(thread_db*, JRD_NOD, impure_value*);
-static dsc* lock_relation(thread_db*, JRD_NOD, impure_value*);
-#endif
+
 static dsc* lock_state(thread_db*, JRD_NOD, impure_value*);
 static dsc* multiply(const dsc*, impure_value*, const jrd_nod*);
 static dsc* multiply2(const dsc*, impure_value*, const jrd_nod*);
@@ -960,16 +957,6 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 
 		case nod_lock_state:
 			return lock_state(tdbb, node, impure);
-#ifdef PC_ENGINE
-		case nod_lock_record:
-			return lock_record(tdbb, node, impure);
-
-		case nod_lock_relation:
-			return lock_relation(tdbb, node, impure);
-
-		case nod_begin_range:
-			return RNG_begin(tdbb, node, impure);
-#endif
 
 		case nod_null:
 			request->req_flags |= req_null;
@@ -1199,47 +1186,6 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 		case nod_value_if:
 			return EVL_expr(tdbb, (EVL_boolean(tdbb, node->nod_arg[0])) ?
 							node->nod_arg[1] : node->nod_arg[2]);
-
-#ifdef PC_ENGINE
-		case nod_crack:
-			{
-			RecordSource* rsb = *(RecordSource* *) node->nod_arg[1];
-			if (rsb->rsb_type == rsb_boolean)
-				rsb = rsb->rsb_next;
-			IRSB irsb = (IRSB) IMPURE (request, rsb->rsb_impure);
-			impure->vlu_desc.dsc_address =
-				(UCHAR *) & impure->vlu_misc.vlu_long;
-			impure->vlu_desc.dsc_dtype = dtype_long;
-			impure->vlu_desc.dsc_length = sizeof(ULONG);
-			impure->vlu_desc.dsc_scale = 0;
-			impure->vlu_misc.vlu_long =
-				irsb->irsb_flags & (irsb_bof | irsb_eof | irsb_crack);
-			return &impure->vlu_desc;
-			}
-
-		case nod_get_bookmark:
-			{
-			bkm* bookmark = RSE_get_bookmark(tdbb, *(RecordSource* *) node->nod_arg[e_getmark_rsb]);
-			
-			return &bookmark->bkm_desc;
-			}
-
-		case nod_bookmark:
-			{
-			bkm* bookmark = BKM_lookup(node->nod_arg[e_bookmark_id]);
-			return &bookmark->bkm_key_desc;
-			}
-
-		case nod_cardinality:
-			impure->vlu_misc.vlu_long =
-				(*(RecordSource* *) node->nod_arg[e_card_rsb])->rsb_cardinality;
-			impure->vlu_desc.dsc_dtype = dtype_long;
-			impure->vlu_desc.dsc_length = sizeof(ULONG);
-			impure->vlu_desc.dsc_scale = 0;
-			impure->vlu_desc.dsc_sub_type = 0;
-			impure->vlu_desc.dsc_address = (UCHAR *) & impure->vlu_misc.vlu_long;
-			return &impure->vlu_desc;
-#endif
 
 		default:   /* Shut up some compiler warnings */
 			break;
@@ -3899,158 +3845,7 @@ static void init_agg_distinct(thread_db* tdbb, const jrd_nod* node)
 }
 
 
-#ifdef PC_ENGINE
-static dsc* lock_record(thread_db* tdbb, JRD_NOD node, impure_value* impure)
-{
-/**************************************
- *
- *      l o c k _ r e c o r d
- *
- **************************************
- *
- * Functional description
- *      Lock a record and return a descriptor
- *      pointing to the lock handle.
- *
- **************************************/
-	JRD_REQ request;
-	dsc* desc;
-	USHORT lock_level;
-	RecordSource* rsb;
-	record_param* rpb;
-	LCK lock = NULL;
 
-	SET_TDBB(tdbb);
-
-	request = tdbb->tdbb_request;
-
-	DEV_BLKCHK(node, type_nod);
-
-/* Initialize descriptor */
-
-	impure->vlu_desc.dsc_address = (UCHAR *) & impure->vlu_misc.vlu_long;
-	impure->vlu_desc.dsc_dtype = dtype_long;
-	impure->vlu_desc.dsc_length = sizeof(ULONG);
-	impure->vlu_desc.dsc_scale = 0;
-
-/* get the locking level */
-
-	desc = EVL_expr(tdbb, node->nod_arg[e_lockrec_level]);
-	lock_level = (USHORT) MOV_get_long(desc, 0);
-	if (lock_level > LCK_EX)
-		ERR_post(isc_bad_lock_level, isc_arg_number, (SLONG) lock_level, 0);
-
-/* perform the actual lock (or unlock) */
-
-	rsb = *(RecordSource* *) node->nod_arg[e_lockrec_rsb];
-	rpb = request->req_rpb + rsb->rsb_stream;
-	if (!lock_level)
-		RLCK_unlock_record(0, rpb);
-	else if (!(lock = RLCK_lock_record(rpb, lock_level, 0, 0)))
-		ERR_warning(isc_record_lock, 0);
-
-/* return the lock handle (actually the pointer to the lock block) */
-
-#if SIZEOF_VOID_P != 8
-	impure->vlu_misc.vlu_long = (ULONG) lock;
-#else
-	{
-		Attachment* att;
-		ULONG slot;
-
-		/* The lock pointer can't be stored in a ULONG.  Therefore we must
-		   generate a ULONG value that can be used to retrieve the pointer.
-		   Basically we will keep a vector of user locks and give the user
-		   an index into this vector.  When the user releases a lock, its
-		   slot in the vector is zeroed and it becomes available for reuse. */
-
-		att = tdbb->tdbb_attachment;
-		slot = ALL_get_free_object(tdbb->tdbb_database->dbb_permanent,
-								   &att->att_lck_quick_ref, 50);
-		att->att_lck_quick_ref->vec_object[slot] = lock;
-		impure->vlu_misc.vlu_long = slot;
-	}
-#endif
-
-	return &impure->vlu_desc;
-}
-#endif
-
-
-#ifdef PC_ENGINE
-static dsc* lock_relation(thread_db* tdbb, JRD_NOD node, impure_value* impure)
-{
-/**************************************
- *
- *      l o c k _ r e l a t i o n 
- *
- **************************************
- *
- * Functional description
- *      Lock a relation and return a descriptor
- *      pointing to the lock handle.
- *
- **************************************/
-	dsc* desc;
-	USHORT lock_level;
-	JRD_NOD relation_node;
-	JRD_REL relation;
-	LCK lock = NULL;
-
-	SET_TDBB(tdbb);
-	DEV_BLKCHK(node, type_nod);
-
-/* Initialize descriptor */
-
-	impure->vlu_desc.dsc_address = (UCHAR *) & impure->vlu_misc.vlu_long;
-	impure->vlu_desc.dsc_dtype = dtype_long;
-	impure->vlu_desc.dsc_length = sizeof(ULONG);
-	impure->vlu_desc.dsc_scale = 0;
-
-/* get the locking level */
-
-	desc = EVL_expr(tdbb, node->nod_arg[e_lockrel_level]);
-	lock_level = (USHORT) MOV_get_long(desc, 0);
-	if (lock_level > LCK_EX)
-		ERR_post(isc_bad_lock_level, isc_arg_number, (SLONG) lock_level, 0);
-
-/* perform the actual lock (or unlock) */
-
-	relation_node = node->nod_arg[e_lockrel_relation];
-	relation = (Relation*) relation_node->nod_arg[e_rel_relation];
-	if (!lock_level)
-		RLCK_unlock_relation(0, relation);
-	else
-		lock = RLCK_lock_relation(relation, lock_level, 0, relation);
-
-/* return the lock handle (actually the pointer to the lock block) */
-
-#if SIZEOF_VOID_P != 8
-	impure->vlu_misc.vlu_long = (ULONG) lock;
-#else
-	{
-		ATT att;
-		ULONG slot;
-
-		SET_TDBB(tdbb);
-
-		/* The lock pointer can't be stored in a ULONG.  Therefore we must
-		   generate a ULONG value that can be used to retrieve the pointer.
-		   Basically we will keep a vector of user locks and give the user
-		   an index into this vector.  When the user releases a lock, its
-		   slot in the vector is zeroed and it becomes available for reuse. */
-
-		att = tdbb->tdbb_attachment;
-		slot = ALL_get_free_object(tdbb->tdbb_database->dbb_permanent,
-								   &att->att_lck_quick_ref, 50);
-		att->att_lck_quick_ref->vec_object[slot] = lock;
-		impure->vlu_misc.vlu_long = slot;
-	}
-#endif
-
-	return &impure->vlu_desc;
-}
-#endif
 
 
 static dsc* lock_state(thread_db* tdbb, JRD_NOD node, impure_value* impure)

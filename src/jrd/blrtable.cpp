@@ -158,8 +158,8 @@ static const VERB verbs[] = {
 	PAIR(nod_not, blr_not, 1, 1, BOOL, BOOL),
 	PAIR(nod_rse, blr_rse, 0, 0, TYPE_RSE, OTHER),
 	/* nodes for ODAPI support */
-	PAIR(nod_stream, blr_stream, 0, 0, STATEMENT, STATEMENT),
-	PAIR(nod_set_index, blr_set_index, e_index_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_stream, blr_stream, 0, 0, STATEMENT, STATEMENT),
+	//PAIR(nod_set_index, blr_set_index, e_index_length, 1, STATEMENT, STATEMENT),
 	PAIR(nod_seek, blr_seek, e_seek_length, 2, STATEMENT, VALUE),
 	PAIR(nod_seek_no_warn, blr_seek_no_warn, e_seek_length, 2, STATEMENT, VALUE),
 	PAIR(nod_find, blr_find, e_find_length, 3, STATEMENT, STATEMENT),

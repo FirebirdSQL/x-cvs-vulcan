@@ -340,9 +340,6 @@ static BOOLEAN shutdown_locks(thread_db* tdbb, DBB dbb)
 		if (attachment->att_id_lock)
 			LCK_release(attachment->att_id_lock);
 
-#ifdef PC_ENGINE
-		RNG_shutdown_attachment(tdbb, attachment);
-#endif
 		RLCK_shutdown_attachment(tdbb, attachment);
 		TRA_shutdown_attachment(tdbb, attachment);
 	}

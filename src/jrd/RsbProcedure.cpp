@@ -49,19 +49,15 @@ RsbProcedure::~RsbProcedure(void)
 void RsbProcedure::open(Request* request)
 {
 	JRD_NOD *ptr, *end;//, in_message;
-	Request* proc_request;
-	Format* format;
 	USHORT iml;
 	UCHAR *im;
-	record_param* rpb;
 
 	thread_db* tdbb = request->req_tdbb;
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
-	//JRD_NOD inputs = (JRD_NOD) rsb_arg[RSB_PRC_inputs];
+	record_param* rpb = request->req_rpb + rsb_stream;
 
 	/* get rid of any lingering record */
 
-	rpb = request->req_rpb + rsb_stream;
 	
 	if (rpb->rpb_record) 
 		{
@@ -69,7 +65,7 @@ void RsbProcedure::open(Request* request)
 		rpb->rpb_record = NULL;
 		}
 
-	proc_request = EXE_find_request(tdbb, procedure->findRequest(), FALSE);
+	Request *proc_request = EXE_find_request(tdbb, procedure->findRequest(), FALSE);
 	impure->irsb_req_handle = proc_request;
 	
 	if (inputs) 
@@ -80,8 +76,7 @@ void RsbProcedure::open(Request* request)
 			EXE_assignment(tdbb, *ptr);
 
 		request->req_operation = saved_state;
-		//in_message = (JRD_NOD) rsb_arg[RSB_PRC_in_msg];
-		format = (Format*) message->nod_arg[e_msg_format];
+		Format* format = (Format*) message->nod_arg[e_msg_format];
 		iml = format->fmt_length;
 		im = IMPURE (request, message->nod_impure);
 		}

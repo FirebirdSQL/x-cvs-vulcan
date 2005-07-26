@@ -82,9 +82,9 @@ Attachment::Attachment(Database *database)
 	att_security_classes = NULL;
 	att_relation_locks = NULL;
 	att_record_locks = NULL;
-	att_bookmarks = NULL;
-	att_bkm_quick_ref = NULL;
-	att_lck_quick_ref = NULL;
+	//att_bookmarks = NULL;
+	//att_bkm_quick_ref = NULL;
+	//att_lck_quick_ref = NULL;
 	att_lc_messages = NULL;
 	att_long_locks = NULL;
 	att_compatibility_table = NULL;
@@ -100,7 +100,8 @@ Attachment::~Attachment()
 {
 	if (att_user) 
 		delete att_user;
-		
+	
+	/***
 	for (Bookmark* bookmark; bookmark = att_bookmarks;) 
 		{
 		att_bookmarks = bookmark->bkm_next;
@@ -112,6 +113,7 @@ Attachment::~Attachment()
 			
 	if (att_lck_quick_ref)
 		delete att_lck_quick_ref;
+	***/
 
 	while (firstConnection)
 		firstConnection->close();

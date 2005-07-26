@@ -157,10 +157,6 @@ static void process_map(thread_db*, CompilerScratch*, JRD_NOD, Format* *);
 static bool stream_in_rse(USHORT, RecordSelExpr*);
 static SSHORT strcmp_space(const TEXT*, const TEXT*);
 
-#ifdef PC_ENGINE
-static USHORT base_stream(CompilerScratch*, JRD_NOD *, bool);
-#endif
-
 #ifdef CMP_DEBUG
 IMPLEMENT_TRACE_ROUTINE(cmp_trace, "CMP");
 #endif
@@ -717,29 +713,12 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 	case nod_count:
 	case nod_gen_id:
 	case nod_lock_state:
-#ifdef PC_ENGINE
-	case nod_lock_record:
-	case nod_lock_relation:
-	case nod_seek:
-	case nod_seek_no_warn:
-	case nod_crack:
-#endif
 		desc->dsc_dtype = dtype_long;
 		desc->dsc_length = sizeof(SLONG);
 		desc->dsc_scale = 0;
 		desc->dsc_sub_type = 0;
 		desc->dsc_flags = 0;
 		return;
-
-#ifdef PC_ENGINE
-	case nod_begin_range:
-		desc->dsc_dtype = dtype_text;
-		desc->dsc_ttype = ttype_ascii;
-		desc->dsc_scale = 0;
-		desc->dsc_length = RANGE_NAME_LENGTH;
-		desc->dsc_flags = 0;
-		return;
-#endif
 
 	case nod_field:
 		{
@@ -1565,14 +1544,6 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 		CMP_get_desc(tdbb, csb, node->nod_arg[1], desc);
 		return;
 
-	case nod_bookmark:
-		desc->dsc_dtype = dtype_text;
-		desc->dsc_ttype = ttype_binary;
-		desc->dsc_length = 0;
-		desc->dsc_scale = 0;
-		desc->dsc_flags = 0;
-		return;
-
 	default:
 		fb_assert(false);
 		break;
@@ -2170,12 +2141,7 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 					break;
 				}
 
-	//EXE_unwind(tdbb, request);
 	request->unwind();
-
-#ifdef PC_ENGINE
-	RNG_release_ranges(request);
-#endif
 
 	if (attachment) 
 		{
@@ -2305,50 +2271,6 @@ static UCHAR* alloc_map(thread_db* tdbb, CompilerScratch* csb, USHORT stream)
 }
 
 
-#ifdef PC_ENGINE
-static USHORT base_stream(CompilerScratch* csb, JRD_NOD * stream_number, bool nav_stream)
-{
-/**************************************
- *
- *	b a s e _ s t r e a m
- *
- **************************************
- *
- * Functional description
- *	Find the base stream of a view for navigational
- *	access.  If there is more than one base table, 
- *	give an error.
- *
- **************************************/
-	DEV_BLKCHK(csb, type_csb);
-
-	// note: *stream_number is NOT a JRD_NOD
-	USHORT stream = (USHORT) *stream_number;
-
-	// if the stream references a view, follow map
-
-	UCHAR* map = csb->csb_rpt[stream].csb_map;
-	if (map) {
-		if (map[2]) {
-			if (nav_stream)
-				// navigational stream %ld references a view with more than one base table
-				ERR_post(isc_complex_view, isc_arg_number, stream, 0);
-		}
-		else {
-			map++;
-			stream = *map;
-		}
-	}
-
-	// if this is a navigational stream, fix up the stream number 
-	// in the node tree to point to the base table from now on
-
-	if (nav_stream)
-		*stream_number = (JRD_NOD) stream;
-
-	return stream;
-}
-#endif
 
 
 static JRD_NOD catenate_nodes(thread_db* tdbb, LLS stack)
@@ -2562,7 +2484,7 @@ static JRD_NOD copy(thread_db* tdbb,
 			break;
 
 		case nod_rse:
-		case nod_stream:
+		//case nod_stream:
 			{
 			RecordSelExpr* old_rse = (RecordSelExpr*) input;
 			RecordSelExpr* new_rse = (RecordSelExpr*) PAR_make_node(tdbb, old_rse->rse_count + rse_delta + 2);
@@ -3308,7 +3230,7 @@ static JRD_NOD pass1(thread_db* tdbb,
 			break;
 
 		case nod_rse:
-		case nod_stream:
+		//case nod_stream:
 			return (JRD_NOD) pass1_rse(tdbb, csb, (RecordSelExpr*) node, view, view_stream);
 
 		case nod_max:
@@ -4439,109 +4361,6 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 			}
 			break;
 
-#ifdef PC_ENGINE
-			// the remainder of the node types are for IDAPI support:
-			// fix up the stream to point to the base table, and preserve 
-			// the pointers to the navigational rsb for easy reference 
-			// later during execution
-
-		case nod_stream:
-			{
-			JRD_NOD relation;
-			RecordSelExpr* rse;
-
-			rse = (RecordSelExpr*) node;
-			rse_node = node;
-			// setting the stream flag will allow the optimizer to  
-			// detect that a SET INDEX may be done on this stream
-			rse_node->nod_flags |= rse_stream;
-			rsb_ptr = &rse->rse_rsb;
-			relation = rse->rse_relation[0];
-			stream = base_stream(csb, &relation->nod_arg[e_rel_stream], true);
-			csb->csb_rpt[stream].csb_rsb_ptr = &rse->rse_rsb;
-			}
-			break;
-
-		case nod_find:
-			stream = base_stream(csb, &node->nod_arg[e_find_stream], true);
-			
-			if (!(node->nod_arg[e_find_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_find_dbkey:
-		case nod_find_dbkey_version:
-			stream = base_stream(csb, &node->nod_arg[e_find_dbkey_stream], true);
-			
-			if (!(node->nod_arg[e_find_dbkey_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_set_index:
-			stream = base_stream(csb, &node->nod_arg[e_index_stream], true);
-			
-			if (!(node->nod_arg[e_index_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_get_bookmark:
-			stream = base_stream(csb, &node->nod_arg[e_getmark_stream], true);
-			
-			if (!(node->nod_arg[e_getmark_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_set_bookmark:
-			stream = base_stream(csb, &node->nod_arg[e_setmark_stream], true);
-			
-			if (!(node->nod_arg[e_setmark_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_lock_record:
-			stream = base_stream(csb, &node->nod_arg[e_lockrec_stream], true);
-			
-			if (!(node->nod_arg[e_lockrec_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_crack:
-		case nod_force_crack:
-			stream = base_stream(csb, &node->nod_arg[0], true);
-			
-			if (!(node->nod_arg[1] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_reset_stream:
-			stream = base_stream(csb, &node->nod_arg[e_reset_from_stream], true);
-			
-			if (!(node->nod_arg[e_reset_from_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-		case nod_cardinality:
-			stream = base_stream(csb, &node->nod_arg[e_card_stream], true);
-			
-			if (!(node->nod_arg[e_card_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr))
-				ERR_post(isc_stream_not_defined, 0);
-			break;
-
-			// the following DML nodes need to have their rsb's stored when 
-			// they are referencing a navigational stream, so that we can
-			// follow proper IDAPI semantics in manipulating a stream
-
-		case nod_erase:
-			stream = base_stream(csb, &node->nod_arg[e_erase_stream], false);
-			node->nod_arg[e_erase_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr;
-			break;
-
-		case nod_modify:
-			stream = base_stream(csb, &node->nod_arg[e_mod_org_stream], false);
-			node->nod_arg[e_mod_rsb] = (JRD_NOD) csb->csb_rpt[stream].csb_rsb_ptr;
-			break;
-#endif
-
 		default:
 			break;
 		}
@@ -4732,12 +4551,6 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 		case nod_upcase:
 		case nod_prot_mask:
 		case nod_lock_state:
-		
-#ifdef PC_ENGINE
-		case nod_lock_record:
-		case nod_lock_relation:
-#endif
-
 		case nod_scalar:
 		case nod_cast:
 		case nod_extract:
@@ -4745,13 +4558,6 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 		case nod_current_timestamp:
 		case nod_current_date:
 		
-	#ifdef PC_ENGINE
-		case nod_cardinality:
-		case nod_seek:
-		case nod_seek_no_warn:
-		case nod_crack:
-		case nod_begin_range:
-	#endif
 			{
 			DSC descriptor_a;
 
@@ -5290,11 +5096,6 @@ static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelEx
 	if (rse->nod_flags & rse_singular)
 		rsb->rsb_flags |= rsb_singular;
 
-#ifdef PC_ENGINE
-	// this flag lets the VIO layer know to add a page to the cache range
-	if (rse->nod_flags & rse_stream)
-		rsb->rsb_flags |= rsb_stream_type;
-#endif
 
 	// mark all the substreams as inactive
 

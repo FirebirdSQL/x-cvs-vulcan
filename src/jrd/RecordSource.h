@@ -82,11 +82,13 @@ const int RSB_PRC_in_msg		= 1;
 const int RSB_PRC_count			= 2;
 ***/
 
+/***
 const int RSB_NAV_index			= 0;
 const int RSB_NAV_inversion		= 1;
 const int RSB_NAV_key_length	= 2;
 const int RSB_NAV_idx_offset	= 3;
 const int RSB_NAV_count			= 4;
+***/
 
 /***
 const int RSB_LEFT_outer		= 0;

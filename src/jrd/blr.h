@@ -145,8 +145,8 @@
 #define blr_unique		(unsigned char)62
 #define blr_like		(unsigned char)63
 
-#define blr_stream      	(unsigned char)65	/* added from gds.h */
-#define blr_set_index   	(unsigned char)66	/* added from gds.h */
+//#define blr_stream      	(unsigned char)65	/* added from gds.h */
+//#define blr_set_index   	(unsigned char)66	/* added from gds.h */
 
 #define blr_rse			(unsigned char)67
 #define blr_first		(unsigned char)68

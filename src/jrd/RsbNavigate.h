@@ -20,32 +20,32 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  *
- * Refactored July 22, 2005 by James A. Starkey
+ * Refactored July 25, 2005 by James A. Starkey
  */
 
-#ifndef JRD_RSB_INDEXED_H
-#define JRD_RSB_INDEXED_H
+#ifndef JRD_RSB_NAVIGATE_H
+#define JRD_RSB_NAVIGATE_H
 
 #if _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "RsbSequential.h"
+#include "RsbIndexed.h"
 
 struct jrd_nod;
 
-class RsbIndexed : public RsbSequential
+class RsbNavigate : public RsbIndexed
 {
 public:
-	RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *inversion);
-	RsbIndexed::RsbIndexed(CompilerScratch* csb, RSB_T type, int stream, Relation* relation, str* alias, jrd_nod *node);
-
-	virtual ~RsbIndexed(void);
-	virtual void open(Request* request);
-	virtual bool get(Request* request, RSE_GET_MODE mode);
-	virtual void close(Request* request);
+	RsbNavigate(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node, int key_length);
+	virtual ~RsbNavigate(void);
+	virtual void	open(Request* request);
+	virtual bool	get(Request* request, RSE_GET_MODE mode);
+	virtual void	close(Request* request);
+	int				computeImpureSize(int key_length);
 	
-	jrd_nod		*inversion;
+	int		keyLength;
+	int		indexOffset;
 };
 
 #endif
