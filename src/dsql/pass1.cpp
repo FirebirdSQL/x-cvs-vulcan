@@ -868,7 +868,7 @@ dsql_nod* PASS1_node(CStatement* request, dsql_nod* input, bool proc_flag)
 			}
 			else {
 				// Scope level is needed to determine to which context COUNT(*) belongs.
-				node->nod_arg[e_agg_function_scope_level] = (dsql_nod*) request->scopeLevel;
+				node->nod_arg[e_agg_function_scope_level] = (dsql_nod*) (IPTR) request->scopeLevel;
 			}
 
 			return node;
@@ -3594,7 +3594,7 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 			dsql_nod* derived_field = MAKE_node(request->threadData, nod_derived_field, e_derived_field_count);
 			derived_field->nod_arg[e_derived_field_value] = select_item;
 			derived_field->nod_arg[e_derived_field_name] = list->nod_arg[count];
-			derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(ULONG) request->scopeLevel;
+			derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(IPTR) request->scopeLevel;
 			derived_field->nod_desc = select_item->nod_desc;
 
 			rse->nod_arg[e_rse_items]->nod_arg[count] = derived_field;
@@ -3627,7 +3627,7 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 
 				derived_field->nod_arg[e_derived_field_name] = (dsql_nod*) alias;
 				derived_field->nod_arg[e_derived_field_scope] = 
-					(dsql_nod*)(ULONG) request->scopeLevel;
+					(dsql_nod*)(IPTR) request->scopeLevel;
 				derived_field->nod_desc = select_item->nod_desc;
 				select_item = derived_field;
 				}
@@ -5192,7 +5192,7 @@ static dsql_nod* pass1_make_derived_field(CStatement* request, TSQL tdsql, dsql_
 				dsql_nod* derived_field = MAKE_node(request->threadData, nod_derived_field, e_derived_field_count);
 				derived_field->nod_arg[e_derived_field_value] = select_item;
 				derived_field->nod_arg[e_derived_field_name] = select_item->nod_arg[e_derived_field_name];
-				derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)request->scopeLevel;
+				derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*) (IPTR) request->scopeLevel;
 				derived_field->nod_desc = select_item->nod_desc;
 				return derived_field;
 			}
@@ -5210,7 +5210,7 @@ static dsql_nod* pass1_make_derived_field(CStatement* request, TSQL tdsql, dsql_
 				dsql_nod* derived_field = MAKE_node(request->threadData, nod_derived_field, e_derived_field_count);
 				derived_field->nod_arg[e_derived_field_value] = select_item;
 				derived_field->nod_arg[e_derived_field_name] = (dsql_nod*) alias;
-				derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(ULONG) request->scopeLevel;
+				derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(IPTR) request->scopeLevel;
 				derived_field->nod_desc = select_item->nod_desc;
 				return derived_field;
 			}
@@ -5228,7 +5228,7 @@ static dsql_nod* pass1_make_derived_field(CStatement* request, TSQL tdsql, dsql_
 				dsql_nod* derived_field = MAKE_node(request->threadData, nod_derived_field, e_derived_field_count);
 				derived_field->nod_arg[e_derived_field_value] = select_item->nod_arg[e_alias_value];
 				derived_field->nod_arg[e_derived_field_name] = (dsql_nod*) alias;
-				derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(ULONG) request->scopeLevel;
+				derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(IPTR) request->scopeLevel;
 				derived_field->nod_desc = select_item->nod_desc;
 				return derived_field;
 			}
@@ -5243,7 +5243,7 @@ static dsql_nod* pass1_make_derived_field(CStatement* request, TSQL tdsql, dsql_
 				// with orginal map.
 				if (derived_field->nod_type == nod_derived_field) {
 					derived_field->nod_arg[e_derived_field_value] = select_item;
-					derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(ULONG) request->scopeLevel;
+					derived_field->nod_arg[e_derived_field_scope] = (dsql_nod*)(IPTR) request->scopeLevel;
 					derived_field->nod_desc = select_item->nod_desc;
 					return derived_field;
 				}

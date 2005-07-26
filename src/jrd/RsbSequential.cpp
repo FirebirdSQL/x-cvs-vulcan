@@ -37,7 +37,6 @@
 #include "../jrd/dpm_proto.h"
 #include "../jrd/rlck_proto.h"
 #include "../jrd/vio_proto.h"
-#include ".\rsbsequential.h"
 
 RsbSequential::RsbSequential(CompilerScratch *csb, int stream, Relation *relation, str *alias) : RecordSource(csb, rsb_sequential)
 {
