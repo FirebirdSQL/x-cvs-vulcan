@@ -297,23 +297,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\bookmark.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\..\src\jrd\btn.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1685,23 +1668,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\rng.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\..\src\jrd\rpb_chain.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1732,6 +1698,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbMerge.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbNavigate.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbProcedure.cpp">
@@ -2248,10 +2217,10 @@
 				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\all.h">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\all.h">
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\all_proto.h">
@@ -2299,10 +2268,10 @@
 				RelativePath="..\..\..\src\jrd\blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\blk.h">
+				RelativePath="..\..\..\src\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\blk.h">
+				RelativePath="..\..\..\src\jrd\blk.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\common\Blob.h">
@@ -3145,6 +3114,9 @@
 				RelativePath="..\..\..\src\jrd\RsbMerge.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbNavigate.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbProcedure.h">
 			</File>
 			<File
@@ -3244,10 +3216,10 @@
 				RelativePath="..\..\..\src\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sqlda.h">
+				RelativePath="..\..\..\src\dsql\sqlda.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\sqlda.h">
+				RelativePath="..\..\..\src\jrd\Sqlda.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\SQLError.h">
