@@ -36,6 +36,7 @@ class RsbSequential : public RecordSource
 {
 public:
 	RsbSequential(CompilerScratch *csb, int stream, Relation *rel, str *alias);
+	RsbSequential(CompilerScratch* csb, RSB_T type, int stream, Relation* relation, str* alias);
 	virtual ~RsbSequential(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);

@@ -252,5 +252,5 @@ void RsbSort::close(Request* request)
 
 bool RsbSort::reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg)
 {
-	return false;
+	return true;
 }

@@ -1,6 +1,6 @@
 /*
  *	PROGRAM:		JRD Access Method
- *	MODULE:			RsbIndexed.h
+ *	MODULE:			RsbUnion.h
  *	DESCRIPTION:	Record source block definitions
  *
  * The contents of this file are subject to the Interbase Public
@@ -20,30 +20,32 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  *
- * Refactored July 22, 2005 by James A. Starkey
+ * Refactored July 25, 2005 by James A. Starkey
  */
 
-#ifndef JRD_RSB_INDEXED_H
-#define JRD_RSB_INDEXED_H
+#ifndef JRD_RSB_UNION_H
+#define JRD_RSB_UNION_H
 
 #if _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "RsbSequential.h"
+#include "RecordSource.h"
 
-struct jrd_nod;
 
-class RsbIndexed : public RsbSequential
+class RsbUnion : public RecordSource
 {
 public:
-	RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *inversion);
-	virtual ~RsbIndexed(void);
+	RsbUnion(CompilerScratch *csb, int streamCount, int clauseCount);
+	virtual ~RsbUnion(void);
+	
+	RecordSource	**rsbs;
+	jrd_nod			**maps;
+	int				numberStreams;
+	UCHAR			*streams;
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
-	
-	jrd_nod		*inversion;
 };
 
 #endif

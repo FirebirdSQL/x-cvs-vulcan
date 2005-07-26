@@ -269,12 +269,13 @@ void RecordSource::open(Request* request)
 			return;
 		***/
 
+		/***
 		case rsb_union:
 			{
 			((IRSB) impure)->irsb_count = 0;
 			VIO_record(tdbb, rpb, rsb_format, tdbb->tdbb_default);
 
-			/* Initialize the record number of each stream in the union */
+			// Initialize the record number of each stream in the union
 
 			RecordSource** ptr = &rsb_arg[rsb_count];
 			
@@ -285,7 +286,8 @@ void RecordSource::open(Request* request)
 			rsb_arg[0]->open(request);
 			}
 			break;
-
+		***/
+		
 		case rsb_aggregate:
 			((IRSB) impure)->irsb_count = 3;
 			VIO_record(tdbb, rpb, rsb_format, tdbb->tdbb_default);
@@ -468,7 +470,8 @@ void RecordSource::close(Request* request)
 			rsb_next->close(request);
 			return;
 		***/
-		
+
+		/***		
 		case rsb_union:
 			{
 			const USHORT i = ((IRSB) impure)->irsb_count;
@@ -478,7 +481,8 @@ void RecordSource::close(Request* request)
 			rsb_arg[i]->close(request);
 			}
 			return;
-
+		***/
+		
 		case rsb_ext_sequential:
 		case rsb_ext_indexed:
 		case rsb_ext_dbkey:
@@ -1103,10 +1107,12 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 			break;
 #endif // OBSOLETE
 
+/***
 		case rsb_union:
 			if (!get_union(request, tdbb, rsb, impure))
 				return FALSE;
 			break;
+***/
 
 		case rsb_aggregate:
 			if ( (impure->irsb_count = EVL_group(tdbb, rsb->rsb_next,
@@ -1215,7 +1221,7 @@ static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb
 
 
 
-
+#ifdef OBSOLETE
 static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB impure)
 {
 /**************************************
@@ -1258,6 +1264,7 @@ static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, I
 
 	return TRUE;
 }
+#endif // OBSOLETE
 
 #ifdef OBSOLETE
 #ifdef SCROLLABLE_CURSORS

@@ -41,12 +41,9 @@
 
 
 RsbIndexed::RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node)
-		: RecordSource(csb, rsb_indexed)
+		: RsbSequential(csb, rsb_indexed, stream, relation, alias)
 {
 	rsb_impure = CMP_impure(csb, sizeof(struct irsb_index));
-	rsb_relation = relation;
-	rsb_alias = alias;
-	rsb_stream = stream;
 	inversion = node;
 }
 

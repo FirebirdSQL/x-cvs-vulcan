@@ -93,6 +93,7 @@
 #include "RsbBoolean.h"
 #include "RsbSequential.h"
 #include "RsbIndexed.h"
+#include "RsbUnion.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -924,16 +925,16 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 		// gen_skip before gen_first.
 		//
 
-		if (rse->rse_skip) {
+		if (rse->rse_skip) 
 			rsb = gen_skip(tdbb, opt, rsb, rse->rse_skip);
-		}
 
-		if (rse->rse_first) {
+		if (rse->rse_first) 
 			rsb = gen_first(tdbb, opt, rsb, rse->rse_first);
-		}
 
-	// release memory allocated for index descriptions
-		for (i = 0; i < streams[0]; i++) {
+		// release memory allocated for index descriptions
+		
+		for (i = 0; i < streams[0]; i++) 
+			{
 			stream = streams[i + 1];
 			delete csb->csb_rpt[stream].csb_idx;
 			csb->csb_rpt[stream].csb_idx = 0;
@@ -943,10 +944,12 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 			//   and this is the cause of the crashes with indices that have plagued IB since v4.
 
 			csb->csb_rpt[stream].csb_indices = 0;
-		}
+			}
 
 		DEBUG
-	// free up memory for optimizer structures
+		
+		// free up memory for optimizer structures
+		
 		delete opt;
 
 	#ifdef OPT_DEBUG
@@ -957,18 +960,20 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 		}
 	#endif
 
-	}	// try
+		}	// try
 	catch (...) 
 		{
-		for (SSHORT i = 0; i < streams[0]; i++) {
+		for (SSHORT i = 0; i < streams[0]; i++) 
+			{
 			const SSHORT stream = streams[i + 1];
 			delete csb->csb_rpt[stream].csb_idx;
 			csb->csb_rpt[stream].csb_idx = 0;
 			csb->csb_rpt[stream].csb_indices = 0; // Probably needed to be safe
-		}
+			}
+			
 		delete opt;
 		throw;
-	}
+		}
 	
 	if (rse->rse_writelock)
 		rsb->rsb_flags |= rsb_writelock;
@@ -2593,12 +2598,14 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 	case rsb_union:
 		*buffer++ = rsb->rsb_count / 2;
 		ptr = rsb->rsb_arg;
-		for (end = ptr + rsb->rsb_count; ptr < end; ptr++) {
-			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) {
+		
+		for (end = ptr + rsb->rsb_count; ptr < end; ptr++) 
+			{
+			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) 
 				return false;
-			}
+
 			ptr++;
-		}
+			}
 		break;
 
 	case rsb_merge:
@@ -5244,7 +5251,9 @@ static RsbSort* gen_sort(thread_db* tdbb,
 					OptimizerBlk* opt,
 					const UCHAR* streams,
 					const UCHAR* dbkey_streams,
-					RecordSource* prior_rsb, jrd_nod* sort, bool project_flag)
+					RecordSource* prior_rsb, 
+					jrd_nod* sort, 
+					bool project_flag)
 {
 /**************************************
  *
@@ -5804,9 +5813,12 @@ static bool gen_sort_merge(thread_db* tdbb, OptimizerBlk* opt, RiverStack& org_r
 
 
 static RecordSource* gen_union(thread_db* tdbb,
-					 OptimizerBlk* opt,
-					 jrd_nod* union_node, UCHAR * streams, USHORT nstreams, 
-					 NodeStack* parent_stack, UCHAR shellStream)
+								OptimizerBlk* opt,
+								jrd_nod*union_node, 
+								UCHAR *streams, 
+								USHORT nstreams, 
+								NodeStack* parent_stack, 
+								UCHAR shellStream)
 {
 /**************************************
  *
@@ -5818,41 +5830,56 @@ static RecordSource* gen_union(thread_db* tdbb,
  *	Generate a union complex.
  *
  **************************************/
+ 
+	/***
 	DEV_BLKCHK(opt, type_opt);
 	DEV_BLKCHK(union_node, type_nod);
-
 	SET_TDBB(tdbb);
+	***/
+	
 	jrd_nod* clauses = union_node->nod_arg[e_uni_clauses];
 	const USHORT count = clauses->nod_count;
 	CompilerScratch* csb = opt->opt_csb;
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, count + nstreams + 1) RecordSource(opt->opt_csb);
-	rsb->rsb_type = rsb_union;
-	rsb->rsb_count = count;
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, count + nstreams + 1) RecordSource(opt->opt_csb);
+	RsbUnion *rsb = new (tdbb->tdbb_default) RsbUnion(csb, nstreams, count);
+	//rsb->rsb_type = rsb_union;
+	//rsb->rsb_count = count;
 	rsb->rsb_stream = (UCHAR)(long) union_node->nod_arg[e_uni_stream];
 	rsb->rsb_format = csb->csb_rpt[rsb->rsb_stream].csb_format;
-	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
+	//rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
 	RecordSource** rsb_ptr = rsb->rsb_arg;
 	jrd_nod** ptr = clauses->nod_arg;
-	for (const jrd_nod* const* const end = ptr + count; ptr < end;) {
-
-		RecordSelExpr* rse = (RecordSelExpr*) * ptr++;
-		jrd_nod* map = (jrd_nod*) * ptr++;
+	int n = 0;
+	
+	for (const jrd_nod* const* const end = ptr + count; ptr < end; ++n) 
+		{
+		RecordSelExpr* rse = (RecordSelExpr*) *ptr++;
+		jrd_nod* map = *ptr++;
 
 		// AB: Try to distribute booleans from the top rse for a UNION to 
 		// the WHERE clause of every single rse.
+		
 		NodeStack deliverStack;
 		gen_deliver_unmapped(tdbb, &deliverStack, map, parent_stack, shellStream);
 
-		*rsb_ptr++ = OPT_compile(tdbb, csb, rse, &deliverStack);
-		*rsb_ptr++ = (RecordSource*) map;
-	}
+		//*rsb_ptr++ = OPT_compile(tdbb, csb, rse, &deliverStack);
+		//*rsb_ptr++ = (RecordSource*) map;
+		rsb->rsbs[n] = OPT_compile(tdbb, csb, rse, &deliverStack);
+		rsb->maps[n] = map;
+		}
 
-/* Save the count and numbers of the streams that make up the union */
+	/* Save the count and numbers of the streams that make up the union */
 
+	/***
 	*rsb_ptr++ = (RecordSource*)(long) nstreams;
-	while (nstreams--) {
+	while (nstreams--) 
 		*rsb_ptr++ = (RecordSource*)(long) *streams++;
-	}
+	***/
+	
+	for (n = 0; n < nstreams; ++n)
+		rsb->streams [n] = *streams++;
+	
+
 	return rsb;
 }
 

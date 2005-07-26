@@ -46,6 +46,13 @@ RsbSequential::RsbSequential(CompilerScratch *csb, int stream, Relation *relatio
 	rsb_stream = stream;
 }
 
+RsbSequential::RsbSequential(CompilerScratch* csb, RSB_T type, int stream, Relation* relation, str* alias) : RecordSource(csb, type)
+{
+	rsb_relation = relation;
+	rsb_alias = alias;
+	rsb_stream = stream;
+}
+
 RsbSequential::~RsbSequential(void)
 {
 }
@@ -55,7 +62,7 @@ void RsbSequential::open(Request* request)
 	thread_db *tdbb = request->req_tdbb;
 	DBB dbb = tdbb->tdbb_database;
 	//SINT64 first_records = -1, skip_records = 0;
-	IRSB_INDEX impure = (IRSB_INDEX) IMPURE (request, rsb_impure);
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
 	impure->irsb_flags |= irsb_first | irsb_open;
 	impure->irsb_flags &= ~(irsb_singular_processed | irsb_checking_singular);
 	record_param* rpb = &request->req_rpb[rsb_stream];
