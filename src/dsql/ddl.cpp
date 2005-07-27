@@ -138,7 +138,7 @@ static void define_set_default_trg(CStatement*, const dsql_nod*, const dsql_nod*
 static void define_shadow(CStatement*);
 static void define_trigger(CStatement*, dsql_nod*);
 static void define_udf(CStatement*);
-static void define_update_action(CStatement*, dsql_nod**, dsql_nod**);
+static void define_update_action(CStatement*, dsql_nod**, dsql_nod**, dsql_nod*);
 static void define_upd_cascade_trg(CStatement*, const dsql_nod*, const dsql_nod*,
 	const dsql_nod*, const char*, const char*);
 static void define_view(CStatement*, NOD_TYPE);
@@ -177,7 +177,7 @@ static void put_field(CStatement*, dsql_fld*, bool);
 static void put_local_variable(CStatement*, var*, dsql_nod*);
 static void put_local_variables(CStatement*, dsql_nod*, SSHORT);
 static void put_msg_field(CStatement*, dsql_fld*);
-static dsql_nod* replace_field_names(CStatement* request, dsql_nod*, dsql_nod*, dsql_nod*, bool);
+static dsql_nod* replace_field_names(CStatement* request, dsql_nod*, dsql_nod*, dsql_nod*, bool, const char*);
 static void reset_context_stack(CStatement*);
 static void save_field(CStatement*, const SCHAR*);
 static void save_relation(CStatement*, dsql_str*);
@@ -1049,7 +1049,7 @@ static void create_view_triggers(CStatement* request, dsql_nod* element,
 		
 	dsql_nod* base_and_node = 0;
 	dsql_nod* base_relation = 0;
-	define_update_action(request, &base_and_node, &base_relation);
+	define_update_action(request, &base_and_node, &base_relation, items);
 
 	dsql_nod* rse = MAKE_node(request->threadData, nod_rse, e_rse_count);
 	rse->nod_arg[e_rse_boolean] = base_and_node;
@@ -3060,9 +3060,10 @@ static void define_udf( CStatement* request)
 
 
 
-static void define_update_action(
-								 CStatement* request,
-								 dsql_nod** base_and_node, dsql_nod** base_relation)
+static void define_update_action( CStatement* request,
+								  dsql_nod** base_and_node, 
+								  dsql_nod** base_relation,
+								  dsql_nod* items)
 {
 /* *************************************
  *
@@ -3202,7 +3203,10 @@ static void define_update_action(
 		dsql_nod* old_and = and_node;
 		and_node = MAKE_node(request->threadData, nod_and, (int) 2);
 		and_node->nod_arg[0] = old_and;
-		and_node->nod_arg[1] = select_expr->nod_arg[e_qry_where];
+		and_node->nod_arg[1] =
+			replace_field_names(request, select_expr->nod_arg[e_qry_where], 
+				items, NULL, false, TEMP_CONTEXT);
+
 	}
 	*base_and_node = and_node;
 }
@@ -3771,7 +3775,7 @@ static void define_view_trigger( CStatement* request, dsql_nod* node, dsql_nod* 
 			dsql_nod* condition = MAKE_node(request->threadData, nod_not, 1);
 			condition->nod_arg[0] =
 				replace_field_names(request, select_expr->nod_arg[e_qry_where], items,
-									view_fields, false);
+									view_fields, false, NEW_CONTEXT);
 			request->appendUCHAR(blr_begin);
 			request->appendUCHAR(blr_if);
 			GEN_expr(request, PASS1_node(request, condition->nod_arg[0], false));
@@ -3783,7 +3787,7 @@ static void define_view_trigger( CStatement* request, dsql_nod* node, dsql_nod* 
 			dsql_nod* condition = MAKE_node(request->threadData, nod_not, 1);
 			condition->nod_arg[0] =
 				replace_field_names(request, select_expr->nod_arg[e_qry_where], items,
-									view_fields, true);
+									view_fields, true, NEW_CONTEXT);
 			request->appendUCHAR(blr_if);
 			GEN_expr(request, PASS1_node(request, condition->nod_arg[0], false));
 			request->appendUCHAR(blr_begin);
@@ -5668,7 +5672,8 @@ static void put_msg_field( CStatement* request, dsql_fld* field)
 static dsql_nod* replace_field_names(CStatement* request, dsql_nod*		input,
 							   dsql_nod*		search_fields,
 							   dsql_nod*		replace_fields,
-							   bool	null_them)
+							   bool	null_them,
+							   const char* context_name)
 {
 /* *************************************
  *
@@ -5728,7 +5733,7 @@ static dsql_nod* replace_field_names(CStatement* request, dsql_nod*		input,
 					if (replace_fields) {
 						(*ptr)->nod_arg[e_fln_name] = (*replace)->nod_arg[e_fln_name];
 					}
-					(*ptr)->nod_arg[e_fln_context] = (dsql_nod*) MAKE_cstring(request->threadData, NEW_CONTEXT);
+					(*ptr)->nod_arg[e_fln_context] = (dsql_nod*) MAKE_cstring(request->threadData, context_name);
 
 				}
 				if (null_them &&
@@ -5748,7 +5753,7 @@ static dsql_nod* replace_field_names(CStatement* request, dsql_nod*		input,
 			// recursively go through the input tree
 			// looking for field name nodes
 			replace_field_names(request, *ptr, search_fields, replace_fields,
-								null_them);
+								null_them, context_name);
 		}
 	}
 

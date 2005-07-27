@@ -507,14 +507,8 @@ dsql_rel* CStatement::findViewRelation(const TEXT *viewName, const TEXT *relatio
 	
 	while (resultSet->next())
 		{
-		const char *contextName = resultSet->getString(1);
-		const char *relationName = resultSet->getString(2);
-
-		const char *p;
-		for (p = contextName; *p && *p != ' '; ++p)
-			;
-		for (p = relationName; *p && *p != ' '; ++p)
-			;
+		JString contextName = stripString (resultSet->getString(1));
+		JString relationName = stripString (resultSet->getString(2));
 
 		if (!strcmp(relationName, relationOrAlias) ||
 			!strcmp(contextName, relationOrAlias))
