@@ -142,6 +142,8 @@ void RecordSource::init(void)
 	rsb_next = NULL;
 	rsb_flags = NULL;
 	rsb_impure = NULL;
+	rsb_relation = NULL;
+	rsb_alias = NULL;
 }
 
 RecordSource::~RecordSource(void)

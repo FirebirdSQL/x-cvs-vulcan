@@ -2441,7 +2441,7 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 		{
 		case rsb_indexed:
 			*buffer++ = isc_info_rsb_indexed;
-			if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[0], &buffer, buffer_length)) 
+			if (!dump_index(tdbb, ((RsbIndexed*) rsb)->inversion, &buffer, buffer_length)) 
 				return false;
 			break;
 
@@ -3620,7 +3620,7 @@ static void find_used_streams(const RecordSource* rsb, UCHAR* streams)
 			break;
 
 		case rsb_cross:
-			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end; ptr++) 
+			for (ptr = ((RsbCross*) rsb)->rsbs, end = ptr + rsb->rsb_count; ptr < end; ptr++) 
 				find_used_streams(*ptr, streams);
 			break;
 
