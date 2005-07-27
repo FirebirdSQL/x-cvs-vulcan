@@ -1,3 +1,56 @@
+2005-07-26 18:45  jimstarkey
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Dropped PC_ENGINE
+
+2005-07-26 18:43  jimstarkey
+
+	* vulcan/src/: dsql/pass1.cpp, jrd/RsbSequential.cpp:
+	
+	Clean up a couple of gcc warnings.
+
+2005-07-26 18:37  jimstarkey
+
+	* vulcan/src/include/gen/blrtable.h:
+	
+	Whacked PC_ENGINE
+
+2005-07-26 18:31  jimstarkey
+
+	* vulcan/src/jrd/: Attachment.cpp, Attachment.h, Optimizer.cpp,
+	Optimizer.h, RecordSource.cpp, RecordSource.h, Request.h,
+	RsbBoolean.cpp, RsbIndexed.cpp, RsbIndexed.h, RsbMerge.cpp,
+	RsbProcedure.cpp, RsbSequential.cpp, RsbSequential.h, RsbSort.cpp,
+	blr.h, blrtable.cpp, cmp.cpp, evl.cpp, exe.cpp, exe.h, exe_proto.h,
+	jrd.vcproj, nav.cpp, nav_proto.h, nod.h, opt.cpp, RsbNavigate.cpp,
+	RsbNavigate.h, par.cpp, rse.h, sbm.cpp, shut.cpp, sort.cpp,
+	tra.cpp, tra.h, vio.cpp, vio_proto.h:
+	
+	Whacked out PC_ENGINE
+
+2005-07-26 03:13  jimstarkey
+
+	* vulcan/src/jrd/: RsbUnion.cpp, RsbUnion.h:
+	
+	Split out RsbUnion from RecordSource.
+
+2005-07-26 03:09  jimstarkey
+
+	* vulcan/builds/VisualStudio7/: jrd/jrd.vcproj,
+	winserver/winserver.vcproj:
+	
+	Split out RsbUnion from RecordSource.  Also fixed target directory
+	for winserver.
+
+2005-07-26 03:08  jimstarkey
+
+	* vulcan/src/jrd/: RecordSource.cpp, RsbIndexed.cpp, RsbIndexed.h,
+	RsbSequential.cpp, RsbSequential.h, RsbSort.cpp, jrd.vcproj,
+	opt.cpp:
+	
+	Split out RsbUnion from RecordSource.
+
 2005-07-22 23:39  jimstarkey
 
 	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
