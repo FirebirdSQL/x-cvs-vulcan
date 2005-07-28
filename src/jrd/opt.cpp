@@ -5849,13 +5849,13 @@ static RecordSource* gen_union(thread_db* tdbb,
 	const USHORT count = clauses->nod_count;
 	CompilerScratch* csb = opt->opt_csb;
 	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, count + nstreams + 1) RecordSource(opt->opt_csb);
-	RsbUnion *rsb = new (tdbb->tdbb_default) RsbUnion(csb, nstreams, count);
+	RsbUnion *rsb = new (tdbb->tdbb_default) RsbUnion(csb, count / 2, nstreams);
 	//rsb->rsb_type = rsb_union;
 	//rsb->rsb_count = count;
 	rsb->rsb_stream = (UCHAR)(long) union_node->nod_arg[e_uni_stream];
 	rsb->rsb_format = csb->csb_rpt[rsb->rsb_stream].csb_format;
 	//rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
-	RecordSource** rsb_ptr = rsb->rsb_arg;
+	//RecordSource** rsb_ptr = rsb->rsb_arg;
 	jrd_nod** ptr = clauses->nod_arg;
 	int n = 0;
 	

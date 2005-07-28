@@ -40,7 +40,7 @@ RsbUnion::RsbUnion(CompilerScratch *csb, int streamCount, int nStreams) : Record
 	rsb_count = streamCount;
 	numberStreams = nStreams;
 	rsbs = new (csb->csb_pool) RecordSource* [rsb_count];
-	maps = new (csb->csb_pool) jrd_nod* [streamCount];
+	maps = new (csb->csb_pool) jrd_nod* [rsb_count];
 	//nodes = new (csb->csb_pool) jrd_nod* [clauseCount];
 	streams = new (csb->csb_pool) UCHAR [numberStreams];
 	rsb_impure = CMP_impure(csb, sizeof(struct irsb));
