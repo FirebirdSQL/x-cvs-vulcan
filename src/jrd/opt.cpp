@@ -2583,8 +2583,8 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 		return false;
 	}
 
-	const RecordSource* const* ptr;
-	const RecordSource* const* end;
+	//const RecordSource* const* ptr;
+	//const RecordSource* const* end;
 
 	switch (rsb->rsb_type) {
 	case rsb_cross:
@@ -2601,9 +2601,10 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 		break;
 
 	case rsb_union:
-		*buffer++ = rsb->rsb_count / 2;
+		//*buffer++ = rsb->rsb_count / 2;
+		*buffer++ = (UCHAR) rsb->rsb_count;
+		/***
 		ptr = rsb->rsb_arg;
-		
 		for (end = ptr + rsb->rsb_count; ptr < end; ptr++) 
 			{
 			if (!dump_rsb(tdbb, request, *ptr, &buffer, buffer_length)) 
@@ -2611,10 +2612,14 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 
 			ptr++;
 			}
+		***/
+		for (int n = 0; n < rsb->rsb_count; ++n)
+			if (!dump_rsb(tdbb, request, ((RsbUnion*) rsb)->rsbs[n], &buffer, buffer_length))
+				return false;
 		break;
 
 	case rsb_merge:
-		*buffer++ = (SCHAR) rsb->rsb_count;
+		*buffer++ = (UCHAR) rsb->rsb_count;
 		/***
 		ptr = rsb->rsb_arg;
 		for (end = ptr + rsb->rsb_count * 2; ptr < end; ptr += 2)
