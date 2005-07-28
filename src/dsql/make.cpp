@@ -1524,6 +1524,14 @@ void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 		}
 	}
 
+	// If any type is nullable then the general descriptor is nullable
+	if (nullable) {
+		desc->dsc_flags |= DSC_nullable;
+	}
+	else {
+		desc->dsc_flags &= ~DSC_nullable;
+	}
+
 	// If we have literal NULLs only, let the result be either
 	// CHAR(1) CHARACTER SET NONE or the context-provided datatype
 	if (all_nulls)
@@ -1556,13 +1564,6 @@ void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
 			isc_arg_string, "",
 			isc_arg_string, expression_name, 0);
 		// "Datatypes %sare not comparable in expression %s"
-	}
-
-	if (nullable) {
-		desc->dsc_flags |= DSC_nullable;
-	}
-	else {
-		desc->dsc_flags &= ~DSC_nullable;
 	}
 
 	// If all the datatypes we've seen are exactly the same, we're done
