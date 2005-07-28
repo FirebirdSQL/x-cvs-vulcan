@@ -194,7 +194,7 @@ static int process_statement(TEXT *, XSQLDA **);
 static void CLIB_ROUTINE query_abort(void);
 static void strip_quotes(TEXT *, TEXT *);
 static SSHORT do_set_command(const TEXT *, SSHORT *);
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 static UCHAR *sqltype_to_string(USHORT);
 #endif
 
@@ -3420,7 +3420,7 @@ static SSHORT frontend( TEXT * statement)
 		{
 			ret = do_set_command(parms[2], &Time_display);
 		}
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 		else if (!strcmp(parms[1], "SQLDA_DISPLAY"))
 		{
 			ret = do_set_command(parms[2], &Sqlda_display);
@@ -6301,7 +6301,7 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
     }
 
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 	if (Sqlda_display) {
 		XSQLDA *input_sqlda;
 
@@ -6547,7 +6547,7 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
 
 	}
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 
 /* To facilitate debugging, the option 
    SET SQLDA_DISPLAY ON
@@ -7000,7 +7000,7 @@ static void strip_quotes( TEXT * in, TEXT * out)
 
 
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 static UCHAR *sqltype_to_string( USHORT sqltype)
 {
 /**************************************
