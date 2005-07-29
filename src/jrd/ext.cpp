@@ -61,6 +61,9 @@
 #include "DirectoryList.h"
 #include "ConfObject.h"
 #include "Parameters.h"
+#include "RsbExtSequential.h"
+#include "RsbExtIndexed.h"
+#include "RsbExtDbkey.h"
 
 /***
 namespace 
@@ -394,64 +397,62 @@ RecordSource* EXT_optimize(thread_db* tdbb, OptimizerBlk* opt, SSHORT stream, JR
  *	set of record source blocks (rsb's).
  *
  **************************************/
-	CompilerScratch* csb;
-	Relation* relation;
-	RecordSource* rsb_;
 	
 	/* all these are un refrenced due to the code commented below
 	JRD_NOD		node, inversion;
 	opt::opt_repeat	*tail, *opt_end;
 	SSHORT		i, size;
 	*/
-	SSHORT size;
+	//SSHORT size;
 	CompilerScratch::csb_repeat *csb_tail;
 
-	csb = opt->opt_csb;
+	CompilerScratch* csb = opt->opt_csb;
 	csb_tail = &csb->csb_rpt[stream];
-	relation = csb_tail->csb_relation;
+	Relation* relation = csb_tail->csb_relation;
 
-/* Time to find inversions.  For each index on the relation
-   match all unused booleans against the index looking for upper
-   and lower bounds that can be computed by the index.  When
-   all unused conjunctions are exhausted, see if there is enough
-   information for an index retrieval.  If so, build up and
-   inversion component of the boolean. */
+	/* Time to find inversions.  For each index on the relation
+	   match all unused booleans against the index looking for upper
+	   and lower bounds that can be computed by the index.  When
+	   all unused conjunctions are exhausted, see if there is enough
+	   information for an index retrieval.  If so, build up and
+	   inversion component of the boolean. */
 
-/*
-inversion = NULL;
-opt_end = opt->opt_rpt + opt->opt_count;
+	/*
+	inversion = NULL;
+	opt_end = opt->opt_rpt + opt->opt_count;
 
-if (opt->opt_count)
-    for (i = 0; i < csb_tail->csb_indices; i++)
-	{
-	clear_bounds (opt, idx);
-	for (tail = opt->opt_rpt; tail < opt_end; tail++)
-	    {
-	    node = tail->opt_conjunct;
-	    if (!(tail->opt_flags & opt_used) &&
-		computable (csb, node, -1))
-		match (opt, stream, node, idx);
-	    if (node->nod_type == nod_starts)
-		compose (&inversion,
-			 make_starts (opt, node, stream, idx), nod_bit_and);
-	    }
-	compose (&inversion, make_index (opt, relation, idx),
-		nod_bit_and);
-	idx = idx->idx_rpt + idx->idx_count;
-	}
-*/
+	if (opt->opt_count)
+		for (i = 0; i < csb_tail->csb_indices; i++)
+		{
+		clear_bounds (opt, idx);
+		for (tail = opt->opt_rpt; tail < opt_end; tail++)
+			{
+			node = tail->opt_conjunct;
+			if (!(tail->opt_flags & opt_used) &&
+			computable (csb, node, -1))
+			match (opt, stream, node, idx);
+			if (node->nod_type == nod_starts)
+			compose (&inversion,
+				make_starts (opt, node, stream, idx), nod_bit_and);
+			}
+		compose (&inversion, make_index (opt, relation, idx),
+			nod_bit_and);
+		idx = idx->idx_rpt + idx->idx_count;
+		}
+	*/
 
 
-	rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) RecordSource(opt->opt_csb);
-	rsb_->rsb_type = rsb_ext_sequential;
-	size = sizeof(irsb);
+	//rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) RecordSource(opt->opt_csb);
+	RsbExtSequential *rsb = new (tdbb->tdbb_default) RsbExtSequential(csb, stream, relation, NULL);
+	//rsb_->rsb_type = rsb_ext_sequential;
+	//size = sizeof(irsb);
 
-	rsb_->rsb_stream = stream;
-	rsb_->rsb_relation = relation;
-	rsb_->rsb_impure = csb->csb_impure;
-	csb->csb_impure += size;
+	//rsb_->rsb_stream = stream;
+	//rsb_->rsb_relation = relation;
+	//rsb_->rsb_impure = csb->csb_impure;
+	//csb->csb_impure += size;
 
-	return rsb_;
+	return rsb;
 }
 
 
