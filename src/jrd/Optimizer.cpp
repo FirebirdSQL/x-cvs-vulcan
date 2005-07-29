@@ -249,7 +249,7 @@ bool opt_computable(CompilerScratch* csb, jrd_nod* node, SSHORT stream,
 
 // Try to merge this function with node_equality() into 1 function.
 
-bool expression_equal(thread_db* tdbb, OptimizerBlk* opt,
+bool opt_expression_equal(thread_db* tdbb, OptimizerBlk* opt,
 							 const index_desc* idx, jrd_nod* node,
 							 USHORT stream)
 {
@@ -279,7 +279,7 @@ bool expression_equal(thread_db* tdbb, OptimizerBlk* opt,
 			JrdMemoryPool* old_pool = tdbb->tdbb_default;
 			tdbb->tdbb_default = tdbb->tdbb_request->req_pool;
 
-			result = expression_equal2(tdbb, opt, idx->idx_expression,
+			result = opt_expression_equal2(tdbb, opt, idx->idx_expression,
 										node, stream);
 
 			tdbb->tdbb_default = old_pool;
@@ -294,7 +294,7 @@ bool expression_equal(thread_db* tdbb, OptimizerBlk* opt,
 }
 
 
-bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
+bool opt_expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 							  jrd_nod* node1, jrd_nod* node2,
 							  USHORT stream)
 {
@@ -331,7 +331,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 			CMP_get_desc(tdbb, opt->opt_csb, node2, desc2);
 
 			if (DSC_EQUIV(desc1, desc2) && 
-				expression_equal2(tdbb, opt, node1->nod_arg[e_cast_source],
+				opt_expression_equal2(tdbb, opt, node1->nod_arg[e_cast_source],
 								  node2, stream))
 			{
 				return true;
@@ -344,7 +344,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 			CMP_get_desc(tdbb, opt->opt_csb, node2, desc2);
 
 			if (DSC_EQUIV(desc1, desc2) &&
-				expression_equal2(tdbb, opt, node1,
+				opt_expression_equal2(tdbb, opt, node1,
 								  node2->nod_arg[e_cast_source], stream))
 			{
 				return true;
@@ -367,9 +367,9 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 			// A+B is equivalent to B+A, ditto A*B==B*A
 			// Note: If one expression is A+B+C, but the other is B+C+A we won't
 			// necessarily match them.
-			if (expression_equal2(tdbb, opt, node1->nod_arg[0],
+			if (opt_expression_equal2(tdbb, opt, node1->nod_arg[0],
 								  node2->nod_arg[1], stream) &&
-				expression_equal2(tdbb, opt, node1->nod_arg[1],
+				opt_expression_equal2(tdbb, opt, node1->nod_arg[1],
 								  node2->nod_arg[0], stream))
 			{
 				return true;
@@ -386,9 +386,9 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 		case nod_geq:
 		case nod_leq:
 		case nod_lss:
-			if (expression_equal2(tdbb, opt, node1->nod_arg[0],
+			if (opt_expression_equal2(tdbb, opt, node1->nod_arg[0],
 								  node2->nod_arg[0], stream) &&
-				expression_equal2(tdbb, opt, node1->nod_arg[1],
+				opt_expression_equal2(tdbb, opt, node1->nod_arg[1],
 								  node2->nod_arg[1], stream))
 			{
 				return true;
@@ -426,7 +426,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 		case nod_function:
 			if (node1->nod_arg[e_fun_function] &&
 				(node1->nod_arg[e_fun_function] == node2->nod_arg[e_fun_function]) &&
-				expression_equal2(tdbb, opt, node1->nod_arg[e_fun_args],
+				opt_expression_equal2(tdbb, opt, node1->nod_arg[e_fun_args],
 								  node2->nod_arg[e_fun_args], stream)) 
 			{
 				return true;
@@ -470,7 +470,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 				}
 				for (int i = 0; i < node1->nod_count; ++i)
 				{
-					if (!expression_equal2(tdbb, opt, node1->nod_arg[i],
+					if (!opt_expression_equal2(tdbb, opt, node1->nod_arg[i],
 										   node2->nod_arg[i], stream))
 					{
 						return false;
@@ -490,7 +490,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 
 		case nod_negate:
 		case nod_internal_info:
-			if (expression_equal2(tdbb, opt, node1->nod_arg[0],
+			if (opt_expression_equal2(tdbb, opt, node1->nod_arg[0],
 								  node2->nod_arg[0], stream))
 			{
 				return true;
@@ -498,7 +498,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 			break;
 
 		case nod_upcase:
-			if (expression_equal2(tdbb, opt, node1->nod_arg[0],
+			if (opt_expression_equal2(tdbb, opt, node1->nod_arg[0],
 								  node2->nod_arg[0], stream))
 			{
 				/*
@@ -523,7 +523,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 				CMP_get_desc(tdbb, opt->opt_csb, node2, desc2);
 
 				if (DSC_EQUIV(desc1, desc2) &&
-					expression_equal2(tdbb, opt, node1->nod_arg[e_cast_source],
+					opt_expression_equal2(tdbb, opt, node1->nod_arg[e_cast_source],
 									  node2->nod_arg[e_cast_source], stream)) 
 				{
 					return true;
@@ -533,7 +533,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 
 		case nod_extract:
 			if (node1->nod_arg[e_extract_part] == node2->nod_arg[e_extract_part] &&
-				expression_equal2(tdbb, opt, node1->nod_arg[e_extract_value],
+				opt_expression_equal2(tdbb, opt, node1->nod_arg[e_extract_value],
 								  node2->nod_arg[e_extract_value], stream)) 
 			{
 				return true;
@@ -554,7 +554,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 
 				while (count--)
 				{
-					if (!expression_equal2(tdbb, opt, *ptr1++, *ptr2++, stream))
+					if (!opt_expression_equal2(tdbb, opt, *ptr1++, *ptr2++, stream))
 					{
 						return false;
 					}
@@ -574,7 +574,7 @@ bool expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 #endif
 
 
-double getRelationCardinality(thread_db* tdbb, Relation* relation, const Format* format)
+double opt_getRelationCardinality(thread_db* tdbb, Relation* relation, const Format* format)
 {
 /**************************************
  *
@@ -598,7 +598,7 @@ double getRelationCardinality(thread_db* tdbb, Relation* relation, const Format*
 }
 
 
-jrd_nod* make_binary_node(thread_db* tdbb, NOD_T type, jrd_nod* arg1, jrd_nod* arg2, bool flag)
+jrd_nod* opt_make_binary_node(thread_db* tdbb, NOD_T type, jrd_nod* arg1, jrd_nod* arg2, bool flag)
 {
 /**************************************
  *
@@ -623,7 +623,7 @@ jrd_nod* make_binary_node(thread_db* tdbb, NOD_T type, jrd_nod* arg1, jrd_nod* a
 }
 
 
-str* make_alias(thread_db* tdbb, CompilerScratch* csb, 
+str* opt_make_alias(thread_db* tdbb, CompilerScratch* csb, 
 				CompilerScratch::csb_repeat* base_tail)
 {
 /**************************************
@@ -987,7 +987,7 @@ jrd_nod* OptimizerRetrieval::composeInversion(jrd_nod* node1, jrd_nod* node2,
 		}
 	}
 
-	return make_binary_node(tdbb, node_type, node1, node2, false);
+	return opt_make_binary_node(tdbb, node_type, node1, node2, false);
 }
 
 void OptimizerRetrieval::findDependentFromStreams(jrd_nod* node, 
@@ -1137,7 +1137,7 @@ str* OptimizerRetrieval::getAlias()
  **************************************/
 	if (!alias) {
 		CompilerScratch::csb_repeat* csb_tail = &csb->csb_rpt[this->stream];
-		alias = make_alias(tdbb, csb, csb_tail);
+		alias = opt_make_alias(tdbb, csb, csb_tail);
 	}
 	return alias;
 }
@@ -1311,7 +1311,7 @@ RecordSource* OptimizerRetrieval::generateNavigation()
 #ifdef EXPRESSION_INDICES
 			if (idx->idx_flags & idx_expressn)
 			{
-				if (!expression_equal(tdbb, optimizer, idx, node, stream))
+				if (!opt_expression_equal(tdbb, optimizer, idx, node, stream))
 				{
 					usableIndex = false;
 					break;
@@ -2028,11 +2028,11 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 
 	    fb_assert(indexScratch->idx->idx_expression != NULL);
 
-		if (!expression_equal(tdbb, optimizer, indexScratch->idx, match, stream) ||
+		if (!opt_expression_equal(tdbb, optimizer, indexScratch->idx, match, stream) ||
 			(value && !opt_computable(optimizer->opt_csb, value, stream, true, false)))
 		{
 			if (value &&
-				expression_equal(tdbb, optimizer, indexScratch->idx, value, stream) &&
+				opt_expression_equal(tdbb, optimizer, indexScratch->idx, value, stream) &&
 				opt_computable(optimizer->opt_csb, match, stream, true, false))
 			{
 				match = boolean->nod_arg[1];
@@ -2388,13 +2388,13 @@ bool OptimizerRetrieval::validateStarts(IndexScratch* indexScratch,
 		// AB: What if the expression contains a number/float etc.. and
 		// we use starting with against it? Is that allowed?
 		fb_assert(indexScratch->idx->idx_expression != NULL);
-		if (!(expression_equal(tdbb, optimizer, indexScratch->idx, field, stream) || 
+		if (!(opt_expression_equal(tdbb, optimizer, indexScratch->idx, field, stream) || 
 			(value && !opt_computable(optimizer->opt_csb, value, stream, true, false))))
 		{
 			// AB: Can we swap de left and right sides by a starting with?
 			// X STARTING WITH 'a' that is never the same as 'a' STARTING WITH X
 			if (value &&
-				expression_equal(tdbb, optimizer, indexScratch->idx, value, stream) && 
+				opt_expression_equal(tdbb, optimizer, indexScratch->idx, value, stream) && 
 				opt_computable(optimizer->opt_csb, field, stream, true, false))
 			{
 				field = value; 
@@ -2586,7 +2586,7 @@ void OptimizerInnerJoin::calculateCardinalities()
 		fb_assert(relation);
 		const Format* format = CMP_format(tdbb, csb, (USHORT)innerStreams[i]->stream);
 		fb_assert(format);
-		csb_tail->csb_cardinality = getRelationCardinality(tdbb, relation, format);
+		csb_tail->csb_cardinality = opt_getRelationCardinality(tdbb, relation, format);
 	}
 
 }
