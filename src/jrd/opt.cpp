@@ -3452,8 +3452,8 @@ static void find_used_streams(const RecordSource* rsb, UCHAR* streams)
 	if (!(rsb)) 
 		return;
 
-	const RecordSource* const* ptr;
-	const RecordSource* const* end;
+	//const RecordSource* const* ptr;
+	//const RecordSource* const* end;
 	USHORT stream;
 	bool found = false;
 
@@ -3472,13 +3472,18 @@ static void find_used_streams(const RecordSource* rsb, UCHAR* streams)
 			break;
 
 		case rsb_cross:
-			for (ptr = ((RsbCross*) rsb)->rsbs, end = ptr + rsb->rsb_count; ptr < end; ptr++) 
+			{
+			for (RecordSource **ptr = ((RsbCross*) rsb)->rsbs, **end = ptr + rsb->rsb_count; ptr < end; ptr++) 
 				find_used_streams(*ptr, streams);
+			}
 			break;
 
 		case rsb_merge:
-			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count * 2; ptr < end;	ptr += 2) 
+			{
+			//for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count * 2; ptr < end;	ptr += 2) 
+			for (RsbSort **ptr = ((RsbMerge*) rsb)->sortRsbs, **end = ptr + rsb->rsb_count; ptr < end; ptr++) 
 				find_used_streams(*ptr, streams);
+			}
 			break;
 
 		case rsb_left_cross:

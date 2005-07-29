@@ -1087,6 +1087,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 	return TRUE;
 }
 
+#ifdef OBSOLETE
 static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb, SSHORT n, RSE_GET_MODE mode)
 {
 /**************************************
@@ -1135,7 +1136,7 @@ static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb
 		}
 }
 
-
+#endif // OBSOLETE
 
 
 #ifdef OBSOLETE
@@ -1548,25 +1549,23 @@ static void pop_rpbs(JRD_REQ request, RecordSource* rsb)
 		case rsb_merge:
 			{
 			SSHORT i, streams[128];
-			SortMap* map;
 			RecordSource* sort_rsb;
-			RecordSource** ptr;
-			RecordSource** end;
 			smb_repeat * item, *end_item;
-			irsb_mrg::irsb_mrg_repeat * tail;
 
 			for (i = 0; i < (SSHORT) request->req_count; i++)
 				streams[i] = 0;
 				
-			end = rsb->rsb_arg + rsb->rsb_count * 2;
+			//end = rsb->rsb_arg + rsb->rsb_count * 2;
 			impure = (IRSB_MRG) IMPURE (request, rsb->rsb_impure);
+			irsb_mrg::irsb_mrg_repeat * tail = impure->irsb_mrg_rpt;
 			
-			for (ptr = rsb->rsb_arg, tail = impure->irsb_mrg_rpt;
-				ptr < end; ptr += 2, tail++)
+			//for (ptr = rsb->rsb_arg, tail = impure->irsb_mrg_rpt; ptr < end; ptr += 2, tail++)
+			for (i = 0; i < rsb->rsb_count; ++i, ++tail)
 				{
-				sort_rsb = *ptr;
+				//sort_rsb = *ptr;
+				sort_rsb = ((RsbMerge*) rsb)->sortRsbs[i];
 				//map = (SortMap*) sort_rsb->rsb_arg[0];
-				map = ((RsbSort*) sort_rsb)->map;
+				SortMap* map = ((RsbSort*) sort_rsb)->map;
 				end_item = map->smb_rpt + map->smb_count;
 				for (item = map->smb_rpt; item < end_item; item += 2)
 					streams[item->smb_stream] = 1;
@@ -1679,25 +1678,26 @@ static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb)
 		case rsb_merge:
 			{
 			SSHORT i, streams[128];
-			SortMap* map;
+			//SortMap* map;
 			RecordSource* sort_rsb;
-			RecordSource** ptr;
-			RecordSource** end;
+			//RecordSource** ptr;
+			//RecordSource** end;
 			smb_repeat * item, *end_item;
-			irsb_mrg::irsb_mrg_repeat * tail;
 
 			for (i = 0; i < (SSHORT) request->req_count; i++)
 				streams[i] = 0;
 				
-			end = rsb->rsb_arg + rsb->rsb_count * 2;
+			//end = rsb->rsb_arg + rsb->rsb_count * 2;
 			impure = (IRSB_MRG) IMPURE (request, rsb->rsb_impure);
+			irsb_mrg::irsb_mrg_repeat * tail = impure->irsb_mrg_rpt;
 			
-			for (ptr = rsb->rsb_arg, tail = impure->irsb_mrg_rpt;
-				ptr < end; ptr += 2, tail++)
+			//for (ptr = rsb->rsb_arg, tail = impure->irsb_mrg_rpt; ptr < end; ptr += 2, tail++)
+			for (i = 0; i < rsb->rsb_count; ++i, ++tail)
 				{
-				sort_rsb = *ptr;
+				//sort_rsb = *ptr;
+				sort_rsb = ((RsbMerge*) rsb)->sortRsbs[i];
 				//map = (SortMap*) sort_rsb->rsb_arg[0];
-				map = ((RsbSort*) sort_rsb)->map;
+				SortMap* map = ((RsbSort*) sort_rsb)->map;
 				end_item = map->smb_rpt + map->smb_count;
 				
 				for (item = map->smb_rpt; item < end_item; item++)

@@ -114,7 +114,7 @@ struct thread_db;
 typedef firebird::SortedArray<SLONG> VarInvariantArray;
 typedef firebird::Array<VarInvariantArray*> MsgInvariantArray;
 
-class RecordSource : public pool_alloc_rpt<class RecordSource*, type_rsb>
+class RecordSource //: public pool_alloc_rpt<class RecordSource*, type_rsb>
 {
 public:
 	RecordSource (CompilerScratch *compilerScratch);
@@ -146,7 +146,7 @@ public:
 	StreamStack*	rsb_left_streams;
 	RsbStack*		rsb_left_rsbs;
 	VarInvariantArray *rsb_invariants; // Invariant nodes bound to top-level RSB
-	RecordSource* rsb_arg[1];
+	//RecordSource* rsb_arg[1];
 	
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
