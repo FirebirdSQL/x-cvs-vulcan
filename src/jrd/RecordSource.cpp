@@ -59,6 +59,8 @@
 #include "RsbMerge.h"
 #include "RsbSort.h"
 #include "RsbLeftCross.h"
+#include "RsbAggregate.h"
+#include "RsbCross.h"
 #include "CompilerScratch.h"
 
 #if defined(WIN_NT)
@@ -162,11 +164,11 @@ void RecordSource::open(Request* request)
 
 	switch (rsb_type) 
 		{
+#ifdef OBSOLETE
 		case rsb_indexed:
 			impure->irsb_bitmap = EVL_bitmap(tdbb, (JRD_NOD) rsb_arg[0]);
 			impure->irsb_prefetch_number = -1;
 
-#ifdef OBSOLETE
 		case rsb_navigate:
 		case rsb_sequential:
 #ifdef SCROLLABLE_CURSORS
@@ -294,11 +296,13 @@ void RecordSource::open(Request* request)
 			break;
 		***/
 		
+		/***
 		case rsb_aggregate:
 			((IRSB) impure)->irsb_count = 3;
 			VIO_record(tdbb, rpb, rsb_format, tdbb->tdbb_default);
 			return;
-
+		***/
+		
 		/***
 		case rsb_merge:
 			open_merge(request, tdbb, this, (IRSB_MRG) impure);
@@ -433,7 +437,7 @@ void RecordSource::close(Request* request)
 		case rsb_first:
 		case rsb_skip:
 		//case rsb_boolean:
-		case rsb_aggregate:
+		//case rsb_aggregate:
 			//rsb = rsb_next;
 			rsb_next->close(request);
 			return;
@@ -1010,88 +1014,24 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 			break;
 		***/
 
-#ifdef OBSOLETE
-		case rsb_sort:
-			{
-			UCHAR *data;
 
-#ifdef SCROLLABLE_CURSORS
-			/* any attempt to get a record takes us off of bof or eof */
 
-			impure->irsb_flags &= ~(irsb_bof | irsb_eof);
-#endif // SCROLLABLE_CURSORS
-
-			if (!(data = get_sort(request, tdbb, rsb, mode)))
-				{
-#ifdef SCROLLABLE_CURSORS
-
-				if (mode == RSE_get_forward)
-					impure->irsb_flags |= irsb_eof;
-				else
-					impure->irsb_flags |= irsb_bof;
-#endif // SCROLLABLE_CURSORS
-				return FALSE;
-				}
-
-			RecordSource::mapSortData(request, (SortMap*) rsb->rsb_arg[0], data);
-
-#ifdef SCROLLABLE_CURSORS
-			/* fix up the sort data in case we need to retrieve it again */
-
-			unget_sort(tdbb, rsb, data);
-#endif // SCROLLABLE_CURSORS
-			}
-			break;
-#endif //OBSOLETE
-
-#ifdef OBSOLETE		
-		case rsb_cross:
-			if (impure->irsb_flags & irsb_first) 
-				{
-				SSHORT i;
-
-				for (i = 0; i < (SSHORT) rsb->rsb_count; i++) 
-					{
-					//RSE_open(tdbb, rsb->rsb_arg[i]);
-					rsb->rsb_arg[i]->open(request);
-					
-					if (!fetch_record(request, tdbb, rsb, i, mode))
-						return FALSE;
-					}
-					
-				impure->irsb_flags &= ~irsb_first;
-				break;
-				}
-
-			/* in the case of a project which has been mapped to an index, 
-			we need to make sure that we only return a single record for 
-			each of the leftmost records in the join */
-
-			if (rsb->rsb_flags & rsb_project) 
-				{
-				if (!fetch_record(request, tdbb, rsb, 0, mode))
-					return FALSE;
-				}
-			else if (!fetch_record(request, tdbb, rsb, rsb->rsb_count - 1, mode))
-				return FALSE;
-				
-			break;
-#endif // OBSOLETE
-
-/***
+		/***
 		case rsb_union:
 			if (!get_union(request, tdbb, rsb, impure))
 				return FALSE;
 			break;
-***/
+		***/
 
+		/***
 		case rsb_aggregate:
 			if ( (impure->irsb_count = EVL_group(tdbb, rsb->rsb_next,
 											(JRD_NOD) rsb->rsb_arg[0],
 											impure->irsb_count)) ) 
 				break;
 			return FALSE;
-
+		***/
+		
 		case rsb_ext_sequential:
 		case rsb_ext_indexed:
 		case rsb_ext_dbkey:
@@ -1643,16 +1583,18 @@ static void pop_rpbs(JRD_REQ request, RecordSource* rsb)
 
 		case rsb_cross:
 			{
-			RecordSource** ptr;
-			RecordSource** end;
+			//RecordSource** ptr;
+			//RecordSource** end;
 
 			/* Bug # 72369: singleton-SELECT in Stored Procedure gives wrong
 			* results when there are more than 2 streams in the cross. 
 			* rsb_cross can have more than 2 rsb_arg's. Go through each one
 			*/
 			
-			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end; ptr++)
-				pop_rpbs(request, *ptr);
+			//for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end; ptr++)
+				//pop_rpbs(request, *ptr);
+			for (int n = 0; n < rsb->rsb_count; ++n)
+				pop_rpbs(request, ((RsbCross*) rsb)->rsbs[n]);
 
 			return;
 			}
@@ -1773,16 +1715,18 @@ static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb)
 
 		case rsb_cross:
 			{
-			RecordSource** ptr;
-			RecordSource** end;
+			//RecordSource** ptr;
+			//RecordSource** end;
 
 			/* Bug # 72369: singleton-SELECT in Stored Procedure gives wrong
 			* results when there are more than 2 streams in the cross. 
 			* rsb_cross can have more than 2 rsb_arg's. Go through each one
 			*/
 			
-			for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end;ptr++)
-				push_rpbs(tdbb, request, *ptr);
+			//for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end;ptr++)
+				//push_rpbs(tdbb, request, *ptr);
+			for (int n = 0; n < rsb->rsb_count; ++n)
+				push_rpbs(tdbb, request, ((RsbCross*) rsb)->rsbs[n]);
 
 			return;
 			}
@@ -1938,4 +1882,10 @@ void RecordSource::mapSortData(Request* request, SortMap* map, UCHAR* data)
 			CLEAR_NULL(record, id);
 			}
 		}
+}
+
+void RecordSource::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	if (rsb_next)
+		rsb_next->findRsbs(stream_list, rsb_list);
 }

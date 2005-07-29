@@ -250,3 +250,11 @@ void RsbProcedure::procAssignment(DSC* from_desc, DSC* flag_desc, UCHAR* msg, DS
 			MOVE_FASTER(desc1.dsc_address, desc2.dsc_address, desc1.dsc_length);
 		}
 }
+
+void RsbProcedure::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	stream_list->push(rsb_stream);
+		
+	if (rsb_list) 
+		rsb_list->push(this);
+}

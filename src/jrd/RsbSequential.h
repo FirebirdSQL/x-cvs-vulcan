@@ -42,6 +42,7 @@ public:
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
 	void reserveRelation(Request* request);
+	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 };
 
 #endif

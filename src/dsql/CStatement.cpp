@@ -892,8 +892,8 @@ dsql_str* CStatement::getTriggerRelation(const TEXT *triggerName, USHORT *trigge
 		{
 		*triggerType = resultSet->getShort(2);
 		const char *relationName =resultSet->getString(1);
-		stripString (relationName);
-		return MAKE_string(threadData, relationName, strlen(relationName));
+		JString strippedName = stripString (relationName);
+		return MAKE_string(threadData, strippedName, strlen(strippedName));
 		}
 return NULL;
 }
@@ -961,8 +961,8 @@ dsql_nod* CStatement::getPrimaryKey(const TEXT *relationName)
 		if (!list)
 			list = MAKE_node(threadData, nod_list, resultSet->getInt(2));
 		const char *fieldName = resultSet->getString(1);
-		stripString(fieldName);
-		dsql_str* field_name = MAKE_string(threadData, fieldName, strlen(fieldName));
+		JString strippedName = stripString(fieldName);
+		dsql_str* field_name = MAKE_string(threadData, strippedName, strlen(strippedName));
 		dsql_nod* field_node = MAKE_node(threadData, nod_field_name, e_fln_count);
 		field_node->nod_arg[e_fln_name] = (DSQL_NOD) field_name;
 		list->nod_arg[n] = field_node;

@@ -119,3 +119,10 @@ bool RsbCross::fetchRecord(Request* request, int n, RSE_GET_MODE mode)
 			return TRUE;
 		}
 }
+
+
+void RsbCross::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	for (int n = 0; n < rsb_count; ++n)
+		rsbs[n]->findRsbs(stream_list, rsb_list);
+}

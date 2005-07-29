@@ -52,7 +52,8 @@ enum RSB_T
 	rsb_ext_dbkey,						// external DB_KEY access
 	rsb_navigate,						// navigational walk on an index
 	rsb_left_cross,						// left outer join as a nested loop
-	rsb_procedure						// stored procedure
+	rsb_procedure,						// stored procedure
+	rsb_write_lock						// write lock the record
 };
 
 enum RSE_GET_MODE {
@@ -152,6 +153,7 @@ public:
 	virtual void close(Request* request);
 	void init(void);
 	static void mapSortData(Request* request, SortMap* map, UCHAR* data);
+	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 };
 
 #endif

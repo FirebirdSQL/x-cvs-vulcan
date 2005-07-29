@@ -77,6 +77,8 @@ public:
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
+	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
+
 	bool getMergeFetch(Request* request, thread_db* tdbb, SSHORT stream, RSE_GET_MODE mode);
 	UCHAR* getMergeData(thread_db* tdbb, MergeFile* mfb, SLONG record);
 	static int compare(Request* request, thread_db* tdbb, jrd_nod* node1, jrd_nod* node2);

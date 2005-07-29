@@ -211,7 +211,6 @@ void RsbLeftCross::joinToNulls(Request* request, StreamStack* stream)
 			
 			if (!format)
 				format = rpb->rpb_relation->getFormat(tdbb, rpb->rpb_format_number);
-						 //MET_format(tdbb, rpb->rpb_relation, rpb->rpb_format_number);
 						 
 			record = VIO_record(tdbb, rpb, format, tdbb->tdbb_default);
 			}
@@ -219,4 +218,10 @@ void RsbLeftCross::joinToNulls(Request* request, StreamStack* stream)
         record->rec_fmt_bk = record->rec_format;
 		record->rec_format = NULL;
 		}
+}
+
+void RsbLeftCross::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	innerRsb->findRsbs(stream_list, rsb_list);
+	outerRsb->findRsbs(stream_list, rsb_list);
 }

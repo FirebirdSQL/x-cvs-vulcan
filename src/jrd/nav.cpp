@@ -232,7 +232,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 		{
 		upper.key_length = impure->irsb_nav_upper_length;
 #ifdef SCROLLABLE_CURSORS
-		MOVE_FAST((impure->irsb_nav_data + (2 * (SLONG) rsb->rsb_arg[RSB_NAV_key_length])),
+		MOVE_FAST((impure->irsb_nav_data + (2 * rsb->keyLength)),
 				  upper.key_data, upper.key_length);
 #else
 		MOVE_FAST((impure->irsb_nav_data + rsb->keyLength), upper.key_data, upper.key_length);
@@ -1056,19 +1056,13 @@ static UCHAR* nav_open(
 	if (retrieval->irb_lower_count) 
 		{
 		impure->irsb_nav_lower_length = lower.key_length;
-		MOVE_FAST(lower.key_data,
-				  (impure->irsb_nav_data +
-				   (SLONG) rsb->rsb_arg[RSB_NAV_key_length]),
-				  lower.key_length);
+		MOVE_FAST(lower.key_data, (impure->irsb_nav_data + rsb->keyLength), lower.key_length);
 		}
 
 	if (retrieval->irb_upper_count) 
 		{
 		impure->irsb_nav_upper_length = upper.key_length;
-		MOVE_FAST(upper.key_data,
-				  (impure->irsb_nav_data +
-				   (2 * (SLONG) rsb->rsb_arg[RSB_NAV_key_length])),
-				  upper.key_length);
+		MOVE_FAST(upper.key_data, (impure->irsb_nav_data + (2 * rsb->keyLength)), upper.key_length);
 		}
 
 	// find the limit the search needs to begin with, if any

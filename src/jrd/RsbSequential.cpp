@@ -146,3 +146,9 @@ void RsbSequential::reserveRelation(Request* request)
 	RLCK_reserve_relation(tdbb, request->req_transaction, rpb->rpb_relation, FALSE, TRUE);
 	rpb->rpb_number.setValue(BOF_NUMBER);
 }
+
+
+void RsbSequential::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	stream_list->push(rsb_stream);
+}

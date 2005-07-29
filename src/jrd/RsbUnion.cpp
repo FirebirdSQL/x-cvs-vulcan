@@ -125,3 +125,11 @@ void RsbUnion::close(Request* request)
 	for (int n = 0; n < rsb_count; ++n)
 		rsbs[n]->close(request);
 }
+
+void RsbUnion::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	stream_list->push(rsb_stream);
+		
+	if (rsb_list) 
+		rsb_list->push(this);
+}

@@ -95,6 +95,8 @@
 #include "RsbIndexed.h"
 #include "RsbUnion.h"
 #include "RsbNavigate.h"
+#include "RsbWriteLock.h"
+#include "RsbAggregate.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -125,7 +127,7 @@ static void find_index_relationship_streams(thread_db*, OptimizerBlk*, const UCH
 		UCHAR*, UCHAR*);
 static jrd_nod* find_dbkey(jrd_nod*, USHORT, SLONG*);
 static USHORT find_order(thread_db*, OptimizerBlk*, const UCHAR*, const jrd_nod*);
-static void find_rsbs(RecordSource*, StreamStack*, RsbStack*);
+//static void find_rsbs(RecordSource*, StreamStack*, RsbStack*);
 static void find_used_streams(const RecordSource*, UCHAR*);
 static void form_rivers(thread_db*, OptimizerBlk*, const UCHAR*, RiverStack&,
 		jrd_nod**, jrd_nod**, jrd_nod*);
@@ -441,6 +443,7 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 					
 					if (parent_stack) 
 						stack_end = conjunct_stack.merge(*parent_stack);
+						
 					rsb = gen_aggregate(tdbb, opt, node, &conjunct_stack, stream);
 					
 					if (parent_stack) 
@@ -454,8 +457,7 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 				case nod_procedure:
 					rsb = gen_procedure(tdbb, opt, node);
 					fb_assert(local_streams[0] < MAX_STREAMS && local_streams[0] < MAX_UCHAR);
-					local_streams[++local_streams[0]] =
-						(UCHAR)(long) node->nod_arg[e_prc_stream];
+					local_streams[++local_streams[0]] = (UCHAR)(long) node->nod_arg[e_prc_stream];
 					break;
 					
 				case nod_rse:
@@ -973,10 +975,17 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 		delete opt;
 		throw;
 		}
-	
-	if (rse->rse_writelock)
-		rsb->rsb_flags |= rsb_writelock;
 
+	if (rse->rse_writelock)
+		//rsb->rsb_flags |= rsb_writelock;
+		{
+		StreamStack stack;
+		rsb->findRsbs(&stack, NULL);
+		
+		while (stack.hasData()) 
+			rsb = new (tdbb->tdbb_default) RsbWriteLock(csb, rsb, stack.pop());
+		}
+	
 	// Assign pointer to list of dependent invariant values
 	rsb->rsb_invariants = rse->rse_invariants;
 
@@ -1212,168 +1221,6 @@ int OPT_match_index(thread_db* tdbb, OptimizerBlk* opt, USHORT stream, index_des
 	return n; // implicit USHORT -> int
 }
 
-#ifdef OBSOLETE
-void OPT_set_index(thread_db* tdbb,
-				   jrd_req* request, RecordSource** rsb_ptr, Relation* relation, index_desc* idx)
-{
-/**************************************
- *
- *	O P T _ s e t _ i n d e x
- *
- **************************************
- *
- * Functional description
- *	Reset the navigational order of a stream.
- *	Given a sequential or navigational rsb,
- *	reset the rsb to be a navigational rsb
- *	on the specified index.
- *
- **************************************/
-	/***
-	DEV_BLKCHK(request, type_req);
-	DEV_BLKCHK(*rsb_ptr, type_rsb);
-	DEV_BLKCHK(relation, type_rel);
-	SET_TDBB(tdbb);
-	***/
-	
-	Database* dbb = tdbb->tdbb_database;
-	RecordSource* old_rsb = *rsb_ptr;
-
-	/* fix up a boolean rsb to point to the actual stream rsb */
-
-	if (old_rsb->rsb_type == rsb_boolean) 
-		{
-		rsb_ptr = &old_rsb->rsb_next;
-		old_rsb = old_rsb->rsb_next;
-		}
-
-	/* check if there is an existing inversion for
-	   a boolean expression mapped to an index */
-	   
-	jrd_nod* inversion = NULL;
-	
-	if (old_rsb->rsb_type == rsb_indexed) 
-		inversion = (jrd_nod*) old_rsb->rsb_arg[0];
-	else if (old_rsb->rsb_type == rsb_navigate) 
-		inversion = (jrd_nod*) old_rsb->rsb_arg[RSB_NAV_inversion];
-
-	/* set up a dummy optimizer block just for the purposes 
-	   of the set index, to pass information to subroutines */
-
-	OptimizerBlk* opt = FB_NEW(*tdbb->tdbb_default) OptimizerBlk(tdbb->tdbb_default);
-	opt->opt_g_flags |= opt_g_stream;
-
-	/* generate a new rsb for the retrieval, making sure to 
-	   preserve the inversion generated for the last rsb; note
-	   that if the bitmap for the inversion has already been
-	   generated, it will be reused since it is already part of
-	   the impure area--I can't think of any reason not to reuse it--deej */
-	   
-	RecordSource* new_rsb;
-	
-	if (idx) 
-		{
-		new_rsb = gen_nav_rsb(tdbb, opt, old_rsb->rsb_stream, relation, 0, idx
-#ifdef SCROLLABLE_CURSORS
-							  , RSE_get_forward
-#endif
-			);
-		new_rsb->rsb_arg[RSB_NAV_inversion] = (RecordSource*) inversion;
-		new_rsb->rsb_cardinality = old_rsb->rsb_cardinality;
-		}
-	else 
-		new_rsb = gen_rsb(tdbb, opt, 0, inversion, old_rsb->rsb_stream,
-						  relation, 0, 0, (float) old_rsb->rsb_cardinality);
-
-	/* point the impure area of the new rsb to the impure area of the
-	   old; since impure area is pre-allocated it would be difficult 
-	   to change now, so just use the same area; NOTE: this implies
-	   that we must take some pains to ensure that the impure area is
-	   always large enough to handle a maximum-key index */
-
-	new_rsb->rsb_impure = old_rsb->rsb_impure;
-
-	/* find index node if the old rsb was navigational */
-
-	jrd_nod* index_node = NULL;
-	
-	if (old_rsb->rsb_type == rsb_navigate) 
-		index_node = (jrd_nod*) old_rsb->rsb_arg[RSB_NAV_index];
-
-	/* if the new rsb is navigational, set up impure space in request 
-	   for new index node; to convert from non-navigational to navigational,
-	   we need to adjust the impure area upwards to make room for an impure_inversion
-	   structure, and vice versa to convert the other way */
-
-	if (idx) 
-		{
-		jrd_nod* new_index_node = (jrd_nod*) new_rsb->rsb_arg[RSB_NAV_index];
-		
-		if (old_rsb->rsb_type == rsb_navigate)
-			new_index_node->nod_impure = index_node->nod_impure;
-		else 
-			{
-			new_index_node->nod_impure = old_rsb->rsb_impure;
-			new_rsb->rsb_impure += sizeof(impure_inversion);
-			}
-		}
-	else if (old_rsb->rsb_type == rsb_navigate) 
-		new_rsb->rsb_impure -= sizeof(impure_inversion);
-
-	/* if there was a previous index, release its lock 
-	   and remove its resource from the request */
-
-	if (old_rsb->rsb_type == rsb_navigate) 
-		{
-		IndexRetrieval* retrieval = (IndexRetrieval*) index_node->nod_arg[e_idx_retrieval];
-		const USHORT index_id = retrieval->irb_index;
-		IndexLock* index = CMP_get_index_lock(tdbb, relation, index_id);
-		
-		if (index) 
-			{
-			if (index->idl_count)
-				--index->idl_count;
-			if (!index->idl_count)
-				LCK_release(index->idl_lock);
-			}			
-		
-		CMP_release_resource(&request->req_resources, Resource::rsc_index, index_id);
-		}
-
-	/* get lock on new index */
-
-	if (idx) 
-		{
-		IndexLock* index = CMP_get_index_lock(tdbb, relation, idx->idx_id);
-		if (index) 
-			{
-			if (!index->idl_count)
-				LCK_lock_non_blocking(tdbb, index->idl_lock, LCK_SR, TRUE);
-			++index->idl_count;
-			}
-		}
-
-	/* go out to the vector which stores all rsbs for the 
-	   request, and replace the old with the new */
-
-	for (size_t i = 0; i < request->req_fors.getCount(); i++) 
-		if (request->req_fors[i] == old_rsb) 
-			{
-			request->req_fors[i] = new_rsb;
-			break;
-			}
-
-	/* release unneeded blocks */
-
-	delete opt;
-	
-	if (index_node) 
-		delete index_node;
-
-	delete old_rsb;
-	*rsb_ptr = new_rsb;
-}
-#endif // OBSOLETE
 
 static bool augment_stack(jrd_nod* node, NodeStack& stack)
 {
@@ -1389,11 +1236,9 @@ static bool augment_stack(jrd_nod* node, NodeStack& stack)
  **************************************/
 	DEV_BLKCHK(node, type_nod);
 
-	for (NodeStack::const_iterator temp(stack); temp.hasData(); ++temp) {
-		if (node_equality(node, temp.object())) {
+	for (NodeStack::const_iterator temp(stack); temp.hasData(); ++temp) 
+		if (node_equality(node, temp.object())) 
 			return false;
-		}
-	}
 
 	stack.push(node);
 
@@ -3518,7 +3363,7 @@ static USHORT find_order(thread_db* tdbb,
 	return opt->opt_best_count;
 }
 
-
+#ifdef OBSOLETE
 static void find_rsbs(RecordSource* rsb, StreamStack* stream_list, RsbStack* rsb_list)
 {
 /**************************************
@@ -3586,7 +3431,7 @@ static void find_rsbs(RecordSource* rsb, StreamStack* stream_list, RsbStack* rsb
 
 	find_rsbs(rsb->rsb_next, stream_list, rsb_list);
 }
-
+#endif // OBSOLETE
 
 static void find_used_streams(const RecordSource* rsb, UCHAR* streams)
 {
@@ -3868,9 +3713,7 @@ static RecordSource* gen_aggregate(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* 
  *	Generate an AggregateSort* (Aggregate Sort Block) for each DISTINCT aggregate.
  *      
  **************************************/
-	DEV_BLKCHK(opt, type_opt);
-	DEV_BLKCHK(node, type_nod);
-	SET_TDBB(tdbb);
+
 	CompilerScratch* csb = opt->opt_csb;
 	RecordSelExpr* rse = (RecordSelExpr*) node->nod_arg[e_agg_rse];
 	rse->rse_sorted = node->nod_arg[e_agg_group];
@@ -3886,41 +3729,48 @@ static RecordSource* gen_aggregate(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* 
 	// try to optimize MAX and MIN to use an index; for now, optimize
 	// only the simplest case, although it is probably possible
 	// to use an index in more complex situations
+	
 	jrd_nod** ptr;
 	jrd_nod* agg_operator;
+	
 	if ((map->nod_count == 1) &&
 		(ptr = map->nod_arg) &&
 		(agg_operator = (*ptr)->nod_arg[e_asgn_from]) &&
 		(agg_operator->nod_type == nod_agg_min ||
 		 agg_operator->nod_type == nod_agg_max))
-	{
+		{
 		/* generate a sort block which the optimizer will try to map to an index */
 
 		jrd_nod* aggregate = PAR_make_node(tdbb, 3);
 		aggregate->nod_type = nod_sort;
 		aggregate->nod_count = 1;
 		aggregate->nod_arg[0] = agg_operator->nod_arg[e_asgn_from];
+		
 		/* in the max case, flag the sort as descending */
-		if (agg_operator->nod_type == nod_agg_max) {
+		
+		if (agg_operator->nod_type == nod_agg_max) 
 			aggregate->nod_arg[1] = (jrd_nod*) TRUE;
-		}
+
 		/* 10-Aug-2004. Nickolay Samofatov
 		   Unneeded nulls seem to be skipped somehow. */
+		   
 		aggregate->nod_arg[2] = (jrd_nod*) rse_nulls_default;
 		rse->rse_aggregate = aggregate;
-	}
+		}
 
 	// allocate and optimize the record source block
 
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(csb);
-	rsb->rsb_type = rsb_aggregate;
+	RecordSource *next = OPT_compile(tdbb, csb, rse, &deliverStack);
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(csb);
+	RsbAggregate *rsb = new (tdbb->tdbb_default) RsbAggregate(csb, next, node);
+	//rsb->rsb_type = rsb_aggregate;
 	fb_assert((int) (long)node->nod_arg[e_agg_stream] <= MAX_STREAMS);
 	fb_assert((int) (long)node->nod_arg[e_agg_stream] <= MAX_UCHAR);
 	rsb->rsb_stream = (UCHAR) (long) node->nod_arg[e_agg_stream];
 	rsb->rsb_format = csb->csb_rpt[rsb->rsb_stream].csb_format;
-	rsb->rsb_next = OPT_compile(tdbb, csb, rse, &deliverStack);
-	rsb->rsb_arg[0] = (RecordSource*) node;
-	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
+	//rsb->rsb_next = OPT_compile(tdbb, csb, rse, &deliverStack);
+	//rsb->rsb_arg[0] = (RecordSource*) node;
+	//rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
 
 	if (rse->rse_aggregate)
 	{
@@ -4189,6 +4039,7 @@ static void gen_join(thread_db* tdbb,
 		MOVE_FAST(streams, temp, streams[0] + 1);
 
 		USHORT count;
+		
 		do {
 			count = innerJoin->findJoinOrder();
 			} while (form_river(tdbb, opt, count, streams, temp, river_stack,  sort_clause, project_clause, 0));
@@ -4639,10 +4490,12 @@ static RecordSource* gen_outer(thread_db* tdbb,
 		
 	// find all the outer and inner substreams and push them on a stack.
 	
-	find_rsbs(stream_i.stream_rsb, rsb->rsb_left_streams,  rsb->rsb_left_rsbs);
+	//find_rsbs(stream_i.stream_rsb, rsb->rsb_left_streams,  rsb->rsb_left_rsbs);
+	stream_i.stream_rsb->findRsbs(rsb->rsb_left_streams,  rsb->rsb_left_rsbs);
 	
 	if (rse->rse_jointype == blr_full) 
-		find_rsbs(stream_o.stream_rsb, rsb->rsb_left_inner_streams, NULL);
+		//find_rsbs(stream_o.stream_rsb, rsb->rsb_left_inner_streams, NULL);
+		stream_o.stream_rsb->findRsbs(rsb->rsb_left_streams, rsb->rsb_left_rsbs);
 
 	return rsb;
 }
@@ -4743,31 +4596,19 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 	OptimizerBlk::opt_conjunct* tail;
 	bool full = false;
 
-	SET_TDBB(tdbb);
-
-#ifdef DEV_BUILD
-	DEV_BLKCHK(opt, type_opt);
-	if (sort_ptr) {
-		DEV_BLKCHK(*sort_ptr, type_nod);
-	}
-	if (project_ptr) {
-		DEV_BLKCHK(*project_ptr, type_nod);
-	}
-	if (return_boolean) {
-		DEV_BLKCHK(*return_boolean, type_nod);
-	}
-#endif
 
 	// since a full outer join is a special case for us, as we have 2 outer
 	// streams, recoginze this condition and set the full flag, also reset the
 	// inner flag. This condition is only statisfied for the second stream in
 	// the full join. This condition is only set from the call in gen_outer() in
 	// case of a full join. 
-	if ((inner_flag == true) && (outer_flag == true)) {
+	
+	if ((inner_flag == true) && (outer_flag == true)) 
+		{
 		/* the inner flag back to false and set the full flag */
 		inner_flag = false;
 		full = true;
-	}
+		}
 
 	CompilerScratch* csb = opt->opt_csb;
 	CompilerScratch::csb_repeat* csb_tail = &csb->csb_rpt[stream];
@@ -4777,33 +4618,36 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 
 	str* alias = opt_make_alias(tdbb, csb, csb_tail);
 	csb_tail->csb_flags |= csb_active;
-/* bug #8180 reported by Bill Karwin: when a DISTINCT and an ORDER BY 
-   are done on different fields, and the ORDER BY can be mapped to an 
-   index, then the records are returned in the wrong order because the 
-   DISTINCT sort is performed after the navigational walk of the index; 
-   for that reason, we need to de-optimize this case so that the ORDER 
-   BY does not use an index; if desired, we could re-optimize by doing 
-   the DISTINCT first, using a sparse bit map to store the DISTINCT 
-   records, then perform the navigational walk for the ORDER BY and 
-   filter the records out with the sparse bitmap.  However, that is a 
-   task for another day.  --deej */
-/* Bug #8958: comment out anything having to do with mapping a DISTINCT 
-   to an index, for now.  The fix for this bug was going to be so involved 
-   that it made more sense to deoptimize this case for the time being until 
-   we can determine whether it really makes sense to optimize a DISTINCT, 
-   or for that matter, and ORDER BY, via an index--there is a case 
-   to be made that it is a deoptimization and more testing needs to be done 
-   to determine that; see more comments in the bug description
- */
-	if (sort_ptr && *sort_ptr && project_ptr && *project_ptr) {
+	
+	/* bug #8180 reported by Bill Karwin: when a DISTINCT and an ORDER BY 
+	   are done on different fields, and the ORDER BY can be mapped to an 
+	   index, then the records are returned in the wrong order because the 
+	   DISTINCT sort is performed after the navigational walk of the index; 
+	   for that reason, we need to de-optimize this case so that the ORDER 
+	   BY does not use an index; if desired, we could re-optimize by doing 
+	   the DISTINCT first, using a sparse bit map to store the DISTINCT 
+	   records, then perform the navigational walk for the ORDER BY and 
+	   filter the records out with the sparse bitmap.  However, that is a 
+	   task for another day.  --deej */
+	   
+	/* Bug #8958: comment out anything having to do with mapping a DISTINCT 
+	   to an index, for now.  The fix for this bug was going to be so involved 
+	   that it made more sense to deoptimize this case for the time being until 
+	   we can determine whether it really makes sense to optimize a DISTINCT, 
+	   or for that matter, and ORDER BY, via an index--there is a case 
+	   to be made that it is a deoptimization and more testing needs to be done 
+	   to determine that; see more comments in the bug description
+	*/
+	
+	if (sort_ptr && *sort_ptr && project_ptr && *project_ptr) 
 		sort_ptr = NULL;
-	}
-/* Time to find inversions.  For each index on the relation
-   match all unused booleans against the index looking for upper
-   and lower bounds that can be computed by the index.  When
-   all unused conjunctions are exhausted, see if there is enough
-   information for an index retrieval.  If so, build up an
-   inversion component of the boolean. */
+
+	/* Time to find inversions.  For each index on the relation
+	   match all unused booleans against the index looking for upper
+	   and lower bounds that can be computed by the index.  When
+	   all unused conjunctions are exhausted, see if there is enough
+	   information for an index retrieval.  If so, build up an
+	   inversion component of the boolean. */
 
 
 	jrd_nod* inversion = NULL;
@@ -4816,25 +4660,25 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 
 	Database* dbb = tdbb->tdbb_database;
 	const bool ods11orHigher = (dbb->dbb_ods_version >= ODS_VERSION11);
-	if (ods11orHigher && !relation->rel_file) {
+	
+	if (ods11orHigher && !relation->rel_file) 
+		{
 		// For ODS11 and higher databases we can use new calculations
 		OptimizerRetrieval* optimizerRetrieval = FB_NEW(*tdbb->tdbb_default) 
 			OptimizerRetrieval(tdbb, *tdbb->tdbb_default, opt, stream, outer_flag, inner_flag, sort_ptr);
 		InversionCandidate* candidate = optimizerRetrieval->getInversion(&rsb);
-		if (candidate && candidate->inversion) {
+		
+		if (candidate && candidate->inversion)
 			inversion = candidate->inversion;			
-		}
+
 		delete candidate;
 		delete optimizerRetrieval;
-	}
-	else if (relation->rel_file) {
+		}
+	else if (relation->rel_file) 
 		// External
 		rsb = EXT_optimize(tdbb, opt, stream, sort_ptr ? sort_ptr : project_ptr);
-	}
-	else if (opt->opt_conjuncts.getCount() || (sort_ptr && *sort_ptr)
-	 //|| (project_ptr && *project_ptr)
-		)
-	{
+	else if (opt->opt_conjuncts.getCount() || (sort_ptr && *sort_ptr) /*|| (project_ptr && *project_ptr)*/ )
+		{
 		// we want to start with indices which have more index segments, attempting to match 
 		// all the conjuncts possible to these indices, on the theory that one index matched 
 		// to n booleans is more selective and uses less resources than using n indices;
@@ -4851,61 +4695,60 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 		UINT64* idx_priority_level = idx_priority_level_vector.begin();
 
 		SSHORT i = 0;
-		for (index_desc* idx = csb_tail->csb_idx->items; i < csb_tail->csb_indices;
-			 ++i, ++idx)
-		{
-
+		
+		for (index_desc* idx = csb_tail->csb_idx->items; i < csb_tail->csb_indices; ++i, ++idx)
+			{
 			idx_walk[i] = idx;
 			idx_priority_level[i] = LOWEST_PRIORITY_LEVEL;
+			
 			// skip this part if the index wasn't specified for indexed 
 			// retrieval (still need to look for navigational retrieval)
+			
 			if ((idx->idx_runtime_flags & idx_plan_dont_use) &&
 				!(idx->idx_runtime_flags & idx_plan_navigate))
-			{
 				continue;
-			}
 
 			// go through all the unused conjuncts and see if 
 			// any of them are computable using this index
+			
 			clear_bounds(opt, idx);
 			tail = opt->opt_conjuncts.begin();
-			if (outer_flag) {
+			
+			if (outer_flag) 
 				tail += opt->opt_base_parent_conjuncts;
-			}
+
 			for (; tail < opt_end; tail++)
-			{
-				if (tail->opt_conjunct_flags & opt_conjunct_matched) {
+				{
+				if (tail->opt_conjunct_flags & opt_conjunct_matched) 
 					continue;
-				}
+
 				jrd_nod* node = tail->opt_conjunct_node;
+				
 				if (!(tail->opt_conjunct_flags & opt_conjunct_used) &&
 				    opt_computable(csb, node, -1, (inner_flag || outer_flag), false))
-				{
 					match_index(tdbb, opt, stream, node, idx);
-				}
+
 				if (node->nod_type == nod_starts)
 					compose(tdbb, &inversion,
-							make_starts(tdbb, opt, relation, node, stream,
-										idx), nod_bit_and);
+							make_starts(tdbb, opt, relation, node, stream, idx), nod_bit_and);
+							
 				if (node->nod_type == nod_missing)
-					compose(tdbb, &inversion,
-							make_missing(tdbb, opt, relation, node,
+					compose(tdbb, &inversion, make_missing(tdbb, opt, relation, node,
 										 stream, idx), nod_bit_and);
-			}
+				}
 
 			// look for a navigational retrieval (unless one was already found or
 			// there is no sort block); if no navigational retrieval on this index,
 			// add an indexed retrieval to the inversion tree
+			
 			if (!rsb)
-			{
-				if (sort_ptr && *sort_ptr)
 				{
-					rsb = gen_navigation(tdbb, opt, stream, relation, alias,
-					                     idx, sort_ptr);
-					if (rsb) {
+				if (sort_ptr && *sort_ptr)
+					{
+					rsb = gen_navigation(tdbb, opt, stream, relation, alias, idx, sort_ptr);
+					if (rsb) 
 						continue;
 					}
-				}
 
 				// for now, make sure that we only map a DISTINCT to an index if they contain 
 				// the same number of fields; it should be possible to map a DISTINCT to an 
@@ -4913,27 +4756,24 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 				// in NAV_get_record() to check when the relevant fields change, rather than 
 				// the whole index key
 
-			//if (project_ptr && *project_ptr)
-     
-			//	if ((idx->idx_count == (*project_ptr)->nod_count) &&
-		    //        (rsb = gen_navigation (tdbb, opt, stream, relation, alias, idx, project_ptr)))
-			//    {
-			//	    rsb->rsb_flags |= rsb_project;
-			//		continue;
-	        //    }
-			}
+				//if (project_ptr && *project_ptr)
+	     
+				//	if ((idx->idx_count == (*project_ptr)->nod_count) &&
+				//        (rsb = gen_navigation (tdbb, opt, stream, relation, alias, idx, project_ptr)))
+				//    {
+				//	    rsb->rsb_flags |= rsb_project;
+				//		continue;
+				//    }
+				}
 
-			if (opt->opt_segments[0].opt_lower || opt->opt_segments[0].opt_upper) {
-
+			if (opt->opt_segments[0].opt_lower || opt->opt_segments[0].opt_upper) 
 				// Calculate the priority level for this index.
 				idx_priority_level[i] = calculate_priority_level(tdbb, opt, idx);
 			}
 
-		}
-
 		// Sort indices based on the priority level into idx_walk.
-		SSHORT idx_walk_count =
-			sort_indices_by_priority(tdbb, csb_tail, idx_walk, idx_priority_level);
+		
+		SSHORT idx_walk_count = sort_indices_by_priority(tdbb, csb_tail, idx_walk, idx_priority_level);
 
 		// Walk through the indicies based on earlier calculated count and
 		// when necessary build the index
@@ -4945,42 +4785,48 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 			matching_nodes_vector(*tdbb->tdbb_default);
 
 		for (i = 0; i < idx_walk_count; i++)
-		{
-
+			{
 			index_desc* idx = idx_walk[i];
-			if (idx->idx_runtime_flags & idx_plan_dont_use) {
+			
+			if (idx->idx_runtime_flags & idx_plan_dont_use)
 				continue;
-			}
 
 			conjunct_position_vector.shrink(0);
 			matching_nodes_vector.shrink(0);
 			clear_bounds(opt, idx);
 			tail = opt->opt_conjuncts.begin();
-			if (outer_flag) {
+			
+			if (outer_flag) 
 				tail += opt->opt_base_parent_conjuncts;
-			}
-			for (; tail < opt_end; tail++) {
+
+			for (; tail < opt_end; tail++) 
+				{
 				// Test if this conjunction is available for this index.
-				if (!(tail->opt_conjunct_flags & opt_conjunct_matched)) {
+				
+				if (!(tail->opt_conjunct_flags & opt_conjunct_matched)) 
+					{
 					// Setting opt_lower and/or opt_upper values
 					jrd_nod* node = tail->opt_conjunct_node;
+					
 					if (!(tail->opt_conjunct_flags & opt_conjunct_used) && 
 						 opt_computable(csb,
 						            node,
 									-1,
 									(inner_flag || outer_flag),
 									false))
-					{
-						if (match_index(tdbb, opt, stream, node, idx)) {
+						{
+						if (match_index(tdbb, opt, stream, node, idx)) 
+							{
 							SSHORT position = 0;
 							const OptimizerBlk::opt_segment* idx_tail = opt->opt_segments;
-							const OptimizerBlk::opt_segment* const idx_end = 
-								idx_tail + idx->idx_count;
-							for (; idx_tail < idx_end; idx_tail++, position++) {
+							const OptimizerBlk::opt_segment* const idx_end =  idx_tail + idx->idx_count;
+							
+							for (; idx_tail < idx_end; idx_tail++, position++) 
 								if (idx_tail->opt_match == node)
 									break;
-							}
-							if (idx_tail >= idx_end && !csb_tail->csb_plan) {
+
+							if (idx_tail >= idx_end && !csb_tail->csb_plan) 
+								{
 								// Nevertheless we have a resulting count
 								// from match_index, still a node could not
 								// be assigned, because equal nodes are
@@ -4989,35 +4835,35 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 								// index is used with this bad one.
 								// example: WHERE (ID = 100) and (ID >= 1)
 								tail->opt_conjunct_flags |= opt_conjunct_matched;
-							}
-							else {
+								}
+							else 
+								{
 								matching_nodes_vector.add(tail);
 								conjunct_position_vector.add(position);
+								}
 							}
 						}
 					}
 				}
-			}
 
-			if (opt->opt_segments[0].opt_lower || opt->opt_segments[0].opt_upper) {
+			if (opt->opt_segments[0].opt_lower || opt->opt_segments[0].opt_upper) 
+				{
 				// Use a different marking if a PLAN was specified, this is
 				// for backwards compatibility.  Juck...
-				if (csb_tail->csb_plan) {
+				
+				if (csb_tail->csb_plan) 
+					{
 					// Mark only used conjuncts in this index as used
 					const OptimizerBlk::opt_segment* idx_tail = opt->opt_segments;
-					const OptimizerBlk::opt_segment* const idx_end = 
-						idx_tail + idx->idx_count;
-					for (; idx_tail < idx_end && 
-						 (idx_tail->opt_lower || idx_tail->opt_upper); idx_tail++)
-					{
-						for (tail = opt->opt_conjuncts.begin(); tail < opt_end; tail++) {
-							if (idx_tail->opt_match == tail->opt_conjunct_node) {
+					const OptimizerBlk::opt_segment* const idx_end =  idx_tail + idx->idx_count;
+					
+					for (; idx_tail < idx_end &&  (idx_tail->opt_lower || idx_tail->opt_upper); idx_tail++)
+						for (tail = opt->opt_conjuncts.begin(); tail < opt_end; tail++)
+							if (idx_tail->opt_match == tail->opt_conjunct_node) 
 								tail->opt_conjunct_flags |= opt_conjunct_matched;
-							}
-						}
 					}
-				}
-				else {
+				else 
+					{
 					// No plan
 					// Mark all conjuncts that could be calculated against the 
 					// index as used. For example if you have :
@@ -5025,105 +4871,104 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 					// conjuncts will be marked as opt_conjunct_matched
 					SSHORT position = 0;
 					const OptimizerBlk::opt_segment* idx_tail = opt->opt_segments;
-					const OptimizerBlk::opt_segment* const idx_end =
-						idx_tail + idx->idx_count;
-					for (; idx_tail < idx_end && 
-					     (idx_tail->opt_lower || idx_tail->opt_upper);
+					const OptimizerBlk::opt_segment* const idx_end = idx_tail + idx->idx_count;
+					
+					for (; idx_tail < idx_end && (idx_tail->opt_lower || idx_tail->opt_upper);
 					     idx_tail++, position++)
-					{
-						for (size_t j = 0; j < conjunct_position_vector.getCount(); j++) {
-							if (conjunct_position_vector[j] == position) {
+						for (size_t j = 0; j < conjunct_position_vector.getCount(); j++) 
+							if (conjunct_position_vector[j] == position) 
 								matching_nodes_vector[j]->opt_conjunct_flags |= opt_conjunct_matched;
-							}
-						}
 					}
-				}
 
 				jrd_nod* idx_node = OPT_make_index(tdbb, opt, relation, idx);
-				IndexRetrieval*	retrieval =
-					(IndexRetrieval*) idx_node->nod_arg[e_idx_retrieval];
+				IndexRetrieval*	retrieval = (IndexRetrieval*) idx_node->nod_arg[e_idx_retrieval];
 				compose(tdbb, &inversion, idx_node, nod_bit_and);
 				idx->idx_runtime_flags |= idx_used_with_and;
 				index_used = true;
 
 				// When we composed a UNIQUE index stop composing, because
 				// this is the best we can get, but only when full used.
+				
 				if ((idx->idx_flags & idx_unique) && !(csb_tail->csb_plan) && 
 					!(retrieval->irb_generic & irb_partial)) 
-				{
+					{
 					full_unique_match = true;
 					break; // Go out of idx_walk loop
+					}
 				}
 			}
 		}
-	}
 
-	if (outer_flag) {
+	if (outer_flag) 
+		{
 		// Now make another pass thru the outer conjuncts only, finding unused,
 		// computable booleans.  When one is found, roll it into a final
 		// boolean and mark it used.
 		*return_boolean = NULL;
 		opt_end = opt->opt_conjuncts.begin() + opt->opt_base_conjuncts;
-		for (tail = opt->opt_conjuncts.begin(); tail < opt_end; tail++) {
+		
+		for (tail = opt->opt_conjuncts.begin(); tail < opt_end; tail++) 
+			{
 			jrd_nod* node = tail->opt_conjunct_node;
+			
 			if (!(tail->opt_conjunct_flags & opt_conjunct_used)
 				&& opt_computable(csb, node, -1, false, false))
-			{
+				{
 				compose(tdbb, return_boolean, node, nod_and);
 				tail->opt_conjunct_flags |= opt_conjunct_used;
+				}
 			}
 		}
-	}
 
 	// Now make another pass thru the conjuncts finding unused, computable
 	// booleans.  When one is found, roll it into a final boolean and mark
 	// it used. If a computable boolean didn't match against an index then
 	// mark the stream to denote unmatched booleans.
+	
 	jrd_nod* opt_boolean = NULL;
 	opt_end = opt->opt_conjuncts.begin() + (inner_flag ? opt->opt_base_missing_conjuncts : opt->opt_conjuncts.getCount());
 	tail = opt->opt_conjuncts.begin();
-	if (outer_flag) {
+	
+	if (outer_flag) 
 		tail += opt->opt_base_parent_conjuncts;
-	}
 
 	for (; tail < opt_end; tail++)
-	{
+		{
 		jrd_nod* node = tail->opt_conjunct_node;
-		if (!relation->rel_file) {
+		
+		if (!relation->rel_file) 
 			compose(tdbb, &inversion, OPT_make_dbkey(tdbb, opt, node, stream), nod_bit_and);
-		}
+
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used)
 			&& opt_computable(csb, node, -1, false, false))
-		{
+			{
 			// Don't waste time trying to match OR to available indices
 			// if we already have an excellent match
-			if (!ods11orHigher && (node->nod_type == nod_or) && !full_unique_match) {
-				compose(tdbb, &inversion, make_inversion(tdbb, opt, node, stream),
-					nod_bit_and); 
-			}
+			
+			if (!ods11orHigher && (node->nod_type == nod_or) && !full_unique_match) 
+				compose(tdbb, &inversion, make_inversion(tdbb, opt, node, stream), nod_bit_and); 
+
 			// If no index is used then leave other nodes alone, because they 
 			// could be used for building a SORT/MERGE.
+			
 			if ((inversion && expression_contains_stream(csb, node, stream, NULL)) ||
 				(!inversion && opt_computable(csb, node, stream, false, true))) 
-			{
+				{
 				compose(tdbb, &opt_boolean, node, nod_and);
 				tail->opt_conjunct_flags |= opt_conjunct_used;
 			
-				if (!outer_flag && !(tail->opt_conjunct_flags & opt_conjunct_matched)) {
+				if (!outer_flag && !(tail->opt_conjunct_flags & opt_conjunct_matched)) 
 					csb_tail->csb_flags |= csb_unmatched;
-				}
-			}				
+				}				
+			}
 		}
-	}
 
-	if (full) {
+	if (full) 
 		return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
 					   *return_boolean, csb_tail->csb_cardinality);
-	}
-	else {
-		return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
-					   opt_boolean, csb_tail->csb_cardinality);
-	}
+
+	return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
+					opt_boolean, csb_tail->csb_cardinality);
 }
 
 

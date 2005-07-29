@@ -519,3 +519,9 @@ ULONG RsbMerge::readMergeBlock(thread_db* tdbb, MergeFile* mfb, ULONG block)
 
 	return block;
 }
+
+void RsbMerge::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
+{
+	for (int n = 0; n < rsb_count; ++n)
+		sortRsbs[n]->findRsbs(stream_list, rsb_list);
+}

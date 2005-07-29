@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
-				OutputFile="..\..\bin\winserver.exe"
+				OutputFile="..\..\install\bin\winserver.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"

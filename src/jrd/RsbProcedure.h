@@ -54,6 +54,7 @@ public:
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
+	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 	void procAssignment(dsc* from_desc, dsc* flag_desc, UCHAR* msg, dsc* to_desc, SSHORT to_id, Record* record);
 
 	Procedure*	procedure;		// procedure, if appropriate

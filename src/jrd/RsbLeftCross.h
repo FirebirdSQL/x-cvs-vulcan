@@ -41,6 +41,7 @@ public:
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
+	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 	
 	jrd_nod			*innerBoolean;
 	jrd_nod			*outerBoolean;

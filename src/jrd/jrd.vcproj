@@ -1713,6 +1713,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\RsbAggregate.cpp">
+			</File>
+			<File
 				RelativePath=".\RsbBoolean.cpp">
 			</File>
 			<File
@@ -1741,6 +1744,9 @@
 			</File>
 			<File
 				RelativePath=".\RsbUnion.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbWriteLock.cpp">
 			</File>
 			<File
 				RelativePath=".\RSet.cpp">
@@ -3129,6 +3135,9 @@
 				RelativePath="rpb_chain.h">
 			</File>
 			<File
+				RelativePath=".\RsbAggregate.h">
+			</File>
+			<File
 				RelativePath=".\RsbBoolean.h">
 			</File>
 			<File
@@ -3157,6 +3166,9 @@
 			</File>
 			<File
 				RelativePath=".\RsbUnion.h">
+			</File>
+			<File
+				RelativePath=".\RsbWriteLock.h">
 			</File>
 			<File
 				RelativePath="rse.h">
@@ -3246,10 +3258,10 @@
 				RelativePath="..\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\dsql\sqlda.h">
+				RelativePath=".\Sqlda.h">
 			</File>
 			<File
-				RelativePath=".\Sqlda.h">
+				RelativePath="..\dsql\sqlda.h">
 			</File>
 			<File
 				RelativePath=".\SQLError.h">

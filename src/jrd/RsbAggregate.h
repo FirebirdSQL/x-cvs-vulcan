@@ -1,6 +1,6 @@
 /*
  *	PROGRAM:		JRD Access Method
- *	MODULE:			RsbCross.h
+ *	MODULE:			RsbSequential.h
  *	DESCRIPTION:	Record source block definitions
  *
  * The contents of this file are subject to the Interbase Public
@@ -20,11 +20,11 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  *
- * Refactored July 11, 2005 by James A. Starkey
+ * Refactored July 22, 2005 by James A. Starkey
  */
 
-#ifndef JRD_RSB_CROSS_H
-#define JRD_RSB_CROSS_H
+#ifndef JRD_RSB_AGGREGATE_H
+#define JRD_RSB_AGGREGATE_H
 
 #if _MSC_VER >= 1000
 #pragma once
@@ -32,18 +32,18 @@
 
 #include "RecordSource.h"
 
-class RsbCross : public RecordSource
+class RsbAggregate : public RecordSource
 {
 public:
-	RsbCross(CompilerScratch *csb, int count);
-	virtual ~RsbCross(void);
+	RsbAggregate(CompilerScratch *csb, RecordSource* prior_rsb, jrd_nod *mapNode);
+	virtual ~RsbAggregate(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
-
-	RecordSource	**rsbs;
-	bool fetchRecord(Request* request, int n, RSE_GET_MODE mode);
+	
+	jrd_nod		*map;
 };
+
 #endif
 

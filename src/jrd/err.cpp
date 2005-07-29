@@ -79,13 +79,10 @@ void ERR_bugcheck(int number)
  *	Things seem to be going poorly today.
  *
  **************************************/
-	DBB dbb;
-
-	dbb = GET_DBB;
+ 
+	DBB dbb = GET_DBB;
 	dbb->dbb_flags |= DBB_bugcheck;
-
 	CCH_SHUTDOWN_DATABASE(GET_THREAD_DATA, dbb);
-
 	internal_error(isc_bug_check, number);
 }
 #endif

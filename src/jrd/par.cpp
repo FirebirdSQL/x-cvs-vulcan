@@ -80,7 +80,6 @@
 #include "gen/blrtable.h"
 
 
-
 static const TEXT elements[][10] =
 	{ "", "statement", "boolean", "value", "RSE", "TABLE" };
 
@@ -2772,9 +2771,6 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 		if (operator_ == blr_via)
 			node->nod_arg[e_stat_default] = parse(tdbb, csb, VALUE);
 		break;
-
-		/* Client/Server Express Features */
-
 
 #ifdef SCROLLABLE_CURSORS
 	case blr_seek:
