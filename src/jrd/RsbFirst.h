@@ -40,8 +40,7 @@ struct irsb_first_n {
 
 typedef irsb_first_n *IRSB_FIRST;
 
-class RsbFirst :
-	public RecordSource
+class RsbFirst : public RecordSource
 {
 public:
 	RsbFirst(CompilerScratch *csb, RecordSource* prior_rsb, jrd_nod* node);

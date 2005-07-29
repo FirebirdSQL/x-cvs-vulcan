@@ -27,8 +27,7 @@
 
 #include "RecordSource.h"
 
-class RsbWriteLock :
-	public RecordSource
+class RsbWriteLock : public RecordSource
 {
 public:
 	RsbWriteLock(CompilerScratch *csb, RecordSource *next, int stream);
