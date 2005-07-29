@@ -61,6 +61,8 @@
 #include "RsbLeftCross.h"
 #include "RsbAggregate.h"
 #include "RsbCross.h"
+#include "RsbCross.h"
+#include "RsbIndexed.h"
 #include "CompilerScratch.h"
 
 #if defined(WIN_NT)
@@ -155,8 +157,8 @@ RecordSource::~RecordSource(void)
 void RecordSource::open(Request* request)
 {
 	thread_db *tdbb = request->req_tdbb;
-	SINT64 first_records = -1, skip_records = 0;
-	IRSB_INDEX impure = (IRSB_INDEX) IMPURE (request, rsb_impure);
+	//SINT64 first_records = -1, skip_records = 0;
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
 	impure->irsb_flags |= irsb_first | irsb_open;
 	impure->irsb_flags &= ~(irsb_singular_processed | irsb_checking_singular);
 	record_param* rpb = &request->req_rpb[rsb_stream];
@@ -247,6 +249,7 @@ void RecordSource::open(Request* request)
 			return;
 		***/
 		
+		/***
 		case rsb_first:
 			first_records = ((IRSB_FIRST) impure)->irsb_count =
 				MOV_get_int64(EVL_expr(tdbb, (JRD_NOD) rsb_arg[0]), 0);
@@ -269,7 +272,8 @@ void RecordSource::open(Request* request)
 			//rsb = rsb_next;
 			rsb_next->open(request);
 			return;
-	
+		***/
+		
 		/***
 		case rsb_boolean:
 			//rsb = rsb_next;
@@ -918,6 +922,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
         *     (when first > skip, first - skip records will be returned).
         *******/
         
+        /***
 		case rsb_first:
 			switch(mode) 
 				{
@@ -999,7 +1004,8 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						return FALSE;
 				}
 			break;
-
+		***/
+		
 		/***
 		case rsb_merge:
 			if (!get_merge_join(request, tdbb, rsb, (IRSB_MRG) impure, mode))

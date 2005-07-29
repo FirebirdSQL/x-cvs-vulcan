@@ -144,6 +144,7 @@ struct irsb {
 
 typedef irsb *IRSB;
 
+/***
 struct irsb_first_n {
 	ULONG irsb_flags;
 	SLONG irsb_number;
@@ -168,6 +169,7 @@ struct irsb_index {
 };
 
 typedef irsb_index *IRSB_INDEX;
+***/
 
 
 struct irsb_sim {

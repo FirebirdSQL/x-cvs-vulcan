@@ -97,6 +97,8 @@
 #include "RsbNavigate.h"
 #include "RsbWriteLock.h"
 #include "RsbAggregate.h"
+#include "RsbFirst.h"
+#include "RsbSkip.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -3973,18 +3975,15 @@ static RecordSource* gen_first(thread_db* tdbb, OptimizerBlk* opt,
  *          gen_skip.
  *
  **************************************/
-	DEV_BLKCHK(opt, type_opt);
-	DEV_BLKCHK(prior_rsb, type_rsb);
-	DEV_BLKCHK(node, type_nod);
-	//SET_TDBB(tdbb);
 
 	CompilerScratch* csb = opt->opt_csb;
-	RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(opt->opt_csb);
-	rsb->rsb_count = 1;
-	rsb->rsb_type = rsb_first;
-	rsb->rsb_next = prior_rsb;
-	rsb->rsb_arg[0] = (RecordSource*) node;
-	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb_first_n));
+	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(opt->opt_csb);
+	RsbFirst *rsb = new (tdbb->tdbb_default) RsbFirst(csb, prior_rsb, node);
+	//rsb->rsb_count = 1;
+	//rsb->rsb_type = rsb_first;
+	//rsb->rsb_next = prior_rsb;
+	//rsb->rsb_arg[0] = (RecordSource*) node;
+	//rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb_first_n));
 	return rsb;
 }
 
@@ -5081,20 +5080,16 @@ static RecordSource* gen_skip(thread_db* tdbb, OptimizerBlk* opt,
  *          gen_first.
  *
  **************************************/
-    DEV_BLKCHK (opt, type_opt);
-    DEV_BLKCHK (prior_rsb, type_rsb);
-    DEV_BLKCHK (node, type_nod);
-    
-    SET_TDBB (tdbb);
     
     CompilerScratch* csb = opt->opt_csb;
 	// was : rsb = (RecordSource*) ALLOCDV (type_rsb, 1);
-    RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) RecordSource(opt->opt_csb);
-    rsb->rsb_count = 1;
-    rsb->rsb_type = rsb_skip;
-    rsb->rsb_next = prior_rsb;
-    rsb->rsb_arg [0] = (RecordSource*) node;
-    rsb->rsb_impure = CMP_impure (csb, sizeof (struct irsb_skip_n));
+    // RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 0) RecordSource(opt->opt_csb);
+    RsbSkip *rsb = new (tdbb->tdbb_default) RsbSkip(csb, prior_rsb, node);
+    //rsb->rsb_count = 1;
+    //rsb->rsb_type = rsb_skip;
+    //rsb->rsb_next = prior_rsb;
+    //rsb->rsb_arg [0] = (RecordSource*) node;
+    //rsb->rsb_impure = CMP_impure (csb, sizeof (struct irsb_skip_n));
     
     return rsb;
 }

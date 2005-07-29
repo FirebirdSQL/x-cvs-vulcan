@@ -1694,6 +1694,9 @@
 				RelativePath="..\..\..\src\jrd\RsbCross.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbFirst.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbIndexed.cpp">
 			</File>
 			<File
@@ -1710,6 +1713,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSequential.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSkip.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSort.cpp">
@@ -2223,10 +2229,10 @@
 				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\all.h">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\all.h">
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\all_proto.h">
@@ -2274,10 +2280,10 @@
 				RelativePath="..\..\..\src\jrd\blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\blk.h">
+				RelativePath="..\..\..\src\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\blk.h">
+				RelativePath="..\..\..\src\jrd\blk.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\common\Blob.h">
@@ -3114,6 +3120,9 @@
 				RelativePath="..\..\..\src\jrd\RsbCross.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbFirst.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbIndexed.h">
 			</File>
 			<File
@@ -3130,6 +3139,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSequential.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSkip.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSort.h">
@@ -3228,10 +3240,10 @@
 				RelativePath="..\..\..\src\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sqlda.h">
+				RelativePath="..\..\..\src\dsql\sqlda.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\sqlda.h">
+				RelativePath="..\..\..\src\jrd\Sqlda.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\SQLError.h">

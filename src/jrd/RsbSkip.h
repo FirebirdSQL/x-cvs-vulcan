@@ -1,6 +1,6 @@
 /*
  *	PROGRAM:		JRD Access Method
- *	MODULE:			RsbIndexed.h
+ *	MODULE:			RecordSource.h
  *	DESCRIPTION:	Record source block definitions
  *
  * The contents of this file are subject to the Interbase Public
@@ -20,43 +20,36 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  *
- * Refactored July 22, 2005 by James A. Starkey
+ * Refactored July 29, 2005 by James A. Starkey
  */
 
-#ifndef JRD_RSB_INDEXED_H
-#define JRD_RSB_INDEXED_H
+#ifndef JRD_RSB_SKIP_H
+#define JRD_RSB_SKIP_H
 
 #if _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "RsbSequential.h"
-#include "sbm.h"
+#include "RecordSource.h"
 
-
-struct irsb_index {
-	ULONG irsb_flags;
-	SLONG irsb_number;
-	SLONG irsb_prefetch_number;
-	RecordBitmap** irsb_bitmap;
+struct irsb_skip_n {
+    ULONG irsb_flags;
+    SLONG irsb_number;
+    SINT64 irsb_count;
 };
 
-typedef irsb_index *IRSB_INDEX;
+typedef irsb_skip_n *IRSB_SKIP;
 
-struct jrd_nod;
-
-class RsbIndexed : public RsbSequential
+class RsbSkip : public RecordSource
 {
 public:
-	RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *inversion);
-	RsbIndexed::RsbIndexed(CompilerScratch* csb, RSB_T type, int stream, Relation* relation, str* alias, jrd_nod *node);
-
-	virtual ~RsbIndexed(void);
+	RsbSkip(CompilerScratch *csb, RecordSource* prior_rsb, jrd_nod* node);
+	virtual ~RsbSkip(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
 	
-	jrd_nod		*inversion;
+	jrd_nod		*valueNode;
 };
 
 #endif
