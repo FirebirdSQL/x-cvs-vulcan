@@ -1,3 +1,75 @@
+2005-07-30 00:02  jimstarkey
+
+	* vulcan/src/jrd/: RecordSource.cpp, RecordSource.h, opt.cpp:
+	
+	Purged out dreaded RecordSource::rsb_arg
+
+2005-07-29 22:44  jimstarkey
+
+	* vulcan/src/jrd/: RsbFirst.h, RsbWriteLock.h:
+	
+	Minor stylistic edits
+
+2005-07-29 22:36  jimstarkey
+
+	* vulcan/src/jrd/makefile.in:
+	
+	Updated dependencies
+
+2005-07-29 22:29  jimstarkey
+
+	* vulcan/: src/jrd/RSbExtIndexed.cpp, src/jrd/RsbExtDbkey.cpp,
+	src/jrd/RsbExtDbkey.h, src/jrd/RsbExtIndexed.h,
+	src/jrd/RsbExtSequential.cpp, src/jrd/RsbExtSequential.h,
+	src/jrd/ext.cpp, src/jrd/extvms.cpp, src/jrd/jrd.vcproj,
+	builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Split out RsbExtSequential, RsbExtIndexed, RsbExtDbkey
+
+2005-07-29 21:20  jimstarkey
+
+	* vulcan/: src/jrd/RecordSource.cpp, src/jrd/RsbIndexed.h,
+	src/jrd/jrd.vcproj, src/jrd/opt.cpp, src/jrd/rse.h,
+	src/jrd/RsbFirst.cpp, src/jrd/RsbFirst.h, src/jrd/RsbSkip.cpp,
+	src/jrd/RsbSkip.h, builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Split out RsbFirst and RsbSkip
+
+2005-07-29 19:01  jimstarkey
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Split out RsbAggregate and refactored write locking code to
+	RsbWriteLock
+
+2005-07-29 18:59  jimstarkey
+
+	* vulcan/src/: dsql/CStatement.cpp, include/gen/blrtable.h,
+	jrd/MemMgr.h, jrd/RecordSource.cpp, jrd/RecordSource.h,
+	jrd/RsbCross.cpp, jrd/RsbCross.h, jrd/RsbLeftCross.cpp,
+	jrd/RsbLeftCross.h, jrd/RsbMerge.cpp, jrd/RsbMerge.h,
+	jrd/RsbProcedure.cpp, jrd/RsbProcedure.h, jrd/RsbSequential.cpp,
+	jrd/RsbSequential.h, jrd/RsbUnion.cpp, jrd/RsbUnion.h,
+	jrd/blrtable.cpp, jrd/err.cpp, jrd/jrd.vcproj, jrd/nav.cpp,
+	jrd/RsbAggregate.cpp, jrd/RsbAggregate.h, jrd/RsbWriteLock.cpp,
+	jrd/RsbWriteLock.h, jrd/nod.h, jrd/opt.cpp, jrd/par.cpp,
+	winserver/winserver.vcproj:
+	
+	Split out RsbAggregate from RecordSource.  Also added RsbWriteLock
+	to handling write locking
+
+2005-07-29 13:17  arnobrinkman
+
+	* vulcan/src/jrd/: opt.cpp, Optimizer.cpp, Optimizer.h:
+	
+	Prefix 'global' optimizer procedures
+
+2005-07-29 12:57  arnobrinkman
+
+	* vulcan/src/jrd/btr.cpp:
+	
+	Fix scope problem reported by Konstantin
+
 2005-07-28 23:56  arnobrinkman
 
 	* vulcan/src/jrd/btr.cpp:
