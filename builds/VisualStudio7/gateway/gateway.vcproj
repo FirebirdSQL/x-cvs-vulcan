@@ -64,13 +64,14 @@
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/why;../../../src/jrd;../../../src/config"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NAMESPACE=GateWay;MEMMGR"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -78,13 +79,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/gateway.exe"
+				OutputFile="..\..\..\deploy\bin\gateway.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="..\..\..\src\gateway\gateway.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

@@ -23,6 +23,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;../../../src/include/gen"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -38,12 +39,14 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\src\IscDbc\Release\IscDbc.dll"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\deploy\bin\IscDbc.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ModuleDefinitionFile="..\..\..\..\OdbcJdbc\IscDbc\IscDbc.def"
+				AdditionalLibraryDirectories="..\..\..\deploy\lib"
+				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
 				ProgramDatabaseFile=".\Release/IscDbc.pdb"
-				ImportLibrary="..\..\..\src\IscDbc\Release\IscDbc.lib"
+				ImportLibrary="..\..\..\deploy\lib\IscDbc.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"

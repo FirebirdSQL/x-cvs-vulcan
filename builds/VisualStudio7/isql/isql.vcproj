@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/jrd;../../../src/utilities;../../../src/config"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=ISql;MEMMGR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=ISql;MEMMGR;SQLDA_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -70,8 +70,8 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../src/isql/;../../../src/jrd/;../../../src/intl/;../../../src/utilities/;../../../src/config/;../../../src/include/;../../../src/include/gen/"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/jrd;../../../src/utilities;../../../src/config"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=ISql;MEMMGR"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -81,8 +81,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/isql.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\deploy\bin\isql.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

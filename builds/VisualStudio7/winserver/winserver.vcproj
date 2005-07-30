@@ -69,9 +69,10 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				AdditionalIncludeDirectories="../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config;../../../src/why"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;NAMESPACE=winserver;MEMMGR"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -79,10 +80,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/winserver.exe"
+				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
+				OutputFile="..\..\..\deploy\bin\winserver.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				GenerateDebugInformation="TRUE"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"/>

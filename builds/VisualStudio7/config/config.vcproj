@@ -1,111 +1,315 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-
-<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="config" ProjectGUID="{2507F206-C40D-4F08-91A2-71E6FBD08248}" RootNamespace="config" Keyword="Win32Proj">
-   <Platforms>
-      <Platform Name="Win32"/>
-   </Platforms>
-   <Configurations>
-      <Configuration Name="Debug|Win32" OutputDirectory="Debug" IntermediateDirectory="Debug" ConfigurationType="1" CharacterSet="2">
-         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/config/;../../../src/jrd;../../../src/include;../../../src/include/gen;../../../src/why" PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Confg;MEMMGR" MinimalRebuild="TRUE" BasicRuntimeChecks="3" RuntimeLibrary="5" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="FALSE" DebugInformationFormat="3"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool" OutputFile="..\..\..\install\bin\config.exe" LinkIncremental="2" GenerateDebugInformation="TRUE" ProgramDatabaseFile="$(OutDir)/config.pdb" SubSystem="1" TargetMachine="1"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-      <Configuration Name="Release|Win32" OutputDirectory="Release" IntermediateDirectory="Release" ConfigurationType="1" CharacterSet="2">
-         <Tool Name="VCCLCompilerTool" AdditionalIncludeDirectories="../../../src/config/;../../../src/jrd/;../../../src/intl/;../../../src/utilities/;../../../src/config/;../../../src/include/;../../../src/include/gen/" PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE" RuntimeLibrary="4" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="TRUE" DebugInformationFormat="3"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool" OutputFile="$(OutDir)/config.exe" LinkIncremental="1" GenerateDebugInformation="TRUE" SubSystem="1" OptimizeReferences="2" EnableCOMDATFolding="2" TargetMachine="1"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-   </Configurations>
-   <References/>
-   <Files>
-      <Filter Name="Source Files" Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
-         <File RelativePath="..\..\..\src\config\AdminException.cpp"/>
-         <File RelativePath="..\..\..\src\config\Args.cpp"/>
-         <File RelativePath="..\..\..\src\config\ArgsException.cpp"/>
-         <File RelativePath="..\..\..\src\config\Config.cpp">
-            <FileConfiguration Name="Release|Win32">
-               <Tool Name="VCCLCompilerTool" IgnoreStandardIncludePath="FALSE"/>
-            </FileConfiguration>
-         </File>
-         <File RelativePath="..\..\..\src\config\ConfigFile.cpp"/>
-         <File RelativePath="..\..\..\src\config\Configuration.cpp"/>
-         <File RelativePath="..\..\..\src\config\ConfObj.cpp"/>
-         <File RelativePath="..\..\..\src\config\ConfObject.cpp"/>
-         <File RelativePath="..\..\..\src\config\DirectoryList.cpp"/>
-         <File RelativePath="..\..\..\src\config\Element.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\ExternalLibrary.cpp"/>
-         <File RelativePath="..\..\..\src\common\fb_exception.cpp"/>
-         <File RelativePath="..\..\..\src\config\InputFile.cpp"/>
-         <File RelativePath="..\..\..\src\config\InputStream.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\JString.cpp"/>
-         <File RelativePath="..\..\..\src\config\Lex.cpp"/>
-         <File RelativePath="..\..\..\src\common\classes\locks.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\MemMgr.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\Mutex.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIException.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIMemException.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\PathName.cpp"/>
-         <File RelativePath="..\..\..\src\why\Provider.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\RefObject.cpp"/>
-         <File RelativePath="..\..\..\src\config\ScanDir.cpp"/>
-         <File RelativePath="..\..\..\src\config\Stream.cpp"/>
-         <File RelativePath="..\..\..\src\config\StreamSegment.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\Sync.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp"/>
-      </Filter>
-      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl;inc;xsd" UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
-         <File RelativePath="..\..\..\src\config\AdminException.h"/>
-         <File RelativePath="..\..\..\src\config\Args.h"/>
-         <File RelativePath="..\..\..\src\config\ArgsException.h"/>
-         <File RelativePath="..\..\..\src\config\Config.h"/>
-         <File RelativePath="..\..\..\src\config\ConfigFile.h"/>
-         <File RelativePath="..\..\..\src\config\Configuration.h"/>
-         <File RelativePath="..\..\..\src\config\ConfObj.h"/>
-         <File RelativePath="..\..\..\src\config\ConfObject.h"/>
-         <File RelativePath="..\..\..\src\config\DirectoryList.h"/>
-         <File RelativePath="..\..\..\src\config\Element.h"/>
-         <File RelativePath="..\..\..\src\jrd\ExternalLibrary.h"/>
-         <File RelativePath="..\..\..\src\config\InputFile.h"/>
-         <File RelativePath="..\..\..\src\config\InputStream.h"/>
-         <File RelativePath="..\..\..\src\jrd\JString.h"/>
-         <File RelativePath="..\..\..\src\config\Lex.h"/>
-         <File RelativePath="..\..\..\src\common\classes\locks.h"/>
-         <File RelativePath="..\..\..\src\jrd\MemMgr.h"/>
-         <File RelativePath="..\..\..\src\jrd\Mutex.h"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIException.h"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIMemException.h"/>
-         <File RelativePath="..\..\..\src\config\Parameters.h"/>
-         <File RelativePath="..\..\..\src\jrd\PathName.h"/>
-         <File RelativePath="..\..\..\src\why\Provider.h"/>
-         <File RelativePath="..\..\..\src\config\ScanDir.h"/>
-         <File RelativePath="..\..\..\src\config\Stream.h"/>
-         <File RelativePath="..\..\..\src\config\StreamSegment.h"/>
-         <File RelativePath="..\..\..\src\jrd\Sync.h"/>
-         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.h"/>
-      </Filter>
-      <Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx" UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"/>
-      <File RelativePath="..\..\..\src\config\ReadMe.txt"/>
-      <File RelativePath="..\..\..\src\jrd\RefObject.h"/>
-   </Files>
-   <Globals/>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="config"
+	ProjectGUID="{2507F206-C40D-4F08-91A2-71E6FBD08248}"
+	RootNamespace="config"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="Debug"
+			ConfigurationType="1"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="../../../src/config/;../../../src/jrd;../../../src/include;../../../src/include/gen;../../../src/why"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Confg;MEMMGR"
+				MinimalRebuild="TRUE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="5"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="..\..\..\install\bin\config.exe"
+				LinkIncremental="2"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/config.pdb"
+				SubSystem="1"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="1"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../../src/config/;../../../src/jrd;../../../src/include;../../../src/include/gen;../../../src/why"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=Confg;MEMMGR"
+				RuntimeLibrary="4"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="..\..\..\deploy\bin\config.exe"
+				LinkIncremental="1"
+				GenerateDebugInformation="TRUE"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath="..\..\..\src\config\AdminException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Args.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ArgsException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Config.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						IgnoreStandardIncludePath="FALSE"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfigFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Configuration.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObj.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObject.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\DirectoryList.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Element.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExternalLibrary.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\fb_exception.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputStream.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JString.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Lex.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\locks.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PathName.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\why\Provider.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RefObject.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ScanDir.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Stream.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\StreamSegment.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\..\..\src\config\AdminException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Args.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ArgsException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Config.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfigFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Configuration.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObj.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\DirectoryList.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Element.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExternalLibrary.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputStream.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JString.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Lex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\locks.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Mutex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Parameters.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PathName.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\why\Provider.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ScanDir.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Stream.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\StreamSegment.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+		</Filter>
+		<File
+			RelativePath="..\..\..\src\config\ReadMe.txt">
+		</File>
+		<File
+			RelativePath="..\..\..\src\jrd\RefObject.h">
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

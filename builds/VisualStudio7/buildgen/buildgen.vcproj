@@ -67,9 +67,10 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/jrd;../../../src/config;../../../src/XLoad"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=bldgen"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>

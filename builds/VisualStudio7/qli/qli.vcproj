@@ -81,8 +81,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/qli.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\deploy\bin\qli.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

@@ -92,7 +92,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				GlobalOptimizations="FALSE"
 				InlineFunctionExpansion="1"
+				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="../../../src/config;../../../src/jrd/;../../../src/include;../../../src/include/gen;../../../src/common;../../../src/intl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;_X86_;SUPERSERVER;SERVER_SHUTDOWN;FIREBIRD_ENGINE;NAMESPACE=Engine;MEMMGR"
 				StringPooling="TRUE"
@@ -111,10 +113,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib mpr.lib version.lib"
-				OutputFile="..\..\..\install\bin\engine8.dll"
+				OutputFile="..\..\..\deploy\bin\engine8.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
+				AdditionalLibraryDirectories="..\..\..\deploy\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
 				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Release/jrd.pdb"

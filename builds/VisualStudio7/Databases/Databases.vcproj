@@ -45,6 +45,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
+			OutputDirectory="..\..\deploy"
 			ConfigurationType="1">
 			<Tool
 				Name="VCCLCompilerTool"/>

@@ -70,7 +70,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../src/gpre/;../../../src/jrd/;../../../src/intl/;../../../src/utilities/;../../../src/config/;../../../src/include/;../../../src/include/gen/"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=Gpre;MEMMGR"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -80,8 +80,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/gpre.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\deploy\bin\gpre.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
