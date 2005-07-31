@@ -1,3 +1,18 @@
+2005-07-30 16:47  arnobrinkman
+
+	* vulcan/builds/VisualStudio7/: Databases/Databases.vcproj,
+	IscDbc/IscDbc.vcproj, JdbcTest/JdbcTest.vcproj,
+	SecurityDatabase/SecurityDatabase.vcproj, VSRelo/VSRelo.vcproj,
+	XLoad/XLoad.vcproj, buildgen/buildgen.vcproj, burp/burp.vcproj,
+	config/config.vcproj, gateway/gateway.vcproj, gpre/gpre.vcproj,
+	intlcpp/intlcpp.vcproj, isql/isql.vcproj, jrd/jrd.vcproj,
+	lock/lock.vcproj, msgs/msgs.vcproj, qli/qli.vcproj,
+	remote/remote.vcproj, server/server.vcproj, why/why.vcproj,
+	winserver/winserver.vcproj:
+	
+	Update release build.  Currently the output will be in
+	<vulcan>\deploy
+
 2005-07-30 00:02  jimstarkey
 
 	* vulcan/src/jrd/: RecordSource.cpp, RecordSource.h, opt.cpp:
