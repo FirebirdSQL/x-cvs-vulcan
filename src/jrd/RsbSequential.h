@@ -43,6 +43,8 @@ public:
 	virtual void close(Request* request);
 	void reserveRelation(Request* request);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
+	virtual void pushRecords(Request* request);
+	virtual void popRecords(Request* request);
 };
 
 #endif

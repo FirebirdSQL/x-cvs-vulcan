@@ -104,7 +104,7 @@ bool RsbIndexed::get(Request* request, RSE_GET_MODE mode)
 
 #endif // SUPERSERVER_V2
 
-		if (VIO_get(tdbb, rpb, this, request->req_transaction, request->req_pool))
+		if (VIO_get(tdbb, rpb, request->req_transaction, request->req_pool))
 			{
 			result = true;
 			break;

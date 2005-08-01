@@ -53,7 +53,9 @@ enum RSB_T
 	rsb_navigate,						// navigational walk on an index
 	rsb_left_cross,						// left outer join as a nested loop
 	rsb_procedure,						// stored procedure
-	rsb_write_lock						// write lock the record
+	rsb_write_lock,						// write lock the record
+	rsb_singular,						// check for singleton
+	rsb_counter							// count records
 };
 
 enum RSE_GET_MODE {
@@ -69,35 +71,38 @@ enum RSE_GET_MODE {
 
 // bits for the rsb_flags field
 
-const USHORT rsb_singular = 1;			// singleton select, expect 0 or 1 records
+//const USHORT rsb_singular = 1;			// singleton select, expect 0 or 1 records
 const USHORT rsb_stream_type = 2;		// rsb is for stream type request
 const USHORT rsb_descending = 4;		// an ascending index is being used for a descending sort or vice versa
 const USHORT rsb_project = 8;			// projection on this stream is requested
-const USHORT rsb_writelock = 16;		// records should be locked for writing
+//const USHORT rsb_writelock = 16;		// records should be locked for writing
 
 // special argument positions within the RecordSource
 
-/***
-const int RSB_PRC_inputs		= 0;
-const int RSB_PRC_in_msg		= 1;
-const int RSB_PRC_count			= 2;
-***/
+// Impure area formats for the various RSB types
 
-/***
-const int RSB_NAV_index			= 0;
-const int RSB_NAV_inversion		= 1;
-const int RSB_NAV_key_length	= 2;
-const int RSB_NAV_idx_offset	= 3;
-const int RSB_NAV_count			= 4;
-***/
+struct irsb {
+	ULONG irsb_flags;
+	USHORT irsb_count;
+};
 
-/***
-const int RSB_LEFT_outer		= 0;
-const int RSB_LEFT_inner		= 1;
-const int RSB_LEFT_boolean		= 2;
-const int RSB_LEFT_inner_boolean	= 3;
-const int RSB_LEFT_count			= 4;
-***/
+typedef irsb *IRSB;
+
+// flags for the irsb_flags field
+
+const ULONG irsb_first = 1;
+const ULONG irsb_joined = 2;				// set in left join when current record has been joined to something
+const ULONG irsb_mustread = 4;				// set in left join when must read a record from left stream
+const ULONG irsb_open = 8;					// indicated rsb is open
+const ULONG irsb_backwards = 16;			// backwards navigation has been performed on this stream
+const ULONG irsb_in_opened = 32;			// set in outer join when inner stream has been opened
+const ULONG irsb_join_full = 64;			// set in full join when left join has completed
+const ULONG irsb_checking_singular = 128;	// fetching to verify singleton select
+const ULONG irsb_singular_processed = 256;	// singleton stream already delivered one record
+const ULONG irsb_last_backwards = 512;		// rsb was last scrolled in the backward direction
+const ULONG irsb_bof = 1024;				// rsb is at beginning of stream
+const ULONG irsb_eof = 2048;				// rsb is at end of stream
+const ULONG irsb_key_changed = 32768;		// key has changed since record last returned from rsb
 
 class Relation;
 class Procedure;
@@ -109,6 +114,7 @@ class CompilerScratch;
 struct str;
 struct jrd_nod;
 struct thread_db;
+struct record_param;
 
 // Array which stores relative pointers to impure areas of invariant nodes
 typedef firebird::SortedArray<SLONG> VarInvariantArray;
@@ -136,7 +142,6 @@ public:
 	Relation*	rsb_relation;		// relation, if appropriate
 	str*		rsb_alias;			// SQL alias for relation
 	Format*		rsb_format;			// format, if appropriate
-	//jrd_nod*	rsb_any_boolean;	// any/all boolean
 	RecordSource *nextInRequest;	// list of rsbs in request
 	
 	// AP:	stop saving memory with the price of awful conversions,
@@ -148,12 +153,16 @@ public:
 	VarInvariantArray *rsb_invariants; // Invariant nodes bound to top-level RSB
 	//RecordSource* rsb_arg[1];
 	
-	virtual void open(Request* request);
-	virtual bool get(Request* request, RSE_GET_MODE mode);
-	virtual void close(Request* request);
+	virtual void open(Request* request) = 0;
+	virtual bool get(Request* request, RSE_GET_MODE mode) = 0;
+	virtual void close(Request* request) = 0;
 	void init(void);
 	static void mapSortData(Request* request, SortMap* map, UCHAR* data);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
+	virtual void pushRecords(Request* request);
+	virtual void popRecords(Request* request);
+	virtual void saveRecord(Request* request, record_param* rpb);
+	virtual void restoreRecord(record_param* rpb);
 };
 
 #endif

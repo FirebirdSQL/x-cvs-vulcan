@@ -126,3 +126,15 @@ void RsbCross::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 	for (int n = 0; n < rsb_count; ++n)
 		rsbs[n]->findRsbs(stream_list, rsb_list);
 }
+
+void RsbCross::pushRecords(Request* request)
+{
+	for (int n = 0; n < rsb_count; ++n)
+		rsbs[n]->pushRecords(request);
+}
+
+void RsbCross::popRecords(Request* request)
+{
+	for (int n = 0; n < rsb_count; ++n)
+		rsbs[n]->popRecords(request);
+}

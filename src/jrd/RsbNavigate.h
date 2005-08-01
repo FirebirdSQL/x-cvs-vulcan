@@ -31,6 +31,25 @@
 #endif // _MSC_VER >= 1000
 
 #include "RsbIndexed.h"
+#include "RecordNumber.h"
+
+struct irsb_nav {
+	ULONG irsb_flags;
+	SLONG irsb_nav_expanded_offset;			// page offset of current index node on expanded index page
+	RecordNumber irsb_nav_number;			// last record number
+	SLONG irsb_nav_page;					// index page number
+	SLONG irsb_nav_incarnation;				// buffer/page incarnation counter
+	ULONG irsb_nav_count;					// record count of last record returned
+	RecordBitmap** irsb_nav_bitmap;			// bitmap for inversion tree
+	RecordBitmap* irsb_nav_records_visited;	// bitmap of records already retrieved
+	USHORT irsb_nav_offset;					// page offset of current index node
+	USHORT irsb_nav_lower_length;			// length of lower key value
+	USHORT irsb_nav_upper_length;			// length of upper key value
+	USHORT irsb_nav_length;					// length of expanded key
+	UCHAR irsb_nav_data[1];					// expanded key, upper bound, and index desc
+};
+
+typedef irsb_nav *IRSB_NAV;
 
 struct jrd_nod;
 

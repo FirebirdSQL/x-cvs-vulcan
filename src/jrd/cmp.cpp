@@ -5091,12 +5091,18 @@ static RecordSource* post_rse(thread_db* tdbb, CompilerScratch* csb, RecordSelEx
  *
  **************************************/
  
-	RecordSource *rsb = OPT_compile(tdbb, csb, rse, NULL);
+	int compileFlags = OPT_count;
 
 	if (rse->nod_flags & rse_singular)
+		compileFlags |= OPT_singular;
+			
+	RecordSource *rsb = OPT_compile(tdbb, csb, rse, NULL, compileFlags);
+
+	/***
+	if (rse->nod_flags & rse_singular)
 		rsb->rsb_flags |= rsb_singular;
-
-
+	***/
+	
 	// mark all the substreams as inactive
 
 	for (JRD_NOD *ptr = rse->rse_relation, *end = ptr + rse->rse_count; ptr < end; ptr++) 

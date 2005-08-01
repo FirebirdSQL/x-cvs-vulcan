@@ -179,7 +179,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
  *
  **************************************/
 
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
 #ifdef SCROLLABLE_CURSORS
 	// before we do anything, check for the case where an ascending index 
@@ -257,15 +257,16 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 	// the last candidate did not qualify, we know we should return another record no matter 
 	// what.
 
-	if (rsb->rsb_record_count != impure->irsb_nav_count) {
+	if (rsb->rsb_record_count != impure->irsb_nav_count) 
+		{
 		impure->irsb_flags &= ~irsb_key_changed;
 		impure->irsb_nav_count = rsb->rsb_record_count;
-	}
-	else {
+		}
+	else 
 		impure->irsb_flags |= irsb_key_changed;
-	}
 
 	// Find the next interesting node.  If necessary, skip to the next page
+	
 	exp_index_buf* expanded_page;
 	btree_exp* expanded_node;
 	bool page_changed = false;
@@ -275,20 +276,24 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 	UCHAR *pointer;
 	USHORT l;
 	IndexNode node;
-	while (true) {
+	
+	while (true) 
+		{
 		btree_page* page = (btree_page*) window.win_buffer;
 		flags = page->btr_header.pag_flags;
-
 		pointer = nextPointer;
 		expanded_node = expanded_next;
-		if (pointer) {
+		
+		if (pointer) 
+			{
 			BTreeNode::readNode(&node, pointer, flags, true);
 			number = node.recordNumber;
-		}
+			}
 
 #ifdef SCROLLABLE_CURSORS
 		// in the backwards case, check to make sure we haven't hit the 
 		// beginning of a page, and if so fetch the left sibling page.
+		
 		if (direction == RSE_get_backward) {
 			if (pointer < BTreeNode::getPointerFirstNode(page)) {
 				expanded_page = window.win_expanded_buffer;
@@ -936,7 +941,7 @@ static BOOLEAN get_record(thread_db* tdbb,
 
 	impure->irsb_flags &= ~(irsb_bof | irsb_eof);
 
-	result = VIO_get(tdbb, rpb, rsb, request->req_transaction, request->req_pool);
+	result = VIO_get(tdbb, rpb, request->req_transaction, request->req_pool);
 
 	temporary_key value;
 	if (result)

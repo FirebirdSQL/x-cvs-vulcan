@@ -56,6 +56,8 @@ public:
 	virtual void close(Request* request);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 	void procAssignment(dsc* from_desc, dsc* flag_desc, UCHAR* msg, dsc* to_desc, SSHORT to_id, Record* record);
+	virtual void pushRecords(Request* request);
+	virtual void popRecords(Request* request);
 
 	Procedure*	procedure;		// procedure, if appropriate
 	jrd_nod		*message;

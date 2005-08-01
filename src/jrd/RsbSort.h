@@ -31,8 +31,42 @@
 #endif // _MSC_VER >= 1000
 
 #include "RecordSource.h"
+#include "dsc.h"
 
 struct sort_context;
+
+// Sort map block
+
+struct smb_repeat {
+	DSC smb_desc;				// relative descriptor
+	USHORT smb_flag_offset;		// offset of missing flag
+	USHORT smb_stream;			// stream for field id
+	SSHORT smb_field_id;		// id for field (-1 if dbkey)
+	struct jrd_nod *smb_node;	// expression node
+};
+
+class SortMap : public pool_alloc_rpt<smb_repeat, type_smb>
+{
+public:
+	USHORT smb_keys;			// number of keys
+	USHORT smb_count;			// total number of fields
+	USHORT smb_length;			// sort record length
+	USHORT smb_key_length;		// key length in longwords
+	struct sort_key_def* smb_key_desc;	// address of key descriptors
+	USHORT smb_flags;			// misc sort flags
+    smb_repeat smb_rpt[1];
+};
+
+// values for smb_field_id
+
+const SSHORT SMB_DBKEY = -1;	// dbkey value
+const SSHORT SMB_TRANS_ID = -2;	// transaction id of record
+
+// bits for the smb_flags field
+
+const USHORT SMB_project = 1;	// sort is really a project
+const USHORT SMB_tag = 2;		// beast is a tag sort
+
 
 struct irsb_sort {
 	ULONG		  irsb_flags;
@@ -51,6 +85,8 @@ public:
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
 	static bool reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg);
+	virtual void pushRecords(Request* request);
+	virtual void popRecords(Request* request);
 	
 	SortMap		*map;
 };

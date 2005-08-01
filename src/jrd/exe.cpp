@@ -1104,7 +1104,6 @@ static JRD_NOD erase(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 		if ((!DPM_get(tdbb, rpb, LCK_read)) ||
 			(!VIO_chase_record_version(tdbb,
 									   rpb,
-									   NULL,
 									   transaction, tdbb->tdbb_default, FALSE)))
 				ERR_post(isc_deadlock, isc_arg_gds, isc_update_conflict, 0);
 				
@@ -2553,7 +2552,6 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 		if ((!DPM_get(tdbb, org_rpb, LCK_read)) ||
 			(!VIO_chase_record_version(tdbb,
 									   org_rpb,
-									   NULL,
 									   transaction, tdbb->tdbb_default, FALSE)))
 			ERR_post(isc_deadlock, isc_arg_gds, isc_update_conflict, 0);
 

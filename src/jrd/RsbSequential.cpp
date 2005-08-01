@@ -117,7 +117,7 @@ bool RsbSequential::get(Request* request, RSE_GET_MODE mode)
 	if (impure->irsb_flags & irsb_bof)
 		rpb->rpb_number.setValue(BOF_NUMBER);
 
-	if (!VIO_next_record(tdbb, rpb, this, request->req_transaction, request->req_pool,
+	if (!VIO_next_record(tdbb, rpb, request->req_transaction, request->req_pool,
 							(mode == RSE_get_backward) ? TRUE : FALSE, FALSE))
 			return FALSE;
 	
@@ -151,4 +151,16 @@ void RsbSequential::reserveRelation(Request* request)
 void RsbSequential::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 {
 	stream_list->push(rsb_stream);
+}
+
+void RsbSequential::pushRecords(Request* request)
+{
+	record_param *rpb = request->req_rpb + rsb_stream;
+	saveRecord(request, rpb);
+}
+
+void RsbSequential::popRecords(Request* request)
+{
+	record_param *rpb = request->req_rpb + rsb_stream;
+	restoreRecord(rpb);
 }

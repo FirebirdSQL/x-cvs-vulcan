@@ -258,3 +258,15 @@ void RsbProcedure::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 	if (rsb_list) 
 		rsb_list->push(this);
 }
+
+void RsbProcedure::pushRecords(Request* request)
+{
+	record_param *rpb = request->req_rpb + rsb_stream;
+	saveRecord(request, rpb);
+}
+
+void RsbProcedure::popRecords(Request* request)
+{
+	record_param *rpb = request->req_rpb + rsb_stream;
+	restoreRecord(rpb);
+}

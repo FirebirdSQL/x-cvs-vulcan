@@ -482,7 +482,6 @@ void VIO_bump_count(thread_db* tdbb, USHORT count_id, Relation* relation, bool e
 
 int VIO_chase_record_version(thread_db* tdbb, 
 							  record_param* rpb, 
-							  RecordSource* rsb, 
 							  Transaction* transaction, 
 							  JrdMemoryPool *pool, 
 							  BOOLEAN writelock)
@@ -1605,7 +1604,6 @@ Record* VIO_gc_record(thread_db* tdbb, Relation* relation)
 
 int VIO_get(thread_db* tdbb, 
 			record_param* rpb, 
-			RecordSource* rsb, 
 			Transaction* transaction, 
 			JrdMemoryPool *pool)
 {
@@ -1636,7 +1634,7 @@ int VIO_get(thread_db* tdbb,
 	const USHORT lock_type = (rpb->rpb_stream_flags & RPB_s_update) ? LCK_write : LCK_read;
 
 	if (!DPM_get(tdbb, rpb, lock_type) ||
-		!VIO_chase_record_version(tdbb, rpb, rsb, transaction, pool, FALSE))
+		!VIO_chase_record_version(tdbb, rpb, transaction, pool, FALSE))
 		return FALSE;
 
 #ifdef VIO_DEBUG
@@ -1991,7 +1989,7 @@ static void RefetchRecord(thread_db* tdbb, record_param* rpb, Transaction* trans
 	SLONG tid_fetch = rpb->rpb_transaction;
 	
 	if ((!DPM_get(tdbb, rpb, LCK_read)) ||
-		  (!VIO_chase_record_version(tdbb, rpb, NULL, transaction, tdbb->tdbb_default, FALSE))) 
+		  (!VIO_chase_record_version(tdbb, rpb,transaction, tdbb->tdbb_default, FALSE))) 
 		ERR_post(isc_deadlock, isc_arg_gds, isc_update_conflict, 0);
 
 	VIO_data(tdbb, rpb,tdbb->tdbb_request->req_pool);
@@ -2275,7 +2273,7 @@ BOOLEAN VIO_writelock(thread_db* tdbb, record_param* org_rpb, RecordSource* rsb,
 			// const SLONG tid_fetch = org_rpb->rpb_transaction;
 			
 			if ((!DPM_get(tdbb, org_rpb, LCK_read)) ||
-				(!VIO_chase_record_version(tdbb, org_rpb, NULL, transaction, tdbb->tdbb_default, TRUE)))
+				(!VIO_chase_record_version(tdbb, org_rpb, transaction, tdbb->tdbb_default, TRUE)))
 				return FALSE;
 
 			VIO_data(tdbb, org_rpb,tdbb->tdbb_request->req_pool);
@@ -2343,7 +2341,6 @@ BOOLEAN VIO_writelock(thread_db* tdbb, record_param* org_rpb, RecordSource* rsb,
 
 BOOLEAN VIO_next_record(thread_db* tdbb,
 						record_param* rpb,
-						RecordSource* rsb,
 						Transaction* transaction,
 						JrdMemoryPool* pool, BOOLEAN backwards, BOOLEAN onepage)
 {
@@ -2386,7 +2383,7 @@ BOOLEAN VIO_next_record(thread_db* tdbb,
 	do {
 		if (!DPM_next(tdbb, rpb, lock_type, backwards, onepage))
 			return FALSE;
-	} while (!VIO_chase_record_version(tdbb, rpb, rsb, transaction, pool, FALSE));
+	} while (!VIO_chase_record_version(tdbb, rpb, transaction, pool, FALSE));
 
 	if (pool)
 		VIO_data(tdbb, rpb, pool);
@@ -2708,7 +2705,6 @@ BOOLEAN VIO_sweep(thread_db* tdbb, Transaction* transaction)
 				
 				while (VIO_next_record(tdbb,
 										&rpb,
-										NULL,
 										transaction,
 										0,
 										FALSE,

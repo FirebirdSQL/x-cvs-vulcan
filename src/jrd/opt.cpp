@@ -58,7 +58,7 @@
 #include "../jrd/exe.h"
 #include "../jrd/lls.h"
 #include "../jrd/ods.h"
-#include "../jrd/btr.h"
+//#include "../jrd/btr.h"
 #include "../jrd/sort.h"
 #include "../jrd/rse.h"
 #include "../jrd/intl.h"
@@ -99,6 +99,8 @@
 #include "RsbAggregate.h"
 #include "RsbFirst.h"
 #include "RsbSkip.h"
+#include "RsbCount.h"
+#include "RsbSingular.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -129,7 +131,7 @@ static void find_index_relationship_streams(thread_db*, OptimizerBlk*, const UCH
 		UCHAR*, UCHAR*);
 static jrd_nod* find_dbkey(jrd_nod*, USHORT, SLONG*);
 static USHORT find_order(thread_db*, OptimizerBlk*, const UCHAR*, const jrd_nod*);
-//static void find_rsbs(RecordSource*, StreamStack*, RsbStack*);
+
 static void find_used_streams(const RecordSource*, UCHAR*);
 static void form_rivers(thread_db*, OptimizerBlk*, const UCHAR*, RiverStack&,
 		jrd_nod**, jrd_nod**, jrd_nod*);
@@ -302,7 +304,8 @@ bool OPT_access_path(thread_db* tdbb, const Request* request,
 RecordSource* OPT_compile(thread_db*		tdbb,
 						  CompilerScratch*	csb, 
 						  RecordSelExpr*	rse, 
-						  NodeStack*		parent_stack)
+						  NodeStack*		parent_stack,
+						  int				compileFlags)
 {
 /**************************************
  *
@@ -513,7 +516,7 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 							if (parent_stack)
 								stack_end = conjunct_stack.merge(*parent_stack);
 
-						rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, &conjunct_stack);
+						rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, &conjunct_stack, 0);
 
 						if (rse->rse_jointype != blr_inner) 
 							// Remove previously added parent conjuctions from the stack.
@@ -528,7 +531,7 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 						}
 					else 
 						{
-						rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, parent_stack);
+						rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, parent_stack, 0);
 						
 						if (rse->rse_jointype == blr_left)
 							find_used_streams(rsb, outer_streams);
@@ -984,13 +987,25 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 		StreamStack stack;
 		rsb->findRsbs(&stack, NULL);
 		
-		while (stack.hasData()) 
-			rsb = new (tdbb->tdbb_default) RsbWriteLock(csb, rsb, stack.pop());
+		while (stack.hasData())
+			{
+			int stream = stack.pop();
+			Relation *relation = csb->csb_rpt[stream].csb_relation;
+			
+			if (relation && !relation->rel_view_rse && !relation->rel_file) 
+				rsb = new (tdbb->tdbb_default) RsbWriteLock(csb, rsb, stream);
+			}
 		}
 	
 	// Assign pointer to list of dependent invariant values
 	rsb->rsb_invariants = rse->rse_invariants;
-
+	
+	if (compileFlags & OPT_singular)
+		rsb = new (tdbb->tdbb_default) RsbSingular(csb, rsb);
+		
+	if (compileFlags & OPT_count)
+		rsb = new (tdbb->tdbb_default) RsbCount(csb, rsb);
+		
 	return rsb;
 }
 
@@ -3767,7 +3782,7 @@ static RecordSource* gen_aggregate(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* 
 
 	// allocate and optimize the record source block
 
-	RecordSource *next = OPT_compile(tdbb, csb, rse, &deliverStack);
+	RecordSource *next = OPT_compile(tdbb, csb, rse, &deliverStack, 0);
 	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(csb);
 	RsbAggregate *rsb = new (tdbb->tdbb_default) RsbAggregate(csb, next, node);
 	//rsb->rsb_type = rsb_aggregate;
@@ -5717,7 +5732,7 @@ static RecordSource* gen_union(thread_db* tdbb,
 
 		//*rsb_ptr++ = OPT_compile(tdbb, csb, rse, &deliverStack);
 		//*rsb_ptr++ = (RecordSource*) map;
-		rsb->rsbs[n] = OPT_compile(tdbb, csb, rse, &deliverStack);
+		rsb->rsbs[n] = OPT_compile(tdbb, csb, rse, &deliverStack, 0);
 		rsb->maps[n] = map;
 		}
 

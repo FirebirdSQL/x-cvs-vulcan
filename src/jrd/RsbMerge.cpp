@@ -525,3 +525,63 @@ void RsbMerge::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 	for (int n = 0; n < rsb_count; ++n)
 		sortRsbs[n]->findRsbs(stream_list, rsb_list);
 }
+
+void RsbMerge::pushRecords(Request* request)
+{
+	SSHORT i, streams[128];
+	smb_repeat * item, *end_item;
+
+	for (i = 0; i < (SSHORT) request->req_count; i++)
+		streams[i] = 0;
+		
+	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
+	irsb_mrg::irsb_mrg_repeat * tail = impure->irsb_mrg_rpt;
+	
+	for (i = 0; i <rsb_count; ++i, ++tail)
+		{
+		RsbSort *sort_rsb = sortRsbs[i];
+		SortMap* map = sort_rsb->map;
+		end_item = map->smb_rpt + map->smb_count;
+		
+		for (item = map->smb_rpt; item < end_item; item++)
+			streams[item->smb_stream] = 1;
+		}
+		
+	for (i = 0; i < (SSHORT) request->req_count; i++)
+		if (streams[i]) 
+			{
+			record_param *rpb = request->req_rpb + i;
+			//save_record(tdbb, rpb);
+			saveRecord(request, rpb);
+			}
+					
+}
+
+void RsbMerge::popRecords(Request* request)
+{
+	SSHORT i, streams[128];
+	smb_repeat * item, *end_item;
+
+	for (i = 0; i < (SSHORT) request->req_count; i++)
+		streams[i] = 0;
+		
+	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
+	irsb_mrg::irsb_mrg_repeat * tail = impure->irsb_mrg_rpt;
+	
+	for (i = 0; i < rsb_count; ++i, ++tail)
+		{
+		RsbSort *sort_rsb = sortRsbs[i];
+		SortMap* map = sort_rsb->map;
+		end_item = map->smb_rpt + map->smb_count;
+		
+		for (item = map->smb_rpt; item < end_item; item += 2)
+			streams[item->smb_stream] = 1;
+		}
+		
+	for (i = 0; i < (SSHORT) request->req_count; i++)
+		if (streams[i]) 
+			{
+			record_param *rpb = request->req_rpb + i;
+			restoreRecord(rpb);
+			}
+}

@@ -142,6 +142,7 @@ public:
 	typedef csb_repeat* rpt_itr;
 	typedef const csb_repeat* rpt_const_itr;
 	firebird::HalfStaticArray<csb_repeat, 5> csb_rpt;
+	
 	int nextStream(bool check);
 	static CompilerScratch* newCsb(MemoryPool & p, size_t len);
 	void addRsb(RecordSource* rsb);

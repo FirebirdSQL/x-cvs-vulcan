@@ -61,12 +61,14 @@ class OptimizerBlk;
 class Relation;
 
 bool opt_computable(CompilerScratch*, jrd_nod*, SSHORT, bool, bool);
+
 #ifdef EXPRESSION_INDICES
 bool opt_expression_equal(thread_db*, OptimizerBlk*, const index_desc*,
 							 jrd_nod*, USHORT);
 bool opt_expression_equal2(thread_db*, OptimizerBlk*, jrd_nod*,
 							  jrd_nod*, USHORT);
 #endif
+
 double opt_getRelationCardinality(thread_db*, Relation*,const Format*);
 str* opt_make_alias(thread_db*, CompilerScratch*, CompilerScratch::csb_repeat*);
 jrd_nod* opt_make_binary_node(thread_db*, NOD_T, jrd_nod*, jrd_nod*, bool);

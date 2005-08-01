@@ -106,13 +106,13 @@ static void proc_assignment(DSC * from_desc,
 							DSC * to_desc, SSHORT to_id, Record* record);
 ***/
 							 
-static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB impure);
+//static BOOLEAN get_union(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB impure);
 //static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, IRSB impure, RSE_GET_MODE mode);
-static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb);
-static void pop_rpbs(JRD_REQ request, RecordSource* rsb);
+//static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb);
+//static void pop_rpbs(JRD_REQ request, RecordSource* rsb);
 //static void join_to_nulls(Request *request, thread_db* tdbb, RecordSource* rsb, StreamStack* stream);
-static void restore_record(record_param * rpb);
-static void save_record(thread_db* tdbb, record_param * rpb);
+//static void restore_record(record_param * rpb);
+//static void save_record(thread_db* tdbb, record_param * rpb);
 
 /***
 static void write_merge_block(thread_db* tdbb, MergeFile* mfb, ULONG block);
@@ -148,6 +148,7 @@ void RecordSource::init(void)
 	rsb_impure = NULL;
 	rsb_relation = NULL;
 	rsb_alias = NULL;
+	rsb_record_count = 0;			// this is a bug!!!!
 }
 
 RecordSource::~RecordSource(void)
@@ -346,6 +347,7 @@ void RecordSource::open(Request* request)
 		}
 }
 
+#ifdef OBSOLETE
 bool RecordSource::get(Request* request, RSE_GET_MODE mode)
 {
 	//SET_TDBB(tdbb);
@@ -412,7 +414,9 @@ bool RecordSource::get(Request* request, RSE_GET_MODE mode)
 
 	return result;
 }
+#endif // OBSOLETE
 
+#ifdef OBSOLETE
 void RecordSource::close(Request* request)
 {
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);
@@ -509,7 +513,9 @@ void RecordSource::close(Request* request)
 			BUGCHECK(166);		/* msg 166 invalid rsb type */
 		}
 }
+#endif // OBSOLETE
 
+#ifdef OBSOLETE
 static bool reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg)
 {
 /**************************************
@@ -526,7 +532,9 @@ static bool reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg)
 
 	return true;
 }
+#endif // OBSOLETE
 
+#ifdef OBSOLETE
 static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 						  RecordSource*	rsb,
 						  RecordSource*	parent_rsb,
@@ -572,6 +580,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 
 	switch (rsb->rsb_type)
 	{
+#ifdef OBSOLETE
 	case rsb_sequential:
 		if (impure->irsb_flags & irsb_bof)
 			rpb->rpb_number.setValue(BOF_NUMBER);
@@ -613,12 +622,11 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 										*bitmap, rpb->rpb_number);
 			}
 #endif // SUPERSERVER_V2
-			if (VIO_get(tdbb, rpb, rsb, request->req_transaction,
-						request->req_pool))
-			{
+			if (VIO_get(tdbb, rpb, request->req_transaction, request->req_pool))
+				{
 				result = true;
 				break;
-			}
+				}
 		} while (bitmap->getNext());
 
 		if (result)
@@ -626,6 +634,7 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 			
 		return false;
 		}
+#endif // OBSOLETE
 
 	/***
 	case rsb_navigate:
@@ -1069,7 +1078,8 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 
 	if (rsb->rsb_flags & rsb_singular && !(impure->irsb_flags & irsb_checking_singular)) 
 		{
-		push_rpbs(tdbb, request, rsb);
+		//push_rpbs(tdbb, request, rsb);
+		rsb->pushRecords(request);
 		impure->irsb_flags |= irsb_checking_singular;
 		
 		//if (get_record(request, tdbb, rsb, parent_rsb, mode)) 
@@ -1079,13 +1089,15 @@ static BOOLEAN get_record(Request *request, thread_db*	tdbb,
 			ERR_post(isc_sing_select_err, 0);
 			}
 			
-		pop_rpbs(request, rsb);
+		//pop_rpbs(request, rsb);
+		rsb->popRecords(request);
 		impure->irsb_flags &= ~irsb_checking_singular;
 		impure->irsb_flags |= irsb_singular_processed;
 		}
 
 	return TRUE;
 }
+#endif // OBSOLETE
 
 #ifdef OBSOLETE
 static BOOLEAN fetch_record(Request *request, thread_db* tdbb, RecordSource* rsb, SSHORT n, RSE_GET_MODE mode)
@@ -1488,7 +1500,7 @@ static BOOLEAN fetch_left(Request *request, thread_db* tdbb, RecordSource* rsb, 
 #endif
 #endif // OBSOLETE
 
-
+#ifdef OBSOLETE
 static void pop_rpbs(JRD_REQ request, RecordSource* rsb)
 {
 /**************************************
@@ -1615,8 +1627,9 @@ static void pop_rpbs(JRD_REQ request, RecordSource* rsb)
 			BUGCHECK(166);	/* msg 166 invalid rsb type */
 		}
 }
+#endif
 
-
+#ifdef OBSOLETE
 static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb)
 {
 /**************************************
@@ -1751,6 +1764,7 @@ static void push_rpbs(thread_db* tdbb, JRD_REQ request, RecordSource* rsb)
 			BUGCHECK(166);	/* msg 166 invalid rsb type */
 		}
 }
+#endif // OBSOLETE
 
 
 static void restore_record(record_param * rpb)
@@ -1823,8 +1837,7 @@ static void save_record(thread_db* tdbb, record_param * rpb)
 			rpb->rpb_copy = rpb_copy = FB_NEW(*tdbb->tdbb_default) SaveRecordParam(); 
 
 		MOVE_FAST(rpb, rpb_copy->srpb_rpb, sizeof(struct record_param));
-		rpb_copy->srpb_rpb->rpb_record = rec_copy =
-			FB_NEW_RPT(*tdbb->tdbb_default, size) Record();
+		rpb_copy->srpb_rpb->rpb_record = rec_copy = FB_NEW_RPT(*tdbb->tdbb_default, size) Record();
 
 		rec_copy->rec_length = size;
 		rec_copy->rec_format = record->rec_format;
@@ -1894,4 +1907,75 @@ void RecordSource::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 {
 	if (rsb_next)
 		rsb_next->findRsbs(stream_list, rsb_list);
+}
+
+void RecordSource::saveRecord(Request* request, record_param* rpb)
+{
+	SaveRecordParam* rpb_copy;
+	Record* record = rpb->rpb_record;
+
+	if (record) 
+		{
+		SLONG size = record->rec_length;
+		Record* rec_copy;
+		
+		if ( (rpb_copy = rpb->rpb_copy) ) 
+			{
+			if ( (rec_copy = rpb_copy->srpb_rpb->rpb_record) )
+				delete rec_copy;
+			}
+		else
+			rpb->rpb_copy = rpb_copy = FB_NEW(*request->req_pool) SaveRecordParam(); 
+
+		MOVE_FAST(rpb, rpb_copy->srpb_rpb, sizeof(struct record_param));
+		rpb_copy->srpb_rpb->rpb_record = rec_copy = FB_NEW_RPT(*request->req_pool, size) Record();
+
+		rec_copy->rec_length = size;
+		rec_copy->rec_format = record->rec_format;
+		rec_copy->rec_number = record->rec_number;
+		MOVE_FAST(record->rec_data, rec_copy->rec_data, size);
+		}
+}
+
+void RecordSource::restoreRecord(record_param* rpb)
+{
+	Record* rec_copy;
+	SaveRecordParam* rpb_copy;
+
+	if ((rpb_copy = rpb->rpb_copy) && 
+		 (rec_copy = rpb_copy->srpb_rpb->rpb_record)) 
+		{
+		Record* record = rpb->rpb_record;
+		USHORT size = rec_copy->rec_length;
+		
+		if (!record || size > record->rec_length)
+			/* msg 284 cannot restore singleton select data */
+			BUGCHECK(284);
+			
+		record->rec_format = rec_copy->rec_format;
+		record->rec_number = rec_copy->rec_number;
+		MOVE_FAST(rec_copy->rec_data, record->rec_data, size);
+
+		MOVE_FAST(rpb_copy->srpb_rpb, rpb, sizeof(struct record_param));
+		rpb->rpb_record = record;
+
+		delete rec_copy;
+		}
+		
+	if (rpb_copy)
+		delete rpb_copy;
+
+	rpb->rpb_copy = NULL;
+}
+
+void RecordSource::pushRecords(Request* request)
+{
+	if (rsb_next)
+		rsb_next->pushRecords(request);
+}
+
+void RecordSource::popRecords(Request* request)
+{
+	if (rsb_next)
+		rsb_next->popRecords(request);
 }

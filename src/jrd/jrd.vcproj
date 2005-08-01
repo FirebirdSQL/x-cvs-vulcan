@@ -1719,6 +1719,9 @@
 				RelativePath=".\RsbBoolean.cpp">
 			</File>
 			<File
+				RelativePath=".\RsbCount.cpp">
+			</File>
+			<File
 				RelativePath=".\RsbCross.cpp">
 			</File>
 			<File
@@ -1750,6 +1753,9 @@
 			</File>
 			<File
 				RelativePath=".\RsbSequential.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbSingular.cpp">
 			</File>
 			<File
 				RelativePath=".\RsbSkip.cpp">
@@ -2280,10 +2286,10 @@
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2331,10 +2337,10 @@
 				RelativePath="blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\dsql\blk.h">
+				RelativePath="blk.h">
 			</File>
 			<File
-				RelativePath="blk.h">
+				RelativePath="..\dsql\blk.h">
 			</File>
 			<File
 				RelativePath="..\common\Blob.h">
@@ -3156,6 +3162,9 @@
 				RelativePath=".\RsbBoolean.h">
 			</File>
 			<File
+				RelativePath=".\RsbCount.h">
+			</File>
+			<File
 				RelativePath=".\RsbCross.h">
 			</File>
 			<File
@@ -3187,6 +3196,9 @@
 			</File>
 			<File
 				RelativePath=".\RsbSequential.h">
+			</File>
+			<File
+				RelativePath=".\RsbSingular.h">
 			</File>
 			<File
 				RelativePath=".\RsbSkip.h">

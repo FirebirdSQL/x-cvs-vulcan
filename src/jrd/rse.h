@@ -35,143 +35,17 @@
 #include "../jrd/dsc.h"
 #include "../jrd/lls.h"
 #include "../jrd/sbm.h"
-
 #include "RecordNumber.h"
+#include "RecordSource.h"
 
 class Procedure;
 
-// Record source block (RSB) types
+// Some optimizer flag bits
+
+static const int OPT_count		= 1;		// generate Rsb to count records
+static const int OPT_singular	= 2;		// generate Rsb to check record signularity
 
 /***
-enum rsb_t
-{
-	rsb_boolean,						// predicate (logical condition)
-	rsb_cross,							// inner join as a nested loop
-	rsb_first,							// retrieve first n records
-	rsb_skip,							// skip n records
-	rsb_indexed,						// access via an index
-	rsb_merge,							// join via a sort merge
-	rsb_sequential,						// natural scan access
-	rsb_sort,							// sort
-	rsb_union,							// union
-	rsb_aggregate,						// aggregation
-	rsb_ext_sequential,					// external sequential access
-	rsb_ext_indexed,					// external indexed access
-	rsb_ext_dbkey,						// external DB_KEY access
-	rsb_navigate,						// navigational walk on an index
-	rsb_left_cross,						// left outer join as a nested loop
-	rsb_procedure						// stored procedure
-};
-typedef rsb_t RSB_T;
-
-class Relation;
-
-// Array which stores relative pointers to impure areas of invariant nodes
-typedef firebird::SortedArray<SLONG> VarInvariantArray;
-typedef firebird::Array<VarInvariantArray*> MsgInvariantArray;
-
-// Record source block
-
-/***
-class RecordSource : public pool_alloc_rpt<class RecordSource*, type_rsb>
-{
-public:
-	RecordSource() : rsb_left_inner_streams(0),
-		rsb_left_streams(0), rsb_left_rsbs(0) { }
-	RSB_T rsb_type;						// type of rsb
-	UCHAR rsb_stream;					// stream, if appropriate
-	USHORT rsb_count;					// number of sub arguments
-	USHORT rsb_flags;
-	ULONG rsb_impure;					// offset to impure area
-	ULONG rsb_cardinality;				// estimated cardinality of stream
-	ULONG rsb_record_count;				// count of records returned from rsb (not candidate records processed)
-	RecordSource* rsb_next;				// next rsb, if appropriate
-	Relation* rsb_relation;				// relation, if appropriate
-	struct str*	rsb_alias;				// SQL alias for relation
-	Procedure* rsb_procedure;			// procedure, if appropriate
-	struct Format* rsb_format;			// format, if appropriate
-	struct jrd_nod* rsb_any_boolean;	// any/all boolean
-
-	// AP:	stop saving memory with the price of awful conversions,
-	//		later may be union will help this, because no ~ are
-	//		needed - pool destroyed as whole entity.
-	StreamStack*	rsb_left_inner_streams;
-	StreamStack*	rsb_left_streams;
-	RsbStack*		rsb_left_rsbs;
-	VarInvariantArray *rsb_invariants; // Invariant nodes bound to top-level RSB
-
-	RecordSource* rsb_arg[1];
-};
-***/
-
-#include "RecordSource.h"
-
-/***
-// bits for the rsb_flags field
-
-const USHORT rsb_singular = 1;			// singleton select, expect 0 or 1 records
-const USHORT rsb_stream_type = 2;		// rsb is for stream type request
-const USHORT rsb_descending = 4;		// an ascending index is being used for a descending sort or vice versa
-const USHORT rsb_project = 8;			// projection on this stream is requested
-const USHORT rsb_writelock = 16;		// records should be locked for writing
-
-// special argument positions within the RecordSource
-
-const int RSB_PRC_inputs		= 0;
-const int RSB_PRC_in_msg		= 1;
-const int RSB_PRC_count			= 2;
-
-const int RSB_NAV_index			= 0;
-const int RSB_NAV_inversion		= 1;
-const int RSB_NAV_key_length	= 2;
-const int RSB_NAV_idx_offset	= 3;
-const int RSB_NAV_count			= 4;
-
-const int RSB_LEFT_outer		= 0;
-const int RSB_LEFT_inner		= 1;
-const int RSB_LEFT_boolean		= 2;
-const int RSB_LEFT_inner_boolean	= 3;
-const int RSB_LEFT_count			= 4;
-***/
-
-
-// Impure area formats for the various RSB types
-
-struct irsb {
-	ULONG irsb_flags;
-	USHORT irsb_count;
-};
-
-typedef irsb *IRSB;
-
-/***
-struct irsb_first_n {
-	ULONG irsb_flags;
-	SLONG irsb_number;
-    SINT64 irsb_count;
-};
-
-typedef irsb_first_n *IRSB_FIRST;
-
-struct irsb_skip_n {
-    ULONG irsb_flags;
-    SLONG irsb_number;
-    SINT64 irsb_count;
-};
-
-typedef irsb_skip_n *IRSB_SKIP;
-
-struct irsb_index {
-	ULONG irsb_flags;
-	SLONG irsb_number;
-	SLONG irsb_prefetch_number;
-	RecordBitmap** irsb_bitmap;
-};
-
-typedef irsb_index *IRSB_INDEX;
-***/
-
-
 struct irsb_sim {
 	ULONG irsb_flags;
 	USHORT irsb_sim_rid;				// next relation id
@@ -185,81 +59,10 @@ typedef irsb_sim *IRSB_SIM;
 const ULONG irsb_sim_alias = 32;		// duplicate relation but w/o user name
 const ULONG irsb_sim_eos = 64;			// encountered end of stream
 const ULONG irsb_sim_active = 128;		// remote simulated stream request is active
+***/
 
 
-// impure area format for navigational rsb type,
-// which holds information used to get back to 
-// the current location within an index
 
-struct irsb_nav {
-	ULONG irsb_flags;
-	SLONG irsb_nav_expanded_offset;			// page offset of current index node on expanded index page
-	RecordNumber irsb_nav_number;			// last record number
-	SLONG irsb_nav_page;					// index page number
-	SLONG irsb_nav_incarnation;				// buffer/page incarnation counter
-	ULONG irsb_nav_count;					// record count of last record returned
-	RecordBitmap** irsb_nav_bitmap;			// bitmap for inversion tree
-	RecordBitmap* irsb_nav_records_visited;	// bitmap of records already retrieved
-	USHORT irsb_nav_offset;					// page offset of current index node
-	USHORT irsb_nav_lower_length;			// length of lower key value
-	USHORT irsb_nav_upper_length;			// length of upper key value
-	USHORT irsb_nav_length;					// length of expanded key
-	UCHAR irsb_nav_data[1];					// expanded key, upper bound, and index desc
-};
-
-typedef irsb_nav *IRSB_NAV;
-
-// flags for the irsb_flags field
-
-const ULONG irsb_first = 1;
-const ULONG irsb_joined = 2;				// set in left join when current record has been joined to something
-const ULONG irsb_mustread = 4;				// set in left join when must read a record from left stream
-const ULONG irsb_open = 8;					// indicated rsb is open
-const ULONG irsb_backwards = 16;			// backwards navigation has been performed on this stream
-const ULONG irsb_in_opened = 32;			// set in outer join when inner stream has been opened
-const ULONG irsb_join_full = 64;			// set in full join when left join has completed
-const ULONG irsb_checking_singular = 128;	// fetching to verify singleton select
-const ULONG irsb_singular_processed = 256;	// singleton stream already delivered one record
-const ULONG irsb_last_backwards = 512;		// rsb was last scrolled in the backward direction
-const ULONG irsb_bof = 1024;				// rsb is at beginning of stream
-const ULONG irsb_eof = 2048;				// rsb is at end of stream
-//const ULONG irsb_crack = 4096;				// the record at our current position is missing
-//const ULONG irsb_forced_crack = 8192;		// the above-mentioned crack was forced by user
-//const ULONG irsb_refresh = 16384;			// enter records into refresh range
-const ULONG irsb_key_changed = 32768;		// key has changed since record last returned from rsb
-
-
-// Sort map block
-
-struct smb_repeat {
-	DSC smb_desc;				// relative descriptor
-	USHORT smb_flag_offset;		// offset of missing flag
-	USHORT smb_stream;			// stream for field id
-	SSHORT smb_field_id;		// id for field (-1 if dbkey)
-	struct jrd_nod *smb_node;	// expression node
-};
-
-class SortMap : public pool_alloc_rpt<smb_repeat, type_smb>
-{
-public:
-	USHORT smb_keys;			// number of keys
-	USHORT smb_count;			// total number of fields
-	USHORT smb_length;			// sort record length
-	USHORT smb_key_length;		// key length in longwords
-	struct sort_key_def* smb_key_desc;	// address of key descriptors
-	USHORT smb_flags;			// misc sort flags
-    smb_repeat smb_rpt[1];
-};
-
-// values for smb_field_id
-
-const SSHORT SMB_DBKEY = -1;	// dbkey value
-const SSHORT SMB_TRANS_ID = -2;	// transaction id of record
-
-// bits for the smb_flags field
-
-const USHORT SMB_project = 1;	// sort is really a project
-const USHORT SMB_tag = 2;		// beast is a tag sort
 
 
 // Blocks used to compute optimal join order:
@@ -277,6 +80,7 @@ public:
 
 
 // Must be less then MAX_SSHORT. Not used for static arrays.
+
 #define MAX_CONJUNCTS	32000
 
 // Note that MAX_STREAMS currently MUST be <= MAX_UCHAR.
@@ -284,16 +88,19 @@ public:
 // limit is NOT negotiable so long as we use an array of UCHAR, where index 0
 // tells how many streams are in the array (and the streams themselves are
 // identified by a UCHAR).
+
 #define MAX_STREAMS	255
 
 // This is number of ULONG's needed to store bit-mapped flags for all streams
 // OPT_STREAM_BITS = (MAX_STREAMS + 1) / sizeof(ULONG)
 // This value cannot be increased simple way. Decrease is possible, but it is also
 // hardcoded in several places such as TEST_DEP_ARRAYS macro
+
 #define OPT_STREAM_BITS 8
 
 // Number of streams, conjuncts, indices that will be statically allocated 
 // in various arrays. Larger numbers will have to be allocated dynamically
+
 #define OPT_STATIC_ITEMS 16
 
 class CompilerScratch;

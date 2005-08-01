@@ -225,3 +225,16 @@ void RsbLeftCross::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 	innerRsb->findRsbs(stream_list, rsb_list);
 	outerRsb->findRsbs(stream_list, rsb_list);
 }
+
+
+void RsbLeftCross::pushRecords(Request* request)
+{
+	outerRsb->pushRecords(request);
+	innerRsb->pushRecords(request);
+}
+
+void RsbLeftCross::popRecords(Request* request)
+{
+	outerRsb->popRecords(request);
+	innerRsb->popRecords(request);
+}

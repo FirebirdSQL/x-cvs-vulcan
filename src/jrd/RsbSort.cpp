@@ -249,3 +249,45 @@ bool RsbSort::reject(const UCHAR* record_a, const UCHAR* record_b, void* user_ar
 {
 	return true;
 }
+
+void RsbSort::pushRecords(Request* request)
+{
+	SSHORT i, streams[128];
+	smb_repeat * item, *end_item;
+
+	for (i = 0; i < request->req_count; i++)
+		streams[i] = 0;
+		
+	end_item = map->smb_rpt + map->smb_count;
+	
+	for (item = map->smb_rpt; item < end_item; item++)
+		streams[item->smb_stream] = 1;
+		
+	for (i = 0; i < request->req_count; i++)
+		if (streams[i]) 
+			{
+			record_param *rpb = request->req_rpb + i;
+			saveRecord(request, rpb);
+			}
+}
+
+void RsbSort::popRecords(Request* request)
+{
+	SSHORT i, streams[128];
+	smb_repeat * item, *end_item;
+
+	for (i = 0; i < request->req_count; i++)
+		streams[i] = 0;
+		
+	end_item = map->smb_rpt + map->smb_count;
+	
+	for (item = map->smb_rpt; item < end_item; item++)
+		streams[item->smb_stream] = 1;
+		
+	for (i = 0; i < request->req_count; i++)
+		if (streams[i]) 
+			{
+			record_param *rpb = request->req_rpb + i;
+			restoreRecord(rpb);
+			}
+}

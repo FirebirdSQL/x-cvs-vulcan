@@ -42,12 +42,14 @@ public:
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual void close(Request* request);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
+	virtual void pushRecords(Request* request);
+	virtual void popRecords(Request* request);
+	void joinToNulls(Request* request, StreamStack* stream);
 	
 	jrd_nod			*innerBoolean;
 	jrd_nod			*outerBoolean;
 	RecordSource	*innerRsb;
 	RecordSource	*outerRsb;
-	void joinToNulls(Request* request, StreamStack* stream);
 };
 
 #endif
