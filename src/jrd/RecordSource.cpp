@@ -144,8 +144,8 @@ void RecordSource::init(void)
 	rsb_left_streams = NULL;
 	rsb_left_rsbs = NULL;
 	rsb_next = NULL;
-	rsb_flags = NULL;
-	rsb_impure = NULL;
+	rsb_flags = 0;
+	rsb_impure = 0;
 	rsb_relation = NULL;
 	rsb_alias = NULL;
 	rsb_record_count = 0;			// this is a bug!!!!

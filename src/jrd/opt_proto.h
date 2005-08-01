@@ -30,7 +30,7 @@
 #include "../jrd/lls.h"
 
 class RecordSource;
-const Request;
+class Request;
 
 struct jrd_nod;
 struct OptimizerBlk;
