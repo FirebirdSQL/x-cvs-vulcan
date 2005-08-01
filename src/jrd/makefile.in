@@ -2339,7 +2339,8 @@ nav.o: nav.cpp ../include/firebird.h ../include/gen/autoconfig.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/gds_proto.h \
   ../jrd/mov_proto.h ../jrd/nav_proto.h ../jrd/rng_proto.h \
   ../jrd/thd_proto.h ../jrd/vio_proto.h PageCache.h que.h sbm.h Bdb.h \
-  RsbNavigate.h RsbIndexed.h RsbSequential.h RecordSource.h
+  RsbNavigate.h RsbIndexed.h RsbSequential.h RecordSource.h \
+  RecordNumber.h
 nbak.o: nbak.cpp ../include/firebird.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
   ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
@@ -2393,20 +2394,20 @@ opt.o: opt.cpp ../include/firebird.h ../include/gen/autoconfig.h \
   ../common/classes/sparse_bitmap.h ../jrd/Procedure.h ../jrd/align.h \
   ../jrd/val.h ../jrd/req.h ../jrd/exe.h ../jrd/nod.h ../jrd/rse.h \
   ../jrd/constants.h ../jrd/RecordNumber.h ../jrd/RecordSource.h \
-  ../jrd/err_proto.h ../jrd/Request.h ../jrd/ods.h ../jrd/btr.h \
-  ../jrd/sort.h ../jrd/fil.h ../jrd/intl.h ../intl/charsets.h \
-  ../jrd/all_proto.h ../jrd/btr_proto.h ../jrd/cch_proto.h \
-  ../jrd/cmp_proto.h ../jrd/CompilerScratch.h ../jrd/dpm_proto.h \
-  ../jrd/ext_proto.h ../jrd/intl_proto.h ../jrd/intl_classes.h \
-  ../jrd/intlobj.h ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/lck_proto.h \
-  ../jrd/lck.h ../jrd/met_proto.h ../jrd/jrn.h ../jrd/blob_filter.h \
-  ../jrd/mov_proto.h ../jrd/opt_proto.h ../jrd/par_proto.h \
-  ../jrd/thd_proto.h ../jrd/gds_proto.h ../jrd/dbg_proto.h \
-  ../common/classes/objects_array.h PageCache.h que.h sbm.h \
-  ../jrd/Optimizer.h RsbProcedure.h RecordSource.h RsbSort.h RsbMerge.h \
-  RsbCross.h RsbLeftCross.h RsbBoolean.h RsbSequential.h RsbIndexed.h \
-  RsbUnion.h RsbNavigate.h RsbWriteLock.h RsbAggregate.h RsbFirst.h \
-  RsbSkip.h
+  ../jrd/err_proto.h ../jrd/Request.h ../jrd/ods.h ../jrd/sort.h \
+  ../jrd/fil.h ../jrd/intl.h ../intl/charsets.h ../jrd/all_proto.h \
+  ../jrd/btr_proto.h ../jrd/btr.h ../jrd/cch_proto.h ../jrd/cmp_proto.h \
+  ../jrd/CompilerScratch.h ../jrd/dpm_proto.h ../jrd/ext_proto.h \
+  ../jrd/intl_proto.h ../jrd/intl_classes.h ../jrd/intlobj.h \
+  ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/lck_proto.h ../jrd/lck.h \
+  ../jrd/met_proto.h ../jrd/jrn.h ../jrd/blob_filter.h ../jrd/mov_proto.h \
+  ../jrd/opt_proto.h ../jrd/par_proto.h ../jrd/thd_proto.h \
+  ../jrd/gds_proto.h ../jrd/dbg_proto.h ../common/classes/objects_array.h \
+  PageCache.h que.h sbm.h ../jrd/Optimizer.h RsbProcedure.h \
+  RecordSource.h RsbSort.h dsc.h RsbMerge.h RsbCross.h RsbLeftCross.h \
+  RsbBoolean.h RsbSequential.h RsbIndexed.h RsbUnion.h RsbNavigate.h \
+  RecordNumber.h RsbWriteLock.h RsbAggregate.h RsbFirst.h RsbSkip.h \
+  RsbCount.h RsbSingular.h
 Optimizer.o: Optimizer.cpp ../include/firebird.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
@@ -2798,7 +2799,7 @@ RecordSource.o: RecordSource.cpp ../include/firebird.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/exe_proto.h \
   ../jrd/dpm_proto.h ../jrd/rlck_proto.h ../jrd/mov_proto.h ../jrd/val.h \
   ../jrd/vio_proto.h ../jrd/intl_proto.h ../jrd/nav_proto.h RsbMerge.h \
-  RsbSort.h RsbLeftCross.h RsbAggregate.h RsbCross.h RsbIndexed.h \
+  RsbSort.h dsc.h RsbLeftCross.h RsbAggregate.h RsbCross.h RsbIndexed.h \
   RsbSequential.h CompilerScratch.h
 RefObject.o: RefObject.cpp ../include/firebird.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
@@ -2949,6 +2950,25 @@ RsbBoolean.o: RsbBoolean.cpp ../include/firebird.h \
   ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h ../jrd/err_proto.h \
   ../jrd/RecordNumber.h ../jrd/evl_proto.h ../jrd/intl_classes.h \
   ../jrd/intlobj.h ../jrd/CsConvert.h ../jrd/CharSet.h
+RsbCount.o: RsbCount.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h MemoryManager.h RsbCount.h \
+  RecordSource.h ../common/classes/array.h ../jrd/jrd_blks.h ../jrd/blk.h \
+  ../include/fb_blk.h MemMgr.h Mutex.h SynchronizationObject.h \
+  SyncObject.h lls.h Stack.h jrd.h ../jrd/dsc.h ../jrd/all.h ../jrd/jrd.h \
+  ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/Sync.h ../jrd/lls.h \
+  ../jrd/MemMgr.h ../include/fb_vector.h ../jrd/thd.h ../jrd/isc.h \
+  ../jrd/AsyncEvent.h Database.h thd.h isc.h AsyncEvent.h JVector.h \
+  JString.h ../config/ConfObj.h RefObject.h LinkedList.h DVector.h \
+  SVector.h OSRIBugcheck.h OSRIException.h SIVector.h Sync.h \
+  ../lock/LockMgr.h ../jrd/file_params.h Thread.h Synchronize.h \
+  DatabaseManager.h Attachment.h Trigger.h old_vector.h que.h Symb.h \
+  tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h \
+  ../common/classes/sparse_bitmap.h RecordNumber.h common.h Request.h \
+  jrd_blks.h CompilerScratch.h sbm.h
 RsbCross.o: RsbCross.cpp ../include/firebird.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
@@ -3116,15 +3136,15 @@ RsbMerge.o: RsbMerge.cpp ../include/firebird.h \
   ../jrd/Error.h ../common/classes/vector.h MemoryManager.h RsbMerge.h \
   RecordSource.h ../common/classes/array.h ../jrd/jrd_blks.h ../jrd/blk.h \
   ../include/fb_blk.h MemMgr.h Mutex.h SynchronizationObject.h \
-  SyncObject.h lls.h Stack.h RsbSort.h jrd.h ../jrd/dsc.h ../jrd/all.h \
-  ../jrd/jrd.h ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/Sync.h \
-  ../jrd/lls.h ../jrd/MemMgr.h ../include/fb_vector.h ../jrd/thd.h \
-  ../jrd/isc.h ../jrd/AsyncEvent.h Database.h thd.h isc.h AsyncEvent.h \
-  JVector.h JString.h ../config/ConfObj.h RefObject.h LinkedList.h \
-  DVector.h SVector.h OSRIBugcheck.h OSRIException.h SIVector.h Sync.h \
-  ../lock/LockMgr.h ../jrd/file_params.h Thread.h Synchronize.h \
-  DatabaseManager.h Attachment.h Trigger.h old_vector.h que.h Symb.h \
-  tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h \
+  SyncObject.h lls.h Stack.h RsbSort.h dsc.h jrd.h ../jrd/dsc.h \
+  ../jrd/all.h ../jrd/jrd.h ../jrd/block_cache.h ../jrd/Mutex.h \
+  ../jrd/Sync.h ../jrd/lls.h ../jrd/MemMgr.h ../include/fb_vector.h \
+  ../jrd/thd.h ../jrd/isc.h ../jrd/AsyncEvent.h Database.h thd.h isc.h \
+  AsyncEvent.h JVector.h JString.h ../config/ConfObj.h RefObject.h \
+  LinkedList.h DVector.h SVector.h OSRIBugcheck.h OSRIException.h \
+  SIVector.h Sync.h ../lock/LockMgr.h ../jrd/file_params.h Thread.h \
+  Synchronize.h DatabaseManager.h Attachment.h Trigger.h old_vector.h \
+  que.h Symb.h tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h \
   ../common/classes/sparse_bitmap.h RecordNumber.h common.h Request.h \
   jrd_blks.h Procedure.h Relation.h Interlock.h sbm.h CompilerScratch.h \
   req.h ../jrd/exe.h ../jrd/SVector.h ../include/gen/iberror.h \
@@ -3143,19 +3163,20 @@ RsbNavigate.o: RsbNavigate.cpp ../include/firebird.h \
   RsbIndexed.h RsbSequential.h RecordSource.h ../common/classes/array.h \
   ../jrd/jrd_blks.h ../jrd/blk.h ../include/fb_blk.h MemMgr.h Mutex.h \
   SynchronizationObject.h SyncObject.h lls.h Stack.h sbm.h \
-  ../common/classes/sparse_bitmap.h jrd.h ../jrd/dsc.h ../jrd/all.h \
-  ../jrd/jrd.h ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/Sync.h \
-  ../jrd/lls.h ../jrd/MemMgr.h ../include/fb_vector.h ../jrd/thd.h \
-  ../jrd/isc.h ../jrd/AsyncEvent.h Database.h thd.h isc.h AsyncEvent.h \
-  JVector.h JString.h ../config/ConfObj.h RefObject.h LinkedList.h \
-  DVector.h SVector.h OSRIBugcheck.h OSRIException.h SIVector.h Sync.h \
-  ../lock/LockMgr.h ../jrd/file_params.h Thread.h Synchronize.h \
-  DatabaseManager.h Attachment.h Trigger.h old_vector.h que.h Symb.h \
-  tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h RecordNumber.h common.h \
-  Request.h jrd_blks.h CompilerScratch.h Relation.h Interlock.h req.h \
-  ../jrd/exe.h ../jrd/SVector.h ../include/gen/iberror.h ../jrd/nod.h \
-  ../jrd/rse.h ../jrd/err_proto.h ../jrd/RecordNumber.h btr.h \
-  ../jrd/cmp_proto.h ../jrd/CompilerScratch.h ../jrd/nav_proto.h
+  ../common/classes/sparse_bitmap.h RecordNumber.h common.h jrd.h \
+  ../jrd/dsc.h ../jrd/all.h ../jrd/jrd.h ../jrd/block_cache.h \
+  ../jrd/Mutex.h ../jrd/Sync.h ../jrd/lls.h ../jrd/MemMgr.h \
+  ../include/fb_vector.h ../jrd/thd.h ../jrd/isc.h ../jrd/AsyncEvent.h \
+  Database.h thd.h isc.h AsyncEvent.h JVector.h JString.h \
+  ../config/ConfObj.h RefObject.h LinkedList.h DVector.h SVector.h \
+  OSRIBugcheck.h OSRIException.h SIVector.h Sync.h ../lock/LockMgr.h \
+  ../jrd/file_params.h Thread.h Synchronize.h DatabaseManager.h \
+  Attachment.h Trigger.h old_vector.h que.h Symb.h tdbb.h rse.h \
+  ../jrd/constants.h ../jrd/sbm.h Request.h jrd_blks.h CompilerScratch.h \
+  Relation.h Interlock.h req.h ../jrd/exe.h ../jrd/SVector.h \
+  ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h ../jrd/err_proto.h \
+  ../jrd/RecordNumber.h btr.h ../jrd/cmp_proto.h ../jrd/CompilerScratch.h \
+  ../jrd/nav_proto.h
 RsbProcedure.o: RsbProcedure.cpp ../include/firebird.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
@@ -3197,10 +3218,30 @@ RsbSequential.o: RsbSequential.cpp ../include/firebird.h \
   que.h Symb.h tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h \
   ../common/classes/sparse_bitmap.h RecordNumber.h common.h Request.h \
   jrd_blks.h CompilerScratch.h sbm.h PageCache.h Relation.h Interlock.h \
-  RsbSort.h req.h ../jrd/exe.h ../jrd/SVector.h ../include/gen/iberror.h \
-  ../jrd/nod.h ../jrd/rse.h ../jrd/err_proto.h ../jrd/RecordNumber.h \
-  ../jrd/cmp_proto.h ../jrd/CompilerScratch.h ../jrd/dpm_proto.h \
-  ../jrd/rlck_proto.h ../jrd/vio_proto.h
+  RsbSort.h dsc.h req.h ../jrd/exe.h ../jrd/SVector.h \
+  ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h ../jrd/err_proto.h \
+  ../jrd/RecordNumber.h ../jrd/cmp_proto.h ../jrd/CompilerScratch.h \
+  ../jrd/dpm_proto.h ../jrd/rlck_proto.h ../jrd/vio_proto.h
+RsbSingular.o: RsbSingular.cpp ../include/firebird.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
+  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h MemoryManager.h RsbSingular.h \
+  RecordSource.h ../common/classes/array.h ../jrd/jrd_blks.h ../jrd/blk.h \
+  ../include/fb_blk.h MemMgr.h Mutex.h SynchronizationObject.h \
+  SyncObject.h lls.h Stack.h jrd.h ../jrd/dsc.h ../jrd/all.h ../jrd/jrd.h \
+  ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/Sync.h ../jrd/lls.h \
+  ../jrd/MemMgr.h ../include/fb_vector.h ../jrd/thd.h ../jrd/isc.h \
+  ../jrd/AsyncEvent.h Database.h thd.h isc.h AsyncEvent.h JVector.h \
+  JString.h ../config/ConfObj.h RefObject.h LinkedList.h DVector.h \
+  SVector.h OSRIBugcheck.h OSRIException.h SIVector.h Sync.h \
+  ../lock/LockMgr.h ../jrd/file_params.h Thread.h Synchronize.h \
+  DatabaseManager.h Attachment.h Trigger.h old_vector.h que.h Symb.h \
+  tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h \
+  ../common/classes/sparse_bitmap.h RecordNumber.h common.h Request.h \
+  jrd_blks.h CompilerScratch.h sbm.h ../include/gen/iberror.h \
+  ../jrd/err_proto.h
 RsbSkip.o: RsbSkip.cpp ../include/firebird.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
   ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
@@ -3232,12 +3273,12 @@ RsbSort.o: RsbSort.cpp ../include/firebird.h ../include/gen/autoconfig.h \
   ../common/classes/vector.h MemoryManager.h RsbSort.h RecordSource.h \
   ../common/classes/array.h ../jrd/jrd_blks.h ../jrd/blk.h \
   ../include/fb_blk.h MemMgr.h Mutex.h SynchronizationObject.h \
-  SyncObject.h lls.h Stack.h jrd.h ../jrd/dsc.h ../jrd/all.h ../jrd/jrd.h \
-  ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/Sync.h ../jrd/lls.h \
-  ../jrd/MemMgr.h ../include/fb_vector.h ../jrd/thd.h ../jrd/isc.h \
-  ../jrd/AsyncEvent.h Database.h thd.h isc.h AsyncEvent.h JVector.h \
-  JString.h ../config/ConfObj.h RefObject.h LinkedList.h DVector.h \
-  SVector.h OSRIBugcheck.h OSRIException.h SIVector.h Sync.h \
+  SyncObject.h lls.h Stack.h dsc.h jrd.h ../jrd/dsc.h ../jrd/all.h \
+  ../jrd/jrd.h ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/Sync.h \
+  ../jrd/lls.h ../jrd/MemMgr.h ../include/fb_vector.h ../jrd/thd.h \
+  ../jrd/isc.h ../jrd/AsyncEvent.h Database.h thd.h isc.h AsyncEvent.h \
+  JVector.h JString.h ../config/ConfObj.h RefObject.h LinkedList.h \
+  DVector.h SVector.h OSRIBugcheck.h OSRIException.h SIVector.h Sync.h \
   ../lock/LockMgr.h ../jrd/file_params.h Thread.h Synchronize.h \
   DatabaseManager.h Attachment.h Trigger.h old_vector.h que.h Symb.h \
   tdbb.h rse.h ../jrd/constants.h ../jrd/sbm.h \
