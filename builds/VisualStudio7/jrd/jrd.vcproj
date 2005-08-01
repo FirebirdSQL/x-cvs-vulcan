@@ -1693,6 +1693,9 @@
 				RelativePath="..\..\..\src\jrd\RsbBoolean.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbCount.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbCross.cpp">
 			</File>
 			<File
@@ -1724,6 +1727,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSequential.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSingular.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSkip.cpp">
@@ -2240,10 +2246,10 @@
 				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\all.h">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\all.h">
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\all_proto.h">
@@ -2291,10 +2297,10 @@
 				RelativePath="..\..\..\src\jrd\blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\blk.h">
+				RelativePath="..\..\..\src\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\blk.h">
+				RelativePath="..\..\..\src\jrd\blk.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\common\Blob.h">
@@ -3128,6 +3134,9 @@
 				RelativePath="..\..\..\src\jrd\RsbBoolean.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbCount.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbCross.h">
 			</File>
 			<File
@@ -3159,6 +3168,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSequential.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSingular.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbSkip.h">
@@ -3398,10 +3410,10 @@
 				RelativePath="..\..\..\src\jrd\Triggers.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
+				RelativePath="..\..\..\src\jrd\types.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\types.h">
+				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\UserData.h">
