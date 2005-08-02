@@ -78,7 +78,7 @@ using namespace NAMESPACE;
 
 // 
 #if defined(SUPERSERVER) || defined(WIN_NT)
-#define SERVER_SHUTDOWN		1
+//#define SERVER_SHUTDOWN		1
 #endif
 
 // Check if we need thread synchronization

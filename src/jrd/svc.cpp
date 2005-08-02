@@ -888,9 +888,9 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
  *	Provide information on service object
  *
  **************************************/
-	UCHAR item;
-	char buffer[MAXPATHLEN];
-	USHORT l, length, version, get_flags;
+	UCHAR	item;
+	TEXT	buffer[MAXPATHLEN];
+	USHORT	l, length, version, get_flags;
 
 	THREAD_EXIT;
 
@@ -1091,8 +1091,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 					}
 
 				/* Note: it is safe to use strlen to get a length of "buffer"
-				because gds_prefix[_lock|_msg] return a zero-terminated
-				string
+				  because gds_prefix[_lock|_msg] return a zero-terminated
+				   string
 				*/
 				 
 				info = INF_put_item(item, (int) strlen(buffer), buffer, info, end);
@@ -1221,49 +1221,58 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 					
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
-				service_get(service, buffer, 2, GET_BINARY, 0, &length);
-				l =(USHORT) gds__vax_integer(reinterpret_cast<UCHAR*>(buffer), 2);
+				service_get(service, (UCHAR*) buffer, 2, GET_BINARY, 0, &length);
+				l = (USHORT) gds__vax_integer(reinterpret_cast<UCHAR*>(buffer), 2);
 				length = MIN(end - (info + 5), l);
 				service_get(service, info + 3, length, GET_BINARY, 0, &length);
 				info = INF_put_item(item, length, info + 3, info, end);
-				if (length != l) {
+				
+				if (length != l) 
+					{
 					*info++ = isc_info_truncated;
 					l -= length;
-					if (l > service->svc_resp_buf_len) {
+					
+					if (l > service->svc_resp_buf_len) 
+						{
 						THREAD_ENTER;
+						
 						if (service->svc_resp_buf)
 							gds__free((SLONG *) service->svc_resp_buf);
+							
 						service->svc_resp_buf = (UCHAR *) gds__alloc((SLONG) l);
+						
 						/* FREE: in SVC_detach() */
-						if (!service->svc_resp_buf) {	/* NOMEM: */
+						
+						if (!service->svc_resp_buf) 
+							{	/* NOMEM: */
 							DEV_REPORT("SVC_query: out of memory");
 							/* NOMEM: not really handled well */
 							l = 0;	/* set the length to zero */
-						}
+							}
+							
 						service->svc_resp_buf_len = l;
 						THREAD_EXIT;
-					}
-					service_get(service,
-								reinterpret_cast < char *>(service->svc_resp_buf),
-								l, GET_BINARY, 0, &length);
+						}
+						
+					service_get(service, (UCHAR*) service->svc_resp_buf, l, GET_BINARY, 0, &length);
 					service->svc_resp_ptr = service->svc_resp_buf;
 					service->svc_resp_len = l;
-				}
+					}
 				break;
 
 			case isc_info_svc_response_more:
 				if ( (l = length = service->svc_resp_len) )
 					length = MIN(end - (info + 5), l);
-				if (!
-					(info =
-					INF_put_item(item, length,
-								reinterpret_cast <
-								char *>(service->svc_resp_ptr), info, end))) {
+					
+				if (!(info = INF_put_item(item, length, service->svc_resp_ptr, info, end))) 
+					{
 					THREAD_ENTER;
 					return 0;
-				}
+					}
+					
 				service->svc_resp_ptr += length;
 				service->svc_resp_len -= length;
+				
 				if (length != l)
 					*info++ = isc_info_truncated;
 				break;
@@ -1271,25 +1280,26 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 			case isc_info_svc_total_length:
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
-				service_get(service, buffer, 2, GET_BINARY, 0, &length);
-				l =
-					(USHORT) gds__vax_integer(reinterpret_cast <
-											UCHAR*>(buffer), 2);
-				service_get(service, buffer, l, GET_BINARY, 0, &length);
-				if (!(info = INF_put_item(item, length, buffer, info, end))) {
+				service_get(service, (UCHAR*) buffer, 2, GET_BINARY, 0, &length);
+				l = (USHORT) gds__vax_integer(buffer, 2);
+				service_get(service, (UCHAR*) buffer, l, GET_BINARY, 0, &length);
+				
+				if (!(info = INF_put_item(item, length, buffer, info, end))) 
+					{
 					THREAD_ENTER;
 					return 0;
-				}
+					}
 				break;
 
 			case isc_info_svc_line:
 			case isc_info_svc_to_eof:
 			case isc_info_svc_limbo_trans:
 			case isc_info_svc_get_users:
-				if (info + 4 >= end) {
+				if (info + 4 >= end) 
+					{
 					*info++ = isc_info_truncated;
 					break;
-				}
+					}
 
 				if (item == isc_info_svc_line)
 					get_flags = GET_LINE;
@@ -1298,8 +1308,7 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 				else
 					get_flags = GET_BINARY;
 
-				service_get(service, info + 3, end - (info + 5), get_flags,
-							timeout, &length);
+				service_get(service, info + 3, end - (info + 5), get_flags, timeout, &length);
 
 				/* If the read timed out, return the data, if any, & a timeout
 				item.  If the input buffer was not large enough
@@ -1346,12 +1355,12 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 }
 
 void SVC_query(Service*		service,
-			   USHORT	send_item_length,
-			   const SCHAR*	send_items,
-			   USHORT	recv_item_length,
-			   const SCHAR*	recv_items,
-			   USHORT	buffer_length,
-			   SCHAR*	info)
+			   USHORT		send_item_length,
+			   const UCHAR*	send_items,
+			   USHORT		recv_item_length,
+			   const UCHAR*	recv_items,
+			   USHORT		buffer_length,
+			   UCHAR*		info)
 {
 /**************************************
  *
@@ -1363,57 +1372,58 @@ void SVC_query(Service*		service,
  *	Provide information on service object.
  *
  **************************************/
-	SCHAR item, *p;
-	char buffer[256];
-	TEXT PathBuffer[MAXPATHLEN];
+	UCHAR	item, *p;
+	char	buffer[256];
+	TEXT	PathBuffer[MAXPATHLEN];
 	USHORT l, length, version, get_flags;
-	USHORT timeout;
 
 	THREAD_EXIT;
 
-/* Process the send portion of the query first. */
+	/* Process the send portion of the query first. */
 
-	timeout = 0;
-	const SCHAR* items = send_items;
-	const SCHAR* const end_items = items + send_item_length;
+	USHORT timeout = 0;
+	const UCHAR* items = send_items;
+	const UCHAR* const end_items = items + send_item_length;
+	
 	while (items < end_items && *items != isc_info_end)
-	{
-		switch ((item = *items++))
 		{
-		case isc_info_end:
-			break;
-
-		default:
-			if (items + 2 <= end_items)
+		switch ((item = *items++))
 			{
-				l = (USHORT) gds__vax_integer(reinterpret_cast<const UCHAR*>(items), 2);
-				items += 2;
-				if (items + l <= end_items)
-				{
-					switch (item) {
-					case isc_info_svc_line:
-						service_put(service, items, l);
-						break;
-					case isc_info_svc_message:
-						service_put(service, items - 3, l + 3);
-						break;
-					case isc_info_svc_timeout:
-						timeout =
-							(USHORT) gds__vax_integer(reinterpret_cast<const UCHAR*>(items), l);
-						break;
-					case isc_info_svc_version:
-						version =
-							(USHORT) gds__vax_integer(reinterpret_cast<const UCHAR*>(items), l);
-						break;
-					}
+			case isc_info_end:
+				break;
+
+			default:
+				if (items + 2 <= end_items)
+					{
+					l = (USHORT) gds__vax_integer(reinterpret_cast<const UCHAR*>(items), 2);
+					items += 2;
+					
+					if (items + l <= end_items)
+						switch (item) 
+							{
+							case isc_info_svc_line:
+								service_put(service, items, l);
+								break;
+								
+							case isc_info_svc_message:
+								service_put(service, items - 3, l + 3);
+								break;
+								
+							case isc_info_svc_timeout:
+								timeout = (USHORT) gds__vax_integer(reinterpret_cast<const UCHAR*>(items), l);
+								break;
+								
+							case isc_info_svc_version:
+								version = (USHORT) gds__vax_integer(reinterpret_cast<const UCHAR*>(items), l);
+								break;
+							}
+					items += l;
 				}
-				items += l;
+				else
+					items += 2;
+				break;
 			}
-			else
-				items += 2;
-			break;
 		}
-	}
 
 /* Process the receive portion of the query now. */
 
@@ -2502,9 +2512,9 @@ static void service_get(Service* service,
  **************************************/
 	SHORT iter;
 	SLONG n = 0L;
-	SCHAR *buf = buffer;
+	UCHAR *buf = buffer;
 	USHORT bytes_read;
-/* Kludge for PeekNamedPipe to work on Win NT 3.5 */
+	/* Kludge for PeekNamedPipe to work on Win NT 3.5 */
 	UCHAR temp_buf[600];
 	DWORD temp_len;
 	BOOLEAN windows_nt = ISC_is_WinNT();
@@ -2513,78 +2523,89 @@ static void service_get(Service* service,
 	service->svc_flags &= ~SVC_timeout;
 	is_service_running(service);
 
-		if (timeout) {
+	if (timeout) 
+		{
 		/* If a timeout period was given, check every .1 seconds to see if
 		   input is available from the pipe.  When something shows up, read
 		   what's available until all data has been read, or timeout occurs.
 		   Otherwise, set the timeout flag and return.
 		   Fall out of the loop if a BROKEN_PIPE error occurs.
 		 */
+		 
 		iter = timeout * 10;
-		while ((iter--) && ((buf - buffer) < length)) {
+		
+		while ((iter--) && ((buf - buffer) < length)) 
+			{
 			/* PeekNamedPipe sometimes return wrong &n, need to get real
 			   length from &temp_len until it works */
+			   
 			if (windows_nt
-				&& !PeekNamedPipe((HANDLE) service->svc_input, temp_buf, 600,
-								  &temp_len, (ULONG*) &n, NULL))
+				&& !PeekNamedPipe((HANDLE) service->svc_input, temp_buf, 600, &temp_len, (ULONG*) &n, NULL))
 				{
-				if (GetLastError() == ERROR_BROKEN_PIPE) {
+				if (GetLastError() == ERROR_BROKEN_PIPE) 
+					{
 					service->svc_flags |= SVC_finished;
 					break;
-				}
+					}
+					
 				io_error("PeekNamedPipe", GetLastError(), "service pipe",
 						 isc_io_read_err, TRUE);
-			}
-			else {
+				}
+			else 
+				{
 				DWORD dwCurrentFilePosition;
+				
 				/* Set the file pointer to the beginning of the file if we are at the end of the
 				   file. */
+				   
 				temp_len = GetFileSize(service->svc_input, NULL);
-				dwCurrentFilePosition =
-					SetFilePointer(service->svc_input, 0, NULL, FILE_CURRENT);
+				dwCurrentFilePosition = SetFilePointer(service->svc_input, 0, NULL, FILE_CURRENT);
 
 				if (temp_len && temp_len == dwCurrentFilePosition)
 					SetFilePointer(service->svc_input, 0, NULL, FILE_BEGIN);
-			}
+				}
 
-			if (temp_len) {
+			if (temp_len) 
+				{
 				/* If data is available, read as much as will fit in buffer */
+				
 				temp_len = MIN(temp_len, length - (buf - buffer));
-				bytes_read =
-					service_read(service, buf, (USHORT) temp_len, flags);
+				bytes_read = service_read(service, buf, (USHORT) temp_len, flags);
 				buf += bytes_read;
 
-				if (bytes_read < temp_len
-					|| service->svc_flags & SVC_finished) 
-				{
+				if (bytes_read < temp_len || service->svc_flags & SVC_finished) 
+					{
 					/* We stopped w/out reading full length, must have hit
 					   a newline or special character. */
 					break;
+					}
 				}
-			}
-			else {
+			else 
+				{
+				
 				/* PeekNamedPipe() is not returning ERROR_BROKEN_PIPE in WIN95. So,
 				   we are going to use WaitForSingleObject() to check if the process
 				   on the other end of the pipe is still active. */
-				if (!windows_nt &&
-					WaitForSingleObject((HANDLE) service->svc_handle,
+				   
+				if (!windows_nt && WaitForSingleObject((HANDLE) service->svc_handle,
 										1) != WAIT_TIMEOUT)
-				{
+					{
 					service->svc_flags |= SVC_finished;
 					break;
-				}
+					}
 
 				/* No data, so wait a while */
 				Sleep(100);
+				}
 			}
-		}
+			
 		/* If we timed out, set the appropriate flags */
+		
 		if (iter < 0 && !(service->svc_flags & SVC_finished))
 			service->svc_flags |= SVC_timeout;
-	}
-	else {
+		}
+	else 
 		buf += service_read(service, buf, length, flags);
-	}
 
 	*return_length = buf - buffer;
 }
