@@ -45,36 +45,35 @@ struct serv
 
 typedef serv *SERV;
 
-
-class Service : public pool_alloc<type_svc>
+class Service// : public pool_alloc<type_svc>
 {
 public:
 	Service();
-	virtual ~Service();
-	SLONG	svc_handle;			/* "handle" of process/thread running service */
-	ISC_STATUS*	svc_status;			/* status vector for svc_handle */
-	void*	svc_input;			/* input to service */
-	void*	svc_output;			/* output from service */
-	ULONG	svc_stdout_head;
-	ULONG	svc_stdout_tail;
-	UCHAR*	svc_stdout;
-	TEXT**	svc_argv;
-	ULONG	svc_argc;
-	AsyncEvent	svc_start_event[1];	/* fired once service has started successfully */
-	const struct serv*	svc_service;
-	UCHAR*	svc_resp_buf;
-	UCHAR*	svc_resp_ptr;
-	USHORT	svc_resp_buf_len;
-	USHORT	svc_resp_len;
-	USHORT	svc_flags;
-	USHORT	svc_user_flag;
-	USHORT	svc_spb_version;
-	BOOLEAN	svc_do_shutdown;
-	TEXT	svc_username[33];
-	TEXT	svc_enc_password[MAX_PASSWORD_ENC_LENGTH];
-	TEXT	svc_reserved[1];
-	TEXT*	svc_switches;
-
+	virtual		~Service();
+	SLONG			svc_handle;			/* "handle" of process/thread running service */
+	//ISC_STATUS*	svc_status;			/* status vector for svc_handle */
+	ISC_STATUS		svc_status[ISC_STATUS_LENGTH];
+	void*			svc_input;			/* input to service */
+	void*			svc_output;			/* output from service */
+	ULONG			svc_stdout_head;
+	ULONG			svc_stdout_tail;
+	UCHAR*			svc_stdout;
+	TEXT**			svc_argv;
+	ULONG			svc_argc;
+	AsyncEvent		svc_start_event[1];	/* fired once service has started successfully */
+	const serv*		svc_service;
+	UCHAR*			svc_resp_buf;
+	UCHAR*			svc_resp_ptr;
+	USHORT			svc_resp_buf_len;
+	USHORT			svc_resp_len;
+	USHORT			svc_flags;
+	USHORT			svc_user_flag;
+	USHORT			svc_spb_version;
+	BOOLEAN			svc_do_shutdown;
+	TEXT			svc_username[33];
+	TEXT			svc_enc_password[MAX_PASSWORD_ENC_LENGTH];
+	TEXT			svc_reserved[1];
+	TEXT*			svc_switches;
 };
 
 

@@ -31,7 +31,7 @@ int		INF_blob_info(const struct blb*, const UCHAR*, const SSHORT,
 						UCHAR*, const SSHORT);
 USHORT	INF_convert(SLONG, UCHAR*);
 int		INF_database_info(thread_db* tdbb, const UCHAR*, const SSHORT, UCHAR*, const SSHORT);
-UCHAR*	INF_put_item(UCHAR, USHORT, const UCHAR*, UCHAR*, const UCHAR*);
+UCHAR*	INF_put_item(UCHAR, USHORT, const void*, UCHAR*, const UCHAR*);
 int		INF_request_info(thread_db* tdbb, Request*, const UCHAR*, const SSHORT,
 						UCHAR*, const SSHORT);
 int		INF_transaction_info(const Transaction*, const UCHAR*, const SSHORT,

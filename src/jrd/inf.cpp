@@ -709,7 +709,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 
 
 UCHAR* INF_put_item(UCHAR item,
-					USHORT length, const UCHAR* string, UCHAR* ptr,
+					USHORT length, const void* string, UCHAR* ptr,
 					const UCHAR* end)
 {
 /**************************************
@@ -725,19 +725,22 @@ UCHAR* INF_put_item(UCHAR item,
  *
  **************************************/
 
-	if (ptr + length + 4 >= end) {
+	if (ptr + length + 4 >= end) 
+		{
 		*ptr = isc_info_truncated;
 		return NULL;
-	}
+		}
 
 	// Typically, in other places, STUFF_WORD is applied to UCHAR*
+	
 	*ptr++ = item;
 	STUFF_WORD(ptr, length);
 
-	if (length) {
+	if (length) 
+		{
 		MEMMOVE(string, ptr, length);
 		ptr += length;
-	}
+		}
 
 	return ptr;
 }

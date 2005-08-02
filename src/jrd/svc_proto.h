@@ -26,16 +26,16 @@
 
 class Service;
 
-Service* SVC_attach(USHORT, const TEXT*, USHORT, const SCHAR*);
+struct tdbb;
+
+Service* SVC_attach(USHORT, const TEXT*, USHORT, const UCHAR*);
 void   SVC_cleanup(Service *);
 void   SVC_detach(Service *);
 void   SVC_fprintf(Service*, const SCHAR*, ...);
 void   SVC_putc(Service*, const UCHAR);
-void   SVC_query(Service*, USHORT, const SCHAR*, USHORT, const SCHAR*,
-	USHORT, SCHAR*);
-ISC_STATUS SVC_query2(Service*, struct tdbb*, USHORT, const SCHAR*,
-	USHORT, const SCHAR*, USHORT, SCHAR*);
-void*  SVC_start(Service*, USHORT, const SCHAR*);
+void   SVC_query(Service*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
+ISC_STATUS SVC_query2(Service*, tdbb*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
+void*  SVC_start(Service*, USHORT, const UCHAR*);
 void   SVC_finish(Service*, USHORT);
 int   SVC_read_ib_log(Service*);
 const TEXT* SVC_err_string(const TEXT*, USHORT);
