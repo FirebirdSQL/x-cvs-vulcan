@@ -1,3 +1,43 @@
+2005-08-01 22:04  jimstarkey
+
+	* vulcan/src/jrd/makefile.in:
+	
+	Updated dependencies
+
+2005-08-01 21:57  jimstarkey
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Another pass at the Rsb type hierarchy, implemented RsbCount and
+	RsbSignular.
+
+2005-08-01 21:54  jimstarkey
+
+	* vulcan/src/jrd/: RecordSource.cpp, RsbSingular.h, opt_proto.h:
+	
+	A typo and a tweak for portability
+
+2005-08-01 21:46  jimstarkey
+
+	* vulcan/src/jrd/: CompilerScratch.h, Optimizer.h,
+	RecordSource.cpp, RecordSource.h, RsbAggregate.cpp, RsbAggregate.h,
+	RsbCross.cpp, RsbCross.h, RsbIndexed.cpp, RsbLeftCross.cpp,
+	RsbLeftCross.h, RsbMerge.cpp, RsbMerge.h, RsbNavigate.h,
+	RsbProcedure.cpp, RsbProcedure.h, RsbSequential.cpp,
+	RsbSequential.h, RsbSort.cpp, RsbSort.h, RsbUnion.cpp, RsbUnion.h,
+	RsbWriteLock.cpp, cmp.cpp, exe.cpp, jrd.vcproj, nav.cpp, opt.cpp,
+	opt_proto.h, rse.h, vio.cpp, RsbCount.cpp, RsbCount.h,
+	RsbSingular.cpp, RsbSingular.h, vio_proto.h:
+	
+	Another pass at the Rsb type hierarchy, implemented RsbCount and
+	RsbSignular.
+
+2005-07-31 16:14  arnobrinkman
+
+	* vulcan/src/dsql/make.cpp:
+	
+	Fix mistake, noticed by Claudio
+
 2005-07-30 16:47  arnobrinkman
 
 	* vulcan/builds/VisualStudio7/: Databases/Databases.vcproj,
