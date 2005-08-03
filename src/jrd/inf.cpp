@@ -266,11 +266,13 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 			break;
 #else
 		case isc_info_current_memory:
-			length = INF_convert(MemoryPool::process_current_memory, buffer);
+			//length = INF_convert(MemoryPool::process_current_memory, buffer);
+			length = INF_convert(getDefaultMemoryManager()->currentMemory, buffer);
 			break;
 
 		case isc_info_max_memory:
-			length = INF_convert(MemoryPool::process_max_memory, buffer);
+			//length = INF_convert(MemoryPool::process_max_memory, buffer);
+			length = INF_convert(getDefaultMemoryManager()->maxMemory, buffer);
 			break;
 #endif
 
@@ -382,13 +384,17 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 			{
 			const char *string = tdbb->tdbb_attachment->att_filename;
 			STUFF(p, 2);
-			*p++ = l = strlen (string);
+			*p++ = l = (SSHORT) strlen (string);
+			
 			for (q = string; *q;)
 				*p++ = *q++;
+				
 			ISC_get_host(site, sizeof(site));
-			*p++ = l = strlen(site);
+			*p++ = l = (SSHORT) strlen(site);
+			
 			for (q = site; *q;)
 				*p++ = *q++;
+				
 			length = p - buffer;
 			}
 			break;
@@ -463,10 +469,13 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 					{
 					const char* user_name = (!user->usr_user_name.IsEmpty()) ?
 						(const char *)user->usr_user_name : "(SQL Server)";
+						
 					p = buffer;
-					*p++ = l = strlen (user_name);
+					*p++ = l = (SSHORT) strlen (user_name);
+					
 					for (q = user_name; l; l--)
 						*p++ = *q++;
+						
 					length = p - buffer;
                     info = INF_put_item(item, length, buffer, info, end);
 					if (!info) 
@@ -745,6 +754,24 @@ UCHAR* INF_put_item(UCHAR item,
 	return ptr;
 }
 
+UCHAR* INF_put_item(UCHAR item, const char *text, UCHAR* ptr, const UCHAR* end)
+{
+/**************************************
+ *
+ *	I N F _ p u t _ i t e m
+ *
+ **************************************
+ *
+ * Functional description
+ *	Put information item in output buffer if there is room, and
+ *	return an updated pointer.  If there isn't room for the item,
+ *	indicate truncation and return NULL.
+ *
+ **************************************/
+
+	return INF_put_item(item, (USHORT) strlen(text), text, ptr, end);
+}
+
 
 int INF_request_info(thread_db* tdbb, Request* request,
 					 const UCHAR* items,
@@ -848,21 +875,22 @@ int INF_request_info(thread_db* tdbb, Request* request,
 			if (!(request->req_flags & req_active) ||
 				(request->req_operation != req_receive &&
 				request->req_operation != req_send))
-			{
+				{
 				buffer_ptr[0] = item;
 				item = isc_info_error;
 				length = 1 + INF_convert(isc_infinap, buffer_ptr + 1);
 				break;
-			}
+				}
+				
 			node = request->req_message;
+			
 			if (item == isc_info_message_number)
-				length =
-					INF_convert((long) node->nod_arg[e_msg_number],
-								buffer_ptr);
-			else {
+				length = INF_convert((long)(IPTR) node->nod_arg[e_msg_number], buffer_ptr);
+			else	
+				{
 				format = (Format*) node->nod_arg[e_msg_format];
 				length = INF_convert(format->fmt_length, buffer_ptr);
-			}
+				}
 			break;
 
 		case isc_info_request_cost:

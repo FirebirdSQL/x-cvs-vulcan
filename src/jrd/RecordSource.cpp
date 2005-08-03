@@ -56,6 +56,7 @@
 #include "../jrd/vio_proto.h"
 #include "../jrd/intl_proto.h"
 #include "../jrd/nav_proto.h"
+#include "../jrd/err_proto.h"
 #include "RsbMerge.h"
 #include "RsbSort.h"
 #include "RsbLeftCross.h"

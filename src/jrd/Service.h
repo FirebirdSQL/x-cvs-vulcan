@@ -12,7 +12,7 @@
 #include "../jrd/jrd_blks.h"
 #include "../include/fb_blk.h"
 #include "AsyncEvent.h"
-//#include "../include/fb_vector.h"
+#include "JString.h"
 
 #ifndef MAX_PASSWORD_ENC_LENGTH
 #define MAX_PASSWORD_ENC_LENGTH 12
@@ -50,11 +50,10 @@ class Service// : public pool_alloc<type_svc>
 public:
 	Service();
 	virtual		~Service();
-	SLONG			svc_handle;			/* "handle" of process/thread running service */
-	//ISC_STATUS*	svc_status;			/* status vector for svc_handle */
 	ISC_STATUS		svc_status[ISC_STATUS_LENGTH];
-	void*			svc_input;			/* input to service */
-	void*			svc_output;			/* output from service */
+	HANDLE			svc_handle;			/* "handle" of process/thread running service */
+	HANDLE			svc_input;			/* input to service */
+	HANDLE			svc_output;			/* output from service */
 	ULONG			svc_stdout_head;
 	ULONG			svc_stdout_tail;
 	UCHAR*			svc_stdout;
@@ -70,10 +69,14 @@ public:
 	USHORT			svc_user_flag;
 	USHORT			svc_spb_version;
 	BOOLEAN			svc_do_shutdown;
-	TEXT			svc_username[33];
-	TEXT			svc_enc_password[MAX_PASSWORD_ENC_LENGTH];
+	//TEXT			svc_enc_password[MAX_PASSWORD_ENC_LENGTH];
 	TEXT			svc_reserved[1];
 	TEXT*			svc_switches;
+	JString			encryptedPassword;
+	JString			userName;
+	
+	void setEncryptedPassword(const char* password);
+	void setPassword(const char * password);
 };
 
 

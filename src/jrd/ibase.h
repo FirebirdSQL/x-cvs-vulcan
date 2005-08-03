@@ -611,7 +611,7 @@ void ISC_EXPORT isc_event_counts(ISC_ULONG*,
 								 const char *);
 
 /* 17 May 2001 - isc_expand_dpb is DEPRECATED */
-void ISC_EXPORT_VARARG isc_expand_dpb(char**,
+void ISC_EXPORT_VARARG isc_expand_dpb(UCHAR**,
 									  short*, ...);
 
 int ISC_EXPORT isc_modify_dpb(char**,

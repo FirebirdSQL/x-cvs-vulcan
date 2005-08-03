@@ -35,11 +35,12 @@ void   SVC_fprintf(Service*, const SCHAR*, ...);
 void   SVC_putc(Service*, const UCHAR);
 void   SVC_query(Service*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
 ISC_STATUS SVC_query2(Service*, tdbb*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
-void*  SVC_start(Service*, USHORT, const UCHAR*);
+void  SVC_start(Service*, USHORT, const UCHAR*);
 void   SVC_finish(Service*, USHORT);
 int   SVC_read_ib_log(Service*);
-const TEXT* SVC_err_string(const TEXT*, USHORT);
+//const TEXT* SVC_err_string(const TEXT*, USHORT);
 int SVC_output(Service*, const UCHAR*);
+void SVC_post(ISC_STATUS status, ...);
 
 #ifdef SERVER_SHUTDOWN
 typedef void (*shutdown_fct_t) (ULONG);

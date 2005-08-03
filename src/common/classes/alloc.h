@@ -431,7 +431,7 @@ namespace firebird
 			{ return (char*) pool->allocate(n, 0, __FILE__, __LINE__); }
 #else
 		pointer allocate(size_type s, const void* = 0)
-			{ return (pointer) this->pool->allocate(sizeof(T) * s, 0); }
+			{ return (pointer) this->pool->allocate((int) (sizeof(T) * s), 0); }
 		char* _Charalloc(size_type n)
 			{ return (char*) this->pool->allocate(n, 0); }
 #endif

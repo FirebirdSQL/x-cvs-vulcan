@@ -107,3 +107,8 @@ bool InfoGen::putInt(int value)
 
 	return putShort (value >> 16);
 }
+
+bool InfoGen::putByte(UCHAR item, UCHAR stuff)
+{
+	return put(item, 1, &stuff);
+}

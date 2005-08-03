@@ -97,76 +97,111 @@ class Array : protected Storage {
 public:
 	explicit Array(MemoryPool& p) : 
 		Storage(p), count(0), capacity(this->getStorageSize()), data(this->getStorage()) {}
+		
 	Array(MemoryPool& p, int InitialCapacity) : 
-		Storage(p), count(0), capacity(this->getStorageSize()), data(this->getStorage())
-	{
+		Storage(p), count(0), capacity((int) this->getStorageSize()), data(this->getStorage())
+		{
 		ensureCapacity(InitialCapacity);
-	}
+		}
+		
 	explicit Array(MemoryPool* p) : 
-		Storage(*p), count(0), capacity(this->getStorageSize()), data(this->getStorage()) {}
+		Storage(*p), count(0), capacity((int) this->getStorageSize()), data(this->getStorage()) {}
+		
 	Array(MemoryPool* p, int InitialCapacity) : 
-		Storage(*p), count(0), capacity(this->getStorageSize()), data(this->getStorage())
-	{
+		Storage(*p), count(0), capacity((int) this->getStorageSize()), data(this->getStorage())
+		{
 		ensureCapacity(InitialCapacity);
-	}
+		}
+		
 	Array() : count(0), 
-		capacity(this->getStorageSize()), data(this->getStorage()) { }
+		capacity((int) this->getStorageSize()), data(this->getStorage()) { }
+		
 	explicit Array(int InitialCapacity) : count(0),
-		capacity(this->getStorageSize()), data(this->getStorage())
-	{
+		capacity((int) this->getStorageSize()), data(this->getStorage())
+		{
 		ensureCapacity(InitialCapacity);
-	}
+		}
+		
 	~Array()
-	{
+		{
 		freeData();
-	}
-	void clear() { count = 0; }
+		}
+		
+	void clear() 
+		{ 
+		count = 0; 
+		}
+		
 protected:
-	T& getElement(int index) const {
+	T& getElement(int index) const 
+		{
   		fb_assert(index < count);
   		return data[index];
-	}
-	T& getElement(int index) {
+		}
+	
+	T& getElement(int index) 
+		{
   		fb_assert(index < count);
   		return data[index];
-	}
+		}
+	
 	void freeData()
-	{
+		{
 		if (data != this->getStorage())
 			this->getPool().deallocate(data);
-	}
+		}
+		
 public:
 	Array<T, Storage>& operator =(const Array<T, Storage>& L) 
-	{
+		{
 		ensureCapacity(L.count);
 		memcpy(data, L.data, sizeof(T) * L.count);
 		count = L.count;
 		return *this;
-	}
-	const T& operator[](int index) const {
+		}
+		
+	const T& operator[](int index) const 
+		{
   		return getElement(index);
-	}
-	T& operator[](int index) {
+		}
+		
+	T& operator[](int index) 
+		{
   		return getElement(index);
-	}
-	const T& front() const {
+		}
+		
+	const T& front() const 
+		{
   		fb_assert(count > 0);
 		return *data;
-	}
-	const T& back() const {
+		}
+		
+	const T& back() const 
+		{
   		fb_assert(count > 0);
 		return *(data + count - 1);
-	}
-	const T* begin() const { return data; }
-	const T* end() const { return data + count; }
-	T& front() {
+		}
+		
+	const T* begin() const 
+		{ 
+		return data; 
+		}
+	const T* end() const 
+		{ 
+		return data + count; 
+		}
+	T& front() 
+		{
   		fb_assert(count > 0);
 		return *data;
-	}
-	T& back() {
+		}
+		
+	T& back() 
+		{
   		fb_assert(count > 0);
 		return *(data + count - 1);
-	}
+		}
+		
 	T* begin() { return data; }
 	T* end() { return data + count; }
 	void insert(int index, const T& item) {

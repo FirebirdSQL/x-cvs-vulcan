@@ -47,7 +47,7 @@ typedef enum nod_t {
 #include "../jrd/dsc.h"
 #include "../jrd/rse.h"
 
-#include "../jrd/err_proto.h"
+//#include "../jrd/err_proto.h"
 
 // This macro enables DSQL tracing code
 //#define CMP_DEBUG

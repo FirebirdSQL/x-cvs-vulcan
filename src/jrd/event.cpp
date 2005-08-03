@@ -764,7 +764,8 @@ static SLONG create_process(void)
 	if (gds__thread_start
 		(reinterpret_cast < FPTR_INT_VOID_PTR > (watcher_thread), NULL,
 		 THREAD_medium, THREAD_blast, 0))
-		ERR_bugcheck_msg("cannot start thread");
+		//ERR_bugcheck_msg("cannot start thread");
+		throw OSRIBugcheck (isc_bug_check, isc_arg_string, "cannot start thread", 0);
 #endif
 
 	return EVENT_process_offset;

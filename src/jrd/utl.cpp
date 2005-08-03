@@ -345,7 +345,7 @@ int API_ROUTINE gds__blob_size(
 
 
 // 17 May 2001 - isc_expand_dpb is DEPRECATED
-void API_ROUTINE_VARARG isc_expand_dpb(SCHAR** dpb, SSHORT* dpb_size, ...)
+void API_ROUTINE_VARARG isc_expand_dpb(UCHAR** dpb, SSHORT* dpb_size, ...)
 {
 /**************************************
  *
@@ -371,72 +371,72 @@ void API_ROUTINE_VARARG isc_expand_dpb(SCHAR** dpb, SSHORT* dpb_size, ...)
  *
  **************************************/
 	SSHORT	length;
-	char*	p = 0;
-	const char*	q;
+	UCHAR*	p = 0;
+	const UCHAR*	q;
 	va_list	args;
 	USHORT	type;
 	UCHAR* new_dpb;
 
-/* calculate length of database parameter block,
-   setting initial length to include version */
+	/* calculate length of database parameter block,
+	   setting initial length to include version */
 
    	SSHORT new_dpb_length;
+   	
 	if (!*dpb || !(new_dpb_length = *dpb_size))
-	{
 		new_dpb_length = 1;
-	}
 
 	VA_START(args, dpb_size);
 
 	while (type = va_arg(args, int))
-	{
-		switch (type)
 		{
-		case isc_dpb_user_name:
-		case isc_dpb_password:
-		case isc_dpb_sql_role_name:
-		case isc_dpb_lc_messages:
-		case isc_dpb_lc_ctype:
-		case isc_dpb_reserved:
-			q = va_arg(args, char*);
-			if (q)
+		switch (type)
 			{
-				length = strlen(q);
-				new_dpb_length += 2 + length;
+			case isc_dpb_user_name:
+			case isc_dpb_password:
+			case isc_dpb_sql_role_name:
+			case isc_dpb_lc_messages:
+			case isc_dpb_lc_ctype:
+			case isc_dpb_reserved:
+				q = va_arg(args, UCHAR*);
+				
+				if (q)
+					{
+					length = (SSHORT) strlen((const char*) q);
+					new_dpb_length += 2 + length;
+					}
+				break;
+
+			default:
+				va_arg(args, int);
+				break;
 			}
-			break;
-
-		default:
-			va_arg(args, int);
-			break;
 		}
-	}
 
-/* if items have been added, allocate space
-   for the new dpb and copy the old one over */
+	/* if items have been added, allocate space
+	   for the new dpb and copy the old one over */
 
 	if (new_dpb_length > *dpb_size)
-	{
+		{
 		/* Note: gds__free done by GPRE generated code */
 
 		new_dpb = (UCHAR*)gds__alloc((SLONG)(sizeof(UCHAR) * new_dpb_length));
-		p = reinterpret_cast<char*>(new_dpb);
+		p = new_dpb;
+		
 		/* FREE: done by client process in GPRE generated code */
+		
 		if (!new_dpb)
-		{			/* NOMEM: don't trash existing dpb */
+			{			/* NOMEM: don't trash existing dpb */
 			DEV_REPORT("isc_extend_dpb: out of memory");
 			return;				/* NOMEM: not really handled */
-		}
+			}
 
 		q = *dpb;
+		
 		for (length = *dpb_size; length; length--)
-		{
 			*p++ = *q++;
 		}
-
-	}
 	else
-	{
+		{
 	    // CVC: Notice this case is new_dpb_length <= *dpb_size, but since
 	    // we have new_dpb_length = MAX(*dpb_size, 1) our case is reduced
 	    // to new_dpb_length == *dpb_size. Therefore, this code is a waste
@@ -446,48 +446,51 @@ void API_ROUTINE_VARARG isc_expand_dpb(SCHAR** dpb, SSHORT* dpb_size, ...)
 	    // is positioned exactly at the end, so if something was added at the
 		// tail, it would be a memory failure, unless the caller lies and is
 		// always passing a dpb bigger than *dpb_size.
-		new_dpb = reinterpret_cast<UCHAR*>(*dpb);
-		p = reinterpret_cast<char*>(new_dpb + *dpb_size);
-	}
+		
+		new_dpb = *dpb;
+		p = new_dpb + *dpb_size;
+		}
 
 	if (!*dpb_size)
 		*p++ = isc_dpb_version1;
 
-/* copy in the new runtime items */
+	/* copy in the new runtime items */
 
 	VA_START(args, dpb_size);
 
 	while (type = va_arg(args, int))
-	{
-		switch (type)
 		{
-		case isc_dpb_user_name:
-		case isc_dpb_password:
-		case isc_dpb_sql_role_name:
-		case isc_dpb_lc_messages:
-		case isc_dpb_lc_ctype:
-		case isc_dpb_reserved:
-			q = va_arg(args, char*);
-			if (q)
+		switch (type)
 			{
-				length = strlen(q);
-				fb_assert(type <= CHAR_MAX);
-				*p++ = (char) type;
-				fb_assert(length <= CHAR_MAX);
-				*p++ = (char) length;
-				while (length--)
-					*p++ = *q++;
+			case isc_dpb_user_name:
+			case isc_dpb_password:
+			case isc_dpb_sql_role_name:
+			case isc_dpb_lc_messages:
+			case isc_dpb_lc_ctype:
+			case isc_dpb_reserved:
+				q = va_arg(args, UCHAR*);
+				
+				if (q)
+					{
+					length = (SSHORT) strlen((const char*) q);
+					fb_assert(type <= CHAR_MAX);
+					*p++ = (char) type;
+					fb_assert(length <= CHAR_MAX);
+					*p++ = (char) length;
+					
+					while (length--)
+						*p++ = *q++;
+				}
+				break;
+
+			default:
+				va_arg(args, int);
+				break;
 			}
-			break;
-
-		default:
-			va_arg(args, int);
-			break;
 		}
-	}
 
-	*dpb_size = p - reinterpret_cast<char*>(new_dpb);
-	*dpb = reinterpret_cast<SCHAR*>(new_dpb);
+	*dpb_size = p - new_dpb;
+	*dpb = new_dpb;
 }
 
 
@@ -730,29 +733,37 @@ SLONG API_ROUTINE gds__event_block(SCHAR ** event_buffer,
 
 	VA_START(ptr, count);
 
-/* calculate length of event parameter block, 
-   setting initial length to include version
-   and counts for each argument */
+	/* calculate length of event parameter block, 
+	   setting initial length to include version
+	   and counts for each argument */
 
 	length = 1;
 	i = count;
-	while (i--) {
+	
+	while (i--) 
+		{
 		q = va_arg(ptr, SCHAR *);
-		length += strlen(q) + 5;
-	}
+		length += (SLONG) strlen(q) + 5;
+		}
 
-	p = *event_buffer =
-		(SCHAR *) gds__alloc((SLONG) (sizeof(SCHAR) * length));
-/* FREE: unknown */
+	p = *event_buffer = (SCHAR *) gds__alloc((SLONG) (sizeof(SCHAR) * length));
+	
+	/* FREE: unknown */
+	
 	if (!*event_buffer)			/* NOMEM: */
 		return 0;
+		
 	*result_buffer = (SCHAR *) gds__alloc((SLONG) (sizeof(SCHAR) * length));
-/* FREE: unknown */
-	if (!*result_buffer) {		/* NOMEM: */
+	
+	/* FREE: unknown */
+	
+	if (!*result_buffer) 
+		{		/* NOMEM: */
 		gds__free(*event_buffer);
 		*event_buffer = NULL;
+		
 		return 0;
-	}
+		}
 
 #ifdef DEBUG_GDS_ALLOC
 /* I can't find anywhere these items are freed */
@@ -1040,7 +1051,6 @@ void API_ROUTINE isc_set_debug(int value)
  *
  **************************************/
 
-#pragma FB_COMPILER_MESSAGE("Empty function?!")
 }
 #endif
 
@@ -1139,7 +1149,7 @@ BOOLEAN API_ROUTINE isc_set_path(const TEXT* file_name,
 	if (!(pathname = getenv("ISC_PATH")))
 		return FALSE;
 
-	int orgLength = (file_length) ? file_length : strlen (file_name);
+	int orgLength = (file_length) ? file_length : (int) strlen (file_name);
 	const TEXT *p = file_name, *end = file_name + orgLength;
 
 	while (p < end)
@@ -1367,31 +1377,37 @@ void API_ROUTINE isc_format_implementation(
  * 	by looking up their values in the internal tables.
  *
  **************************************/
-	if (ibuflen > 0) {
+ 
+	if (ibuflen > 0) 
+		{
 		if (implementation >= FB_NELEM(impl_implementation) ||
 			!(impl_implementation[implementation])) 
-		{
+			{
 			strncpy(ibuf, "**unknown**", ibuflen - 1);
 			ibuf[MIN(11, ibuflen - 1)] = '\0';
-		}
-		else {
+			}
+		else 
+			{
 			strncpy(ibuf, impl_implementation[implementation], ibuflen - 1);
-			const int len = strlen(impl_implementation[implementation]);
+			const int len = (int)strlen(impl_implementation[implementation]);
 			ibuf[MIN(len, ibuflen - 1)] = '\0';
+			}
 		}
-	}
 
-	if (cbuflen > 0) {
-		if (class_ >= FB_NELEM(impl_class) || !(impl_class[class_])) {
+	if (cbuflen > 0) 
+		{
+		if (class_ >= FB_NELEM(impl_class) || !(impl_class[class_])) 
+			{
 			strncpy(cbuf, "**unknown**", cbuflen - 1);
 			ibuf[MIN(11, cbuflen - 1)] = '\0';
-		}
-		else {
+			}
+		else 
+			{
 			strncpy(cbuf, impl_class[class_], cbuflen - 1);
-			const int len = strlen(impl_class[class_]);
+			const int len = (int) strlen(impl_class[class_]);
 			ibuf[MIN(len, cbuflen - 1)] = '\0';
+			}
 		}
-	}
 
 }
 
@@ -2269,67 +2285,67 @@ static void isc_expand_dpb_internal(const UCHAR** dpb, SSHORT* dpb_size, ...)
 	USHORT	type;
 	UCHAR* new_dpb;
 
-/* calculate length of database parameter block,
-   setting initial length to include version */
+	/* calculate length of database parameter block,
+	   setting initial length to include version */
 
 	SSHORT new_dpb_length;
+	
 	if (!*dpb || !(new_dpb_length = *dpb_size))
-	{
 		new_dpb_length = 1;
-	}
 
 	va_start(args, dpb_size);
 
 	while (type = va_arg(args, int))
-	{
-		switch (type)
 		{
-		case isc_dpb_user_name:
-		case isc_dpb_password:
-		case isc_dpb_sql_role_name:
-		case isc_dpb_lc_messages:
-		case isc_dpb_lc_ctype:
-		case isc_dpb_reserved:
-			q = va_arg(args, char*);
-			if (q)
+		switch (type)
 			{
-				length = strlen(q);
-				new_dpb_length += 2 + length;
-			}
-			break;
+			case isc_dpb_user_name:
+			case isc_dpb_password:
+			case isc_dpb_sql_role_name:
+			case isc_dpb_lc_messages:
+			case isc_dpb_lc_ctype:
+			case isc_dpb_reserved:
+				q = va_arg(args, char*);
+				
+				if (q)
+					{
+					length = (SSHORT) strlen(q);
+					new_dpb_length += 2 + length;
+					}
+				break;
 
-		default:
-			va_arg(args, int);
-			break;
+			default:
+				va_arg(args, int);
+				break;
+			}
 		}
-	}
+		
 	va_end(args);
 
-/* if items have been added, allocate space
-   for the new dpb and copy the old one over */
+	/* if items have been added, allocate space
+	   for the new dpb and copy the old one over */
 
 	if (new_dpb_length > *dpb_size)
-	{
+		{
 		/* Note: gds__free done by GPRE generated code */
 
 		new_dpb = (UCHAR*)gds__alloc((SLONG)(sizeof(UCHAR) * new_dpb_length));
 		p = new_dpb;
 		/* FREE: done by client process in GPRE generated code */
+		
 		if (!new_dpb)
-		{			/* NOMEM: don't trash existing dpb */
+			{			/* NOMEM: don't trash existing dpb */
 			DEV_REPORT("isc_extend_dpb: out of memory");
 			return;				/* NOMEM: not really handled */
-		}
+			}
 
 		uq = *dpb;
+		
 		for (length = *dpb_size; length; length--)
-		{
 			*p++ = *uq++;
 		}
-
-	}
 	else
-	{
+		{
 		// CVC: Notice the initialization is: new_dpb_length = *dpb_size
 		// Therefore, the worst case is new_dpb_length == *dpb_size
 		// Also, if *dpb_size == 0, then new_dpb_length is set to 1,
@@ -2340,43 +2356,46 @@ static void isc_expand_dpb_internal(const UCHAR** dpb, SSHORT* dpb_size, ...)
 		// than the original length simply can't happen. Therefore,
 		// the input can be declared const.
 		return;
-	}
+		}
 
 	if (!*dpb_size)
 		*p++ = isc_dpb_version1;
 
-/* copy in the new runtime items */
+	/* copy in the new runtime items */
 
 	va_start(args, dpb_size);
 
 	while (type = va_arg(args, int))
-	{
-		switch (type)
 		{
-		case isc_dpb_user_name:
-		case isc_dpb_password:
-		case isc_dpb_sql_role_name:
-		case isc_dpb_lc_messages:
-		case isc_dpb_lc_ctype:
-		case isc_dpb_reserved:
-		    q = va_arg(args, char*);
-			if (q)
+		switch (type)
 			{
-				length = strlen(q);
-				fb_assert(type <= CHAR_MAX);
-				*p++ = (unsigned char) type;
-				fb_assert(length <= CHAR_MAX);
-				*p++ = (unsigned char) length;
-				while (length--)
-					*p++ = *q++;
-			}
-			break;
+			case isc_dpb_user_name:
+			case isc_dpb_password:
+			case isc_dpb_sql_role_name:
+			case isc_dpb_lc_messages:
+			case isc_dpb_lc_ctype:
+			case isc_dpb_reserved:
+				q = va_arg(args, char*);
+			    
+				if (q)
+					{
+					length = (SSHORT) strlen(q);
+					fb_assert(type <= CHAR_MAX);
+					*p++ = (unsigned char) type;
+					fb_assert(length <= CHAR_MAX);
+					*p++ = (unsigned char) length;
+					
+					while (length--)
+						*p++ = *q++;
+					}
+				break;
 
-		default:
-			va_arg(args, int);
-			break;
+			default:
+				va_arg(args, int);
+				break;
+			}
 		}
-	}
+		
 	va_end(args);
 
 	*dpb_size = p - new_dpb;

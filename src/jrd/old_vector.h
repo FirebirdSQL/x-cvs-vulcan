@@ -36,7 +36,7 @@ public:
 		}
 		
 	// CVC: THis should be size_t instead of ULONG for maximum portability.
-	ULONG count() const { return vector.size(); }
+	ULONG count() const { return (ULONG) vector.size(); }
 	T& operator[](size_t index) { return vector[index]; }
 	const T& operator[](size_t index) const { return vector[index]; }
 

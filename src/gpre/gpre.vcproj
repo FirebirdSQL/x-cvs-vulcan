@@ -290,6 +290,9 @@
 				RelativePath="..\jrd\isc.h">
 			</File>
 			<File
+				RelativePath="..\jrd\isc_proto.h">
+			</File>
+			<File
 				RelativePath=".\jrdme_proto.h">
 			</File>
 			<File

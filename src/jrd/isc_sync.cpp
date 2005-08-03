@@ -3713,13 +3713,17 @@ void ISC_unmap_file(ISC_STATUS * status_vector,
  **************************************/
 
 	CloseHandle(shmem_data->sh_mem_interest);
+	
 	if (shmem_data->sh_mem_mutex_arg)
 		CloseHandle((HANDLE) shmem_data->sh_mem_mutex_arg);
+		
 	UnmapViewOfFile(shmem_data->sh_mem_address);
 	CloseHandle(shmem_data->sh_mem_object);
+	
 	if (flag & ISC_MEM_REMOVE)
 	  if (SetFilePointer(shmem_data->sh_mem_handle, 0, NULL, FILE_BEGIN) != 0xFFFFFFFF)
 	    SetEndOfFile(shmem_data->sh_mem_handle);
+	    
 	CloseHandle(shmem_data->sh_mem_handle);
 	UnmapViewOfFile(shmem_data->sh_mem_hdr_address);
 	CloseHandle(shmem_data->sh_mem_hdr_object);

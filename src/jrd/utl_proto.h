@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 int		API_ROUTINE gds__blob_size(isc_handle*, SLONG *, SLONG *, SLONG *);
-void	API_ROUTINE_VARARG isc_expand_dpb(SCHAR**, SSHORT*, ...);
+void	API_ROUTINE_VARARG isc_expand_dpb(UCHAR**, SSHORT*, ...);
 int		API_ROUTINE isc_modify_dpb(SCHAR**, SSHORT*, USHORT, const SCHAR*, SSHORT);
 int		API_ROUTINE gds__edit(const TEXT*, USHORT);
 ISC_LONG API_ROUTINE_VARARG isc_event_block(SCHAR**, SCHAR**, USHORT, ...);

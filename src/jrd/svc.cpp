@@ -46,9 +46,9 @@
 #include "../jrd/ibase.h"
 #include "gen/iberror.h"
 #include "../jrd/license.h"
-#include "../jrd/err_proto.h"
+//#include "../jrd/err_proto.h"
 #include "../jrd/gds_proto.h"
-#include "../jrd/inf_proto.h"
+//#include "../jrd/inf_proto.h"
 #include "../jrd/isc_proto.h"
 #include "../jrd/jrd_proto.h"
 #include "../jrd/mov_proto.h"
@@ -62,6 +62,10 @@
 #include "../utilities/gsec/gsecswi.h"
 #include "../utilities/gstat/dbaswi.h"
 #include "../common/classes/alloc.h"
+#include "PBGen.h"
+#include "InfoGen.h"
+#include "Mutex.h"
+
 #ifdef SERVER_SHUTDOWN
 #include "../jrd/jrd_proto.h"
 #endif
@@ -159,7 +163,7 @@ static inline void is_service_running(const Service* service)
 	if (!(service->svc_flags & SVC_forked)) 
 		{
 		THREAD_ENTER;
-		ERR_post (isc_svcnoexe, isc_arg_string, service->svc_service->serv_name, 0); 
+		SVC_post (isc_svcnoexe, isc_arg_string, service->svc_service->serv_name, 0); 
 		}
 }
 
@@ -168,7 +172,7 @@ static inline void need_admin_privs(ISC_STATUS** status, const char* message)
 	ISC_STATUS* stat = *status;
 	*stat++ = isc_insufficient_svc_privileges;
 	*stat++ = isc_arg_string;
-	*stat++ = (ISC_STATUS) ERR_cstring(message); 
+	*stat++ = (ISC_STATUS) message; 
 	*stat++ = isc_arg_end;
 	*status = stat;
 }
@@ -199,21 +203,20 @@ typedef struct spb {
 	USHORT spb_version;
 } SPB;
 
-static void conv_switches(USHORT, USHORT, const SCHAR*, TEXT**);
+static void conv_switches(USHORT, USHORT, const UCHAR*, TEXT**);
 static const TEXT* find_switch(int, IN_SW_TAB);
-static USHORT process_switches(USHORT, const SCHAR*, TEXT*);
+static USHORT process_switches(USHORT, const UCHAR*, TEXT*);
 static void get_options(const UCHAR*, USHORT, TEXT*, SPB*);
 static TEXT* get_string_parameter(const UCHAR**, TEXT**);
 #ifndef SUPERSERVER
 static void io_error(const TEXT *, SLONG, const TEXT *, ISC_STATUS, BOOLEAN);
 static void service_close(Service*);
 #endif
-static BOOLEAN get_action_svc_bitmask(const TEXT**, const IN_SW_TAB, TEXT**, USHORT*,
+static BOOLEAN get_action_svc_bitmask(const UCHAR**, const IN_SW_TAB, TEXT**, USHORT*,
 									  USHORT*);
-static void get_action_svc_string(const TEXT**, TEXT**, USHORT*, USHORT*);
-static void get_action_svc_data(const TEXT**, TEXT**, USHORT*, USHORT*);
-static BOOLEAN get_action_svc_parameter(const TEXT**, IN_SW_TAB, TEXT**, USHORT*,
-										USHORT*);
+static void get_action_svc_string(const UCHAR**, TEXT**, USHORT*, USHORT*);
+static void get_action_svc_data(const UCHAR**, TEXT**, USHORT*, USHORT*);
+static BOOLEAN get_action_svc_parameter(const UCHAR**, IN_SW_TAB, TEXT**, USHORT*, USHORT*);
 
 #ifdef SUPERSERVER
 static UCHAR service_dequeue_byte(Service*);
@@ -234,7 +237,7 @@ static void timeout_handler(void *service);
 #endif
 
 #if defined(WIN_NT) && !defined(SUPERSERVER)
-static USHORT service_read(Service*, SCHAR *, USHORT, USHORT);
+static USHORT service_read(Service*, UCHAR *, USHORT, USHORT);
 #endif
 
 #ifdef DEBUG
@@ -255,6 +258,8 @@ static ULONG shutdown_param = 0L;
 #define SPB_SEC_USERNAME	"isc_spb_sec_username"
 
 //static MUTX_T svc_mutex[1], thd_mutex[1];
+static Mutex	thd_mutex;
+static Mutex	svc_mutex;
 static BOOLEAN svc_initialized = FALSE, thd_initialized = FALSE;
 
 /* Service Functions */
@@ -390,10 +395,10 @@ static const serv services[] =
 #endif /* SERVER_CAPABILITIES */
 
 
-Service* SVC_attach(USHORT	service_length,
-			   const TEXT*	service_name,
-			   USHORT	spb_length,
-			   const SCHAR*	spb)
+Service* SVC_attach(USHORT			service_length,
+					const TEXT*		service_name,
+					USHORT			spb_length,
+					const UCHAR*	spb)
 {
 /**************************************
  *
@@ -410,10 +415,10 @@ Service* SVC_attach(USHORT	service_length,
 	TEXT service_path[MAXPATHLEN];
 #endif
 	SPB options;
-	TEXT name[129];
-	int id = 0;
-	int group;
-	int node_id;
+	//TEXT name[129];
+	//int id = 0;
+	//int group;
+	//int node_id;
 
 	/* If the service name begins with a slash, ignore it. */
 
@@ -442,7 +447,7 @@ Service* SVC_attach(USHORT	service_length,
 			break;
 
 	if (!serv->serv_name)
-		ERR_post(isc_service_att_err, isc_arg_gds, isc_svcnotdef,
+		SVC_post(isc_service_att_err, isc_arg_gds, isc_svcnotdef,
 				 isc_arg_string, misc_buf, 0);
 
 	GET_THREAD_DATA;
@@ -450,7 +455,7 @@ Service* SVC_attach(USHORT	service_length,
 	/* If anything goes wrong, we want to be able to free any memory
 	   that may have been allocated. */
 
-	SCHAR* spb_buf = 0;
+	UCHAR* spb_buf = 0;
 	TEXT* switches = 0;
 	TEXT* misc = 0;
 	Service* service = NULL;
@@ -459,8 +464,8 @@ Service* SVC_attach(USHORT	service_length,
 		{
 		/* Insert internal switch SERVICE_THD_PARAM in the service parameter block. */
 
-		const SCHAR* p = spb;
-		const SCHAR* const end = spb + spb_length;
+		const UCHAR* p = spb;
+		const UCHAR* const end = spb + spb_length;
 		bool cmd_line_found = false;
 		
 		while (!cmd_line_found && p < end) 
@@ -498,14 +503,14 @@ Service* SVC_attach(USHORT	service_length,
 			{
 			USHORT ignored_length = 0;
 			
-			if (!strncmp(p, "-Service ", 5))
+			if (!strncmp((const char*) p, "-Service ", 5))
 				ignored_length = 5;
-			else if (!strncmp(p, "-svc_thd ", 9))
+			else if (!strncmp((const char*)p, "-svc_thd ", 9))
 				ignored_length = 9;
 				
 			USHORT param_length = sizeof(SERVICE_THD_PARAM) - 1;
 			USHORT spb_buf_length = spb_length + param_length - ignored_length + 1;
-			SCHAR* q = spb_buf = new TEXT [spb_buf_length + 1];
+			UCHAR* q = spb_buf = new UCHAR [spb_buf_length + 1];
 			memcpy(q, spb, p - spb);
 			q += p - spb - 1;
 			*q++ += param_length - ignored_length + 1;
@@ -525,7 +530,7 @@ Service* SVC_attach(USHORT	service_length,
 		else 
 			misc = misc_buf;
 
-		get_options(reinterpret_cast<const UCHAR*>(spb), spb_length, misc, &options);
+		get_options(spb, spb_length, misc, &options);
 
 		/* Perhaps checkout the user in the security database. */
 		
@@ -538,13 +543,39 @@ Service* SVC_attach(USHORT	service_length,
 			if (!options.spb_user_name)
 				// user name and password are required while
 				// attaching to the services manager
-				ERR_post(isc_service_att_err, isc_arg_gds, isc_svcnouser, 0);
-				
+				SVC_post(isc_service_att_err, isc_arg_gds, isc_svcnouser, 0);
+
+			/***				
 			if (options.spb_user_name || id == -1)
 				SecurityDatabase::verifyUser(name, options.spb_user_name,
 											options.spb_password, options.spb_password_enc,
 											&id, &group, &node_id);
+			***/
+			PBGen gen;
+			gen.appendUCHAR(isc_dpb_version1);
+			gen.putParameter(isc_dpb_user_name, options.spb_user_name);
+			
+			if (options.spb_password)
+				gen.putParameter(isc_dpb_password, options.spb_password);
+				
+			if (options.spb_password_enc)
+				gen.putParameter(isc_dpb_password_enc, options.spb_password_enc);
+				
+			ISC_STATUS statusVector[ISC_STATUS_LENGTH];
+			isc_db_handle dbHandle = 0;
+			TEXT *databaseName = "security.fdb";
 
+			try
+				{			
+				if (isc_attach_database(statusVector, 0, databaseName, &dbHandle, gen.getLength(), (char*) gen.buffer))
+					throw OSRIException(statusVector);
+				}
+			catch (...)
+				{
+				if (dbHandle)
+					isc_detach_database(statusVector, &dbHandle);
+				}
+			
 			/* Check that the validated user has the authority to access this service */
 
 			if (strcasecmp(options.spb_user_name, SYSDBA_USER_NAME))
@@ -605,15 +636,18 @@ Service* SVC_attach(USHORT	service_length,
 		service->svc_spb_version = options.spb_version;
 		
 		if (options.spb_user_name)
-			strcpy(service->svc_username, options.spb_user_name);
+			service->userName = options.spb_user_name;
+			//strcpy(service->svc_username, options.spb_user_name);
 
 		/* The password will be issued to the service threads on NT since
-		* there is no OS authentication.  If the password is not yet
-		* encrypted, then encrypt it before saving it (since there is no
-		* decrypt function).
-		*/
+		 * there is no OS authentication.  If the password is not yet
+		 * encrypted, then encrypt it before saving it (since there is no
+		 * decrypt function).
+		 */
 		
-		if (options.spb_password) 
+		if (options.spb_password)
+			service->setPassword(options.spb_password);
+			/***
 			{
 			UCHAR* s = reinterpret_cast<UCHAR*>(service->svc_enc_password);
 			UCHAR* p = (UCHAR *) ENC_crypt(options.spb_password, PASSWORD_SALT) + 2;
@@ -621,9 +655,11 @@ Service* SVC_attach(USHORT	service_length,
 			MOVE_FASTER(p, s, l);
 			service->svc_enc_password[l] = 0;
 			}
+			***/
 
-		if (options.spb_password_enc) 
-			strcpy(service->svc_enc_password, options.spb_password_enc);
+		if (options.spb_password_enc)
+			service->setEncryptedPassword(options.spb_password_enc);
+			//strcpy(service->svc_enc_password, options.spb_password_enc);
 
 	/* If an executable is defined for the service, try to fork a new process.
 	* Only do this if we are working with a version 1 service */
@@ -648,7 +684,7 @@ Service* SVC_attach(USHORT	service_length,
 				service_fork(reinterpret_cast < void (*)() > (serv->serv_thd), service);
 				}
 			else 
-				ERR_post(isc_service_att_err, isc_arg_gds,
+				SVC_post(isc_service_att_err, isc_arg_gds,
 						isc_svc_in_use, isc_arg_string, serv->serv_name, 0);
 #endif
 		}
@@ -761,11 +797,12 @@ void SVC_detach(Service* service)
 #endif
 }
 
-const TEXT* SVC_err_string(const TEXT* data, USHORT length)
+
+void SVC_post(ISC_STATUS status, ...)
 {
 /********************************************
  *
- *   S V C _ e r r _ s t r i n g
+ *   S V C _ p o s t
  *
  ********************************************
  *
@@ -773,7 +810,10 @@ const TEXT* SVC_err_string(const TEXT* data, USHORT length)
  *     Uses ERR_string to save string data for the
  *     status vector
  ********************************************/
-	return ERR_string(data, length);
+ 
+	va_list		args;
+	va_start	(args, status);
+	throw OSRIException (args, status);
 }
 
 
@@ -946,7 +986,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 
 	/* Process the receive portion of the query now. */
 
-	const UCHAR* const end = info + buffer_length;
+	//const UCHAR* const end = info + buffer_length;
+	InfoGen infoGen(info, buffer_length);
 	items = recv_items;
 	const UCHAR* const end_items2 = items + recv_item_length;
 	
@@ -969,7 +1010,7 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 					break;
 					
 				default:
-					ERR_post(isc_bad_spb_form, 0);
+					SVC_post(isc_bad_spb_form, 0);
 					break;
 				}
 
@@ -1095,12 +1136,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 				   string
 				*/
 				 
-				info = INF_put_item(item, (int) strlen(buffer), buffer, info, end);
-				if (!info) 
-					{
-					THREAD_ENTER;
-					return 0;
-					}
+				//info = INF_put_item(item, buffer, info, end);
+				infoGen.putString(item, buffer);
 				break;
 
 	#ifdef SUPERSERVER
@@ -1148,84 +1185,90 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 	*/
 			case isc_info_svc_version:
 				/* The version of the service manager */
+				/***
 				if (!ck_space_for_numeric(info, end))
 					return 0;
 				*info++ = item;
 				ADD_SPB_NUMERIC(info, SERVICE_VERSION);
+				***/
+				infoGen.putInt(item, SERVICE_VERSION);
 				break;
 
 			case isc_info_svc_capabilities:
 				/* bitmask defining any specific architectural differences */
+				/***
 				if (!ck_space_for_numeric(info, end))
 					return 0;
 				*info++ = item;
 				ADD_SPB_NUMERIC(info, SERVER_CAPABILITIES_FLAG);
+				***/
+				infoGen.putInt(item, SERVER_CAPABILITIES_FLAG);
 				break;
 
 			case isc_info_svc_running:
 				/* Returns the status of the flag SVC_thd_running */
+				/***
 				if (!ck_space_for_numeric(info, end))
 					return 0;
 				*info++ = item;
+				***/
+				
 				if (service->svc_flags & SVC_thd_running)
-					ADD_SPB_NUMERIC(info, TRUE)
+					//ADD_SPB_NUMERIC(info, TRUE)
+					infoGen.putInt(item, TRUE);
 				else
-					ADD_SPB_NUMERIC(info, FALSE)
+					//ADD_SPB_NUMERIC(info, FALSE)
+					infoGen.putInt(item, FALSE);
 
 				break;
 
 			case isc_info_svc_server_version:
 				/* The version of the server engine */
-				info = INF_put_item(item, (int) strlen(GDS_VERSION), GDS_VERSION, info, end);
-				
-				if (!info) 
-					{
-					THREAD_ENTER;
-					return 0;
-					}
+				//info = INF_put_item(item, GDS_VERSION, info, end);
+				infoGen.putString(item, GDS_VERSION);
 				break;
 
 			case isc_info_svc_implementation:
 				/* The server implementation - e.g. Interbase/sun4 */
 				isc_format_implementation(IMPLEMENTATION, sizeof(buffer), buffer, 0, 0, NULL);
-				info = INF_put_item(item, (int) strlen(buffer), buffer, info, end);
-				
-				if (!info) 
-					{
-					THREAD_ENTER;
-					return 0;
-					}
-
+				//info = INF_put_item(item, buffer, info, end);
+				infoGen.putString(item, buffer);
 				break;
 
 
 			case isc_info_svc_user_dbpath:
 				/* The path to the user security database (security.fdb) */
 				SecurityDatabase::getPath(buffer);
-
-				if (!(info = INF_put_item(item, (int) strlen(buffer), buffer, info, end))) 
+				infoGen.putString(item, buffer);
+	
+				/***
+				if (!(info = INF_put_item(item, buffer, info, end))) 
 					{
 					THREAD_ENTER;
 					return 0;
 					}
+				***/
 				break;
 
 			case isc_info_svc_response:
 				service->svc_resp_len = 0;
 				
+				/***
 				if (info + 4 >= end) 
 					{
 					*info++ = isc_info_truncated;
 					break;
 					}
-					
+				***/
+				
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
 				service_get(service, (UCHAR*) buffer, 2, GET_BINARY, 0, &length);
 				l = (USHORT) gds__vax_integer(reinterpret_cast<UCHAR*>(buffer), 2);
 				length = MIN(end - (info + 5), l);
 				service_get(service, info + 3, length, GET_BINARY, 0, &length);
-				info = INF_put_item(item, length, info + 3, info, end);
+				//info = INF_put_item(item, length, info + 3, info, end);
+				infoGen.put(item, length, info + 3);
 				
 				if (length != l) 
 					{
@@ -1281,7 +1324,7 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
 				service_get(service, (UCHAR*) buffer, 2, GET_BINARY, 0, &length);
-				l = (USHORT) gds__vax_integer(buffer, 2);
+				l = (USHORT) gds__vax_integer((const UCHAR*) buffer, 2);
 				service_get(service, (UCHAR*) buffer, l, GET_BINARY, 0, &length);
 				
 				if (!(info = INF_put_item(item, length, buffer, info, end))) 
@@ -1375,6 +1418,7 @@ void SVC_query(Service*		service,
 	UCHAR	item, *p;
 	char	buffer[256];
 	TEXT	PathBuffer[MAXPATHLEN];
+	UCHAR	infoBuffer[MAXPATHLEN];
 	USHORT l, length, version, get_flags;
 
 	THREAD_EXIT;
@@ -1425,326 +1469,328 @@ void SVC_query(Service*		service,
 			}
 		}
 
-/* Process the receive portion of the query now. */
+	/* Process the receive portion of the query now. */
 
-	const SCHAR* const end = info + buffer_length;
-
+	//const UCHAR* const end = info + buffer_length;
+	InfoGen infoGen(info, buffer_length);
 	items = recv_items;
-	const SCHAR* const end_items2 = items + recv_item_length;
+	const UCHAR* const end_items2 = items + recv_item_length;
+	
 	while (items < end_items2 && *items != isc_info_end)
-	{
-		switch ((item = *items++))
 		{
-		case isc_info_end:
-			break;
+		switch ((item = *items++))
+			{
+			case isc_info_end:
+				break;
 
 #ifdef SERVER_SHUTDOWN
-		case isc_info_svc_svr_db_info:
-			{
-			USHORT num_dbs = 0;
-			int num_att = fb_shutdown_connections (fb_shutdown_count, 0);
-			length = INF_convert(num_att, buffer);
-			info = INF_put_item(item, length, buffer, info, end);
-			if (!info) 
+			case isc_info_svc_svr_db_info:
 				{
-				THREAD_ENTER;
-				return;
+				USHORT num_dbs = 0;
+				int num_att = fb_shutdown_connections (fb_shutdown_count, 0);
+				//length = INF_convert(num_att, buffer);
+				//info = INF_put_item(item, length, buffer, info, end);
+				infoGen.putInt(item, num_att);
+				
+				//length = INF_convert(num_dbs, buffer);
+				//info = INF_put_item(item, length, buffer, info, end);
+				infoGen.putInt(item, num_dbs);
 				}
-			length = INF_convert(num_dbs, buffer);
-			info = INF_put_item(item, length, buffer, info, end);
-			if (!info) 
-				{
-				THREAD_ENTER;
-				return;
-				}
-			}
-			break;
+				break;
 
-		case isc_info_svc_svr_online:
-			*info++ = item;
-			if (service->svc_user_flag & SVC_user_dba) {
-				service->svc_do_shutdown = FALSE;
-				WHY_set_shutdown(FALSE);
-				*info++ = 0;	/* Success */
-			}
-			else
-				*info++ = 2;	/* No user authority */
-			break;
+			case isc_info_svc_svr_online:
+				//*info++ = item;
+				
+				if (service->svc_user_flag & SVC_user_dba) 
+					{
+					service->svc_do_shutdown = FALSE;
+					WHY_set_shutdown(FALSE);
+					//*info++ = 0;	/* Success */
+					infoGen.putByte(item, 0); // Success
+					}
+				else
+					//*info++ = 2;	/* No user authority */
+					infoGen.putByte(item, 2); // No user authority
+				break;
 
-		case isc_info_svc_svr_offline:
-			*info++ = item;
-			if (service->svc_user_flag & SVC_user_dba) {
-				service->svc_do_shutdown = TRUE;
-				WHY_set_shutdown(TRUE);
-				*info++ = 0;	/* Success */
-			}
-			else
-				*info++ = 2;	/* No user authority */
-			break;
+			case isc_info_svc_svr_offline:
+				*info++ = item;
+				
+				if (service->svc_user_flag & SVC_user_dba) 
+					{
+					service->svc_do_shutdown = TRUE;
+					WHY_set_shutdown(TRUE);
+					*info++ = 0;	/* Success */
+					}
+				else
+					*info++ = 2;	/* No user authority */
+				break;
+				
 #endif /* SERVER_SHUTDOWN */
 
 			/* The following 3 service commands (or items) stuff the response
 			   buffer 'info' with values of environment variable INTERBASE,
 			   INTERBASE_LOCK or INTERBASE_MSG. If the environment variable
 			   is not set then default value is returned.
-			 */
-		case isc_info_svc_get_env:
-		case isc_info_svc_get_env_lock:
-		case isc_info_svc_get_env_msg:
-			switch (item) {
+			*/
+				
 			case isc_info_svc_get_env:
-				gds__prefix(PathBuffer, "");
-				break;
 			case isc_info_svc_get_env_lock:
-				gds__prefix_lock(PathBuffer, "");
-				break;
 			case isc_info_svc_get_env_msg:
-				gds__prefix_msg(PathBuffer, "");
-			}
+				switch (item) 
+					{
+					case isc_info_svc_get_env:
+						gds__prefix(PathBuffer, "");
+						break;
+					case isc_info_svc_get_env_lock:
+						gds__prefix_lock(PathBuffer, "");
+						break;
+					case isc_info_svc_get_env_msg:
+						gds__prefix_msg(PathBuffer, "");
+					}
 
-			/* Note: it is safe to use strlen to get a length of "buffer"
-			   because gds_prefix[_lock|_msg] return a zero-terminated
-			   string
-			 */
-			if (!(info = INF_put_item(item, strlen(PathBuffer),
-									  PathBuffer, info, end))) {
-				THREAD_ENTER;
-				return;
-			}
-			break;
+				/* Note: it is safe to use strlen to get a length of "buffer"
+				   because gds_prefix[_lock|_msg] return a zero-terminated
+				   string */
+				   
+				if (!(info = INF_put_item(item, PathBuffer, info, end))) 
+					{
+					THREAD_ENTER;
+					return;
+					}
+					
+				break;
 
 #ifdef SUPERSERVER
-		case isc_info_svc_dump_pool_info:
+			case isc_info_svc_dump_pool_info:
 			{
 				char fname[MAXPATHLEN];
 				int length = isc_vax_integer(items, sizeof(USHORT));
+				
 				if (length >= sizeof(fname))
 					length = sizeof(fname) - 1; // truncation
+					
 				items += sizeof(USHORT);
 				strncpy(fname, items, length);
 				fname[length] = 0;
 				JRD_print_all_counters(fname);
 				break;
-			}
-#endif
-/*
-		case isc_info_svc_get_config:
-			// TODO: iterate through all integer-based config values
-			//		 and return them to the client
-			break;
-
-		case isc_info_svc_default_config:
-			*info++ = item;
-			if (service->svc_user_flag & SVC_user_dba) {
-				THREAD_ENTER;
-				// TODO: reset the config values to defaults
-				THREAD_EXIT;
-			}
-			else
-				need_admin_privs(&status, "isc_info_svc_default_config");
-			break;
-
-		case isc_info_svc_set_config:
-			*info++ = item;
-			if (service->svc_user_flag & SVC_user_dba) {
-				THREAD_ENTER;
-				// TODO: set the config values
-				THREAD_EXIT;
-			}
-			else {
-				need_admin_privs(&status, "isc_info_svc_set_config");
-			}
-			break;
-*/
-		case isc_info_svc_version:
-			/* The version of the service manager */
-
-			length =
-				INF_convert(SERVICE_VERSION, buffer);
-			if (!
-				(info =
-				 INF_put_item(item, length, buffer, info, end)))
-			{
-				THREAD_ENTER;
-				return;
-			}
-			break;
-
-		case isc_info_svc_capabilities:
-			/* bitmask defining any specific architectural differences */
-
-			length =
-				INF_convert(SERVER_CAPABILITIES_FLAG, buffer);
-			if (!
-				(info =
-				 INF_put_item(item, length, buffer, info, end)))
-			{
-				THREAD_ENTER;
-				return;
-			}
-			break;
-
-		case isc_info_svc_server_version:
-			{
-				/* The version of the server engine */
-
-				p = buffer;
-				*p++ = 1;			/* Count */
-				*p++ = sizeof(GDS_VERSION) - 1;
-				for (const TEXT* gvp = GDS_VERSION; *gvp; p++, gvp++)
-					*p = *gvp;
-				if (!(info = INF_put_item(item, p - buffer, buffer, info, end)))
-				{
-					THREAD_ENTER;
-					return;
 				}
+#endif
+			/*
+			case isc_info_svc_get_config:
+				// TODO: iterate through all integer-based config values
+				//		 and return them to the client
 				break;
-			}
 
-		case isc_info_svc_implementation:
-			/* The server implementation - e.g. Interbase/sun4 */
-
-			p = buffer;
-			*p++ = 1;			/* Count */
-			*p++ = IMPLEMENTATION;
-			if (!(info = INF_put_item(item, p - buffer, buffer, info, end)))
-			{
-				THREAD_ENTER;
-				return;
-			}
-			break;
-
-
-		case isc_info_svc_user_dbpath:
-			/* The path to the user security database (security.fdb) */
-			SecurityDatabase::getPath(buffer);
-
-			if (!(info = INF_put_item(item, strlen(buffer), buffer, info, end)))
-			{
-				THREAD_ENTER;
-				return;
-			}
-			break;
-
-		case isc_info_svc_response:
-			service->svc_resp_len = 0;
-			if (info + 4 > end)
-			{
-				*info++ = isc_info_truncated;
-				break;
-			}
-			service_put(service, &item, 1);
-			service_get(service, &item, 1, GET_BINARY, 0, &length);
-			service_get(service, buffer, 2, GET_BINARY, 0, &length);
-			l = (USHORT) gds__vax_integer(reinterpret_cast<UCHAR*>(buffer), 2);
-			length = MIN(end - (info + 4), l);
-			service_get(service, info + 3, length, GET_BINARY, 0, &length);
-			info = INF_put_item(item, length, info + 3, info, end);
-			if (length != l)
-			{
-				*info++ = isc_info_truncated;
-				l -= length;
-				if (l > service->svc_resp_buf_len)
-				{
+			case isc_info_svc_default_config:
+				*info++ = item;
+				if (service->svc_user_flag & SVC_user_dba) {
 					THREAD_ENTER;
-					if (service->svc_resp_buf)
-						gds__free((SLONG *) service->svc_resp_buf);
-					service->svc_resp_buf = (UCHAR *) gds__alloc((SLONG) l);
-					/* FREE: in SVC_detach() */
-					if (!service->svc_resp_buf)
-					{	/* NOMEM: */
-						DEV_REPORT("SVC_query: out of memory");
-						/* NOMEM: not really handled well */
-						l = 0;	/* set the length to zero */
-					}
-					service->svc_resp_buf_len = l;
+					// TODO: reset the config values to defaults
 					THREAD_EXIT;
 				}
-				service_get(service,
-							reinterpret_cast<char*>(service->svc_resp_buf),
-							l,
-							GET_BINARY,
-							0,
-							&length);
-				service->svc_resp_ptr = service->svc_resp_buf;
-				service->svc_resp_len = l;
-			}
-			break;
+				else
+					need_admin_privs(&status, "isc_info_svc_default_config");
+				break;
 
-		case isc_info_svc_response_more:
-			if ( (l = length = service->svc_resp_len) )
+			case isc_info_svc_set_config:
+				*info++ = item;
+				if (service->svc_user_flag & SVC_user_dba) {
+					THREAD_ENTER;
+					// TODO: set the config values
+					THREAD_EXIT;
+				}
+				else {
+					need_admin_privs(&status, "isc_info_svc_set_config");
+				}
+				break;
+			*/
+			
+			case isc_info_svc_version:
+				/* The version of the service manager */
+
+				length = INF_convert(SERVICE_VERSION, infoBuffer);
+				
+				if (!(info = INF_put_item(item, length, infoBuffer, info, end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+				break;
+
+			case isc_info_svc_capabilities:
+				/* bitmask defining any specific architectural differences */
+
+				length = INF_convert(SERVER_CAPABILITIES_FLAG, infoBuffer);
+				
+				if (!(info = INF_put_item(item, length, infoBuffer, info, end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+				break;
+
+			case isc_info_svc_server_version:
+				{
+				/* The version of the server engine */
+
+				p = infoBuffer;
+				*p++ = 1;			/* Count */
+				*p++ = sizeof(GDS_VERSION) - 1;
+				
+				for (const TEXT* gvp = GDS_VERSION; *gvp; p++, gvp++)
+					*p = *gvp;
+					
+				if (!(info = INF_put_item(item, p - infoBuffer, infoBuffer, info, end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+				break;
+				}
+
+			case isc_info_svc_implementation:
+				/* The server implementation - e.g. Interbase/sun4 */
+
+				p = infoBuffer;
+				*p++ = 1;			/* Count */
+				*p++ = IMPLEMENTATION;
+				
+				if (!(info = INF_put_item(item, p - infoBuffer, infoBuffer, info, end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+				break;
+
+
+			case isc_info_svc_user_dbpath:
+				/* The path to the user security database (security.fdb) */
+				SecurityDatabase::getPath(buffer);
+
+				if (!(info = INF_put_item(item, buffer, info, end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+				break;
+
+			case isc_info_svc_response:
+				service->svc_resp_len = 0;
+				
+				if (info + 4 > end)
+					{
+					*info++ = isc_info_truncated;
+					break;
+					}
+					
+				service_put(service, &item, 1);
+				service_get(service, &item, 1, GET_BINARY, 0, &length);
+				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
+				l = (USHORT) gds__vax_integer(infoBuffer, 2);
 				length = MIN(end - (info + 4), l);
-			if (!(info = INF_put_item(item,
-									length,
-									reinterpret_cast<char*>(service->svc_resp_ptr),
-									info,
-									end)))
-			{
-				THREAD_ENTER;
-				return;
-			}
-			service->svc_resp_ptr += length;
-			service->svc_resp_len -= length;
-			if (length != l)
-				*info++ = isc_info_truncated;
-			break;
+				service_get(service, info + 3, length, GET_BINARY, 0, &length);
+				info = INF_put_item(item, length, info + 3, info, end);
+				
+				if (length != l)
+					{
+					*info++ = isc_info_truncated;
+					l -= length;
+					
+					if (l > service->svc_resp_buf_len)
+						{
+						THREAD_ENTER;
+						if (service->svc_resp_buf)
+							gds__free((SLONG *) service->svc_resp_buf);
+						service->svc_resp_buf = (UCHAR *) gds__alloc((SLONG) l);
+						/* FREE: in SVC_detach() */
+						
+						if (!service->svc_resp_buf)
+							{	/* NOMEM: */
+							DEV_REPORT("SVC_query: out of memory");
+							/* NOMEM: not really handled well */
+							l = 0;	/* set the length to zero */
+							}
+						service->svc_resp_buf_len = l;
+						THREAD_EXIT;
+						}
+					service_get(service, service->svc_resp_buf,l,GET_BINARY,0,&length);
+					service->svc_resp_ptr = service->svc_resp_buf;
+					service->svc_resp_len = l;
+					}
+				break;
 
-		case isc_info_svc_total_length:
-			service_put(service, &item, 1);
-			service_get(service, &item, 1, GET_BINARY, 0, &length);
-			service_get(service, buffer, 2, GET_BINARY, 0, &length);
-			l = (USHORT) gds__vax_integer(reinterpret_cast<UCHAR*>(buffer), 2);
-			service_get(service, buffer, l, GET_BINARY, 0, &length);
-			if (!(info = INF_put_item(item, length, buffer, info, end)))
-			{
-				THREAD_ENTER;
-				return;
-			}
-			break;
+			case isc_info_svc_response_more:
+				if ( (l = length = service->svc_resp_len) )
+					length = MIN(end - (info + 4), l);
+					
+				if (!(info = INF_put_item(item,length, service->svc_resp_ptr,info,end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+					
+				service->svc_resp_ptr += length;
+				service->svc_resp_len -= length;
+				
+				if (length != l)
+					*info++ = isc_info_truncated;
+				break;
 
-		case isc_info_svc_line:
-		case isc_info_svc_to_eof:
-			if (info + 4 > end)
-			{
-				*info++ = isc_info_truncated;
+			case isc_info_svc_total_length:
+				service_put(service, &item, 1);
+				service_get(service, &item, 1, GET_BINARY, 0, &length);
+				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
+				l = (USHORT) gds__vax_integer(infoBuffer, 2);
+				service_get(service, infoBuffer, l, GET_BINARY, 0, &length);
+				
+				if (!(info = INF_put_item(item, length, infoBuffer, info, end)))
+					{
+					THREAD_ENTER;
+					return;
+					}
+				break;
+
+			case isc_info_svc_line:
+			case isc_info_svc_to_eof:
+				if (info + 4 > end)
+					{
+					*info++ = isc_info_truncated;
+					break;
+					}
+					
+				get_flags = (item == isc_info_svc_line) ? GET_LINE : GET_EOF;
+				service_get(service, info + 3, end - (info + 4), get_flags, timeout, &length);
+
+				/* If the read timed out, return the data, if any, & a timeout
+				   item.  If the input buffer was not large enough
+				   to store a read to eof, return the data that was read along
+				   with an indication that more is available. */
+
+				info = INF_put_item(item, length, info + 3, info, end);
+
+				if (service->svc_flags & SVC_timeout)
+					*info++ = isc_info_svc_timeout;
+				else
+					{
+					if (!length && !(service->svc_flags & SVC_finished))
+						*info++ = isc_info_data_not_ready;
+					else if (item == isc_info_svc_to_eof && !(service->svc_flags & SVC_finished))
+						*info++ = isc_info_truncated;
+					}
 				break;
 			}
-			get_flags = (item == isc_info_svc_line) ? GET_LINE : GET_EOF;
-			service_get(service, info + 3, end - (info + 4), get_flags,
-						timeout, &length);
-
-			/* If the read timed out, return the data, if any, & a timeout
-			   item.  If the input buffer was not large enough
-			   to store a read to eof, return the data that was read along
-			   with an indication that more is available. */
-
-			info = INF_put_item(item, length, info + 3, info, end);
-
-			if (service->svc_flags & SVC_timeout)
-				*info++ = isc_info_svc_timeout;
-			else
-			{
-				if (!length && !(service->svc_flags & SVC_finished))
-					*info++ = isc_info_data_not_ready;
-				else
-					if (item == isc_info_svc_to_eof &&
-						!(service->svc_flags & SVC_finished))
-						*info++ = isc_info_truncated;
-			}
-			break;
 		}
-	}
 
 	if (info < end)
-	{
 		*info = isc_info_end;
-	}
 
 	THREAD_ENTER;
 }
 
 
-void* SVC_start(Service* service, USHORT spb_length, const SCHAR* spb)
+void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
 {
 /**************************************
  *
@@ -1756,7 +1802,7 @@ void* SVC_start(Service* service, USHORT spb_length, const SCHAR* spb)
  *      Start a Firebird service
  *
  **************************************/
-	TDBB tdbb;
+	thread_db *tdbb;
 	const struct serv *serv;
 	TEXT* tmp_ptr = NULL;
 	USHORT opt_switch_len = 0;
@@ -1765,16 +1811,17 @@ void* SVC_start(Service* service, USHORT spb_length, const SCHAR* spb)
 	TEXT service_path[MAXPATHLEN];
 #endif
 
-/* 	NOTE: The parameter RESERVED must not be used
- *	for any purpose as there are networking issues
- *	involved (as with any handle that goes over the
- *	network).  This parameter will be implemented at
- *	a later date.
- */
+	/* 	NOTE: The parameter RESERVED must not be used
+	 *	for any purpose as there are networking issues
+	 *	involved (as with any handle that goes over the
+	 *	network).  This parameter will be implemented at
+	 *	a later date.
+	 */
 
-	isc_resv_handle reserved = (isc_resv_handle)0;	/* Reserved for future functionality */
+	isc_resv_handle reserved = (isc_resv_handle) 0;	/* Reserved for future functionality */
 
-/* The name of the service is the first element of the buffer */
+	/* The name of the service is the first element of the buffer */
+	
 	const USHORT svc_id = *spb;
 
 	for (serv = (struct serv*)services; serv->serv_action; serv++)
@@ -1782,290 +1829,328 @@ void* SVC_start(Service* service, USHORT spb_length, const SCHAR* spb)
 			break;
 
 	if (!serv->serv_name)
-		ERR_post(isc_service_att_err, isc_arg_gds, isc_service_not_supported, 0);
+		SVC_post(isc_service_att_err, isc_arg_gds, isc_service_not_supported, 0);
 
-/* currently we do not use "anonymous" service for any purposes but
-   isc_service_query() */
+	/* currently we do not use "anonymous" service for any purposes but
+	   isc_service_query() */
+	   
 	if (service->svc_user_flag == SVC_user_none)
-		ERR_post(isc_bad_spb_form, 0);
+		SVC_post(isc_bad_spb_form, 0);
 
-	if (!thd_initialized) {
+	/***
+	if (!thd_initialized) 
+		{
 		THD_MUTEX_INIT(thd_mutex);
 		thd_initialized = TRUE;
-	}
-
-	THD_MUTEX_LOCK(thd_mutex);
-	if (service->svc_flags & SVC_thd_running) {
-		THD_MUTEX_UNLOCK(thd_mutex);
-		ERR_post(isc_svc_in_use, isc_arg_string, serv->serv_name), 0);
-	}
-	else {
+		}
+	***/
+	
+	//THD_MUTEX_LOCK(thd_mutex);
+	Sync sync(&thd_mutex, "SVC_start");
+	sync.lock(Exclusive);
+		
+	if (service->svc_flags & SVC_thd_running) 
+		SVC_post(isc_svc_in_use, isc_arg_string, serv->serv_name, 0);
+	else 
+		{
 		/* Another service may have been started with this service block.  If so,
 		 * we must reset the service flags.
 		 */
+		 
 		if (!(service->svc_flags & SVC_detached))
 			service->svc_flags = 0;
+			
 		service->svc_flags |= SVC_thd_running;
-		if (service->svc_switches) {
+		
+		if (service->svc_switches) 
+			{
 			gds__free(service->svc_switches);
 			service->svc_switches = NULL;
+			}
 		}
-	}
-	THD_MUTEX_UNLOCK(thd_mutex);
-
+		
+	sync.unlock();
 	tdbb = GET_THREAD_DATA;
 
-	try {
+	try 
+		{
+		/* Only need to add username and password information to those calls which need
+		* to make a database connection
+		*/
+		
+		if (*spb == isc_action_svc_backup ||
+			*spb == isc_action_svc_restore ||
+			*spb == isc_action_svc_repair ||
+			*spb == isc_action_svc_add_user ||
+			*spb == isc_action_svc_delete_user ||
+			*spb == isc_action_svc_modify_user ||
+			*spb == isc_action_svc_display_user ||
+			*spb == isc_action_svc_db_stats ||
+			*spb == isc_action_svc_properties)
+			{
+			/* the user issued a username when connecting to the service so
+			* add the length of the username and switch to new_spb_length
+			*/
 
-/* Only need to add username and password information to those calls which need
- * to make a database connection
- */
-	if (*spb == isc_action_svc_backup ||
-		*spb == isc_action_svc_restore ||
-		*spb == isc_action_svc_repair ||
-		*spb == isc_action_svc_add_user ||
-		*spb == isc_action_svc_delete_user ||
-		*spb == isc_action_svc_modify_user ||
-		*spb == isc_action_svc_display_user ||
-		*spb == isc_action_svc_db_stats ||
-		*spb == isc_action_svc_properties)
-	{
-		/* the user issued a username when connecting to the service so
-		 * add the length of the username and switch to new_spb_length
-		 */
+			//if (*service->svc_username)
+			if (!service->userName.IsEmpty())
+				opt_switch_len += (USHORT) (service->userName.length() + 1 + sizeof(USERNAME_SWITCH));
 
-		if (*service->svc_username)
-			opt_switch_len +=
-				(strlen(service->svc_username) + 1 + sizeof(USERNAME_SWITCH));
-
-		/* the user issued a password when connecting to the service so add
-		 * the length of the password and switch to new_spb_length
-		 */
-		if (*service->svc_enc_password)
-			opt_switch_len +=
-				(strlen(service->svc_enc_password) + 1 +
-				 sizeof(PASSWORD_SWITCH));
-
-		/* If svc_switches is not used -- call a command-line parsing utility */
-		if (!service->svc_switches) {
-			conv_switches(spb_length, opt_switch_len, spb,
-						  &service->svc_switches);
-		}
-		else {
-			/* Command line options (isc_spb_options) is used.
-			 * Currently the only case in which it might happen is -- gbak utility
-			 * is called with a "-server" switch.
+			/* the user issued a password when connecting to the service so add
+			 * the length of the password and switch to new_spb_length
 			 */
-			flag_spb_options = TRUE;
+			
+			if (!service->encryptedPassword.IsEmpty())
+				opt_switch_len += (USHORT) (service->encryptedPassword.length() + 1 + sizeof(PASSWORD_SWITCH));
 
-			tmp_ptr = (TEXT *)
-				gds__alloc((SLONG)
-						   (strlen(service->svc_switches) + +1 +
-							opt_switch_len + 1));
-			if (!tmp_ptr)		/* NOMEM: */
-				ERR_post(isc_virmemexh, 0);
-		}
+			/* If svc_switches is not used -- call a command-line parsing utility */
+			
+			if (!service->svc_switches) 
+				conv_switches(spb_length, opt_switch_len, spb, &service->svc_switches);
+			else 
+				{
+				/* Command line options (isc_spb_options) is used.
+				* Currently the only case in which it might happen is -- gbak utility
+				* is called with a "-server" switch.
+				*/
+				flag_spb_options = TRUE;
 
-		/* add the username and password to the end of svc_switches if needed */
-		if (service->svc_switches) {
-			if (flag_spb_options)
-				strcpy(tmp_ptr, service->svc_switches);
+				tmp_ptr = (TEXT *)
+					gds__alloc((SLONG) (strlen(service->svc_switches) + +1 + opt_switch_len + 1));
+				if (!tmp_ptr)		/* NOMEM: */
+					SVC_post(isc_virmemexh, 0);
+				}
 
-			if (*service->svc_username) {
-				if (!flag_spb_options)
-					sprintf(service->svc_switches, "%s %s %s",
-							service->svc_switches, USERNAME_SWITCH,
-							service->svc_username);
-				else
-					sprintf(tmp_ptr, "%s %s %s", tmp_ptr, USERNAME_SWITCH,
-							service->svc_username);
+			/* add the username and password to the end of svc_switches if needed */
+			
+			if (service->svc_switches) 
+				{
+				if (flag_spb_options)
+					strcpy(tmp_ptr, service->svc_switches);
+
+				if (!service->userName.IsEmpty()) 
+					{
+					if (!flag_spb_options)
+						sprintf(service->svc_switches, "%s %s %s",
+								service->svc_switches, USERNAME_SWITCH,
+								(const char*) service->userName);
+					else
+						sprintf(tmp_ptr, "%s %s %s", tmp_ptr, USERNAME_SWITCH,
+								(const char*) service->userName);
+					}
+
+				if (!service->encryptedPassword.IsEmpty()) 
+					{
+					if (!flag_spb_options)
+						sprintf(service->svc_switches, "%s %s %s",
+								service->svc_switches, PASSWORD_SWITCH,
+								(const char*) service->encryptedPassword);
+					else
+						sprintf(tmp_ptr, "%s %s %s", tmp_ptr, PASSWORD_SWITCH,
+								(const char*) service->encryptedPassword);
+					}
+
+				if (flag_spb_options) 
+					{
+					gds__free(service->svc_switches);
+					service->svc_switches = tmp_ptr;
+					}
+				}
 			}
-
-			if (*service->svc_enc_password) {
-				if (!flag_spb_options)
-					sprintf(service->svc_switches, "%s %s %s",
-							service->svc_switches, PASSWORD_SWITCH,
-							service->svc_enc_password);
-				else
-					sprintf(tmp_ptr, "%s %s %s", tmp_ptr, PASSWORD_SWITCH,
-							service->svc_enc_password);
+		else 
+			{
+			/* If svc_switches is not used -- call a command-line parsing utility */
+			
+			if (!service->svc_switches) 
+				conv_switches(spb_length, opt_switch_len, spb, &service->svc_switches);
+			else 
+				fb_assert(service->svc_switches == NULL);
 			}
-
-			if (flag_spb_options) {
-				gds__free(service->svc_switches);
-				service->svc_switches = tmp_ptr;
-			}
-		}
-	}
-	else {
-		/* If svc_switches is not used -- call a command-line parsing utility */
-		if (!service->svc_switches) {
-			conv_switches(spb_length, opt_switch_len, spb,
-						  &service->svc_switches);
-		}
-		else {
-			fb_assert(service->svc_switches == NULL);
-		}
-	}
-/* All services except for get_ib_log require switches */
-	if (service->svc_switches == NULL && *spb != isc_action_svc_get_ib_log)
-		ERR_post(isc_bad_spb_form, 0);
+			
+		/* All services except for get_ib_log require switches */
+		
+		if (service->svc_switches == NULL && *spb != isc_action_svc_get_ib_log)
+			SVC_post(isc_bad_spb_form, 0);
 
 #ifndef SUPERSERVER
-	if (serv->serv_executable) {
-		gds__prefix(service_path, serv->serv_executable);
-		service->svc_flags = SVC_forked;
-		service_fork(service_path, service);
-	}
+		if (serv->serv_executable) 
+			{
+			gds__prefix(service_path, serv->serv_executable);
+			service->svc_flags = SVC_forked;
+			service_fork(service_path, service);
+			}
 
 #else
 
-/* Break up the command line into individual arguments. */
-	if (service->svc_switches)
-	{
-		USHORT argc;
-		TEXT* p;
-		for (argc = 2, p = service->svc_switches; *p;) {
-			if (*p == ' ') {
-				argc++;
-				while (*p == ' ')
-					p++;
-			}
-			else {
-				if (*p == SVC_TRMNTR) {
-					while (*p++ && *p != SVC_TRMNTR);
-					fb_assert(*p == SVC_TRMNTR);
-				}
-				p++;
-			}
-		}
-
-		service->svc_argc = argc;
-
-		TEXT** arg = (TEXT **) gds__alloc((SLONG) ((argc + 1) * sizeof(TEXT *)));
-		/*
-		 * the service block can be reused hence free a memory from the
-		 * previous usage if any.
-		 */
-		if (service->svc_argv)
-			gds__free(service->svc_argv);
-		service->svc_argv = arg;
-		/* FREE: at SVC_detach() - Possible memory leak if ERR_post() occurs */
-		if (!arg)				/* NOMEM: */
-			ERR_post(isc_virmemexh, 0);
-
-		*arg++ = (TEXT *)(serv->serv_thd);
-		const TEXT* q = p = service->svc_switches;
-
-		while (*q == ' ')
-			q++;
-
-		while (*q) {
-			*arg = p;
-			while (*p = *q++) {
-				if (*p == ' ')
-					break;
-
-				if (*p == SVC_TRMNTR) {
-					*arg = ++p;	/* skip terminator */
-					while (*p = *q++)
-						/* If *q points to the last argument, then terminate the argument */
-						if ((*q == 0 || *q == ' ') && *p == SVC_TRMNTR) {
-							*p = '\0';
-							break;
+		/* Break up the command line into individual arguments. */
+		
+		if (service->svc_switches)
+			{
+			USHORT argc;
+			TEXT* p;
+			
+			for (argc = 2, p = service->svc_switches; *p;) 
+				{
+				if (*p == ' ') 
+					{
+					argc++;
+					
+					while (*p == ' ')
+						p++;
+					}
+				else 
+					{
+					if (*p == SVC_TRMNTR) 
+						{
+						while (*p++ && *p != SVC_TRMNTR)
+							;
+							
+						fb_assert(*p == SVC_TRMNTR);
 						}
-						else
-							p++;
+						
+					p++;
+					}
 				}
 
-				if (*p == '\\' && *q == ' ') {
-					*p = ' ';
-					q++;
-				}
-				p++;
-			}
-			arg++;
-			if (!*p)
-				break;
-			*p++ = '\0';
+			service->svc_argc = argc;
+
+			TEXT** arg = (TEXT **) gds__alloc((SLONG) ((argc + 1) * sizeof(TEXT *)));
+			
+			/*
+			* the service block can be reused hence free a memory from the
+			* previous usage if any.
+			*/
+			
+			if (service->svc_argv)
+				gds__free(service->svc_argv);
+				
+			service->svc_argv = arg;
+			
+			/* FREE: at SVC_detach() - Possible memory leak if SVC_post() occurs */
+			
+			if (!arg)				/* NOMEM: */
+				SVC_post(isc_virmemexh, 0);
+
+			*arg++ = (TEXT *)(serv->serv_thd);
+			const TEXT* q = p = service->svc_switches;
+
 			while (*q == ' ')
 				q++;
-		}
-		*arg = NULL;
-	}
 
-/*
- * the service block can be reused hence free a memory from the
- * previous usage as well as init a status vector.
- */
+			while (*q)
+				 {
+				*arg = p;
+				while (*p = *q++) 
+					{
+					if (*p == ' ')
+						break;
 
-	memset((void *) service->svc_status, 0,
-		   ISC_STATUS_LENGTH * sizeof(ISC_STATUS));
+					if (*p == SVC_TRMNTR) 
+						{
+						*arg = ++p;	/* skip terminator */
+						
+						while (*p = *q++)
+							/* If *q points to the last argument, then terminate the argument */
+							if ((*q == 0 || *q == ' ') && *p == SVC_TRMNTR) 
+								{
+								*p = '\0';
+								break;
+								}
+							else
+								p++;
+						}
 
-	if (service->svc_stdout)
-		gds__free(service->svc_stdout);
+					if (*p == '\\' && *q == ' ') 
+						{
+						*p = ' ';
+						q++;
+						}
+						
+					p++;
+					}
+					
+				arg++;
+				
+				if (!*p)
+					break;
+					
+				*p++ = '\0';
+				while (*q == ' ')
+					q++;
+				}
+				
+			*arg = NULL;
+			}
 
-	service->svc_stdout = (UCHAR*)gds__alloc((SLONG) SVC_STDOUT_BUFFER_SIZE + 1);
-/* FREE: at SVC_detach() */
-	if (!service->svc_stdout)	/* NOMEM: */
-	{
-		ERR_post(isc_virmemexh, 0);
-	}
+		/*
+		 * the service block can be reused hence free a memory from the
+		 * previous usage as well as init a status vector.
+		 */
 
-	if (serv->serv_thd) {
-		SLONG count;
+		memset((void *) service->svc_status, 0, ISC_STATUS_LENGTH * sizeof(ISC_STATUS));
+
+		if (service->svc_stdout)
+			gds__free(service->svc_stdout);
+
+		service->svc_stdout = (UCHAR*)gds__alloc((SLONG) SVC_STDOUT_BUFFER_SIZE + 1);
+		
+		/* FREE: at SVC_detach() */
+		
+		if (!service->svc_stdout)	/* NOMEM: */
+			SVC_post(isc_virmemexh, 0);
+
+		if (serv->serv_thd)
+			 {
+			SLONG count;
 #pragma FB_COMPILER_MESSAGE("Fix! Probable bug!")
-		AsyncEvent* evnt_ptr =
-			reinterpret_cast<AsyncEvent*> (&(service->svc_start_event));
+			AsyncEvent* evnt_ptr = reinterpret_cast<AsyncEvent*> (&(service->svc_start_event));
 
-		THREAD_EXIT;
-		/* create an event for the service.  The event will be signaled once the
-		 * particular service has reached a point in which it can start to return
-		 * information to the client.  This will allow isc_service_start to
-		 * include in its status vector information about the service's ability to
-		 * start.  This is needed since gds__thread_start will almost always
-		 * succeed.
-		 */
-		ISC_event_init(evnt_ptr, 0, 0);
-		count = ISC_event_clear(evnt_ptr);
+			THREAD_EXIT;
+			
+			/* create an event for the service.  The event will be signaled once the
+			* particular service has reached a point in which it can start to return
+			* information to the client.  This will allow isc_service_start to
+			* include in its status vector information about the service's ability to
+			* start.  This is needed since gds__thread_start will almost always
+			* succeed.
+			*/
+			
+			ISC_event_init(evnt_ptr, 0, 0);
+			count = ISC_event_clear(evnt_ptr);
 
-		gds__thread_start(reinterpret_cast < FPTR_INT_VOID_PTR >
-						  (serv->serv_thd), service, THREAD_medium, 0,
-						  (void *) &service->svc_handle);
+			gds__thread_start(reinterpret_cast < FPTR_INT_VOID_PTR >
+							(serv->serv_thd), service, THREAD_medium, 0,
+							(void *) &service->svc_handle);
 
-		/* check for the service being detached.  This will prevent the thread
-		 * from waiting infinitely if the client goes away
-		 */
-		while (!(service->svc_flags & SVC_detached)) {
-			if (ISC_event_wait(1, &evnt_ptr, &count, 60 * 1000, NULL, 0))
-			{
-				continue;
+			/* check for the service being detached.  This will prevent the thread
+			* from waiting infinitely if the client goes away
+			*/
+			
+			while (!(service->svc_flags & SVC_detached)) 
+				if (!ISC_event_wait(1, &evnt_ptr, &count, 60 * 1000, NULL, 0))
+					break;
+
+			ISC_event_fini(evnt_ptr);
+			THREAD_ENTER;
 			}
-			else {				/* the event was posted */
-				break;
-			}
-		}
-
-		ISC_event_fini(evnt_ptr);
-		THREAD_ENTER;
-	}
-	else
-		ERR_post(isc_svcnotdef, isc_arg_string, serv->serv_name, 0);
+		else
+			SVC_post(isc_svcnotdef, isc_arg_string, serv->serv_name, 0);
 
 #endif /* SUPERSERVER */
 
-	}	// try
+		}	// try
 	catch (...) 
 		{
 		if (service->svc_switches)
 			gds__free((SLONG *) service->svc_switches);
+			
 		if (service)
-//			gds__free((SLONG *) service);
 			delete service;
+			
 		throw;
 		}
 
-	return reinterpret_cast<void*>(reserved);
+	//return reinterpret_cast<void*>(reserved);
 }
 
 
@@ -2085,12 +2170,14 @@ int SVC_read_ib_log(Service* service)
 	IB_FILE *file;
 	TEXT name[MAXPATHLEN], buffer[100];
 	bool svc_started = false;
+	
 #ifdef SUPERSERVER
 	ISC_STATUS *status = service->svc_status;
 	*status++ = isc_arg_gds;
 #endif
 
 	gds__prefix(name, LOGFILE);
+	
 	if ((file = ib_fopen(name, "r")) != NULL) {
 #ifdef SUPERSERVER
 		*status++ = FB_SUCCESS;
@@ -2098,39 +2185,47 @@ int SVC_read_ib_log(Service* service)
 #endif
 		SVC_STARTED(service);
 		svc_started = true;
-		while (!ib_feof(file) && !ib_ferror(file)) {
+		
+		while (!ib_feof(file) && !ib_ferror(file)) 
+			{
 			ib_fgets(buffer, sizeof(buffer), file);
 #ifdef SUPERSERVER
 			SVC_fprintf(service, "%s", buffer);
 #else
-			service_put(service, buffer, sizeof(buffer));
+			service_put(service, (UCHAR*) buffer, sizeof(buffer));
 #endif
+			}
 		}
-	}
 
-	if (!file || file && ib_ferror(file)) {
+	if (!file || file && ib_ferror(file)) 
+		{
 #ifdef SUPERSERVER
 		*status++ = isc_sys_request;
-		if (!file) {
+		
+		if (!file) 
+			{
 			SVC_STATUS_ARG(status, isc_arg_string, (void*)"ib_fopen");
-		}
-		else {
+			}
+		else 
+			{
 			SVC_STATUS_ARG(status, isc_arg_string, (void*)"ib_fgets");
-		}
+			}
+			
 		*status++ = SYS_ARG;
 		*status++ = errno;
 		*status++ = isc_arg_end;
 #endif
 		if (!svc_started)
-		{
+			{
 			SVC_STARTED(service);
+			}
 		}
-	}
 
 	if (file)
 		ib_fclose(file);
 
 	service->svc_handle = 0;
+	
 	if (service->svc_service->in_use != NULL)
 		*(service->svc_service->in_use) = FALSE;
 
@@ -2139,6 +2234,7 @@ int SVC_read_ib_log(Service* service)
 #else
 	SVC_cleanup(service);
 #endif
+
 	return (FINI_OK);
 }
 
@@ -2163,7 +2259,7 @@ static void get_options(const UCHAR*	spb,
 	const UCHAR* const end_spb = p + spb_length;
 
 	if (p < end_spb && (*p != isc_spb_version1 && *p != isc_spb_version))
-		ERR_post(isc_bad_spb_form, isc_arg_gds, isc_wrospbver, 0);
+		SVC_post(isc_bad_spb_form, isc_arg_gds, isc_wrospbver, 0);
 
 	while (p < end_spb)
 		switch (*p++) {
@@ -2260,7 +2356,7 @@ static void io_error(const TEXT * string,
 		THREAD_ENTER;
 #endif
 
-	ERR_post(isc_io_error, isc_arg_string, string, isc_arg_string, filename,
+	SVC_post(isc_io_error, isc_arg_string, string, isc_arg_string, filename,
 			 isc_arg_gds, operation, SYS_ERR, status, 0);
 }
 #endif
@@ -2280,6 +2376,7 @@ static void service_close(Service* service)
  *	Simply close the input and output pipes.
  *
  **************************************/
+ 
 	CloseHandle((HANDLE) service->svc_input);
 	CloseHandle((HANDLE) service->svc_output);
 	CloseHandle((HANDLE) service->svc_handle);
@@ -2299,8 +2396,8 @@ static void service_fork(TEXT * service_path, Service* service)
  *
  **************************************/
 	TEXT *argv_data, argv_data_buf[512], *p, *q, *arg;
-	USHORT len, quote_flag, user_quote;
-	HANDLE my_input, my_output, pipe_input, pipe_output, pipe_error;
+	USHORT quote_flag, user_quote;
+	HANDLE my_output, pipe_input, pipe_output, pipe_error;
 	SECURITY_ATTRIBUTES attr;
 	STARTUPINFO start_crud;
 	PROCESS_INFORMATION pi;
@@ -2309,12 +2406,15 @@ static void service_fork(TEXT * service_path, Service* service)
 	SLONG status;
 	BOOLEAN windows_nt = ISC_is_WinNT();
 
-/* Only Create the pipes on Windows NT.  There is a bug on Windows
-   95 that prohibits these handles from being converted by the
-   child process
-*/
-	my_input = pipe_output = my_output = pipe_input = INVALID_HANDLE_VALUE;
-	if (windows_nt) {
+	/* Only Create the pipes on Windows NT.  There is a bug on Windows
+	   95 that prohibits these handles from being converted by the
+	   child process
+	*/
+	
+	HANDLE my_input = pipe_output = my_output = pipe_input = INVALID_HANDLE_VALUE;
+	
+	if (windows_nt) 
+		{
 		/* Set up input and output pipes and make them the ib_stdin, ib_stdout,
 		   and ib_stderr of the forked process. */
 
@@ -2326,19 +2426,21 @@ static void service_fork(TEXT * service_path, Service* service)
 			!CreatePipe(&pipe_input, &my_output, &attr, 0) ||
 			!DuplicateHandle(GetCurrentProcess(), pipe_output,
 							 GetCurrentProcess(), &pipe_error, 0, TRUE,
-							 DUPLICATE_SAME_ACCESS)) {
+							 DUPLICATE_SAME_ACCESS)) 
+			{
 			status = GetLastError();
 			CloseHandle(my_input);
 			CloseHandle(pipe_output);
 			CloseHandle(my_output);
 			CloseHandle(pipe_input);
-			ERR_post(isc_sys_request, isc_arg_string,
+			SVC_post(isc_sys_request, isc_arg_string,
 					 (my_output !=
 					  INVALID_HANDLE_VALUE) ? "CreatePipe" :
 					 "DuplicateHandle", SYS_ERR, status, 0);
+			}
 		}
-	}
-	else {
+	else 
+		{
 		/* Create a temporary file and get the OS handle to
 		   the file created.  This handle will be used in subsequent
 		   calls to the windows API functions for working with the files
@@ -2349,101 +2451,119 @@ static void service_fork(TEXT * service_path, Service* service)
 
 		GetTempPath(MAXPATHLEN, tmpPath);
 		fname = _tempnam(tmpPath, "ibsvc");
-		tmp =
-			_open(fname, _O_RDWR | _O_CREAT | _O_TEMPORARY,
-				  _S_IREAD | _S_IWRITE);
+		tmp =_open(fname, _O_RDWR | _O_CREAT | _O_TEMPORARY,_S_IREAD | _S_IWRITE);
 		my_input = (HANDLE) _get_osfhandle(tmp);
 
 		fname = _tempnam(tmpPath, "ibsvc");
-		tmp =
-			_open(fname, _O_RDWR | _O_CREAT | _O_TEMPORARY,
-				  _S_IREAD | _S_IWRITE);
+		tmp =_open(fname, _O_RDWR | _O_CREAT | _O_TEMPORARY,_S_IREAD | _S_IWRITE);
 		my_output = (HANDLE) _get_osfhandle(tmp);
 
 		if (my_input == INVALID_HANDLE_VALUE ||
-			my_output == INVALID_HANDLE_VALUE) {
+			my_output == INVALID_HANDLE_VALUE) 
+			{
 			CloseHandle(my_input);
 			CloseHandle(my_output);
-			ERR_post(isc_sys_request, isc_arg_string, "CreateFile", SYS_ERR,
+			SVC_post(isc_sys_request, isc_arg_string, "CreateFile", SYS_ERR,
 					 errno, 0);
+			}
 		}
-	}
 
-/* Make sure we have buffers that are large enough to hold the number
-   and size of the command line arguments.  Add some extra space for
-   the pipe's file handles. */
+	/* Make sure we have buffers that are large enough to hold the number
+	   and size of the command line arguments.  Add some extra space for
+	   the pipe's file handles. */
 
-	len = strlen(service_path) + strlen(service->svc_switches) + 16;
+	USHORT len = (USHORT) (strlen(service_path) + strlen(service->svc_switches) + 16);
+	
 	for (p = service->svc_switches; *p;)
 		if (*p++ == ' ')
 			len += 2;
+			
 	if (len > sizeof(argv_data_buf))
 		argv_data = (TEXT*) gds__alloc((SLONG) len);
 	else
 		argv_data = argv_data_buf;
-/* FREE: at procedure return */
+		
+	/* FREE: at procedure return */
+	
 	if (!argv_data)				/* NOMEM: */
-		ERR_post(isc_virmemexh, 0);
+		SVC_post(isc_virmemexh, 0);
 
-/* Create a command line. */
+	/* Create a command line. */
 
 	svc_flag = FALSE;
 
-	for (p = argv_data, q = service_path; *p = *q++; p++);
+	for (p = argv_data, q = service_path; *p = *q++; p++)
+		;
 
 	q = service->svc_switches;
+	
 	if (*q)
 		*p++ = ' ';
 
 	while (*q == ' ')
 		q++;
+		
 	user_quote = FALSE;
-	while (*q) {
+	
+	while (*q) 
+		{
 		arg = p;
 		*p++ = '\"';
 		quote_flag = FALSE;
-		while (((*p = *q++) && *p != ' ') || user_quote) {
-			if (*p == '\\' && *q == ' ' && !user_quote) {
+		
+		while (((*p = *q++) && *p != ' ') || user_quote) 
+			{
+			if (*p == '\\' && *q == ' ' && !user_quote) 
+				{
 				*p = ' ';
 				q++;
 				quote_flag = TRUE;
-			}
-			if (*p == '"') {
+				}
+				
+			if (*p == '"') 
+				{
 				user_quote = !user_quote;
 				p++;
 				continue;
-			}
+				}
+				
 			p++;
-		}
-		if (!quote_flag) {
+			}
+			
+		if (!quote_flag) 
+			{
 			*arg = ' ';
-			if (!strncmp(arg, " -Service", p - arg)) {
+			
+			if (!strncmp(arg, " -Service", p - arg)) 
+				{
 				if (windows_nt)
-					sprintf(p, "_re %lu %lu %lu", (ULONG) pipe_input, (ULONG) pipe_output,
-							(ULONG) pipe_error);
+					sprintf(p, "_re %lu %x %x", pipe_input, pipe_output, pipe_error);
 				else
-					sprintf(p, "_re %lu %lu %lu", (ULONG) my_output, (ULONG) my_input,
-							(ULONG) my_output);
+					sprintf(p, "_re %u %u %u", my_output, my_input, my_output);
+					
 				p += strlen(p);
 				*p = q[-1];
 				svc_flag = TRUE;
+				}
 			}
-		}
-		else {
+		else 
+			{
 			p[1] = p[0];
 			*p++ = '\"';
-		}
+			}
+			
 		if (!*p)
 			break;
+			
 		*p++ = ' ';
+		
 		while (*q == ' ')
 			q++;
 	}
 
-	for (q = argv_data; *q; q++) {
+	for (q = argv_data; *q; q++)
 		if (*q == SVC_TRMNTR)
 			*q = ' ';
-	}
 
 	THREAD_EXIT;
 
@@ -2466,19 +2586,20 @@ static void service_fork(TEXT * service_path, Service* service)
 							  NULL,
 							  &start_crud, &pi))) status = GetLastError();
 
-	if (windows_nt) {
+	if (windows_nt) 
+		{
 		CloseHandle(pipe_input);
 		CloseHandle(pipe_output);
 		CloseHandle(pipe_error);
-	}
+		}
+		
 	THREAD_ENTER;
 
 	if (argv_data != argv_data_buf)
 		gds__free((SLONG *) argv_data);
 
 	if (!ret)
-		ERR_post(isc_sys_request, isc_arg_string, "CreateProcess", SYS_ERR,
-				 status, 0);
+		SVC_post(isc_sys_request, isc_arg_string, "CreateProcess", SYS_ERR, status, 0);
 
 	DuplicateHandle(GetCurrentProcess(), pi.hProcess,
 					GetCurrentProcess(), (PHANDLE) & service->svc_handle,
@@ -2611,7 +2732,7 @@ static void service_get(Service* service,
 }
 
 
-static void service_put(Service* service, const SCHAR* buffer, USHORT length)
+static void service_put(Service* service, const UCHAR* buffer, USHORT length)
 {
 /**************************************
  *
@@ -2645,7 +2766,7 @@ static void service_put(Service* service, const SCHAR* buffer, USHORT length)
 }
 
 
-static USHORT service_read(Service* service, SCHAR * buffer, USHORT length, USHORT flags)
+static USHORT service_read(Service* service, UCHAR * buffer, USHORT length, USHORT flags)
 {
 /**************************************
  *
@@ -2661,7 +2782,7 @@ static USHORT service_read(Service* service, SCHAR * buffer, USHORT length, USHO
  *
  **************************************/
 	SLONG len, n = 0;
-	SCHAR *buf = buffer;
+	UCHAR *buf = buffer;
 
 	while (length) {
 		n = 0;
@@ -2811,9 +2932,9 @@ static void service_fork(void (*service_executable) (), Service* service)
 
 	arg = (TEXT **) gds__alloc((SLONG) ((argc + 1) * sizeof(TEXT *)));
 	service->svc_argv = arg;
-/* FREE: at SVC_detach() - Possible memory leak if ERR_post() occurs */
+/* FREE: at SVC_detach() - Possible memory leak if SVC_post() occurs */
 	if (!arg)					/* NOMEM: */
-		ERR_post(isc_virmemexh, 0);
+		SVC_post(isc_virmemexh, 0);
 
 	*arg++ = (TEXT *)(service_executable);
 
@@ -2843,7 +2964,7 @@ static void service_fork(void (*service_executable) (), Service* service)
 	service->svc_stdout = (UCHAR*)gds__alloc((SLONG) SVC_STDOUT_BUFFER_SIZE + 1);
 /* FREE: at SVC_detach() */
 	if (!service->svc_stdout)	/* NOMEM: */
-		ERR_post(isc_virmemexh, 0);
+		SVC_post(isc_virmemexh, 0);
 
 	THREAD_EXIT;
 	gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>(service_executable),
@@ -3011,7 +3132,7 @@ static void service_fork(TEXT * service_path, Service* service)
 		argv = argv_buf;
 /* FREE: at procedure return */
 	if (!argv)					/* NOMEM: */
-		ERR_post(isc_virmemexh, 0);
+		SVC_post(isc_virmemexh, 0);
 	service->svc_argc = argc;
 
 	len = strlen(service->svc_switches) + 1;
@@ -3023,7 +3144,7 @@ static void service_fork(TEXT * service_path, Service* service)
 	if (!argv_data) {			/* NOMEM: */
 		if (argv != argv_buf)
 			gds__free(argv);
-		ERR_post(isc_virmemexh, 0);
+		SVC_post(isc_virmemexh, 0);
 	}
 
 /* Break up the command line into individual arguments. */
@@ -3085,7 +3206,7 @@ static void service_fork(TEXT * service_path, Service* service)
 			gds__free(argv);
 		if (argv_data != argv_data_buf)
 			gds__free(argv_data);
-		ERR_post(isc_sys_request, isc_arg_string, "vfork", SYS_ERR, errno, 0);
+		SVC_post(isc_sys_request, isc_arg_string, "vfork", SYS_ERR, errno, 0);
 		break;
 
 	case 0:
@@ -3330,31 +3451,30 @@ void SVC_finish(Service* service, USHORT flag)
  *
  **************************************/
 
-	if (!svc_initialized) {
-		THD_MUTEX_INIT(svc_mutex);
-		svc_initialized = TRUE;
-	}
-
-	THD_MUTEX_LOCK(svc_mutex);
-	if (service && ((flag == SVC_finished) || (flag == SVC_detached))) {
+	Sync sync(&svc_mutex, "SVC_finish");
+	sync.lock(Exclusive);
+	
+	if (service && ((flag == SVC_finished) || (flag == SVC_detached))) 
+		{
 		service->svc_flags |= flag;
+		
 		if ((service->svc_flags & SVC_finished) &&
 			(service->svc_flags & SVC_detached)) SVC_cleanup(service);
-		else {
-			if (service->svc_flags & SVC_finished) {
+		else 
+			if (service->svc_flags & SVC_finished) 
+				{
 				service->svc_flags &= ~SVC_thd_running;
 				service->svc_handle = 0;
-			}
+				}
 		}
-	}
-	THD_MUTEX_UNLOCK(svc_mutex);
+
 }
 
 
-static void conv_switches(
-						  USHORT spb_length,
+static void conv_switches(USHORT spb_length,
 						  USHORT opt_switch_len,
-						  const SCHAR* spb, TEXT** switches)
+						  const UCHAR* spb, 
+						  TEXT** switches)
 {
 /**************************************
  *
@@ -3367,22 +3487,23 @@ static void conv_switches(
  *
  **************************************/
 	USHORT total;
-
-	const TEXT* p = spb;
+	const UCHAR* p = spb;
 
 	if (*p < isc_action_min || *p > isc_action_max)
 		return;					/* error action not defined */
 
-/* Calculate the total length */
+	/* Calculate the total length */
+	
 	if ((total = process_switches(spb_length, p, NULL)) == 0)
 		return;
 
 	*switches =
 		(TEXT *) gds__alloc(total + opt_switch_len +
 							sizeof(SERVICE_THD_PARAM) + 1);
-/* NOMEM: return error */
+	/* NOMEM: return error */
+	
 	if (!*switches)
-		ERR_post(isc_virmemexh, 0);
+		SVC_post(isc_virmemexh, 0);
 
 	strcpy(*switches, SERVICE_THD_PARAM);
 	strcat(*switches, " ");
@@ -3414,9 +3535,7 @@ static const TEXT* find_switch(int in_spb_sw, IN_SW_TAB table)
 }
 
 
-static USHORT process_switches(
-							   USHORT spb_length,
-							   const SCHAR* spb, TEXT* switches)
+static USHORT process_switches(USHORT spb_length, const UCHAR* spb, TEXT* switches)
 {
 /**************************************
  *
@@ -3439,231 +3558,257 @@ static USHORT process_switches(
 	if (spb_length == 0)
 		return 0;
 
-	const TEXT* p = spb;
+	const UCHAR* p = spb;
 	len = spb_length;
 	TEXT* sw = switches;
 
 	// CVC: Isn't ISC_USHORT an external name?
+	
 	const ISC_USHORT svc_action = *p;
 
-	if (len > 1) {
+	if (len > 1) 
+		{
 		++p;
 		--len;
-	}
+		}
 
 	total = 0;					/* total length of the command line */
 
-	while (len > 0) {
-		switch (svc_action) {
-		case isc_action_svc_delete_user:
-		case isc_action_svc_display_user:
-			if (!found) {
-				if (spb != p) {
-					--p;
-					++len;
-				}
-				fb_assert(spb == p);
-				if (!get_action_svc_parameter(&p, gsec_action_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				else {
+	while (len > 0) 
+		{
+		switch (svc_action) 
+			{
+			case isc_action_svc_delete_user:
+			case isc_action_svc_display_user:
+				if (!found) 
+					{
+					if (spb != p) 
+						{
+						--p;
+						++len;
+						}
+						
+					fb_assert(spb == p);
+					
+					if (!get_action_svc_parameter(&p, gsec_action_in_sw_table, &sw, &total, &len))
+						return 0;
+						
 					found = TRUE;
 					/* in case of "display all users" the spb buffer contains
-					   nothing but isc_action_svc_display_user */
+					nothing but isc_action_svc_display_user */
 					if (len == 0)
 						break;
-				}
-			}
+					}
 
-			switch (*p) {
-			case isc_spb_sec_username:
-				++p;
-				--len;
-				get_action_svc_string(&p, &sw, &total, &len);
+				switch (*p) 
+					{
+					case isc_spb_sec_username:
+						++p;
+						--len;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+
+					default:
+						return 0;
+						break;
+					}
 				break;
 
-			default:
-				return 0;
-				break;
-			}
-			break;
-
-		case isc_action_svc_add_user:
-		case isc_action_svc_modify_user:
-			if (!found) {
-				if (spb != p) {
-					--p;
-					++len;
-				}
-				fb_assert(spb == p);
-				if (!get_action_svc_parameter(&p, gsec_action_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				else {
+			case isc_action_svc_add_user:
+			case isc_action_svc_modify_user:
+				if (!found) 
+					{
+					if (spb != p) 
+						{
+						--p;
+						++len;
+						}
+						
+					fb_assert(spb == p);
+					
+					if (!get_action_svc_parameter(&p, gsec_action_in_sw_table,
+												&sw, &total, &len))
+						return 0;
+						
 					found = TRUE;
+					
 					if (*p != isc_spb_sec_username) 
 						/* unexpected service parameter block: expected %d, encountered %d */
-						ERR_post(isc_unexp_spb_form, isc_arg_string,SPB_SEC_USERNAME, 0);
-				}
-			}
+						SVC_post(isc_unexp_spb_form, isc_arg_string,SPB_SEC_USERNAME, 0);
+					}
 
-			switch (*p) {
-			case isc_spb_sec_userid:
-			case isc_spb_sec_groupid:
-				if (!get_action_svc_parameter(&p, gsec_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				get_action_svc_data(&p, &sw, &total, &len);
+				switch (*p) 
+					{
+					case isc_spb_sec_userid:
+					case isc_spb_sec_groupid:
+						if (!get_action_svc_parameter(&p, gsec_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+							
+						get_action_svc_data(&p, &sw, &total, &len);
+						break;
+
+					case isc_spb_sec_username:
+						++p;
+						--len;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+						
+					case isc_spb_sql_role_name:
+					case isc_spb_sec_password:
+					case isc_spb_sec_groupname:
+					case isc_spb_sec_firstname:
+					case isc_spb_sec_middlename:
+					case isc_spb_sec_lastname:
+						if (!get_action_svc_parameter(&p, gsec_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+
+					default:
+						return 0;
+						break;
+					}
 				break;
 
-			case isc_spb_sec_username:
-				++p;
-				--len;
-				get_action_svc_string(&p, &sw, &total, &len);
-				break;
-			case isc_spb_sql_role_name:
-			case isc_spb_sec_password:
-			case isc_spb_sec_groupname:
-			case isc_spb_sec_firstname:
-			case isc_spb_sec_middlename:
-			case isc_spb_sec_lastname:
-				if (!get_action_svc_parameter(&p, gsec_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				get_action_svc_string(&p, &sw, &total, &len);
+			case isc_action_svc_db_stats:
+				switch (*p) 
+					{
+					case isc_spb_dbname:
+						++p;
+						--len;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+
+					case isc_spb_options:
+						++p;
+						--len;
+						if (!get_action_svc_bitmask(&p, dba_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						break;
+
+					case isc_spb_command_line: 
+						++p;
+						--len;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+
+					default:
+						return 0;
+						break;
+					}
 				break;
 
+			case isc_action_svc_backup:
+			case isc_action_svc_restore:
+				switch (*p) 
+					{
+					case isc_spb_bkp_file:
+					case isc_spb_dbname:
+					case isc_spb_sql_role_name:
+						++p;
+						--len;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+						
+					case isc_spb_options:
+						++p;
+						--len;
+						if (!get_action_svc_bitmask(&p, burp_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						break;
+						
+					case isc_spb_bkp_length:
+					case isc_spb_res_length:
+						++p;
+						--len;
+						get_action_svc_data(&p, &sw, &total, &len);
+						break;
+						
+					case isc_spb_bkp_factor:
+					case isc_spb_res_buffers:
+					case isc_spb_res_page_size:
+						if (!get_action_svc_parameter(&p, burp_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						get_action_svc_data(&p, &sw, &total, &len);
+						break;
+						
+					case isc_spb_res_access_mode:
+						++p;
+						--len;
+						if (!get_action_svc_parameter(&p, burp_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						break;
+						
+					case isc_spb_verbose:
+						if (!get_action_svc_parameter(&p, burp_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						break;
+						
+					default:
+						return 0;
+					}
+				break;
+
+			case isc_action_svc_repair:
+			case isc_action_svc_properties:
+				switch (*p) 
+					{
+					case isc_spb_dbname:
+						++p;
+						--len;
+						get_action_svc_string(&p, &sw, &total, &len);
+						break;
+						
+					case isc_spb_options:
+						++p;
+						--len;
+						if (!get_action_svc_bitmask(&p, alice_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						break;
+						
+					case isc_spb_prp_page_buffers:
+					case isc_spb_prp_sweep_interval:
+					case isc_spb_prp_shutdown_db:
+					case isc_spb_prp_deny_new_attachments:
+					case isc_spb_prp_deny_new_transactions:
+					case isc_spb_prp_set_sql_dialect:
+					case isc_spb_rpr_commit_trans:
+					case isc_spb_rpr_rollback_trans:
+					case isc_spb_rpr_recover_two_phase:
+						if (!get_action_svc_parameter(&p, alice_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						get_action_svc_data(&p, &sw, &total, &len);
+						break;
+						
+					case isc_spb_prp_write_mode:
+					case isc_spb_prp_access_mode:
+					case isc_spb_prp_reserve_space:
+						++p;
+						--len;
+						if (!get_action_svc_parameter(&p, alice_in_sw_table,
+													&sw, &total, &len))
+							return 0;
+						break;
+						
+					default:
+						return 0;
+
+					}
+				break;
+				
 			default:
 				return 0;
-				break;
 			}
-			break;
-
-		case isc_action_svc_db_stats:
-			switch (*p) {
-			case isc_spb_dbname:
-				++p;
-				--len;
-				get_action_svc_string(&p, &sw, &total, &len);
-				break;
-
-			case isc_spb_options:
-				++p;
-				--len;
-				if (!get_action_svc_bitmask(&p, dba_in_sw_table,
-											&sw, &total, &len))
-					return 0;
-				break;
-
-			case isc_spb_command_line: 
-				++p;
-				--len;
-				get_action_svc_string(&p, &sw, &total, &len);
-				break;
-
-			default:
-				return 0;
-				break;
-			}
-			break;
-
-		case isc_action_svc_backup:
-		case isc_action_svc_restore:
-			switch (*p) {
-			case isc_spb_bkp_file:
-			case isc_spb_dbname:
-			case isc_spb_sql_role_name:
-				++p;
-				--len;
-				get_action_svc_string(&p, &sw, &total, &len);
-				break;
-			case isc_spb_options:
-				++p;
-				--len;
-				if (!get_action_svc_bitmask(&p, burp_in_sw_table,
-											&sw, &total, &len))
-					return 0;
-				break;
-			case isc_spb_bkp_length:
-			case isc_spb_res_length:
-				++p;
-				--len;
-				get_action_svc_data(&p, &sw, &total, &len);
-				break;
-			case isc_spb_bkp_factor:
-			case isc_spb_res_buffers:
-			case isc_spb_res_page_size:
-				if (!get_action_svc_parameter(&p, burp_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				get_action_svc_data(&p, &sw, &total, &len);
-				break;
-			case isc_spb_res_access_mode:
-				++p;
-				--len;
-				if (!get_action_svc_parameter(&p, burp_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				break;
-			case isc_spb_verbose:
-				if (!get_action_svc_parameter(&p, burp_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				break;
-			default:
-				return 0;
-				break;
-			}
-			break;
-
-		case isc_action_svc_repair:
-		case isc_action_svc_properties:
-			switch (*p) {
-			case isc_spb_dbname:
-				++p;
-				--len;
-				get_action_svc_string(&p, &sw, &total, &len);
-				break;
-			case isc_spb_options:
-				++p;
-				--len;
-				if (!get_action_svc_bitmask(&p, alice_in_sw_table,
-											&sw, &total, &len))
-					return 0;
-				break;
-			case isc_spb_prp_page_buffers:
-			case isc_spb_prp_sweep_interval:
-			case isc_spb_prp_shutdown_db:
-			case isc_spb_prp_deny_new_attachments:
-			case isc_spb_prp_deny_new_transactions:
-			case isc_spb_prp_set_sql_dialect:
-			case isc_spb_rpr_commit_trans:
-			case isc_spb_rpr_rollback_trans:
-			case isc_spb_rpr_recover_two_phase:
-				if (!get_action_svc_parameter(&p, alice_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				get_action_svc_data(&p, &sw, &total, &len);
-				break;
-			case isc_spb_prp_write_mode:
-			case isc_spb_prp_access_mode:
-			case isc_spb_prp_reserve_space:
-				++p;
-				--len;
-				if (!get_action_svc_parameter(&p, alice_in_sw_table,
-											  &sw, &total, &len))
-					return 0;
-				break;
-			default:
-				return 0;
-				break;
-			}
-			break;
-		default:
-			return 0;
-			break;
 		}
-	}
 
 	if (sw && *(sw - 1) == ' ')
 		*--sw = '\0';
@@ -3672,7 +3817,7 @@ static USHORT process_switches(
 }
 
 
-static BOOLEAN get_action_svc_bitmask( const TEXT** spb,
+static BOOLEAN get_action_svc_bitmask( const UCHAR** spb,
 									  const IN_SW_TAB table,
 									  TEXT** cmd,
 									  USHORT* total, USHORT* len)
@@ -3690,11 +3835,9 @@ static BOOLEAN get_action_svc_bitmask( const TEXT** spb,
  *	adjust pointers.
  *
  **************************************/
+ 
 	const TEXT* s_ptr;
-
-	const ISC_ULONG opt =
-		gds__vax_integer(reinterpret_cast<const UCHAR*>(*spb),
-						 sizeof(ISC_ULONG));
+	const ISC_ULONG opt = gds__vax_integer(*spb, sizeof(ISC_ULONG));
 	ISC_ULONG mask = 1;
 	
 	for (int count = (sizeof(ISC_ULONG) * 8) - 1; count; --count) 
@@ -3703,27 +3846,27 @@ static BOOLEAN get_action_svc_bitmask( const TEXT** spb,
 			{
 			if (!(s_ptr = find_switch((opt & mask), table)))
 				return FALSE;
-			else 
+				
+			if (*cmd) 
 				{
-				if (*cmd) 
-					{
-					sprintf(*cmd, "-%s ", s_ptr);
-					*cmd += 1 + strlen(s_ptr) + 1;
-					}
-					*total += 1 + strlen(s_ptr) + 1;
+				sprintf(*cmd, "-%s ", s_ptr);
+				*cmd += 1 + strlen(s_ptr) + 1;
 				}
+				
+			*total += (USHORT) (1 + strlen(s_ptr) + 1);
 			}
+			
 		mask = mask << 1;
 		}
 
 	*spb += sizeof(ISC_ULONG);
 	*len -= sizeof(ISC_ULONG);
+	
 	return TRUE;
 }
 
 
-static void get_action_svc_string(
-								  const TEXT** spb,
+static void get_action_svc_string(const UCHAR** spb,
 								  TEXT** cmd, USHORT* total, USHORT* len)
 {
 /**************************************
@@ -3746,7 +3889,7 @@ static void get_action_svc_string(
 
 /* Do not go beyond the bounds of the spb buffer */
 	if (l > *len)
-		ERR_post(isc_bad_spb_form, 0);
+		SVC_post(isc_bad_spb_form, 0);
 
 	*spb += sizeof(ISC_USHORT);
 	if (*cmd)
@@ -3766,9 +3909,7 @@ static void get_action_svc_string(
 }
 
 
-static void get_action_svc_data(
-								const TEXT** spb,
-								TEXT** cmd, USHORT* total, USHORT* len)
+static void get_action_svc_data(const UCHAR** spb, TEXT** cmd, USHORT* total, USHORT* len)
 {
 /**************************************
  *
@@ -3783,23 +3924,22 @@ static void get_action_svc_data(
  **************************************/
 	TEXT buf[64];
 
-	const ISC_ULONG ll =
-		gds__vax_integer(reinterpret_cast<const UCHAR*>(*spb),
-						 sizeof(ISC_ULONG));
-#pragma FB_COMPILER_MESSAGE("Using %lu for a neutral type ISC_ULONG")
-	sprintf(buf, "%lu ", ll);
-	if (*cmd) {
+	const ISC_ULONG ll = gds__vax_integer(*spb, sizeof(ISC_ULONG));
+	sprintf(buf, "%u ", ll);
+	
+	if (*cmd) 
+		{
 		sprintf(*cmd, "%lu ", ll);
 		*cmd += strlen(buf);
-	}
+		}
+		
 	*spb += sizeof(ISC_ULONG);
-	*total += strlen(buf) + 1;
+	*total += (USHORT) (strlen(buf) + 1);
 	*len -= sizeof(ISC_ULONG);
 }
 
 
-static BOOLEAN get_action_svc_parameter(
-										const TEXT** spb,
+static BOOLEAN get_action_svc_parameter(const UCHAR** spb,
 										IN_SW_TAB table,
 										TEXT** cmd,
 										USHORT* total, USHORT* len)
@@ -3822,14 +3962,16 @@ static BOOLEAN get_action_svc_parameter(
 	if (!(s_ptr = find_switch(**spb, table)))
 		return FALSE;
 
-	if (*cmd) {
+	if (*cmd) 
+		{
 		sprintf(*cmd, "-%s ", s_ptr);
 		*cmd += 1 + strlen(s_ptr) + 1;
-	}
+		}
 
 	*spb += 1;
-	*total += 1 + strlen(s_ptr) + 1;
+	*total += (USHORT) (1 + strlen(s_ptr) + 1);
 	*len -= 1;
+	
 	return TRUE;
 }
 

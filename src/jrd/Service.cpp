@@ -7,6 +7,8 @@
 #include "Service.h"
 //#include "all.h"
 #include "../common/classes/alloc.h"
+#include "jrd_pwd.h"
+#include "enc_proto.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -37,4 +39,16 @@ Service::Service()
 Service::~Service()
 {
 
+}
+
+void Service::setEncryptedPassword(const char* password)
+{
+	encryptedPassword = password;
+}
+
+void Service::setPassword(const char * password)
+{
+	TEXT encrypted[128];
+	ENC_crypt(password, PASSWORD_SALT, encrypted);
+	encryptedPassword = encrypted;
 }

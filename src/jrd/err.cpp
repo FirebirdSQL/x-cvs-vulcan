@@ -147,7 +147,7 @@ const TEXT* ERR_cstring(const TEXT* in_string)
  *
  **************************************/
 
-	return ERR_string(in_string, strlen(in_string));
+	return ERR_string(in_string, (int) strlen(in_string));
 }
 
 #if ( !defined( REQUESTER) && !defined( SUPERCLIENT))

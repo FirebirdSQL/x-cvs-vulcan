@@ -687,7 +687,7 @@ void MemMgr::globalFree(void* block)
 
 void* MemMgr::calloc(size_t size, int type, const char* fileName, int line)
 {
-	void *block = allocateDebug(size, fileName, line);
+	void *block = allocateDebug((int) size, fileName, line);
 	memset (block, 0, size);
 	
 	return block;
