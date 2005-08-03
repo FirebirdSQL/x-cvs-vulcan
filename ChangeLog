@@ -1,3 +1,18 @@
+2005-08-03 01:00  jimstarkey
+
+	* vulcan/src/: include/firebird.h, jrd/svc.cpp:
+	
+	Work in progress -- going home
+
+2005-08-03 00:26  jimstarkey
+
+	* vulcan/src/: Services/Services.cpp, Services/Services.h,
+	Services/Services.vcproj, Services/services.def, jrd/Service.cpp,
+	jrd/Service.h, jrd/inf.cpp, jrd/inf_proto.h, jrd/opt.cpp,
+	jrd/svc.cpp, jrd/svc_proto.h:
+	
+	First crack at creating a services provider
+
 2005-08-01 22:04  jimstarkey
 
 	* vulcan/src/jrd/makefile.in:
