@@ -1,3 +1,15 @@
+2005-08-04 00:19  jimstarkey
+
+	* vulcan/src/: Services/Services.vcproj, common/classes/alloc.h,
+	common/classes/array.h, gpre/gpre.vcproj, jrd/InfoGen.cpp,
+	jrd/InfoGen.h, jrd/MemMgr.cpp, jrd/PBGen.cpp, jrd/RecordSource.cpp,
+	jrd/Service.cpp, jrd/Service.h, jrd/err.cpp, jrd/event.cpp,
+	jrd/exe.h, jrd/ibase.h, jrd/inf.cpp, jrd/inf_proto.h,
+	jrd/isc_sync.cpp, jrd/old_vector.h, jrd/svc.cpp, jrd/svc_proto.h,
+	jrd/utl.cpp, jrd/utl_proto.h:
+	
+	Work in progress -- going home
+
 2005-08-03 01:00  jimstarkey
 
 	* vulcan/src/: include/firebird.h, jrd/svc.cpp:
