@@ -23,6 +23,7 @@
  */
 
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbWriteLock.h"
 #include "jrd.h"
 #include "rse.h"
@@ -30,6 +31,7 @@
 #include "CompilerScratch.h"
 #include "Relation.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/vio_proto.h"
 #include "../jrd/rlck_proto.h"
 
@@ -70,7 +72,7 @@ bool RsbWriteLock::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbWriteLock::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	return rsb_next->getExecutionPathInfo(request, infoGen);
 }
 
 void RsbWriteLock::close(Request* request)

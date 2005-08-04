@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbExtIndexed.h"
 #include "jrd.h"
 #include "rse.h"
@@ -31,6 +32,7 @@
 #include "CompilerScratch.h"
 #include "Relation.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
 
 RsbExtIndexed::RsbExtIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node)
@@ -54,7 +56,17 @@ bool RsbExtIndexed::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbExtIndexed::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_ext_indexed))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbExtIndexed::close(Request* request)

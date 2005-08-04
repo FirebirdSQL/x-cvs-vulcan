@@ -24,16 +24,21 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbIndexed.h"
+#include "dsc.h"
+#include "btr.h"
 #include "jrd.h"
 #include "rse.h"
 #include "Request.h"
 #include "CompilerScratch.h"
 #include "Relation.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
-#include "../jrd/vio_proto.h"
 #include "../jrd/evl_proto.h"
+#include "../jrd/met_proto.h"
+#include "../jrd/vio_proto.h"
 
 
 RsbIndexed::RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node)
@@ -116,7 +121,71 @@ bool RsbIndexed::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbIndexed::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putRelation(rsb_relation, rsb_alias))
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_indexed))
+		return false;
+
+	if (!getExecutionPathInfo(request, infoGen, inversion))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
+}
+
+bool RsbIndexed::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen, const jrd_nod* node)
+{
+	switch (node->nod_type)
+		{
+		case nod_bit_and:
+			if (!infoGen->putByte(isc_info_rsb_and))
+				return false;
+			break;
+		case nod_bit_or:
+		case nod_bit_in:
+			if (!infoGen->putByte(isc_info_rsb_or))
+				return false;
+			break;
+		case nod_bit_dbkey:
+			if (!infoGen->putByte(isc_info_rsb_dbkey))
+				return false;
+			break;
+		case nod_index:
+			if (!infoGen->putByte(isc_info_rsb_index))
+				return false;
+			break;
+		}
+
+	// dump sub-nodes or the actual index info
+	if ((node->nod_type == nod_bit_and) ||
+		(node->nod_type == nod_bit_or) ||
+		(node->nod_type == nod_bit_in))
+		{
+		if (!getExecutionPathInfo(request, infoGen, node->nod_arg[0]))
+			return false;
+		
+		if (!getExecutionPathInfo(request, infoGen, node->nod_arg[1]))
+			return false;
+		}
+	else if (node->nod_type == nod_index) 
+		{
+		SqlIdentifier index_name;
+		IndexRetrieval* retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
+		MET_lookup_index(infoGen->threadData, index_name, retrieval->irb_relation->rel_name,
+						 (USHORT) (retrieval->irb_index + 1));
+		int length = strlen(index_name);
+		if (!infoGen->putString(index_name, length))
+			return false;
+		}
+
+	return true;
 }
 
 void RsbIndexed::close(Request* request)

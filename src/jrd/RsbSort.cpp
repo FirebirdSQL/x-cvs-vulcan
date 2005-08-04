@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbSort.h"
 #include "jrd.h"
 #include "rse.h"
@@ -32,6 +33,7 @@
 #include "Relation.h"
 #include "req.h"
 #include "sort.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/mov_proto.h"
 #include "../jrd/sort_proto.h"
 #include "../jrd/evl_proto.h"
@@ -239,7 +241,17 @@ bool RsbSort::get(Request* request,RSE_GET_MODE mode)
 
 bool RsbSort::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_sort))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbSort::close(Request* request)

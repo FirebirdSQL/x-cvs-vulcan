@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbProcedure.h"
 #include "jrd.h"
 #include "rse.h"
@@ -31,6 +32,7 @@
 #include "Procedure.h"
 #include "req.h"
 #include "val.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/exe_proto.h"
 #include "../jrd/mov_proto.h"
 
@@ -161,7 +163,55 @@ bool RsbProcedure::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbProcedure::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_procedure))
+		return false;
+
+	// don't try to print out plans of procedures called by procedures, since 
+	// we could get into a recursive situation; if the customer wants to know 
+	// the plan produced by the sub-procedure, they can invoke it directly.
+	if (!request->req_procedure) 
+		{
+		if (!procedure || !procedure->hasRequest()) 
+			return false;
+
+		// CVC: This is becoming trickier. There are procedures that don't have a plan
+		// because they don't access tables. In this case, the engine gives up and swallows
+		// the whole plan. Not acceptable.
+
+		if (!procedure->findRequest()->req_fors.getCount()) 
+			{
+			int length = procedure->findName().length();
+
+			if (!infoGen->putBegin())
+				return false;
+
+			if (!infoGen->putByte(isc_info_rsb_relation))
+				return false;
+
+			if (!infoGen->putString(procedure->findName(), length))
+				return false;
+
+			if (!infoGen->putType(isc_info_rsb_sequential))
+				return false;
+
+			if (!infoGen->putEnd())
+				return false;
+			}
+		else
+			{
+			if (!infoGen->putRequest(procedure->findRequest()))
+				return false;
+			}
+		}
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbProcedure::close(Request* request)

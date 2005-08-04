@@ -25,6 +25,7 @@
  
 #include <errno.h>
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbMerge.h"
 #include "RsbSort.h"
 #include "jrd.h"
@@ -36,6 +37,7 @@
 #include "req.h"
 #include "sort.h"
 #include "sort_mem.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/mov_proto.h"
 #include "../jrd/sort_proto.h"
 #include "../jrd/evl_proto.h"
@@ -349,7 +351,24 @@ void RsbMerge::close(Request* request)
 
 bool RsbMerge::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_merge))
+		return false;
+
+	if (!infoGen->putByte((UCHAR) rsb_count))
+		return false;
+	
+	for (int n = 0; n < rsb_count; ++n)
+		if (!sortRsbs[n]->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 bool RsbMerge::getMergeFetch(Request* request, thread_db* tdbb, SSHORT stream, RSE_GET_MODE mode)

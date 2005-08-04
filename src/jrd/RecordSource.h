@@ -140,8 +140,6 @@ public:
 	ULONG		rsb_cardinality;	// estimated cardinality of stream
 	ULONG		rsb_record_count;	// count of records returned from rsb (not candidate records processed)
 	RecordSource* rsb_next;			// next rsb, if appropriate
-	Relation*	rsb_relation;		// relation, if appropriate
-	str*		rsb_alias;			// SQL alias for relation
 	Format*		rsb_format;			// format, if appropriate
 	RecordSource *nextInRequest;	// list of rsbs in request
 	

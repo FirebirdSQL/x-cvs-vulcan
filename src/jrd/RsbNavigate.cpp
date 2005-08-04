@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbNavigate.h"
 #include "jrd.h"
 #include "rse.h"
@@ -32,13 +33,15 @@
 #include "Relation.h"
 #include "req.h"
 #include "btr.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
 #include "../jrd/nav_proto.h"
 
 
 RsbNavigate::RsbNavigate(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node, int key_length)
-		: RsbIndexed(csb, rsb_navigate, stream, relation, alias, node)
+		: RsbIndexed(csb, rsb_navigate, stream, relation, alias, NULL)
 {
+	retrievalInversion = node;
 	keyLength = key_length;
 	rsb_impure = CMP_impure(csb, computeImpureSize(key_length));
 }
@@ -73,7 +76,34 @@ bool RsbNavigate::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbNavigate::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putRelation(rsb_relation, rsb_alias))
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_navigate))
+		return false;
+
+	if (!RsbIndexed::getExecutionPathInfo(request, infoGen, retrievalInversion))
+		return false;
+
+	// dimitr:	here we report indicies used to limit
+	//			the navigational-based retrieval	
+	if (inversion) 
+		{
+		if (!infoGen->putType(isc_info_rsb_indexed))
+			return false;
+
+		if (!RsbIndexed::getExecutionPathInfo(request, infoGen, inversion))
+			return false;
+		}
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbNavigate::close(Request* request)

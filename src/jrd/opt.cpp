@@ -284,10 +284,12 @@ bool OPT_access_path(thread_db* tdbb, Request* request,
  **************************************/
 	DEV_BLKCHK(request, type_req);
 
+#ifdef OBSOLETE
 	const UCHAR* const begin = buffer;
 
 /* loop through all RSEs in the request, 
    and describe the rsb tree for that rsb */
+
 	size_t i;
 	for (i = 0; i < request->req_fors.getCount(); i++) {
 		RecordSource* rsb = request->req_fors[i];
@@ -297,19 +299,13 @@ bool OPT_access_path(thread_db* tdbb, Request* request,
 
 	*return_length = buffer - begin;
 
-/***
-	ExecutionPathInfoGen info(buffer, buffer_length);
-	size_t i;
-	for (i = 0; i < request->req_fors.getCount(); i++) {
-		RecordSource* rsb = request->req_fors[i];
-		if (rsb && !rsb->getExecutionPathInfo(request, &info))
-			break;
-	}
-
-	*return_length = info.length();
-***/
-
 	return (i >= request->req_fors.getCount());
+#endif // OBSOLETE
+
+	ExecutionPathInfoGen info(tdbb, buffer, buffer_length);
+	bool result = info.putRequest(request);
+	*return_length = info.length();
+	return result;
 }
 
 
@@ -2172,7 +2168,7 @@ static USHORT distribute_equalities(thread_db* tdbb, NodeStack& org_stack,
 	return count;
 }
 
-
+#ifdef OBSOLETE
 static bool dump_index(thread_db* tdbb, const jrd_nod* node,
 					UCHAR** buffer_ptr, SSHORT* buffer_length)
 {
@@ -2248,7 +2244,6 @@ static bool dump_index(thread_db* tdbb, const jrd_nod* node,
 	return true;
 }
 
-
 static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 					const RecordSource* rsb, UCHAR** buffer_ptr, 
 					SSHORT* buffer_length)
@@ -2323,7 +2318,7 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 			*buffer++ = isc_info_rsb_navigate;
 			
 			//if (!dump_index(tdbb, (jrd_nod*) rsb->rsb_arg[RSB_NAV_index], &buffer, buffer_length)) 
-			if (!dump_index(tdbb, ((RsbNavigate*) rsb)->inversion, &buffer, buffer_length)) 
+			if (!dump_index(tdbb, ((RsbNavigate*) rsb)->retrievalInversion, &buffer, buffer_length)) 
 				return false;
 
 			// dimitr:	here we report indicies used to limit
@@ -2532,7 +2527,7 @@ static bool dump_rsb(thread_db* tdbb, const jrd_req* request,
 
 	return true;
 }
-
+#endif // OBSOLETE
 
 static bool estimate_cost(thread_db* tdbb,
 							 OptimizerBlk* opt,

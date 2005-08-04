@@ -57,7 +57,7 @@ bool RsbCount::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbCount::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	return rsb_next->getExecutionPathInfo(request, infoGen);
 }
 
 void RsbCount::close(Request* request)

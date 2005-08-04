@@ -17,7 +17,7 @@
  *  The Original Code was created by Arno Brinkman
  *  for the Firebird Open Source RDBMS project.
  *
- *  Copyright (c) 2004 Arno Brinkman <firebird@abvisie.nl>
+ *  Copyright (c) 2005 Arno Brinkman <firebird@abvisie.nl>
  *  and all contributors signed below.
  *
  *  All Rights Reserved.
@@ -31,9 +31,14 @@
 #include "ExecutionPathInfoGen.h"
 #include "firebird.h"
 #include "ibase.h"
+#include "jrd.h"
+#include "Relation.h"
+#include "Request.h"
+#include "RecordSource.h"
 
-ExecutionPathInfoGen::ExecutionPathInfoGen(UCHAR* outputBuffer, int bufferLength)
+ExecutionPathInfoGen::ExecutionPathInfoGen(thread_db* tdbb, UCHAR* outputBuffer, int bufferLength)
 {
+	threadData = tdbb;
 	buffer = outputBuffer;
 	ptr = buffer;
 	bufferEnd = buffer + bufferLength;
@@ -44,20 +49,11 @@ ExecutionPathInfoGen::~ExecutionPathInfoGen()
 	//
 }
 
-bool ExecutionPathInfoGen::put(UCHAR item)
-{
-	if (ptr + 1 > bufferEnd)
-		{
-		return false;
-		}
-
-	*ptr++ = item;
-
-	return true;
-}
-
 bool ExecutionPathInfoGen::put(const UCHAR* value, int length)
 {
+	if (!putByte((UCHAR) length))
+		return false;
+
 	if (ptr + length > bufferEnd)
 		{
 		return false;
@@ -71,20 +67,78 @@ bool ExecutionPathInfoGen::put(const UCHAR* value, int length)
 
 bool ExecutionPathInfoGen::putBegin()
 {
-	return put(isc_info_rsb_begin);
+	return putByte(isc_info_rsb_begin);
+}
+
+bool ExecutionPathInfoGen::putByte(UCHAR value)
+{
+	if (ptr + 1 > bufferEnd)
+		{
+		return false;
+		}
+
+	*ptr++ = value;
+
+	return true;
 }
 
 bool ExecutionPathInfoGen::putEnd()
 {
-	return put(isc_info_rsb_end);
+	return putByte(isc_info_rsb_end);
+}
+
+bool ExecutionPathInfoGen::putRelation(Relation* relation, const str* alias)
+{
+	if (relation)
+		{
+		int length = 0;
+		const char* name = NULL;
+		if (alias)
+			{
+			length = alias->str_length;
+			name = (char*) alias->str_data;
+			}
+		else
+			{
+			length = strlen(relation->rel_name);
+			name = relation->rel_name;
+			}
+
+		if (!putByte(isc_info_rsb_relation))
+			return false;
+
+		if (!putString(name, length))
+			return false;
+		}
+
+	return true;
+}
+
+bool ExecutionPathInfoGen::putRequest(Request* request)
+{
+	if (!request)
+		return false;
+
+	for (int i = 0; i < request->req_fors.getCount(); i++) 
+		{
+		RecordSource* rsb = request->req_fors[i];
+		if (rsb && !rsb->getExecutionPathInfo(request, this))
+			return false;
+		}
+	return true;
+}
+
+bool ExecutionPathInfoGen::putString(const char* value, int length)
+{
+	return put((const UCHAR*) value, length);
 }
 
 bool ExecutionPathInfoGen::putType(UCHAR item)
 {
-	if (!put(isc_info_rsb_type))
+	if (!putByte(isc_info_rsb_type))
 		return false;
 
-	return put(item);
+	return putByte(item);
 }
 
 

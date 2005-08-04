@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbSequential.h"
 #include "jrd.h"
 #include "rse.h"
@@ -33,6 +34,7 @@
 #include "Relation.h"
 #include "RsbSort.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
 #include "../jrd/dpm_proto.h"
 #include "../jrd/rlck_proto.h"
@@ -126,7 +128,21 @@ bool RsbSequential::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbSequential::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putRelation(rsb_relation, rsb_alias))
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_sequential))
+		return false;
+
+	if (rsb_next) {
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+	}
+
+	return infoGen->putEnd();
 }
 
 void RsbSequential::close(Request* request)

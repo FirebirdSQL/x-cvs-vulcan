@@ -24,12 +24,14 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbCross.h"
 #include "jrd.h"
 #include "rse.h"
 #include "Request.h"
 #include "CompilerScratch.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 
 RsbCross::RsbCross(CompilerScratch *csb, int count) : RecordSource(csb, rsb_cross)
 {
@@ -87,7 +89,24 @@ bool RsbCross::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbCross::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_cross))
+		return false;
+
+	if (!infoGen->putByte((UCHAR) rsb_count))
+		return false;
+	
+	for (int n = 0; n < rsb_count; ++n)
+		if (!rsbs[n]->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbCross::close(Request* request)

@@ -24,12 +24,14 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbAggregate.h"
 #include "jrd.h"
 #include "rse.h"
 #include "Request.h"
 #include "CompilerScratch.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/vio_proto.h"
 #include "../jrd/evl_proto.h"
 #include "../jrd/cmp_proto.h"
@@ -66,7 +68,17 @@ bool RsbAggregate::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbAggregate::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_aggregate))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbAggregate::close(Request* request)

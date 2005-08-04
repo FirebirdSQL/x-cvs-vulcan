@@ -221,7 +221,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 	UCHAR *nextPointer = get_position(tdbb, rsb, impure, &window,  direction, &expanded_next);
 	MOVE_FAST(impure->irsb_nav_data, key.key_data, impure->irsb_nav_length);
 	//JRD_NOD retrieval_node = (JRD_NOD) rsb->rsb_arg[RSB_NAV_index];
-	JRD_NOD retrieval_node = rsb->inversion;
+	JRD_NOD retrieval_node = rsb->retrievalInversion;
 	IndexRetrieval* retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 
 	// set the upper (or lower) limit for navigational retrieval
@@ -1046,7 +1046,7 @@ static UCHAR* nav_open(
 	// Find the starting leaf page
 	
 	//retrieval_node = (JRD_NOD) rsb->rsb_arg[RSB_NAV_index];
-	retrieval_node = rsb->inversion;
+	retrieval_node = rsb->retrievalInversion;
 	retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 	//index_desc* idx = (index_desc* ) ((SCHAR *) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 	index_desc* idx = (index_desc* ) ((SCHAR *) impure + rsb->indexOffset);

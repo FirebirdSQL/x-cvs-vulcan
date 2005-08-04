@@ -24,12 +24,14 @@
  */
 
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbSingular.h"
 #include "jrd.h"
 #include "rse.h"
 #include "Request.h"
 #include "CompilerScratch.h"
 #include "iberror.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/err_proto.h"
 
 RsbSingular::RsbSingular(CompilerScratch *csb, RecordSource *next) : RecordSource(csb, rsb_singular)
@@ -69,7 +71,7 @@ bool RsbSingular::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbSingular::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	return rsb_next->getExecutionPathInfo(request, infoGen);
 }
 
 void RsbSingular::close(Request* request)

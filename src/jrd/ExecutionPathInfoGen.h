@@ -17,7 +17,7 @@
  *  The Original Code was created by Arno Brinkman
  *  for the Firebird Open Source RDBMS project.
  *
- *  Copyright (c) 2004 Arno Brinkman <firebird@abvisie.nl>
+ *  Copyright (c) 2005 Arno Brinkman <firebird@abvisie.nl>
  *  and all contributors signed below.
  *
  *  All Rights Reserved.
@@ -31,6 +31,12 @@
 
 #include "../common/classes/array.h"
 
+class Relation;
+class Request;
+class str;
+
+struct thread_db;
+
 class ExecutionPathInfoGen
 {
 private:
@@ -38,16 +44,20 @@ private:
 	UCHAR* ptr;
 	UCHAR* bufferEnd;
 public:
-	ExecutionPathInfoGen(UCHAR* outputBuffer, int bufferLength);
+	ExecutionPathInfoGen(thread_db* tdbb, UCHAR* outputBuffer, int bufferLength);
 	~ExecutionPathInfoGen();
 
-	bool put(UCHAR item);
 	bool put(const UCHAR* value, int length);
-	bool putType(UCHAR item);
 	bool putBegin();
+	bool putByte(UCHAR value);
 	bool putEnd();
+	bool putRelation(Relation* relation, const str* alias);
+	bool putRequest(Request* request);
+	bool putString(const char* value, int length);
+	bool putType(UCHAR item);
 
 	int length();
+	thread_db* threadData;
 };
 
 #endif // EXECUTION_PATH_INFO_GEN_H

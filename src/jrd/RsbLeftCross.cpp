@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbLeftCross.h"
 #include "jrd.h"
 #include "rse.h"
@@ -34,6 +35,7 @@
 #include "../jrd/evl_proto.h"
 #include "Relation.h"
 #include "RsbBoolean.h"
+#include "ExecutionPathInfoGen.h"
 
 RsbLeftCross::RsbLeftCross(CompilerScratch *csb, jrd_nod *inBool, RecordSource *inRsb, jrd_nod *outBool, RecordSource *outRsb) 
 		: RecordSource(csb, rsb_left_cross)
@@ -188,7 +190,26 @@ bool RsbLeftCross::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbLeftCross::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_left_cross))
+		return false;
+
+	if (!infoGen->putByte(2))
+		return false;
+	
+	if (!outerRsb->getExecutionPathInfo(request, infoGen))
+		return false;
+
+	if (!innerRsb->getExecutionPathInfo(request, infoGen))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbLeftCross::close(Request* request)

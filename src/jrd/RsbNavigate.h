@@ -65,7 +65,9 @@ public:
 	int	computeImpureSize(int key_length);
 	
 	int	keyLength;
-	int	indexOffset;
+	int	indexOffset;	
+	jrd_nod* retrievalInversion;
+
 };
 
 #endif

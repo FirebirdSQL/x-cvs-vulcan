@@ -45,7 +45,7 @@ public:
 	virtual void pushRecords(Request* request);
 	virtual void popRecords(Request* request);
 	
-	jrd_nod		*map;
+	jrd_nod* map;
 };
 
 #endif

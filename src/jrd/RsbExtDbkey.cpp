@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbExtDbkey.h"
 #include "jrd.h"
 #include "rse.h"
@@ -31,6 +32,7 @@
 #include "CompilerScratch.h"
 #include "Relation.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
 
 RsbExtDbkey::RsbExtDbkey(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node)
@@ -54,7 +56,17 @@ bool RsbExtDbkey::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbExtDbkey::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_ext_dbkey))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbExtDbkey::close(Request* request)

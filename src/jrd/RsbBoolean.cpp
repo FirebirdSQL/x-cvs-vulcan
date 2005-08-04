@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbBoolean.h"
 #include "jrd.h"
 #include "rse.h"
@@ -31,6 +32,7 @@
 #include "CompilerScratch.h"
 #include "req.h"
 #include "../jrd/evl_proto.h"
+#include "ExecutionPathInfoGen.h"
 
 RsbBoolean::RsbBoolean(CompilerScratch *csb, RecordSource* prior_rsb, jrd_nod* node) : RecordSource(csb, rsb_boolean)
 {
@@ -76,7 +78,18 @@ bool RsbBoolean::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbBoolean::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_boolean))
+		return false;
+
+	if (rsb_next) {
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+	}
+
+	return infoGen->putEnd();
 }
 
 void RsbBoolean::close(Request* request)

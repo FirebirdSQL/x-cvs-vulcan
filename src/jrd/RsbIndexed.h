@@ -55,9 +55,10 @@ public:
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
 	virtual bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen);
+	bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen, const jrd_nod* node);
 	virtual void close(Request* request);
 	
-	jrd_nod		*inversion;
+	jrd_nod* inversion;
 };
 
 #endif

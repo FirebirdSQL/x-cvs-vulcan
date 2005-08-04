@@ -24,12 +24,14 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbSkip.h"
 #include "jrd.h"
 #include "rse.h"
 #include "Request.h"
 #include "CompilerScratch.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
 #include "../jrd/err_proto.h"
 #include "../jrd/evl_proto.h"
@@ -110,7 +112,17 @@ bool RsbSkip::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbSkip::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_skip))
+		return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbSkip::close(Request* request)

@@ -24,6 +24,7 @@
  */
  
 #include "firebird.h"
+#include "ibase.h"
 #include "RsbUnion.h"
 #include "jrd.h"
 #include "rse.h"
@@ -31,6 +32,7 @@
 #include "CompilerScratch.h"
 #include "Relation.h"
 #include "req.h"
+#include "ExecutionPathInfoGen.h"
 #include "../jrd/cmp_proto.h"
 #include "../jrd/vio_proto.h"
 #include "../jrd/exe_proto.h"
@@ -122,7 +124,24 @@ bool RsbUnion::get(Request* request, RSE_GET_MODE mode)
 
 bool RsbUnion::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
 {
-	return false;
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putType(isc_info_rsb_union))
+		return false;
+
+	if (!infoGen->putByte((UCHAR) rsb_count))
+		return false;
+	
+	for (int n = 0; n < rsb_count; ++n)
+		if (!rsbs[n]->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	if (rsb_next)
+		if (!rsb_next->getExecutionPathInfo(request, infoGen))
+			return false;
+
+	return infoGen->putEnd();
 }
 
 void RsbUnion::close(Request* request)

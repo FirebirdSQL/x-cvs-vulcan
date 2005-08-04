@@ -46,6 +46,9 @@ public:
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 	virtual void pushRecords(Request* request);
 	virtual void popRecords(Request* request);
+
+	Relation* rsb_relation;
+	str* rsb_alias; // SQL alias for relation
 };
 
 #endif

@@ -275,7 +275,7 @@ int EXT_get(thread_db* tdbb, RecordSource* rsb)
 	UCHAR *p;
 	vec::iterator itr;
 
-	relation = rsb->rsb_relation;
+	relation = ((RsbExtSequential*) rsb)->rsb_relation;
 	file = relation->rel_file;
 	request = tdbb->tdbb_request;
 
@@ -368,7 +368,7 @@ void EXT_open(thread_db* tdbb, RecordSource* rsb)
  *
  **************************************/
 
-	Relation *relation = rsb->rsb_relation;
+	Relation *relation = ((RsbExtSequential*) rsb)->rsb_relation;
 	Request *request = tdbb->tdbb_request;
 	record_param* rpb = &request->req_rpb[rsb->rsb_stream];
 	Record* record;
