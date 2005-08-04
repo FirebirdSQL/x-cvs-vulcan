@@ -618,8 +618,6 @@ Service* SVC_attach(USHORT			service_length,
 		//service->blk_pool_id = 0;
 		//service->blk_length = 0;
 		service->svc_service = serv;
-		service->svc_resp_buf = service->svc_resp_ptr = NULL;
-		service->svc_resp_buf_len = service->svc_resp_len = 0;
 		service->svc_flags = serv->serv_executable ? SVC_forked : 0;
 		service->svc_switches = switches;
 		service->svc_handle = 0;
@@ -930,6 +928,7 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
  **************************************/
 	UCHAR	item;
 	TEXT	buffer[MAXPATHLEN];
+	UCHAR	infoBuffer[MAXPATHLEN];
 	USHORT	l, length, version, get_flags;
 
 	THREAD_EXIT;
@@ -1251,59 +1250,48 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 				break;
 
 			case isc_info_svc_response:
-				service->svc_resp_len = 0;
-				
-				/***
-				if (info + 4 >= end) 
-					{
-					*info++ = isc_info_truncated;
-					break;
-					}
-				***/
-				
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
-				service_get(service, (UCHAR*) buffer, 2, GET_BINARY, 0, &length);
-				l = (USHORT) gds__vax_integer(reinterpret_cast<UCHAR*>(buffer), 2);
-				length = MIN(end - (info + 5), l);
-				service_get(service, info + 3, length, GET_BINARY, 0, &length);
+				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
+				l = (USHORT) gds__vax_integer(infoBuffer, 2);
+				service->responseBuffer.resize(l);
+				service_get(service, service->responseBuffer.space, l, GET_BINARY, 0, &length);
+				service->responseLength = length;
 				//info = INF_put_item(item, length, info + 3, info, end);
-				infoGen.put(item, length, info + 3);
+				l = infoGen.maxRemaining();
 				
-				if (length != l) 
+				if (length < l)
 					{
-					*info++ = isc_info_truncated;
-					l -= length;
-					
-					if (l > service->svc_resp_buf_len) 
-						{
-						THREAD_ENTER;
-						
-						if (service->svc_resp_buf)
-							gds__free((SLONG *) service->svc_resp_buf);
-							
-						service->svc_resp_buf = (UCHAR *) gds__alloc((SLONG) l);
-						
-						/* FREE: in SVC_detach() */
-						
-						if (!service->svc_resp_buf) 
-							{	/* NOMEM: */
-							DEV_REPORT("SVC_query: out of memory");
-							/* NOMEM: not really handled well */
-							l = 0;	/* set the length to zero */
-							}
-							
-						service->svc_resp_buf_len = l;
-						THREAD_EXIT;
-						}
-						
-					service_get(service, (UCHAR*) service->svc_resp_buf, l, GET_BINARY, 0, &length);
-					service->svc_resp_ptr = service->svc_resp_buf;
-					service->svc_resp_len = l;
+					infoGen.put(item, length, service->responseBuffer.space);
+					service->responseOffset = length;
 					}
+				else
+					{
+					infoGen.put(item, l, service->responseBuffer.space);
+					service->responseOffset = l;
+					infoGen.forceTruncation();
+					}
+				
 				break;
 
 			case isc_info_svc_response_more:
+				length = service->responseLength - service->responseOffset;
+				l = infoGen.maxRemaining();
+				
+				if (length < l)
+					{
+					infoGen.put(item, length, service->responseBuffer.space + service->responseOffset);
+					service->responseOffset = 0;
+					service->responseLength = 0;
+					}
+				else
+					{
+					infoGen.put(item, l, service->responseBuffer.space + service->responseOffset);
+					service->responseOffset += l;
+					infoGen.forceTruncation();
+					}
+					
+				/***
 				if ( (l = length = service->svc_resp_len) )
 					length = MIN(end - (info + 5), l);
 					
@@ -1318,32 +1306,22 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 				
 				if (length != l)
 					*info++ = isc_info_truncated;
+				***/
 				break;
 
 			case isc_info_svc_total_length:
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
-				service_get(service, (UCHAR*) buffer, 2, GET_BINARY, 0, &length);
-				l = (USHORT) gds__vax_integer((const UCHAR*) buffer, 2);
-				service_get(service, (UCHAR*) buffer, l, GET_BINARY, 0, &length);
-				
-				if (!(info = INF_put_item(item, length, buffer, info, end))) 
-					{
-					THREAD_ENTER;
-					return 0;
-					}
+				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
+				l = (USHORT) gds__vax_integer(infoBuffer, 2);
+				service_get(service, infoBuffer, l, GET_BINARY, 0, &length);
+				infoGen.put(item, length, infoBuffer);
 				break;
 
 			case isc_info_svc_line:
 			case isc_info_svc_to_eof:
 			case isc_info_svc_limbo_trans:
 			case isc_info_svc_get_users:
-				if (info + 4 >= end) 
-					{
-					*info++ = isc_info_truncated;
-					break;
-					}
-
 				if (item == isc_info_svc_line)
 					get_flags = GET_LINE;
 				else if (item == isc_info_svc_to_eof)
@@ -1351,49 +1329,38 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 				else
 					get_flags = GET_BINARY;
 
-				service_get(service, info + 3, end - (info + 5), get_flags, timeout, &length);
-
+				TempSpace tempSpace(sizeof(infoBuffer), infoBuffer);
+				l = infoGen.maxRemaining();
+				tempSpace.resize(l);
+				service_get(service, tempSpace.space, l, get_flags, timeout, &length);
+				infoGen.put(item, length, tempSpace.space);
+				
 				/* If the read timed out, return the data, if any, & a timeout
-				item.  If the input buffer was not large enough
-				to store a read to eof, return the data that was read along
-				with an indication that more is available. */
-
-				if (!(info = INF_put_item(item, length, info + 3, info, end))) {
-					THREAD_ENTER;
-					return 0;
-				}
+				   item.  If the input buffer was not large enough
+				   to store a read to eof, return the data that was read along
+				   with an indication that more is available. */
 
 				if (service->svc_flags & SVC_timeout)
-				{
 					*info++ = isc_info_svc_timeout;
-				}
 				else
-				{
+					{
 					if (!length && !(service->svc_flags & SVC_finished))
-					{
 						*info++ = isc_info_data_not_ready;
-					}
 					else
-					{
-						if (item == isc_info_svc_to_eof &&
-							!(service->svc_flags & SVC_finished))
-						{
+						if (item == isc_info_svc_to_eof && !(service->svc_flags & SVC_finished))
 							*info++ = isc_info_truncated;
-						}
 					}
-				}
+					
 				break;
-			}
+				}
 
 		if (service->svc_user_flag == SVC_user_none)
 			break;
-	}
+		}
 
-	if (info < end)
-		*info = isc_info_end;
-
-
+	infoGen.fini();
 	THREAD_ENTER;
+	
 	return tdbb->tdbb_status_vector[1];
 }
 
@@ -1415,7 +1382,7 @@ void SVC_query(Service*		service,
  *	Provide information on service object.
  *
  **************************************/
-	UCHAR	item, *p;
+	UCHAR	item;
 	char	buffer[256];
 	TEXT	PathBuffer[MAXPATHLEN];
 	UCHAR	infoBuffer[MAXPATHLEN];
@@ -1552,18 +1519,14 @@ void SVC_query(Service*		service,
 				/* Note: it is safe to use strlen to get a length of "buffer"
 				   because gds_prefix[_lock|_msg] return a zero-terminated
 				   string */
-				   
-				if (!(info = INF_put_item(item, PathBuffer, info, end))) 
-					{
-					THREAD_ENTER;
-					return;
-					}
+				
+				infoGen.putString(item, PathBuffer);
 					
 				break;
 
 #ifdef SUPERSERVER
 			case isc_info_svc_dump_pool_info:
-			{
+				{
 				char fname[MAXPATHLEN];
 				int length = isc_vax_integer(items, sizeof(USHORT));
 				
@@ -1609,133 +1572,77 @@ void SVC_query(Service*		service,
 			
 			case isc_info_svc_version:
 				/* The version of the service manager */
-
-				length = INF_convert(SERVICE_VERSION, infoBuffer);
-				
-				if (!(info = INF_put_item(item, length, infoBuffer, info, end)))
-					{
-					THREAD_ENTER;
-					return;
-					}
+				infoGen.putInt(item, SERVICE_VERSION);
 				break;
 
 			case isc_info_svc_capabilities:
 				/* bitmask defining any specific architectural differences */
-
-				length = INF_convert(SERVER_CAPABILITIES_FLAG, infoBuffer);
-				
-				if (!(info = INF_put_item(item, length, infoBuffer, info, end)))
-					{
-					THREAD_ENTER;
-					return;
-					}
+				infoGen.putInt(item, SERVER_CAPABILITIES_FLAG);
 				break;
 
 			case isc_info_svc_server_version:
 				{
 				/* The version of the server engine */
-
-				p = infoBuffer;
-				*p++ = 1;			/* Count */
-				*p++ = sizeof(GDS_VERSION) - 1;
-				
-				for (const TEXT* gvp = GDS_VERSION; *gvp; p++, gvp++)
-					*p = *gvp;
-					
-				if (!(info = INF_put_item(item, p - infoBuffer, infoBuffer, info, end)))
-					{
-					THREAD_ENTER;
-					return;
-					}
+				infoGen.putString(item, GDS_VERSION);
 				break;
 				}
 
 			case isc_info_svc_implementation:
 				/* The server implementation - e.g. Interbase/sun4 */
-
-				p = infoBuffer;
-				*p++ = 1;			/* Count */
-				*p++ = IMPLEMENTATION;
-				
-				if (!(info = INF_put_item(item, p - infoBuffer, infoBuffer, info, end)))
-					{
-					THREAD_ENTER;
-					return;
-					}
+				infoGen.putInt(item, IMPLEMENTATION);
 				break;
 
 
 			case isc_info_svc_user_dbpath:
 				/* The path to the user security database (security.fdb) */
 				SecurityDatabase::getPath(buffer);
-
-				if (!(info = INF_put_item(item, buffer, info, end)))
-					{
-					THREAD_ENTER;
-					return;
-					}
+				infoGen.putString(item, buffer);
 				break;
 
 			case isc_info_svc_response:
-				service->svc_resp_len = 0;
-				
-				if (info + 4 > end)
-					{
-					*info++ = isc_info_truncated;
-					break;
-					}
-					
+				{
 				service_put(service, &item, 1);
 				service_get(service, &item, 1, GET_BINARY, 0, &length);
 				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
 				l = (USHORT) gds__vax_integer(infoBuffer, 2);
-				length = MIN(end - (info + 4), l);
-				service_get(service, info + 3, length, GET_BINARY, 0, &length);
-				info = INF_put_item(item, length, info + 3, info, end);
+				service->responseBuffer.resize(l);
+				service_get(service, service->responseBuffer.space, l, GET_BINARY, 0, &length);
+				service->responseLength = length;
+				//info = INF_put_item(item, length, info + 3, info, end);
+				l = infoGen.maxRemaining();
 				
-				if (length != l)
+				if (length < l)
 					{
-					*info++ = isc_info_truncated;
-					l -= length;
-					
-					if (l > service->svc_resp_buf_len)
-						{
-						THREAD_ENTER;
-						if (service->svc_resp_buf)
-							gds__free((SLONG *) service->svc_resp_buf);
-						service->svc_resp_buf = (UCHAR *) gds__alloc((SLONG) l);
-						/* FREE: in SVC_detach() */
-						
-						if (!service->svc_resp_buf)
-							{	/* NOMEM: */
-							DEV_REPORT("SVC_query: out of memory");
-							/* NOMEM: not really handled well */
-							l = 0;	/* set the length to zero */
-							}
-						service->svc_resp_buf_len = l;
-						THREAD_EXIT;
-						}
-					service_get(service, service->svc_resp_buf,l,GET_BINARY,0,&length);
-					service->svc_resp_ptr = service->svc_resp_buf;
-					service->svc_resp_len = l;
+					infoGen.put(item, length, service->responseBuffer.space);
+					service->responseOffset = length;
 					}
+				else
+					{
+					infoGen.put(item, l, service->responseBuffer.space);
+					service->responseOffset = l;
+					infoGen.forceTruncation();
+					}
+				
 				break;
+				}
 
 			case isc_info_svc_response_more:
-				if ( (l = length = service->svc_resp_len) )
-					length = MIN(end - (info + 4), l);
-					
-				if (!(info = INF_put_item(item,length, service->svc_resp_ptr,info,end)))
+				length = service->responseLength - service->responseOffset;
+				l = infoGen.maxRemaining();
+				
+				if (length < l)
 					{
-					THREAD_ENTER;
-					return;
+					infoGen.put(item, length, service->responseBuffer.space + service->responseOffset);
+					service->responseOffset = 0;
+					service->responseLength = 0;
+					}
+				else
+					{
+					infoGen.put(item, l, service->responseBuffer.space + service->responseOffset);
+					service->responseOffset += l;
+					infoGen.forceTruncation();
 					}
 					
-				service->svc_resp_ptr += length;
-				service->svc_resp_len -= length;
-				
-				if (length != l)
-					*info++ = isc_info_truncated;
 				break;
 
 			case isc_info_svc_total_length:
@@ -1744,31 +1651,25 @@ void SVC_query(Service*		service,
 				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
 				l = (USHORT) gds__vax_integer(infoBuffer, 2);
 				service_get(service, infoBuffer, l, GET_BINARY, 0, &length);
-				
-				if (!(info = INF_put_item(item, length, infoBuffer, info, end)))
-					{
-					THREAD_ENTER;
-					return;
-					}
+				infoGen.put(item, length, infoBuffer);
 				break;
 
 			case isc_info_svc_line:
 			case isc_info_svc_to_eof:
-				if (info + 4 > end)
-					{
-					*info++ = isc_info_truncated;
-					break;
-					}
-					
 				get_flags = (item == isc_info_svc_line) ? GET_LINE : GET_EOF;
-				service_get(service, info + 3, end - (info + 4), get_flags, timeout, &length);
+				TempSpace tempSpace(sizeof(infoBuffer), infoBuffer);
+				l = infoGen.maxRemaining();
+				tempSpace.resize(l);
+				service_get(service, tempSpace.space, l, get_flags, timeout, &length);
+				infoGen.put(item, length, tempSpace.space);
+				//service_get(service, info + 3, end - (info + 4), get_flags, timeout, &length);
+				//info = INF_put_item(item, length, info + 3, info, end);
 
 				/* If the read timed out, return the data, if any, & a timeout
 				   item.  If the input buffer was not large enough
 				   to store a read to eof, return the data that was read along
 				   with an indication that more is available. */
 
-				info = INF_put_item(item, length, info + 3, info, end);
 
 				if (service->svc_flags & SVC_timeout)
 					*info++ = isc_info_svc_timeout;
@@ -1783,8 +1684,7 @@ void SVC_query(Service*		service,
 			}
 		}
 
-	if (info < end)
-		*info = isc_info_end;
+	infoGen.fini();
 
 	THREAD_ENTER;
 }
@@ -3419,9 +3319,6 @@ void SVC_cleanup(Service* service)
 		service->svc_argv = NULL;
 	}
 #endif
-
-	if (service->svc_resp_buf)
-		gds__free((SLONG *) service->svc_resp_buf);
 
 	if (service->svc_switches != NULL)
 		gds__free((SLONG *) service->svc_switches);

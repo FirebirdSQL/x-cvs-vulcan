@@ -29,6 +29,8 @@ public:
 	bool putUnknown(UCHAR item);
 	bool putInt(int value);
 	bool putByte(UCHAR item, UCHAR stuff);
+	int maxRemaining(void);
+	void forceTruncation(void);
 };
 
 #endif // !defined(AFX_INFOGEN_H__0BBF8C41_9AA3_4D97_B8BC_C21C67DA5539__INCLUDED_)

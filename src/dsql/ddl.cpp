@@ -6265,28 +6265,22 @@ static void set_nod_value_attributes( dsql_nod* node, const dsql_fld* field)
 		dsql_nod* child = node->nod_arg[child_number];
 		
 		if (child) // && MemoryPool::blk_type(child) == dsql_type_nod)
-			{
-			if (nod_dom_value == child->nod_type)
+			switch (child->nod_type)
 				{
-				fb_assert(field->fld_dtype <= MAX_UCHAR);
-				child->nod_desc.dsc_dtype = (UCHAR) field->fld_dtype;
-				child->nod_desc.dsc_length = field->fld_length;
-				fb_assert(field->fld_scale <= MAX_SCHAR);
-				child->nod_desc.dsc_scale = (SCHAR) field->fld_scale;
+				case nod_dom_value:
+					fb_assert(field->fld_dtype <= MAX_UCHAR);
+					child->nod_desc.dsc_dtype = (UCHAR) field->fld_dtype;
+					child->nod_desc.dsc_length = field->fld_length;
+					fb_assert(field->fld_scale <= MAX_SCHAR);
+					child->nod_desc.dsc_scale = (SCHAR) field->fld_scale;
+					break;
+				
+				case nod_field_name:
+					break;
+					
+				default:
+					set_nod_value_attributes(child, field);
 				}
-			else if ((nod_constant != child->nod_type) &&
-					 (child->nod_count > 0))
-				{
-				/* A nod_constant can have nod_arg entries which are not really
-				   pointers to other nodes, but rather integer values, so
-				   it is not safe to scan through its children.  Fortunately,
-				   it cannot have a nod_dom_value as a child in any case, so
-				   we lose nothing by skipping it.
-				 */
-
-				set_nod_value_attributes(child, field);
-				}
-			}						// if it's a node 
 		}							/* for (child_number ... */
 		
 	return;

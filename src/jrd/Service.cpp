@@ -21,15 +21,13 @@ Service::Service()
 	svc_stdout = NULL;
 	svc_argv = NULL;
 	svc_service = NULL;
-	svc_resp_buf = NULL;
-	svc_resp_ptr = NULL;
 	svc_switches = NULL;
 	
 	svc_stdout_head = 0;
 	svc_stdout_tail = 0;
 	svc_argc = 0;
-	svc_resp_buf_len = 0;
-	svc_resp_len = 0;
+	responseOffset = 0;
+	responseLength = 0;
 	svc_flags = 0;
 	svc_user_flag = 0;
 	svc_spb_version = 0;

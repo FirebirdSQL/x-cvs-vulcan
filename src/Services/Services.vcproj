@@ -158,7 +158,7 @@
 				RelativePath="..\jrd\Generate.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\inf.cpp">
+				RelativePath="..\jrd\InfoGen.cpp">
 			</File>
 			<File
 				RelativePath="..\config\InputFile.cpp">
@@ -230,6 +230,9 @@
 				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\TempSpace.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\utl.cpp">
 			</File>
 		</Filter>
@@ -287,6 +290,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\inf_proto.h">
+			</File>
+			<File
+				RelativePath="..\jrd\InfoGen.h">
 			</File>
 			<File
 				RelativePath="..\config\InputFile.h">
@@ -362,6 +368,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\Sync.h">
+			</File>
+			<File
+				RelativePath="..\jrd\TempSpace.h">
 			</File>
 			<File
 				RelativePath="..\jrd\utl_proto.h">

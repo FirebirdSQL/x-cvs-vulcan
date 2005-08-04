@@ -13,6 +13,7 @@
 #include "../include/fb_blk.h"
 #include "AsyncEvent.h"
 #include "JString.h"
+#include "TempSpace.h"
 
 #ifndef MAX_PASSWORD_ENC_LENGTH
 #define MAX_PASSWORD_ENC_LENGTH 12
@@ -61,10 +62,11 @@ public:
 	ULONG			svc_argc;
 	AsyncEvent		svc_start_event[1];	/* fired once service has started successfully */
 	const serv*		svc_service;
-	UCHAR*			svc_resp_buf;
-	UCHAR*			svc_resp_ptr;
-	USHORT			svc_resp_buf_len;
-	USHORT			svc_resp_len;
+	//UCHAR*		svc_resp_buf;
+	//USHORT		svc_resp_buf_len;
+	TempSpace		responseBuffer;
+	USHORT			responseOffset;
+	USHORT			responseLength;
 	USHORT			svc_flags;
 	USHORT			svc_user_flag;
 	USHORT			svc_spb_version;

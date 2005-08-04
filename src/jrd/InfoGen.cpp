@@ -7,6 +7,7 @@
 #include "firebird.h"
 #include "InfoGen.h"
 #include "ibase.h"
+#include ".\infogen.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -69,7 +70,8 @@ bool InfoGen::putInt(UCHAR item, int value)
 
 int InfoGen::fini()
 {
-	*ptr++ = isc_info_end;
+	if (!full)
+		*ptr++ = isc_info_end;
 	
 	return ptr - buffer;
 }
@@ -87,7 +89,7 @@ bool InfoGen::put(UCHAR item, int length, const UCHAR* stuff)
 
 bool InfoGen::putString(UCHAR item, const char* value)
 {
-	return put(item, strlen(value), (const UCHAR*) value);
+	return put(item, (int) strlen(value), (const UCHAR*) value);
 }
 
 bool InfoGen::putUnknown(UCHAR item)
@@ -111,4 +113,17 @@ bool InfoGen::putInt(int value)
 bool InfoGen::putByte(UCHAR item, UCHAR stuff)
 {
 	return put(item, 1, &stuff);
+}
+
+int InfoGen::maxRemaining(void)
+{
+	int n = yellow - ptr - 3;
+	
+	return (n >= 0) ? n : 0;
+}
+
+void InfoGen::forceTruncation(void)
+{
+	full = true;
+	*ptr++ = isc_info_truncated;
 }
