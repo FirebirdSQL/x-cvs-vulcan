@@ -186,6 +186,11 @@ bool RsbLeftCross::get(Request* request, RSE_GET_MODE mode)
 	return TRUE;
 }
 
+bool RsbLeftCross::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbLeftCross::close(Request* request)
 {
 	outerRsb->close(request);

@@ -347,6 +347,11 @@ void RsbMerge::close(Request* request)
 		}
 }
 
+bool RsbMerge::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 bool RsbMerge::getMergeFetch(Request* request, thread_db* tdbb, SSHORT stream, RSE_GET_MODE mode)
 {
 	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);

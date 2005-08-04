@@ -120,6 +120,11 @@ bool RsbUnion::get(Request* request, RSE_GET_MODE mode)
 	return TRUE;
 }
 
+bool RsbUnion::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbUnion::close(Request* request)
 {
 	for (int n = 0; n < rsb_count; ++n)

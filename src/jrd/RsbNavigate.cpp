@@ -71,6 +71,11 @@ bool RsbNavigate::get(Request* request, RSE_GET_MODE mode)
 	return NAV_get_record(tdbb, this, impure, rpb, mode);
 }
 
+bool RsbNavigate::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbNavigate::close(Request* request)
 {
 }

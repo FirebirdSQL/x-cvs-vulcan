@@ -83,6 +83,7 @@ public:
 	virtual ~RsbSort(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen);
 	virtual void close(Request* request);
 	static bool reject(const UCHAR* record_a, const UCHAR* record_b, void* user_arg);
 	virtual void pushRecords(Request* request);

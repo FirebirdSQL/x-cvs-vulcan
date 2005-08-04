@@ -52,6 +52,11 @@ bool RsbExtIndexed::get(Request* request, RSE_GET_MODE mode)
 	return false;
 }
 
+bool RsbExtIndexed::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbExtIndexed::close(Request* request)
 {
 }

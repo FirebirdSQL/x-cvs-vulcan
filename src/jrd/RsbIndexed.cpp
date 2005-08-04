@@ -114,6 +114,11 @@ bool RsbIndexed::get(Request* request, RSE_GET_MODE mode)
 	return result;
 }
 
+bool RsbIndexed::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbIndexed::close(Request* request)
 {
 	IRSB_INDEX impure = (IRSB_INDEX) IMPURE (request, rsb_impure);

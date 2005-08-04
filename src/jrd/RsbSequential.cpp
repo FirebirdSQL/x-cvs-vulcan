@@ -124,6 +124,11 @@ bool RsbSequential::get(Request* request, RSE_GET_MODE mode)
 	return true;
 }
 
+bool RsbSequential::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbSequential::close(Request* request)
 {
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);

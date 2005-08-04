@@ -237,6 +237,11 @@ bool RsbSort::get(Request* request,RSE_GET_MODE mode)
 	return true;
 }
 
+bool RsbSort::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbSort::close(Request* request)
 {
 	IRSB_SORT impure = (IRSB_SORT) IMPURE (request, rsb_impure);

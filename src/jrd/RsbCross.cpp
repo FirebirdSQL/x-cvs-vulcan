@@ -85,6 +85,11 @@ bool RsbCross::get(Request* request, RSE_GET_MODE mode)
 	return true;
 }
 
+bool RsbCross::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbCross::close(Request* request)
 {
 	for (int n = 0; n < rsb_count; ++n)

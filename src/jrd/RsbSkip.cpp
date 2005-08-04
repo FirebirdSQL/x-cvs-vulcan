@@ -108,6 +108,11 @@ bool RsbSkip::get(Request* request, RSE_GET_MODE mode)
 	return true;
 }
 
+bool RsbSkip::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbSkip::close(Request* request)
 {
 	rsb_next->close(request);

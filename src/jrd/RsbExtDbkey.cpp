@@ -52,6 +52,11 @@ bool RsbExtDbkey::get(Request* request, RSE_GET_MODE mode)
 	return false;
 }
 
+bool RsbExtDbkey::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbExtDbkey::close(Request* request)
 {
 }

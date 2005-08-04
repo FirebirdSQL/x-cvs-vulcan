@@ -96,6 +96,11 @@ bool RsbFirst::get(Request* request, RSE_GET_MODE mode)
 	return true;
 }
 
+bool RsbFirst::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbFirst::close(Request* request)
 {
 	rsb_next->close(request);

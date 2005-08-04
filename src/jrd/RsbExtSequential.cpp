@@ -54,6 +54,11 @@ bool RsbExtSequential::get(Request* request, RSE_GET_MODE mode)
 	return EXT_get(request->req_tdbb, this);
 }
 
+bool RsbExtSequential::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbExtSequential::close(Request* request)
 {
 	EXT_close(request->req_tdbb, this);

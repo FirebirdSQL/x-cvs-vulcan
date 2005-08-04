@@ -101,6 +101,7 @@
 #include "RsbSkip.h"
 #include "RsbCount.h"
 #include "RsbSingular.h"
+#include "ExecutionPathInfoGen.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -265,7 +266,7 @@ static const UCHAR sort_dtypes[] =
 typedef UCHAR stream_array_t[MAX_STREAMS + 1];
 
 
-bool OPT_access_path(thread_db* tdbb, const Request* request,
+bool OPT_access_path(thread_db* tdbb, Request* request,
 						UCHAR* buffer,
 						SSHORT buffer_length, USHORT* return_length)
 
@@ -287,7 +288,6 @@ bool OPT_access_path(thread_db* tdbb, const Request* request,
 
 /* loop through all RSEs in the request, 
    and describe the rsb tree for that rsb */
-
 	size_t i;
 	for (i = 0; i < request->req_fors.getCount(); i++) {
 		RecordSource* rsb = request->req_fors[i];
@@ -296,6 +296,18 @@ bool OPT_access_path(thread_db* tdbb, const Request* request,
 	}
 
 	*return_length = buffer - begin;
+
+/***
+	ExecutionPathInfoGen info(buffer, buffer_length);
+	size_t i;
+	for (i = 0; i < request->req_fors.getCount(); i++) {
+		RecordSource* rsb = request->req_fors[i];
+		if (rsb && !rsb->getExecutionPathInfo(request, &info))
+			break;
+	}
+
+	*return_length = info.length();
+***/
 
 	return (i >= request->req_fors.getCount());
 }

@@ -40,6 +40,7 @@ public:
 	virtual ~RsbLeftCross(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen);
 	virtual void close(Request* request);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 	virtual void pushRecords(Request* request);

@@ -68,6 +68,11 @@ bool RsbWriteLock::get(Request* request, RSE_GET_MODE mode)
 		}
 }
 
+bool RsbWriteLock::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbWriteLock::close(Request* request)
 {
 	rsb_next->close(request);

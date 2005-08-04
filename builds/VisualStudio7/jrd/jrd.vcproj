@@ -759,6 +759,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\ExecutionPathInfoGen.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\ext.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2556,6 +2559,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\ExecuteStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExecutionPathInfoGen.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\ext.h">

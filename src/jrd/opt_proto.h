@@ -38,7 +38,7 @@ struct RecordSelExpr;
 struct idx;
 struct index_desc;
 
-bool OPT_access_path(thread_db*, const Request*, UCHAR*, SSHORT, USHORT*);
+bool OPT_access_path(thread_db*, Request*, UCHAR*, SSHORT, USHORT*);
 RecordSource* OPT_compile(thread_db*, CompilerScratch*, RecordSelExpr*, NodeStack*, int flags);
 jrd_nod* OPT_make_dbkey(thread_db*, OptimizerBlk*, jrd_nod*, USHORT);
 jrd_nod* OPT_make_index(thread_db*, OptimizerBlk*, Relation*, idx*);

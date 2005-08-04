@@ -39,6 +39,7 @@ public:
 	virtual ~RsbExtDbkey(void);
 	virtual void open(Request* request);
 	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen);
 	virtual void close(Request* request);
 };
 

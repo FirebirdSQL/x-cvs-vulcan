@@ -159,6 +159,11 @@ bool RsbProcedure::get(Request* request, RSE_GET_MODE mode)
 	return TRUE;
 }
 
+bool RsbProcedure::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbProcedure::close(Request* request)
 {
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);

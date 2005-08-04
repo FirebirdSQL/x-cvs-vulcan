@@ -58,13 +58,14 @@ class RsbNavigate : public RsbIndexed
 public:
 	RsbNavigate(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *node, int key_length);
 	virtual ~RsbNavigate(void);
-	virtual void	open(Request* request);
-	virtual bool	get(Request* request, RSE_GET_MODE mode);
-	virtual void	close(Request* request);
-	int				computeImpureSize(int key_length);
+	virtual void open(Request* request);
+	virtual bool get(Request* request, RSE_GET_MODE mode);
+	virtual bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen);
+	virtual void close(Request* request);
+	int	computeImpureSize(int key_length);
 	
-	int		keyLength;
-	int		indexOffset;
+	int	keyLength;
+	int	indexOffset;
 };
 
 #endif

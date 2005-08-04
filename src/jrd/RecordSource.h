@@ -110,6 +110,7 @@ class Format;
 class Request;
 class SortMap;
 class CompilerScratch;
+class ExecutionPathInfoGen;
 
 struct str;
 struct jrd_nod;
@@ -155,6 +156,7 @@ public:
 	
 	virtual void open(Request* request) = 0;
 	virtual bool get(Request* request, RSE_GET_MODE mode) = 0;
+	virtual bool getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen) = 0;
 	virtual void close(Request* request) = 0;
 	void init(void);
 	static void mapSortData(Request* request, SortMap* map, UCHAR* data);

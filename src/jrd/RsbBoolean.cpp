@@ -74,6 +74,11 @@ bool RsbBoolean::get(Request* request, RSE_GET_MODE mode)
 	return FALSE;
 }
 
+bool RsbBoolean::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* infoGen)
+{
+	return false;
+}
+
 void RsbBoolean::close(Request* request)
 {
 	rsb_next->close(request);
