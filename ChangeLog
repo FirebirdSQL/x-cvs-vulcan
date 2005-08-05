@@ -1,3 +1,50 @@
+2005-08-05 01:25  arnobrinkman
+
+	* vulcan/src/jrd/: ExecutionPathInfoGen.cpp,
+	ExecutionPathInfoGen.h, RSbExtIndexed.cpp, RecordSource.cpp,
+	RecordSource.h, RsbAggregate.cpp, RsbAggregate.h, RsbBoolean.cpp,
+	RsbCount.cpp, RsbCross.cpp, RsbExtDbkey.cpp, RsbExtSequential.cpp,
+	RsbFirst.cpp, RsbIndexed.cpp, RsbIndexed.h, RsbLeftCross.cpp,
+	RsbMerge.cpp, RsbNavigate.cpp, RsbNavigate.h, RsbProcedure.cpp,
+	RsbSequential.cpp, RsbSequential.h, RsbSingular.cpp, RsbSkip.cpp,
+	RsbSort.cpp, RsbUnion.cpp, RsbWriteLock.cpp, RsbWriteLock.h,
+	ext.cpp, nav.cpp, opt.cpp:
+	
+	Finish execution path info
+
+2005-08-04 21:00  jimstarkey
+
+	* vulcan/src/: Services/Services.vcproj, dsql/ddl.cpp,
+	jrd/InfoGen.cpp, jrd/InfoGen.h, jrd/Service.cpp, jrd/Service.h,
+	jrd/svc.cpp:
+	
+	Fix bug in dsql pass1.	Also work in progress on services api.
+
+2005-08-04 17:05  arnobrinkman
+
+	* vulcan/: src/jrd/ExecutionPathInfoGen.cpp,
+	src/jrd/ExecutionPathInfoGen.h, src/jrd/opt.cpp,
+	src/jrd/RecordSource.h, src/jrd/opt_proto.h,
+	src/jrd/RsbAggregate.cpp, src/jrd/RsbAggregate.h,
+	src/jrd/RsbBoolean.cpp, src/jrd/RsbBoolean.h, src/jrd/RsbCount.cpp,
+	src/jrd/RSbExtIndexed.cpp, src/jrd/RsbCount.h,
+	src/jrd/RsbCross.cpp, src/jrd/RsbCross.h, src/jrd/RsbExtDbkey.cpp,
+	src/jrd/RsbExtDbkey.h, src/jrd/RsbExtIndexed.h,
+	src/jrd/RsbExtSequential.cpp, src/jrd/RsbExtSequential.h,
+	src/jrd/RsbFirst.cpp, src/jrd/RsbFirst.h, src/jrd/RsbIndexed.cpp,
+	src/jrd/RsbIndexed.h, src/jrd/RsbLeftCross.cpp,
+	src/jrd/RsbLeftCross.h, src/jrd/RsbMerge.cpp, src/jrd/RsbMerge.h,
+	src/jrd/RsbNavigate.cpp, src/jrd/RsbNavigate.h,
+	src/jrd/RsbProcedure.cpp, src/jrd/RsbProcedure.h,
+	src/jrd/RsbSequential.cpp, src/jrd/RsbSequential.h,
+	src/jrd/RsbSingular.cpp, src/jrd/RsbSingular.h,
+	src/jrd/RsbSkip.cpp, src/jrd/RsbSkip.h, src/jrd/RsbSort.cpp,
+	src/jrd/RsbSort.h, src/jrd/RsbUnion.cpp, src/jrd/RsbUnion.h,
+	src/jrd/RsbWriteLock.cpp, src/jrd/RsbWriteLock.h,
+	builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	work in progress, Execution Path Info
+
 2005-08-04 00:19  jimstarkey
 
 	* vulcan/src/: Services/Services.vcproj, common/classes/alloc.h,
