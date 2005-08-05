@@ -839,6 +839,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\why\YService.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\why\YSQLDA.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1057,6 +1060,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\why\YRequest.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\why\YService.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\why\YSQLDA.h">
