@@ -30,41 +30,35 @@
  *
  */
 
-#include "firebird.h"
-//#include "../jrd/y_ref.h"
-#include "../jrd/ib_stdio.h"
-#include <string.h>
-#include "../jrd/jrd_time.h"
-#include "../jrd/common.h"
-#include "../jrd/file_params.h"
 #include <stdarg.h>
-#include "../jrd/jrd.h"
+#include <string.h>
+
+#include "firebird.h"
+#include "../jrd/common.h"
+#include "../jrd/ib_stdio.h"
+#include "../jrd/jrd_time.h"
+#include "../jrd/file_params.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/svc.h"
-#include "../jrd/jrd_pwd.h"
+//#include "../jrd/jrd_pwd.h"
 #include "../alice/aliceswi.h"
 #include "../burp/burpswi.h"
 #include "../jrd/ibase.h"
 #include "gen/iberror.h"
 #include "../jrd/license.h"
-//#include "../jrd/err_proto.h"
 #include "../jrd/gds_proto.h"
-//#include "../jrd/inf_proto.h"
 #include "../jrd/isc_proto.h"
-#include "../jrd/jrd_proto.h"
-#include "../jrd/mov_proto.h"
-#include "../jrd/sch_proto.h"
 #include "../jrd/svc_proto.h"
 #include "../jrd/thd_proto.h"
-#include "../jrd/why_proto.h"
 #include "../jrd/utl_proto.h"
-#include "../jrd/jrd_proto.h"
-#include "../jrd/enc_proto.h"
+//#include "../jrd/enc_proto.h"
 #include "../utilities/gsec/gsecswi.h"
 #include "../utilities/gstat/dbaswi.h"
-#include "../common/classes/alloc.h"
 #include "PBGen.h"
 #include "InfoGen.h"
 #include "Mutex.h"
+#include "OSRIException.h"
+#include "Sync.h"
 
 #ifdef SERVER_SHUTDOWN
 #include "../jrd/jrd_proto.h"
@@ -395,7 +389,8 @@ static const serv services[] =
 #endif /* SERVER_CAPABILITIES */
 
 
-Service* SVC_attach(USHORT			service_length,
+Service* SVC_attach(ConfObject* configuration, 
+					USHORT			service_length,
 					const TEXT*		service_name,
 					USHORT			spb_length,
 					const UCHAR*	spb)
@@ -442,7 +437,7 @@ Service* SVC_attach(USHORT			service_length,
 	
 	const struct serv* serv;
 	
-	for (serv = (struct serv*)services; serv->serv_name; serv++)
+	for (serv = services; serv->serv_name; serv++)
 		if (!strcmp(misc_buf, serv->serv_name))
 			break;
 
@@ -450,7 +445,7 @@ Service* SVC_attach(USHORT			service_length,
 		SVC_post(isc_service_att_err, isc_arg_gds, isc_svcnotdef,
 				 isc_arg_string, misc_buf, 0);
 
-	GET_THREAD_DATA;
+	//GET_THREAD_DATA;
 
 	/* If anything goes wrong, we want to be able to free any memory
 	   that may have been allocated. */
@@ -608,7 +603,7 @@ Service* SVC_attach(USHORT			service_length,
 		/* Services operate outside of the context of databases.  Therefore
 		   we cannot use the JRD allocator. */
 
-		Service *service = new Service;
+		Service *service = new Service(configuration);
 		//service = FB_NEW(*getDefaultMemoryPool()) Service;
 		//memset((void *) service, 0, sizeof(struct Service));
 		//service->svc_status = new ISC_STATUS [ISC_STATUS_LENGTH];
@@ -907,7 +902,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 }
 
 #endif /*SUPERSERVER*/
-	ISC_STATUS SVC_query2(Service* service,
+
+ISC_STATUS SVC_query2(Service* service,
 					  thread_db* tdbb,
 					  USHORT send_item_length,
 					  const UCHAR* send_items,
@@ -935,8 +931,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 
 	/* Setup the status vector */
 	
-	ISC_STATUS *status = tdbb->tdbb_status_vector;
-	*status++ = isc_arg_gds;
+	//ISC_STATUS *status = tdbb->tdbb_status_vector;
+	//*status++ = isc_arg_gds;
 
 	/* Process the send portion of the query first. */
 
@@ -1142,15 +1138,15 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 	#ifdef SUPERSERVER
 			case isc_info_svc_dump_pool_info:
 				{
-					char fname[MAXPATHLEN];
-					int length = isc_vax_integer(items, sizeof(USHORT));
-					if (length >= sizeof(fname))
-						length = sizeof(fname) - 1; // truncation
-					items += sizeof(USHORT);
-					strncpy(fname, items, length);
-					fname[length] = 0;
-					JRD_print_all_counters(fname);
-					break;
+				char fname[MAXPATHLEN];
+				int length = isc_vax_integer(items, sizeof(USHORT));
+				if (length >= sizeof(fname))
+					length = sizeof(fname) - 1; // truncation
+				items += sizeof(USHORT);
+				strncpy(fname, items, length);
+				fname[length] = 0;
+				JRD_print_all_counters(fname);
+				break;
 				}
 	#endif
 	/*
@@ -1237,16 +1233,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 
 			case isc_info_svc_user_dbpath:
 				/* The path to the user security database (security.fdb) */
-				SecurityDatabase::getPath(buffer);
-				infoGen.putString(item, buffer);
-	
-				/***
-				if (!(info = INF_put_item(item, buffer, info, end))) 
-					{
-					THREAD_ENTER;
-					return 0;
-					}
-				***/
+				//SecurityDatabase::getPath(buffer);
+				infoGen.putString(item, service->getSecurityDatabase());
 				break;
 
 			case isc_info_svc_response:
@@ -1361,7 +1349,8 @@ int SVC_output(Service* output_data, const UCHAR* output_buf)
 	infoGen.fini();
 	THREAD_ENTER;
 	
-	return tdbb->tdbb_status_vector[1];
+	//return tdbb->tdbb_status_vector[1];
+	return 0;
 }
 
 void SVC_query(Service*		service,
@@ -1383,7 +1372,7 @@ void SVC_query(Service*		service,
  *
  **************************************/
 	UCHAR	item;
-	char	buffer[256];
+	//char	buffer[256];
 	TEXT	PathBuffer[MAXPATHLEN];
 	UCHAR	infoBuffer[MAXPATHLEN];
 	USHORT l, length, version, get_flags;
@@ -1595,8 +1584,8 @@ void SVC_query(Service*		service,
 
 			case isc_info_svc_user_dbpath:
 				/* The path to the user security database (security.fdb) */
-				SecurityDatabase::getPath(buffer);
-				infoGen.putString(item, buffer);
+				//SecurityDatabase::getPath(buffer);
+				infoGen.putString(item, service->getSecurityDatabase());
 				break;
 
 			case isc_info_svc_response:
@@ -1702,7 +1691,7 @@ void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
  *      Start a Firebird service
  *
  **************************************/
-	thread_db *tdbb;
+	//thread_db *tdbb;
 	const struct serv *serv;
 	TEXT* tmp_ptr = NULL;
 	USHORT opt_switch_len = 0;
@@ -1770,7 +1759,7 @@ void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
 		}
 		
 	sync.unlock();
-	tdbb = GET_THREAD_DATA;
+	//tdbb = GET_THREAD_DATA;
 
 	try 
 		{

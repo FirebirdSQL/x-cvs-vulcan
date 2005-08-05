@@ -424,7 +424,7 @@ ISC_STATUS Subsystem::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsql
 
 //ISC_STATUS Subsystem::cancelOperation(ISC_STATUS* userStatus, DbHandle *dbHandle, int);
 ISC_STATUS Subsystem::serviceQuery(ISC_STATUS *userStatus, 
-								DbHandle *dbHandle, 
+								SvcHandle *dbHandle, 
 								int inItemLength, 
 								UCHAR* inItem, 
 								int outItemLength, 
@@ -436,26 +436,26 @@ ISC_STATUS Subsystem::serviceQuery(ISC_STATUS *userStatus,
 }
 
 
-ISC_STATUS Subsystem::serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle)
+ISC_STATUS Subsystem::serviceDetach(ISC_STATUS *userStatus, SvcHandle *dbHandle)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Subsystem::serviceAttach(ISC_STATUS *userStatus, 
-								  int serviceLength, 
-								  TEXT *service, 
-								  DbHandle *dbHandle, 
+								  const TEXT *service, 
+								  SvcHandle *dbHandle, 
 								  int spbLength, 
 								  UCHAR *spb, 
-								  const char *providerName)
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Subsystem::serviceStart(ISC_STATUS* userStatus,
-								 DbHandle *dbHandle,
+								 SvcHandle *dbHandle,
 								 int spbLength, 
 								 UCHAR * spb)
 {

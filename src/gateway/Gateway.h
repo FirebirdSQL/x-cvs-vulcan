@@ -138,7 +138,7 @@ public:
 
 	//virtual ISC_STATUS cancelOperation(ISC_STATUS* userStatus, DbHandle *dbHandle, int);
 	virtual ISC_STATUS serviceQuery(ISC_STATUS *userStatus, 
-									DbHandle *dbHandle, 
+									SvcHandle *dbHandle, 
 									int inItemLength, 
 									UCHAR* inItem, 
 									int outItemLength, 
@@ -147,14 +147,14 @@ public:
 									UCHAR *buffer);
 	virtual ISC_STATUS serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle);
 	virtual ISC_STATUS serviceAttach(ISC_STATUS *userStatus, 
-									  int serviceLength, 
-									  TEXT *service, 
-									  DbHandle *dbHandle, 
+									  const TEXT *service, 
+									  SvcHandle *dbHandle, 
 									  int spbLength, 
 									  UCHAR *spb,
-									  const char *providerName);
+									  ConfObject* servicesConfiguration,
+									  ConfObject* providerConfiguration);
 	virtual ISC_STATUS serviceStart(ISC_STATUS* userStatus,
-									 DbHandle *dbHandle,
+									 SvcHandle *dbHandle,
 									 int spbLength, 
 									 UCHAR * spb);
 	virtual ISC_STATUS transactRequest(ISC_STATUS* userStatus, 

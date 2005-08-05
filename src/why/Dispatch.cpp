@@ -45,6 +45,7 @@
 #include "YTransaction.h"
 #include "YRequest.h"
 #include "YStatement.h"
+#include "YService.h"
 #include "YBlob.h"
 #include "YSQLDA.h"
 #include "Provider.h"
@@ -350,6 +351,7 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 		memcpy (statusVector->statusVector, localStatus, sizeof(localStatus));
 		return statusVector->getReturn();
 		}
+		
 	return entrypointUnavailable (userStatus);
 }
 
@@ -1740,7 +1742,7 @@ ISC_STATUS Dispatch::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 
 //ISC_STATUS Dispatch::cancelOperation(ISC_STATUS* userStatus, DbHandle *dbHandle, int);
 ISC_STATUS Dispatch::serviceQuery(ISC_STATUS *userStatus, 
-								DbHandle *dbHandle, 
+								SvcHandle *dbHandle, 
 								int inItemLength, 
 								UCHAR* inItem, 
 								int outItemLength, 
@@ -1753,7 +1755,7 @@ ISC_STATUS Dispatch::serviceQuery(ISC_STATUS *userStatus,
 }
 
 
-ISC_STATUS Dispatch::serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle)
+ISC_STATUS Dispatch::serviceDetach(ISC_STATUS *userStatus, SvcHandle *dbHandle)
 {
 	trace ("serviceDetach");
 	return entrypointUnavailable (userStatus);
@@ -1761,13 +1763,95 @@ ISC_STATUS Dispatch::serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle)
 
 
 ISC_STATUS Dispatch::serviceAttach(ISC_STATUS *userStatus, 
-								  int serviceLength, 
-								  TEXT *service, 
-								  DbHandle *dbHandle, 
+								  const TEXT *service, 
+								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb)
+								  UCHAR *spb,
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
-	trace ("serviceAttach");
+	if (!initialized)
+		initialize();
+		
+	if (traceFlags & traceSQL)
+		printTrace ("serviceAttach %s", service);
+	else
+		trace ("serviceAttach %s", service);
+	
+	StatusVector localVector (userStatus, traceFlags);
+	StatusVector *statusVector = &localVector;
+	ISC_STATUS localStatus[ISC_STATUS_LENGTH];
+
+	if (*((isc_svc_handle*) dbHandle))
+		return statusVector->postAndReturn (isc_bad_db_handle);
+
+	if (spbLength > 0 && !spb)
+		return statusVector->postAndReturn (isc_bad_spb_form);
+
+	bool hasProvider = false;
+	bool haveError = false;
+	ConfObject *confObject;
+	
+	try
+		{
+		confObject = Configuration::findObject ("services", "generic");
+		
+		if (!confObject)
+			{
+			statusVector->post(isc_bad_db_format, isc_arg_string, service, isc_arg_end);
+			return statusVector->getReturn();
+			}
+		}
+	catch (AdminException& exception)
+		{
+		exception;
+		statusVector->post(isc_bad_db_format, isc_arg_string, service, isc_arg_end);
+		return statusVector->getReturn();
+		}
+	
+	for (int n = 0;; ++n)
+		{
+		JString providerName = confObject->getValue (n, "provider");
+		
+		if (providerName.IsEmpty())
+			break;
+			
+		hasProvider = true;
+		Provider *provider = getProvider (providerName);
+		
+		if (provider->subsystems)
+			for (int subsys = 0;; ++subsys)
+				{
+				Subsystem *subsystem = provider->subsystems [subsys];
+				
+				if (!subsystem)
+					break;
+					
+				SvcHandle tempHandle = NULL;
+				
+				if (subsystem->serviceAttach (*statusVector, service, &tempHandle, spbLength, spb, 
+											  confObject, provider->configuration))
+					{
+					if (!haveError)
+						memcpy (localStatus, statusVector->statusVector, sizeof(localStatus));
+
+					haveError = true;
+					}
+				else
+					{
+					YService *handle = new YService (subsystem, tempHandle);
+					*((isc_svc_handle*) dbHandle) = (isc_svc_handle) serviceHandles.allocateHandle (handle);
+					return statusVector->getCode();
+					}
+				}
+		}
+
+	if (haveError)
+		{
+		memcpy (statusVector->statusVector, localStatus, sizeof(localStatus));
+		return statusVector->getReturn();
+		}
+		
 	return entrypointUnavailable (userStatus);
 }
 

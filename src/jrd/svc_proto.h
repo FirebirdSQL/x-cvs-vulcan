@@ -24,17 +24,19 @@
 #ifndef JRD_SVC_PROTO_H
 #define JRD_SVC_PROTO_H
 
+CLASS(ConfObject);
+
 class Service;
 
-struct tdbb;
+struct thread_db;
 
-Service* SVC_attach(USHORT, const TEXT*, USHORT, const UCHAR*);
+Service* SVC_attach(ConfObject* configuration, USHORT, const TEXT*, USHORT, const UCHAR*);
 void   SVC_cleanup(Service *);
 void   SVC_detach(Service *);
 void   SVC_fprintf(Service*, const SCHAR*, ...);
 void   SVC_putc(Service*, const UCHAR);
 void   SVC_query(Service*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
-ISC_STATUS SVC_query2(Service*, tdbb*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
+ISC_STATUS SVC_query2(Service*, thread_db*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
 void  SVC_start(Service*, USHORT, const UCHAR*);
 void   SVC_finish(Service*, USHORT);
 int   SVC_read_ib_log(Service*);

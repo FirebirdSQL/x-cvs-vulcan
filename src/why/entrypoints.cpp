@@ -799,7 +799,7 @@ ISC_STATUS API_ROUTINE isc_cancel_operation (ISC_STATUS* userStatus, DbHandle *d
 
 
 ISC_STATUS API_ROUTINE isc_service_query(ISC_STATUS* userStatus, 
-									DbHandle *dbHandle, 
+									SvcHandle *dbHandle, 
 									ULONG* reserved,
 									USHORT inItemLength, 
 									UCHAR* inItem, 
@@ -819,18 +819,32 @@ ISC_STATUS API_ROUTINE isc_service_query(ISC_STATUS* userStatus,
 ISC_STATUS API_ROUTINE isc_service_attach(ISC_STATUS* userStatus, 
 										  USHORT serviceLength, 
 										  TEXT *service, 
-										  DbHandle *dbHandle, 
+										  SvcHandle *dbHandle, 
 										  USHORT spbLength, 
 										  UCHAR *spb)
 	{
 	if (!dispatch)
 		initialize();
 		
-	return dispatch->serviceAttach (userStatus, serviceLength, service, dbHandle, spbLength, spb);
+	char temp [256];
+	const char *name = service;
+	
+	if (serviceLength)
+		{
+		memcpy (temp, service, serviceLength);
+		temp [serviceLength] = 0;
+		
+		for (char *p = temp + serviceLength; p > temp && p [-1] == ' '; --p)
+			*p = 0;
+			
+		name = temp;
+		}
+		
+	return dispatch->serviceAttach (userStatus, name, dbHandle, spbLength, spb, NULL, NULL);
 	}
 
 ISC_STATUS API_ROUTINE isc_service_start(ISC_STATUS* userStatus,
-										 DbHandle *dbHandle,
+										 SvcHandle *dbHandle,
 										 ULONG * reserved,
 										 USHORT spbLength, 
 										 UCHAR * spb)
@@ -841,7 +855,7 @@ ISC_STATUS API_ROUTINE isc_service_start(ISC_STATUS* userStatus,
 	return dispatch->serviceStart (userStatus, dbHandle, spbLength, spb);
 	}
 
-ISC_STATUS API_ROUTINE isc_service_detach(ISC_STATUS* userStatus, DbHandle *dbHandle)
+ISC_STATUS API_ROUTINE isc_service_detach(ISC_STATUS* userStatus, SvcHandle *dbHandle)
 	{
 	if (!dispatch)
 		initialize();
@@ -1618,10 +1632,11 @@ ISC_STATUS API_ROUTINE gds__service_attach(ISC_STATUS* userStatus,
 										  USHORT spbLength, 
 										  UCHAR *spb)
 	{
-	if (!dispatch)
-		initialize();
+	//if (!dispatch)
+		//initialize();
 		
-	return dispatch->serviceAttach (userStatus, serviceLength, service, dbHandle, spbLength, spb);
+	//return dispatch->serviceAttach (userStatus, service, dbHandle, spbLength, spb);
+	return isc_service_attach(userStatus, serviceLength, service, dbHandle, spbLength, spb);
 	}
 
 ISC_STATUS API_ROUTINE gds__service_start(ISC_STATUS* userStatus,

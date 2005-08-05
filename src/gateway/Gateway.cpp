@@ -405,7 +405,7 @@ ISC_STATUS Gateway::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlHa
 
 //ISC_STATUS Gateway::cancelOperation(ISC_STATUS* userStatus, DbHandle *dbHandle, int);
 ISC_STATUS Gateway::serviceQuery(ISC_STATUS *userStatus, 
-								DbHandle *dbHandle, 
+								DbHandle *SvcHandle, 
 								int inItemLength, 
 								UCHAR* inItem, 
 								int outItemLength, 
@@ -417,26 +417,26 @@ ISC_STATUS Gateway::serviceQuery(ISC_STATUS *userStatus,
 }
 
 
-ISC_STATUS Gateway::serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle)
+ISC_STATUS Gateway::serviceDetach(ISC_STATUS *userStatus, SvcHandle *dbHandle)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Gateway::serviceAttach(ISC_STATUS *userStatus, 
-								  int serviceLength, 
-								  TEXT *service, 
-								  DbHandle *dbHandle, 
+								  const TEXT *service, 
+								  SvcHandle *dbHandle, 
 								  int spbLength, 
 								  UCHAR *spb, 
-								  const char *providerName)
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Gateway::serviceStart(ISC_STATUS* userStatus,
-								 DbHandle *dbHandle,
+								 SvcHandle *dbHandle,
 								 int spbLength, 
 								 UCHAR * spb)
 {

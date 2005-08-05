@@ -30,6 +30,7 @@
 #define SVC_evnt_fired	64
 
 class Service;
+CLASS(ConfObject);
 
 typedef int (*pfn_svc_main) (Service*);
 typedef int (*pfn_svc_output)(Service*, const UCHAR*);
@@ -49,7 +50,7 @@ typedef serv *SERV;
 class Service// : public pool_alloc<type_svc>
 {
 public:
-	Service();
+	Service(ConfObject *configuration);
 	virtual		~Service();
 	ISC_STATUS		svc_status[ISC_STATUS_LENGTH];
 	HANDLE			svc_handle;			/* "handle" of process/thread running service */
@@ -76,9 +77,11 @@ public:
 	TEXT*			svc_switches;
 	JString			encryptedPassword;
 	JString			userName;
+	ConfObject		*configuration;
 	
 	void setEncryptedPassword(const char* password);
 	void setPassword(const char * password);
+	const char* getSecurityDatabase(void);
 };
 
 

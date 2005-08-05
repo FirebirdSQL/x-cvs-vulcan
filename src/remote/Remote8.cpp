@@ -535,7 +535,7 @@ ISC_STATUS Remote8::dsqlFreeStatement(ISC_STATUS* statusVector, DsqlHandle *dsql
 
 //ISC_STATUS Remote8::cancelOperation(ISC_STATUS* statusVector, DbHandle *dbHandle, int);
 ISC_STATUS Remote8::serviceQuery(ISC_STATUS *statusVector, 
-								DbHandle *dbHandle, 
+								SvcHandle *dbHandle, 
 								int inItemLength, 
 								UCHAR* inItem, 
 								int outItemLength, 
@@ -547,26 +547,26 @@ ISC_STATUS Remote8::serviceQuery(ISC_STATUS *statusVector,
 }
 
 
-ISC_STATUS Remote8::serviceDetach(ISC_STATUS *statusVector, DbHandle *dbHandle)
+ISC_STATUS Remote8::serviceDetach(ISC_STATUS *statusVector, SvcHandle *dbHandle)
 {
 	return entrypointUnavailable (statusVector);
 }
 
 
 ISC_STATUS Remote8::serviceAttach(ISC_STATUS *statusVector, 
-								  int serviceLength, 
-								  TEXT *service, 
-								  DbHandle *dbHandle, 
+								  const TEXT *service, 
+								  SvcHandle *dbHandle, 
 								  int spbLength, 
 								  UCHAR *spb, 
-								  const char *providerName)
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
 	return entrypointUnavailable (statusVector);
 }
 
 
 ISC_STATUS Remote8::serviceStart(ISC_STATUS* statusVector,
-								 DbHandle *dbHandle,
+								 SvcHandle *dbHandle,
 								 int spbLength, 
 								 UCHAR * spb)
 {

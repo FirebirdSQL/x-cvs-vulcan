@@ -138,9 +138,11 @@ public:
 	virtual ISC_STATUS dsqlFreeStatement(ISC_STATUS *, DsqlHandle *dsqlHandle, int);
 
 	virtual ISC_STATUS cancelOperation(ISC_STATUS *, DbHandle *dbHandle, int);
-	virtual ISC_STATUS serviceQuery(ISC_STATUS *, DbHandle *dbHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *);
-	virtual ISC_STATUS serviceDetach(ISC_STATUS *, DbHandle *dbHandle);
-	virtual ISC_STATUS serviceAttach(ISC_STATUS *, int, TEXT *, DbHandle *dbHandle, int, UCHAR *);
+	virtual ISC_STATUS serviceQuery(ISC_STATUS *, SvcHandle *dbHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *);
+	virtual ISC_STATUS serviceDetach(ISC_STATUS *, SvcHandle *dbHandle);
+	virtual ISC_STATUS serviceAttach(ISC_STATUS *, const TEXT *, SvcHandle *dbHandle, int, UCHAR*,
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration);
 	virtual ISC_STATUS transactRequest(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*,int, UCHAR*, int, UCHAR*);
 	virtual ISC_STATUS executeDDL(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*);
 

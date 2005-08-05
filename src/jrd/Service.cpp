@@ -5,17 +5,18 @@
 #include "firebird.h"
 #include "common.h"
 #include "Service.h"
-//#include "all.h"
 #include "../common/classes/alloc.h"
 #include "jrd_pwd.h"
 #include "enc_proto.h"
+#include "ConfObject.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Service::Service()
+Service::Service(ConfObject *config)
 {
+	configuration = config;
 	svc_input = NULL;
 	svc_output = NULL;
 	svc_stdout = NULL;
@@ -49,4 +50,9 @@ void Service::setPassword(const char * password)
 	TEXT encrypted[128];
 	ENC_crypt(password, PASSWORD_SALT, encrypted);
 	encryptedPassword = encrypted;
+}
+
+const char* Service::getSecurityDatabase(void)
+{
+	return configuration->getValue("SecurityDatabase", "security.fdb");
 }

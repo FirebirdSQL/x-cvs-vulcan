@@ -482,17 +482,19 @@ ISC_STATUS Engine8::dsqlSqlInfo(ISC_STATUS* statusVector, DsqlHandle *dsqlHandle
 	return exitSystem (statement->getSqlInfo (statusVector, itemsLength, items, bufferLength, buffer));
 }
 
-ISC_STATUS Engine8::serviceAttach(ISC_STATUS *statusVector, int, TEXT *, DbHandle *dbHandle, int, UCHAR *)
+ISC_STATUS Engine8::serviceAttach(ISC_STATUS *statusVector, const TEXT *, SvcHandle *dbHandle, int, UCHAR*,
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
 	return entrypointUnavailable (statusVector);
 }
 
-ISC_STATUS Engine8::serviceDetach(ISC_STATUS *statusVector, DbHandle *dbHandle )
+ISC_STATUS Engine8::serviceDetach(ISC_STATUS *statusVector, SvcHandle *dbHandle )
 {
 	return entrypointUnavailable (statusVector);
 }
 
-ISC_STATUS Engine8::serviceQuery(ISC_STATUS *statusVector, DbHandle *dbHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *)
+ISC_STATUS Engine8::serviceQuery(ISC_STATUS *statusVector, SvcHandle *dbHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *)
 {
 	return entrypointUnavailable (statusVector);
 }
