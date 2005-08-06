@@ -1,3 +1,22 @@
+2005-08-05 18:19  jimstarkey
+
+	* vulcan/builds/VisualStudio7/why/why.vcproj:
+	
+	Added YService class in Y-valve.
+
+2005-08-05 18:09  jimstarkey
+
+	* vulcan/src/: Services/Services.vcproj, gateway/Gateway.cpp,
+	gateway/Gateway.h, jrd/Engine8.cpp, jrd/Engine8.h, jrd/Service.cpp,
+	jrd/Service.h, jrd/Subsystem.cpp, jrd/Subsystem.h, jrd/svc.cpp,
+	jrd/svc.h, jrd/svc_proto.h, remote/Remote8.cpp, remote/Remote8.h,
+	why/Dispatch.cpp, why/Dispatch.h, why/SubsysHandle.h,
+	why/entrypoints.cpp, why/YService.cpp, why/YService.h,
+	why/why.vcproj:
+	
+	Revised Subsystem interface for services API; sketched in services
+	attach; getting ready to go on vacation
+
 2005-08-05 01:25  arnobrinkman
 
 	* vulcan/src/jrd/: ExecutionPathInfoGen.cpp,
