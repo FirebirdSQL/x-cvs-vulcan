@@ -166,7 +166,7 @@ typedef struct serv
 #define SVC_finished	16
 #define SVC_thd_running	32
 #define SVC_evnt_fired	64
-
+#define SVC_cmd_line	128
 
 
 typedef int (*pfn_svc_output)(svc*, const UCHAR*);
