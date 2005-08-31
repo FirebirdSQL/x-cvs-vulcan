@@ -1,3 +1,9 @@
+2005-08-30 10:53  dimitr
+
+	* vulcan/src/jrd/: svc.cpp, svc.h:
+	
+	Backported the "gbak -se" patch.
+
 2005-08-05 18:19  jimstarkey
 
 	* vulcan/builds/VisualStudio7/why/why.vcproj:
