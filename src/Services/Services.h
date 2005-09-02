@@ -33,11 +33,25 @@
 
 #include "Subsystem.h"
 
+class OSRIException;
+
 class Services : public Subsystem
 {
 public:
 	Services(void);
 	virtual ~Services(void);
+	ISC_STATUS returnSuccess(ISC_STATUS *userStatus);
+	ISC_STATUS error(OSRIException* exception, ISC_STATUS *userStatus);
+	virtual ISC_STATUS serviceAttach(ISC_STATUS *userStatus, 
+										const TEXT* service, 
+										SvcHandle* dbHandle, 
+										int spbLength, 
+										const UCHAR* spb, 
+										ConfObject* servicesConfiguration, 
+										ConfObject* providerConfiguration);
+	virtual ISC_STATUS serviceStart(ISC_STATUS *userStatus, SvcHandle* svcHandle, int spbLength, const UCHAR* spb);
+	virtual ISC_STATUS serviceQuery(ISC_STATUS *userStatus, SvcHandle* svcHandle, int inItemLength, const UCHAR* inItem, int outItemLength, const UCHAR* outItem, int bufferLength, UCHAR* buffer);
+	virtual ISC_STATUS serviceDetach(ISC_STATUS *userStatus, SvcHandle* svcHandle);
 };
 
 #endif

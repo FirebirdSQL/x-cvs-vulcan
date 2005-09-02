@@ -19,11 +19,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\config;..\jrd;..\include\gen;..\common"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=SERVICES;MEMMGR"
+				AdditionalIncludeDirectories="..\include;..\config;..\jrd;..\include\gen;..\common;..\burp"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=SERVICES;MEMMGR;SUPERSERVER"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -32,6 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib"
 				OutputFile="..\..\install\bin/services.dll"
 				LinkIncremental="2"
 				ModuleDefinitionFile="services.def"
@@ -128,6 +129,18 @@
 				RelativePath="..\jrd\AsyncEvent.cpp">
 			</File>
 			<File
+				RelativePath="..\burp\backup.cpp">
+			</File>
+			<File
+				RelativePath="..\burp\burp.cpp">
+			</File>
+			<File
+				RelativePath="..\burp\canonical.cpp">
+			</File>
+			<File
+				RelativePath="..\utilities\common\cmd_util.cpp">
+			</File>
+			<File
 				RelativePath="..\config\ConfigFile.cpp">
 			</File>
 			<File
@@ -150,6 +163,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\event.cpp">
+			</File>
+			<File
+				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
 				RelativePath="..\config\FileName.cpp">
@@ -185,7 +201,16 @@
 				RelativePath="..\jrd\MemMgr.cpp">
 			</File>
 			<File
+				RelativePath="..\burp\misc.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\MsgFormat.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Mutex.cpp">
+			</File>
+			<File
+				RelativePath="..\burp\mvol.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\OSRIBugcheck.cpp">
@@ -206,7 +231,13 @@
 				RelativePath="..\jrd\RefObject.cpp">
 			</File>
 			<File
+				RelativePath="..\burp\restore.cpp">
+			</File>
+			<File
 				RelativePath="..\config\ScanDir.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\sdl.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\Service.cpp">
@@ -216,6 +247,12 @@
 			</File>
 			<File
 				RelativePath=".\services.def">
+			</File>
+			<File
+				RelativePath="..\burp\spit.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\status.cpp">
 			</File>
 			<File
 				RelativePath="..\config\Stream.cpp">
@@ -236,7 +273,13 @@
 				RelativePath="..\jrd\TempSpace.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\thd.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\utl.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\xdr.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -254,6 +297,18 @@
 			</File>
 			<File
 				RelativePath="..\jrd\AsyncEvent.h">
+			</File>
+			<File
+				RelativePath="..\burp\burp.h">
+			</File>
+			<File
+				RelativePath="..\burp\burp_proto.h">
+			</File>
+			<File
+				RelativePath="..\burp\canon_proto.h">
+			</File>
+			<File
+				RelativePath="..\utilities\common\cmd_util_proto.h">
 			</File>
 			<File
 				RelativePath="..\config\Config.h">
@@ -322,7 +377,16 @@
 				RelativePath="..\jrd\MemMgr.h">
 			</File>
 			<File
+				RelativePath="..\burp\misc_proto.h">
+			</File>
+			<File
+				RelativePath="..\jrd\MsgFormat.h">
+			</File>
+			<File
 				RelativePath="..\jrd\Mutex.h">
+			</File>
+			<File
+				RelativePath="..\burp\mvol_proto.h">
 			</File>
 			<File
 				RelativePath="..\jrd\OSRIBugcheck.h">
@@ -343,13 +407,28 @@
 				RelativePath="..\jrd\RefObject.h">
 			</File>
 			<File
+				RelativePath="..\burp\resto_proto.h">
+			</File>
+			<File
 				RelativePath="..\config\ScanDir.h">
+			</File>
+			<File
+				RelativePath="..\jrd\sdl.h">
+			</File>
+			<File
+				RelativePath="..\jrd\sdl_proto.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Service.h">
 			</File>
 			<File
 				RelativePath=".\Services.h">
+			</File>
+			<File
+				RelativePath="..\burp\spit.h">
+			</File>
+			<File
+				RelativePath="..\jrd\status.h">
 			</File>
 			<File
 				RelativePath="..\config\Stream.h">
@@ -376,7 +455,19 @@
 				RelativePath="..\jrd\TempSpace.h">
 			</File>
 			<File
+				RelativePath="..\jrd\thd.h">
+			</File>
+			<File
+				RelativePath="..\jrd\thd_proto.h">
+			</File>
+			<File
 				RelativePath="..\jrd\utl_proto.h">
+			</File>
+			<File
+				RelativePath="..\remote\xdr.h">
+			</File>
+			<File
+				RelativePath="..\remote\xdr_proto.h">
 			</File>
 		</Filter>
 		<Filter
@@ -384,6 +475,26 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
+		<File
+			RelativePath="..\burp\backup.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\burp\restore.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
