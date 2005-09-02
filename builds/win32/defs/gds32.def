@@ -266,14 +266,11 @@ EXPORTS
     _isc_start_transaction=_isc_start_transaction
     _isc_expand_dpb=_isc_expand_dpb
     _isc_event_block=_isc_event_block
-    ;KEYWORD_stringIsAToken=KEYWORD_stringIsAToken
-    ;KEYWORD_getTokens=KEYWORD_getTokens
-	;gds__alloc_debug=gds__alloc_debug
-    ;gds_alloc_flag_unfreed=gds_alloc_flag_unfreed
-    ;gds_alloc_report=gds_alloc_report
+
     fb_shutdown_connections=fb_shutdown_connections @268
     fb_update_account_info=fb_update_account_info @269
     isc_msg_lookup=isc_msg_lookup @270
     isc_cancel_operation=isc_cancel_operation @271
     fb_authenticate_user=fb_authenticate_user @272
+    fb_interpret=fb_interpret
     
