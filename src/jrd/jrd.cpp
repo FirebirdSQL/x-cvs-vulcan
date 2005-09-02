@@ -577,7 +577,7 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 								const TEXT* translatedName, 
 								Attachment** handle, 
 								SSHORT dpb_length, 
-								UCHAR* dpb,
+								const UCHAR* dpb,
 								ConfObject* databaseConfiguration,
 								ConfObject* providerConfiguration)
 {
@@ -2469,7 +2469,7 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 ISC_STATUS GDS_PREPARE(ISC_STATUS * user_status,
 						Transaction** tra_handle,
 						USHORT length,
-						UCHAR * msg)
+						const UCHAR * msg)
 {
 /**************************************
  *
@@ -3440,7 +3440,7 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 							Transaction** tra_handle,
 							USHORT count,
-							TEB * vector)
+							const TEB * vector)
 {
 /**************************************
  *
@@ -3452,7 +3452,6 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
  *	Start a transaction.
  *
  **************************************/
-	TEB* v;
 	DBB dbb;
 	api_entry_point_init(user_status);
 	ThreadData threadData (user_status);
@@ -3460,7 +3459,7 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 	NULL_CHECK(tra_handle, isc_bad_trans_handle);
 	const TEB* const end = vector + count;
 
-	for (v = vector; v < end; v++) 
+	for (const TEB *v = vector; v < end; v++) 
 		{
 		if (check_database(threadData, *v->teb_database, user_status))
 			return user_status[1];

@@ -116,7 +116,7 @@ void Sync::findLocks(LinkedList &threads, LinkedList &syncObjects)
 
 void Sync::print(const char *label)
 {
-	LOG_DEBUG ("%s %s state %d (%d) syncObject %x\n", 
+	LOG_DEBUG ("%s %s state %d (%d) syncObject %lx\n", 
 			   label, where, state, request, syncObject);
 }
 

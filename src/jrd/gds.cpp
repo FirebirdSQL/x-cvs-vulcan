@@ -673,6 +673,12 @@ SLONG API_ROUTINE gds__interprete(char* s, ISC_STATUS** vector)
 	return printer.interpretStatus (-1, s, (const ISC_STATUS**) vector);
 }
 
+SLONG API_ROUTINE fb_interpret(char* s, int bufsize, const ISC_STATUS** vector)
+{
+	StatusPrint printer;
+	
+	return printer.interpretStatus (bufsize, s, (const ISC_STATUS**) vector);
+}
 
 /* CVC: This special function for ADA has been restored to non-const vector,
  too, in case its usage was broken. */
@@ -997,8 +1003,8 @@ SSHORT API_ROUTINE gds__msg_format(void*       handle,
 		return -1;
 
 	/* Let's assume that the text to be output will never be shorter
-	than the raw text of the message to be formatted.  Then we can
-	use the caller's buffer to temporarily hold the raw text. */
+	   than the raw text of the message to be formatted.  Then we can
+	   use the caller's buffer to temporarily hold the raw text. */
 
 	const int n = gds__msg_lookup(handle, facility, number, length, buffer, NULL);
 
@@ -1008,24 +1014,29 @@ SSHORT API_ROUTINE gds__msg_format(void*       handle,
 		}
 	else
 		{
-		sprintf(formatted, "can't format message %d:%d -- ", facility,
-				number);
+		sprintf(formatted, "can't format message %d:%d -- ", facility, number);
 		TEXT* p;
+		
 		if (n == -1)
 			strcat(formatted, "message text not found");
-		else if (n == -2) {
+		else if (n == -2) 
+			{
 			strcat(formatted, "message file ");
+			
 			for (p = formatted; *p;)
 				p++;
+				
 			gds__prefix_msg(p, MSG_FILE);
 			strcat(p, " not found");
-		}
-		else {
+			}
+		else 
+			{
 			for (p = formatted; *p;)
 				p++;
+				
 			sprintf(p, "message system code %d", n);
+			}
 		}
-	}
 
 	const USHORT l = strlen(formatted);
 	const TEXT* const end = buffer + length - 1;
@@ -1034,8 +1045,8 @@ SSHORT API_ROUTINE gds__msg_format(void*       handle,
 		*buffer++ = *p++;
 
 	*buffer = 0;
-
 	gds__free((SLONG *) formatted);
+	
 	return ((n > 0) ? l : -l);
 }
 

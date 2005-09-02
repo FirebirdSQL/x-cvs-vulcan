@@ -22,7 +22,7 @@ Service::Service(ConfObject *config)
 	svc_stdout = NULL;
 	svc_argv = NULL;
 	svc_service = NULL;
-	svc_switches = NULL;
+	svc_argv_strings = NULL;
 	
 	svc_stdout_head = 0;
 	svc_stdout_tail = 0;
@@ -37,7 +37,9 @@ Service::Service(ConfObject *config)
 
 Service::~Service()
 {
-
+	delete [] svc_stdout;
+	delete [] svc_argv;
+	delete [] svc_argv_strings;
 }
 
 void Service::setEncryptedPassword(const char* password)
@@ -55,4 +57,26 @@ void Service::setPassword(const char * password)
 const char* Service::getSecurityDatabase(void)
 {
 	return configuration->getValue("SecurityDatabase", "security.fdb");
+}
+
+TEXT** Service::allocArgv(int count)
+{
+	delete svc_argv;
+	svc_argc = count;
+	svc_argv = new TEXT*[count + 1];
+	
+	return svc_argv;
+}
+
+TEXT* Service::setArgvStrings(const TEXT* string)
+{
+	delete [] svc_argv_strings;
+	svc_argv_strings = new char [strlen(string) + 1];
+	strcpy (svc_argv_strings, string);
+	
+	return svc_argv_strings;
+}
+
+void Service::svc_started(void)
+{
 }

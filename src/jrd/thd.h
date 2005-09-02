@@ -140,6 +140,30 @@ $Id$
 #define QUANTUM			100	/* Default quantum */
 #define SWEEP_QUANTUM		10	/* Make sweeps less disruptive */
 
+/* Thread specific data */
+
+#if defined(WIN_NT)
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN unsigned int
+#define THREAD_ENTRY_CALL __stdcall
+#elif defined(USE_POSIX_THREADS)
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN void*
+#define THREAD_ENTRY_CALL
+#elif defined(SOLARIS_MT)
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN void *
+#define THREAD_ENTRY_CALL
+#else
+// Define correct types for other platforms
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN int
+#define THREAD_ENTRY_CALL
+#endif
+
+#define THREAD_ENTRY_DECLARE THREAD_ENTRY_RETURN THREAD_ENTRY_CALL
+
+typedef THREAD_ENTRY_DECLARE ThreadEntryPoint(THREAD_ENTRY_PARAM);
 
 /* Thread specific data */
 

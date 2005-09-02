@@ -678,15 +678,14 @@ void add_files (const UCHAR* file_name)
 				general_on_error ();
 			END_ERROR;
 				MISC_release_request_silent(req_handle1);
-			BURP_verbose (57, file->fil_name, (void*) (long) start, NULL, NULL, NULL);
+			BURP_verbose (57, file->fil_name, start);
 			// msg 57 adding file %s, starting at page %ld 
 		}
 		else if (((signed long )file->fil_length) >= start - 1)
 			file->fil_length -= start - 1;
 		else
 		{
-			BURP_print (96, (void*) (long) file->fil_length, (void*) (long) (start - 1), NULL,
-						NULL, NULL);
+			BURP_print (96, file->fil_length, start - 1);
 			// msg 96  length given for initial file (%ld) is less than minimum (%ld)
 			file->fil_length = 0;
 		}
@@ -754,13 +753,13 @@ void bad_attribute (scan_attr_t		scan_next_attr,
 		{
 			skip_count = tdgbl->gbl_sw_skip_count;
 			get_skip(tdgbl, skip_count);
-			BURP_print (203, (void*) (long) skip_count, (void*) (long) bad_attr, NULL, NULL, NULL);
+			BURP_print (203, skip_count, bad_attr);
 			//msg 203: skipped %d bytes after reading a bad attribute %d 
 		}
 		else
 		{
 			++skip_count;
-			BURP_print (205, (void*) (long) skip_count, (void*) (long) bad_attr, NULL, NULL, NULL);
+			BURP_print (205, skip_count, bad_attr);
 			// msg 205: skipped %d bytes looking for next valid attribute, encountered attribute %d 
 		}
 		scan_next_attr = AFTER_SKIP;
@@ -891,8 +890,7 @@ void create_database (const TEXT* file_name)
 	if (tdgbl->gbl_sw_page_size &&
 		(tdgbl->gbl_sw_page_size < page_size))
 	{
-		BURP_print (110, (void*) (long) page_size,
-					(void*) (long) tdgbl->gbl_sw_page_size, NULL, NULL, NULL);
+		BURP_print (110, page_size, tdgbl->gbl_sw_page_size);
 		// msg 110 Reducing the database page size from %ld bytes to %ld bytes 
 	}
 
@@ -1021,7 +1019,7 @@ void create_database (const TEXT* file_name)
 		isc_version(&DB, BURP_output_version, (void*) "\t%s\n");
 	}
 
-	BURP_verbose (74, file_name, (void*) (long) page_size, NULL, NULL, NULL);
+	BURP_verbose (74, file_name, page_size);
 	// msg 74 created database %s, page_size %ld bytes 
 }
 
@@ -1054,8 +1052,7 @@ void decompress(UCHAR* buffer,
 		{
 			if (end - p < count)
 			{
-				BURP_print (202, (void*) (long) count,
-							(void*) (long) (end - p), NULL, NULL, NULL);
+				BURP_print (202, count, end - p);
 				// msg 202: adjusting a decompression length error: invalid length  %d was adjusted to %d 
 				count = end - p;
 			}
@@ -1065,8 +1062,7 @@ void decompress(UCHAR* buffer,
 		{
 			if (end + count < p)
 			{
-				BURP_print(202, (void*) (long) count,
-						   (void*) (long) (p - end), NULL, NULL, NULL);
+				BURP_print(202, count, p - end);
 				// msg 202: adjusting a decompression length error: invalid length %d was adjusted to %d 
 				count = p - end;
 			}
@@ -1237,7 +1233,7 @@ bool get_acl (const TEXT	*owner_nm,
 
 		default:
 			// msg 79 don't understand blob info item %ld  
-			BURP_print (79, (void*) (long) item, NULL, NULL, NULL, NULL);
+			BURP_print (79, item);
 			// CVC: do you return, without closing the blob, dear function???
 			if (isc_close_blob (status_vector,  &blob))
 				BURP_error_redirect (status_vector, 23, NULL, NULL);
@@ -1288,7 +1284,7 @@ bool get_acl (const TEXT	*owner_nm,
 	const SLONG id_person_len = (SLONG) *from;
 
 	const UCHAR* c_1 = (UCHAR*) owner_nm;
-	const UCHAR owner_nm_len = strlen(owner_nm);
+	const UCHAR owner_nm_len = (UCHAR) strlen(owner_nm);
 
 	UCHAR* new_buffer = BURP_alloc (length - id_person_len + owner_nm_len);
 
@@ -2393,7 +2389,7 @@ rec_type get_data (BURP_REL	relation)
 			break;
 
 		default:
-			BURP_error (26, true, isc_arg_number, (void*) (long) field->fld_type,
+			BURP_error (26, true, isc_arg_number, (void*) (IPTR) field->fld_type,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 			// msg 26 datatype %ld not understood 
 			break;
@@ -2509,8 +2505,8 @@ rec_type get_data (BURP_REL	relation)
 				old_length = recompute_length (relation);
 			if (l != old_length)
 			{
-				BURP_error(40, true, isc_arg_number, (void*)(long)length,
-							 isc_arg_number, (void*) (long) l,
+				BURP_error(40, true, isc_arg_number, (void*)(IPTR)length,
+							 isc_arg_number, (void*) (IPTR) l,
 							 0, NULL, 0, NULL, 0, NULL);
 				// msg 40 wrong length record, expected %ld encountered %ld 
 			}
@@ -2560,7 +2556,7 @@ rec_type get_data (BURP_REL	relation)
 		records++;
 
 		if ((records % RESTORE_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(107, (void*) (long) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(107, records);
 
 		for (field = relation->rel_fields; field; field = field->fld_next)
 			if ((field->fld_type == blr_blob) || (field->fld_flags & FLD_array))
@@ -2684,7 +2680,7 @@ rec_type get_data (BURP_REL	relation)
 		if (gds_status[1])
 			EXEC SQL SET TRANSACTION;
 	}
-	BURP_verbose (107, (void*) (long) records, NULL, NULL, NULL, NULL);
+	BURP_verbose (107, records);
 	// msg 107 %ld records restored 
 
 	return record;
@@ -6142,7 +6138,7 @@ rec_type ignore_data (BURP_REL		relation)
 			break;
 	}
 
-	BURP_verbose (106, (void*) (long) records, NULL, NULL, NULL, NULL);
+	BURP_verbose (106, records);
 	// msg 106 %ld records ignored 
 
 	return record;
@@ -6312,7 +6308,7 @@ bool restore (const TEXT* file_name,
 
 	if (tdgbl->RESTORE_format < 1 || tdgbl->RESTORE_format > ATT_BACKUP_FORMAT)
 	{
-		BURP_error(44, true, isc_arg_number, (void*)(long)tdgbl->RESTORE_format,
+		BURP_error(44, true, isc_arg_number, (void*)(IPTR)tdgbl->RESTORE_format,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 		// msg 44 Expected backup version 1, 2, or 3.  Found %ld 
 	}
@@ -6333,7 +6329,7 @@ bool restore (const TEXT* file_name,
 	USHORT db_version = check_db_version();
 	if (db_version < DB_VERSION_CURRENT)
 	{
-		BURP_error(51, true, isc_arg_number, (void*) (long) db_version,
+		BURP_error(51, true, isc_arg_number, (void*) (IPTR) db_version,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 		// msg 51 database format %ld is too old to restore to 
 	}
@@ -6679,7 +6675,7 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	if (!value)
 	{
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-		BURP_verbose (185, gen_name, (void*) (long) value, NULL, NULL, NULL);
+		BURP_verbose (185, gen_name, value);
 		// msg 185 restoring generator %s value: %ld 
 		return;
 	}
@@ -6759,7 +6755,7 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	}
 
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-	BURP_verbose (185, gen_name, (void*) (long) value, NULL, NULL, NULL);
+	BURP_verbose (185, gen_name, value);
 	// msg 185 restoring generator %s value: %ld 
 
 	isc_release_request (status_vector, &gen_id_reqh);
@@ -6778,7 +6774,7 @@ void stuff_string(UCHAR	**ptr,
  *	Stuff a name input a BLR string -- byte count first.
  *
  **************************************/
-	stuff(ptr, strlen (string));
+	stuff(ptr, (UCHAR) strlen (string));
 
 	while (*string)
 		stuff(ptr, *string++);

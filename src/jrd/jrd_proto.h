@@ -38,7 +38,7 @@ ISC_STATUS jrd8_attach_database(ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  Attachment** dbHandle, 
 									  SSHORT dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration);
 ISC_STATUS jrd8_blob_info(ISC_STATUS*, blb**, SSHORT,
@@ -84,7 +84,7 @@ ISC_STATUS jrd8_open_blob2(ISC_STATUS*, Attachment**,
 										 Transaction**, blb**,
 										 struct bid*, USHORT, const UCHAR*);
 ISC_STATUS jrd8_prepare_transaction(ISC_STATUS *, Transaction **,
-												  USHORT, UCHAR *);
+												  USHORT, const UCHAR *);
 ISC_STATUS jrd8_put_segment(ISC_STATUS*, blb**, USHORT,
 										  const UCHAR*);
 ISC_STATUS jrd8_put_slice(ISC_STATUS*, Attachment**,
@@ -123,7 +123,7 @@ ISC_STATUS jrd8_start_and_send(ISC_STATUS *, Request **,
 ISC_STATUS jrd8_start_request(ISC_STATUS *, Request **,
 											Transaction **, SSHORT);
 ISC_STATUS jrd8_start_multiple(ISC_STATUS *, Transaction **, USHORT,
-											 struct teb *);
+											 const struct teb *);
 ISC_STATUS jrd8_start_transaction(ISC_STATUS *, Transaction **,
 												SSHORT, ...);
 ISC_STATUS jrd8_transaction_info(ISC_STATUS*, Transaction**,

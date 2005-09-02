@@ -7,7 +7,6 @@
 #include "firebird.h"
 #include "InfoGen.h"
 #include "ibase.h"
-#include ".\infogen.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

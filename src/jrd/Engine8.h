@@ -46,7 +46,7 @@ public:
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration); 
@@ -55,18 +55,18 @@ public:
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration); 
 	virtual ISC_STATUS databaseInfo(ISC_STATUS*, DbHandle *dbHandle, int, const UCHAR*, int, UCHAR*);
 	virtual ISC_STATUS detachDatabase(ISC_STATUS*, DbHandle *dbHandle);
 	virtual ISC_STATUS dropDatabase (ISC_STATUS*, DbHandle *dbHandle);
 
-	virtual ISC_STATUS startMultiple(ISC_STATUS *, TraHandle *traHandle, int, teb *);
-	virtual ISC_STATUS reconnectTransaction(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*);
+	virtual ISC_STATUS startMultiple(ISC_STATUS *, TraHandle *traHandle, int, const teb *);
+	virtual ISC_STATUS reconnectTransaction(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*);
 
 	virtual ISC_STATUS transactionInfo(ISC_STATUS* userStatus, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
-	virtual ISC_STATUS prepareTransaction(ISC_STATUS*, TraHandle *traHandle, int msgLength, UCHAR* msg);
+	virtual ISC_STATUS prepareTransaction(ISC_STATUS*, TraHandle *traHandle, int msgLength, const UCHAR* msg);
 	virtual ISC_STATUS commitRetaining(ISC_STATUS *, TraHandle *traHandle);
 	virtual ISC_STATUS commitTransaction(ISC_STATUS*, TraHandle *traHandle);
 	virtual ISC_STATUS rollbackRetaining(ISC_STATUS *, TraHandle *traHandle);
@@ -113,38 +113,38 @@ public:
 									int bufferLength, 
 									UCHAR *buffer);
 	//virtual ISC_STATUS dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda);
-	virtual ISC_STATUS dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, UCHAR* blr, int msgType, int msgLength, const UCHAR* msg);
+	virtual ISC_STATUS dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg);
 
 	virtual ISC_STATUS dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, UCHAR* msg);
 	//virtual ISC_STATUS dsqlExecuteImmediate2(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*, int, int, UCHAR *, int, int, UCHAR *, int, UCHAR*, int, int, UCHAR*);
 	virtual ISC_STATUS dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 											 int sqlLength, const char* sql, int dialect, 
-											 int inBlrLength, UCHAR *inBlr, 
-											 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-											 int outBlrLength, UCHAR *outBlr, 
+											 int inBlrLength, const UCHAR *inBlr, 
+											 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+											 int outBlrLength, const UCHAR *outBlr, 
 											 int outMsgType, int outMsgLength, UCHAR *outMsg);
 
 	//virtual ISC_STATUS dsqlExecuteImmediate(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*,int, int, UCHAR *, int, int, UCHAR*);
 	virtual ISC_STATUS dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-											 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+											 int sqlLength, const char* sql, int dialect, int blrLength, const UCHAR *blr, 
 											 int msgType, int msgLength, UCHAR* msg);
 
 	virtual ISC_STATUS dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle,
-									 int inBlrLength, UCHAR *inBlr, 
-									 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-									 int outBlrLength, UCHAR *outBlr, 
+									 int inBlrLength, const UCHAR *inBlr, 
+									 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+									 int outBlrLength, const UCHAR *outBlr, 
 									 int outMsgType, int outMsgLength, UCHAR *outMsg);
 	virtual ISC_STATUS dsqlExecute2(ISC_STATUS*, TraHandle *traHandle, DsqlHandle *dsqlHandle, int, UCHAR*,int, int, UCHAR*, int, UCHAR*, int, int,UCHAR*);
 	virtual ISC_STATUS dsqlFreeStatement(ISC_STATUS *, DsqlHandle *dsqlHandle, int);
 
 	virtual ISC_STATUS cancelOperation(ISC_STATUS *, DbHandle *dbHandle, int);
-	virtual ISC_STATUS serviceQuery(ISC_STATUS *, SvcHandle *dbHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *);
+	virtual ISC_STATUS serviceQuery(ISC_STATUS *, SvcHandle *dbHandle, int, const UCHAR *, int, const UCHAR *, int, UCHAR *);
 	virtual ISC_STATUS serviceDetach(ISC_STATUS *, SvcHandle *dbHandle);
-	virtual ISC_STATUS serviceAttach(ISC_STATUS *, const TEXT *, SvcHandle *dbHandle, int, UCHAR*,
+	virtual ISC_STATUS serviceAttach(ISC_STATUS *, const TEXT *, SvcHandle *dbHandle, int, const UCHAR*,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration);
 	virtual ISC_STATUS transactRequest(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*,int, UCHAR*, int, UCHAR*);
-	virtual ISC_STATUS executeDDL(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*);
+	virtual ISC_STATUS executeDDL(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*);
 
 	virtual const TEXT* getDescription();
 

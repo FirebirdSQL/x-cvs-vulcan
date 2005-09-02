@@ -107,6 +107,7 @@ int MsgFile::lookupMsg(int facility, int number, int length, TEXT* buffer, USHOR
 
 int MsgFile::openMsgFile(const char* filename)
 {
+	fileName = filename;
 	msg_file = ::open(filename, O_RDONLY | O_BINARY, 0);
 	
 	if (msg_file < 0)

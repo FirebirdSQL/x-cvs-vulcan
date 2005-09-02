@@ -60,12 +60,12 @@ ISC_STATUS	REM_detach_service(ISC_STATUS *, RDatabase **);
 ISC_STATUS	REM_drop_database(ISC_STATUS *, RDatabase **);
 ISC_STATUS	REM_allocate_statement(ISC_STATUS *, RDatabase **, RStatement **);
 ISC_STATUS	REM_execute(ISC_STATUS *, RTransaction **, RStatement **, USHORT, UCHAR *, USHORT, USHORT, UCHAR *);
-ISC_STATUS	REM_execute2(ISC_STATUS *, RTransaction **, RStatement **, USHORT, UCHAR *, USHORT, USHORT, UCHAR *, USHORT, UCHAR *, USHORT, USHORT, UCHAR *);
+ISC_STATUS	REM_execute2(ISC_STATUS *, RTransaction **, RStatement **, USHORT, const UCHAR *, USHORT, USHORT, const UCHAR *, USHORT, const UCHAR *, USHORT, USHORT, UCHAR *);
 ISC_STATUS	REM_execute_immediate(ISC_STATUS*, RDatabase**, RTransaction**,
 	USHORT, const TEXT*, USHORT, USHORT, const UCHAR*, USHORT, USHORT, UCHAR*);
 ISC_STATUS	REM_execute_immediate2(ISC_STATUS*, RDatabase**, RTransaction**,
-	USHORT, const TEXT*, USHORT, USHORT, const UCHAR*, USHORT, USHORT, UCHAR*,
-	USHORT, UCHAR*, USHORT, USHORT, UCHAR*);
+	USHORT, const TEXT*, USHORT, USHORT, const UCHAR*, USHORT, USHORT, const UCHAR*,
+	USHORT, const UCHAR*, USHORT, USHORT, UCHAR*);
 ISC_STATUS	REM_fetch(ISC_STATUS*, RStatement**, USHORT, const UCHAR*, USHORT,
 	USHORT, UCHAR*);
 ISC_STATUS	REM_free_statement(ISC_STATUS *, RStatement **, USHORT);

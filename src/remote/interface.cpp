@@ -1303,16 +1303,16 @@ ISC_STATUS GDS_DSQL_EXECUTE(ISC_STATUS*	user_status,
 ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
 						 RTransaction**		rtr_handle,
 						 RStatement**		stmt_handle,
-						 USHORT		in_blr_length,
-						 UCHAR*		in_blr,
-						 USHORT		in_msg_type,
-						 USHORT		in_msg_length,
-						 UCHAR*		in_msg,
-						 USHORT		out_blr_length,
-						 UCHAR*		out_blr,
-						 USHORT		out_msg_type,
-						 USHORT		out_msg_length,
-						 UCHAR*		out_msg)
+						 USHORT				in_blr_length,
+						 const UCHAR*		in_blr,
+						 USHORT				in_msg_type,
+						 USHORT				in_msg_length,
+						 const UCHAR*		in_msg,
+						 USHORT				out_blr_length,
+						 const UCHAR*		out_blr,
+						 USHORT				out_msg_type,
+						 USHORT				out_msg_length,
+						 UCHAR*				out_msg)
 {
 /**************************************
  *
@@ -1393,7 +1393,9 @@ ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
 			}
 
 		RMessage *message = 0;
-		if (!statement->rsr_buffer) {
+		
+		if (!statement->rsr_buffer) 
+			{
 			statement->rsr_buffer = message = new RMessage(0);
 			statement->rsr_message = message;
 
@@ -1403,12 +1405,11 @@ ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
 #endif
 
 			statement->rsr_fmt_length = 0;
-		}
-		else {
+			}
+		else 
 			message = statement->rsr_message = statement->rsr_buffer;
-		}
 
-		message->msg_address = in_msg;
+		message->msg_address = (UCHAR*) in_msg;
 		statement->rsr_flags &= ~RSR_fetched;
 		statement->rsr_format = statement->rsr_bind_format;
 
@@ -1420,11 +1421,11 @@ ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
 		sqldata->p_sqldata_statement = statement->rsr_id;
 		sqldata->p_sqldata_transaction = (transaction) ? transaction->rtr_id : 0;
 		sqldata->p_sqldata_blr.cstr_length = in_blr_length;
-		sqldata->p_sqldata_blr.cstr_address = in_blr;
+		sqldata->p_sqldata_blr.cstr_address = (UCHAR*) in_blr;
 		sqldata->p_sqldata_message_number = in_msg_type;
 		sqldata->p_sqldata_messages = (statement->rsr_bind_format) ? 1 : 0;
 		sqldata->p_sqldata_out_blr.cstr_length = out_blr_length;
-		sqldata->p_sqldata_out_blr.cstr_address = out_blr;
+		sqldata->p_sqldata_out_blr.cstr_address = (UCHAR*) out_blr;
 		sqldata->p_sqldata_out_message_number = out_msg_type;
 
 		if (!send_packet(port, packet, user_status))
@@ -1509,9 +1510,9 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
 							   const UCHAR* in_blr,
 							   USHORT in_msg_type,
 							   USHORT in_msg_length,
-							   UCHAR* in_msg,
+							   const UCHAR* in_msg,
 							   USHORT out_blr_length,
-							   UCHAR* out_blr,
+							   const UCHAR* out_blr,
 							   USHORT out_msg_type,
 							   USHORT out_msg_length, UCHAR* out_msg)
 {
@@ -1594,7 +1595,7 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
 		RMessage *message = 0;
 		
 		if (!statement->rsr_buffer)
-		{
+			{
 			statement->rsr_buffer = message = new RMessage(0);
 			statement->rsr_message = message;
 			message->msg_next = message;
@@ -1602,12 +1603,11 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
 			message->msg_prior = message;
 #endif
 			statement->rsr_fmt_length = 0;
-		}
-		else {
+			}
+		else 
 			message = statement->rsr_message = statement->rsr_buffer;
-		}
 
-		message->msg_address = in_msg;
+		message->msg_address = (UCHAR*) in_msg;
 
 		/* set up the packet for the other guy... */
 
@@ -1628,12 +1628,11 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
 		ex_now->p_sqlst_messages = (in_msg_length
 									&& statement->rsr_bind_format) ? 1 : 0;
 		ex_now->p_sqlst_out_blr.cstr_length = out_blr_length;
-		ex_now->p_sqlst_out_blr.cstr_address = out_blr;
+		ex_now->p_sqlst_out_blr.cstr_address = (UCHAR*) out_blr;
 		ex_now->p_sqlst_out_message_number = out_msg_type;
 
-		if (!send_packet(port, packet, user_status)) {
+		if (!send_packet(port, packet, user_status)) 
 			return error(user_status);
-		}
 
 		/* SEND could have changed the message */
 

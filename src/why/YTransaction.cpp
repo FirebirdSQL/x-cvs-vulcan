@@ -181,7 +181,7 @@ void YTransaction::setTransactionHandle(SubsysHandle* subsystem, TraHandle trans
 	db->handle = transactionHandle;
 }
 
-ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, UCHAR* msg)
+ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, const UCHAR* msg)
 {
 	if (inLimbo)
 		return statusVector.getCode();

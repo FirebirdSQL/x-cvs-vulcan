@@ -78,7 +78,7 @@ ISC_STATUS Subsystem::createDatabase (ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
@@ -92,7 +92,7 @@ ISC_STATUS Subsystem::attachDatabase(ISC_STATUS* userStatus,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
 {
@@ -119,13 +119,13 @@ ISC_STATUS Subsystem::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Subsystem::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int, teb *)
+ISC_STATUS Subsystem::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int, const teb *)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
-ISC_STATUS Subsystem::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Subsystem::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -137,7 +137,7 @@ ISC_STATUS Subsystem::transactionInfo(ISC_STATUS* userStatus, TraHandle *traHand
 }
 
 
-ISC_STATUS Subsystem::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Subsystem::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int, const UCHAR*)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -367,9 +367,9 @@ ISC_STATUS Subsystem::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *db
 
 
 ISC_STATUS Subsystem::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle, 
-								 int inBlrLength, UCHAR *inBlr, 
-								 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-								 int outBlrLength, UCHAR *outBlr, 
+								 int inBlrLength, const UCHAR *inBlr, 
+								 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+								 int outBlrLength, const UCHAR *outBlr, 
 								 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -387,9 +387,9 @@ ISC_STATUS Subsystem::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle,
 
 ISC_STATUS Subsystem::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -426,9 +426,9 @@ ISC_STATUS Subsystem::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsql
 ISC_STATUS Subsystem::serviceQuery(ISC_STATUS *userStatus, 
 								SvcHandle *dbHandle, 
 								int inItemLength, 
-								UCHAR* inItem, 
+								const UCHAR* inItem, 
 								int outItemLength, 
-								UCHAR* outItem, 
+								const UCHAR* outItem, 
 								int bufferLength, 
 								UCHAR *buffer)
 {
@@ -446,7 +446,7 @@ ISC_STATUS Subsystem::serviceAttach(ISC_STATUS *userStatus,
 								  const TEXT *service, 
 								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb, 
+								  const UCHAR *spb, 
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration)
 {
@@ -457,7 +457,7 @@ ISC_STATUS Subsystem::serviceAttach(ISC_STATUS *userStatus,
 ISC_STATUS Subsystem::serviceStart(ISC_STATUS* userStatus,
 								 SvcHandle *dbHandle,
 								 int spbLength, 
-								 UCHAR * spb)
+								 const UCHAR * spb)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -467,9 +467,9 @@ ISC_STATUS Subsystem::transactRequest(ISC_STATUS* userStatus,
 								   DbHandle *dbHandle, 
 								   TraHandle *traHandle, 
 								   int blrLength, 
-								   UCHAR* blr,
+								   const UCHAR* blr,
 								   int inMsgLength, 
-								   UCHAR* inMsg, 
+								   const UCHAR* inMsg, 
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
@@ -477,7 +477,7 @@ ISC_STATUS Subsystem::transactRequest(ISC_STATUS* userStatus,
 }
 
 
-ISC_STATUS Subsystem::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR* ddl)
+ISC_STATUS Subsystem::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl)
 {
 	return entrypointUnavailable (userStatus);
 }

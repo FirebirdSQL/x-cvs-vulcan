@@ -476,17 +476,21 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	put(tdgbl, (UCHAR) (rec_end));
 	
 	UINT64 cumul_count = MVOL_fini_write(&tdgbl->io_cnt, &tdgbl->io_ptr);
-	if (cumul_count <= MAX_SLONG) {
+	
+	if (cumul_count <= MAX_SLONG) 
+		{
 		SLONG tempcount = cumul_count;
-		BURP_verbose(176, (void*) (long) tempcount, NULL, NULL, NULL, NULL);
+		BURP_verbose(176, tempcount);
 		// msg 176 closing file, committing, and finishing.  %ld bytes written 
-	}
-	else {
+		}
+	else 
+		{
 		char psz[64];
 		ib_sprintf(psz, "%" QUADFORMAT "d", cumul_count);
 		BURP_verbose(283, psz, NULL, NULL, NULL, NULL);
 		// msg 283 closing file, committing, and finishing.  %s bytes written 
-	}
+		}
+		
 	COMMIT;
 	ON_ERROR
 		general_on_error();
@@ -1190,23 +1194,29 @@ void put_array( BURP_FLD field, BURP_REL relation, ISC_QUAD * blob_id)
 
 	ISC_STATUS_ARRAY status_vector;
 	ULONG return_length = 0;
+	
 	if (isc_get_slice(status_vector, &DB, &gds_trans, blob_id,
 					  blr_length, (const char*) blr_buffer,
 					  0,	// param length for subset of an array handling
 					  NULL,	// param for subset of an array handling
-					  slice_length, slice, (SLONG*) &return_length))
-	{
+					  slice_length, slice, (ISC_LONG*) &return_length))
+		{
 		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
 		// msg 81 error accessing blob field %s -- continuing 
 		BURP_print_status(status_vector);
+		
 #ifdef DEBUG
 		PRETTY_print_sdl(blr_buffer, NULL, NULL, 0);
 #endif
+
 		// CVC: At this point I would expected calls to deallocate memory
 		// See the end of this function.
+		
 		BURP_free(slice);
+		
 		if (xdr_buffer.lstr_allocated)
 			BURP_free(xdr_buffer.lstr_address);
+			
 		return;
 	}
 
@@ -1301,7 +1311,7 @@ void put_asciz( const SCHAR attribute, const TEXT* string)
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	ULONG l = strlen(string);
+	ULONG l = (ULONG) strlen(string);
 
 	put(tdgbl, (UCHAR) (attribute));
 	put(tdgbl, (UCHAR) (l));
@@ -1383,7 +1393,7 @@ void put_blob( BURP_FLD field, ISC_QUAD * blob_id, ULONG count)
 			break;
 
 		default:
-			BURP_error_redirect(NULL, 21, (void*) (long) item, NULL);
+			BURP_error_redirect(NULL, 21, (void*) (IPTR) item, NULL);
 			// msg 21 don't understand blob info item %ld 
 		}
 	}
@@ -1489,7 +1499,7 @@ bool put_blr_blob( SCHAR attribute, ISC_QUAD * blob_id)
 			break;
 
 		default:
-			BURP_print(79, (void *) (long) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, (void *) (IPTR) item, NULL, NULL, NULL, NULL);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -1668,7 +1678,7 @@ void put_data(BURP_REL relation)
 			break;
 
 		default:
-			BURP_error_redirect(NULL, 26, (void *) (long) field->fld_type, NULL);
+			BURP_error_redirect(NULL, 26, (void *) (IPTR) field->fld_type, NULL);
 			// msg 26 datatype %ld not understood 
 			break;
 		}
@@ -1813,7 +1823,7 @@ void put_data(BURP_REL relation)
 		records++;
 		// Verbose records 
 		if ((records % BACKUP_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(108, (void *) (long) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(108, (void *) (IPTR) records, NULL, NULL, NULL, NULL);
 
 		put(tdgbl, (UCHAR) (rec_data));
 		put_numeric(att_data_length, record_length);
@@ -1864,7 +1874,7 @@ void put_data(BURP_REL relation)
 	if (xdr_buffer.lstr_address)
 		BURP_free(xdr_buffer.lstr_address);
 
-	BURP_verbose(108, (void *) (long) records, NULL, NULL, NULL, NULL);
+	BURP_verbose(108, (void *) (IPTR) records, NULL, NULL, NULL, NULL);
 // msg 108 %ld records written 
 
 	if (isc_release_request(status_vector, &request))
@@ -1923,8 +1933,7 @@ void put_index( BURP_REL relation)
 	
 			if (count != (ULONG) X.RDB$SEGMENT_COUNT) 
 			{
-				BURP_print(180, X.RDB$INDEX_NAME, (void*) (long) count,
-							(void*)(long) X.RDB$SEGMENT_COUNT, NULL, NULL);
+				BURP_print(180, X.RDB$INDEX_NAME, count, X.RDB$SEGMENT_COUNT);
 				continue;
 			}
 	
@@ -2000,8 +2009,7 @@ void put_index( BURP_REL relation)
 	
 			if (count != (ULONG) X.RDB$SEGMENT_COUNT) 
 			{
-				BURP_print(180, X.RDB$INDEX_NAME, (void*) (long) count,
-						   (void*)(long) X.RDB$SEGMENT_COUNT, NULL, NULL);
+				BURP_print(180, X.RDB$INDEX_NAME, count,X.RDB$SEGMENT_COUNT);
 				continue; 
 			}
 	
@@ -2404,7 +2412,7 @@ bool put_source_blob(SCHAR		attribute,
 			break;
 
 		default:
-			BURP_print(79, (void *) (long) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, item);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -2772,7 +2780,7 @@ void write_database( const TEXT* dbb_file)
 
 	put_asciz(att_file_name, dbb_file);
 
-	BURP_verbose(77, dbb_file, (void *) (long) page_size, NULL, NULL, NULL);
+	BURP_verbose(77, dbb_file, page_size);
 // msg 77 database %s has a page size of %ld bytes. 
 
 	put(tdgbl, (UCHAR) (att_end));
@@ -3116,18 +3124,20 @@ void write_generators(void)
 	TGBL tdgbl = GET_THREAD_DATA;
 
 	FOR (REQUEST_HANDLE req_handle1)
-		X IN RDB$GENERATORS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1
+		 X IN RDB$GENERATORS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1
 		put(tdgbl, rec_generator);
 		const SSHORT l = PUT_TEXT (att_gen_generator, X.RDB$GENERATOR_NAME);
 		SINT64 value = 0;
-		if (!tdgbl->gbl_sw_meta) {
+		
+		if (!tdgbl->gbl_sw_meta) 
+			{
 			value = get_gen_id (X.RDB$GENERATOR_NAME, l);
 			put_int64 (att_gen_value_int64, value);
-		}
+			}
+			
 		put(tdgbl, att_end);
 		MISC_terminate (X.RDB$GENERATOR_NAME, temp, l, sizeof(temp));
-#pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-		BURP_verbose (165, temp, (void*) (long) value, NULL, NULL, NULL);
+		BURP_verbose (165, temp, value);
 		// msg 165 writing generator %s value %ld
 	END_FOR;
 	ON_ERROR

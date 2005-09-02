@@ -184,7 +184,8 @@ void JString::Format (const char* stuff, ...)
 	va_start (args, stuff);
 	char	temp [1024];
 
-	vsprintf (temp, stuff, args);
+	//vsprintf (temp, stuff, args);
+	int length = vsnprintf (temp, sizeof (temp) - 1, stuff, args);
 	setString (temp);
 }
 

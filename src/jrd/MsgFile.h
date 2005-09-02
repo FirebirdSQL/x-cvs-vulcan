@@ -5,8 +5,10 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+
 #include "Sync.h"
 #include "SyncObject.h"
+#include "JString.h"
 
 START_NAMESPACE
 
@@ -20,11 +22,12 @@ public:
 	void	close(void);
 
 	SyncObject	syncObject;
-	ULONG	msg_top_tree;
-	int		msg_file;
-	USHORT	msg_bucket_size;
-	USHORT	msg_levels;
-	UCHAR	*msg_bucket;
+	ULONG		msg_top_tree;
+	int			msg_file;
+	USHORT		msg_bucket_size;
+	USHORT		msg_levels;
+	UCHAR		*msg_bucket;
+	JString		fileName;
 };
 
 END_NAMESPACE

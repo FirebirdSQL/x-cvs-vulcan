@@ -24,6 +24,8 @@
 #ifndef JRD_SVC_PROTO_H
 #define JRD_SVC_PROTO_H
 
+#include "thd.h"
+
 CLASS(ConfObject);
 
 class Service;
@@ -39,7 +41,8 @@ void   SVC_query(Service*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, U
 ISC_STATUS SVC_query2(Service*, thread_db*, USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
 void  SVC_start(Service*, USHORT, const UCHAR*);
 void   SVC_finish(Service*, USHORT);
-int   SVC_read_ib_log(Service*);
+//int   SVC_read_ib_log(Service*);
+THREAD_ENTRY_DECLARE SVC_read_ib_log(THREAD_ENTRY_PARAM arg);
 //const TEXT* SVC_err_string(const TEXT*, USHORT);
 int SVC_output(Service*, const UCHAR*);
 void SVC_post(ISC_STATUS status, ...);

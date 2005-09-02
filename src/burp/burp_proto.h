@@ -24,8 +24,11 @@
 #ifndef BURP_BURP_PROTO_H
 #define BURP_BURP_PROTO_H
 
+#include <stdarg.h>
+
 #ifdef SUPERSERVER
-int BURP_main(Service* service);
+//int BURP_main(Service* service);
+THREAD_ENTRY_DECLARE BURP_main(THREAD_ENTRY_PARAM arg);
 #endif
 
 void	BURP_abort(void);
@@ -34,16 +37,22 @@ void	BURP_error(USHORT, bool, USHORT, const void*, USHORT, const void*,
 void	BURP_error(USHORT, bool, const void*, const void*, const void*, const void*, const void*);
 void	BURP_print_status(ISC_STATUS*);
 void	BURP_error_redirect(ISC_STATUS*, USHORT, const void*, const void*);
-void	BURP_msg_partial(USHORT, const void*, const void*, const void*,
-						const void*, const void*);
-void	BURP_msg_put(USHORT, const void*, const void*, const void*,
-					const void*, const void*);
-void	BURP_msg_get(USHORT, TEXT*, const void*, const void*, const void*,
-					const void*, const void*);
+
+//void	BURP_msg_partial(USHORT, const void*, const void*, const void*, const void*, const void*);
+//void	BURP_msg_put(USHORT, const void*, const void*, const void*, const void*, const void*);
+//void	BURP_msg_get(USHORT, TEXT*, const void*, const void*, const void*, const void*, const void*);
+//void	BURP_print(USHORT, const void*, const void*, const void*, const void*, const void*);
+//void	BURP_verbose(USHORT, const void*, const void*, const void*, const void*, const void*);
+
+void	BURP_msg_partial(USHORT, ...);
+void	BURP_msg_put(USHORT, ...);
+void	BURP_msg_get(USHORT, TEXT*, ...);
+void	BURP_print(USHORT, ...);
+void	BURP_print(va_list stuff, USHORT);
+void	BURP_verbose(USHORT, ...);
+
 void	BURP_output_version(void*, const TEXT*);
-void	BURP_print(USHORT, const void*, const void*, const void*, const void*, const void*);
 void	BURP_print_warning(ISC_STATUS*);
-void	BURP_verbose(USHORT, const void*, const void*, const void*, const void*, const void*);
 
 #endif	//  BURP_BURP_PROTO_H
 

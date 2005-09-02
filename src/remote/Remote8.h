@@ -94,17 +94,17 @@ public:
 									 int sqlLength, const char *sql, int dialect,
 									 XSQLDA *inSqlda, XSQLDA *outSqlda);
 	virtual ISC_STATUS dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle,
-									 int inBlrLength, UCHAR *inBlr, 
-									 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-									 int outBlrLength, UCHAR *outBlr, 
+									 int inBlrLength, const UCHAR *inBlr, 
+									 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+									 int outBlrLength, const UCHAR *outBlr, 
 									 int outMsgType, int outMsgLength, UCHAR *outMsg);
 	virtual ISC_STATUS dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle, int dialect, XSQLDA *inSqlda, XSQLDA *outSqlda);
 	//virtual ISC_STATUS dsqlExecute2(ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle, int, UCHAR*,int, int, UCHAR*, int, UCHAR*, int, int,UCHAR*);
 	virtual ISC_STATUS dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 											 int sqlLength, const char* sql, int dialect, 
-											 int inBlrLength, UCHAR *inBlr, 
-											 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-											 int outBlrLength, UCHAR *outBlr, 
+											 int inBlrLength, const UCHAR *inBlr, 
+											 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+											 int outBlrLength, const UCHAR *outBlr, 
 											 int outMsgType, int outMsgLength, UCHAR *outMsg);
 	virtual ISC_STATUS dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 											 int sqlLength, const char* sql, int dialect, 
@@ -121,9 +121,9 @@ public:
 	virtual ISC_STATUS serviceQuery(ISC_STATUS *userStatus, 
 									SvcHandle *dbHandle, 
 									int inItemLength, 
-									UCHAR* inItem, 
+									const UCHAR* inItem, 
 									int outItemLength, 
-									UCHAR* outItem, 
+									const UCHAR* outItem, 
 									int bufferLength, 
 									UCHAR *buffer);
 	virtual ISC_STATUS serviceDetach(ISC_STATUS *userStatus, SvcHandle *dbHandle);
@@ -147,7 +147,7 @@ public:
 									   UCHAR* inMsg, 
 									   int outMsgLength, 
 									   UCHAR* outMsg);
-	virtual ISC_STATUS executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR* ddl);
+	virtual ISC_STATUS executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl);
 	virtual int enableSubsystem (TEXT* subSystem);
 	virtual int disableSubsystem (TEXT* subSystem);
 	virtual ISC_STATUS databaseCleanup (ISC_STATUS* userStatus, 

@@ -73,7 +73,7 @@ ISC_STATUS Engine8::attachDatabase(ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
 {
@@ -163,7 +163,7 @@ ISC_STATUS Engine8::createDatabase (ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
@@ -186,8 +186,8 @@ ISC_STATUS Engine8::databaseInfo(ISC_STATUS *statusVector, DbHandle *dbHandle, i
 
 	return exitSystem (jrd8_database_info (statusVector, 
 								 (Attachment**) dbHandle, 
-								 itemLength, (const UCHAR*) items, 
-								 bufferLength, (UCHAR*) buffer));
+								 itemLength, items, 
+								 bufferLength, buffer));
 }
 
 ISC_STATUS Engine8::detachDatabase(ISC_STATUS *statusVector, DbHandle *dbHandle )
@@ -217,14 +217,14 @@ ISC_STATUS Engine8::openBlob(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHa
 										bpb));
 }
 
-ISC_STATUS Engine8::prepareTransaction(ISC_STATUS *statusVector, TraHandle *traHandle, int msgLength, UCHAR* msg)
+ISC_STATUS Engine8::prepareTransaction(ISC_STATUS *statusVector, TraHandle *traHandle, int msgLength, const UCHAR* msg)
 {
 	enterSystem();
 
 	return exitSystem (jrd8_prepare_transaction (statusVector, (Transaction**) traHandle, msgLength, msg));
 }
 
-ISC_STATUS Engine8::reconnectTransaction(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR *)
+ISC_STATUS Engine8::reconnectTransaction(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR *)
 {
 	return entrypointUnavailable (statusVector);
 }
@@ -241,8 +241,8 @@ ISC_STATUS Engine8::requestInfo(ISC_STATUS* statusVector, ReqHandle *reqHandle, 
 {
 	return exitSystem (jrd8_request_info (statusVector, 
 								 (Request**) reqHandle, level,
-								 itemsLength, (const UCHAR*) items, 
-								 bufferLength, (UCHAR*) buffer));
+								 itemsLength, items, 
+								 bufferLength, buffer));
 }
 
 ISC_STATUS Engine8::rollbackTransaction(ISC_STATUS *statusVector, TraHandle *traHandle )
@@ -283,7 +283,7 @@ ISC_STATUS Engine8::startAndSend(ISC_STATUS *statusVector, ReqHandle *reqHandle,
 					   level));
 }
 
-ISC_STATUS Engine8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle, int count, teb *tebs)
+ISC_STATUS Engine8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle, int count, const teb *tebs)
 {
 	enterSystem();
 
@@ -317,7 +317,7 @@ ISC_STATUS Engine8::cancelEvents(ISC_STATUS *statusVector, DbHandle *dbHandle, S
 	return entrypointUnavailable (statusVector);
 }
 
-ISC_STATUS Engine8::executeDDL(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR *ddl)
+ISC_STATUS Engine8::executeDDL(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR *ddl)
 {
 	enterSystem();
 
@@ -370,9 +370,9 @@ ISC_STATUS Engine8::dsqlAllocateStatement(ISC_STATUS *statusVector, DbHandle *db
 }
 
 ISC_STATUS Engine8::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle, 
-								 int inBlrLength, UCHAR *inBlr, 
-								 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-								 int outBlrLength, UCHAR *outBlr, 
+								 int inBlrLength, const UCHAR *inBlr, 
+								 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+								 int outBlrLength, const UCHAR *outBlr, 
 								 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	enterSystem();
@@ -393,7 +393,10 @@ ISC_STATUS Engine8::dsqlExecute2(ISC_STATUS *statusVector, TraHandle *traHandle,
 }
 
 ISC_STATUS Engine8::dsqlExecuteImmediate(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
-										int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+										int sqlLength, 
+										const char* sql, 
+										int dialect, 
+										int blrLength, const UCHAR *blr, 
 										int msgType, int msgLength, UCHAR* msg)
 {
 	return entrypointUnavailable (statusVector);
@@ -401,9 +404,9 @@ ISC_STATUS Engine8::dsqlExecuteImmediate(ISC_STATUS *statusVector, DbHandle *dbH
 
 ISC_STATUS Engine8::dsqlExecuteImmediate2(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
 											 int sqlLength, const char* sql, int dialect, 
-											 int inBlrLength, UCHAR *inBlr, 
-											 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-											 int outBlrLength, UCHAR *outBlr, 
+											 int inBlrLength, const UCHAR *inBlr, 
+											 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+											 int outBlrLength, const UCHAR *outBlr, 
 											 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	enterSystem();
@@ -443,7 +446,7 @@ ISC_STATUS Engine8::dsqlFreeStatement(ISC_STATUS *statusVector, DsqlHandle *dsql
 	return exitSystem (ret);
 }
 
-ISC_STATUS Engine8::dsqlInsert(ISC_STATUS *statusVector, DsqlHandle *dsqlHandle, int blrLength, UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
+ISC_STATUS Engine8::dsqlInsert(ISC_STATUS *statusVector, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
 {
 	return entrypointUnavailable (statusVector);
 }
@@ -482,7 +485,7 @@ ISC_STATUS Engine8::dsqlSqlInfo(ISC_STATUS* statusVector, DsqlHandle *dsqlHandle
 	return exitSystem (statement->getSqlInfo (statusVector, itemsLength, items, bufferLength, buffer));
 }
 
-ISC_STATUS Engine8::serviceAttach(ISC_STATUS *statusVector, const TEXT *, SvcHandle *dbHandle, int, UCHAR*,
+ISC_STATUS Engine8::serviceAttach(ISC_STATUS *statusVector, const TEXT *, SvcHandle *dbHandle, int, const UCHAR*,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration)
 {
@@ -494,7 +497,7 @@ ISC_STATUS Engine8::serviceDetach(ISC_STATUS *statusVector, SvcHandle *dbHandle 
 	return entrypointUnavailable (statusVector);
 }
 
-ISC_STATUS Engine8::serviceQuery(ISC_STATUS *statusVector, SvcHandle *dbHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *)
+ISC_STATUS Engine8::serviceQuery(ISC_STATUS *statusVector, SvcHandle *dbHandle, int, const UCHAR *, int, const UCHAR *, int, UCHAR *)
 {
 	return entrypointUnavailable (statusVector);
 }

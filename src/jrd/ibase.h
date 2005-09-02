@@ -647,6 +647,10 @@ ISC_STATUS ISC_EXPORT isc_interprete(char*,
 /* This const params version used in the engine and other places. */
 ISC_LONG ISC_EXPORT isc_interprete_cpp(char* const,
 									 const ISC_STATUS**);
+
+SLONG ISC_EXPORT fb_interpret(char*,
+								 int,
+								 const ISC_STATUS**);
 									 
 ISC_STATUS ISC_EXPORT isc_open_blob(ISC_STATUS*,
 									isc_db_handle*,

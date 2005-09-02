@@ -35,8 +35,8 @@
 #include "../jrd/svc_proto.h"
 #include "../jrd/isc_s_proto.h"
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
 
 
 
@@ -45,6 +45,7 @@
 #define SVC_STDOUT_BUFFER_SIZE	1024
 
 /* Flag of capabilities supported by the server */
+
 #define WAL_SUPPORT					  0x1L	/* Write Ahead Log */
 #define MULTI_CLIENT_SUPPORT		  0x2L	/* SuperServer model (vs. multi-inet) */
 #define REMOTE_HOP_SUPPORT			  0x4L	/* Server can connect to other server */
@@ -59,11 +60,13 @@
 
 /* Range definitions for service actions.  Any action outside of
    this range is not supported */
+   
 #define isc_action_min                 1
 #define isc_action_max                 14
 
 /* Range definitions for service actions.  Any action outside of
    this range is not supported */
+   
 #define isc_info_min                  50
 #define isc_info_max                  67
 
@@ -71,8 +74,10 @@
 /* switches for username and password used when a username and/or password
  * is specified by the client application
  */
+ 
 #define USERNAME_SWITCH "-USER"
 #define PASSWORD_SWITCH "-PASSWORD"
+
 #if defined ( SUPERSERVER ) || defined ( SUPERCLIENT )
 #define SERVICE_THD_PARAM "-svc_thd"
 #else
@@ -81,7 +86,8 @@
 
 /* Macro used to store services thread specific data */
 /* Currently we store empty string, see bug #10394 */
-#ifdef SUPERSERVER
+
+#ifdef SUPERSERVERxxx
 #define SVC_PUTSPECIFIC_DATA	{\
 				char    t_data[] = {'\0'};\
 				THD_putspecific_data((void*)t_data);\
@@ -93,6 +99,7 @@
 /* Macro used to signify that the service started has done basic
  * initialization and can be considered a successful startup
  */
+ 
 #ifndef SUPERSERVER
 
 #define SVC_STARTED(service)
@@ -112,8 +119,8 @@ void SVC_STATUS_ARG(ISC_STATUS*& status, USHORT type, const void* value);
 /* Service manager block */
 
 #include "Service.h"
-typedef Service svc;
-typedef Service *SVC;
+//typedef Service svc;
+//typedef Service *SVC;
 
 #ifdef UNDEF
 class svc : public pool_alloc<type_svc>
@@ -149,12 +156,13 @@ typedef int (*pfn_svc_main) (SVC);
 
 typedef struct serv
 {
-	USHORT		serv_action;
-	const TEXT*	serv_name;
-	const TEXT*	serv_std_switches;
-	const TEXT*	serv_executable;
-	pfn_svc_main	serv_thd;
-	BOOLEAN*	in_use;
+	USHORT				serv_action;
+	const TEXT*			serv_name;
+	const TEXT*			serv_std_switches;
+	const TEXT*			serv_executable;
+	//pfn_svc_main		serv_thd;
+	ThreadEntryPoint*	serv_thd;
+	BOOLEAN*			in_use;
 } *SERV;
 
 /* Bitmask values for the svc_flags variable */

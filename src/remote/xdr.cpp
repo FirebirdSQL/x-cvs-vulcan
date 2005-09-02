@@ -662,41 +662,49 @@ bool_t xdr_string(XDR * xdrs,
 	SLONG length;
 
 	switch (xdrs->x_op)
-	{
-	case XDR_ENCODE:
-		length = strlen(*sp);
-		if (length > maxlength ||
-			!PUTLONG(xdrs, &length) ||
-			!PUTBYTES(xdrs, *sp, length))
-			return FALSE;
-		if ((length = (4 - length) & 3) != 0)
-			return PUTBYTES(xdrs, trash, length);
-		return TRUE;
-
-	case XDR_DECODE:
-		if (!*sp)
-			{
-			*sp = (TEXT *) XDR_ALLOC(maxlength + 1);
-			if (!*sp)			/* NOMEM: return error */
+		{
+		case XDR_ENCODE:
+			length = (SLONG) strlen(*sp);
+			
+			if (length > maxlength ||
+				!PUTLONG(xdrs, &length) ||
+				!PUTBYTES(xdrs, *sp, length))
 				return FALSE;
-			DEBUG_XDR_ALLOC(sp, *sp, (maxlength + 1));
-			}
-		if (!GETLONG(xdrs, &length) || length > maxlength || !GETBYTES(xdrs, *sp, length))
-			return FALSE;
-		(*sp)[length] = 0;
-		if ((length = (4 - length) & 3) != 0)
-			return GETBYTES(xdrs, trash, length);
-		return TRUE;
+				
+			if ((length = (4 - length) & 3) != 0)
+				return PUTBYTES(xdrs, trash, length);
+				
+			return TRUE;
 
-	case XDR_FREE:
-		if (*sp)
-			{
-			XDR_FREE(*sp);
-			DEBUG_XDR_FREE(sp, *sp, (maxlength + 1));
-			*sp = NULL;
-			}
-		return TRUE;
-	}
+		case XDR_DECODE:
+			if (!*sp)
+				{
+				*sp = (TEXT *) XDR_ALLOC(maxlength + 1);
+				if (!*sp)			/* NOMEM: return error */
+					return FALSE;
+				DEBUG_XDR_ALLOC(sp, *sp, (maxlength + 1));
+				}
+				
+			if (!GETLONG(xdrs, &length) || length > maxlength || !GETBYTES(xdrs, *sp, length))
+				return FALSE;
+				
+			(*sp)[length] = 0;
+			
+			if ((length = (4 - length) & 3) != 0)
+				return GETBYTES(xdrs, trash, length);
+				
+			return TRUE;
+
+		case XDR_FREE:
+			if (*sp)
+				{
+				XDR_FREE(*sp);
+				DEBUG_XDR_FREE(sp, *sp, (maxlength + 1));
+				*sp = NULL;
+				}
+				
+			return TRUE;
+		}
 
 	return FALSE;
 }

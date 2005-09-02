@@ -35,7 +35,7 @@ ISC_STATUS Gateway::createDatabase (ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
@@ -49,7 +49,7 @@ ISC_STATUS Gateway::attachDatabase(ISC_STATUS* userStatus,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
 {
@@ -91,7 +91,7 @@ ISC_STATUS Gateway::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, 
 }
 
 
-ISC_STATUS Gateway::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Gateway::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -103,7 +103,7 @@ ISC_STATUS Gateway::transactionInfo(ISC_STATUS* userStatus, TraHandle *traHandle
 }
 
 
-ISC_STATUS Gateway::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Gateway::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int, const UCHAR*)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -321,7 +321,7 @@ ISC_STATUS Gateway::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, i
 }
 
 
-ISC_STATUS Gateway::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
+ISC_STATUS Gateway::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -348,9 +348,9 @@ ISC_STATUS Gateway::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHa
 
 
 ISC_STATUS Gateway::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle, 
-								 int inBlrLength, UCHAR *inBlr, 
-								 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-								 int outBlrLength, UCHAR *outBlr, 
+								 int inBlrLength, const UCHAR *inBlr, 
+								 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+								 int outBlrLength, const UCHAR *outBlr, 
 								 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -368,9 +368,9 @@ ISC_STATUS Gateway::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, D
 
 ISC_STATUS Gateway::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -379,9 +379,9 @@ ISC_STATUS Gateway::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHa
 
 ISC_STATUS Gateway::dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -389,7 +389,8 @@ ISC_STATUS Gateway::dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbHa
 
 
 ISC_STATUS Gateway::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-										 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+										 int sqlLength, const char* sql, int dialect, 
+										 int blrLength, const UCHAR *blr, 
 										 int msgType, int msgLength, UCHAR* msg)
 {
 	return entrypointUnavailable (userStatus);
@@ -407,9 +408,9 @@ ISC_STATUS Gateway::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlHa
 ISC_STATUS Gateway::serviceQuery(ISC_STATUS *userStatus, 
 								DbHandle *SvcHandle, 
 								int inItemLength, 
-								UCHAR* inItem, 
+								const UCHAR* inItem, 
 								int outItemLength, 
-								UCHAR* outItem, 
+								const UCHAR* outItem, 
 								int bufferLength, 
 								UCHAR *buffer)
 {
@@ -427,7 +428,7 @@ ISC_STATUS Gateway::serviceAttach(ISC_STATUS *userStatus,
 								  const TEXT *service, 
 								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb, 
+								  const UCHAR *spb, 
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration)
 {
@@ -438,7 +439,7 @@ ISC_STATUS Gateway::serviceAttach(ISC_STATUS *userStatus,
 ISC_STATUS Gateway::serviceStart(ISC_STATUS* userStatus,
 								 SvcHandle *dbHandle,
 								 int spbLength, 
-								 UCHAR * spb)
+								 const UCHAR * spb)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -448,9 +449,9 @@ ISC_STATUS Gateway::transactRequest(ISC_STATUS* userStatus,
 								   DbHandle *dbHandle, 
 								   TraHandle *traHandle, 
 								   int blrLength, 
-								   UCHAR* blr,
+								   const UCHAR* blr,
 								   int inMsgLength, 
-								   UCHAR* inMsg, 
+								   const UCHAR* inMsg, 
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
@@ -458,7 +459,7 @@ ISC_STATUS Gateway::transactRequest(ISC_STATUS* userStatus,
 }
 
 
-ISC_STATUS Gateway::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR* ddl)
+ISC_STATUS Gateway::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl)
 {
 	return entrypointUnavailable (userStatus);
 }

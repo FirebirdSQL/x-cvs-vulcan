@@ -25,16 +25,16 @@
 #ifndef ALICE_ALICE_PROTO_H
 #define ALICE_ALICE_PROTO_H
 
+#include "../jrd/thd.h"
+
 #ifdef SUPERSERVER
-int ALICE_main(Service* service);
+THREAD_ENTRY_DECLARE ALICE_main(THREAD_ENTRY_PARAM);
 #endif
 
 void	ALICE_down_case(const TEXT*, TEXT*, const size_t);
-void	ALICE_print(USHORT, const TEXT*, const TEXT*, const TEXT*,
-	const TEXT*, const TEXT*);
-void	ALICE_error(USHORT, const TEXT*, const TEXT*, const TEXT*,
-	const TEXT*, const TEXT*);
-void	ALICE_print_status(ISC_STATUS*);
+void	ALICE_print(USHORT, ...);
+void	ALICE_error(USHORT, ...);
+void	ALICE_print_status(const ISC_STATUS*);
 
 #endif // ALICE_ALICE_PROTO_H
 

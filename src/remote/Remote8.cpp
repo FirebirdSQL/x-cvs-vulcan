@@ -461,9 +461,9 @@ ISC_STATUS Remote8::dsqlExecuteImmediate (ISC_STATUS* statusVector, DbHandle *db
 
 
 ISC_STATUS Remote8::dsqlExecute (ISC_STATUS* statusVector, TraHandle *traHandle, DsqlHandle *dsqlHandle,
-								 int inBlrLength, UCHAR *inBlr, 
-								 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-								 int outBlrLength, UCHAR *outBlr, 
+								 int inBlrLength, const UCHAR *inBlr, 
+								 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+								 int outBlrLength, const UCHAR *outBlr, 
 								 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	enterSystem();
@@ -489,9 +489,9 @@ ISC_STATUS Remote8::dsqlExecute (ISC_STATUS* statusVector, TraHandle *traHandle,
 
 ISC_STATUS Remote8::dsqlExecuteImmediate2(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return exitSystem (REM_execute_immediate2 (statusVector,
@@ -537,9 +537,9 @@ ISC_STATUS Remote8::dsqlFreeStatement(ISC_STATUS* statusVector, DsqlHandle *dsql
 ISC_STATUS Remote8::serviceQuery(ISC_STATUS *statusVector, 
 								SvcHandle *dbHandle, 
 								int inItemLength, 
-								UCHAR* inItem, 
+								const UCHAR* inItem, 
 								int outItemLength, 
-								UCHAR* outItem, 
+								const UCHAR* outItem, 
 								int bufferLength, 
 								UCHAR *buffer)
 {
@@ -588,7 +588,7 @@ ISC_STATUS Remote8::transactRequest(ISC_STATUS* statusVector,
 }
 
 
-ISC_STATUS Remote8::executeDDL(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR* ddl)
+ISC_STATUS Remote8::executeDDL(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl)
 {
 	return entrypointUnavailable (statusVector);
 }

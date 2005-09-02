@@ -757,6 +757,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ExecutionPathInfoGen.cpp">
+			</File>
+			<File
 				RelativePath="ext.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1431,6 +1434,9 @@
 			</File>
 			<File
 				RelativePath=".\MsgFile.cpp">
+			</File>
+			<File
+				RelativePath=".\MsgFormat.cpp">
 			</File>
 			<File
 				RelativePath=".\Mutex.cpp">
@@ -2595,6 +2601,9 @@
 				RelativePath="ExecuteStatement.h">
 			</File>
 			<File
+				RelativePath=".\ExecutionPathInfoGen.h">
+			</File>
+			<File
 				RelativePath="ext.h">
 			</File>
 			<File
@@ -2988,6 +2997,9 @@
 				RelativePath=".\MsgFile.h">
 			</File>
 			<File
+				RelativePath=".\MsgFormat.h">
+			</File>
+			<File
 				RelativePath="..\include\gen\msgs.h">
 			</File>
 			<File
@@ -3300,10 +3312,10 @@
 				RelativePath="..\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\dsql\sqlda.h">
+				RelativePath=".\Sqlda.h">
 			</File>
 			<File
-				RelativePath=".\Sqlda.h">
+				RelativePath="..\dsql\sqlda.h">
 			</File>
 			<File
 				RelativePath=".\SQLError.h">

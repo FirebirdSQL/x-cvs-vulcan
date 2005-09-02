@@ -24,24 +24,18 @@
 #ifndef ALICE_ALICE_H
 #define ALICE_ALICE_H
 
-#include "../jrd/ib_stdio.h"
+#include <stdio.h>
 
 #include "../jrd/ibase.h"
 #include "../jrd/thd.h"
-//#include "../alice/all.h"
+#include "../alice/all.h"
 #include "../include/fb_blk.h"
 #include "../common/classes/alloc.h"
+#include "../common/classes/array.h"
 
-//#include <vector>
+#include <vector>
 
 #include "../alice/blk.h"
-#include "SVector.h"
-
-#define FRBRD	void
-
-class ExitException
-{
-};
 
 enum val_errors {
 	VAL_INVALID_DB_VERSION	= 0,
@@ -55,7 +49,15 @@ enum val_errors {
 	MAX_VAL_ERRORS			= 8
 };
 
-typedef struct user_action
+enum alice_shut_mode {
+	SHUT_DEFAULT = 0,
+	SHUT_NORMAL = 1,
+	SHUT_MULTI = 2,
+	SHUT_SINGLE = 3,
+	SHUT_FULL = 4
+};
+
+struct user_action
 {
 	ULONG ua_switches;
 	UCHAR* ua_user;
@@ -71,38 +73,39 @@ typedef struct user_action
 	SLONG ua_val_errors[MAX_VAL_ERRORS];
 	TEXT ua_log_file[MAXPATHLEN];
 	USHORT ua_db_SQL_dialect;
-} *USER_ACTION;
+	alice_shut_mode ua_shutdown_mode;
+};
 
 
 
 
-/*  String block: used to store a string of constant length. */
+//  String block: used to store a string of constant length. 
 
-class str : public pool_alloc_rpt<UCHAR, alice_type_str>
+class alice_str : public pool_alloc_rpt<UCHAR, alice_type_str>
 {
 public:
 	USHORT str_length;
 	UCHAR str_data[2];
 };
-typedef str* STR;
 
-/*  Transaction block: used to store info about a multidatabase transaction. */
+//  Transaction block: used to store info about a multidatabase transaction. 
 
-typedef struct tdr : public pool_alloc<alice_type_tdr>
+struct tdr : public pool_alloc<alice_type_tdr>
 {
-	tdr* tdr_next;				/* next subtransaction */
-	SLONG tdr_id;				/* database-specific transaction id */
-	str* tdr_fullpath;			/* full (possibly) remote pathname */
-	const TEXT* tdr_filename;	/* filename within full pathname */
-	str* tdr_host_site;			/* host for transaction */
-	str* tdr_remote_site;		/* site for remote transaction */
-	FRBRD* tdr_handle;			/* reconnected transaction handle */
-	FRBRD* tdr_db_handle;		/* reattached database handle */
-	USHORT tdr_db_caps;			/* capabilities of database */
-	USHORT tdr_state;			/* see flags below */
-} *TDR;
+	tdr* tdr_next;				// next subtransaction 
+	SLONG tdr_id;				// database-specific transaction id 
+	alice_str* tdr_fullpath;			// full (possibly) remote pathname 
+	const TEXT* tdr_filename;	// filename within full pathname 
+	alice_str* tdr_host_site;			// host for transaction 
+	alice_str* tdr_remote_site;		// site for remote transaction 
+	FB_API_HANDLE tdr_handle;			// reconnected transaction handle 
+	FB_API_HANDLE tdr_db_handle;		// reattached database handle 
+	USHORT tdr_db_caps;			// capabilities of database 
+	USHORT tdr_state;			// see flags below 
+};
 
-/* Transaction Description Record */
+typedef tdr* TDR;
+// Transaction Description Record 
 
 const int TDR_VERSION		= 1;
 enum tdr_vals {
@@ -113,42 +116,25 @@ enum tdr_vals {
 	TDR_PROTOCOL		= 5
 };
 
-/* flags for tdr_db_caps */
+// flags for tdr_db_caps 
 
 enum tdr_db_caps_vals {
 	CAP_none			= 0,
 	CAP_transactions	= 1
 };
-/* db has a RDB$TRANSACTIONS relation */
+// db has a RDB$TRANSACTIONS relation 
 
-/* flags for tdr_state */
+// flags for tdr_state 
 enum tdr_state_vals {
-	TRA_none		= 0,		/* transaction description record is missing */
-	TRA_limbo		= 1,		/* has been prepared */
-	TRA_commit		= 2,		/* has committed */
-	TRA_rollback	= 3,		/* has rolled back */
-	TRA_unknown		= 4 		/* database couldn't be reattached, state is unknown */
+	TRA_none		= 0,		// transaction description record is missing 
+	TRA_limbo		= 1,		// has been prepared 
+	TRA_commit		= 2,		// has committed 
+	TRA_rollback	= 3,		// has rolled back 
+	TRA_unknown		= 4 		// database couldn't be reattached, state is unknown 
 };
 
 
-/* a couple of obscure blocks used only in data allocator routines */
-
-class vec : public pool_alloc_rpt<class blk*, alice_type_vec>
-{
-public:
-	ULONG vec_count;
-	blk *vec_object[1];
-};
-typedef vec* VEC;
-
-class vcl : public pool_alloc_rpt<SLONG, alice_type_vcl>
-{
-	ULONG vcl_count;
-	SLONG vcl_long[1];
-};
-typedef vcl* VCL;
-
-/* Global switches and data */
+// Global switches and data 
 
 #include "../jrd/svc.h"
 
@@ -158,56 +144,83 @@ enum redirect_vals {
 	NOOUTPUT = 2
 };
 
-class AliceMemoryPool : public MemMgr
-{
-};
 
+#ifndef SUPERSERVER
+class AliceGlobals;
+extern AliceGlobals* gdgbl;
+#endif
 
-class tgbl
+class AliceGlobals //: public ThreadData
 {
-public:
-	//tgbl(AliceMemoryPool* p) :  {}
-	
-	thdd			tgbl_thd_data;
-	user_action		ALICE_data;
-	AliceMemoryPool* ALICE_permanent_pool;
+private:
+	/***
 	AliceMemoryPool* ALICE_default_pool;
+	friend class Firebird::SubsystemContextPoolHolder <AliceGlobals, AliceMemoryPool>;
+
+	void setDefaultPool(AliceMemoryPool* p)
+	{
+		ALICE_default_pool = p;
+	}
+	***/
+	
+public:
+	AliceGlobals(pfn_svc_output outProc, Service* outData) 
+		: 
+		//ThreadData(ThreadData::tddALICE), 
+		//ALICE_default_pool(0),
+		output_proc(outProc), 
+		output_data(outData),
+		db_handle(0),
+		tr_handle(0)
+	{
+	}
+
+	/***
+	AliceMemoryPool* getDefaultPool()
+	{
+		return ALICE_default_pool;
+	}
+	***/
+	
+	user_action		ALICE_data;
 	ISC_STATUS_ARRAY	status_vector;
-	//typedef			std::vector<AliceMemoryPool*, Firebird::allocator<AliceMemoryPool*> > pool_vec_t;
-	//pool_vec_t		pools;
-	SVector<AliceMemoryPool*>	pools;
 	int				exit_code;
 	pfn_svc_output  output_proc;
-	svc*			output_data;
-	IB_FILE*		output_file;
-	SVC				service_blk;
+	Service*	output_data;
+	FILE*		output_file;
+	Service*	service_blk;
 	isc_db_handle	db_handle;
 	isc_tr_handle	tr_handle;
 	ISC_STATUS*		status;
 	redirect_vals	sw_redirect;
 	bool			sw_service;
 	bool			sw_service_thd;
-};
-typedef tgbl* TGBL;
-
-#ifdef GET_THREAD_DATA
-#undef GET_THREAD_DATA
-#endif
 
 #ifdef SUPERSERVER
-#define GET_THREAD_DATA		((TGBL) THD_get_specific(THDD_TYPE_TALICE))
-#define SET_THREAD_DATA		THD_put_specific ((THDD) tdgbl, THDD_TYPE_TALICE);	\
-				tdgbl->tgbl_thd_data.thdd_type =				\
-					THDD_TYPE_TALICE
-#define RESTORE_THREAD_DATA	THD_restore_specific(THDD_TYPE_TALICE);
+	static inline AliceGlobals* getSpecific() {
+		ThreadData* tData = ThreadData::getSpecific();
+		fb_assert (tData->getType() == ThreadData::tddALICE)
+		return (AliceGlobals*) tData;
+	}
+	static inline void putSpecific(AliceGlobals* tdgbl) {
+		tdgbl->ThreadData::putSpecific();
+	}
+	static inline void restoreSpecific() {
+		ThreadData::restoreSpecific();
+	}
 #else
-extern tgbl *gdgbl;
-
-#define GET_THREAD_DATA		(gdgbl)
-#define SET_THREAD_DATA		gdgbl = const_cast<tgbl*>(tdgbl); \
-				tdgbl->tgbl_thd_data.thdd_type = THDD_TYPE_TGBL
-#define RESTORE_THREAD_DATA
+	static inline AliceGlobals* getSpecific() {
+		return gdgbl;
+	}
+	static inline void putSpecific(AliceGlobals* tdgbl) {
+		gdgbl = tdgbl;
+	}
+	static inline void restoreSpecific() {
+	}
 #endif
+};
+
+//typedef Firebird::SubsystemContextPoolHolder <AliceGlobals, AliceMemoryPool>  AliceContextPoolHolder;
 
 #endif	// ALICE_ALICE_H
 

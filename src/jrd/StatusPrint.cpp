@@ -56,7 +56,8 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 {
 	const ISC_STATUS *vector = *vectorPtr;
 	
-	if (vector[0] == isc_arg_tkts_error) vector += 2;
+	if (vector[0] == isc_arg_tkts_error) 
+		vector += 2;
 
 	if (!*vector)
 		return 0;
@@ -98,8 +99,10 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 				int l = (int) *v++;
 				const char *q = (const char*) *v++;
 				*arg++ = p;
+				
 				for (; p < endTemp && l > 0; --l)
 					*p++ = *q++;
+					
 				if (p < endTemp)
 					*p++ = 0;
 				}
@@ -121,6 +124,7 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 			{
 			USHORT fac = 0, class_ = 0;
 			ISC_STATUS decoded = gds__decode(code, &fac, &class_);
+			
 			if (gds__msg_format(0, fac, decoded,
 								128, buffer, args[0], args[1], args[2], args[3],
 								args[4]) < 0)
@@ -137,6 +141,7 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 		case isc_arg_interpreted:
 			{
 			p = buffer;
+			
 			for (const char *q = (const char*) vector[1]; *p++ = *q++;)
 				;
 			}

@@ -73,7 +73,7 @@ public:
 	ISC_STATUS rollbackRetaining(StatusVector& statusVector);
 	void setDatabase(int index, SubsysHandle* handle, int tdbLength, UCHAR* tpb);
 	void setTransactionHandle(SubsysHandle* subsystem, TraHandle transactionHandle);
-	ISC_STATUS prepare(StatusVector& statusVector, int msgLength, UCHAR* msg);
+	ISC_STATUS prepare(StatusVector& statusVector, int msgLength, const UCHAR* msg);
 };
 
 #endif // !defined(AFX_YTRANSACTION_H__8FF55D15_110C_4BB4_A7E4_3F529B5AC96E__INCLUDED_)
