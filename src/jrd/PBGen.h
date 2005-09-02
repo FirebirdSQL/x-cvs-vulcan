@@ -45,6 +45,7 @@ public:
 	void putParameter(UCHAR parameter, int value);
 	void putParameter(UCHAR parameter, const TEXT* string);
 	void putParameter(UCHAR parameter, int length, const TEXT* string);
+	void putParameter(UCHAR parameter);
 };
 
 #endif

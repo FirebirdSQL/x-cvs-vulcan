@@ -60,3 +60,9 @@ void PBGen::putParameter(UCHAR parameter, int length, const TEXT* string)
 	appendUCHAR(length);
 	appendCharacters(length, string);
 }
+
+void PBGen::putParameter(UCHAR parameter)
+{
+	appendUCHAR(parameter);
+	appendUCHAR(0);
+}

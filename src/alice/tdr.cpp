@@ -47,10 +47,10 @@
 #include "../jrd/isc_proto.h"
 #include "../jrd/svc_proto.h"
 #include "../jrd/thd.h"
-//#include "../common/classes/ClumpletWriter.h"
+#include "PBGen.h"
 
 static ULONG ask(void);
-static void print_description(const tdr*);
+static void print_description(tdr*);
 static void reattach_database(TDR);
 static void reattach_databases(TDR);
 static bool reconnect(FB_API_HANDLE, SLONG, const TEXT*, ULONG);
@@ -78,7 +78,7 @@ static const UCHAR limbo_info[] = { isc_info_limbo, isc_info_end };
 //		transactions.
 //
 
-USHORT TDR_analyze(const tdr* trans)
+USHORT TDR_analyze(tdr* trans)
 {
 	USHORT advice = TRA_none;
 
@@ -191,30 +191,24 @@ bool TDR_attach_database(ISC_STATUS* status_vector,
 		ALICE_print(68, pathname);
 		// msg 68: ATTACH_DATABASE: attempted attach of %s
 
-	Firebird::ClumpletWriter dpb(true, MAX_DPB_SIZE, isc_dpb_version1);
-	dpb.insertTag(isc_dpb_no_garbage_collect);
-	dpb.insertTag(isc_dpb_gfix_attach);
+	//Firebird::ClumpletWriter dpb(true, MAX_DPB_SIZE, isc_dpb_version1);
+	PBGen dpb;
+	dpb.appendUCHAR(isc_dpb_version1);
+	dpb.putParameter(isc_dpb_no_garbage_collect);
+	dpb.putParameter(isc_dpb_gfix_attach);
 	
 	if (tdgbl->ALICE_data.ua_user) 
-		{
-		dpb.insertBytes(isc_dpb_user_name, 
-						tdgbl->ALICE_data.ua_user,
-						strlen(reinterpret_cast<const char*>(tdgbl->ALICE_data.ua_user)));
-		}
+		dpb.putParameter(isc_dpb_user_name, tdgbl->ALICE_data.ua_user);
 		
 	if (tdgbl->ALICE_data.ua_password) 
-	{
-		dpb.insertBytes(tdgbl->sw_service ? isc_dpb_password_enc :
-							isc_dpb_password,
-						tdgbl->ALICE_data.ua_password, 
-						strlen(reinterpret_cast<const char*>(tdgbl->ALICE_data.ua_password)));
-	}
+		dpb.putParameter(tdgbl->sw_service ? isc_dpb_password_enc : isc_dpb_password,
+						 tdgbl->ALICE_data.ua_password);
 
 	trans->tdr_db_handle = 0;
 
 	isc_attach_database(status_vector, 0, pathname,
-						 &trans->tdr_db_handle, dpb.getBufferLength(),
-						 reinterpret_cast<const char*>(dpb.getBuffer()));
+						 &trans->tdr_db_handle, dpb.getLength(),
+						 (const char*) dpb.buffer);
 
 	if (status_vector[1]) {
 		if (tdgbl->ALICE_data.ua_debug) {
@@ -495,27 +489,23 @@ bool TDR_reconnect_multiple(FB_API_HANDLE handle,
 //		in other databases.
 //
 
-static void print_description(const tdr* trans)
+static void print_description(tdr* trans)
 {
 	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	if (!trans)
-	{
 		return;
-	}
 
 	if (!tdgbl->sw_service_thd)
-	{
 		ALICE_print(92, 0, 0, 0, 0, 0);	// msg 92:   Multidatabase transaction:
-	}
 
 	bool prepared_seen = false;
-	for (const tdr* ptr = trans; ptr; ptr = ptr->tdr_next)
-	{
-		if (ptr->tdr_host_site)
+	
+	for (tdr* ptr = trans; ptr; ptr = ptr->tdr_next)
 		{
-			const char* pszHostSize =
-				reinterpret_cast<const char*>(ptr->tdr_host_site->str_data);
+		if (!ptr->tdr_host_site.IsEmpty())
+			{
+			const char* pszHostSize = ptr->tdr_host_site;
 
 #ifndef SUPERSERVER
 			// msg 93: Host Site: %s
@@ -526,15 +516,14 @@ static void print_description(const tdr* trans)
 			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_host_site);
 			SVC_putc(tdgbl->service_blk, (UCHAR) nHostSiteLen);
 			SVC_putc(tdgbl->service_blk, (UCHAR) (nHostSiteLen >> 8 ));
+			
 			for (int i = 0; i < (int) nHostSiteLen; i++)
-			{
 				SVC_putc(tdgbl->service_blk, (UCHAR) pszHostSize[i]);
-			}
 #endif
-		}
+			}
 
 		if (ptr->tdr_id)
-		{
+			{
 #ifndef SUPERSERVER
 			// msg 94: Transaction %ld
 			ALICE_print(94, ptr->tdr_id);
@@ -545,67 +534,62 @@ static void print_description(const tdr* trans)
 			SVC_putc(tdgbl->service_blk, (UCHAR) (ptr->tdr_id >> 16));
 			SVC_putc(tdgbl->service_blk, (UCHAR) (ptr->tdr_id >> 24));
 #endif
-		}
+			}
 
 		switch (ptr->tdr_state)
-		{
-		case TRA_limbo:
-#ifndef SUPERSERVER
-			ALICE_print(95, 0, 0, 0, 0, 0);	// msg 95: has been prepared.
-#else
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_limbo);
-#endif
-			prepared_seen = true;
-			break;
-
-		case TRA_commit:
-#ifndef SUPERSERVER
-			ALICE_print(96, 0, 0, 0, 0, 0);	// msg 96: has been committed.
-#else
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_commit);
-#endif
-			break;
-
-		case TRA_rollback:
-#ifndef SUPERSERVER
-			ALICE_print(97, 0, 0, 0, 0, 0);	// msg 97: has been rolled back.
-#else
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_rollback);
-#endif
-			break;
-
-		case TRA_unknown:
-#ifndef SUPERSERVER
-			ALICE_print(98, 0, 0, 0, 0, 0);	// msg 98: is not available.
-#else
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
-			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_unknown);
-#endif
-			break;
-
-		default:
-#ifndef SUPERSERVER
-			if (prepared_seen)
 			{
-				// msg 99: is not found, assumed not prepared.
-				ALICE_print(99, 0, 0, 0, 0, 0);
-			}
-			else
-			{
-				// msg 100: is not found, assumed to be committed.
-				ALICE_print(100, 0, 0, 0, 0, 0);
-			}
+			case TRA_limbo:
+#ifndef SUPERSERVER
+				ALICE_print(95, 0, 0, 0, 0, 0);	// msg 95: has been prepared.
+#else
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_limbo);
 #endif
-			break;
-		}
+				prepared_seen = true;
+				break;
+
+			case TRA_commit:
+#ifndef SUPERSERVER
+				ALICE_print(96, 0, 0, 0, 0, 0);	// msg 96: has been committed.
+#else
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_commit);
+#endif
+				break;
+
+			case TRA_rollback:
+#ifndef SUPERSERVER
+				ALICE_print(97, 0, 0, 0, 0, 0);	// msg 97: has been rolled back.
+#else
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_rollback);
+#endif
+				break;
+
+			case TRA_unknown:
+#ifndef SUPERSERVER
+				ALICE_print(98, 0, 0, 0, 0, 0);	// msg 98: is not available.
+#else
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state);
+				SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_state_unknown);
+#endif
+				break;
+
+			default:
+#ifndef SUPERSERVER
+				if (prepared_seen)
+					// msg 99: is not found, assumed not prepared.
+					ALICE_print(99);
+				else
+					// msg 100: is not found, assumed to be committed.
+					ALICE_print(100);
+	#endif
+				break;
+			}
 
 		if (ptr->tdr_remote_site)
-		{
-			const char* pszRemoteSite =
-				reinterpret_cast<const char*>(ptr->tdr_remote_site->str_data);
+			{
+			const char* pszRemoteSite = ptr->tdr_remote_site;
 
 #ifndef SUPERSERVER
 			//msg 101: Remote Site: %s
@@ -616,17 +600,15 @@ static void print_description(const tdr* trans)
 			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_remote_site);
 			SVC_putc(tdgbl->service_blk, (UCHAR) nRemoteSiteLen);
 			SVC_putc(tdgbl->service_blk, (UCHAR) (nRemoteSiteLen >> 8));
+			
 			for (int i = 0; i < (int) nRemoteSiteLen; i++)
-			{
 				SVC_putc(tdgbl->service_blk, (UCHAR) pszRemoteSite[i]);
-			}
 #endif
-		}
+			}
 
 		if (ptr->tdr_fullpath)
-		{
-			const char* pszFullpath =
-				reinterpret_cast<const char*>(ptr->tdr_fullpath->str_data);
+			{
+			const char* pszFullpath = ptr->tdr_fullpath;
 
 #ifndef SUPERSERVER
 			// msg 102: Database Path: %s
@@ -637,46 +619,45 @@ static void print_description(const tdr* trans)
 			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_db_path);
 			SVC_putc(tdgbl->service_blk, (UCHAR) nFullpathLen);
 			SVC_putc(tdgbl->service_blk, (UCHAR) (nFullpathLen >> 8));
+			
 			for (int i = 0; i < (int) nFullpathLen; i++)
-			{
 				SVC_putc(tdgbl->service_blk, (UCHAR) pszFullpath[i]);
-			}
 #endif
-		}
+			}
 
 	}
 
 //  let the user know what the suggested action is
 
 	switch (TDR_analyze(trans))
-	{
-	case TRA_commit:
+		{
+		case TRA_commit:
 #ifndef SUPERSERVER
-		// msg 103: Automated recovery would commit this transaction.
-		ALICE_print(103, 0, 0, 0, 0, 0);
+			// msg 103: Automated recovery would commit this transaction.
+			ALICE_print(103, 0, 0, 0, 0, 0);
 #else
-		SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise);
-		SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise_commit);
+			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise);
+			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise_commit);
 #endif
-		break;
+			break;
 
-	case TRA_rollback:
+		case TRA_rollback:
 #ifndef SUPERSERVER
-		// msg 104: Automated recovery would rollback this transaction.
-		ALICE_print(104, 0, 0, 0, 0, 0);
+			// msg 104: Automated recovery would rollback this transaction.
+			ALICE_print(104, 0, 0, 0, 0, 0);
 #else
-		SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise);
+			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise);
 		SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise_rollback);
 #endif
-		break;
+			break;
 
-	default:
+		default:
 #ifdef SUPERSERVER
-		SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise);
-		SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise_unknown);
+			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise);
+			SVC_putc(tdgbl->service_blk, (UCHAR) isc_spb_tra_advise_unknown);
 #endif
-		break;
-	}
+			break;
+		}
 
 }
 
@@ -747,60 +728,64 @@ static void reattach_database(TDR trans)
  //  if this is being run from the same host,
  //  try to reconnect using the same pathname
 
-	if (!strcmp(buffer,
-		reinterpret_cast<const char*>(trans->tdr_host_site->str_data)))
-	{
-		if (TDR_attach_database(status_vector, trans,
-								reinterpret_cast<char*>
-								(trans->tdr_fullpath->str_data)))
+	if (!strcmp(buffer, trans->tdr_host_site))
 		{
+		if (TDR_attach_database(status_vector, trans, trans->tdr_fullpath))
 			return;
 		}
-	}
-	else if (trans->tdr_host_site) {
+	else if (trans->tdr_host_site) 
+		{
 		//  try going through the previous host with all available
 		//  protocols, using chaining to try the same method of
 		//  attachment originally used from that host
+		
 		char* p = buffer;
-		const UCHAR* q = trans->tdr_host_site->str_data;
+		const TEXT* q = trans->tdr_host_site;
+		
 		while (*q && p < end)
 			*p++ = *q++;
+			
 		*p++ = ':';
-		q = trans->tdr_fullpath->str_data;
+		q = trans->tdr_fullpath;
+		
 		while (*q && p < end)
 			*p++ = *q++;
+			
 		*p = 0;
+		
 		if (TDR_attach_database(status_vector, trans, buffer))
-		{
 			return;
 		}
-	}
 
-//  attaching using the old method didn't work;
-//  try attaching to the remote node directly
+	//  attaching using the old method didn't work;
+	//  try attaching to the remote node directly
 
-	if (trans->tdr_remote_site) {
+	if (trans->tdr_remote_site) 
+		{
 		char* p = buffer;
-		const UCHAR* q = trans->tdr_remote_site->str_data;
+		const TEXT* q = trans->tdr_remote_site;
+		
 		while (*q && p < end)
 			*p++ = *q++;
+			
 		*p++ = ':';
-		q = reinterpret_cast<const UCHAR*>(trans->tdr_filename);
+		q = trans->tdr_filename;
+		
 		while (*q && p < end)
 			*p++ = *q++;
+			
 		*p = 0;
+		
 		if (TDR_attach_database (status_vector, trans, buffer))
-		{
 			return;
 		}
-	}
 
-//  we have failed to reattach; notify the user
-//  and let them try to succeed where we have failed
+	//  we have failed to reattach; notify the user
+	//  and let them try to succeed where we have failed
 
 	ALICE_print(86, trans->tdr_id);
 	// msg 86: Could not reattach to database for transaction %ld.
-	ALICE_print(87, trans->tdr_fullpath->str_data);	// msg 87: Original path: %s
+	ALICE_print(87, (const char*) trans->tdr_fullpath);	// msg 87: Original path: %s
 
 #ifdef SUPERCLIENT
 	for (;;) {

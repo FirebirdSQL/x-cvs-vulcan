@@ -1366,6 +1366,13 @@ int  ISC_EXPORT isc_get_client_minor_version ();
 #define isc_dpb_shut_attachment          2
 #define isc_dpb_shut_transaction         4
 #define isc_dpb_shut_force               8
+#define isc_dpb_shut_mode_mask          0x70
+
+#define isc_dpb_shut_default             0x0
+#define isc_dpb_shut_normal             0x10
+#define isc_dpb_shut_multi              0x20
+#define isc_dpb_shut_single             0x30
+#define isc_dpb_shut_full               0x40
 
 /**************************************/
 /* Bit assignments in RDB$SYSTEM_FLAG */

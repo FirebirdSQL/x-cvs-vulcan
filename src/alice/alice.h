@@ -29,13 +29,13 @@
 #include "../jrd/ibase.h"
 #include "../jrd/thd.h"
 #include "../alice/all.h"
-#include "../include/fb_blk.h"
+//#include "../include/fb_blk.h"
 #include "../common/classes/alloc.h"
 #include "../common/classes/array.h"
-
+#include "JString.h"
 #include <vector>
 
-#include "../alice/blk.h"
+//#include "../alice/blk.h"
 
 enum val_errors {
 	VAL_INVALID_DB_VERSION	= 0,
@@ -59,20 +59,20 @@ enum alice_shut_mode {
 
 struct user_action
 {
-	ULONG ua_switches;
-	UCHAR* ua_user;
-	UCHAR* ua_password;
-	bool ua_use;
-	bool ua_force;
-	bool ua_read_only;
-	SLONG ua_shutdown_delay;
-	SLONG ua_sweep_interval;
-	SLONG ua_transaction;
-	SLONG ua_page_buffers;
-	USHORT ua_debug;
-	SLONG ua_val_errors[MAX_VAL_ERRORS];
-	TEXT ua_log_file[MAXPATHLEN];
-	USHORT ua_db_SQL_dialect;
+	ULONG		ua_switches;
+	const char* ua_user;
+	const char*	ua_password;
+	bool		ua_use;
+	bool		ua_force;
+	bool		ua_read_only;
+	SLONG		ua_shutdown_delay;
+	SLONG		ua_sweep_interval;
+	SLONG		ua_transaction;
+	SLONG		ua_page_buffers;
+	USHORT		ua_debug;
+	SLONG		ua_val_errors[MAX_VAL_ERRORS];
+	TEXT		ua_log_file[MAXPATHLEN];
+	USHORT		ua_db_SQL_dialect;
 	alice_shut_mode ua_shutdown_mode;
 };
 
@@ -81,27 +81,29 @@ struct user_action
 
 //  String block: used to store a string of constant length. 
 
+/***
 class alice_str : public pool_alloc_rpt<UCHAR, alice_type_str>
 {
 public:
 	USHORT str_length;
 	UCHAR str_data[2];
 };
+***/
 
 //  Transaction block: used to store info about a multidatabase transaction. 
 
-struct tdr : public pool_alloc<alice_type_tdr>
+struct tdr //: public pool_alloc<alice_type_tdr>
 {
-	tdr* tdr_next;				// next subtransaction 
-	SLONG tdr_id;				// database-specific transaction id 
-	alice_str* tdr_fullpath;			// full (possibly) remote pathname 
-	const TEXT* tdr_filename;	// filename within full pathname 
-	alice_str* tdr_host_site;			// host for transaction 
-	alice_str* tdr_remote_site;		// site for remote transaction 
-	FB_API_HANDLE tdr_handle;			// reconnected transaction handle 
-	FB_API_HANDLE tdr_db_handle;		// reattached database handle 
-	USHORT tdr_db_caps;			// capabilities of database 
-	USHORT tdr_state;			// see flags below 
+	tdr*			tdr_next;			// next subtransaction 
+	SLONG			tdr_id;				// database-specific transaction id 
+	JString			tdr_fullpath;		// full (possibly) remote pathname 
+	const TEXT*		tdr_filename;		// filename within full pathname 
+	JString			tdr_host_site;		// host for transaction 
+	JString			tdr_remote_site;	// site for remote transaction 
+	FB_API_HANDLE	tdr_handle;			// reconnected transaction handle 
+	FB_API_HANDLE	tdr_db_handle;		// reattached database handle 
+	USHORT			tdr_db_caps;		// capabilities of database 
+	USHORT			tdr_state;			// see flags below 
 };
 
 typedef tdr* TDR;

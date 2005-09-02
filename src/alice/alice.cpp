@@ -474,7 +474,7 @@ int common_main(int			argc,
 				if (--argc <= 0)
 					ALICE_error(13);	// msg 13: user name required
 
-				tdgbl->ALICE_data.ua_user = reinterpret_cast<UCHAR*>(*argv++);
+				tdgbl->ALICE_data.ua_user = *argv++;
 				}
 
 			if (table->in_sw_value & sw_password) 
@@ -482,7 +482,7 @@ int common_main(int			argc,
 				if (--argc <= 0)
 					ALICE_error(14);	// msg 14: password required
 					
-				tdgbl->ALICE_data.ua_password = reinterpret_cast<UCHAR*>(*argv++);
+				tdgbl->ALICE_data.ua_password = *argv++;
 				}
 
 			if (table->in_sw_value & sw_disable) 

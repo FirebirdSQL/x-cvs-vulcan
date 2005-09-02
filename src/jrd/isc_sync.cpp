@@ -3715,7 +3715,7 @@ void ISC_unmap_file(ISC_STATUS * status_vector,
 	CloseHandle(shmem_data->sh_mem_interest);
 	
 	if (shmem_data->sh_mem_mutex_arg)
-		CloseHandle((HANDLE) shmem_data->sh_mem_mutex_arg);
+		CloseHandle((HANDLE)(IPTR) shmem_data->sh_mem_mutex_arg);
 		
 	UnmapViewOfFile(shmem_data->sh_mem_address);
 	CloseHandle(shmem_data->sh_mem_object);

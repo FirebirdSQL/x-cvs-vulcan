@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\config;..\jrd;..\include\gen;..\common;..\burp"
+				AdditionalIncludeDirectories="..\;..\include;..\config;..\jrd;..\include\gen;..\common;..\burp;..\alice"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=SERVICES;MEMMGR;SUPERSERVER"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -120,6 +120,12 @@
 				RelativePath="..\config\AdminException.cpp">
 			</File>
 			<File
+				RelativePath="..\alice\alice.cpp">
+			</File>
+			<File
+				RelativePath="..\alice\alice_meta.cpp">
+			</File>
+			<File
 				RelativePath="..\config\Args.cpp">
 			</File>
 			<File
@@ -163,6 +169,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\event.cpp">
+			</File>
+			<File
+				RelativePath="..\alice\exe.cpp">
 			</File>
 			<File
 				RelativePath="..\common\fb_exception.cpp">
@@ -270,6 +279,9 @@
 				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
+				RelativePath="..\alice\tdr.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\TempSpace.cpp">
 			</File>
 			<File
@@ -288,6 +300,18 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
 				RelativePath="..\config\AdminException.h">
+			</File>
+			<File
+				RelativePath="..\alice\alice.h">
+			</File>
+			<File
+				RelativePath="..\alice\alice_meta.h">
+			</File>
+			<File
+				RelativePath="..\alice\alice_proto.h">
+			</File>
+			<File
+				RelativePath="..\alice\aliceswi.h">
 			</File>
 			<File
 				RelativePath="..\config\Args.h">
@@ -338,6 +362,9 @@
 				RelativePath="..\jrd\event.h">
 			</File>
 			<File
+				RelativePath="..\alice\exe_proto.h">
+			</File>
+			<File
 				RelativePath="..\config\FileName.h">
 			</File>
 			<File
@@ -372,6 +399,9 @@
 			</File>
 			<File
 				RelativePath="..\config\Lex.h">
+			</File>
+			<File
+				RelativePath="..\alice\lls.h">
 			</File>
 			<File
 				RelativePath="..\jrd\MemMgr.h">
@@ -452,6 +482,9 @@
 				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
+				RelativePath="..\alice\tdr_proto.h">
+			</File>
+			<File
 				RelativePath="..\jrd\TempSpace.h">
 			</File>
 			<File
@@ -476,12 +509,16 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
 		<File
+			RelativePath="..\alice\alice_meta.epp">
+		</File>
+		<File
 			RelativePath="..\burp\backup.epp">
 			<FileConfiguration
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 					Outputs="$(InputDir)$(InputName).cpp"/>
 			</FileConfiguration>
 		</File>
@@ -491,7 +528,8 @@
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 					Outputs="$(InputDir)$(InputName).cpp"/>
 			</FileConfiguration>
 		</File>

@@ -1214,9 +1214,7 @@ static int thread_start(int (*routine) (void *),
  *
  **************************************/
 
-	HANDLE handle;
 	DWORD thread_id;
-	int priority;
 
 	/* I have changed the CreateThread here to _beginthreadex() as using
 	 * CreateThread() can lead to memory leaks caused by C-runtime library.
@@ -1228,32 +1226,40 @@ static int thread_start(int (*routine) (void *),
 											   arg,
 											   CREATE_SUSPENDED,
 											   reinterpret_cast <unsigned *>(&thread_id));
-	if (!real_handle) {
-		return GetLastError();
-	}
-	handle = reinterpret_cast < HANDLE > (real_handle);
 
-	switch (priority_arg) {
-	case THREAD_critical:
-		priority = THREAD_PRIORITY_TIME_CRITICAL;
-		break;
-	case THREAD_high:
-		priority = THREAD_PRIORITY_HIGHEST;
-		break;
-	case THREAD_medium_high:
-		priority = THREAD_PRIORITY_ABOVE_NORMAL;
-		break;
-	case THREAD_medium:
-		priority = THREAD_PRIORITY_NORMAL;
-		break;
-	case THREAD_medium_low:
-		priority = THREAD_PRIORITY_BELOW_NORMAL;
-		break;
-	case THREAD_low:
-	default:
-		priority = THREAD_PRIORITY_LOWEST;
-		break;
-	}
+	if (!real_handle) 
+		return GetLastError();
+
+	HANDLE handle = reinterpret_cast < HANDLE > (real_handle);
+	int priority;
+
+	switch (priority_arg) 
+		{
+		case THREAD_critical:
+			priority = THREAD_PRIORITY_TIME_CRITICAL;
+			break;
+			
+		case THREAD_high:
+			priority = THREAD_PRIORITY_HIGHEST;
+			break;
+			
+		case THREAD_medium_high:
+			priority = THREAD_PRIORITY_ABOVE_NORMAL;
+			break;
+			
+		case THREAD_medium:
+			priority = THREAD_PRIORITY_NORMAL;
+			break;
+			
+		case THREAD_medium_low:
+			priority = THREAD_PRIORITY_BELOW_NORMAL;
+			break;
+			
+		case THREAD_low:
+		default:
+			priority = THREAD_PRIORITY_LOWEST;
+			break;
+		}
 
 #ifdef THREAD_SCHEDULER
 	THPS_ATTACH(handle, thread_id, priority);
@@ -1262,6 +1268,7 @@ static int thread_start(int (*routine) (void *),
 
 	if (! (flags & THREAD_wait))
 		ResumeThread(handle);
+		
 	if (thd_id)
 		*(HANDLE *) thd_id = handle;
 	else
