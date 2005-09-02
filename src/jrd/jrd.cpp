@@ -3458,8 +3458,9 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 
 	NULL_CHECK(tra_handle, isc_bad_trans_handle);
 	const TEB* const end = vector + count;
+	const TEB *v;
 
-	for (const TEB *v = vector; v < end; v++) 
+	for (v = vector; v < end; v++) 
 		{
 		if (check_database(threadData, *v->teb_database, user_status))
 			return user_status[1];
@@ -4340,14 +4341,16 @@ void JRD_unblock(BlockingThread** que)
 
 	DBB dbb = get_dbb();
 
-	while (block = *que) {
+	while (block = *que) 
+		{
 		*que = block->btb_next;
-		if (block->btb_thread_id) {
-			SCH_wake((struct thread *) block->btb_thread_id);
-		}
+
+		if (block->btb_thread_id) 
+			SCH_wake((struct thread *) (IPTR) block->btb_thread_id);
+
 		block->btb_next = dbb->dbb_free_btbs;
 		dbb->dbb_free_btbs = block;
-	}
+		}
 }
 #endif
 
