@@ -1,3 +1,59 @@
+2005-09-02 23:01  jimstarkey
+
+	* vulcan/src/alice/: alice.vcproj, alice_meta.cpp, vulcan.conf:
+	
+	Added a few more alice files.
+
+2005-09-02 22:59  jimstarkey
+
+	* vulcan/src/: Services/Services.vcproj, alice/alice.cpp,
+	alice/alice.h, alice/alice_meta.epp, alice/exe.cpp, alice/tdr.cpp,
+	burp/spit.cpp, jrd/PBGen.cpp, jrd/PBGen.h, jrd/ibase.h,
+	jrd/isc_sync.cpp, jrd/thd.cpp:
+	
+	Converted Alice/gfix to Vulcan
+
+2005-09-02 21:25  jimstarkey
+
+	* vulcan/src/jrd/jrd.cpp:
+	
+	Cleaned up some minor compilation problems for Linux
+
+2005-09-02 21:11  jimstarkey
+
+	* vulcan/src/: alice/alice.cpp, alice/alice.h,
+	alice/alice_meta.epp, alice/alice_proto.h, alice/aliceswi.h,
+	alice/all.cpp, alice/all.h, alice/all_proto.h, alice/exe.cpp,
+	alice/tdr.cpp, alice/tdr_proto.h, burp/backup.epp, burp/burp.cpp,
+	burp/burp.h, burp/burp.vcproj, burp/burp_proto.h, burp/mvol.cpp,
+	burp/restore.epp, gateway/Gateway.cpp, gateway/Gateway.h,
+	jrd/Engine8.cpp, jrd/Engine8.h, jrd/InfoGen.cpp, jrd/JString.cpp,
+	jrd/MsgFile.cpp, jrd/MsgFile.h, jrd/MsgFormat.cpp, jrd/MsgFormat.h,
+	jrd/Service.cpp, jrd/Service.h, jrd/StatusPrint.cpp,
+	jrd/Subsystem.cpp, jrd/Subsystem.h, jrd/Sync.cpp, jrd/gds.cpp,
+	jrd/gds_proto.h, jrd/ibase.h, jrd/jrd.cpp, jrd/jrd.vcproj,
+	jrd/jrd_proto.h, jrd/sdl.cpp, jrd/svc.cpp, jrd/svc.h,
+	jrd/svc_proto.h, jrd/thd.h, remote/Remote8.cpp, remote/Remote8.h,
+	remote/inter_proto.h, remote/interface.cpp, remote/xdr.cpp,
+	utilities/common/cmd_util.cpp, utilities/gsec/gsec_proto.h,
+	why/Dispatch.cpp, why/Dispatch.h, why/YTransaction.cpp,
+	why/YTransaction.h:
+	
+	Work in progress on Services provider
+
+2005-09-02 21:10  jimstarkey
+
+	* vulcan/builds/win32/defs/gds32.def:
+	
+	Add fb_interpret
+
+2005-09-02 19:55  jimstarkey
+
+	* vulcan/src/Services/: Services.cpp, Services.h, Services.vcproj,
+	vulcan.conf:
+	
+	Created Services provider
+
 2005-08-30 10:53  dimitr
 
 	* vulcan/src/jrd/: svc.cpp, svc.h:
