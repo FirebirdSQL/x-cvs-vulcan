@@ -24,12 +24,12 @@
 #ifndef ALICE_TDR_PROTO_H
 #define ALICE_TDR_PROTO_H
 
-void	TDR_list_limbo(FB_API_HANDLE, const TEXT*, const ULONG);
-bool	TDR_reconnect_multiple(FB_API_HANDLE, SLONG, const TEXT*, ULONG);
+void	TDR_list_limbo(AliceGlobals* tdgbl, FB_API_HANDLE, const TEXT*, const ULONG);
+bool	TDR_reconnect_multiple(AliceGlobals* tdgbl,FB_API_HANDLE, SLONG, const TEXT*, ULONG);
 void	TDR_shutdown_databases(TDR);
-USHORT	TDR_analyze(const tdr*);
-bool	TDR_attach_database(ISC_STATUS*, TDR, const TEXT*);
-void	TDR_get_states(TDR);
+USHORT	TDR_analyze(AliceGlobals* tdgbl, const tdr*);
+bool	TDR_attach_database(AliceGlobals* tdgbl, ISC_STATUS*, TDR, const TEXT*);
+void	TDR_get_states(AliceGlobals* tdgbl, TDR);
 
 #endif // ALICE_TDR_PROTO_H
 

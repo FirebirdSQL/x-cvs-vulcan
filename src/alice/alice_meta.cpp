@@ -45,12 +45,12 @@
 #include "../jrd/ibase.h"
 #include "../jrd/license.h"
 #include "../alice/alice.h"
-#include "../alice/all.h"
+//#include "../alice/all.h"
 #include "../alice/alice_meta.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/thd.h"
 #include "../include/fb_exception.h"
-#include "../common/classes/alloc.h"
+//#include "../common/classes/alloc.h"
 #include "../alice/alice_proto.h"
 
 
@@ -200,48 +200,6 @@ static const char
       blr_eoc
    };	/* end of blr string for request isc_12 */
 
-static const short
-   isc_18l = 89;
-static const char
-   isc_18 [] = {
-      blr_version4,
-      blr_begin, 
-	 blr_message, 2, 1,0, 
-	    blr_short, 0, 
-	 blr_message, 1, 1,0, 
-	    blr_short, 0, 
-	 blr_message, 0, 1,0, 
-	    blr_short, 0, 
-	 blr_begin, 
-	    blr_for, 
-	       blr_rse, 1, 
-		  blr_relation, 13, 'R','D','B','$','L','O','G','_','F','I','L','E','S', 0, 
-		  blr_end, 
-	       blr_begin, 
-		  blr_send, 0, 
-		     blr_begin, 
-			blr_assignment, 
-			   blr_literal, blr_long, 0, 1,0,0,0,
-			   blr_parameter, 0, 0,0, 
-			blr_end, 
-		  blr_label, 0, 
-		     blr_loop, 
-			blr_select, 
-			   blr_receive, 2, 
-			      blr_leave, 0, 
-			   blr_receive, 1, 
-			      blr_erase, 0, 
-			   blr_end, 
-		  blr_end, 
-	    blr_send, 0, 
-	       blr_assignment, 
-		  blr_literal, blr_long, 0, 0,0,0,0,
-		  blr_parameter, 0, 0,0, 
-	    blr_end, 
-	 blr_end, 
-      blr_eoc
-   };	/* end of blr string for request isc_18 */
-
 
 #define gds_blob_null	isc_blob_null	/* compatibility symbols */
 #define gds_status	isc_status
@@ -265,10 +223,10 @@ static const char
 
 //static alice_str* alloc_string(const TEXT**);
 static JString alloc_string(const TEXT**);
-static USHORT get_capabilities(ISC_STATUS*);
-static TDR get_description(ISC_QUAD*);
+static USHORT get_capabilities(AliceGlobals* tdgbl, ISC_STATUS*);
+static TDR get_description(AliceGlobals* tdgbl, ISC_QUAD*);
 static void parse_fullpath(TDR);
-static USHORT snarf_blob(ISC_QUAD*, USHORT, TEXT*);
+static USHORT snarf_blob(AliceGlobals* tdgbl, ISC_QUAD*, USHORT, TEXT*);
 
 
 /* 
@@ -287,84 +245,12 @@ static const rfr_tab_t rfr_table[] = {
 	{ 0, 0, 0 }
 };
 
-static inline void return_error(const ISC_STATUS* user_status)
+static inline void return_error(AliceGlobals* tdgbl, const ISC_STATUS* user_status)
 {
-	ALICE_print_status(gds_status);
+	ALICE_print_status(tdgbl, gds_status);
 	firebird::status_exception::raise(1);
 }
 
-/*____________________________________________________________
- *  
- *		Disable WAL for the database forcibly.
- *		Drop all the entries from RDB$LOG_FILES
- */  
-
-void MET_disable_wal(ISC_STATUS* user_status, isc_db_handle handle)
-{
-   struct {
-          short isc_24;	/* isc_utility */
-   } isc_23;
-   struct {
-          short isc_22;	/* isc_utility */
-   } isc_21;
-   struct {
-          short isc_20;	/* isc_utility */
-   } isc_19;
-#line 98 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	FB_API_HANDLE request = 0;
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
-
-	if (!(DB = handle))
-		return;
-
-	/*START_TRANSACTION*/
-	{
-	{
-	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
-	}; 
-#line 105 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*ON_ERROR*/
-	if (isc_status [1])
-	   { 
-#line 106 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status); 
-	/*END_ERROR;*/
-	   }
-	}
-#line 108 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*FOR(REQUEST_HANDLE request)
-	X IN RDB$LOG_FILES*/
-	{
-        if (!request)
-           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &request, (short) sizeof (isc_18), (char *) isc_18);
-        isc_start_request ((ISC_STATUS*) 0L, (isc_req_handle*) &request, (isc_tr_handle*) &gds_trans, (short) 0);
-	while (1)
-	   {
-           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &request, (short) 0, (short) 2, &isc_19, (short) 0);
-	   if (!isc_19.isc_20) break;
-#line 110 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		/*ERASE X;*/
-                isc_send ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &request, (short) 1, (short) 2, &isc_21, (short) 0);
-#line 111 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*END_FOR*/
-           isc_send ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &request, (short) 2, (short) 2, &isc_23, (short) 0);
-	   }
-	} 
-#line 112 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*COMMIT*/
-	{
-	isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);; 
-#line 113 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*ON_ERROR*/
-	if (isc_status [1])
-	   {
-#line 114 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status);
-	/*END_ERROR;*/
-	   }
-	}
-#line 116 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-}
 
 
 /*____________________________________________________________
@@ -374,7 +260,7 @@ void MET_disable_wal(ISC_STATUS* user_status, isc_db_handle handle)
  *		already been attached.
  */  
 
-void MET_get_state(ISC_STATUS* user_status, TDR trans)
+void MET_get_state(AliceGlobals* tdgbl, ISC_STATUS* user_status, TDR trans)
 {
    struct {
           short isc_16;	/* isc_utility */
@@ -383,36 +269,34 @@ void MET_get_state(ISC_STATUS* user_status, TDR trans)
    struct {
           SLONG isc_14;	/* RDB$TRANSACTION_ID */
    } isc_13;
-#line 128 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 101 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	FB_API_HANDLE request = 0;
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	if (!(DB = trans->tdr_db_handle) ||
 		!(trans->tdr_db_caps & CAP_transactions))
-	{
+		{
 		trans->tdr_state = TRA_unknown;
 		return;
-	}
+		}
 
 	/*START_TRANSACTION*/
 	{
 	{
 	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}; 
-#line 139 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*ON_ERROR*/
-	if (isc_status [1])
-	   { 
-#line 140 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status); 
-	/*END_ERROR;*/
-	   }
-	}
-#line 142 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 112 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		/*ON_ERROR*/
+		if (isc_status [1])
+		   { 
+#line 113 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			return_error(tdgbl, user_status); 
+		/*END_ERROR;*/
+		   }
+		}
+#line 115 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 
-	/*FOR(REQUEST_HANDLE request)
-	TRA IN RDB$TRANSACTIONS WITH
-		TRA.RDB$TRANSACTION_ID = trans->tdr_id*/
+	/*FOR(REQUEST_HANDLE request) TRA IN RDB$TRANSACTIONS WITH TRA.RDB$TRANSACTION_ID = trans->tdr_id*/
 	{
         if (!request)
            isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &request, (short) sizeof (isc_12), (char *) isc_12);
@@ -424,42 +308,42 @@ void MET_get_state(ISC_STATUS* user_status, TDR trans)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &request, (short) 1, (short) 4, &isc_15, (short) 0);
 	   if (!isc_15.isc_16 || isc_status [1]) break;
-#line 146 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 117 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 		trans->tdr_state = /*TRA.RDB$TRANSACTION_STATE*/
 				   isc_15.isc_17;
-#line 147 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 118 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	/*END_FOR*/
 	   }
 	   }; 
-#line 148 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*ON_ERROR*/
-	if (isc_status [1])
-	   { 
-#line 149 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status);
-	/*END_ERROR;*/
-	   }
-	}
-#line 151 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 119 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		/*ON_ERROR*/
+		if (isc_status [1])
+		   { 
+#line 120 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			return_error(tdgbl, user_status);
+		/*END_ERROR;*/
+		   }
+		}
+#line 122 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 
 	isc_release_request(gds_status, &request);
-	if (gds_status[1]) {
-		return_error(user_status);
-	}
+	
+	if (gds_status[1])
+		return_error(tdgbl, user_status);
 
 	/*ROLLBACK*/
 	{
 	isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);; 
-#line 158 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*ON_ERROR*/
-	if (isc_status [1])
-	   { 
-#line 159 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status);
-	/*END_ERROR;*/
-	   }
-	}
-#line 161 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 129 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		/*ON_ERROR*/
+		if (isc_status [1])
+		   { 
+#line 130 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			return_error(tdgbl, user_status);
+		/*END_ERROR;*/
+		   }
+		}
+#line 132 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 }
 
 
@@ -470,7 +354,7 @@ void MET_get_state(ISC_STATUS* user_status, TDR trans)
  *		in other databases.
  */  
 
-TDR MET_get_transaction(ISC_STATUS* user_status, isc_db_handle handle, SLONG id)
+TDR MET_get_transaction(AliceGlobals* tdgbl, ISC_STATUS* user_status, isc_db_handle handle, SLONG id)
 {
    struct {
           ISC_QUAD isc_10;	/* RDB$TRANSACTION_DESCRIPTION */
@@ -479,10 +363,10 @@ TDR MET_get_transaction(ISC_STATUS* user_status, isc_db_handle handle, SLONG id)
    struct {
           SLONG isc_8;	/* RDB$TRANSACTION_ID */
    } isc_7;
-#line 173 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 144 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	FB_API_HANDLE request = 0;
 	TDR trans = NULL;
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	if (!(DB = handle))
 		return 0;
@@ -492,24 +376,24 @@ TDR MET_get_transaction(ISC_STATUS* user_status, isc_db_handle handle, SLONG id)
 	{
 	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}; 
-#line 181 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	/*ON_ERROR*/
-	if (isc_status [1])
-	   { 
-#line 182 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status);
-	/*END_ERROR;*/
-	   }
-	}
-#line 184 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 152 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		/*ON_ERROR*/
+		if (isc_status [1])
+		   { 
+#line 153 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			return_error(tdgbl, user_status);
+		/*END_ERROR;*/
+		   }
+		}
+#line 155 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 
-	const USHORT capabilities = get_capabilities(user_status);
+	const USHORT capabilities = get_capabilities(tdgbl, user_status);
 
-	if (capabilities & CAP_transactions) {
-		/*FOR(REQUEST_HANDLE request)
-		TRA IN RDB$TRANSACTIONS WITH
-			TRA.RDB$TRANSACTION_ID = id AND
-			TRA.RDB$TRANSACTION_DESCRIPTION NOT MISSING*/
+	if (capabilities & CAP_transactions) 
+		{
+		/*FOR(REQUEST_HANDLE request) TRA IN RDB$TRANSACTIONS 
+				WITH TRA.RDB$TRANSACTION_ID = id 
+				AND TRA.RDB$TRANSACTION_DESCRIPTION NOT MISSING*/
 		{
                 if (!request)
                    isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &request, (short) sizeof (isc_6), (char *) isc_6);
@@ -521,43 +405,43 @@ TDR MET_get_transaction(ISC_STATUS* user_status, isc_db_handle handle, SLONG id)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &request, (short) 1, (short) 10, &isc_9, (short) 0);
 		   if (!isc_9.isc_11 || isc_status [1]) break;
-#line 192 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-			trans = get_description(&/*TRA.RDB$TRANSACTION_DESCRIPTION*/
-						 isc_9.isc_10);
-#line 193 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 163 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			trans = get_description(tdgbl, &/*TRA.RDB$TRANSACTION_DESCRIPTION*/
+							isc_9.isc_10);
+#line 164 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 		/*END_FOR*/
 		   }
 		   }; 
-#line 194 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		/*ON_ERROR*/
-		if (isc_status [1])
-		   { 
-#line 195 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-			return_error(user_status);
-		/*END_ERROR;*/
-		   }
-		}
-#line 197 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 165 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			/*ON_ERROR*/
+			if (isc_status [1])
+			   { 
+#line 166 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+				return_error(tdgbl, user_status);
+			/*END_ERROR;*/
+			   }
+			}
+#line 168 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 
 		isc_release_request(gds_status, &request);
-		if (gds_status[1]) {
-			return_error(user_status);
+		
+		if (gds_status[1]) 
+			return_error(tdgbl, user_status);
 		}
-	}
 
 	/*ROLLBACK*/
 	{
 	isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);; 
-#line 205 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 176 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   { 
-#line 206 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status); 
+#line 177 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		return_error(tdgbl, user_status); 
 	/*END_ERROR;*/
 	   }
 	}
-#line 208 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 179 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 
 	if (trans)
 		trans->tdr_db_caps = capabilities;
@@ -572,9 +456,9 @@ TDR MET_get_transaction(ISC_STATUS* user_status, isc_db_handle handle, SLONG id)
  *		the database for a particular transaction.
  */  
 
-void MET_set_capabilities(ISC_STATUS* user_status, TDR trans)
+void MET_set_capabilities(AliceGlobals* tdgbl, ISC_STATUS* user_status, TDR trans)
 {
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	if (!(DB = trans->tdr_db_handle))
 		return;
@@ -584,32 +468,32 @@ void MET_set_capabilities(ISC_STATUS* user_status, TDR trans)
 	{
 	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}; 
-#line 230 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 201 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   { 
-#line 231 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status);
+#line 202 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		return_error(tdgbl, user_status);
 	/*END_ERROR;*/
 	   }
 	}
-#line 233 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 204 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 
-	trans->tdr_db_caps = get_capabilities(user_status);
+	trans->tdr_db_caps = get_capabilities(tdgbl, user_status);
 
 	/*ROLLBACK*/
 	{
 	isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);; 
-#line 237 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 208 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   { 
-#line 238 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		return_error(user_status);
+#line 209 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+		return_error(tdgbl, user_status);
 	/*END_ERROR;*/
 	   }
 	}
-#line 240 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 211 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 }
 
 
@@ -654,7 +538,7 @@ static JString alloc_string(const TEXT** ptr)
  *		the database for a particular transaction.
  */  
 
-static USHORT get_capabilities(ISC_STATUS* user_status)
+static USHORT get_capabilities(AliceGlobals* tdgbl, ISC_STATUS* user_status)
 {
    struct {
           short isc_5;	/* isc_utility */
@@ -663,16 +547,16 @@ static USHORT get_capabilities(ISC_STATUS* user_status)
           char  isc_2 [32];	/* RDB$FIELD_NAME */
           char  isc_3 [32];	/* RDB$RELATION_NAME */
    } isc_1;
-#line 286 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 257 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 	USHORT capabilities = CAP_none;
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
-//  Look for desired fields in system relations 
+	//  Look for desired fields in system relations 
+	
 	FB_API_HANDLE req = 0;
 
-	for (const rfr_tab_t* rel_field_table = rfr_table; rel_field_table->relation;
-		rel_field_table++)
-	{
+	for (const rfr_tab_t* rel_field_table = rfr_table; rel_field_table->relation; rel_field_table++)
+		{
 		/*FOR(REQUEST_HANDLE req) x IN DB.RDB$RELATION_FIELDS
 			WITH x.RDB$RELATION_NAME = rel_field_table->relation
 			AND x.RDB$FIELD_NAME = rel_field_table->field*/
@@ -688,26 +572,26 @@ static USHORT get_capabilities(ISC_STATUS* user_status)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req, (short) 1, (short) 2, &isc_4, (short) 0);
 		   if (!isc_4.isc_5 || isc_status [1]) break;
-#line 298 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+#line 269 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 			capabilities |= rel_field_table->bit_mask;
 		/*END_FOR*/
 		   }
 		   }; 
-#line 300 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-		/*ON_ERROR*/
-		if (isc_status [1])
-		   { 
-#line 301 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-			return_error(user_status);
-		/*END_ERROR;*/
-		   }
+#line 271 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+			/*ON_ERROR*/
+			if (isc_status [1])
+			   { 
+#line 272 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
+				return_error(tdgbl, user_status);
+			/*END_ERROR;*/
+			   }
+			}
+#line 274 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
 		}
-#line 303 "g:\\Firebird\\vulcan\\src\\alice\\alice_meta.epp"
-	}
 
 	isc_release_request(gds_status, &req);
 	if (gds_status[1]) {
-		return_error(user_status);
+		return_error(tdgbl, user_status);
 	}
 
 	return capabilities;
@@ -721,14 +605,14 @@ static USHORT get_capabilities(ISC_STATUS* user_status)
  *		in other databases.
  */  
 
-static TDR get_description(ISC_QUAD* blob_id)
+static TDR get_description(AliceGlobals* tdgbl, ISC_QUAD* blob_id)
 {
 	TEXT buffer[1024];
 	TEXT* bigger_buffer = 0;
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	const TEXT* p = buffer;
-	const USHORT length = snarf_blob(blob_id, (USHORT) sizeof(buffer), buffer);
+	const USHORT length = snarf_blob(tdgbl, blob_id, (USHORT) sizeof(buffer), buffer);
 	
 	if (length) 
 		{
@@ -740,10 +624,11 @@ static TDR get_description(ISC_QUAD* blob_id)
 			tdgbl->status[1] = isc_virmemexh;
 			tdgbl->status[2] = isc_arg_end;
 
-			ALICE_print_status(tdgbl->status);
+			ALICE_print_status(tdgbl, tdgbl->status);
 			return NULL;
 			}
-		snarf_blob(blob_id, length, bigger_buffer);
+			
+		snarf_blob(tdgbl, blob_id, length, bigger_buffer);
 		}
 
 	TDR trans = NULL;
@@ -791,7 +676,7 @@ static TDR get_description(ISC_QUAD* blob_id)
 				break;
 
 			default:
-				ALICE_print(108, 0, 0, 0, 0, 0);
+				ALICE_print(tdgbl, 108, 0, 0, 0, 0, 0);
 				// msg 108: Transaction description item unknown.
 
 				if (length) 
@@ -818,7 +703,7 @@ static TDR get_description(ISC_QUAD* blob_id)
 
 static void parse_fullpath(TDR trans)
 {
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	//  start at the end of the full pathname 
 
@@ -910,10 +795,10 @@ static void parse_fullpath(TDR trans)
  *		is not big enough.
  */  
 
-static USHORT snarf_blob(ISC_QUAD* blob_id,
+static USHORT snarf_blob(AliceGlobals* tdgbl, ISC_QUAD* blob_id,
 						 USHORT buffer_length, TEXT* buffer)
 {
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 
 	if (buffer_length)
 		buffer[0] = 0;
@@ -921,20 +806,23 @@ static USHORT snarf_blob(ISC_QUAD* blob_id,
 		buffer[1] = 0;
 
 	FB_API_HANDLE blob = 0;
+	
 	if (isc_open_blob(gds_status, &DB, &gds_trans, &blob, blob_id))
-	{
-		ALICE_print_status(gds_status);
+		{
+		ALICE_print_status(tdgbl, gds_status);
 		return 0;
-	}
+		}
 
-//  get the blob into the buffer, if it fits 
+	//  get the blob into the buffer, if it fits 
 
 	USHORT returned_length;
 	ISC_STATUS status;
 
 	TEXT* ptr = buffer;
 	const TEXT* const end = buffer + buffer_length;
-	for (;;) {
+	
+	for (;;) 
+		{
 		if (ptr >= end)
 			break;
 		if (!(buffer_length = end - ptr))
@@ -944,23 +832,23 @@ static USHORT snarf_blob(ISC_QUAD* blob_id,
 		if (status && status != isc_segment)
 			break;
 		ptr += returned_length;
-	}
+		}
 
-//  snarf failed, get length of blob for retry 
+	//  snarf failed, get length of blob for retry 
 
 	if (!buffer_length)
-		for (;;) {
+		for (;;) 
+			{
 			status = isc_get_segment(gds_status, &blob, &returned_length,
 									  buffer_length, buffer);
 			if (status && status != isc_segment)
 				break;
 			buffer_length += returned_length;
-		}
+			}
 	else
 		buffer_length = 0;
 
 	isc_close_blob(gds_status, &blob);
-
 	*ptr = 0;
 
 	return buffer_length;

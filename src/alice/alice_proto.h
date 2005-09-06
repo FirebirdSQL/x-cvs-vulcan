@@ -31,10 +31,12 @@
 THREAD_ENTRY_DECLARE ALICE_main(THREAD_ENTRY_PARAM);
 #endif
 
+class AliceGlobals;
+
 void	ALICE_down_case(const TEXT*, TEXT*, const size_t);
-void	ALICE_print(USHORT, ...);
-void	ALICE_error(USHORT, ...);
-void	ALICE_print_status(const ISC_STATUS*);
+void	ALICE_print(AliceGlobals* tdgbl, USHORT, ...);
+void	ALICE_error(AliceGlobals* tdgbl, USHORT, ...);
+void	ALICE_print_status(AliceGlobals* tdgbl, const ISC_STATUS*);
 
 #endif // ALICE_ALICE_PROTO_H
 

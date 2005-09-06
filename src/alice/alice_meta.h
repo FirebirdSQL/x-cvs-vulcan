@@ -24,10 +24,10 @@
 #ifndef ALICE_ALICE_META_H
 #define ALICE_ALICE_META_H
 
-void	MET_disable_wal(ISC_STATUS*, isc_db_handle);
-void	MET_get_state(ISC_STATUS*, TDR);
-TDR		MET_get_transaction(ISC_STATUS*, isc_db_handle, SLONG);
-void	MET_set_capabilities(ISC_STATUS*, TDR);
+//void	MET_disable_wal(ISC_STATUS*, isc_db_handle);
+void	MET_get_state(AliceGlobals* tdgbl, ISC_STATUS*, TDR);
+TDR		MET_get_transaction(AliceGlobals* tdgbl, ISC_STATUS*, isc_db_handle, SLONG);
+void	MET_set_capabilities(AliceGlobals* tdgbl, ISC_STATUS*, TDR);
 
 #endif	// ALICE_ALICE_META_H
 

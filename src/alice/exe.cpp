@@ -41,8 +41,8 @@
 #include "../alice/alice.h"
 #include "../alice/alice_proto.h"
 #include "../alice/aliceswi.h"
-#include "../alice/all.h"
-#include "../alice/all_proto.h"
+//#include "../alice/all.h"
+//#include "../alice/all_proto.h"
 #include "../alice/alice_meta.h"
 #include "../alice/tdr_proto.h"
 #include "../jrd/gds_proto.h"
@@ -50,8 +50,8 @@
 #include "PBGen.h"
 
 
-static void buildDpb(PBGen *pbGen, const ULONG);
-static void extract_db_info(const UCHAR*);
+static void buildDpb(AliceGlobals* tdgbl, PBGen *pbGen, const ULONG);
+static void extract_db_info(AliceGlobals* tdgbl, const UCHAR*);
 
 static const TEXT val_errors[] =
 {
@@ -65,12 +65,12 @@ static const TEXT val_errors[] =
 //
 //
 
-int EXE_action(const TEXT* database, const ULONG switches)
+int EXE_action(AliceGlobals* tdgbl, const TEXT* database, const ULONG switches)
 {
 	bool error = false;
 	//AliceAutoPool newPool(AliceMemoryPool::createPool());
 	
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 	//AliceContextPoolHolder context(tdgbl, newPool);
 
 	for (USHORT i = 0; i < MAX_VAL_ERRORS; i++)
@@ -80,7 +80,7 @@ int EXE_action(const TEXT* database, const ULONG switches)
 	//  based on the various switches
 	
 	PBGen dpb;
-	buildDpb(&dpb, switches);
+	buildDpb(tdgbl, &dpb, switches);
 
 	FB_API_HANDLE handle = 0;
 	isc_attach_database(tdgbl->status, 0, database, &handle, 
@@ -94,7 +94,7 @@ int EXE_action(const TEXT* database, const ULONG switches)
 		error = true;
 	
 	if (tdgbl->status[2] == isc_arg_warning)
-		ALICE_print_status(tdgbl->status);
+		ALICE_print_status(tdgbl, tdgbl->status);
 
 	if (handle != 0) 
 		{
@@ -106,11 +106,8 @@ int EXE_action(const TEXT* database, const ULONG switches)
 							val_errors, sizeof(error_string),
 							reinterpret_cast<char*>(error_string));
 
-			extract_db_info(error_string);
+			extract_db_info(tdgbl, error_string);
 			}
-
-		if (switches & sw_disable)
-			MET_disable_wal(tdgbl->status, handle);
 
 		isc_detach_database(tdgbl->status, &handle);
 		}
@@ -123,12 +120,12 @@ int EXE_action(const TEXT* database, const ULONG switches)
 //
 //
 
-int EXE_two_phase(const TEXT* database, const ULONG switches)
+int EXE_two_phase(AliceGlobals* tdgbl, const TEXT* database, const ULONG switches)
 {
 	bool error = false;
 	//AliceAutoPool newPool(AliceMemoryPool::createPool());
 
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 	//AliceContextPoolHolder context(tdgbl, newPool);
 
 	for (USHORT i = 0; i < MAX_VAL_ERRORS; i++)
@@ -139,7 +136,7 @@ int EXE_two_phase(const TEXT* database, const ULONG switches)
 	
 	//Firebird::ClumpletWriter dpb(true, MAX_DPB_SIZE);
 	PBGen dpb;
-	buildDpb(&dpb, switches);
+	buildDpb(tdgbl, &dpb, switches);
 
 	FB_API_HANDLE handle = 0;
 	isc_attach_database(tdgbl->status, 0, database, &handle,
@@ -150,9 +147,9 @@ int EXE_two_phase(const TEXT* database, const ULONG switches)
 	if (tdgbl->status[1])
 		error = true;
 	else if (switches & sw_list)
-		TDR_list_limbo((handle), database, switches);
+		TDR_list_limbo(tdgbl, handle, database, switches);
 	else if (switches & (sw_commit | sw_rollback | sw_two_phase))
-		error = TDR_reconnect_multiple((handle),
+		error = TDR_reconnect_multiple(tdgbl, handle,
 									tdgbl->ALICE_data.ua_transaction, database,
 									switches);
 
@@ -169,9 +166,9 @@ int EXE_two_phase(const TEXT* database, const ULONG switches)
 //  based on the various switches
 //
 
-static void buildDpb(PBGen *dpb, const ULONG switches)
+static void buildDpb(AliceGlobals* tdgbl, PBGen *dpb, const ULONG switches)
 {
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 	dpb->reset();
 	dpb->appendUCHAR(isc_dpb_version1);
 	dpb->putParameter(isc_dpb_gfix_attach);
@@ -311,72 +308,74 @@ static void buildDpb(PBGen *dpb, const ULONG switches)
 //		Extract database info from string
 //
 
-static void extract_db_info(const UCHAR* db_info_buffer)
+static void extract_db_info(AliceGlobals* tdgbl, const UCHAR* db_info_buffer)
 {
-	AliceGlobals* tdgbl = AliceGlobals::getSpecific();
-
+	//AliceGlobals* tdgbl = AliceGlobals::getSpecific();
 	const UCHAR* p = db_info_buffer;
-
 	UCHAR item;
-	while ((item = *p++) != isc_info_end) {
+	
+	while ((item = *p++) != isc_info_end) 
+		{
 		const SLONG length = gds__vax_integer(p, 2);
 		p += 2;
 
 		// TMN: Here we should really have the following assert 
 		// fb_assert(length <= MAX_SSHORT);
 		// for all cases that use 'length' as input to 'gds__vax_integer' 
-		switch (item) {
-		case isc_info_page_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_PAGE_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+		
+		switch (item) 
+			{
+			case isc_info_page_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_PAGE_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_record_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_RECORD_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+			case isc_info_record_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_RECORD_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_bpage_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_BLOB_PAGE_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+			case isc_info_bpage_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_BLOB_PAGE_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_dpage_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_DATA_PAGE_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+			case isc_info_dpage_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_DATA_PAGE_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_ipage_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_INDEX_PAGE_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+			case isc_info_ipage_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_INDEX_PAGE_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_ppage_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_POINTER_PAGE_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+			case isc_info_ppage_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_POINTER_PAGE_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_tpage_errors:
-			tdgbl->ALICE_data.ua_val_errors[VAL_TIP_PAGE_ERRORS] =
-				gds__vax_integer(p, (SSHORT) length);
-			p += length;
-			break;
+			case isc_info_tpage_errors:
+				tdgbl->ALICE_data.ua_val_errors[VAL_TIP_PAGE_ERRORS] =
+					gds__vax_integer(p, (SSHORT) length);
+				p += length;
+				break;
 
-		case isc_info_error:
-			/* has to be a < V4 database. */
+			case isc_info_error:
+				/* has to be a < V4 database. */
 
-			tdgbl->ALICE_data.ua_val_errors[VAL_INVALID_DB_VERSION] = 1;
-			return;
+				tdgbl->ALICE_data.ua_val_errors[VAL_INVALID_DB_VERSION] = 1;
+				return;
 
-		default:
-			;
-		}
+			default:
+				;
+			}
 	}
 }
 

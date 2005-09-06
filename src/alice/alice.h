@@ -28,9 +28,9 @@
 
 #include "../jrd/ibase.h"
 #include "../jrd/thd.h"
-#include "../alice/all.h"
+//#include "../alice/all.h"
 //#include "../include/fb_blk.h"
-#include "../common/classes/alloc.h"
+//#include "../common/classes/alloc.h"
 #include "../common/classes/array.h"
 #include "JString.h"
 #include <vector>
@@ -198,6 +198,7 @@ public:
 	bool			sw_service;
 	bool			sw_service_thd;
 
+/***
 #ifdef SUPERSERVER
 	static inline AliceGlobals* getSpecific() {
 		ThreadData* tData = ThreadData::getSpecific();
@@ -220,6 +221,7 @@ public:
 	static inline void restoreSpecific() {
 	}
 #endif
+***/
 };
 
 //typedef Firebird::SubsystemContextPoolHolder <AliceGlobals, AliceMemoryPool>  AliceContextPoolHolder;
