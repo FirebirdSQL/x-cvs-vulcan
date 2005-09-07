@@ -2688,8 +2688,7 @@ static void THREAD_ROUTINE sweep_database(Database *dbb)
  **************************************/
 	ISC_STATUS_ARRAY status_vector;
 
-	PBGen dpb;
-	dpb.appendUCHAR(isc_dpb_version1);
+	PBGen dpb(isc_dpb_version1);
 	dpb.putParameter(isc_dpb_user_name, "sweeper");
 	dpb.putParameter(isc_dpb_password, "none");
 	dpb.putParameter(isc_dpb_sweep, isc_dpb_records);
@@ -2720,9 +2719,9 @@ static void THREAD_ROUTINE sweep_database(Database *dbb)
 	***/
 	
 	/* Register as internal database handle */
-	IHNDL	ihandle;
-	Attachment *db_handle = NULL;
 
+	/***
+	IHNDL	ihandle;
 	for (ihandle = internal_db_handles; ihandle; ihandle = ihandle->ihndl_next)
 		if (ihandle->ihndl_object == NULL)
 			{
@@ -2737,14 +2736,17 @@ static void THREAD_ROUTINE sweep_database(Database *dbb)
 		ihandle->ihndl_next = internal_db_handles;
 		internal_db_handles = ihandle;
 		}
+	***/
+	
+	Attachment *db_handle = NULL;
 
 	jrd8_attach_database(status_vector, dbb->dbb_filename, dbb->dbb_filename, 
 						 &db_handle, dpb.getLength(), dpb.buffer,
 						 dbb->configuration, NULL);
 						 
 
-	fb_assert (ihandle->ihndl_object == &db_handle);
-	ihandle->ihndl_object = NULL;
+	//fb_assert (ihandle->ihndl_object == &db_handle);
+	//ihandle->ihndl_object = NULL;
 
 	if (db_handle)
 		jrd8_detach_database(status_vector, &db_handle);

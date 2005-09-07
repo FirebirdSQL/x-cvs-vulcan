@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="alice"
-	ProjectGUID="{E3548B77-2B7D-4EB1-8A74-BFF79B562701}"
+	Name="gsec"
+	ProjectGUID="{8D829057-ECF9-47F9-8F67-12F2FC1A57DC}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\include;..\include\gen;..\jrd;..\config"
-				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32;_X86_;NAMESPACE=Alice;MEMMGR"
+				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32;_X86_;NAMESPACE=Gsec;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -33,11 +33,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\install\bin\gfix.exe"
+				OutputFile="..\..\install\bin\gsec"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/alice.pdb"
+				ProgramDatabaseFile="$(OutDir)/gsec.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -79,7 +79,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/alice.exe"
+				OutputFile="$(OutDir)/gsec.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
@@ -116,13 +116,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\alice.cpp">
-			</File>
-			<File
-				RelativePath=".\alice_meta.cpp">
-			</File>
-			<File
 				RelativePath="..\jrd\AsyncEvent.cpp">
+			</File>
+			<File
+				RelativePath=".\call_service.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\enc.cpp">
@@ -131,13 +128,10 @@
 				RelativePath="..\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath=".\exe.cpp">
-			</File>
-			<File
-				RelativePath="..\common\fb_exception.cpp">
-			</File>
-			<File
 				RelativePath="..\jrd\Generate.cpp">
+			</File>
+			<File
+				RelativePath=".\gsec.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\isc.cpp">
@@ -152,16 +146,22 @@
 				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\MsgFormat.cpp">
+				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
+				RelativePath=".\security.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Service.cpp">
 			</File>
 			<File
-				RelativePath=".\tdr.cpp">
+				RelativePath="..\jrd\Sync.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\SynchronizationObject.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\TempSpace.cpp">
@@ -172,31 +172,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\alice.h">
-			</File>
-			<File
-				RelativePath=".\alice_meta.h">
-			</File>
-			<File
-				RelativePath=".\alice_proto.h">
-			</File>
-			<File
-				RelativePath=".\aliceswi.h">
-			</File>
-			<File
-				RelativePath=".\all.h">
-			</File>
-			<File
-				RelativePath=".\all_proto.h">
-			</File>
-			<File
-				RelativePath=".\alloc.h">
-			</File>
-			<File
 				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
-				RelativePath=".\blk.h">
+				RelativePath=".\call_service.h">
 			</File>
 			<File
 				RelativePath="..\jrd\enc_proto.h">
@@ -205,31 +184,43 @@
 				RelativePath="..\jrd\Error.h">
 			</File>
 			<File
-				RelativePath=".\exe_proto.h">
-			</File>
-			<File
 				RelativePath="..\jrd\Generate.h">
 			</File>
 			<File
-				RelativePath="..\jrd\isc.h">
+				RelativePath=".\gsec.h">
+			</File>
+			<File
+				RelativePath=".\gsec_proto.h">
+			</File>
+			<File
+				RelativePath=".\gsecswi.h">
+			</File>
+			<File
+				RelativePath="..\jrd\jrd_pwd.h">
 			</File>
 			<File
 				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
-				RelativePath=".\lls.h">
-			</File>
-			<File
-				RelativePath="..\jrd\MsgFormat.h">
+				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
 				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
+				RelativePath=".\secur_proto.h">
+			</File>
+			<File
 				RelativePath="..\jrd\Service.h">
 			</File>
 			<File
-				RelativePath=".\tdr_proto.h">
+				RelativePath="..\jrd\Sync.h">
+			</File>
+			<File
+				RelativePath="..\jrd\SynchronizationObject.h">
+			</File>
+			<File
+				RelativePath="..\jrd\SyncObject.h">
 			</File>
 			<File
 				RelativePath="..\jrd\TempSpace.h">
@@ -241,14 +232,14 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
 		<File
-			RelativePath=".\alice_meta.epp">
+			RelativePath=".\security.epp">
 			<FileConfiguration
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
 					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
-					Outputs="$(InputDir)$(InputName).cpp"/>
+					Outputs=" $(InputDir)$(InputName).cpp"/>
 			</FileConfiguration>
 		</File>
 	</Files>

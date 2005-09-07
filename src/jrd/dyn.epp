@@ -1955,9 +1955,8 @@ void user_operation(thread_db* tdbb, GBL gbl, int verb, const UCHAR **ptr)
  * Functional description
  *
  **************************************/
-	PBGen gen;
 	TEXT buffer [256];
-	gen.appendUCHAR(fb_apb_version1);
+	PBGen gen(fb_apb_version1);
 	gen.putParameter(fb_apb_operation, verb);
 	int length = GET_STRING(ptr, buffer);
 	gen.putParameter(fb_apb_account, length, buffer);

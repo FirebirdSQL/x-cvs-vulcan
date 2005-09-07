@@ -22,26 +22,24 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "firebird.h"
-//#include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"
-//#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/msg_encode.h"
 #include "../jrd/iberr.h"
+#include "cmd_util_proto.h"
 
 #ifdef WIN_NT
-#include "../jrd/jrd_pwd.h"
+//#include "../jrd/jrd_pwd.h"
 #endif
 
+/***
 #ifndef INCLUDE_FB_BLK
 #include "../include/fb_blk.h"
 #endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
+***/
 
 #include "../jrd/svc.h"
 #include "../jrd/svc_proto.h"
@@ -186,11 +184,11 @@ void CMD_UTIL_put_svc_status(ISC_STATUS* svc_status, USHORT  facility, USHORT  e
 
 	va_list	args;
 	va_start(args, errcode);
-	CMD_UTIL_put_svc_status(svc_status, facility, errcode, args);
+	CMD_UTIL_put_svc_status(svc_status, facility, args, errcode);
 	va_end (args);
 }
 
-void CMD_UTIL_put_svc_status(ISC_STATUS* svc_status, USHORT  facility, USHORT  errcode, va_list stuff)
+void CMD_UTIL_put_svc_status(ISC_STATUS* svc_status, USHORT  facility, va_list stuff, USHORT  errcode)
 {
 /**************************************
  *

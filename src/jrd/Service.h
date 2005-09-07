@@ -15,10 +15,13 @@
 #include "JString.h"
 #include "TempSpace.h"
 #include "thd.h"
+//#include "jrd_pwd.h"
 
+/***
 #ifndef MAX_PASSWORD_ENC_LENGTH
 #define MAX_PASSWORD_ENC_LENGTH 12
 #endif
+***/
 
 /* Bitmask values for the svc_flags variable */
 

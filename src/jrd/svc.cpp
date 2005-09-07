@@ -545,8 +545,7 @@ Service* SVC_attach(ConfObject* configuration,
 											options.spb_password, options.spb_password_enc,
 											&id, &group, &node_id);
 			***/
-			PBGen gen;
-			gen.appendUCHAR(isc_dpb_version1);
+			PBGen gen(isc_dpb_version1);
 			gen.putParameter(isc_dpb_user_name, options.spb_user_name);
 			
 			if (options.spb_password)

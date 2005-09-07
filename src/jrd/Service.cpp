@@ -50,7 +50,7 @@ void Service::setEncryptedPassword(const char* password)
 void Service::setPassword(const char * password)
 {
 	TEXT encrypted[128];
-	ENC_crypt(password, PASSWORD_SALT, encrypted);
+	ENC_crypt(encrypted, sizeof(encrypted), password, PASSWORD_SALT);
 	encryptedPassword = encrypted;
 }
 

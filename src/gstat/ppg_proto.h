@@ -1,7 +1,7 @@
 /*
  *	PROGRAM:	JRD Access Method
- *	MODULE:		enc_proto.h
- *	DESCRIPTION:	Prototype header file for enc.cpp
+ *	MODULE:		ppg_proto.h
+ *	DESCRIPTION:	Prototype header file for ppg.cpp
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -21,13 +21,20 @@
  * Contributor(s): ______________________________________.
  */
 
-#ifndef JRD_ENC_PROTO_H
-#define JRD_ENC_PROTO_H
+#ifndef UTILITIES_PPG_PROTO_H
+#define UTILITIES_PPG_PROTO_H
 
-static const int ENCRYPT_SIZE = 21;
+#ifdef SERVICE_THREAD
+void	PPG_print_header (const header_page*, SLONG, bool, Jrd::Service*);
+#ifdef NOT_USED_OR_REPLACED
+void	PPG_print_log (const log_info_page*, SLONG, bool, Jrd::Service*);
+#endif
+#else
+void	PPG_print_header (const header_page*, SLONG, bool, FILE*);
+#ifdef NOT_USED_OR_REPLACED
+void	PPG_print_log (const log_info_page*, SLONG, bool, FILE*);
+#endif
+#endif
 
-//TEXT* ENC_crypt(const TEXT*, const TEXT*, TEXT *cryptresult);
-void ENC_crypt(TEXT* buf, size_t bufSize, const TEXT* key, const TEXT* setting);
-
-#endif // JRD_ENC_PROTO_H
+#endif // UTILITIES_PPG_PROTO_H
 

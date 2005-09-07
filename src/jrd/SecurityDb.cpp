@@ -261,8 +261,7 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 
 void SecurityDb::attachDatabase(void)
 {
-	PBGen gen;
-	gen.appendUCHAR(isc_dpb_version1);
+	PBGen gen(isc_dpb_version1);
 	gen.putParameter(isc_dpb_user_name, "AUTHENTICATOR");
 	gen.putParameter(isc_dpb_password, "none");
 	gen.putParameter(isc_dpb_sec_attach, 1);

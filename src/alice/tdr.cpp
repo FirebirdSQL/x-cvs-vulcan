@@ -193,8 +193,7 @@ bool TDR_attach_database(AliceGlobals* tdgbl,
 		// msg 68: ATTACH_DATABASE: attempted attach of %s
 
 	//Firebird::ClumpletWriter dpb(true, MAX_DPB_SIZE, isc_dpb_version1);
-	PBGen dpb;
-	dpb.appendUCHAR(isc_dpb_version1);
+	PBGen dpb(isc_dpb_version1);
 	dpb.putParameter(isc_dpb_no_garbage_collect);
 	dpb.putParameter(isc_dpb_gfix_attach);
 	

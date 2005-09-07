@@ -39,7 +39,7 @@ RsbWriteLock::RsbWriteLock(CompilerScratch *csb, RecordSource *next, int stream)
 {
 	rsb_stream = stream;
 	rsb_next = next;
-	rsb_relation = csb->csb_rpt[rsb_stream].csb_relation;
+	//rsb_relation = csb->csb_rpt[rsb_stream].csb_relation;
 }
 
 RsbWriteLock::~RsbWriteLock(void)

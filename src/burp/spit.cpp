@@ -1243,7 +1243,7 @@ static int write_header(b_fil*		fl_ptr,
 		sizeof(hdr_rec.text1) + sizeof(hdr_rec.num) +
 		sizeof(hdr_rec.text2) + sizeof(hdr_rec.total) + sizeof(hdr_rec.text3);
 
-	ret_cd = set_hdr_str(header_str, file_name, pos, strlen(file_name));
+	ret_cd = set_hdr_str(header_str, file_name, pos, (int) strlen(file_name));
 	SLONG write_cnt = write(output_fl_desc, header_str, header_rec_len);
 	
 	switch (write_cnt)
@@ -1254,7 +1254,7 @@ static int write_header(b_fil*		fl_ptr,
 			break;
 
 		default:
-			end = pos + strlen(file_name);
+			end = pos + (int) strlen(file_name);
 			for (indx = pos; indx < end; indx++)
 				header_str[indx] = BLANK;
 			return FB_SUCCESS;

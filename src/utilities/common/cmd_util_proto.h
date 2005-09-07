@@ -24,7 +24,9 @@
 #ifndef UTILITIES_CMD_UTIL_PROTO_H
 #define UTILITIES_CMD_UTIL_PROTO_H
 
+#include <stdarg.h>
 
+void CMD_UTIL_put_svc_status(ISC_STATUS* svc_status, USHORT  facility, va_list stuff, USHORT  errcode);
 void CMD_UTIL_put_svc_status(ISC_STATUS* svc_status,
 							 USHORT  facility,
 							 USHORT  errcode,

@@ -1345,6 +1345,8 @@ int  ISC_EXPORT isc_get_client_minor_version ();
 #define isc_dpb_gfix_attach		  66
 #define isc_dpb_gstat_attach		  67
 #define isc_dpb_set_db_charset			68
+#define isc_dpb_gsec_attach         69
+#define isc_dpb_address_path			70			// ???
 
 /*********************************/
 /* isc_dpb_verify specific flags */
@@ -1968,6 +1970,7 @@ enum info_db_provider
 #define isc_spb_sts_sys_relations	0x10
 #define isc_spb_sts_record_versions	0x20
 #define isc_spb_sts_table			0x40
+#define isc_spb_sts_nocreation		0x80
 
 /*************************/
 /* SQL information items */

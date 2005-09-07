@@ -35,6 +35,12 @@ PBGen::PBGen(void)
 {
 }
 
+
+PBGen::PBGen(UCHAR version)
+{
+	appendUCHAR(version);
+}
+
 PBGen::~PBGen(void)
 {
 }

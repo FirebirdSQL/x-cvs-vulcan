@@ -293,7 +293,7 @@ void Args::addParameter(const char* parameter, int length)
 
 const char* Args::lookupParameter(const char* parameter)
 {
-	int length = strlen (parameter);
+	int length = (int) strlen (parameter);
 	
 	for (int n = 0; n < parametersUsed; ++n)
 		if (length == lengths [n] && strncmp(parameter, parameters [n], length) == 0)

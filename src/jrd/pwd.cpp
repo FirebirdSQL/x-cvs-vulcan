@@ -199,7 +199,6 @@ bool SecurityDatabase::lookup_user(const TEXT* securityDatabase, TEXT * user_nam
 bool SecurityDatabase::prepare(const TEXT* securityDatabase)
 {
 	TEXT user_info_name[MAXPATHLEN];
-	IHNDL ihandle;
 
 	if (lookup_db)
 		{
@@ -208,6 +207,9 @@ bool SecurityDatabase::prepare(const TEXT* securityDatabase)
 		}
 
 	// Register as internal database handle
+
+	/***
+	IHNDL ihandle;
 
 	for (ihandle = internal_db_handles; ihandle; ihandle = ihandle->ihndl_next)
 		{
@@ -225,7 +227,8 @@ bool SecurityDatabase::prepare(const TEXT* securityDatabase)
 		ihandle->ihndl_next = internal_db_handles;
 		internal_db_handles = ihandle;
 		}
-
+	***/
+	
 	THREAD_EXIT;
 
 	lookup_db = lookup_req = 0;
@@ -247,7 +250,7 @@ bool SecurityDatabase::prepare(const TEXT* securityDatabase)
 	static const char szAuthenticator[] = "AUTHENTICATOR";
 	const size_t nAuthNameLen = strlen(szAuthenticator);
 	*dpb++ = isc_dpb_user_name;
-	*dpb++ = nAuthNameLen;
+	*dpb++ = (UCHAR) nAuthNameLen;
 	memcpy(dpb, szAuthenticator, nAuthNameLen);
 	dpb += nAuthNameLen;
 
@@ -256,7 +259,7 @@ bool SecurityDatabase::prepare(const TEXT* securityDatabase)
 	static const char szPassword[] = "none";
 	const size_t nPswdLen = strlen(szPassword);
 	*dpb++ = isc_dpb_password;
-	*dpb++ = nPswdLen;
+	*dpb++ = (UCHAR) nPswdLen;
 	memcpy(dpb, szPassword, nPswdLen);
 	dpb += nPswdLen;
 
@@ -275,8 +278,8 @@ bool SecurityDatabase::prepare(const TEXT* securityDatabase)
 		isc_attach_database(status, 0, user_info_name, &lookup_db, 0, 0);
 		}
 
-	fb_assert(ihandle->ihndl_object == &lookup_db);
-	ihandle->ihndl_object = NULL;
+	//fb_assert(ihandle->ihndl_object == &lookup_db);
+	//ihandle->ihndl_object = NULL;
 
 	isc_compile_request(status, &lookup_db, &lookup_req, sizeof(PWD_REQUEST), (SCHAR*) PWD_REQUEST);
 
@@ -345,13 +348,13 @@ void SecurityDatabase::verifyUser(const TEXT* securityDatabase,
 	if (password) 
 		{
 		//strcpy(pwt, ENC_crypt(password, PASSWORD_SALT));
-		ENC_crypt(password, PASSWORD_SALT, pwt);
+		ENC_crypt(pwt, sizeof(pwt), password, PASSWORD_SALT);
 		password_enc = pwt + 2;
 		}
 		
 	TEXT pw2[ENCRYPT_SIZE];
 	//strcpy(pw2, ENC_crypt(password_enc, PASSWORD_SALT));
-	ENC_crypt(password_enc, PASSWORD_SALT, pw2);
+	ENC_crypt(pw2, sizeof(pw2), password_enc, PASSWORD_SALT);
 	
 	if (strncmp(pw1, pw2 + 2, 11))
 		ERR_post(isc_login, 0);

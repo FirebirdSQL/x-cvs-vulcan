@@ -1,7 +1,7 @@
 /*
- *	PROGRAM:	JRD Access Method
- *	MODULE:		enc_proto.h
- *	DESCRIPTION:	Prototype header file for enc.cpp
+ *	PROGRAM:	Security data base manager
+ *	MODULE:		secur_proto.h
+ *	DESCRIPTION:	Prototype header file for security.epp
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -21,13 +21,12 @@
  * Contributor(s): ______________________________________.
  */
 
-#ifndef JRD_ENC_PROTO_H
-#define JRD_ENC_PROTO_H
+#ifndef UTILITIES_SECUR_PROTO_H
+#define UTILITIES_SECUR_PROTO_H
 
-static const int ENCRYPT_SIZE = 21;
+typedef void (*FPTR_SECURITY_CALLBACK)(tsec* tdsec, void*, const internal_user_data*, bool);
+SSHORT	SECURITY_exec_line (tsec* tdsec, ISC_STATUS*, FB_API_HANDLE, internal_user_data*,
+									FPTR_SECURITY_CALLBACK, void*);
 
-//TEXT* ENC_crypt(const TEXT*, const TEXT*, TEXT *cryptresult);
-void ENC_crypt(TEXT* buf, size_t bufSize, const TEXT* key, const TEXT* setting);
-
-#endif // JRD_ENC_PROTO_H
+#endif // UTILITIES_SECUR_PROTO_H
 

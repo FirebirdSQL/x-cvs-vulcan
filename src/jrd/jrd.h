@@ -440,7 +440,7 @@ typedef struct ihndl
 #if !defined(REQUESTER)
 
 extern int debug;
-extern IHNDL internal_db_handles;
+//extern IHNDL internal_db_handles;
 
 #endif /* REQUESTER */
 
