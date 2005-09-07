@@ -1,3 +1,11 @@
+2005-09-06 17:17  jimstarkey
+
+	* vulcan/src/alice/: alice.cpp, alice.h, alice_meta.cpp,
+	alice_meta.epp, alice_meta.h, alice_proto.h, exe.cpp, exe_proto.h,
+	tdr.cpp, tdr_proto.h:
+	
+	Purged out thread data.  Good riddence.
+
 2005-09-02 23:01  jimstarkey
 
 	* vulcan/src/alice/: alice.vcproj, alice_meta.cpp, vulcan.conf:
