@@ -219,20 +219,17 @@ Procedure * ProcManager::createProcedure (const char * name, const char *owner)
 
 void ProcManager::validateCache (thread_db* tdbb)
 {
-	Procedure* procedure = findFirst();
-	for (; procedure; procedure = procedure->findNext())
-		{
-		if (procedure->hasRequest() ) 
-		// SAS S0291798: fb_assert(procedure->findInternalUseCount() == 0)
-			;
+	Procedure* procedure;
+	
+	for (procedure = findFirst(); procedure; procedure = procedure->findNext())
 		procedure->setDependencies();
-		}
 		
 	/* Walk procedures again and check dependencies */
+	
 	for (procedure = findFirst(); procedure; procedure = procedure->findNext())
 		{
 		if (procedure->hasRequest() && 
-				procedure->findUseCount() < procedure->findInternalUseCount())
+			 procedure->findUseCount() < procedure->findInternalUseCount())
 			{
 			Stream stream;
 			stream.format 
