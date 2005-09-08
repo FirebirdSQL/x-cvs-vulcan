@@ -57,6 +57,8 @@
 #include "../jrd/isc_f_proto.h"
 #include "../jrd/thd.h"
 #include "../jrd/enc_proto.h"
+#include "Configuration.h"
+#include "ConfObject.h"
 
 #ifdef SERVICE_THREAD
 #include "../utilities/common/cmd_util_proto.h"
@@ -143,6 +145,8 @@ static bool analyze_data_page(dba_rel*, const data_page*, bool);
 static ULONG analyze_fragments(const dba_rel*, const rhdf*);
 static ULONG analyze_versions(dba_rel*, const rhdf*);
 static void analyze_index(dba_rel*, dba_idx*);
+static void trimBlanks(char*);
+static JString resolveDatabase(const char *name);
 
 #if (defined WIN_NT)
 static void db_error(SLONG);
@@ -462,7 +466,7 @@ int CLIB_ROUTINE main(int argc, char** argv)
 												GSTAT_MSG_FAC, 1,
 												0, NULL,
 												0, NULL, 0, NULL, 0, NULL, 0, NULL);
-	#endif
+#endif
 						dba_error(1, 0, 0, 0, 0, 0);	/* msg 1: found unknown switch */
 						break;
 						
@@ -522,7 +526,7 @@ int CLIB_ROUTINE main(int argc, char** argv)
 								
 							dba_rel* relation = (dba_rel*) alloc(sizeof(struct dba_rel));
 							strcpy(relation->rel_name, *argv++);
-							fb_utils::exact_name(relation->rel_name);
+							trimBlanks(relation->rel_name);
 							relation->rel_id = -1;
 							dba_rel** next = &tddba->relations;
 							
@@ -576,13 +580,15 @@ int CLIB_ROUTINE main(int argc, char** argv)
 #endif
 
 		/* Open database and go to work */
-
-		Firebird::PathName temp_buf = name;
 		
+		/***
+		Firebird::PathName temp_buf = name;
 		if (ResolveDatabaseAlias(temp_buf, temp_buf)) 
 			name = temp_buf.c_str();
-
-		dba_fil* current = db_open(name, strlen(name));
+		***/
+		
+		JString resolvedName = resolveDatabase(name);
+		dba_fil* current = db_open(resolvedName, resolvedName.length());
 		tddba->page_size = sizeof(temp);
 		tddba->global_buffer = (pag*) temp;
 		tddba->page_number = -1;
@@ -742,7 +748,7 @@ int CLIB_ROUTINE main(int argc, char** argv)
 			
 			if (sw_relation)
 				{
-				fb_utils::exact_name(X.RDB$RELATION_NAME);
+				trimBlanks(X.RDB$RELATION_NAME);
 				
 				for (relation = tddba->relations; relation; relation = relation->rel_next)
 					if (!(strcmp(relation->rel_name, X.RDB$RELATION_NAME))) 
@@ -761,7 +767,7 @@ int CLIB_ROUTINE main(int argc, char** argv)
 				tddba->relations = relation;
 				relation->rel_id = X.RDB$RELATION_ID;
 				strcpy(relation->rel_name, X.RDB$RELATION_NAME);
-				fb_utils::exact_name(relation->rel_name);
+				trimBlanks(relation->rel_name);
 				}
 
 			FOR(TRANSACTION_HANDLE transact1 REQUEST_HANDLE request2)
@@ -791,7 +797,7 @@ int CLIB_ROUTINE main(int argc, char** argv)
 					index->idx_next = relation->rel_indexes;
 					relation->rel_indexes = index;
 					strcpy(index->idx_name, Y.RDB$INDEX_NAME);
-					fb_utils::exact_name(index->idx_name);
+					trimBlanks(index->idx_name);
 					index->idx_id = Y.RDB$INDEX_ID - 1;
 				END_FOR;
 					ON_ERROR
@@ -1429,6 +1435,7 @@ static void db_error( SLONG status)
 // CVC: This function was using cast to char* for the first param always
 // and the callers had to cast their char*'s to UCHAR*, too. Since the
 // real parameter is char* and always the usage is char*, I changed signature.
+
 static dba_fil* db_open(const char* file_name, USHORT file_length)
 {
 /**************************************
@@ -1445,19 +1452,19 @@ static dba_fil* db_open(const char* file_name, USHORT file_length)
 	
 	dba_fil* fil;
 
-	if (tddba->files) {
-		for (fil = tddba->files; fil->fil_next; fil = fil->fil_next);
-		fil->fil_next =
-			(dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
+	if (tddba->files) 
+		{
+		for (fil = tddba->files; fil->fil_next; fil = fil->fil_next)
+			;
+		fil->fil_next = (dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
 		fil->fil_next->fil_min_page = fil->fil_max_page + 1;
 		fil = fil->fil_next;
-	}
-	else {						/* empty list */
-
-		fil = tddba->files =
-			(dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
+		}
+	else 
+		{
+		fil = tddba->files = (dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
 		fil->fil_min_page = 0L;
-	}
+		}
 
 	fil->fil_next = NULL;
 	strcpy(fil->fil_string, file_name);
@@ -1475,7 +1482,7 @@ static dba_fil* db_open(const char* file_name, USHORT file_length)
 								0);
 
 	if (fil->fil_desc  == INVALID_HANDLE_VALUE)
-	{
+		{
 #ifdef SERVICE_THREAD
 		CMD_UTIL_put_svc_status(tddba->dba_service_blk->svc_status,
 								GSTAT_MSG_FAC, 29,
@@ -1484,23 +1491,25 @@ static dba_fil* db_open(const char* file_name, USHORT file_length)
 		// msg 29: Can't open database file %s
 #endif
 		db_error(GetLastError());
-	}
+		}
 
 #ifdef SERVICE_THREAD
 	open_files* file_list = FB_NEW(*getDefaultMemoryPool()) open_files;
-	if (!file_list) {
+	
+	if (!file_list) 
 		/* NOMEM: return error */
 		dba_error(31, 0, 0, 0, 0, 0);
-	}
+
 	file_list->desc = reinterpret_cast<int>(fil->fil_desc);
 	file_list->open_files_next = 0;
 
 	if (tddba->head_of_files_list == 0)
 		tddba->head_of_files_list = file_list;
-	else {
+	else 
+		{
 		file_list->open_files_next = tddba->head_of_files_list;
 		tddba->head_of_files_list = file_list;
-	}
+		}
 #endif
 
 	return fil;
@@ -1637,6 +1646,7 @@ static void db_error( int status)
 // CVC: This function was using cast to char* for the first param always
 // and the callers had to cast their char*'s to UCHAR*, too. Since the
 // real parameter is char* and always the usage is char*, I changed signature.
+
 static dba_fil* db_open(const char* file_name, USHORT file_length)
 {
 /**************************************
@@ -1653,19 +1663,21 @@ static dba_fil* db_open(const char* file_name, USHORT file_length)
 	tdba* tddba = tdba::getSpecific();
 
 	dba_fil* fil;
-	if (tddba->files) {
-		for (fil = tddba->files; fil->fil_next; fil = fil->fil_next);
-		fil->fil_next =
-			(dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
+	
+	if (tddba->files) 
+		{
+		for (fil = tddba->files; fil->fil_next; fil = fil->fil_next)
+			;
+			
+		fil->fil_next = (dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
 		fil->fil_next->fil_min_page = fil->fil_max_page + 1;
 		fil = fil->fil_next;
-	}
-	else {						/* empty list */
-
-		fil = tddba->files =
-			(dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
+		}
+	else 
+		{
+		fil = tddba->files = (dba_fil*) alloc(sizeof(dba_fil) + strlen(file_name) + 1);
 		fil->fil_min_page = 0L;
-	}
+		}
 
 	fil->fil_next = NULL;
 	strcpy(fil->fil_string, file_name);
@@ -1674,7 +1686,7 @@ static dba_fil* db_open(const char* file_name, USHORT file_length)
 	fil->fil_max_page = 0L;
 
 	if ((fil->fil_desc = open(file_name, O_RDONLY)) == -1)
-	{
+		{
 #ifdef SERVICE_THREAD
 		CMD_UTIL_put_svc_status(tddba->dba_service_blk->svc_status,
 								GSTAT_MSG_FAC, 29,
@@ -1683,23 +1695,25 @@ static dba_fil* db_open(const char* file_name, USHORT file_length)
 		// msg 29: Can't open database file %s 
 #endif
 		db_error(errno);
-	}
+		}
 
 #ifdef SERVICE_THREAD
 	open_files* file_list = FB_NEW(*getDefaultMemoryPool()) open_files;
-	if (!file_list) {
+	
+	if (!file_list) 
 		/* NOMEM: return error */
 		dba_error(31, 0, 0, 0, 0, 0);
-	}
+
 	file_list->desc = fil->fil_desc;
 	file_list->open_files_next = 0;
 
 	if (tddba->head_of_files_list == 0)
 		tddba->head_of_files_list = file_list;
-	else {
+	else 
+		{
 		file_list->open_files_next = tddba->head_of_files_list;
 		tddba->head_of_files_list = file_list;
-	}
+		}
 #endif
 
 	return fil;
@@ -1864,3 +1878,65 @@ static void print_distribution(const SCHAR* prefix, const SLONG* vector)
 	}
 }
 
+static void trimBlanks(char *string)
+{
+/**************************************
+ *
+ *	t r i m B l a n k s
+ *
+ **************************************
+ *
+ * Functional description
+ *		Trim trailing blanks from a string.
+ *
+ **************************************/
+
+	char *blank = NULL;
+	
+	for (char *p = string; *p; ++p)
+		if (*p != ' ')
+			blank = NULL;
+		else if (!blank)
+			blank = p;
+	
+	if (blank)
+		*blank = 0;			
+}
+
+static JString resolveDatabase(const char *dbName)
+{
+/**************************************
+ *
+ *	r e s o l v e D a t a b a s e
+ *
+ **************************************
+ *
+ * Functional description
+ *		Resolve database name from configuration system.
+ *
+ **************************************/
+ 
+	JString dbName = dbName;
+	JString prior;
+	bool haveError = false;
+	
+	for (int iteration = 0; !hasProvider && iteration < 10; ++iteration)
+		{
+		ConfObject *confObject;
+		confObject = Configuration::findObject ("database", dbName);
+		
+		if (!confObject)
+			{
+			statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+			return statusVector->getReturn();
+			}
+		
+		prior = dbName;
+		dbName = confObject->getValue ("filename", (const char*) dbName);
+		
+		if (dbName == prior)
+			break;
+		}
+	
+	return dbName;
+ }

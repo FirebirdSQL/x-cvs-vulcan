@@ -75,6 +75,7 @@ public:
 typedef firebird::BePlusTree<AllocItem, ULONG, MemoryPool, AllocItem> AllocItemTree;
 
 class Database;
+struct thread_db;
 
 class BackupManager {
 public:

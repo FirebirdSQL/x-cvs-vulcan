@@ -563,6 +563,32 @@ typedef struct in_sw_tab_t {
 #define vfork fork
 #endif
 
+static const TEXT FB_SHORT_MONTHS[][4] =
+{
+	"Jan", "Feb", "Mar",
+	"Apr", "May", "Jun",
+	"Jul", "Aug", "Sep",
+	"Oct", "Nov", "Dec",
+	"\0"
+};
+
+static const TEXT* FB_LONG_MONTHS_UPPER[] =
+{
+	"JANUARY",
+	"FEBRUARY",
+	"MARCH",
+	"APRIL",
+	"MAY",
+	"JUNE",
+	"JULY",
+	"AUGUST",
+	"SEPTEMBER",
+	"OCTOBER",
+	"NOVEMBER",
+	"DECEMBER",
+	0
+};
+
 enum LockType {
 	None,
     Exclusive,
