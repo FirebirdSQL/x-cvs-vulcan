@@ -1,3 +1,28 @@
+2005-09-08 00:20  jimstarkey
+
+	* vulcan/src/jrd/: ProcManager.cpp, jrd.vcproj:
+	
+	Cleaned up warning
+
+2005-09-07 22:03  jimstarkey
+
+	* vulcan/src/: Services/Services.vcproj, alice/alice.vcproj,
+	alice/alice_meta.cpp, alice/tdr.cpp, burp/canonical.cpp,
+	burp/spit.cpp, config/Args.cpp, gsec/call_service.cpp,
+	gsec/call_service.h, gsec/gsec.cpp, gsec/gsec.h, gsec/gsec.vcproj,
+	gsec/gsec_proto.h, gsec/gsecswi.h, gsec/secur_proto.h,
+	gsec/security.epp, gsec/vulcan.conf, gstat/dba.epp, gstat/dbaswi.h,
+	gstat/gstat.vcproj, gstat/ppg.cpp, gstat/ppg_proto.h,
+	gstat/vulcan.conf, jrd/PBGen.cpp, jrd/PBGen.h,
+	jrd/RsbWriteLock.cpp, jrd/RsbWriteLock.h, jrd/SecurityDb.cpp,
+	jrd/Service.cpp, jrd/Service.h, jrd/UserData.cpp, jrd/dyn.epp,
+	jrd/enc.cpp, jrd/enc_proto.h, jrd/ibase.h, jrd/jrd.h,
+	jrd/jrd_pwd.h, jrd/pwd.cpp, jrd/svc.cpp, jrd/tra.cpp,
+	utilities/common/cmd_util.cpp, utilities/common/cmd_util_proto.h,
+	utilities/gsec/gsec.h:
+	
+	Work in progress on Services Provider
+
 2005-09-06 17:17  jimstarkey
 
 	* vulcan/src/alice/: alice.cpp, alice.h, alice_meta.cpp,
