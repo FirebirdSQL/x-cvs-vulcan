@@ -3312,9 +3312,6 @@
 				RelativePath="..\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath=".\Sqlda.h">
-			</File>
-			<File
 				RelativePath="..\dsql\sqlda.h">
 			</File>
 			<File

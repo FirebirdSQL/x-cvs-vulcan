@@ -693,7 +693,7 @@ static void asgn_from( ACT action, REF reference, int column)
 				fprintf(out_file, "isc_ftof (%s, %d, %s, %d);", value,
 						   field->fld_length, variable, field->fld_length);
 			else if (sw_cstring)
-				fprintf(out_file, "isc_vtov ((char*)%s, (char*)%s, %d);", value,
+				fprintf(out_file, "isc_vtov ((const char*)%s, (char*)%s, %d);", value,
 						   variable, field->fld_length);
 			else if (reference->ref_source)
 				fprintf(out_file, "isc_ftof (%s, sizeof (%s), %s, %d);",
@@ -768,7 +768,7 @@ static void asgn_to( ACT action, REF reference, int column)
 					   field->fld_length, reference->ref_value,
 					   reference->ref_value);
 		else
-			fprintf(out_file, "isc_vtov ((char*)%s, (char*)%s, sizeof (%s));", s,
+			fprintf(out_file, "isc_vtov ((const char*)%s, (char*)%s, sizeof (%s));", s,
 					   reference->ref_value, reference->ref_value);
 	}
 
@@ -813,7 +813,7 @@ static void asgn_to_proc( REF reference, int column)
 					   field->fld_length, reference->ref_value,
 					   reference->ref_value);
 		else
-			fprintf(out_file, "isc_vtov ((char*)%s, (char*)%s, sizeof (%s));", s,
+			fprintf(out_file, "isc_vtov ((const char*)%s, (char*)%s, sizeof (%s));", s,
 					   reference->ref_value, reference->ref_value);
 	}
 }
@@ -2042,7 +2042,7 @@ static void gen_emodify( ACT action, int column)
 			(field->fld_sub_type == 1 && field->fld_length == 1))
 			fprintf(out_file, "%s = %s;", s2, s1);
 		else if (sw_cstring && !field->fld_sub_type)
-			fprintf(out_file, "isc_vtov ((char*)%s, (char*)%s, %d);",
+			fprintf(out_file, "isc_vtov ((const char*)%s, (char*)%s, %d);",
 					   s1, s2, field->fld_length);
 		else
 			fprintf(out_file, "isc_ftof (%s, %d, %s, %d);",

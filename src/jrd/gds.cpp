@@ -677,7 +677,7 @@ SLONG API_ROUTINE fb_interpret(char* s, int bufsize, const ISC_STATUS** vector)
 {
 	StatusPrint printer;
 	
-	return printer.interpretStatus (bufsize, s, (const ISC_STATUS**) vector);
+	return printer.interpretStatus (bufsize, s, vector);
 }
 
 /* CVC: This special function for ADA has been restored to non-const vector,
