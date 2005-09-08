@@ -117,6 +117,24 @@
 				RelativePath=".\dba.cpp">
 			</File>
 			<File
+				RelativePath=".\DbaData.cpp">
+			</File>
+			<File
+				RelativePath=".\DbaFile.cpp">
+			</File>
+			<File
+				RelativePath=".\DbaIndex.cpp">
+			</File>
+			<File
+				RelativePath=".\DbaOpenFile.cpp">
+			</File>
+			<File
+				RelativePath=".\DbaRelation.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\JString.cpp">
+			</File>
+			<File
 				RelativePath=".\ppg.cpp">
 			</File>
 		</Filter>
@@ -125,7 +143,25 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\DbaData.h">
+			</File>
+			<File
+				RelativePath=".\DbaFile.h">
+			</File>
+			<File
+				RelativePath=".\DbaIndex.h">
+			</File>
+			<File
+				RelativePath=".\DbaOpenFile.h">
+			</File>
+			<File
+				RelativePath=".\DbaRelation.h">
+			</File>
+			<File
 				RelativePath=".\dbaswi.h">
+			</File>
+			<File
+				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
 				RelativePath=".\ppg_proto.h">
@@ -142,7 +178,8 @@
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 					Outputs=" $(InputDir)$(InputName).cpp"/>
 			</FileConfiguration>
 		</File>

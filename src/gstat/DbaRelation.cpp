@@ -1,7 +1,7 @@
 /*
  *	PROGRAM:	JRD Access Method
- *	MODULE:		ppg_proto.h
- *	DESCRIPTION:	Prototype header file for ppg.cpp
+ *	MODULE:		DbaRelation.cpp
+ *	DESCRIPTION:	Database analysis tool
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -19,22 +19,32 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
+ *
+ * 2001.08.07 Sean Leyne - Code Cleanup, removed "#ifdef READONLY_DATABASE"
+ *                         conditionals, as the engine now fully supports
+ *                         readonly databases.
+ *
+ * 2002.10.29 Sean Leyne - Removed obsolete "Netware" port
+ *
  */
 
-#ifndef UTILITIES_PPG_PROTO_H
-#define UTILITIES_PPG_PROTO_H
+#include "firebird.h"
+#include "common.h"
+#include "DbaRelation.h"
+#include "DbaIndex.h"
+#include "DbaData.h"
 
-#ifdef SERVICE_THREAD
-void	PPG_print_header (const header_page*, SLONG, bool, Service*);
-#ifdef NOT_USED_OR_REPLACED
-void	PPG_print_log (const log_info_page*, SLONG, bool, Service*);
-#endif
-#else
-void	PPG_print_header (const header_page*, SLONG, bool, FILE*);
-#ifdef NOT_USED_OR_REPLACED
-void	PPG_print_log (const log_info_page*, SLONG, bool, FILE*);
-#endif
-#endif
 
-#endif // UTILITIES_PPG_PROTO_H
+DbaRelation::DbaRelation(void)
+{
+	rel_indexes = NULL;
+}
 
+DbaRelation::~DbaRelation(void)
+{
+	for (DbaIndex *index; index = rel_indexes;)
+		{
+		rel_indexes = index->idx_next;
+		delete index;
+		}
+}

@@ -1,7 +1,7 @@
 /*
  *	PROGRAM:	JRD Access Method
- *	MODULE:		ppg_proto.h
- *	DESCRIPTION:	Prototype header file for ppg.cpp
+ *	MODULE:		DbaFile.epp
+ *	DESCRIPTION:	Database analysis tool
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -19,22 +19,37 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
+ *
+ * 2001.08.07 Sean Leyne - Code Cleanup, removed "#ifdef READONLY_DATABASE"
+ *                         conditionals, as the engine now fully supports
+ *                         readonly databases.
+ *
+ * 2002.10.29 Sean Leyne - Removed obsolete "Netware" port
+ *
  */
 
-#ifndef UTILITIES_PPG_PROTO_H
-#define UTILITIES_PPG_PROTO_H
+#ifndef _DBA_INDEX_H
+#define _DBA_INDEX_H
 
-#ifdef SERVICE_THREAD
-void	PPG_print_header (const header_page*, SLONG, bool, Service*);
-#ifdef NOT_USED_OR_REPLACED
-void	PPG_print_log (const log_info_page*, SLONG, bool, Service*);
-#endif
-#else
-void	PPG_print_header (const header_page*, SLONG, bool, FILE*);
-#ifdef NOT_USED_OR_REPLACED
-void	PPG_print_log (const log_info_page*, SLONG, bool, FILE*);
-#endif
-#endif
+#include "JString.h"
+#include "DbaData.h"
 
-#endif // UTILITIES_PPG_PROTO_H
+class DbaIndex
+{
+public:
+	DbaIndex(void);
+	~DbaIndex(void);
+	DbaIndex*	idx_next;
+	SSHORT		idx_id;
+	SSHORT		idx_depth;
+	SLONG		idx_leaf_buckets;
+	SLONG		idx_total_duplicates;
+	SLONG		idx_max_duplicates;
+	SLONG		idx_nodes;
+	SLONG		idx_data_length;
+	SLONG		idx_fill_distribution[BUCKETS];
+	//SCHAR		idx_name[32];
+	JString		idx_name;
+};
 
+#endif
