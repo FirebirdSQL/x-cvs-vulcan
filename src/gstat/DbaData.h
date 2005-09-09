@@ -32,7 +32,11 @@
 #define _DBA_DATA_H
 
 #include <stdio.h>
+#include "../jrd/msg_encode.h"
 
+#define GSTAT_CODE(n)	ENCODE_ISC_MSG(1, GSTAT_MSG_FAC)
+
+const USHORT GSTAT_MSG_FAC	= 21;
 const SSHORT BUCKETS	= 5;
 
 class DbaFile;
@@ -61,7 +65,7 @@ public:
 #ifdef SERVICE_THREAD
 	Service		*sw_outfile;
 	//dba_mem	*head_of_mem_list;
-	DbaOpenFile	*head_of_files_list;
+	//DbaOpenFile	*head_of_files_list;
 	Service		*dba_service_blk;
 #else
 	FILE*	sw_outfile;

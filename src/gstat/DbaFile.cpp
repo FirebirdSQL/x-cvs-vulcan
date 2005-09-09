@@ -80,14 +80,18 @@ void DbaFile::open(void)
 							0);
 
 	if (fil_desc  == INVALID_HANDLE_VALUE)
+		// msg 29: Can't open database file %s 
+		throw OSRIException(GSTAT_CODE(29), isc_arg_string, (const char*) fil_string, 0);
+		/***
 		throw OSRIException(isc_io_error, 
 							isc_arg_string, "CreateFile (open)", 
 							isc_arg_string, (const char*) fil_string,
 							isc_arg_gds, isc_io_open_err,
 							isc_arg_win32, GetLastError(), 0);
+		***/
 #else
-	if ((fil_desc = (void*)(IPTR) open(file_name, O_RDONLY)) == -1)
-		return errno;
+	if ((fil_desc = (void*)(IPTR) open(fil_string, O_RDONLY)) == -1)
+		throw OSRIException(GSTAT_CODE(29), isc_arg_string, (const char*) fil_string, 0);
 #endif
 }
 
@@ -104,19 +108,13 @@ void DbaFile::read(UINT64 offset, int length, void* address)
 		int lastError = GetLastError();
 		
 		if (lastError != NO_ERROR)
-			throw OSRIException(isc_io_error, 
-								isc_arg_string, "SetFilePointer", 
-								isc_arg_string, (const char*) fil_string,
-								isc_arg_gds, isc_io_access_err,
-								isc_arg_win32, lastError, 0);
+			// msg 30: Can't read a database page 
+			throw OSRIException(GSTAT_CODE(30), 0);
 		}
 
 	if (!ReadFile(fil_desc, address, length, &ret, NULL))
-		throw OSRIException(isc_io_error, 
-							isc_arg_string, "SetFilePointer", 
-							isc_arg_string, (const char*) fil_string,
-							isc_arg_gds, isc_io_read_err,
-							isc_arg_win32, GetLastError(), 0);
+			// msg 30: Can't read a database page 
+			throw OSRIException(GSTAT_CODE(30), 0);
 #else
 #endif
 	

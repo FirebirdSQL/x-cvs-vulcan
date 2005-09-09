@@ -63,6 +63,7 @@ DbaData::DbaData(void)
 
 DbaData::~DbaData(void)
 {
+	closeFiles();
 	delete [] buffer1;
 	delete [] buffer2;
 	delete [] global_buffer;

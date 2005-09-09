@@ -28,6 +28,7 @@
  *
  */
 
+#include <memory.h>
 #include "firebird.h"
 #include "common.h"
 #include "DbaRelation.h"
@@ -38,6 +39,19 @@
 DbaRelation::DbaRelation(void)
 {
 	rel_indexes = NULL;
+	rel_next = NULL;
+	rel_index_root = 0;
+	rel_pointer_page = 0;
+	rel_slots = 0;
+	rel_data_pages = 0;
+	rel_records = 0;
+	rel_record_space = 0;
+	rel_versions = 0;
+	rel_version_space = 0;
+	rel_max_versions = 0;
+	memset(rel_fill_distribution, 0, sizeof(rel_fill_distribution[BUCKETS]));
+	rel_total_space = 0;
+	rel_id = 0;
 }
 
 DbaRelation::~DbaRelation(void)
