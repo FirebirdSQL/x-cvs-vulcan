@@ -34,9 +34,8 @@
 #include "DbaData.h"
 #include "DbaRelation.h"
 #include "DbaFile.h"
-#include "DbaOpenFile.h"
+//#include "DbaOpenFile.h"
 #include "../jrd/ods.h"
-#include ".\dbadata.h"
 
 DbaData::DbaData(void)
 {
@@ -121,7 +120,20 @@ DbaFile* DbaData::addFile(const char* fileName)
 	return file;
 }
 
-int DbaData::read(int pageNumber)
+pag* DbaData::read(ULONG pageNumber)
 {
-	return 0;
+	if (pageNumber == page_number)
+		return global_buffer;
+
+	page_number = pageNumber;
+	DbaFile* file;
+	
+	for (file = files; pageNumber > file->fil_max_page && file->fil_next;) 
+		 file = file->fil_next;
+
+	pageNumber -= file->fil_min_page - file->fil_fudge;
+	UINT64 liOffset = (UINT64) pageNumber * page_size;
+	file->read(liOffset, page_size, global_buffer);
+	
+	return global_buffer;
 }

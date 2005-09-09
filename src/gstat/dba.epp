@@ -65,7 +65,7 @@
 #include "DbaRelation.h"
 #include "DbaFile.h"
 #include "DbaIndex.h"
-#include "DbaOpenFile.h"
+//#include "DbaOpenFile.h"
 
 
 #ifdef SERVICE_THREAD

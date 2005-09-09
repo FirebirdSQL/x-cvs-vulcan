@@ -71,7 +71,7 @@ public:
 	ISC_STATUS_ARRAY dba_status_vector;
 	void closeFiles(void);
 	DbaFile* addFile(const char* fileName);
-	int read(int pageNumber);
+	pag* read(ULONG pageNumber);
 };
 
 #endif

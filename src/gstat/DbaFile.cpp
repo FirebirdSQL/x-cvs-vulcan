@@ -34,11 +34,11 @@
 #include "DbaFile.h"
 #include "DbaData.h"
 #include "DbaRelation.h"
-#include "DbaOpenFile.h"
+#include "OSRIException.h"
+#include "iberror.h"
 
 #ifdef WIN_NT
 #include <Windows.h>
-#include ".\dbafile.h"
 #else
 #include <stdio.h>
 #endif
@@ -67,7 +67,7 @@ void DbaFile::close(void)
 	fil_desc = NULL;
 }
 
-int DbaFile::open(void)
+void DbaFile::open(void)
 {
 #ifdef WIN_NT
 	fil_desc = CreateFile(fil_string,
@@ -80,16 +80,44 @@ int DbaFile::open(void)
 							0);
 
 	if (fil_desc  == INVALID_HANDLE_VALUE)
-		return GetLastError();
+		throw OSRIException(isc_io_error, 
+							isc_arg_string, "CreateFile (open)", 
+							isc_arg_string, (const char*) fil_string,
+							isc_arg_gds, isc_io_open_err,
+							isc_arg_win32, GetLastError(), 0);
 #else
 	if ((fil_desc = (void*)(IPTR) open(file_name, O_RDONLY)) == -1)
 		return errno;
 #endif
-
-	return 0;
 }
 
-int DbaFile::read(UINT64 offset, int length, void* address)
+void DbaFile::read(UINT64 offset, int length, void* address)
 {
-	return 0;
+#ifdef WIN_NT
+	LONG low = (LONG) offset;
+	LONG high = (LONG) (offset >> 32);
+	
+	DWORD ret = SetFilePointer(fil_desc, low, &high, FILE_BEGIN);
+	
+	if (ret == INVALID_SET_FILE_POINTER)
+		{
+		int lastError = GetLastError();
+		
+		if (lastError != NO_ERROR)
+			throw OSRIException(isc_io_error, 
+								isc_arg_string, "SetFilePointer", 
+								isc_arg_string, (const char*) fil_string,
+								isc_arg_gds, isc_io_access_err,
+								isc_arg_win32, lastError, 0);
+		}
+
+	if (!ReadFile(fil_desc, address, length, &ret, NULL))
+		throw OSRIException(isc_io_error, 
+							isc_arg_string, "SetFilePointer", 
+							isc_arg_string, (const char*) fil_string,
+							isc_arg_gds, isc_io_read_err,
+							isc_arg_win32, GetLastError(), 0);
+#else
+#endif
+	
 }

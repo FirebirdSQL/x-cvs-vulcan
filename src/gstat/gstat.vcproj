@@ -126,13 +126,13 @@
 				RelativePath=".\DbaIndex.cpp">
 			</File>
 			<File
-				RelativePath=".\DbaOpenFile.cpp">
-			</File>
-			<File
 				RelativePath=".\DbaRelation.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\JString.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\OSRIException.cpp">
 			</File>
 			<File
 				RelativePath=".\ppg.cpp">
@@ -162,6 +162,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\JString.h">
+			</File>
+			<File
+				RelativePath="..\jrd\OSRIException.h">
 			</File>
 			<File
 				RelativePath=".\ppg_proto.h">

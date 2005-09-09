@@ -47,8 +47,8 @@ public:
 	//SCHAR		fil_string[1];		/* Expanded file name */
 	JString		fil_string;
 	void close(void);
-	int open(void);
-	int read(UINT64 offset, int length, void* address);
+	void open(void);
+	void read(UINT64 offset, int length, void* address);
 };
 
 #endif
