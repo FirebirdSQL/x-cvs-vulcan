@@ -51,7 +51,7 @@ DbaData::DbaData(void)
 #ifdef SERVICE_THREAD
 	sw_outfile = 0;
 	//head_of_mem_list = 0;
-	head_of_files_list = NULL;
+	//head_of_files_list = NULL;
 	dba_service_blk = 0;
 #else
 	sw_outfile = 0;
@@ -80,13 +80,6 @@ DbaData::~DbaData(void)
 		delete file;
 		}
 	
-#ifdef SERVICE_THREAD
-	for (DbaOpenFile *openFile = head_of_files_list; openFile;)
-		{
-		head_of_files_list = openFile->open_files_next;
-		delete openFile;
-		}
-#endif
 }
 
 void DbaData::closeFiles(void)

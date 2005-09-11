@@ -192,6 +192,9 @@
 				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\Generate.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
@@ -252,6 +255,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\OSRIMemException.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
 				RelativePath="restore.cpp">
@@ -346,6 +352,9 @@
 				RelativePath="..\jrd\Error.h">
 			</File>
 			<File
+				RelativePath="..\jrd\Generate.h">
+			</File>
+			<File
 				RelativePath="..\common\classes\locks.h">
 			</File>
 			<File
@@ -371,6 +380,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\OSRIMemException.h">
+			</File>
+			<File
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath="..\jrd\sdl.h">

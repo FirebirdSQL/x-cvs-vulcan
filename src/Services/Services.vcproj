@@ -32,9 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
+				AdditionalDependencies="ws2_32.lib firebird.lib"
 				OutputFile="..\..\install\bin/services.dll"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				ModuleDefinitionFile="services.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Services.pdb"
@@ -138,6 +139,9 @@
 				RelativePath="..\burp\backup.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\btn.cpp">
+			</File>
+			<File
 				RelativePath="..\burp\burp.cpp">
 			</File>
 			<File
@@ -160,6 +164,21 @@
 			</File>
 			<File
 				RelativePath="..\config\ConfObject.cpp">
+			</File>
+			<File
+				RelativePath="..\gstat\dba.cpp">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaData.cpp">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaFile.cpp">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaIndex.cpp">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaRelation.cpp">
 			</File>
 			<File
 				RelativePath="..\config\Element.cpp">
@@ -187,6 +206,9 @@
 			</File>
 			<File
 				RelativePath="..\gsec\gsec.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\os\win32\guid.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\InfoGen.cpp">
@@ -241,6 +263,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\PBGen.cpp">
+			</File>
+			<File
+				RelativePath="..\gstat\ppg.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\RefObject.cpp">
@@ -329,6 +354,9 @@
 				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
+				RelativePath="..\jrd\btn.h">
+			</File>
+			<File
 				RelativePath="..\burp\burp.h">
 			</File>
 			<File
@@ -359,6 +387,21 @@
 				RelativePath="..\config\ConfObject.h">
 			</File>
 			<File
+				RelativePath="..\gstat\DbaData.h">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaFile.h">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaIndex.h">
+			</File>
+			<File
+				RelativePath="..\gstat\DbaRelation.h">
+			</File>
+			<File
+				RelativePath="..\gstat\dbaswi.h">
+			</File>
+			<File
 				RelativePath="..\config\Element.h">
 			</File>
 			<File
@@ -387,6 +430,9 @@
 			</File>
 			<File
 				RelativePath="..\gsec\gsecswi.h">
+			</File>
+			<File
+				RelativePath="..\jrd\os\guid.h">
 			</File>
 			<File
 				RelativePath="..\jrd\inf.h">
@@ -450,6 +496,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\PBGen.h">
+			</File>
+			<File
+				RelativePath="..\gstat\ppg_proto.h">
 			</File>
 			<File
 				RelativePath="..\jrd\RefObject.h">
@@ -552,6 +601,16 @@
 			</FileConfiguration>
 		</File>
 		<File
+			RelativePath="..\gstat\dba.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
+		<File
 			RelativePath="..\burp\restore.epp">
 			<FileConfiguration
 				Name="Debug|Win32">
@@ -564,6 +623,13 @@
 		</File>
 		<File
 			RelativePath="..\gsec\security.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
 		</File>
 	</Files>
 	<Globals>

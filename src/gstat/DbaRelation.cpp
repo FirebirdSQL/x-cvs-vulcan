@@ -36,8 +36,9 @@
 #include "DbaData.h"
 
 
-DbaRelation::DbaRelation(void)
+DbaRelation::DbaRelation(JString name)
 {
+	rel_name = name;
 	rel_indexes = NULL;
 	rel_next = NULL;
 	rel_index_root = 0;
@@ -49,9 +50,9 @@ DbaRelation::DbaRelation(void)
 	rel_versions = 0;
 	rel_version_space = 0;
 	rel_max_versions = 0;
-	memset(rel_fill_distribution, 0, sizeof(rel_fill_distribution[BUCKETS]));
+	memset(rel_fill_distribution, 0, sizeof(rel_fill_distribution));
 	rel_total_space = 0;
-	rel_id = 0;
+	rel_id = -1;
 }
 
 DbaRelation::~DbaRelation(void)

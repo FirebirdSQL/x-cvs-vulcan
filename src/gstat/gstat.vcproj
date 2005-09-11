@@ -179,6 +179,9 @@
 				RelativePath="..\config\Lex.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\MsgFormat.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
@@ -278,6 +281,9 @@
 			</File>
 			<File
 				RelativePath="..\config\Lex.h">
+			</File>
+			<File
+				RelativePath="..\jrd\MsgFormat.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Mutex.h">

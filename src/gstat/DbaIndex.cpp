@@ -28,6 +28,7 @@
  *
  */
 
+#include <memory.h>
 #include "firebird.h"
 #include "common.h"
 #include "DbaIndex.h"
@@ -35,6 +36,14 @@
 
 DbaIndex::DbaIndex(void)
 {
+	idx_id = 0;
+	idx_depth = 0;
+	idx_leaf_buckets = 0;
+	idx_total_duplicates = 0;
+	idx_max_duplicates = 0;
+	idx_nodes = 0;
+	idx_data_length = 0;
+	memset(idx_fill_distribution, 0, sizeof(idx_fill_distribution));
 }
 
 DbaIndex::~DbaIndex(void)

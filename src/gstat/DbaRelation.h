@@ -39,7 +39,7 @@ class DbaIndex;
 class DbaRelation
 {
 public:
-	DbaRelation(void);
+	DbaRelation(JString name);
 	~DbaRelation(void);
 	DbaRelation* rel_next;
 	DbaIndex* rel_indexes;

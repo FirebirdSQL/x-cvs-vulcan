@@ -54,6 +54,7 @@
 #include "../jrd/why_proto.h"
 #include "../jrd/gdsassert.h"
 #include "MsgFormat.h"
+#include "PBGen.h"
 
 #ifndef va_copy
 #define va_copy(to,from) to = from
@@ -392,14 +393,14 @@ static int api_gbak(int argc,
     const TEXT* usr = (user) ? user : getenv ("ISC_USER");
    	const TEXT* pswd = (password) ? password : getenv("ISC_PASSWORD");
 	size_t usrLen = (usr) ? strlen(usr) : 0;
-	size_t pswdLen = (usr) ? strlen(pswd) : 0;
+	size_t pswdLen = (pswd) ? strlen(pswd) : 0;
 	
 	/***
 	char *const spb = (char *) gds__alloc((SLONG) (2 + 2 + ((usr) ? strlen(usr) : 0) +
 									   2 + ((pswd) ? strlen(pswd) : 0)) +
 									   2 + length);
 	***/
-	char *spb = new char[2 + 2 + usrLen + 2 + pswdLen + 2 + length];
+	//char *spb = new char[2 + 2 + usrLen + 2 + pswdLen + 2 + length];
 	/* 'isc_spb_version'
 	   'isc_spb_current_version'
 	   'isc_spb_user_name'
@@ -412,66 +413,80 @@ static int api_gbak(int argc,
 	   'length'
 	   "options" */
 	ISC_STATUS_ARRAY status;
-	char* spb_ptr = spb;
-	*spb_ptr++ = isc_spb_version;
-	*spb_ptr++ = isc_spb_current_version;
+	PBGen spb(isc_spb_version);
+	//char* spb_ptr = spb;
+	//*spb_ptr++ = isc_spb_version;
+	//*spb_ptr++ = isc_spb_current_version;
+	spb.appendUCHAR(isc_spb_current_version);
 
 	if (usr) 
 		{
-		*spb_ptr++ = isc_spb_user_name;
-		*spb_ptr++ = usrLen;
-		memcpy(spb_ptr, usr, usrLen);
-		spb_ptr += usrLen;
+		spb.putParameter(isc_spb_user_name, usr);
+		//*spb_ptr++ = isc_spb_user_name;
+		//*spb_ptr++ = usrLen;
+		//memcpy(spb_ptr, usr, usrLen);
+		//spb_ptr += usrLen;
 		if (user)
 			*user = '\0';
 		}
 
 	if (pswd) 
 		{
-		*spb_ptr++ = isc_spb_password;
-		*spb_ptr++ = pswdLen;
-		memcpy(spb_ptr, pswd, pswdLen);
-		spb_ptr += pswdLen;
+		spb.putParameter(isc_spb_password, pswd);
+		//*spb_ptr++ = isc_spb_password;
+		//*spb_ptr++ = pswdLen;
+		//memcpy(spb_ptr, pswd, pswdLen);
+		//spb_ptr += pswdLen;
 		if (password)
 			*password = '\0';
 		}
 
-	char *svc_name = new char [strlen(service) + 1];
+	JString svc_name;
+	//char *svc_name = new char [strlen(service) + 1];
 
 	if (service) 
 		{
-		strcpy(svc_name, service);
+		//strcpy(svc_name, service);
+		svc_name = service;
 		*service = '\0';
 		}
+	/**
 	else
 		svc_name[0] = 0;
+	**/
 
 
 	// Fill command line options 
 
-	*spb_ptr++ = isc_spb_command_line;
 	TEXT **begin = argv;
 	TEXT **end = argv + argc;
 	argv++;
-	*spb_ptr++ = length;
+	JString commandLine;
+	TEXT *cmdLine = commandLine.getBuffer(length);
+	TEXT *cmdPtr = cmdLine;
+	//*spb_ptr++ = isc_spb_command_line;
+	//*spb_ptr++ = length;
 	
 	while (argv < end) 
 		{
 		if (**argv && argv > begin + 1)
-			*spb_ptr++ = ' ';
+			*cmdPtr++ = ' ';
+			
 		for (const TEXT *x = *argv++; *x;)
-			*spb_ptr++ = *x++;
+			*cmdPtr++ = *x++;
 		}
+	
+	spb.putParameter(isc_spb_command_line, length, cmdLine);
 
-	USHORT spblen = spb_ptr - spb;
+	//USHORT spblen = spb_ptr - spb;
 	isc_handle svc_handle = NULL;
 	
-	if (isc_service_attach(status, 0, svc_name, (&svc_handle), spblen, spb))
+	if (isc_service_attach(status, 0, svc_name, &svc_handle, spb.getLength(), (char*) spb.buffer))
 		{
 		BURP_print_status(status);
-		delete [] spb;
-		delete svc_name;
-		BURP_print(83, 0, 0, 0, 0, 0);
+		//delete [] spb;
+		//delete svc_name;
+		BURP_print(83);
 		// msg 83 Exiting before completion due to errors 
 		return FINI_ERROR;
 		}
@@ -506,15 +521,13 @@ static int api_gbak(int argc,
 	if (verbose)
 		*thd_ptr++ = isc_spb_verbose;
 
-	USHORT thdlen = thd_ptr - thd;
-
-	if (isc_service_start(status, (&svc_handle), NULL, thdlen, thd))
+	if (isc_service_start(status, &svc_handle, NULL, thd_ptr - thd, thd))
 		{
 		BURP_print_status(status);
-		delete [] spb;
-		delete [] svc_name;
+		//delete [] spb;
+		//delete [] svc_name;
 		isc_service_detach(status, (&svc_handle));
-		BURP_print(83, 0, 0, 0, 0, 0);	// msg 83 Exiting before completion due to errors 
+		BURP_print(83);	// msg 83 Exiting before completion due to errors 
 		return FINI_ERROR;
 		}
 
@@ -524,15 +537,15 @@ static int api_gbak(int argc,
 	
 	do 
 		{
-		if (isc_service_query(status, (&svc_handle), NULL, 0, NULL,
+		if (isc_service_query(status, &svc_handle, NULL, 0, NULL,
 								sizeof(sendbuf), sendbuf,
 								sizeof(respbuf), respbuf))
 			{
 			BURP_print_status(status);
-			delete [] spb;
-			delete [] svc_name;
+			//delete [] spb;
+			//delete [] svc_name;
 			isc_service_detach(status, (&svc_handle));
-			BURP_print(83, 0, 0, 0, 0, 0);	// msg 83 Exiting before completion due to errors 
+			BURP_print(83);	// msg 83 Exiting before completion due to errors 
 			return FINI_ERROR;
 			}
 
@@ -557,9 +570,12 @@ static int api_gbak(int argc,
 			p += len;
 			}
 		} 
-	while (*sl == isc_info_svc_line);
+		
+	while (*sl == isc_info_svc_line)
+		;
 
 	isc_service_detach(status, (&svc_handle));
+	
 	return FINI_OK;
 }
 
@@ -629,7 +645,6 @@ int common_main(int		argc,
 	
 	for (in_sw_tab = burp_in_sw_table; in_sw_tab->in_sw_name; in_sw_tab++) 
 		in_sw_tab->in_sw_state = FALSE;
-
 
 	try 
 		{
@@ -734,19 +749,22 @@ int common_main(int		argc,
 				if (!file || file->fil_length || !get_size(*argv, file)) 
 					{
 					/*  Miserable thing must be a filename
-					(dummy in a length for the backup file */
+					   (dummy in a length for the backup file */
 
 					file = (FIL) BURP_alloc_zero(FIL_LEN);
 					file->fil_name = string;
 					file->fil_fd = INVALID_HANDLE_VALUE;
+					
 					if (!file_list)
 						file->fil_length = MAX_LENGTH;
 					else
 						file->fil_length = 0;
+						
 					file->fil_next = file_list;
 					file_list = file;
 					}
-					argv++;
+					
+				argv++;
 				}
 			else 
 				{
@@ -768,18 +786,16 @@ int common_main(int		argc,
 				in_sw_tab->in_sw_state = TRUE;
 				if (!in_sw_tab->in_sw) 
 					{
-					BURP_print(137, string + 1, 0, 0, 0, 0);
+					BURP_print(137, string + 10);
 					// msg 137  unknown switch %s 
-					BURP_print(95, 0, 0, 0, 0, 0);
+					BURP_print(95);
 					// msg 95  legal switches are
-					for (in_sw_tab = burp_in_sw_table; in_sw_tab->in_sw;
-						in_sw_tab++)
-						if (in_sw_tab->in_sw_msg) {
-							BURP_msg_put(in_sw_tab->in_sw_msg, (void*)switch_char, 0, 0,
-										0, 0);
-						}
+					
+					for (in_sw_tab = burp_in_sw_table; in_sw_tab->in_sw; in_sw_tab++)
+						if (in_sw_tab->in_sw_msg) 
+							BURP_msg_put(in_sw_tab->in_sw_msg, switch_char);
 
-					BURP_print(132, 0, 0, 0, 0, 0);
+					BURP_print(1320);
 					// msg 132 switches can be abbreviated to one character 
 					BURP_error(1, true, 0, 0, 0, 0, 0);
 					// msg 1: found unknown switch 
@@ -902,7 +918,7 @@ int common_main(int		argc,
 						
 						if (tmp_outfile) 
 							{
-							BURP_print(66, redirect, 0, 0, 0, 0);
+							BURP_print(66, redirect);
 							// msg 66 can't open status and error output file %s 
 							ib_fclose(tmp_outfile);
 							exit_local(FINI_ERROR, const_cast<tgbl*>(tdgbl));
@@ -910,7 +926,7 @@ int common_main(int		argc,
 							
 						if (! (tdgbl->output_file = ib_fopen(redirect, fopen_write_type))) 
 							{
-							BURP_print(66, redirect, 0, 0, 0, 0);
+							BURP_print(66, redirect);
 							// msg 66 can't open status and error output file %s 
 							exit_local(FINI_ERROR, const_cast<tgbl*>(tdgbl));
 							}
@@ -1108,7 +1124,7 @@ int common_main(int		argc,
 						break;
 
 					case (IN_SW_BURP_Z):
-						BURP_print(91, (void*) GDS_VERSION, 0, 0, 0, 0);
+						BURP_print(91, GDS_VERSION);
 						// msg 91 gbak version %s 
 						tdgbl->gbl_sw_version = TRUE;
 						break;
@@ -1298,7 +1314,7 @@ void BURP_abort(void)
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	BURP_print(83, 0, 0, 0, 0, 0);
+	BURP_print(83);
 	// msg 83 Exiting before completion due to errors 
 
 	SVC_STARTED(tdgbl->service_blk);
@@ -1823,12 +1839,12 @@ static gbak_action open_files(const TEXT* file1,
 			if (tdgbl->gbl_sw_version) 
 				{
 				// msg 139 Version(s) for database "%s" 
-				BURP_print(139, file1, 0, 0, 0, 0);
+				BURP_print(139, file1);
 				isc_version(&tdgbl->db_handle, BURP_output_version, (void*) "\t%s\n");
 				}
 				
 			if (sw_verbose)
-				BURP_print(166, file1, 0, 0, 0, 0);
+				BURP_print(166, file1);
 				// msg 166: readied database %s for backup 
 			}
 		else if (sw_replace == IN_SW_BURP_B ||
@@ -1859,19 +1875,24 @@ static gbak_action open_files(const TEXT* file1,
 				{
 				case size_n:
 					break;
+					
 				case size_k:
 					fil->fil_length *= KBYTE;
 					break;
+					
 				case size_m:
 					fil->fil_length *= MBYTE;
 					break;
+					
 				case size_g:
 					fil->fil_length *= GBYTE;
 					break;
+					
 				case size_e:
 					BURP_error(262, true, fil->fil_name, 0, 0, 0, 0);
 					// msg 262 size specification either missing or incorrect for file %s
 					break;
+					
 				default:
 					fb_assert(FALSE);
 					break;
@@ -1881,7 +1902,7 @@ static gbak_action open_files(const TEXT* file1,
 				tdgbl->action->act_action = ACT_backup_split;
 
 			if (sw_verbose)
-				BURP_print(75, fil->fil_name, 0, 0, 0, 0);	// msg 75  creating file %s 
+				BURP_print(75, fil->fil_name);	// msg 75  creating file %s 
 
 			if (!strcmp(fil->fil_name, "stdout"))
 				{
@@ -2026,24 +2047,30 @@ static gbak_action open_files(const TEXT* file1,
 		}
 
 		if (sw_verbose)
-			BURP_print(100, fil->fil_name, 0, 0, 0, 0);
+			BURP_print(100, fil->fil_name);
 			// msg 100 opened file %s
+			
 		// read and check a header record 
+		
 		tdgbl->action->act_file = fil;
 		int seq = 1;
-		if (MVOL_split_hdr_read() == TRUE) {
+		
+		if (MVOL_split_hdr_read() == TRUE) 
+			{
 			tdgbl->action->act_action = ACT_restore_join;
 			// number of files to be join 
 			int total = tdgbl->action->act_total;
-			if (fil->fil_seq != seq || seq > total) {
+			
+			if (fil->fil_seq != seq || seq > total) 
+				{
 				BURP_error(263, true, fil->fil_name, 0, 0, 0, 0);
 				// msg 263 file %s out of sequence 
 				return QUIT;
-			}
+				}
 
 			for (++seq, fil = fil->fil_next; seq <= total;
 				 fil = fil->fil_next, seq++)
-			{
+				{
 				if (!fil) {
 					BURP_error(264, true, 0, 0, 0, 0, 0);
 					// msg 264 can't join -- one of the files missing 
@@ -2071,7 +2098,7 @@ static gbak_action open_files(const TEXT* file1,
 				}
 
 				if (sw_verbose)
-					BURP_print(100, fil->fil_name, 0, 0, 0, 0);
+					BURP_print(100, fil->fil_name);
 					// msg 100 opened file %s
 				if (MVOL_split_hdr_read() == TRUE) {
 					if ((total != tdgbl->action->act_total) ||

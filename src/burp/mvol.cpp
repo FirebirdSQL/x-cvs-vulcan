@@ -888,7 +888,7 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 		if (new_desc < 0)
 #endif // WIN_NT 
 		{
-			BURP_print(222, new_file, 0, 0, 0, 0);
+			BURP_print(222, new_file);
 			// msg 222 \n\nCould not open file name \"%s\"\n 
 			continue;
 		}
@@ -903,7 +903,7 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 			{
 			if (!write_header(new_desc, 0L, full_buffer))
 				{
-				BURP_print(223, new_file, 0, 0, 0, 0);
+				BURP_print(223, new_file);
 				// msg223 \n\nCould not write to file \"%s\"\n
 				continue;
 				}
@@ -911,7 +911,7 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 				{
 				BURP_msg_put(261, tdgbl->mvol_volume_count,new_file);
 				// Starting with volume #vol_count, new_file 
-				BURP_verbose(75, new_file, 0, 0, 0, 0);	// msg 75  creating file %s 
+				BURP_verbose(75, new_file);	// msg 75  creating file %s 
 				}
 			}
 		else
@@ -922,14 +922,14 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 			USHORT format;
 			if (!read_header(new_desc, &temp_buffer_size, &format, false))
 				{
-				BURP_print(224, new_file, 0, 0, 0, 0);
+				BURP_print(224, new_file);
 				continue;
 				}
 			else
 				{
 				BURP_msg_put(261, tdgbl->mvol_volume_count, new_file);
 				// Starting with volume #vol_count, new_file 
-				BURP_verbose(100, new_file, 0, 0, 0, 0);	// msg 100  opened file %s 
+				BURP_verbose(100, new_file);	// msg 100  opened file %s 
 				}
 			}
 
@@ -997,7 +997,7 @@ static void prompt_for_name(SCHAR* name, int length)
 		ib_fflush(term_out);
 		if (ib_fgets(name, length, term_in) == NULL)
 		{
-			BURP_msg_get(229, msg, 0, 0, 0, 0, 0);
+			BURP_msg_get(229, msg);
 			// \n\nERROR: Backup incomplete\n
 			ib_fprintf(term_out, msg);
 			tdgbl->exit_code = FINI_ERROR;
@@ -1150,7 +1150,7 @@ static bool read_header(DESC	handle,
 			if (!init_flag && strcmp(buffer, tdgbl->gbl_backup_start_time))
 			{
 				BURP_msg_get(230, msg,
-							 tdgbl->gbl_backup_start_time, buffer, 0, 0, 0);
+							 tdgbl->gbl_backup_start_time, buffer);
 				// Expected backup start time %s, found %s\n
 				ib_printf(msg);
 				return false;
@@ -1177,7 +1177,7 @@ static bool read_header(DESC	handle,
 			if (!init_flag && strcmp(buffer, tdgbl->gbl_database_file_name))
 			{
 				BURP_msg_get(231, msg,
-							 tdgbl->gbl_database_file_name, buffer, 0, 0, 0);
+							 tdgbl->gbl_database_file_name, buffer);
 				// Expected backup database %s, found %s\n
 				ib_printf(msg);
 				return false;

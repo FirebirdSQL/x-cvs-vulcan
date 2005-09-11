@@ -263,7 +263,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 	gds_trans = NULL_HANDLE;
 
-	BURP_verbose(130, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose(130);
 	// msg 130 starting transaction 
 
 	if (tdgbl->gbl_sw_ignore_limbo)
@@ -323,7 +323,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 // Write global fields 
 
-	BURP_verbose(150, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose(150);
 	// msg 150  writing global fields 
 	write_global_fields();
 
@@ -331,14 +331,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	{
 		write_field_dimensions();
 
-		BURP_verbose(162, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(162);
 		// msg 162  writing shadow files 
 		write_shadow_files();
 	}
 
 // Write relations 
 
-	BURP_verbose(154, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose(154);
 	// msg 154 writing relations 
 
 	write_relations();
@@ -346,23 +346,23 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ffmptt)
 	{
 		// Write functions 
-		BURP_verbose(148, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(148);
 		// msg 148 writing functions 
 		write_functions();
 
 		// Write types 
-		BURP_verbose(161, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(161);
 		// msg 161  writing types 
 		write_types();
 
 		// Write filters 
-		BURP_verbose(146, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(146);
 		// msg 146 writing filters 
 		write_filters();
 
 		// Write generators 
 
-		BURP_verbose(164, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(164);
 		// msg 164  writing id generators 
 		write_generators();
 	}
@@ -370,21 +370,21 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ods8)
 	{
 		// Write procedures 
-		BURP_verbose(192, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(192);
 		// msg 192 writing stored procedures 
 		write_procedures();
 
 		// Write exceptions 
-		BURP_verbose(197, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(197);
 		// msg 197 writing exceptions 
 		write_exceptions();
 
 		// Write Character Sets 
-		BURP_verbose(msgVerbose_write_charsets, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(msgVerbose_write_charsets);
 		write_character_sets();
 
 		// Write Collations 
-		BURP_verbose(msgVerbose_write_collations, NULL, NULL, NULL, NULL,
+		BURP_verbose(msgVerbose_write_collations,
 					 NULL);
 		write_collations();
 
@@ -411,10 +411,10 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 /* now for the new triggers in rdb$triggers */
 	if (tdgbl->BCK_capabilities & BCK_ffmptt) {
-		BURP_verbose(159, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(159);
 		// msg 159  writing triggers 
 		write_triggers();
-		BURP_verbose(158, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(158);
 		// msg 158 writing trigger messages 
 		write_trigger_messages();
 		write_user_privileges();
@@ -430,7 +430,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 			put(tdgbl, rec_security_class);
 			const ULONG l = PUT_TEXT (att_class_security_class, X.RDB$SECURITY_CLASS);
 			MISC_terminate (X.RDB$SECURITY_CLASS, temp, l, sizeof(temp));
-			BURP_verbose (155, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (155, temp);
 			// msg 155 writing security class %s 
 			put_blr_blob (att_class_acl, (ISC_QUAD *)&X.RDB$ACL);
 			put_source_blob (att_class_description2, att_class_description,
@@ -447,17 +447,17 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ods8)
 	{
 		// Write relation constraints  
-		BURP_verbose(206, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(206);
 		// msg 206 writing relation constraints 
 		write_rel_constraints();
 
 		// Write referential constraints  
-		BURP_verbose(209, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(209);
 		// msg 209 writing referential constraints 
 		write_ref_constraints();
 
 		// Write check constraints  
-		BURP_verbose(210, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(210);
 		// msg 210 writing check constraints 
 		write_check_constraints();
 
@@ -466,7 +466,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ods9)
 	{
 		// Write SQL roles  
-		BURP_verbose(248, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(248);
 		// msg 248 writing SQL roles 
 		write_sql_roles();
 	}
@@ -487,7 +487,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 		{
 		char psz[64];
 		ib_sprintf(psz, "%" QUADFORMAT "d", cumul_count);
-		BURP_verbose(283, psz, NULL, NULL, NULL, NULL);
+		BURP_verbose(283, psz);
 		// msg 283 closing file, committing, and finishing.  %s bytes written 
 		}
 		
@@ -1201,7 +1201,7 @@ void put_array( BURP_FLD field, BURP_REL relation, ISC_QUAD * blob_id)
 					  NULL,	// param for subset of an array handling
 					  slice_length, slice, (ISC_LONG*) &return_length))
 		{
-		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
+		BURP_print(81, field->fld_name);
 		// msg 81 error accessing blob field %s -- continuing 
 		BURP_print_status(status_vector);
 		
@@ -1348,7 +1348,7 @@ void put_blob( BURP_FLD field, ISC_QUAD * blob_id, ULONG count)
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
-		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
+		BURP_print(81, field->fld_name);
 		// msg 81 error accessing blob field %s -- continuing 
 		BURP_print_status(status_vector);
 		return;
@@ -1499,7 +1499,7 @@ bool put_blr_blob( SCHAR attribute, ISC_QUAD * blob_id)
 			break;
 
 		default:
-			BURP_print(79, (void *) (IPTR) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, (void *) (IPTR) item);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -1784,7 +1784,7 @@ void put_data(BURP_REL relation)
 
 	BURP_free(blr_buffer);
 	
-	BURP_verbose(142, relation->rel_name, NULL, NULL, NULL, NULL);
+	BURP_verbose(142, relation->rel_name);
 	// msg 142  writing data for relation %s 
 
 	if (isc_start_request(status_vector, &request, &gds_trans, 0))
@@ -1823,7 +1823,7 @@ void put_data(BURP_REL relation)
 		records++;
 		// Verbose records 
 		if ((records % BACKUP_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(108, (void *) (IPTR) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(108, records);
 
 		put(tdgbl, (UCHAR) (rec_data));
 		put_numeric(att_data_length, record_length);
@@ -1874,7 +1874,7 @@ void put_data(BURP_REL relation)
 	if (xdr_buffer.lstr_address)
 		BURP_free(xdr_buffer.lstr_address);
 
-	BURP_verbose(108, (void *) (IPTR) records, NULL, NULL, NULL, NULL);
+	BURP_verbose(108, records);
 // msg 108 %ld records written 
 
 	if (isc_release_request(status_vector, &request))
@@ -1940,7 +1940,7 @@ void put_index( BURP_REL relation)
 			put(tdgbl, rec_index);
 			const ULONG l = PUT_TEXT (att_index_name, X.RDB$INDEX_NAME);
 			MISC_terminate (X.RDB$INDEX_NAME, temp, l, sizeof(temp));
-			BURP_verbose (151, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (151, temp);
 			// msg 151 writing index %s 
 			put_numeric (att_segment_count, X.RDB$SEGMENT_COUNT);
 			put_numeric (att_index_inactive, X.RDB$INDEX_INACTIVE);
@@ -1999,7 +1999,7 @@ void put_index( BURP_REL relation)
 					general_on_error();
 				END_ERROR;
 				if (!match)
-					BURP_print (179, I_S.RDB$FIELD_NAME, X.RDB$INDEX_NAME, NULL, NULL, NULL); 
+					BURP_print (179, I_S.RDB$FIELD_NAME, X.RDB$INDEX_NAME); 
 				else
 					count++;
 			END_FOR;
@@ -2016,7 +2016,7 @@ void put_index( BURP_REL relation)
 			put(tdgbl, rec_index);
 			const ULONG l = PUT_TEXT (att_index_name, X.RDB$INDEX_NAME);
 			MISC_terminate (X.RDB$INDEX_NAME, temp, l, sizeof(temp));
-			BURP_verbose (151, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (151, temp);
 			// msg 151 writing index %s 
 			put_numeric (att_segment_count, X.RDB$SEGMENT_COUNT);
 			if (tdgbl->BCK_capabilities & BCK_idx_inactive)
@@ -2249,7 +2249,7 @@ void put_relation( BURP_REL relation)
 		put(tdgbl, (UCHAR) (rec_field));
 		const USHORT l = PUT_TEXT(att_field_name, field->fld_name);
 		MISC_terminate(field->fld_name, temp, l, sizeof(temp));
-		BURP_verbose(144, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose(144, temp);
 		// msg 144  writing field %s 
 		PUT_TEXT(att_field_source, field->fld_source);
 		if (field->fld_query_name[0])
@@ -2880,7 +2880,7 @@ void write_exceptions(void)
 		put(tdgbl, rec_exception);
 		const SSHORT l = PUT_TEXT (att_exception_name, X.RDB$EXCEPTION_NAME);
 		MISC_terminate (X.RDB$EXCEPTION_NAME, temp, l, sizeof(temp));
-		BURP_verbose (198, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (198, temp);
 		// msg 198 writing exception %s
 		PUT_MESSAGE(att_exception_msg, X.RDB$MESSAGE);
 		put_source_blob (att_exception_description2, att_procedure_description, (ISC_QUAD *)&X.RDB$DESCRIPTION);
@@ -2950,7 +2950,7 @@ void write_filters(void)
 		put(tdgbl, rec_filter);
 		const SSHORT l = PUT_TEXT (att_filter_name, X.RDB$FUNCTION_NAME);
 		MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-		BURP_verbose (145, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (145, temp);
 		// msg 145 writing filter %s
 		put_source_blob (att_filter_description2, att_filter_description, (ISC_QUAD *)&X.RDB$DESCRIPTION);
 		PUT_TEXT (att_filter_module_name, X.RDB$MODULE_NAME);
@@ -2990,7 +2990,7 @@ void write_functions(void)
 		put(tdgbl, rec_function);
 		const SSHORT l = PUT_TEXT (att_function_name, X.RDB$FUNCTION_NAME);
 		MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-		BURP_verbose (147, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (147, temp);
 		/* msg 147 writing function %.*s */
 		put_source_blob (att_function_description2, att_function_description, (ISC_QUAD *)&X.RDB$DESCRIPTION);
 		PUT_TEXT (att_function_module_name, X.RDB$MODULE_NAME);
@@ -3041,7 +3041,7 @@ void write_function_args( GDS_NAME funcptr)
 			put(tdgbl, rec_function_arg);
 			const SSHORT l = PUT_TEXT (att_functionarg_name, X.RDB$FUNCTION_NAME);
 			MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-			BURP_verbose (141, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (141, temp);
 			// msg 141 writing argument for function %s 
 			put_numeric (att_functionarg_position, X.RDB$ARGUMENT_POSITION);
 			put_numeric (att_functionarg_mechanism, X.RDB$MECHANISM);
@@ -3069,7 +3069,7 @@ void write_function_args( GDS_NAME funcptr)
 			put(tdgbl, rec_function_arg);
 			const SSHORT l = PUT_TEXT (att_functionarg_name, X.RDB$FUNCTION_NAME);
 			MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-			BURP_verbose (141, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (141, temp);
 			// msg 141 writing argument for function %s 
 			put_numeric (att_functionarg_position, X.RDB$ARGUMENT_POSITION);
 			put_numeric (att_functionarg_mechanism, X.RDB$MECHANISM);
@@ -3185,7 +3185,7 @@ void write_global_fields(void)
 			put(tdgbl, rec_global_field);
 			const SSHORT l = PUT_TEXT (att_field_name, X.RDB$FIELD_NAME);
 			MISC_terminate (X.RDB$FIELD_NAME, temp, l, sizeof(temp));
-			BURP_verbose (149, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (149, temp);
 			/* msg 149  writing global field %.*s */
 			if (X.RDB$QUERY_NAME [0] != ' ')
 				PUT_TEXT (att_field_query_name, X.RDB$QUERY_NAME);
@@ -3249,7 +3249,7 @@ void write_global_fields(void)
 			put(tdgbl, rec_global_field);
 			const SSHORT l = PUT_TEXT (att_field_name, X.RDB$FIELD_NAME);
 			MISC_terminate (X.RDB$FIELD_NAME, temp, l, sizeof(temp));
-			BURP_verbose (149, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (149, temp);
 			/* msg 149  writing global field %.*s */
 			if (X.RDB$QUERY_NAME [0] != ' ')
 				PUT_TEXT (att_field_query_name, X.RDB$QUERY_NAME);
@@ -3360,7 +3360,7 @@ void write_procedures(void)
 		put(tdgbl, rec_procedure);
 		const SSHORT l = PUT_TEXT (att_procedure_name, X.RDB$PROCEDURE_NAME);
 		MISC_terminate (X.RDB$PROCEDURE_NAME, temp, l, sizeof(temp));
-		BURP_verbose (193, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (193, temp);
 		/* msg 193 writing stored procedure %.*s */
 		put_numeric (att_procedure_inputs, X.RDB$PROCEDURE_INPUTS);
 		put_numeric (att_procedure_outputs, X.RDB$PROCEDURE_OUTPUTS);
@@ -3405,7 +3405,7 @@ void write_procedure_prms( GDS_NAME procptr)
 		put(tdgbl, rec_procedure_prm);
 		const SSHORT l = PUT_TEXT (att_procedureprm_name, X.RDB$PARAMETER_NAME);
 		MISC_terminate (X.RDB$PARAMETER_NAME, temp, l, sizeof(temp));
-		BURP_verbose (194, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (194, temp);
 		// msg 194 writing parameter %s for stored procedure 
 		put_numeric (att_procedureprm_number, X.RDB$PARAMETER_NUMBER);
 		put_numeric (att_procedureprm_type, X.RDB$PARAMETER_type);
@@ -3476,7 +3476,7 @@ void write_rel_constraints(void)
 		put(tdgbl, rec_rel_constraint);
 		const SSHORT l = PUT_TEXT (att_rel_constraint_name, X.RDB$CONSTRAINT_NAME);
 		MISC_terminate (X.RDB$CONSTRAINT_NAME, temp, l, sizeof(temp));
-		BURP_verbose (207, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (207, temp);
 		// msg 207 writing constraint %s 
 		PUT_MESSAGE (att_rel_constraint_type, X.RDB$CONSTRAINT_TYPE);
 		PUT_TEXT (att_rel_constraint_rel_name, X.RDB$RELATION_NAME);
@@ -3530,7 +3530,7 @@ void write_relations(void)
 			put(tdgbl, rec_relation);
 			const SSHORT l = PUT_TEXT (att_relation_name, X.RDB$RELATION_NAME);
 			MISC_terminate (X.RDB$RELATION_NAME, temp, l, sizeof(temp));
-			BURP_verbose (153, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (153, temp);
 		/* msg 153 writing relation %.*s */
 
 		/* RDB$VIEW_BLR must be the first blob field in the backup file.
@@ -3581,7 +3581,7 @@ void write_relations(void)
 			put(tdgbl, rec_relation);
 			const SSHORT l = PUT_TEXT(att_relation_name, X.RDB$RELATION_NAME);
 			MISC_terminate (X.RDB$RELATION_NAME, temp, l, sizeof(temp));
-			BURP_verbose (153, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (153, temp);
 			/* msg 153 writing relation %.*s */
 			
 			/* RDB$VIEW_BLR must be the first blob field in the backup file.
@@ -3680,7 +3680,7 @@ void write_shadow_files(void)
 		put(tdgbl, rec_files);
 		const SSHORT l = PUT_TEXT (att_file_filename, X.RDB$FILE_NAME);
 		MISC_terminate (X.RDB$FILE_NAME, temp, l, sizeof(temp));
-		BURP_verbose (163, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (163, temp);
 		// msg 163 writing shadow file %s
 		put_numeric (att_file_sequence, X.RDB$FILE_SEQUENCE);
 		put_numeric (att_file_start, X.RDB$FILE_START);
@@ -3722,7 +3722,7 @@ void write_sql_roles(void)
 		PUT_TEXT (att_role_owner_name, X.RDB$OWNER_NAME);
 		put(tdgbl, att_end);
 		MISC_terminate (X.RDB$ROLE_NAME, temp, l, sizeof(temp));
-		BURP_verbose (249, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (249, temp);
 	// msg 249 writing SQL role: %s 
 		
 	END_FOR;
@@ -3766,7 +3766,7 @@ void write_triggers(void)
 			put(tdgbl, rec_trigger);
 			const SSHORT l = PUT_TEXT (att_trig_name, X.RDB$TRIGGER_NAME);
 			MISC_terminate (X.RDB$TRIGGER_NAME, temp, l, sizeof(temp));
-			BURP_verbose (156, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (156, temp);
 			// msg 156   writing trigger %s 
 		
 			PUT_TEXT (att_trig_relation_name, X.RDB$RELATION_NAME);
@@ -3798,7 +3798,7 @@ void write_triggers(void)
 			put(tdgbl, rec_trigger);
 			const SSHORT l = PUT_TEXT (att_trig_name, X.RDB$TRIGGER_NAME);
 			MISC_terminate (X.RDB$TRIGGER_NAME, temp, l, sizeof(temp));
-			BURP_verbose (156, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (156, temp);
 			// msg 156   writing trigger %s 
 			
 			PUT_TEXT (att_trig_relation_name, X.RDB$RELATION_NAME);
@@ -3864,7 +3864,7 @@ void write_trigger_messages(void)
 		put(tdgbl, rec_trigger_message);
 		const SSHORT l = PUT_TEXT (att_trigmsg_name, X.RDB$TRIGGER_NAME);
 		MISC_terminate (X.RDB$TRIGGER_NAME, temp, l, sizeof(temp));
-		BURP_verbose (157, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose (157, temp);
 		/* msg 157 writing trigger message for *s */
 		put_numeric (att_trigmsg_number, X.RDB$MESSAGE_NUMBER);
 		PUT_MESSAGE (att_trigmsg_text, X.RDB$MESSAGE);
@@ -3900,7 +3900,7 @@ void write_types(void)
 		put(tdgbl, rec_system_type);
 		PUT_TEXT (att_type_name, X.RDB$TYPE_NAME);
 		PUT_TEXT (att_type_field_name, X.RDB$FIELD_NAME);
-		BURP_verbose (160, X.RDB$TYPE_NAME, X.RDB$FIELD_NAME, NULL, NULL, NULL);
+		BURP_verbose (160, X.RDB$TYPE_NAME, X.RDB$FIELD_NAME);
 		// msg 160 writing type %s for field %s 
 		put_numeric (att_type_type, X.RDB$TYPE);
 		put_source_blob (att_type_description2, att_type_description, (ISC_QUAD *)&X.RDB$DESCRIPTION);
@@ -3941,7 +3941,7 @@ void write_user_privileges(void)
 			put(tdgbl, rec_user_privilege);
 			const SSHORT l = PUT_TEXT (att_priv_user, X.RDB$USER);
 			MISC_terminate (X.RDB$USER, temp, l, sizeof(temp));
-			BURP_verbose (152, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (152, temp);
 			// msg 152 writing privilege for user %s
 			PUT_TEXT (att_priv_grantor, X.RDB$GRANTOR);
 			PUT_TEXT (att_priv_privilege, X.RDB$PRIVILEGE);
@@ -3964,7 +3964,7 @@ void write_user_privileges(void)
 			put(tdgbl, rec_user_privilege);
 			const SSHORT l = PUT_TEXT (att_priv_user, X.RDB$USER);
 			MISC_terminate (X.RDB$USER, temp, l, sizeof(temp));
-			BURP_verbose (152, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (152, temp);
 			// msg 152 writing privilege for user %s
 			PUT_TEXT (att_priv_grantor, X.RDB$GRANTOR);
 			PUT_TEXT (att_priv_privilege, X.RDB$PRIVILEGE);

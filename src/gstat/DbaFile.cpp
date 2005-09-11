@@ -109,13 +109,20 @@ void DbaFile::read(UINT64 offset, int length, void* address)
 		
 		if (lastError != NO_ERROR)
 			// msg 30: Can't read a database page 
-			throw OSRIException(GSTAT_CODE(30), 0);
+			throw OSRIException(GSTAT_CODE(30), isc_arg_win32, lastError, 0);
 		}
 
 	if (!ReadFile(fil_desc, address, length, &ret, NULL))
 			// msg 30: Can't read a database page 
 			throw OSRIException(GSTAT_CODE(30), 0);
 #else
+	if (lseek (fil_desc, offset, 0) < 0) 
+		throw OSRIException(GSTAT_CODE(30), isc_arg_unix, errno, 0);
+	
+	int l = read(fil_desc, address, length);
+	
+	if (l <= 0)
+		throw OSRIException(GSTAT_CODE(30), isc_arg_unix, errno, 0);
 #endif
 	
 }

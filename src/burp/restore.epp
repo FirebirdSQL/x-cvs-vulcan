@@ -259,7 +259,7 @@ int RESTORE_restore (const TEXT* file_name,
 	if (!restore (file_name, database_name))
 		return FINI_ERROR;
 
-	BURP_verbose (76, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (76);
 	// msg 76 creating indexes 
 
 	COMMIT;
@@ -279,26 +279,26 @@ int RESTORE_restore (const TEXT* file_name,
 					FOR (REQUEST_HANDLE req_handle3)
 					 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name
 					 {
-						BURP_verbose(243, index_name, NULL, NULL, NULL, NULL);
+						BURP_verbose(243, index_name);
 						MODIFY IDX USING IDX.RDB$INDEX_INACTIVE = TRUE;
 					 }
-						BURP_print(240, index_name, NULL, NULL, NULL, NULL);
+						BURP_print(240, index_name);
 						/* msg 240 Index \"%s\" failed to activate because: */
 						if ( error_code == isc_no_dup )
 						{
-							BURP_print(241, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(241);
 							// msg 241 The unique index has duplicate values or NULLs 
-							BURP_print(242, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(242);
 							// msg 242 Delete or Update duplicate values or NULLs, and activate index with 
 						}
 						else
 						{
-							BURP_print(244, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(244);
 							// msg 244 Not enough disk space to create the sort file for an index 
-							BURP_print(245, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(245);
 							// msg 245 Set the TMP environment variable to a directory on a filesystem that does have enough space, and activate index with 
 						}
-						BURP_print(243, index_name, NULL, NULL, NULL, NULL);
+						BURP_print(243, index_name);
 						/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 						END_MODIFY;
 					END_FOR;
@@ -339,7 +339,7 @@ int RESTORE_restore (const TEXT* file_name,
 				SAVE
 				// existing ON_ERROR continues past error, beck 
 				ON_ERROR
-					BURP_print (173, IDS.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
+					BURP_print (173, IDS.RDB$INDEX_NAME);
 					BURP_print_status(isc_status);
 					MODIFY IDS USING
 						IDS.RDB$INDEX_INACTIVE = TRUE;
@@ -348,7 +348,7 @@ int RESTORE_restore (const TEXT* file_name,
 						general_on_error ();
 					END_ERROR;
 				END_ERROR;
-				BURP_verbose(122, IDS.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
+				BURP_verbose(122, IDS.RDB$INDEX_NAME);
 			END_FOR;
 			ON_ERROR
 				general_on_error ();
@@ -387,7 +387,7 @@ int RESTORE_restore (const TEXT* file_name,
 			SAVE
 			// existing ON_ERROR continues past error, beck 
 			ON_ERROR
-				BURP_print (173, IDS.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
+				BURP_print (173, IDS.RDB$INDEX_NAME);
 				BURP_print_status(isc_status);
 				MODIFY IDS USING
 					IDS.RDB$INDEX_INACTIVE = TRUE;
@@ -396,7 +396,7 @@ int RESTORE_restore (const TEXT* file_name,
 					general_on_error ();
 				END_ERROR;
 			END_ERROR;
-			BURP_verbose(122, IDS.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
+			BURP_verbose(122, IDS.RDB$INDEX_NAME);
 		END_FOR;
 		ON_ERROR
 			general_on_error ();
@@ -410,7 +410,7 @@ int RESTORE_restore (const TEXT* file_name,
 
 	if (tdgbl->global_trans)
 	{
-		BURP_verbose (68, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (68);
 		// msg 68 committing meta data 
 		EXEC SQL COMMIT TRANSACTION tdgbl->global_trans;
 		if (gds_status[1])
@@ -523,7 +523,7 @@ int RESTORE_restore (const TEXT* file_name,
 		BURP_print_warning(gds_status);
 	}
 
-	BURP_verbose (88, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (88);
 	// msg 88 finishing, closing, and going home 
 
 	UINT64 cumul_count = MVOL_fini_read();
@@ -585,9 +585,9 @@ int RESTORE_restore (const TEXT* file_name,
 
 	if (!flag_on_line)
 		{
-		BURP_print(246, NULL, NULL, NULL, NULL, NULL);
+		BURP_print(246);
 		// msg 246 Database is not online due to failure to activate one or more indices. 
-		BURP_print(247, NULL, NULL, NULL, NULL, NULL);
+		BURP_print(247);
 		// msg 247 Run gfix -online to bring database online without active indices. 
 		return FINI_DB_NOT_ONLINE;
 		}
@@ -596,7 +596,7 @@ int RESTORE_restore (const TEXT* file_name,
 	
 	if (tdgbl->gbl_sw_mode && tdgbl->gbl_sw_mode_val)
 		{
-		BURP_verbose (280, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (280);
 		// msg 280: setting database to read-only access 
 
 		d = dpb;
@@ -695,12 +695,12 @@ void add_files (const UCHAR* file_name)
 
 	if (count)
 	{
-		BURP_verbose (70, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (70);
 		  // msg 70 committing secondary files
 		COMMIT
 		// existing ON_ERROR continues past error, beck
 		ON_ERROR
-			BURP_print (174, NULL, NULL, NULL, NULL, NULL);
+			BURP_print (174);
 				// msg 174 cannot commit files
 			BURP_print_status (tdgbl->status_vector);
 			ROLLBACK;
@@ -741,7 +741,7 @@ void bad_attribute (scan_attr_t		scan_next_attr,
         TEXT t_name[128];
 		gds__msg_format(NULL, 12, type, sizeof(t_name), t_name, NULL, NULL,
 						NULL, NULL, NULL);
-		BURP_print (80, t_name, (void*) bad_attr, NULL, NULL, NULL);
+		BURP_print (80, t_name, bad_attr);
 		// msg 80  don't recognize %s attribute %ld -- continuing 
 		const SSHORT skip_l = get(tdgbl);
 		if (skip_l)
@@ -1014,7 +1014,7 @@ void create_database (const TEXT* file_name)
 
 	if (tdgbl->gbl_sw_version)
 	{
-		BURP_print(139, file_name, NULL, NULL, NULL, NULL);
+		BURP_print(139, file_name);
 		/* msg 139 Version(s) for database "%s" */
 		isc_version(&DB, BURP_output_version, (void*) "\t%s\n");
 	}
@@ -1718,7 +1718,7 @@ void get_array (BURP_REL	relation,
 				elements_written * field->fld_length,
 				buffer + data_at))
 			{
-				BURP_print (81, field->fld_name, NULL, NULL, NULL, NULL);
+				BURP_print (81, field->fld_name);
 				// msg 81 error accessing blob field %s -- continuing 
 				BURP_print_status (status_vector);
 #ifdef DEBUG
@@ -1840,7 +1840,7 @@ void get_array (BURP_REL	relation,
 						   NULL,  // param for subset of an array handling 
 						return_length, buffer))
 		{
-			BURP_print (81, field->fld_name, NULL, NULL, NULL, NULL);
+			BURP_print (81, field->fld_name);
 			// msg 81 error accessing blob field %s -- continuing 
 			BURP_print_status (status_vector);
 #ifdef DEBUG
@@ -2077,7 +2077,7 @@ bool get_character_set()
 				X.RDB$CHARACTER_SET_NAME.NULL = FALSE;
 				GET_TEXT(X.RDB$CHARACTER_SET_NAME);
 				BURP_verbose (msgVerbose_restore_charset,
-							  X.RDB$CHARACTER_SET_NAME, NULL, NULL, NULL, NULL);
+							  X.RDB$CHARACTER_SET_NAME);
 				break;
 
 			case att_charset_form:
@@ -2220,8 +2220,7 @@ bool get_collation()
 			case att_coll_name:
 				X.RDB$COLLATION_NAME.NULL = FALSE;
 				GET_TEXT(X.RDB$COLLATION_NAME);
-				BURP_verbose(msgVerbose_restore_collation, X.RDB$COLLATION_NAME,
-							 NULL, NULL, NULL, NULL);
+				BURP_verbose(msgVerbose_restore_collation, X.RDB$COLLATION_NAME);
 				break;
 
 			case att_coll_id:
@@ -2482,7 +2481,7 @@ rec_type get_data (BURP_REL	relation)
 	BURP_free (blr_buffer);
 	SSHORT* buffer = NULL;
 
-	BURP_verbose (124, relation->rel_name, NULL, NULL, NULL, NULL);
+	BURP_verbose (124, relation->rel_name);
 	// msg 124  restoring data for relation %s 
 	
 	LSTRING data;
@@ -2583,7 +2582,7 @@ rec_type get_data (BURP_REL	relation)
 			{
 				if (tdgbl->gbl_sw_incremental)
 				{
-					BURP_print (138, relation->rel_name, NULL, NULL, NULL, NULL);
+					BURP_print (138, relation->rel_name);
 					// msg 138 validation error on field in relation %s 
 					BURP_print_status (status_vector);
 				}
@@ -2594,7 +2593,7 @@ rec_type get_data (BURP_REL	relation)
 			else {
 				if (tdgbl->gbl_sw_incremental)
 				{
-					BURP_print (114, relation->rel_name, NULL, NULL, NULL, NULL);
+					BURP_print (114, relation->rel_name);
 					// msg 114 restore failed for record in relation %s 
 					BURP_print_status (status_vector);
 				}
@@ -2614,7 +2613,7 @@ rec_type get_data (BURP_REL	relation)
 	isc_release_request(status_vector, &request);
 	if (tdgbl->gbl_sw_incremental)
 	{
-		BURP_verbose (72, relation->rel_name, NULL, NULL, NULL, NULL);
+		BURP_verbose (72, relation->rel_name);
 		// msg 72  committing data for relation %s 
 		COMMIT
 		// existing ON_ERROR continues past error, beck 
@@ -2635,23 +2634,23 @@ rec_type get_data (BURP_REL	relation)
 						FOR (REQUEST_HANDLE req_handle)
 						 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name
 							MODIFY IDX USING IDX.RDB$INDEX_INACTIVE = TRUE;
-							BURP_print(240, index_name, NULL, NULL, NULL, NULL);
+							BURP_print(240, index_name);
 							/* msg 240 Index \"%s\" failed to activate because: */
 							if ( error_code == isc_no_dup )
 							{
-								BURP_print(241, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(241);
 								// msg 241 The unique index has duplicate values or NULLs 
-								BURP_print(242, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(242);
 								// msg 242 Delete or Update duplicate values or NULLs, and activate index with 
 							}
 							else
 							{
-								BURP_print(244, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(244);
 								// msg 244 Not enough disk space to create the sort file for an index 
-								BURP_print(245, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(245);
 								// msg 245 Set the TMP environment variable to a directory on a filesystem that does have enough space, and activate index with 
 							}
-							BURP_print(243, index_name, NULL, NULL, NULL, NULL);
+							BURP_print(243, index_name);
 							/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 							END_MODIFY;
 						END_FOR;
@@ -2664,7 +2663,7 @@ rec_type get_data (BURP_REL	relation)
 						END_ERROR
 						break;
 					default:
-						BURP_print (69, relation->rel_name, NULL, NULL, NULL, NULL);
+						BURP_print (69, relation->rel_name);
 						// msg 69 commit failed on relation %s 
 						BURP_print_status (tdgbl->status_vector);
 						ROLLBACK;
@@ -2717,7 +2716,7 @@ bool get_exception(void)
 			case att_exception_name:
 				l = GET_TEXT(X.RDB$EXCEPTION_NAME);
 				MISC_terminate (X.RDB$EXCEPTION_NAME, temp, l, sizeof(temp));
-				BURP_verbose (199, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (199, temp);
 				// msg 199 restoring exception %s 
 				break;
 
@@ -2809,7 +2808,7 @@ BURP_FLD get_field (BURP_REL	relation)
 			{
 			case att_field_name:
 				field->fld_name_length = GET_TEXT(field->fld_name);
-				BURP_verbose (115, field->fld_name, NULL, NULL, NULL, NULL);
+				BURP_verbose (115, field->fld_name);
 				// msg 115 restoring field %s
 				strcpy (X.RDB$FIELD_NAME, field->fld_name);
 				break;
@@ -3051,7 +3050,7 @@ bool get_files()
 			case att_file_filename:
 				GET_TEXT(X.RDB$FILE_NAME);
 				BURP_verbose (116,
-					X.RDB$FILE_NAME, NULL, NULL, NULL, NULL);
+					X.RDB$FILE_NAME);
 				// msg 116 restoring file %s 
 				break;
 
@@ -3118,7 +3117,7 @@ bool get_filter()
 			{
 			case att_filter_name:
 				GET_TEXT(X.RDB$FUNCTION_NAME);
-				BURP_verbose (117, X.RDB$FUNCTION_NAME, NULL, NULL, NULL, NULL);
+				BURP_verbose (117, X.RDB$FUNCTION_NAME);
 				// msg 117 restoring filter %s 
 				break;
 
@@ -3192,7 +3191,7 @@ bool get_function()
 			case att_function_name:
 				l = GET_TEXT(X.RDB$FUNCTION_NAME);
 				MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-				BURP_verbose (118, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (118, temp);
 				// msg 118 restoring function %s 
 				break;
 
@@ -3279,7 +3278,7 @@ void get_function_arg()
 				case att_functionarg_name:
 					l = GET_TEXT(X.RDB$FUNCTION_NAME);
 					MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-					BURP_verbose (119, temp, NULL, NULL, NULL, NULL);
+					BURP_verbose (119, temp);
 					// msg 119 restoring argument for function %s 
 					break;
 
@@ -3345,7 +3344,7 @@ void get_function_arg()
 				case att_functionarg_name:
 					l = GET_TEXT(X.RDB$FUNCTION_NAME);
 					MISC_terminate (X.RDB$FUNCTION_NAME, temp, l, sizeof(temp));
-					BURP_verbose (119, temp, NULL, NULL, NULL, NULL);
+					BURP_verbose (119, temp);
 					// msg 119 restoring argument for function %s 
 					break;
 
@@ -3509,7 +3508,7 @@ bool get_global_field()
 				case att_field_name:
 					l = GET_TEXT(X.RDB$FIELD_NAME);
 					MISC_terminate (X.RDB$FIELD_NAME, temp, l, sizeof(temp));
-					BURP_verbose (121, temp, NULL, NULL, NULL, NULL);
+					BURP_verbose (121, temp);
 					// msg 121  restoring global field %s 
 					break;
 
@@ -3785,7 +3784,7 @@ bool get_global_field()
 				case att_field_name:
 					l = GET_TEXT(X.RDB$FIELD_NAME);
 					MISC_terminate (X.RDB$FIELD_NAME, temp, l, sizeof(temp));
-					BURP_verbose (121, temp, NULL, NULL, NULL, NULL);
+					BURP_verbose (121, temp);
 					// msg 121  restoring global field %s 
 					break;
 
@@ -4068,7 +4067,7 @@ bool get_index (const burp_rel* relation)
 			case att_index_name:
 				GET_TEXT(X.RDB$INDEX_NAME);
 				strcpy (index_name, X.RDB$INDEX_NAME);
-				BURP_verbose (122, X.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
+				BURP_verbose (122, X.RDB$INDEX_NAME);
 				break;
 
 			case att_segment_count:
@@ -4346,7 +4345,7 @@ bool get_procedure()
 						procedure->prc_name_length = l;
 						strcpy (procedure->prc_name, X.RDB$PROCEDURE_NAME);
 				MISC_terminate (X.RDB$PROCEDURE_NAME, temp, l, sizeof(temp));
-				BURP_verbose (195, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (195, temp);
 				// msg 195 restoring stored procedure %s 
 				break;
 
@@ -4453,7 +4452,7 @@ bool get_procedure_prm (GDS_NAME	procptr)
 			case att_procedureprm_name:
 				l = GET_TEXT(X.RDB$PARAMETER_NAME);
 				MISC_terminate (X.RDB$PARAMETER_NAME, temp, l, sizeof(temp));
-				BURP_verbose (196, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (196, temp);
 				// msg 196 restoring parameter %s for stored procedure 
 				break;
 
@@ -4631,7 +4630,7 @@ bool get_relation()
 			l = GET_TEXT(relation->rel_name);
 			relation->rel_name_length = l;
 			MISC_terminate (relation->rel_name, temp, l, sizeof(temp));
-			BURP_verbose (167, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (167, temp);
 			// msg 167 restoring relation %s 
 			break;
 
@@ -4750,12 +4749,12 @@ bool get_relation()
 		case rec_relation_end:
 			if (tdgbl->gbl_sw_incremental)
 			{
-				BURP_verbose (170, relation->rel_name, NULL, NULL, NULL, NULL);
+				BURP_verbose (170, relation->rel_name);
 				// msg 170: committing metadata for relation %s 
 				COMMIT
 				// existing ON_ERROR continues past error, beck 
 				ON_ERROR
-					BURP_print (171, relation->rel_name, NULL, NULL, NULL, NULL);
+					BURP_print (171, relation->rel_name);
 					// msg 171: error committing metadata for relation %s 
 					BURP_print_status (tdgbl->status_vector);
 					ROLLBACK;
@@ -4793,7 +4792,7 @@ bool get_relation()
 	   was once embedded into rec_relation ... otherwise, meta commit happens
 	   when we see the first rec_relation_data */
 
-	BURP_verbose (68, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (68);
 	// msg 68 committing meta data 
 
 	COMMIT;
@@ -5011,7 +5010,7 @@ bool get_sql_roles()
 				** msg 251, restoring SQL role: %s
 				**
 				*************************************************/
-				BURP_verbose (251, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (251, temp);
 				break;
 
 			case att_role_owner_name:
@@ -5103,13 +5102,13 @@ bool get_security_class()
 				if (!is_valid_sec_class)
 				{
 					MISC_terminate (X.RDB$SECURITY_CLASS, temp, l, sizeof(temp));
-					BURP_print (234, temp, NULL, NULL, NULL, NULL);
+					BURP_print (234, temp);
 					// msg 234   Skipped bad security class entry: %s 
 					break;
 				}
 
 				MISC_terminate (X.RDB$SECURITY_CLASS, temp, l, sizeof(temp));
-				BURP_verbose (125, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (125, temp);
 					// msg 125   restoring security class %s 
 				break;
 
@@ -5336,7 +5335,7 @@ bool get_trigger_old (
 			*p++ = *q++;
 		}
 		*p = 0;
-		BURP_verbose (126, X.RDB$TRIGGER_NAME, NULL, NULL, NULL, NULL);
+		BURP_verbose (126, X.RDB$TRIGGER_NAME);
 		// msg 126 restoring trigger %s 
 		strncpy (X.RDB$RELATION_NAME, relation->rel_name, GDS_NAME_LEN);
 		strcpy (name, X.RDB$TRIGGER_NAME);
@@ -5353,7 +5352,7 @@ bool get_trigger_old (
 		COMMIT
 		// existing ON_ERROR continues past error, beck 
 		ON_ERROR
-			BURP_print (94, name, NULL, NULL, NULL, NULL);
+			BURP_print (94, name);
 			// msg 94 trigger %s is invalid 
 			BURP_print_status (tdgbl->status_vector);
 			ROLLBACK;
@@ -5430,7 +5429,7 @@ bool get_trigger()
 			case att_trig_name:
 				GET_TEXT(X.RDB$TRIGGER_NAME);
 				strcpy (name, X.RDB$TRIGGER_NAME);
-				BURP_verbose (126, X.RDB$TRIGGER_NAME, NULL, NULL, NULL, NULL);
+				BURP_verbose (126, X.RDB$TRIGGER_NAME);
 				// msg 126 restoring trigger %s 
 				break;
 
@@ -5477,7 +5476,7 @@ bool get_trigger()
 		COMMIT
 		// existing ON_ERROR continues past error, beck 
 		ON_ERROR
-			BURP_print (94, name, NULL, NULL, NULL, NULL);
+			BURP_print (94, name);
 			// msg 94 trigger %s is invalid 
 			BURP_print_status (tdgbl->status_vector);
 			ROLLBACK;
@@ -5531,7 +5530,7 @@ bool get_trigger_message()
 			ON_ERROR
 				general_on_error ();
 			END_ERROR;
-			BURP_verbose (127, name, NULL, NULL, NULL, NULL);
+			BURP_verbose (127, name);
 			// msg 127 restoring trigger message for %s 
 			break;
 
@@ -5572,7 +5571,7 @@ bool get_trigger_message()
 		COMMIT
 		// existing ON_ERROR continues past error, beck 
 		ON_ERROR
-			BURP_print (94, name, NULL, NULL, NULL, NULL);
+			BURP_print (94, name);
 			// msg 94 trigger %s is invalid 
 			BURP_print_status (tdgbl->status_vector);
 			ROLLBACK;
@@ -5651,7 +5650,7 @@ bool get_type()
 		}
 
 		MISC_terminate (X.RDB$TYPE_NAME, temp, l, sizeof(temp));
-		BURP_verbose (128, temp, X.RDB$FIELD_NAME, NULL, NULL, NULL);
+		BURP_verbose (128, temp, X.RDB$FIELD_NAME);
 		// msg 128  restoring type %s for field %s 
 
 	END_STORE;
@@ -5701,7 +5700,7 @@ bool get_user_privilege()
 			// default USER_TYPE to USER 
 			flags |= USER_PRIV_USER;
 			GET_TEXT(user);
-			BURP_verbose (123, user, NULL, NULL, NULL, NULL);
+			BURP_verbose (123, user);
 			// msg 123 restoring privilege for user %s 
 			break;
 
@@ -6297,10 +6296,10 @@ bool restore (const TEXT* file_name,
 		&tdgbl->RESTORE_format, &tdgbl->io_cnt, &tdgbl->io_ptr);
 
 	if (tdgbl->gbl_sw_transportable)
-		BURP_verbose (133, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (133);
 		// msg 133 transportable backup -- data in XDR format 
 	if (tdgbl->gbl_sw_compress)
-		BURP_verbose (61, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (61);
 		// msg 61 backup file is compressed 
 
 
@@ -6334,7 +6333,7 @@ bool restore (const TEXT* file_name,
 		// msg 51 database format %ld is too old to restore to 
 	}
 
-	BURP_verbose (129, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (129);
 	// msg 129 started transaction 
 
 	while (get_attribute(&attribute, tdgbl) != att_end)
@@ -6499,7 +6498,7 @@ bool restore (const TEXT* file_name,
 		case rec_relation_data:
 			if (flag)
 			{
-				BURP_verbose (68, NULL, NULL, NULL, NULL, NULL);
+				BURP_verbose (68);
 				// msg 68 committing meta data 
 				COMMIT;
 				ON_ERROR
