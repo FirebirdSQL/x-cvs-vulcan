@@ -3120,7 +3120,7 @@ ISC_STATUS GDS_SERVICE_ATTACH(ISC_STATUS* user_status,
 
 	try
 		{
-		*svc_handle = SVC_attach(service_length, service_name, spb_length, spb);
+		*svc_handle = SVC_attach(service_name, spb_length, spb);
 		}
 	catch (OSRIException& exception)
 		{

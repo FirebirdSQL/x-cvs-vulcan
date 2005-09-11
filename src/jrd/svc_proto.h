@@ -32,7 +32,7 @@ class Service;
 
 struct thread_db;
 
-Service* SVC_attach(ConfObject* configuration, USHORT, const TEXT*, USHORT, const UCHAR*);
+Service* SVC_attach(ConfObject* configuration, const TEXT*, USHORT, const UCHAR*);
 void   SVC_cleanup(Service *);
 void   SVC_detach(Service *);
 void   SVC_fprintf(Service*, const SCHAR*, ...);

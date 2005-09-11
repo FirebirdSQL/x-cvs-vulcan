@@ -389,7 +389,6 @@ static const serv services[] =
 
 
 Service* SVC_attach(ConfObject* configuration, 
-					USHORT			service_length,
 					const TEXT*		service_name,
 					USHORT			spb_length,
 					const UCHAR*	spb)
@@ -416,6 +415,8 @@ Service* SVC_attach(ConfObject* configuration,
 
 	/* If the service name begins with a slash, ignore it. */
 
+	int service_length = (int) strlen(service_name);
+	
 	if (*service_name == '/' || *service_name == '\\') 
 		{
 		service_name++;
