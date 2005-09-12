@@ -1,3 +1,20 @@
+2005-09-11 23:26  jimstarkey
+
+	* vulcan/src/: Services/Services.cpp, jrd/jrd.cpp, jrd/svc.cpp,
+	jrd/svc_proto.h:
+	
+	Work in progress on services provider
+
+2005-09-11 22:39  jimstarkey
+
+	* vulcan/src/: Services/Services.vcproj, burp/backup.epp,
+	burp/burp.cpp, burp/burp.vcproj, burp/mvol.cpp, burp/restore.epp,
+	gstat/DbaData.cpp, gstat/DbaFile.cpp, gstat/DbaIndex.cpp,
+	gstat/DbaRelation.cpp, gstat/DbaRelation.h, gstat/dba.epp,
+	gstat/gstat.vcproj:
+	
+	Work in progress on utilties and services provider
+
 2005-09-09 23:16  jimstarkey
 
 	* vulcan/src/: gstat/DbaData.cpp, gstat/DbaData.h,
