@@ -436,6 +436,7 @@ const static size_t RESULT_SIZE = (1 + 4 + 4 + 11 + 1);
  */
 void ENC_crypt(TEXT* buf, size_t bufSize, const TEXT* key, const TEXT* setting)
 {
+	const TEXT *orgKey = key;
 	fb_assert(bufSize >= RESULT_SIZE);
 
 	SLONG i;

@@ -123,11 +123,13 @@ static in_sw_tab_t alice_in_sw_table[] =
 	{IN_SW_ALICE_ATTACH, 0, "attach", sw_attach,
 	sw_shut, 0, FALSE, 26, 0, NULL},
 	// msg 26: \t-attach\tshutdown new database attachments 
+	
 #ifdef DEV_BUILD
 	{IN_SW_ALICE_BEGIN_LOG, 0, "begin_log", sw_begin_log,
 	0, ~(sw_begin_log | sw_user | sw_password), FALSE, 27, 0, NULL},
 	// msg 27: \t-begin_log\tbegin logging for replay utility 
 #endif
+
 	{IN_SW_ALICE_BUFFERS, isc_spb_prp_page_buffers, "buffers", sw_buffers,
 	0, 0, FALSE, 28, 0, NULL},
 	/* msg 28: \t-buffers\tset page buffers <n> */
@@ -137,11 +139,13 @@ static in_sw_tab_t alice_in_sw_table[] =
 	{IN_SW_ALICE_CACHE, 0, "cache", sw_cache,
 	sw_shut, 0, FALSE, 30, 0, NULL},
 	// msg 30: \t-cache\t\tshutdown cache manager 
+	
 #ifdef DEV_BUILD
 	{IN_SW_ALICE_DISABLE, 0, "disable", sw_disable,
 	0, 0, FALSE, 31, 0, NULL},
 	// msg 31: \t-disable\tdisable WAL 
 #endif
+
 	{IN_SW_ALICE_FULL, isc_spb_rpr_full, "full", sw_full,
 	sw_validate, 0, FALSE, 32, 0, NULL},
 	// msg 32: \t-full\t\tvalidate record fragments (-v) 
@@ -179,11 +183,13 @@ static in_sw_tab_t alice_in_sw_table[] =
 	{IN_SW_ALICE_PASSWORD, 0, "password", sw_password,
 	0, 0, FALSE, 42, 0, NULL},
 	// msg 42: \t-password\tdefault password 
+	
 #ifdef DEV_BUILD
 	{IN_SW_ALICE_QUIT_LOG, 0, "quit_log", sw_quit_log,
 	0, ~(sw_quit_log | sw_user | sw_password), FALSE, 43, 0, NULL},
 	// msg 43: \t-quit_log\tquit logging for replay utility 
 #endif
+
 	{IN_SW_ALICE_ROLLBACK, isc_spb_rpr_rollback_trans, "rollback", sw_rollback,
 	0, ~(sw_rollback | sw_user | sw_password), FALSE, 44, 0, NULL},
 	/* msg 44: \t-rollback\trollback transaction <tr / all> */
@@ -224,11 +230,13 @@ static in_sw_tab_t alice_in_sw_table[] =
 	{IN_SW_ALICE_WRITE, 0, "write", sw_write,
 	0, ~(sw_write | sw_user | sw_password), FALSE, 52, 0, NULL},
 	// msg 52: \t-write\t\twrite synchronously or asynchronously 
+	
 #ifdef DEV_BUILD
 	{IN_SW_ALICE_X, 0, "x", 0,
 	0, 0, FALSE, 53, 0, NULL},
 	// msg 53: \t-x\t\tset debug on 
 #endif
+
 	{IN_SW_ALICE_Z, 0, "z", sw_z,
 	0, 0, FALSE, 54, 0, NULL},
 	// msg 54: \t-z\t\tprint software version number 

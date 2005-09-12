@@ -354,7 +354,7 @@ void SecurityDatabase::verifyUser(const TEXT* securityDatabase,
 		
 	TEXT pw2[ENCRYPT_SIZE];
 	//strcpy(pw2, ENC_crypt(password_enc, PASSWORD_SALT));
-	ENC_crypt(pw2, sizeof(pw2), password_enc, PASSWORD_SALT);
+	ENC_crypt(pw2, sizeof(pw2), password_enc + 2, PASSWORD_SALT);
 	
 	if (strncmp(pw1, pw2 + 2, 11))
 		ERR_post(isc_login, 0);

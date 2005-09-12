@@ -240,28 +240,33 @@ int CLIB_ROUTINE main(int argc, char* argv[])
 	sw_user = sw_password = sw_service = d_user = d_password = d_service = NULL;
 
 	/* Parse the command line for the -USER, -PASSWORD, -SERVICE,
-	and -VERBOSE options. Calculate a length for the new command line to be
-	passed to a server using services APIs */
+	   and -VERBOSE options. Calculate a length for the new command line to be
+	   passed to a server using services APIs */
 
 	while (argvp < end && !err)
 		{
 		TEXT* string = *argvp++;
+		
 		if (*string != '-') 
 			{
 			total += strlen(string) + 1;
 			continue;
 			}
+			
 		if (!string[1])
 			string = "-*NONE*";
+			
 		const in_sw_tab_t* in_sw_tab = burp_in_sw_table;
 		const TEXT* q;
 		
 		for (; q = in_sw_tab->in_sw_name; in_sw_tab++)
 			{
 			TEXT c;
+			
 			for (const TEXT *p = string + 1; c = *p++;)
 				if (UPPER(c) != *q++)
 					break;
+					
 			if (!c)
 				break;
 			}
@@ -277,10 +282,11 @@ int CLIB_ROUTINE main(int argc, char* argv[])
 			case IN_SW_BURP_USER:	// default user name 
 				if (argvp >= end)
 					err = true;
-				else {
+				else 
+					{
 					sw_user = string;
 					d_user = *argvp++;
-				}
+					}
 				break;
 				
 			case IN_SW_BURP_PASS:	// default password 

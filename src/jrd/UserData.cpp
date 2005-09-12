@@ -351,7 +351,7 @@ JString UserData::getOldPasswordHash(void)
 		ENC_crypt(pw2, sizeof(pw2), pw1 + 2, PASSWORD_SALT);
 		}
 	else
-		ENC_crypt(pw2, sizeof(pw2), encryptedPassword, PASSWORD_SALT);
+		ENC_crypt(pw2, sizeof(pw2), (const char*) encryptedPassword + 2, PASSWORD_SALT);
 		
 	
 	return pw2 + 2;
