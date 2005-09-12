@@ -5575,7 +5575,7 @@ static bool get_new_dpb(const UCHAR*	dpb,
  *	(Based on JRD get_options())
  *
  **************************************/
-	UCHAR	pw_buffer[MAX_PASSWORD_ENC_LENGTH + 6];
+	TEXT	pw_buffer[MAX_PASSWORD_ENC_LENGTH + 6];
 
 	*user_string = 0;
 	*new_dpb_length = 0;
@@ -5644,20 +5644,21 @@ static bool get_new_dpb(const UCHAR*	dpb,
 	bool moved_some = false;
 	
 	while (p < end_dpb)
-	{
+		{
 		const UCHAR c = *p++;
 		*s++ = c;
+		
 		if (c == pb_sys_user_name)
 			{
 			s--;
 			UCHAR* q = (UCHAR *) user_string;
 			SSHORT l = *p++;
+			
 			if (l)
-				{
 				do {
 					*q++ = *p++;
 				} while (--l);
-				}
+
 			*q = 0;
 			}
 		else if (c == pb_password)
@@ -5672,14 +5673,14 @@ static bool get_new_dpb(const UCHAR*	dpb,
 			{
 			if (c == pb_user_name)
 				result = true;
+				
 			moved_some = true;
 			SSHORT l = *p++;
+			
 			if (*s++ = static_cast<UCHAR>(l))
-				{
 				do {
 					*s++ = *p++;
 				} while (--l);
-				}
 			}
 		}
 
@@ -5689,6 +5690,7 @@ static bool get_new_dpb(const UCHAR*	dpb,
 		moved_some = true;
 		*s++ = pb_password;
 		*s++ = password_length;
+		
 		do {
 			*s++ = *password++;
 		} while (--password_length);
@@ -5702,11 +5704,12 @@ static bool get_new_dpb(const UCHAR*	dpb,
 		strncpy((char*) pw_buffer, (const char*) password, l);
 		pw_buffer[l] = 0;
 		char temp[ENCRYPT_SIZE];
-		p = (UCHAR *) ENC_crypt(reinterpret_cast<char*>(pw_buffer),PASSWORD_SALT, temp) + 2;
-		*s++ = strlen((const char*) p);
-		while (*p)
+		ENC_crypt(pw_buffer, sizeof(pw_buffer) ,PASSWORD_SALT, temp);
+		*s++ = (UCHAR) strlen(pw_buffer);
+		
+		for (p = (UCHAR*) pw_buffer; *p;)
 			*s++ = *p++;
-	}
+		}
 #endif
 
 	if (moved_some || ((s - new_dpb) > 1))
