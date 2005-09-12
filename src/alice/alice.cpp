@@ -108,7 +108,8 @@ static int output_main(Service*, const UCHAR*);
 #endif
 
 static int common_main(int, char**, pfn_svc_output, Service*);
-static void alice_output(AliceGlobals* tdgbl, const SCHAR*, ...) ATTRIBUTE_FORMAT(1,2);
+static void alice_output(AliceGlobals* tdgbl, const SCHAR*, ...);
+//ATTRIBUTE_FORMAT(1,2);
 
 
 

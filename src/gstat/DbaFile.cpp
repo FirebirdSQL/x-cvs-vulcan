@@ -41,6 +41,11 @@
 #include <Windows.h>
 #else
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
 #endif
 
 
@@ -61,10 +66,10 @@ void DbaFile::close(void)
 #ifdef WIN_NT
 	CloseHandle((HANDLE) fil_desc);
 #else
-	close((int) desc);
+	::close(fil_desc);
 #endif
 
-	fil_desc = NULL;
+	fil_desc = 0;
 }
 
 void DbaFile::open(void)
@@ -90,7 +95,7 @@ void DbaFile::open(void)
 							isc_arg_win32, GetLastError(), 0);
 		***/
 #else
-	if ((fil_desc = (void*)(IPTR) open(fil_string, O_RDONLY)) == -1)
+	if ((fil_desc = ::open(fil_string, O_RDONLY)) == -1)
 		throw OSRIException(GSTAT_CODE(29), isc_arg_string, (const char*) fil_string, 0);
 #endif
 }
@@ -119,7 +124,7 @@ void DbaFile::read(UINT64 offset, int length, void* address)
 	if (lseek (fil_desc, offset, 0) < 0) 
 		throw OSRIException(GSTAT_CODE(30), isc_arg_unix, errno, 0);
 	
-	int l = read(fil_desc, address, length);
+	int l = ::read(fil_desc, address, length);
 	
 	if (l <= 0)
 		throw OSRIException(GSTAT_CODE(30), isc_arg_unix, errno, 0);

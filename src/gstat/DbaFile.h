@@ -31,6 +31,12 @@
 #ifndef _DBA_FILE_H
 #define _DBA_FILE_H
 
+#ifdef WIN_NT
+typedef void*	FileDesc;
+#else
+typedef int		FileDesc;
+#endif
+
 #include "JString.h"
 
 class DbaFile
@@ -42,10 +48,9 @@ public:
 	ULONG		fil_min_page;			/* Minimum page number in file */
 	ULONG		fil_max_page;			/* Maximum page number in file */
 	USHORT		fil_fudge;			/* Fudge factor for page relocation */
-	void		*fil_desc;
-	//USHORT	fil_length;			/* Length of expanded file name */
-	//SCHAR		fil_string[1];		/* Expanded file name */
+	FileDesc	fil_desc;
 	JString		fil_string;
+
 	void close(void);
 	void open(void);
 	void read(UINT64 offset, int length, void* address);

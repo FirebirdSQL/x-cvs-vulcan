@@ -5,7 +5,7 @@ ln -s  buildgen.$1 ../install/bin/buildgen
 cat <<end >setup.sed
 s/proto/$1/
 end
-for x in config gpre why jrd remote intlcpp burp msgs qli isql server lock IscDbc XLoad ThreadTest ; do
+for x in config gpre why jrd remote intlcpp burp msgs qli isql server lock IscDbc alice gsec gstat Services XLoad ThreadTest ; do
 	(
 	echo $x
 	cd $x

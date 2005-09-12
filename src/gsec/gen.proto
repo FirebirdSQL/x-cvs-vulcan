@@ -1,0 +1,3 @@
+buildgen -p proto -c gsec -f ../../vulcan.build -o makefile gsec.vcproj $*
+buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  gsec.vcproj $*
+buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  gsec.vcproj $*

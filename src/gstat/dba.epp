@@ -568,10 +568,10 @@ int dba_main(int argc, char** argv, Service *service)
 		// msg 7: \n\nDatabase file sequence: 
 		
 		for (current = tddba->files; current->fil_next; current = current->fil_next)
-			dba_print(tddba, 8, current->fil_string, current->fil_next->fil_string);
+			dba_print(tddba, 8, (const char*) current->fil_string, (const char*) current->fil_next->fil_string);
 			//* msg 8: File %s continues as file %s
 
-		dba_print(tddba, 9, current->fil_string,
+		dba_print(tddba, 9, (const char*) current->fil_string,
 			(const TEXT*)((current == tddba->files) ? "only" : "last"), 0);
 			// msg 9: File %s is the %s file\n
 
@@ -743,12 +743,12 @@ int dba_main(int argc, char** argv, Service *service)
 
 		/* Print results */
 
-		for (const DbaRelation* relation = tddba->relations; relation; relation = relation->rel_next)
+		for (DbaRelation* relation = tddba->relations; relation; relation = relation->rel_next)
 			{
 			if (relation->rel_id == -1) 
 				continue;
 
-			FPRINTF(sw_outfile, "%s (%d)\n", relation->rel_name, relation->rel_id);
+			FPRINTF(sw_outfile, "%s (%d)\n", (const char*) relation->rel_name, relation->rel_id);
 			
 			if (sw_data)
 				{
@@ -1263,8 +1263,8 @@ static const pag* db_read(DbaData* tddba, SLONG page_number)
 #endif // OBSOLETE
 
 
+#ifdef OBSOLETE
 #ifndef WIN_NT
-
 static void db_error(DbaData* tddba, int status)
 {
 /**************************************
@@ -1284,6 +1284,7 @@ static void db_error(DbaData* tddba, int status)
 	dba_exit(FINI_ERROR, tddba);
 }
 #endif // !WIN_NT
+#endif // OBSOLETE
 
 // CVC: This function was using cast to char* for the first param always
 // and the callers had to cast their char*'s to UCHAR*, too. Since the
