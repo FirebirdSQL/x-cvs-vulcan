@@ -95,6 +95,14 @@ main (int argc, char **argv)
 		Relo relo(inputPath);
 		JString outputPath;
 		outputPath.Format("%s\\%s\\", output, (const char*) relo.component);
+		
+		if (swCreate)
+			{
+			JString dir;
+			dir.Format("%s\\%s", output, relo.component);
+			CreateDirectory(dir, NULL);
+			}
+						
 		relo.rewrite(outputPath);
 		}
 

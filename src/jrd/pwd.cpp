@@ -349,7 +349,7 @@ void SecurityDatabase::verifyUser(const TEXT* securityDatabase,
 		{
 		//strcpy(pwt, ENC_crypt(password, PASSWORD_SALT));
 		ENC_crypt(pwt, sizeof(pwt), password, PASSWORD_SALT);
-		password_enc = pwt + 2;
+		password_enc = pwt;
 		}
 		
 	TEXT pw2[ENCRYPT_SIZE];
