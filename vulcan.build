@@ -428,6 +428,199 @@ DIRS =  $(SRCDIR)/jrd \
 
 </component>
 
+<!--	Generic / burp		-->
+
+<component name="burp">
+
+<template name="namespace"> -DNAMESPACE=GBak </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="gbak"/>
+<Install file="gbak"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / burp		-->
+
+<component name="burp">
+
+<template name="namespace"> -DNAMESPACE=GBak </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="gbak"/>
+<Install file="gbak"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / burp		-->
+
+<component name="burp">
+
+<template name="namespace"> -DNAMESPACE=GBak </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="gbak"/>
+<Install file="gbak"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / alice		-->
+
+<component name="alice">
+
+<template name="namespace"> -DNAMESPACE=GFix </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="gfix"/>
+<Install file="gfix"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/alice \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / gsec		-->
+
+<component name="gsec">
+
+<template name="namespace"> -DNAMESPACE=GSec </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="gsec"/>
+<Install file="gsec"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/gsec \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / gstat		-->
+
+<component name="gstat">
+
+<template name="namespace"> -DNAMESPACE=GStat </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe exe="gstat"/>
+<Install file="gstat"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/gstat \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+
 <!--	Generic / msgs		-->
 
 <component name="msgs">
@@ -763,6 +956,194 @@ CPPFLAGS = <buildopt/> -I. \
 	mv dsql.tab.c $*.cpp
 	mv dsql.tab.h $*.h
 </template>
+
+
+</component>
+
+<!--	Generic / jrd		-->
+
+<component name="jrd">
+
+<template name="namespace"> -DNAMESPACE=Engine </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/dsql \
+		$(SRCDIR)/config \
+		$(SRCDIR)/lock \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildLibr libr="engine8.so"/>
+<Install file="engine8.so"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/dsql  \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+<template name="GpreRules">
+%.cpp : %.epp
+	$(INSTALLDIR)/<bin/>/gpre <buildopt/>ds $&lt; $@
+%.cpp : %.y
+	bison -y -d -b dsql $&lt; 
+	mv dsql.tab.c $*.cpp
+	mv dsql.tab.h $*.h
+%.h : %.y
+	bison -y -d -b dsql $&lt; 
+	mv dsql.tab.c $*.cpp
+	mv dsql.tab.h $*.h
+</template>
+
+
+</component>
+
+<!--	Generic / jrd		-->
+
+<component name="jrd">
+
+<template name="namespace"> -DNAMESPACE=Engine </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/dsql \
+		$(SRCDIR)/config \
+		$(SRCDIR)/lock \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildLibr libr="engine8.so"/>
+<Install file="engine8.so"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/dsql  \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+<template name="GpreRules">
+%.cpp : %.epp
+	$(INSTALLDIR)/<bin/>/gpre <buildopt/>ds $&lt; $@
+%.cpp : %.y
+	bison -y -d -b dsql $&lt; 
+	mv dsql.tab.c $*.cpp
+	mv dsql.tab.h $*.h
+%.h : %.y
+	bison -y -d -b dsql $&lt; 
+	mv dsql.tab.c $*.cpp
+	mv dsql.tab.h $*.h
+</template>
+
+
+</component>
+
+<!--	Generic / services		-->
+
+<component name="jrd">
+
+<template name="namespace"> -DNAMESPACE=SERVICES </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/burp \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildLibr libr="engine8.so"/>
+<Install file="engine8.so"/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/alice \
+	-I$(SRCDIR)/burp \
+	-I$(SRCDIR)/gsec \
+	-I$(SRCDIR)/gstat \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
 
 
 </component>
