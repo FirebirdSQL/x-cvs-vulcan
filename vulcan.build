@@ -526,7 +526,7 @@ DIRS =  $(SRCDIR)/jrd \
 
 <!--	Generic / alice		-->
 
-<component name="alice">
+<component name="gfix">
 
 <template name="namespace"> -DNAMESPACE=GFix </template>
 
@@ -539,6 +539,7 @@ DIRS =  $(SRCDIR)/jrd \
 		$(SRCDIR)/alice \
 		$(SRCDIR)/config \
 		$(SRCDIR)/common \
+		$(SRCDIR)/jrd/os/posix \
 		$(SRCDIR)/common/classes  \
 </template>
 
@@ -570,6 +571,7 @@ GPRE_FLAGS = -manual
 DIRS =  $(SRCDIR)/jrd \
 		$(SRCDIR)/gsec \
 		$(SRCDIR)/config \
+		$(SRCDIR)/jrd/os/posix \
 		$(SRCDIR)/common \
 		$(SRCDIR)/common/classes  \
 </template>
@@ -602,6 +604,7 @@ GPRE_FLAGS = -manual
 DIRS =  $(SRCDIR)/jrd \
 		$(SRCDIR)/gstat \
 		$(SRCDIR)/config \
+		$(SRCDIR)/jrd/os/posix \
 		$(SRCDIR)/common \
 		$(SRCDIR)/common/classes  \
 </template>
@@ -1092,12 +1095,14 @@ CPPFLAGS = <buildopt/> -I. \
 
 <!--	Generic / services		-->
 
-<component name="jrd">
+<component name="Services">
 
 <template name="namespace"> -DNAMESPACE=SERVICES </template>
 
 <template name="SourceDirectories">
 DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
 		$(SRCDIR)/config \
 		$(SRCDIR)/include/gen \
 		$(SRCDIR)/common \
@@ -1122,19 +1127,21 @@ CPPFLAGS = <buildopt/> -I. \
 	-D_GNU_SOURCE \
 	-DTHREAD_DELIVERY \
 	-DMEMMGR \
+	-DSERVICE_THREAD \
 	<namespace /> \
 	<Includes /> 
 </template>
 
 <template name="Production">
-<BuildLibr libr="engine8.so"/>
-<Install file="engine8.so"/>
+<BuildLibr libr="services.so"/>
+<Install file="services.so"/>
 </template>
 
 <template name="Includes">-I$(SRCDIR)/include \
 	-I$(SRCDIR)/include/gen \
 	-I$(SRCDIR)/jrd \
 	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/remote \
 	-I$(SRCDIR)/alice \
 	-I$(SRCDIR)/burp \
 	-I$(SRCDIR)/gsec \
