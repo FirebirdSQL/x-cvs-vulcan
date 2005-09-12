@@ -155,10 +155,16 @@
 				RelativePath="..\jrd\MsgFormat.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\Mutex.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\Service.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
 				RelativePath=".\tdr.cpp">
@@ -223,10 +229,16 @@
 				RelativePath="..\jrd\MsgFormat.h">
 			</File>
 			<File
+				RelativePath="..\jrd\Mutex.h">
+			</File>
+			<File
 				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Service.h">
+			</File>
+			<File
+				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
 				RelativePath=".\tdr_proto.h">
