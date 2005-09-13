@@ -3,8 +3,8 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version SO-V2.0.0.4027 Vulcan 1.0 Development **********************/
-#line 1 "restore.epp"
+/***************** gpre version WI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+#line 1 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
  *	MODULE:		restore.epp
@@ -597,17 +597,17 @@ static const char
       blr_begin, 
 	 blr_message, 0, 3,0, 
 	    blr_cstring, 32,0, 
+	    blr_cstring, 254,0, 
 	    blr_short, 0, 
-	    blr_cstring, 79,0, 
 	 blr_receive, 0, 
 	    blr_store, 
 	       blr_relation, 20, 'R','D','B','$','T','R','I','G','G','E','R','_','M','E','S','S','A','G','E','S', 0, 
 	       blr_begin, 
 		  blr_assignment, 
-		     blr_parameter, 0, 2,0, 
+		     blr_parameter, 0, 1,0, 
 		     blr_field, 0, 11, 'R','D','B','$','M','E','S','S','A','G','E', 
 		  blr_assignment, 
-		     blr_parameter, 0, 1,0, 
+		     blr_parameter, 0, 2,0, 
 		     blr_field, 0, 18, 'R','D','B','$','M','E','S','S','A','G','E','_','N','U','M','B','E','R', 
 		  blr_assignment, 
 		     blr_parameter, 0, 0,0, 
@@ -1931,8 +1931,8 @@ static const char
 	    blr_cstring, 32,0, 
 	    blr_quad, 0, 
 	    blr_short, 0, 
+	    blr_cstring, 254,0, 
 	    blr_short, 0, 
-	    blr_cstring, 79,0, 
 	 blr_receive, 0, 
 	    blr_store, 
 	       blr_relation, 14, 'R','D','B','$','E','X','C','E','P','T','I','O','N','S', 0, 
@@ -1941,10 +1941,10 @@ static const char
 		     blr_parameter, 0, 0,0, 
 		     blr_field, 0, 18, 'R','D','B','$','E','X','C','E','P','T','I','O','N','_','N','A','M','E', 
 		  blr_assignment, 
-		     blr_parameter2, 0, 4,0, 2,0, 
+		     blr_parameter2, 0, 3,0, 2,0, 
 		     blr_field, 0, 11, 'R','D','B','$','M','E','S','S','A','G','E', 
 		  blr_assignment, 
-		     blr_parameter2, 0, 1,0, 3,0, 
+		     blr_parameter2, 0, 1,0, 4,0, 
 		     blr_field, 0, 15, 'R','D','B','$','D','E','S','C','R','I','P','T','I','O','N', 
 		  blr_end, 
 	 blr_end, 
@@ -2654,7 +2654,7 @@ static const char
 
 /**** end of GPRE definitions ****/
 
-#line 59 "restore.epp"
+#line 59 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 #define DB			tdgbl->db_handle
 #define gds_trans	tdgbl->tr_handle
@@ -2916,7 +2916,7 @@ int RESTORE_restore (const TEXT* file_name,
    struct {
           char  isc_598 [32];	/* RDB$INDEX_NAME */
    } isc_597;
-#line 233 "restore.epp"
+#line 233 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 /**************************************
  *
  *	R E S T O R E _ r e s t o r e
@@ -2927,13 +2927,13 @@ int RESTORE_restore (const TEXT* file_name,
  *	Recreate a database from a backup.
  *
  **************************************/
-	isc_req_handle  req_handle1 = NULL, req_handle2 = NULL, req_handle3 = NULL;
-	isc_req_handle	req_handle4 = NULL;
+	isc_req_handle  req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 = NULL_HANDLE;
+	isc_req_handle	req_handle4 = NULL_HANDLE;
 	/*BASED_ON RDB$INDICES.RDB$INDEX_NAME index_name;*/
 	char
 	   index_name[32];
 
-#line 246 "restore.epp"
+#line 246 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -2950,17 +2950,17 @@ int RESTORE_restore (const TEXT* file_name,
 	if (!restore (file_name, database_name))
 		return FINI_ERROR;
 
-	BURP_verbose (76, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (76);
 	// msg 76 creating indexes 
 
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 266 "restore.epp"
+	isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 266 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 267 "restore.epp"
+#line 267 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/* Fix for bug_no 8055:
 		   don't throw away the database just because an index
 		   could not be made */
@@ -2977,49 +2977,49 @@ int RESTORE_restore (const TEXT* file_name,
 					 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name*/
 					{
                                         if (!req_handle3)
-                                           isc_compile_request ( NULL, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_596), (char *) isc_596);
-					isc_vtov ((char*)index_name, (char*)isc_597.isc_598, 32);
-                                        isc_start_and_send ( NULL, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_597, (short) 0);
+                                           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_596), (char *) isc_596);
+					isc_vtov ((const char*)index_name, (char*)isc_597.isc_598, 32);
+                                        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_597, (short) 0);
 					while (1)
 					   {
-                                           isc_receive ( NULL, (isc_handle*) &req_handle3, (short) 1, (short) 4, &isc_599, (short) 0);
+                                           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &req_handle3, (short) 1, (short) 4, &isc_599, (short) 0);
 					   if (!isc_599.isc_600) break;
-#line 281 "restore.epp"
+#line 281 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					 {
-						BURP_verbose(243, index_name, NULL, NULL, NULL, NULL);
+						BURP_verbose(243, index_name);
 						/*MODIFY IDX USING*/
 						{ /*IDX.RDB$INDEX_INACTIVE*/
  isc_599.isc_601 = TRUE;
-#line 284 "restore.epp"
+#line 284 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					 }
-						BURP_print(240, index_name, NULL, NULL, NULL, NULL);
+						BURP_print(240, index_name);
 						/* msg 240 Index \"%s\" failed to activate because: */
 						if ( error_code == isc_no_dup )
 						{
-							BURP_print(241, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(241);
 							// msg 241 The unique index has duplicate values or NULLs 
-							BURP_print(242, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(242);
 							// msg 242 Delete or Update duplicate values or NULLs, and activate index with 
 						}
 						else
 						{
-							BURP_print(244, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(244);
 							// msg 244 Not enough disk space to create the sort file for an index 
-							BURP_print(245, NULL, NULL, NULL, NULL, NULL);
+							BURP_print(245);
 							// msg 245 Set the TMP environment variable to a directory on a filesystem that does have enough space, and activate index with 
 						}
-						BURP_print(243, index_name, NULL, NULL, NULL, NULL);
+						BURP_print(243, index_name);
 						/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 						/*END_MODIFY;*/
 						isc_602.isc_603 = isc_599.isc_601;
-                                                isc_send ( NULL, (isc_handle*) &req_handle3, (short) 2, (short) 2, &isc_602, (short) 0);
+                                                isc_send ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &req_handle3, (short) 2, (short) 2, &isc_602, (short) 0);
 						}
-#line 304 "restore.epp"
+#line 304 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*END_FOR;*/
-                                           isc_send ( NULL, (isc_handle*) &req_handle3, (short) 3, (short) 2, &isc_604, (short) 0);
+                                           isc_send ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &req_handle3, (short) 3, (short) 2, &isc_604, (short) 0);
 					   }
 					}
-#line 305 "restore.epp"
+#line 305 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					// don't bring the database on-line 
 					flag_on_line = false;
 					break;
@@ -3029,22 +3029,22 @@ int RESTORE_restore (const TEXT* file_name,
 			}
 			/*COMMIT*/
 			{
-			isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 313 "restore.epp"
+			isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 313 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 314 "restore.epp"
+#line 314 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				continue;
 			/*END_ERROR*/
 			   }
 			}
-#line 316 "restore.epp"
+#line 316 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		}
 	/*END_ERROR;*/
 	   }
 	}
-#line 318 "restore.epp"
+#line 318 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	// Activate the indices for foreign keys and do another commit  
 	if (!(tdgbl->gbl_sw_deactivate_indexes))
 	{
@@ -3054,17 +3054,17 @@ int RESTORE_restore (const TEXT* file_name,
 		{
 			/*EXEC SQL SET TRANSACTION ISOLATION LEVEL READ COMMITTED NO_AUTO_UNDO;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_0);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_0);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 326 "restore.epp"
+#line 326 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			if (gds_status[1])
 				/*EXEC SQL SET TRANSACTION;*/
 				{
-				isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
+				isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
 				SQLCODE = isc_sqlcode (isc_status);
 				}
-#line 328 "restore.epp"
+#line 328 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			// Activate first indexes that are not foreign keys 
 			/*FOR (REQUEST_HANDLE req_handle1) IDS IN RDB$INDICES WITH
@@ -3072,117 +3072,117 @@ int RESTORE_restore (const TEXT* file_name,
 				IDS.RDB$FOREIGN_KEY MISSING*/
 			{
                         if (!req_handle1)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_583), (char *) isc_583);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_583), (char *) isc_583);
 			isc_584.isc_585 = DEFERRED_ACTIVE;
 			if (req_handle1)
-                           isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 2, &isc_584, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 2, &isc_584, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 36, &isc_586, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 36, &isc_586, (short) 0);
 			   if (!isc_586.isc_588 || isc_status [1]) break;
-#line 333 "restore.epp"
+#line 333 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*MODIFY IDS USING*/
 					{ /*IDS.RDB$INDEX_INACTIVE*/
  isc_586.isc_589 = FALSE;
-#line 334 "restore.epp"
+#line 334 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_MODIFY;*/
 				isc_594.isc_595 = isc_586.isc_589;
-                                isc_send (isc_status, (isc_handle*) &req_handle1, (short) 4, (short) 2, &isc_594, (short) 0);;
-#line 335 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 4, (short) 2, &isc_594, (short) 0);;
+#line 335 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 336 "restore.epp"
+#line 336 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 338 "restore.epp"
+#line 338 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 				/*SAVE*/
 				{
-				isc_commit_retaining (isc_status, (isc_handle*) &gds_trans);;
-#line 340 "restore.epp"
+				isc_commit_retaining (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 340 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				// existing ON_ERROR continues past error, beck 
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 342 "restore.epp"
+#line 342 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					BURP_print (173, /*IDS.RDB$INDEX_NAME*/
-							 isc_586.isc_587, NULL, NULL, NULL, NULL);
-#line 343 "restore.epp"
+							 isc_586.isc_587);
+#line 343 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					BURP_print_status(isc_status);
 					/*MODIFY IDS USING*/
 					{
-#line 345 "restore.epp"
+#line 345 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*IDS.RDB$INDEX_INACTIVE*/
 						isc_586.isc_589 = TRUE;
-#line 346 "restore.epp"
+#line 346 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*END_MODIFY;*/
 					isc_590.isc_591 = isc_586.isc_589;
-                                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 2, &isc_590, (short) 0);;
-#line 347 "restore.epp"
+                                        isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 2, (short) 2, &isc_590, (short) 0);;
+#line 347 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*ON_ERROR*/
 					if (isc_status [1])
 					   {
-#line 348 "restore.epp"
+#line 348 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						general_on_error ();
 					/*END_ERROR;*/
 					   }
 					}
-#line 350 "restore.epp"
+#line 350 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_ERROR;*/
 				   }
 				}
-#line 351 "restore.epp"
+#line 351 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose(122, /*IDS.RDB$INDEX_NAME*/
-						  isc_586.isc_587, NULL, NULL, NULL, NULL);
-#line 352 "restore.epp"
+						  isc_586.isc_587);
+#line 352 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_handle*) &req_handle1, (short) 3, (short) 2, &isc_592, (short) 0);
+                           isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 3, (short) 2, &isc_592, (short) 0);
 			   }
 			   };
-#line 353 "restore.epp"
+#line 353 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 354 "restore.epp"
+#line 354 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 356 "restore.epp"
+#line 356 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			MISC_release_request_silent(req_handle1);
 			/*COMMIT;*/
 			{
-			isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 358 "restore.epp"
+			isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 358 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 359 "restore.epp"
+#line 359 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 361 "restore.epp"
+#line 361 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		}
 
 
 		/*EXEC SQL SET TRANSACTION ISOLATION LEVEL READ COMMITTED NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_2);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_2);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 365 "restore.epp"
+#line 365 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 367 "restore.epp"
+#line 367 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/* Only activate Foreign keys that have been marked for deferred
 		 * activation.
@@ -3196,118 +3196,118 @@ int RESTORE_restore (const TEXT* file_name,
 			IDS.RDB$INDEX_INACTIVE EQ DEFERRED_ACTIVE*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_569), (char *) isc_569);
-		isc_vtov ((char*)FOREIGN_KEY, (char*)isc_570.isc_571, 12);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_569), (char *) isc_569);
+		isc_vtov ((const char*)FOREIGN_KEY, (char*)isc_570.isc_571, 12);
 		isc_570.isc_572 = DEFERRED_ACTIVE;
 		if (req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 14, &isc_570, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 14, &isc_570, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 36, &isc_573, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 36, &isc_573, (short) 0);
 		   if (!isc_573.isc_575 || isc_status [1]) break;
-#line 378 "restore.epp"
+#line 378 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 
 			/*MODIFY IDS USING*/
 			{
-#line 381 "restore.epp"
+#line 381 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*IDS.RDB$INDEX_INACTIVE*/
 					isc_573.isc_576 = FALSE;
-#line 382 "restore.epp"
+#line 382 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_MODIFY;*/
 			isc_581.isc_582 = isc_573.isc_576;
-                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 4, (short) 2, &isc_581, (short) 0);;
-#line 383 "restore.epp"
+                        isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 4, (short) 2, &isc_581, (short) 0);;
+#line 383 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 384 "restore.epp"
+#line 384 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 386 "restore.epp"
+#line 386 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			/*SAVE*/
 			{
-			isc_commit_retaining (isc_status, (isc_handle*) &gds_trans);;
-#line 388 "restore.epp"
+			isc_commit_retaining (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 388 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			// existing ON_ERROR continues past error, beck 
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 390 "restore.epp"
+#line 390 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_print (173, /*IDS.RDB$INDEX_NAME*/
-						 isc_573.isc_574, NULL, NULL, NULL, NULL);
-#line 391 "restore.epp"
+						 isc_573.isc_574);
+#line 391 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_print_status(isc_status);
 				/*MODIFY IDS USING*/
 				{
-#line 393 "restore.epp"
+#line 393 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*IDS.RDB$INDEX_INACTIVE*/
 					isc_573.isc_576 = TRUE;
-#line 394 "restore.epp"
+#line 394 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_MODIFY;*/
 				isc_577.isc_578 = isc_573.isc_576;
-                                isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 2, &isc_577, (short) 0);;
-#line 395 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 2, (short) 2, &isc_577, (short) 0);;
+#line 395 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 396 "restore.epp"
+#line 396 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 398 "restore.epp"
+#line 398 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_ERROR;*/
 			   }
 			}
-#line 399 "restore.epp"
+#line 399 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			BURP_verbose(122, /*IDS.RDB$INDEX_NAME*/
-					  isc_573.isc_574, NULL, NULL, NULL, NULL);
-#line 400 "restore.epp"
+					  isc_573.isc_574);
+#line 400 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_handle*) &req_handle1, (short) 3, (short) 2, &isc_579, (short) 0);
+                   isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 3, (short) 2, &isc_579, (short) 0);
 		   }
 		   };
-#line 401 "restore.epp"
+#line 401 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 402 "restore.epp"
+#line 402 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 404 "restore.epp"
+#line 404 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		MISC_release_request_silent(req_handle1);
 		/*COMMIT;*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 406 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 406 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 407 "restore.epp"
+#line 407 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 409 "restore.epp"
+#line 409 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 
 	if (tdgbl->global_trans)
 	{
-		BURP_verbose (68, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (68);
 		// msg 68 committing meta data 
 		/*EXEC SQL COMMIT TRANSACTION tdgbl->global_trans;*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &tdgbl->global_trans);
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &tdgbl->global_trans);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 416 "restore.epp"
+#line 416 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			general_on_error ();
 		// Check to see if there is a warning 
@@ -3320,17 +3320,17 @@ int RESTORE_restore (const TEXT* file_name,
 
 	/*EXEC SQL SET TRANSACTION ISOLATION LEVEL READ COMMITTED NO_AUTO_UNDO;*/
 	{
-	isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_4);
+	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 6, isc_tpb_4);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
-#line 427 "restore.epp"
+#line 427 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	if (gds_status[1])
 		/*EXEC SQL SET TRANSACTION;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_5);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_5);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 429 "restore.epp"
+#line 429 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*
 	** Change ownership of any procedures necessary
 	*/
@@ -3344,57 +3344,57 @@ int RESTORE_restore (const TEXT* file_name,
 				X IN RDB$PROCEDURES WITH X.RDB$PROCEDURE_NAME EQ procedure->prc_name*/
 			{
                         if (!req_handle4)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle4, (short) sizeof (isc_558), (char *) isc_558);
-			isc_vtov ((char*)procedure->prc_name, (char*)isc_559.isc_560, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle4, (short) sizeof (isc_558), (char *) isc_558);
+			isc_vtov ((const char*)procedure->prc_name, (char*)isc_559.isc_560, 32);
 			if (req_handle4)
-                           isc_start_and_send (isc_status, (isc_handle*) &req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_559, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle4, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_559, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle4, (short) 1, (short) 66, &isc_561, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 66, &isc_561, (short) 0);
 			   if (!isc_561.isc_564 || isc_status [1]) break;
-#line 440 "restore.epp"
+#line 440 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 				/*MODIFY X*/
 				{
-#line 442 "restore.epp"
+#line 442 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				strcpy (/*X.RDB$OWNER_NAME*/
 					isc_561.isc_563, procedure->prc_owner);
-#line 443 "restore.epp"
+#line 443 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_MODIFY;*/
 				isc_ftof (isc_561.isc_563, 32, isc_565.isc_566, 32);
-                                isc_send (isc_status, (isc_handle*) &req_handle4, (short) 2, (short) 32, &isc_565, (short) 0);;
-#line 444 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &req_handle4, (short) 2, (short) 32, &isc_565, (short) 0);;
+#line 444 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 445 "restore.epp"
+#line 445 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					MISC_release_request_silent(req_handle4);
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 448 "restore.epp"
+#line 448 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			restore_security_class (procedure->prc_owner, /*X.RDB$SECURITY_CLASS*/
 								      isc_561.isc_562);
-#line 450 "restore.epp"
+#line 450 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_handle*) &req_handle4, (short) 3, (short) 2, &isc_567, (short) 0);
+                           isc_send (isc_status, (FB_API_HANDLE*) &req_handle4, (short) 3, (short) 2, &isc_567, (short) 0);
 			   }
 			   };
-#line 452 "restore.epp"
+#line 452 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 453 "restore.epp"
+#line 453 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_release_request_silent(req_handle4);
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 456 "restore.epp"
+#line 456 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		}
 	}
 
@@ -3410,59 +3410,59 @@ int RESTORE_restore (const TEXT* file_name,
 				X IN RDB$RELATIONS WITH X.RDB$RELATION_NAME EQ relation->rel_name*/
 			{
                         if (!req_handle2)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_546), (char *) isc_546);
-			isc_vtov ((char*)relation->rel_name, (char*)isc_547.isc_548, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_546), (char *) isc_546);
+			isc_vtov ((const char*)relation->rel_name, (char*)isc_547.isc_548, 32);
 			if (req_handle2)
-                           isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 98, &isc_549, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 98, &isc_549, (short) 0);
 			   if (!isc_549.isc_553 || isc_status [1]) break;
-#line 469 "restore.epp"
+#line 469 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*MODIFY X*/
 				{
-#line 470 "restore.epp"
+#line 470 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				strcpy (/*X.RDB$OWNER_NAME*/
 					isc_549.isc_552, relation->rel_owner);
-#line 471 "restore.epp"
+#line 471 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_MODIFY;*/
 				isc_ftof (isc_549.isc_552, 32, isc_554.isc_555, 32);
-                                isc_send (isc_status, (isc_handle*) &req_handle2, (short) 2, (short) 32, &isc_554, (short) 0);;
-#line 472 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &req_handle2, (short) 2, (short) 32, &isc_554, (short) 0);;
+#line 472 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 473 "restore.epp"
+#line 473 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					MISC_release_request_silent(req_handle2);
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 476 "restore.epp"
+#line 476 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			restore_security_class (relation->rel_owner, /*X.RDB$SECURITY_CLASS*/
 								     isc_549.isc_551);
-#line 478 "restore.epp"
+#line 478 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			restore_security_class (relation->rel_owner, /*X.RDB$DEFAULT_CLASS*/
 								     isc_549.isc_550);
-#line 479 "restore.epp"
+#line 479 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_handle*) &req_handle2, (short) 3, (short) 2, &isc_556, (short) 0);
+                           isc_send (isc_status, (FB_API_HANDLE*) &req_handle2, (short) 3, (short) 2, &isc_556, (short) 0);
 			   }
 			   };
-#line 481 "restore.epp"
+#line 481 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 482 "restore.epp"
+#line 482 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_release_request_silent(req_handle2);
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 485 "restore.epp"
+#line 485 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		}
 	}
 
@@ -3477,70 +3477,70 @@ int RESTORE_restore (const TEXT* file_name,
 		X IN RDB$DATABASE*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_538), (char *) isc_538);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_538), (char *) isc_538);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 34, &isc_539, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 34, &isc_539, (short) 0);
 		   if (!isc_539.isc_541 || isc_status [1]) break;
-#line 497 "restore.epp"
+#line 497 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*MODIFY X USING*/
 			{
-#line 498 "restore.epp"
+#line 498 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			strncpy(/*X.RDB$SECURITY_CLASS*/
 				isc_539.isc_540, tdgbl->database_security_class,
-#line 499 "restore.epp"
+#line 499 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				sizeof(/*X.RDB$SECURITY_CLASS*/
 				       isc_539.isc_540));
-#line 500 "restore.epp"
+#line 500 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_MODIFY;*/
 			isc_ftof (isc_539.isc_540, 32, isc_542.isc_543, 32);
-                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 32, &isc_542, (short) 0);;
-#line 501 "restore.epp"
+                        isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 1, (short) 32, &isc_542, (short) 0);;
+#line 501 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 502 "restore.epp"
+#line 502 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_release_request_silent(req_handle1);
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 505 "restore.epp"
+#line 505 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 2, &isc_544, (short) 0);
+                   isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 2, (short) 2, &isc_544, (short) 0);
 		   }
 		   };
-#line 506 "restore.epp"
+#line 506 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 507 "restore.epp"
+#line 507 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			MISC_release_request_silent(req_handle1);
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 510 "restore.epp"
+#line 510 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		MISC_release_request_silent(req_handle1);
 	}
 
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 515 "restore.epp"
+	isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 515 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 516 "restore.epp"
+#line 516 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 518 "restore.epp"
+#line 518 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	// Check to see if there is a warning 
 	if (gds_status[0] == isc_arg_gds && gds_status[1] == 0
@@ -3549,7 +3549,7 @@ int RESTORE_restore (const TEXT* file_name,
 		BURP_print_warning(gds_status);
 	}
 
-	BURP_verbose (88, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (88);
 	// msg 88 finishing, closing, and going home 
 
 	UINT64 cumul_count = MVOL_fini_read();
@@ -3607,23 +3607,23 @@ int RESTORE_restore (const TEXT* file_name,
 		{
 		if (DB)
 		   isc_detach_database (isc_status, &DB);;
-#line 581 "restore.epp"
+#line 581 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 582 "restore.epp"
+#line 582 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 584 "restore.epp"
+#line 584 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		}
 
 	if (!flag_on_line)
 		{
-		BURP_print(246, NULL, NULL, NULL, NULL, NULL);
+		BURP_print(246);
 		// msg 246 Database is not online due to failure to activate one or more indices. 
-		BURP_print(247, NULL, NULL, NULL, NULL, NULL);
+		BURP_print(247);
 		// msg 247 Run gfix -online to bring database online without active indices. 
 		return FINI_DB_NOT_ONLINE;
 		}
@@ -3632,7 +3632,7 @@ int RESTORE_restore (const TEXT* file_name,
 	
 	if (tdgbl->gbl_sw_mode && tdgbl->gbl_sw_mode_val)
 		{
-		BURP_verbose (280, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (280);
 		// msg 280: setting database to read-only access 
 
 		d = dpb;
@@ -3771,8 +3771,8 @@ namespace // unnamed, private
    } isc_100;
    struct {
           char  isc_110 [32];	/* RDB$TRIGGER_NAME */
-          short isc_111;	/* RDB$MESSAGE_NUMBER */
-          char  isc_112 [79];	/* RDB$MESSAGE */
+          char  isc_111 [254];	/* RDB$MESSAGE */
+          short isc_112;	/* RDB$MESSAGE_NUMBER */
    } isc_109;
    struct {
           short isc_117;	/* isc_utility */
@@ -4139,8 +4139,8 @@ namespace // unnamed, private
           char  isc_471 [32];	/* RDB$EXCEPTION_NAME */
           ISC_QUAD isc_472;	/* RDB$DESCRIPTION */
           short isc_473;	/* gds__null_flag */
-          short isc_474;	/* gds__null_flag */
-          char  isc_475 [79];	/* RDB$MESSAGE */
+          char  isc_474 [254];	/* RDB$MESSAGE */
+          short isc_475;	/* gds__null_flag */
    } isc_470;
    struct {
           short isc_485;	/* isc_utility */
@@ -4207,7 +4207,7 @@ namespace // unnamed, private
           SLONG isc_536;	/* RDB$FILE_START */
           char  isc_537 [254];	/* RDB$FILE_NAME */
    } isc_535;
-#line 643 "restore.epp"
+#line 643 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 void add_files (const UCHAR* file_name)
 {
@@ -4223,7 +4223,7 @@ void add_files (const UCHAR* file_name)
  *	addresses & commit this much.
  *
  **************************************/
-	isc_req_handle  req_handle1 = NULL;
+	isc_req_handle  req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -4242,40 +4242,39 @@ void add_files (const UCHAR* file_name)
 			{
 			
                         if (!req_handle1)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_534), (char *) isc_534);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_534), (char *) isc_534);
 			if (req_handle1)
 			   {
-#line 674 "restore.epp"
+#line 674 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				strcpy (/*X.RDB$FILE_NAME*/
 					isc_535.isc_537, file->fil_name);
-#line 675 "restore.epp"
+#line 675 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$FILE_START*/
 				isc_535.isc_536 = start;
-#line 676 "restore.epp"
+#line 676 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_STORE;*/
 			   
-                           isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 258, &isc_535, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 258, &isc_535, (short) 0);
 			   };
-#line 677 "restore.epp"
+#line 677 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 678 "restore.epp"
+#line 678 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 680 "restore.epp"
+#line 680 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_release_request_silent(req_handle1);
-			BURP_verbose (57, file->fil_name, (void*) start, NULL, NULL, NULL);
+			BURP_verbose (57, file->fil_name, start);
 			// msg 57 adding file %s, starting at page %ld 
 		}
 		else if (((signed long )file->fil_length) >= start - 1)
 			file->fil_length -= start - 1;
 		else
 		{
-			BURP_print (96, (void*) file->fil_length, (void*) (start - 1), NULL,
-						NULL, NULL);
+			BURP_print (96, file->fil_length, start - 1);
 			// msg 96  length given for initial file (%ld) is less than minimum (%ld)
 			file->fil_length = 0;
 		}
@@ -4285,51 +4284,51 @@ void add_files (const UCHAR* file_name)
 
 	if (count)
 	{
-		BURP_verbose (70, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (70);
 		  // msg 70 committing secondary files
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 702 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 701 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// existing ON_ERROR continues past error, beck
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 704 "restore.epp"
-			BURP_print (174, NULL, NULL, NULL, NULL, NULL);
+#line 703 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+			BURP_print (174);
 				// msg 174 cannot commit files
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 708 "restore.epp"
+			isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 707 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 709 "restore.epp"
+#line 708 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 711 "restore.epp"
+#line 710 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_ERROR;*/
 		   }
 		}
-#line 712 "restore.epp"
+#line 711 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_6);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_6);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 714 "restore.epp"
+#line 713 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_7);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_7);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 716 "restore.epp"
+#line 715 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 }
 
@@ -4359,7 +4358,7 @@ void bad_attribute (scan_attr_t		scan_next_attr,
         TEXT t_name[128];
 		gds__msg_format(NULL, 12, type, sizeof(t_name), t_name, NULL, NULL,
 						NULL, NULL, NULL);
-		BURP_print (80, t_name, (void*) bad_attr, NULL, NULL, NULL);
+		BURP_print (80, t_name, bad_attr);
 		// msg 80  don't recognize %s attribute %ld -- continuing 
 		const SSHORT skip_l = get(tdgbl);
 		if (skip_l)
@@ -4371,13 +4370,13 @@ void bad_attribute (scan_attr_t		scan_next_attr,
 		{
 			skip_count = tdgbl->gbl_sw_skip_count;
 			get_skip(tdgbl, skip_count);
-			BURP_print (203, (void*) skip_count, (void*) bad_attr, NULL, NULL, NULL);
+			BURP_print (203, skip_count, bad_attr);
 			//msg 203: skipped %d bytes after reading a bad attribute %d 
 		}
 		else
 		{
 			++skip_count;
-			BURP_print (205, (void*) skip_count, (void*) bad_attr, NULL, NULL, NULL);
+			BURP_print (205, skip_count, bad_attr);
 			// msg 205: skipped %d bytes looking for next valid attribute, encountered attribute %d 
 		}
 		scan_next_attr = AFTER_SKIP;
@@ -4396,7 +4395,7 @@ USHORT check_db_version()
  *	Find the version number of the database.
  *
  **************************************/
-	isc_req_handle  req_handle1 = NULL, req_handle2 = NULL;
+	isc_req_handle  req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -4406,58 +4405,58 @@ USHORT check_db_version()
 		WITH X.RDB$RELATION_NAME = "RDB$TRIGGERS"*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_531), (char *) isc_531);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_531), (char *) isc_531);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 2, &isc_532, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 2, &isc_532, (short) 0);
 	   if (!isc_532.isc_533 || isc_status [1]) break;
-#line 790 "restore.epp"
+#line 789 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		db_version = DB_VERSION_DDL5;
 	/*END_FOR;*/
 	   }
 	   };
-#line 792 "restore.epp"
+#line 791 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 793 "restore.epp"
+#line 792 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 795 "restore.epp"
+#line 794 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	MISC_release_request_silent(req_handle1);
 	/*FOR (REQUEST_HANDLE req_handle2)
 		FIRST 1 X IN RDB$RELATIONS
 		WITH X.RDB$RELATION_NAME = "RDB$PROCEDURES"*/
 	{
         if (!req_handle2)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_528), (char *) isc_528);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_528), (char *) isc_528);
 	if (req_handle2)
-           isc_start_request (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 0, (short) 2, &isc_529, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 2, &isc_529, (short) 0);
 	   if (!isc_529.isc_530 || isc_status [1]) break;
-#line 799 "restore.epp"
+#line 798 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		db_version = DB_VERSION_DDL8;
 	/*END_FOR;*/
 	   }
 	   };
-#line 801 "restore.epp"
+#line 800 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 802 "restore.epp"
+#line 801 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 804 "restore.epp"
+#line 803 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	MISC_release_request_silent(req_handle2);
 
 	return db_version;
@@ -4548,8 +4547,7 @@ void create_database (const TEXT* file_name)
 	if (tdgbl->gbl_sw_page_size &&
 		(tdgbl->gbl_sw_page_size < page_size))
 	{
-		BURP_print (110, (void*) page_size,
-					(void*) (ULONG) tdgbl->gbl_sw_page_size, NULL, NULL, NULL);
+		BURP_print (110, page_size, tdgbl->gbl_sw_page_size);
 		// msg 110 Reducing the database page size from %ld bytes to %ld bytes 
 	}
 
@@ -4673,12 +4671,12 @@ void create_database (const TEXT* file_name)
 
 	if (tdgbl->gbl_sw_version)
 	{
-		BURP_print(139, file_name, NULL, NULL, NULL, NULL);
+		BURP_print(139, file_name);
 		/* msg 139 Version(s) for database "%s" */
 		isc_version(&DB, BURP_output_version, (void*) "\t%s\n");
 	}
 
-	BURP_verbose (74, file_name, (void*) page_size, NULL, NULL, NULL);
+	BURP_verbose (74, file_name, page_size);
 	// msg 74 created database %s, page_size %ld bytes 
 }
 
@@ -4711,8 +4709,7 @@ void decompress(UCHAR* buffer,
 		{
 			if (end - p < count)
 			{
-				BURP_print (202, (void*) (SLONG) count,
-							(void*) (ULONG) (end - p), NULL, NULL, NULL);
+				BURP_print (202, count, end - p);
 				// msg 202: adjusting a decompression length error: invalid length  %d was adjusted to %d 
 				count = end - p;
 			}
@@ -4722,8 +4719,7 @@ void decompress(UCHAR* buffer,
 		{
 			if (end + count < p)
 			{
-				BURP_print(202, (void*) (SLONG) count,
-						   (void*) (ULONG) (p - end), NULL, NULL, NULL);
+				BURP_print(202, count, p - end);
 				// msg 202: adjusting a decompression length error: invalid length %d was adjusted to %d 
 				count = p - end;
 			}
@@ -4842,7 +4838,7 @@ bool get_acl (const TEXT	*owner_nm,
 	ISC_STATUS_ARRAY	status_vector;
 	// Open the blob and get it's vital statistics 
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 
 	if (isc_open_blob (status_vector, &DB,  &gds_trans, &blob, blob_id))
 	{
@@ -4894,7 +4890,7 @@ bool get_acl (const TEXT	*owner_nm,
 
 		default:
 			// msg 79 don't understand blob info item %ld  
-			BURP_print (79, (void*) (ULONG) item, NULL, NULL, NULL, NULL);
+			BURP_print (79, item);
 			// CVC: do you return, without closing the blob, dear function???
 			if (isc_close_blob (status_vector,  &blob))
 				BURP_error_redirect (status_vector, 23, NULL, NULL);
@@ -4945,7 +4941,7 @@ bool get_acl (const TEXT	*owner_nm,
 	const SLONG id_person_len = (SLONG) *from;
 
 	const UCHAR* c_1 = (UCHAR*) owner_nm;
-	const UCHAR owner_nm_len = strlen(owner_nm);
+	const UCHAR owner_nm_len = (UCHAR) strlen(owner_nm);
 
 	UCHAR* new_buffer = BURP_alloc (length - id_person_len + owner_nm_len);
 
@@ -4971,7 +4967,7 @@ bool get_acl (const TEXT	*owner_nm,
 		new_len++;
 	}
 
-	isc_blob_handle	blob_handle = NULL;
+	isc_blob_handle	blob_handle = NULL_HANDLE;
 	if (isc_create_blob2 (status_vector, &DB, &gds_trans,
 						  &blob_handle, new_blob_id, 0, NULL))
 	{
@@ -5379,7 +5375,7 @@ void get_array (BURP_REL	relation,
 				elements_written * field->fld_length,
 				buffer + data_at))
 			{
-				BURP_print (81, field->fld_name, NULL, NULL, NULL, NULL);
+				BURP_print (81, field->fld_name);
 				// msg 81 error accessing blob field %s -- continuing 
 				BURP_print_status (status_vector);
 #ifdef DEBUG
@@ -5501,7 +5497,7 @@ void get_array (BURP_REL	relation,
 						   NULL,  // param for subset of an array handling 
 						return_length, buffer))
 		{
-			BURP_print (81, field->fld_name, NULL, NULL, NULL, NULL);
+			BURP_print (81, field->fld_name);
 			// msg 81 error accessing blob field %s -- continuing 
 			BURP_print_status (status_vector);
 #ifdef DEBUG
@@ -5583,7 +5579,7 @@ void get_blob (const burp_fld* fields,
 	// Create new blob 
 
 	ISC_QUAD* blob_id = (ISC_QUAD*) ((UCHAR*) record_buffer + field->fld_offset);
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 	ISC_STATUS_ARRAY status_vector;
 
 	if (isc_create_blob (status_vector, &DB, &gds_trans, &blob, blob_id))
@@ -5656,7 +5652,7 @@ void get_blr_blob (ISC_QUAD	*blob_id,
 	else
 		local_trans = gds_trans;
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 	if (isc_create_blob (status_vector, &DB, &local_trans, &blob, blob_id))
 	{
 		BURP_error_redirect (status_vector, 37, 0, 0);
@@ -5721,38 +5717,38 @@ bool get_character_set()
 	{
 	
         if (!tdgbl->handles_get_character_sets_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_character_sets_req_handle1, (short) sizeof (isc_508), (char *) isc_508);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_character_sets_req_handle1, (short) sizeof (isc_508), (char *) isc_508);
 	if (tdgbl->handles_get_character_sets_req_handle1)
 	   {
 	   isc_509.isc_511 = isc_blob_null;
-#line 2064 "restore.epp"
+#line 2060 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_NAME.NULL*/
 		isc_509.isc_527 = TRUE;
-#line 2065 "restore.epp"
+#line 2061 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FORM_OF_USE.NULL*/
 		isc_509.isc_526 = TRUE;
-#line 2066 "restore.epp"
+#line 2062 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$NUMBER_OF_CHARACTERS.NULL*/
 		isc_509.isc_525 = TRUE;
-#line 2067 "restore.epp"
+#line 2063 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_COLLATE_NAME.NULL*/
 		isc_509.isc_524 = TRUE;
-#line 2068 "restore.epp"
+#line 2064 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID.NULL*/
 		isc_509.isc_522 = TRUE;
-#line 2069 "restore.epp"
+#line 2065 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_509.isc_520 = TRUE;
-#line 2070 "restore.epp"
+#line 2066 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_509.isc_519 = TRUE;
-#line 2071 "restore.epp"
+#line 2067 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FUNCTION_NAME.NULL*/
 		isc_509.isc_518 = TRUE;
-#line 2072 "restore.epp"
+#line 2068 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$BYTES_PER_CHARACTER.NULL*/
 		isc_509.isc_516 = TRUE;
-#line 2073 "restore.epp"
+#line 2069 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
@@ -5763,86 +5759,86 @@ bool get_character_set()
 			case att_charset_name:
 				/*X.RDB$CHARACTER_SET_NAME.NULL*/
 				isc_509.isc_527 = FALSE;
-#line 2082 "restore.epp"
+#line 2078 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$CHARACTER_SET_NAME*/
 					 isc_509.isc_514);
-#line 2083 "restore.epp"
+#line 2079 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose (msgVerbose_restore_charset,
 							  /*X.RDB$CHARACTER_SET_NAME*/
-							  isc_509.isc_514, NULL, NULL, NULL, NULL);
-#line 2085 "restore.epp"
+							  isc_509.isc_514);
+#line 2081 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_form:
 				/*X.RDB$FORM_OF_USE.NULL*/
 				isc_509.isc_526 = FALSE;
-#line 2089 "restore.epp"
+#line 2085 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$FORM_OF_USE*/
 						 isc_509.isc_513);
-#line 2090 "restore.epp"
+#line 2086 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_numchar:
 				/*X.RDB$NUMBER_OF_CHARACTERS.NULL*/
 				isc_509.isc_525 = FALSE;
-#line 2094 "restore.epp"
+#line 2090 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$NUMBER_OF_CHARACTERS*/
 				isc_509.isc_515 = (USHORT) get_numeric();
-#line 2095 "restore.epp"
+#line 2091 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_coll:
 				/*X.RDB$DEFAULT_COLLATE_NAME.NULL*/
 				isc_509.isc_524 = FALSE;
-#line 2099 "restore.epp"
+#line 2095 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$DEFAULT_COLLATE_NAME*/
 					 isc_509.isc_512);
-#line 2100 "restore.epp"
+#line 2096 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_id:
 				/*X.RDB$CHARACTER_SET_ID.NULL*/
 				isc_509.isc_522 = FALSE;
-#line 2104 "restore.epp"
+#line 2100 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$CHARACTER_SET_ID*/
 				isc_509.isc_523 = (USHORT) get_numeric();
-#line 2105 "restore.epp"
+#line 2101 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_sysflag:
 				/*X.RDB$SYSTEM_FLAG.NULL*/
 				isc_509.isc_520 = FALSE;
-#line 2109 "restore.epp"
+#line 2105 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SYSTEM_FLAG*/
 				isc_509.isc_521 = (USHORT) get_numeric();
-#line 2110 "restore.epp"
+#line 2106 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_509.isc_519 = FALSE;
-#line 2114 "restore.epp"
+#line 2110 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_509.isc_511, false);
-#line 2115 "restore.epp"
+#line 2111 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_funct:
 				/*X.RDB$FUNCTION_NAME.NULL*/
 				isc_509.isc_518 = FALSE;
-#line 2119 "restore.epp"
+#line 2115 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$FUNCTION_NAME*/
 					 isc_509.isc_510);
-#line 2120 "restore.epp"
+#line 2116 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_charset_bytes_char:
 				/*X.RDB$BYTES_PER_CHARACTER.NULL*/
 				isc_509.isc_516 = FALSE;
-#line 2124 "restore.epp"
+#line 2120 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$BYTES_PER_CHARACTER*/
 				isc_509.isc_517 = (USHORT) get_numeric();
-#line 2125 "restore.epp"
+#line 2121 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -5853,18 +5849,18 @@ bool get_character_set()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_character_sets_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 164, &isc_509, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_character_sets_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 164, &isc_509, (short) 0);
 	   };
-#line 2134 "restore.epp"
+#line 2130 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2135 "restore.epp"
+#line 2131 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2137 "restore.epp"
+#line 2133 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -5891,16 +5887,16 @@ bool get_chk_constraint()
 	{
 	
         if (!tdgbl->handles_get_chk_constraint_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (short) sizeof (isc_502), (char *) isc_502);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (short) sizeof (isc_502), (char *) isc_502);
 	if (tdgbl->handles_get_chk_constraint_req_handle1)
 	   {
-#line 2160 "restore.epp"
+#line 2156 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CONSTRAINT_NAME.NULL*/
 		isc_503.isc_507 = TRUE;
-#line 2161 "restore.epp"
+#line 2157 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$TRIGGER_NAME.NULL*/
 		isc_503.isc_506 = TRUE;
-#line 2162 "restore.epp"
+#line 2158 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -5909,19 +5905,19 @@ bool get_chk_constraint()
 			case att_chk_constraint_name:
 				/*X.RDB$CONSTRAINT_NAME.NULL*/
 				isc_503.isc_507 = FALSE;
-#line 2169 "restore.epp"
+#line 2165 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$CONSTRAINT_NAME*/
 					 isc_503.isc_505);
-#line 2170 "restore.epp"
+#line 2166 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_chk_trigger_name:
 				/*X.RDB$TRIGGER_NAME.NULL*/
 				isc_503.isc_506 = FALSE;
-#line 2174 "restore.epp"
+#line 2170 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$TRIGGER_NAME*/
 					 isc_503.isc_504);
-#line 2175 "restore.epp"
+#line 2171 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -5932,18 +5928,18 @@ bool get_chk_constraint()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 68, &isc_503, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_chk_constraint_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 68, &isc_503, (short) 0);
 	   };
-#line 2184 "restore.epp"
+#line 2180 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2185 "restore.epp"
+#line 2181 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2187 "restore.epp"
+#line 2183 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -5970,32 +5966,32 @@ bool get_collation()
 	{
 	
         if (!tdgbl->handles_get_collation_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_collation_req_handle1, (short) sizeof (isc_486), (char *) isc_486);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_collation_req_handle1, (short) sizeof (isc_486), (char *) isc_486);
 	if (tdgbl->handles_get_collation_req_handle1)
 	   {
 	   isc_487.isc_489 = isc_blob_null;
-#line 2210 "restore.epp"
+#line 2206 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COLLATION_NAME.NULL*/
 		isc_487.isc_501 = TRUE;
-#line 2211 "restore.epp"
+#line 2207 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COLLATION_ID.NULL*/
 		isc_487.isc_499 = TRUE;
-#line 2212 "restore.epp"
+#line 2208 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID.NULL*/
 		isc_487.isc_497 = TRUE;
-#line 2213 "restore.epp"
+#line 2209 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COLLATION_ATTRIBUTES.NULL*/
 		isc_487.isc_495 = TRUE;
-#line 2214 "restore.epp"
+#line 2210 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_487.isc_493 = TRUE;
-#line 2215 "restore.epp"
+#line 2211 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_487.isc_492 = TRUE;
-#line 2216 "restore.epp"
+#line 2212 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FUNCTION_NAME.NULL*/
 		isc_487.isc_491 = TRUE;
-#line 2217 "restore.epp"
+#line 2213 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
@@ -6006,41 +6002,40 @@ bool get_collation()
 			case att_coll_name:
 				/*X.RDB$COLLATION_NAME.NULL*/
 				isc_487.isc_501 = FALSE;
-#line 2226 "restore.epp"
+#line 2222 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$COLLATION_NAME*/
 					 isc_487.isc_490);
-#line 2227 "restore.epp"
+#line 2223 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose(msgVerbose_restore_collation, /*X.RDB$COLLATION_NAME*/
-									   isc_487.isc_490,
-#line 2228 "restore.epp"
-							 NULL, NULL, NULL, NULL);
+									   isc_487.isc_490);
+#line 2224 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_coll_id:
 				/*X.RDB$COLLATION_ID.NULL*/
 				isc_487.isc_499 = FALSE;
-#line 2233 "restore.epp"
+#line 2228 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$COLLATION_ID*/
 				isc_487.isc_500 = (USHORT) get_numeric();
-#line 2234 "restore.epp"
+#line 2229 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_coll_cs_id:
 				/*X.RDB$CHARACTER_SET_ID.NULL*/
 				isc_487.isc_497 = FALSE;
-#line 2238 "restore.epp"
+#line 2233 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$CHARACTER_SET_ID*/
 				isc_487.isc_498 = (USHORT) get_numeric();
-#line 2239 "restore.epp"
+#line 2234 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_coll_attr:
 				/*X.RDB$COLLATION_ATTRIBUTES.NULL*/
 				isc_487.isc_495 = FALSE;
-#line 2243 "restore.epp"
+#line 2238 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$COLLATION_ATTRIBUTES*/
 				isc_487.isc_496 = (USHORT) get_numeric();
-#line 2244 "restore.epp"
+#line 2239 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_coll_subtype:	// No longer used: 93-11-15 DBS 
@@ -6051,28 +6046,28 @@ bool get_collation()
 			case att_coll_sysflag:
 				/*X.RDB$SYSTEM_FLAG.NULL*/
 				isc_487.isc_493 = FALSE;
-#line 2253 "restore.epp"
+#line 2248 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SYSTEM_FLAG*/
 				isc_487.isc_494 = (USHORT) get_numeric();
-#line 2254 "restore.epp"
+#line 2249 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_coll_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_487.isc_492 = FALSE;
-#line 2258 "restore.epp"
+#line 2253 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_487.isc_489, false);
-#line 2259 "restore.epp"
+#line 2254 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_coll_funct:
 				/*X.RDB$FUNCTION_NAME.NULL*/
 				isc_487.isc_491 = FALSE;
-#line 2263 "restore.epp"
+#line 2258 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$FUNCTION_NAME*/
 					 isc_487.isc_488);
-#line 2264 "restore.epp"
+#line 2259 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -6083,18 +6078,18 @@ bool get_collation()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_collation_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 94, &isc_487, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_collation_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 94, &isc_487, (short) 0);
 	   };
-#line 2273 "restore.epp"
+#line 2268 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2274 "restore.epp"
+#line 2269 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2276 "restore.epp"
+#line 2271 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -6111,12 +6106,12 @@ rec_type get_data (BURP_REL	relation)
  *	Write data records for a relation.
  *
  **************************************/
-	isc_req_handle  req_handle = NULL;
+	isc_req_handle  req_handle = NULL_HANDLE;
 	/*BASED_ON RDB$INDICES.RDB$INDEX_NAME index_name;*/
 	char
 	   index_name[32];
 
-#line 2294 "restore.epp"
+#line 2289 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -6211,14 +6206,15 @@ rec_type get_data (BURP_REL	relation)
 			break;
 
 		case blr_blob:
-			alignment = type_alignments[dtype_blob];
+			//alignment = type_alignments[dtype_blob];
+			alignment = type_alignments[dtype_quad];
 			length = type_lengths[dtype_blob];
 			stuff(&blr, blr_quad);
 			stuff(&blr, 0);
 			break;
 
 		default:
-			BURP_error (26, true, isc_arg_number, (void*) (SLONG) field->fld_type,
+			BURP_error (26, true, isc_arg_number, (void*) (IPTR) field->fld_type,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 			// msg 26 datatype %ld not understood 
 			break;
@@ -6289,7 +6285,7 @@ rec_type get_data (BURP_REL	relation)
 	isc_print_blr (reinterpret_cast<const char*>(blr_buffer), NULL, NULL, 0);
 #endif
 
-	isc_handle request = NULL;
+	isc_handle request = NULL_HANDLE;
 	ISC_STATUS_ARRAY status_vector;
 	USHORT blr_length = blr - blr_buffer;
 
@@ -6311,7 +6307,7 @@ rec_type get_data (BURP_REL	relation)
 	BURP_free (blr_buffer);
 	SSHORT* buffer = NULL;
 
-	BURP_verbose (124, relation->rel_name, NULL, NULL, NULL, NULL);
+	BURP_verbose (124, relation->rel_name);
 	// msg 124  restoring data for relation %s 
 	
 	LSTRING data;
@@ -6334,8 +6330,8 @@ rec_type get_data (BURP_REL	relation)
 				old_length = recompute_length (relation);
 			if (l != old_length)
 			{
-				BURP_error(40, true, isc_arg_number, (void*)length,
-							 isc_arg_number, (void*) (ULONG) l,
+				BURP_error(40, true, isc_arg_number, (void*)(IPTR)length,
+							 isc_arg_number, (void*) (IPTR) l,
 							 0, NULL, 0, NULL, 0, NULL);
 				// msg 40 wrong length record, expected %ld encountered %ld 
 			}
@@ -6385,7 +6381,7 @@ rec_type get_data (BURP_REL	relation)
 		records++;
 
 		if ((records % RESTORE_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(107, (void*) (SLONG) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(107, records);
 
 		for (field = relation->rel_fields; field; field = field->fld_next)
 			if ((field->fld_type == blr_blob) || (field->fld_flags & FLD_array))
@@ -6412,7 +6408,7 @@ rec_type get_data (BURP_REL	relation)
 			{
 				if (tdgbl->gbl_sw_incremental)
 				{
-					BURP_print (138, relation->rel_name, NULL, NULL, NULL, NULL);
+					BURP_print (138, relation->rel_name);
 					// msg 138 validation error on field in relation %s 
 					BURP_print_status (status_vector);
 				}
@@ -6423,7 +6419,7 @@ rec_type get_data (BURP_REL	relation)
 			else {
 				if (tdgbl->gbl_sw_incremental)
 				{
-					BURP_print (114, relation->rel_name, NULL, NULL, NULL, NULL);
+					BURP_print (114, relation->rel_name);
 					// msg 114 restore failed for record in relation %s 
 					BURP_print_status (status_vector);
 				}
@@ -6443,17 +6439,17 @@ rec_type get_data (BURP_REL	relation)
 	isc_release_request(status_vector, &request);
 	if (tdgbl->gbl_sw_incremental)
 	{
-		BURP_verbose (72, relation->rel_name, NULL, NULL, NULL, NULL);
+		BURP_verbose (72, relation->rel_name);
 		// msg 72  committing data for relation %s 
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 2623 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 2619 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2625 "restore.epp"
+#line 2621 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			/* Fix for bug_no 8055:
 			   don't throw away the database just because an index
@@ -6471,103 +6467,103 @@ rec_type get_data (BURP_REL	relation)
 						 IDX IN RDB$INDICES WITH IDX.RDB$INDEX_NAME EQ index_name*/
 						{
                                                 if (!req_handle)
-                                                   isc_compile_request ( NULL, (isc_handle*) &DB, (isc_handle*) &req_handle, (short) sizeof (isc_476), (char *) isc_476);
-						isc_vtov ((char*)index_name, (char*)isc_477.isc_478, 32);
-                                                isc_start_and_send ( NULL, (isc_handle*) &req_handle, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_477, (short) 0);
+                                                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle, (short) sizeof (isc_476), (char *) isc_476);
+						isc_vtov ((const char*)index_name, (char*)isc_477.isc_478, 32);
+                                                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &req_handle, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_477, (short) 0);
 						while (1)
 						   {
-                                                   isc_receive ( NULL, (isc_handle*) &req_handle, (short) 1, (short) 4, &isc_479, (short) 0);
+                                                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &req_handle, (short) 1, (short) 4, &isc_479, (short) 0);
 						   if (!isc_479.isc_480) break;
-#line 2640 "restore.epp"
+#line 2636 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							/*MODIFY IDX USING*/
 							{ /*IDX.RDB$INDEX_INACTIVE*/
  isc_479.isc_481 = TRUE;
-#line 2641 "restore.epp"
-							BURP_print(240, index_name, NULL, NULL, NULL, NULL);
+#line 2637 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+							BURP_print(240, index_name);
 							/* msg 240 Index \"%s\" failed to activate because: */
 							if ( error_code == isc_no_dup )
 							{
-								BURP_print(241, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(241);
 								// msg 241 The unique index has duplicate values or NULLs 
-								BURP_print(242, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(242);
 								// msg 242 Delete or Update duplicate values or NULLs, and activate index with 
 							}
 							else
 							{
-								BURP_print(244, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(244);
 								// msg 244 Not enough disk space to create the sort file for an index 
-								BURP_print(245, NULL, NULL, NULL, NULL, NULL);
+								BURP_print(245);
 								// msg 245 Set the TMP environment variable to a directory on a filesystem that does have enough space, and activate index with 
 							}
-							BURP_print(243, index_name, NULL, NULL, NULL, NULL);
+							BURP_print(243, index_name);
 							/* msg 243 ALTER INDEX \"%s\" ACTIVE; */
 							/*END_MODIFY;*/
 							isc_482.isc_483 = isc_479.isc_481;
-                                                        isc_send ( NULL, (isc_handle*) &req_handle, (short) 2, (short) 2, &isc_482, (short) 0);
+                                                        isc_send ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &req_handle, (short) 2, (short) 2, &isc_482, (short) 0);
 							}
-#line 2660 "restore.epp"
+#line 2656 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*END_FOR;*/
-                                                   isc_send ( NULL, (isc_handle*) &req_handle, (short) 3, (short) 2, &isc_484, (short) 0);
+                                                   isc_send ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &req_handle, (short) 3, (short) 2, &isc_484, (short) 0);
 						   }
 						}
-#line 2661 "restore.epp"
+#line 2657 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						// don't bring the database on-line 
 						flag_on_line = false;
 						// commit one more time 
 						/*COMMIT*/
 						{
-						isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 2665 "restore.epp"
+						isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 2661 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*ON_ERROR*/
 						if (isc_status [1])
 						   {
-#line 2666 "restore.epp"
+#line 2662 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							continue;
 						/*END_ERROR*/
 						   }
 						}
-#line 2668 "restore.epp"
+#line 2664 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						break;
 					default:
-						BURP_print (69, relation->rel_name, NULL, NULL, NULL, NULL);
+						BURP_print (69, relation->rel_name);
 						// msg 69 commit failed on relation %s 
 						BURP_print_status (tdgbl->status_vector);
 						/*ROLLBACK;*/
 						{
-						isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 2674 "restore.epp"
+						isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 2670 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*ON_ERROR*/
 						if (isc_status [1])
 						   {
-#line 2675 "restore.epp"
+#line 2671 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							general_on_error ();
 						/*END_ERROR;*/
 						   }
 						}
-#line 2677 "restore.epp"
+#line 2673 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						break;
 				} // end of switch 
 			} // end of while 
 		/*END_ERROR;*/
 		   }
 		}
-#line 2681 "restore.epp"
+#line 2677 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_8);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_8);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 2683 "restore.epp"
+#line 2679 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_9);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_9);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 2685 "restore.epp"
+#line 2681 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
-	BURP_verbose (107, (void*) (SLONG) records, NULL, NULL, NULL, NULL);
+	BURP_verbose (107, records);
 	// msg 107 %ld records restored 
 
 	return record;
@@ -6597,17 +6593,17 @@ bool get_exception(void)
 	{
 	
         if (!tdgbl->handles_get_exception_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_exception_req_handle1, (short) sizeof (isc_469), (char *) isc_469);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_exception_req_handle1, (short) sizeof (isc_469), (char *) isc_469);
 	if (tdgbl->handles_get_exception_req_handle1)
 	   {
 	   isc_470.isc_472 = isc_blob_null;
-#line 2713 "restore.epp"
+#line 2709 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
-		isc_470.isc_474 = TRUE;
-#line 2714 "restore.epp"
+		isc_470.isc_475 = TRUE;
+#line 2710 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MESSAGE.NULL*/
 		isc_470.isc_473 = TRUE;
-#line 2715 "restore.epp"
+#line 2711 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -6616,39 +6612,39 @@ bool get_exception(void)
 			case att_exception_name:
 				l = GET_TEXT(/*X.RDB$EXCEPTION_NAME*/
 					     isc_470.isc_471);
-#line 2722 "restore.epp"
+#line 2718 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_terminate (/*X.RDB$EXCEPTION_NAME*/
 						isc_470.isc_471, temp, l, sizeof(temp));
-#line 2723 "restore.epp"
-				BURP_verbose (199, temp, NULL, NULL, NULL, NULL);
+#line 2719 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+				BURP_verbose (199, temp);
 				// msg 199 restoring exception %s 
 				break;
 
 			case att_exception_description:
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_470.isc_472, 0, false);
-#line 2729 "restore.epp"
+#line 2725 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$DESCRIPTION.NULL*/
-				isc_470.isc_474 = FALSE;
-#line 2730 "restore.epp"
+				isc_470.isc_475 = FALSE;
+#line 2726 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_exception_description2:
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_470.isc_472, false);
-#line 2734 "restore.epp"
+#line 2730 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$DESCRIPTION.NULL*/
-				isc_470.isc_474 = FALSE;
-#line 2735 "restore.epp"
+				isc_470.isc_475 = FALSE;
+#line 2731 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_exception_msg:
 				GET_TEXT(/*X.RDB$MESSAGE*/
-					 isc_470.isc_475);
-#line 2739 "restore.epp"
+					 isc_470.isc_474);
+#line 2735 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$MESSAGE.NULL*/
 				isc_470.isc_473 = FALSE;
-#line 2740 "restore.epp"
+#line 2736 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -6659,18 +6655,18 @@ bool get_exception(void)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_exception_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 123, &isc_470, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_exception_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 298, &isc_470, (short) 0);
 	   };
-#line 2749 "restore.epp"
+#line 2745 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2750 "restore.epp"
+#line 2746 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2752 "restore.epp"
+#line 2748 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -6712,69 +6708,69 @@ BURP_FLD get_field (BURP_REL	relation)
 	{
 	
         if (!tdgbl->handles_get_field_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_field_req_handle1, (short) sizeof (isc_434), (char *) isc_434);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_field_req_handle1, (short) sizeof (isc_434), (char *) isc_434);
 	if (tdgbl->handles_get_field_req_handle1)
 	   {
 	   isc_435.isc_438 = isc_blob_null;
 	   isc_435.isc_439 = isc_blob_null;
 	   isc_435.isc_441 = isc_blob_null;
 	   isc_435.isc_442 = isc_blob_null;
-#line 2790 "restore.epp"
+#line 2786 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$RELATION_NAME*/
 			isc_435.isc_446, relation->rel_name);
-#line 2791 "restore.epp"
+#line 2787 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_POSITION*/
 		isc_435.isc_468 = 0;
-#line 2792 "restore.epp"
+#line 2788 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		memset (/*X.RDB$QUERY_NAME*/
 			isc_435.isc_445, ' ', sizeof(/*X.RDB$QUERY_NAME*/
 	      isc_435.isc_445));
-#line 2793 "restore.epp"
+#line 2789 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VIEW_CONTEXT.NULL*/
 		isc_435.isc_466 = TRUE;
-#line 2794 "restore.epp"
+#line 2790 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$BASE_FIELD.NULL*/
 		isc_435.isc_465 = TRUE;
-#line 2795 "restore.epp"
+#line 2791 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SECURITY_CLASS.NULL*/
 		isc_435.isc_464 = TRUE;
-#line 2796 "restore.epp"
+#line 2792 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$QUERY_NAME.NULL*/
 		isc_435.isc_463 = TRUE;
-#line 2797 "restore.epp"
+#line 2793 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$QUERY_HEADER.NULL*/
 		isc_435.isc_462 = TRUE;
-#line 2798 "restore.epp"
+#line 2794 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EDIT_STRING.NULL*/
 		isc_435.isc_460 = TRUE;
-#line 2799 "restore.epp"
+#line 2795 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_435.isc_459 = TRUE;
-#line 2800 "restore.epp"
+#line 2796 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_POSITION.NULL*/
 		isc_435.isc_458 = TRUE;
-#line 2801 "restore.epp"
+#line 2797 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_435.isc_456 = TRUE;
-#line 2802 "restore.epp"
+#line 2798 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COMPLEX_NAME.NULL*/
 		isc_435.isc_455 = TRUE;
-#line 2803 "restore.epp"
+#line 2799 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$UPDATE_FLAG.NULL*/
 		isc_435.isc_453 = TRUE;
-#line 2804 "restore.epp"
+#line 2800 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_SOURCE.NULL*/
 		isc_435.isc_452 = TRUE;
-#line 2805 "restore.epp"
+#line 2801 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_VALUE.NULL*/
 		isc_435.isc_451 = TRUE;
-#line 2806 "restore.epp"
+#line 2802 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$NULL_FLAG.NULL*/
 		isc_435.isc_449 = TRUE;
-#line 2807 "restore.epp"
+#line 2803 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COLLATION_ID.NULL*/
 		isc_435.isc_447 = TRUE;
-#line 2808 "restore.epp"
+#line 2804 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -6782,62 +6778,62 @@ BURP_FLD get_field (BURP_REL	relation)
 			{
 			case att_field_name:
 				field->fld_name_length = GET_TEXT(field->fld_name);
-				BURP_verbose (115, field->fld_name, NULL, NULL, NULL, NULL);
+				BURP_verbose (115, field->fld_name);
 				// msg 115 restoring field %s
 				strcpy (/*X.RDB$FIELD_NAME*/
 					isc_435.isc_437, field->fld_name);
-#line 2818 "restore.epp"
+#line 2814 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_source:
 				GET_TEXT(/*X.RDB$FIELD_SOURCE*/
 					 isc_435.isc_436);
-#line 2822 "restore.epp"
+#line 2818 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_security_class:
 				GET_TEXT(/*X.RDB$SECURITY_CLASS*/
 					 isc_435.isc_443);
-#line 2826 "restore.epp"
+#line 2822 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SECURITY_CLASS.NULL*/
 				isc_435.isc_464 = FALSE;
-#line 2827 "restore.epp"
+#line 2823 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_query_name:
 				GET_TEXT(/*X.RDB$QUERY_NAME*/
 					 isc_435.isc_445);
-#line 2831 "restore.epp"
+#line 2827 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$QUERY_NAME.NULL*/
 				isc_435.isc_463 = FALSE;
-#line 2832 "restore.epp"
+#line 2828 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_query_header:
 				/*X.RDB$QUERY_HEADER.NULL*/
 				isc_435.isc_462 = FALSE;
-#line 2836 "restore.epp"
+#line 2832 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$QUERY_HEADER*/
 						  isc_435.isc_442, global_tr);
-#line 2837 "restore.epp"
+#line 2833 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_edit_string:
 				GET_TEXT(/*X.RDB$EDIT_STRING*/
 					 isc_435.isc_461);
-#line 2841 "restore.epp"
+#line 2837 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$EDIT_STRING.NULL*/
 				isc_435.isc_460 = FALSE;
-#line 2842 "restore.epp"
+#line 2838 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_position:
 				/*X.RDB$FIELD_POSITION.NULL*/
 				isc_435.isc_458 = FALSE;
-#line 2846 "restore.epp"
+#line 2842 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$FIELD_POSITION*/
 				isc_435.isc_468 = (USHORT) get_numeric();
-#line 2847 "restore.epp"
+#line 2843 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_number:
@@ -6863,19 +6859,19 @@ BURP_FLD get_field (BURP_REL	relation)
 			case att_field_system_flag:
 				/*X.RDB$SYSTEM_FLAG*/
 				isc_435.isc_457 = (USHORT) get_numeric();
-#line 2871 "restore.epp"
+#line 2867 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SYSTEM_FLAG.NULL*/
 				isc_435.isc_456 = FALSE;
-#line 2872 "restore.epp"
+#line 2868 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_view_context:
 				/*X.RDB$VIEW_CONTEXT*/
 				isc_435.isc_467 = (USHORT) get_numeric();
-#line 2876 "restore.epp"
+#line 2872 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$VIEW_CONTEXT.NULL*/
 				isc_435.isc_466 = FALSE;
-#line 2877 "restore.epp"
+#line 2873 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_computed_flag:
@@ -6886,37 +6882,37 @@ BURP_FLD get_field (BURP_REL	relation)
 			case att_base_field:
 				GET_TEXT(/*X.RDB$BASE_FIELD*/
 					 isc_435.isc_444);
-#line 2886 "restore.epp"
+#line 2882 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$BASE_FIELD.NULL*/
 				isc_435.isc_465 = FALSE;
-#line 2887 "restore.epp"
+#line 2883 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_435.isc_459 = FALSE;
-#line 2891 "restore.epp"
+#line 2887 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_435.isc_441, 1, global_tr);
-#line 2892 "restore.epp"
+#line 2888 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_description2:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_435.isc_459 = FALSE;
-#line 2896 "restore.epp"
+#line 2892 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_435.isc_441, global_tr);
-#line 2897 "restore.epp"
+#line 2893 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_complex_name:
 				GET_TEXT(/*X.RDB$COMPLEX_NAME*/
 					 isc_435.isc_440);
-#line 2901 "restore.epp"
+#line 2897 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$COMPLEX_NAME.NULL*/
 				isc_435.isc_455 = FALSE;
-#line 2902 "restore.epp"
+#line 2898 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_dimensions:
@@ -6943,10 +6939,10 @@ BURP_FLD get_field (BURP_REL	relation)
 			case att_field_update_flag:
 				/*X.RDB$UPDATE_FLAG.NULL*/
 				isc_435.isc_453 = FALSE;
-#line 2927 "restore.epp"
+#line 2923 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$UPDATE_FLAG*/
 				isc_435.isc_454 = (USHORT) get_numeric();
-#line 2928 "restore.epp"
+#line 2924 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_character_length:
@@ -6956,28 +6952,28 @@ BURP_FLD get_field (BURP_REL	relation)
 			case att_field_default_source:
 				/*X.RDB$DEFAULT_SOURCE.NULL*/
 				isc_435.isc_452 = FALSE;
-#line 2936 "restore.epp"
+#line 2932 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DEFAULT_SOURCE*/
 						  isc_435.isc_439, global_tr);
-#line 2937 "restore.epp"
+#line 2933 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_default_value:
 				/*X.RDB$DEFAULT_VALUE.NULL*/
 				isc_435.isc_451 = FALSE;
-#line 2941 "restore.epp"
+#line 2937 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_blr_blob (&/*X.RDB$DEFAULT_VALUE*/
 					       isc_435.isc_438, global_tr);
-#line 2942 "restore.epp"
+#line 2938 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_null_flag:
 				/*X.RDB$NULL_FLAG.NULL*/
 				isc_435.isc_449 = FALSE;
-#line 2946 "restore.epp"
+#line 2942 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$NULL_FLAG*/
 				isc_435.isc_450 = (USHORT) get_numeric();
-#line 2947 "restore.epp"
+#line 2943 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_character_set:
@@ -6988,10 +6984,10 @@ BURP_FLD get_field (BURP_REL	relation)
 				field->fld_collation_id = (USHORT) get_numeric();
 				/*X.RDB$COLLATION_ID.NULL*/
 				isc_435.isc_447 = FALSE;
-#line 2956 "restore.epp"
+#line 2952 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$COLLATION_ID*/
 				isc_435.isc_448 = field->fld_collation_id;
-#line 2957 "restore.epp"
+#line 2953 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -7003,18 +6999,18 @@ BURP_FLD get_field (BURP_REL	relation)
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_field_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 424, &isc_435, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_field_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 424, &isc_435, (short) 0);
 	   };
-#line 2967 "restore.epp"
+#line 2963 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2968 "restore.epp"
+#line 2964 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2970 "restore.epp"
+#line 2966 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return field;
 }
@@ -7041,10 +7037,10 @@ bool get_field_dimensions()
 	{
 	
         if (!tdgbl->handles_get_field_dimensions_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (short) sizeof (isc_428), (char *) isc_428);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (short) sizeof (isc_428), (char *) isc_428);
 	if (tdgbl->handles_get_field_dimensions_req_handle1)
 	   {
-#line 2993 "restore.epp"
+#line 2989 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -7053,25 +7049,25 @@ bool get_field_dimensions()
 			case att_field_name:
 				GET_TEXT(/*X.RDB$FIELD_NAME*/
 					 isc_429.isc_430);
-#line 3000 "restore.epp"
+#line 2996 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_dimensions:
 				/*X.RDB$DIMENSION*/
 				isc_429.isc_433 = (USHORT) get_numeric();
-#line 3004 "restore.epp"
+#line 3000 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_range_low:
 				/*X.RDB$LOWER_BOUND*/
 				isc_429.isc_432 = get_numeric();
-#line 3008 "restore.epp"
+#line 3004 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_field_range_high:
 				/*X.RDB$UPPER_BOUND*/
 				isc_429.isc_431 = get_numeric();
-#line 3012 "restore.epp"
+#line 3008 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -7082,18 +7078,18 @@ bool get_field_dimensions()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 42, &isc_429, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_field_dimensions_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 42, &isc_429, (short) 0);
 	   };
-#line 3021 "restore.epp"
+#line 3017 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3022 "restore.epp"
+#line 3018 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3024 "restore.epp"
+#line 3020 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -7121,13 +7117,13 @@ bool get_files()
 	{
 	
         if (!tdgbl->handles_get_files_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_files_req_handle1, (short) sizeof (isc_420), (char *) isc_420);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_files_req_handle1, (short) sizeof (isc_420), (char *) isc_420);
 	if (tdgbl->handles_get_files_req_handle1)
 	   {
-#line 3048 "restore.epp"
+#line 3044 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FILE_FLAGS*/
 		isc_421.isc_427 = 0;
-#line 3049 "restore.epp"
+#line 3045 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -7136,48 +7132,48 @@ bool get_files()
 			case att_file_filename:
 				GET_TEXT(/*X.RDB$FILE_NAME*/
 					 isc_421.isc_426);
-#line 3056 "restore.epp"
+#line 3052 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose (116,
 					/*X.RDB$FILE_NAME*/
-					isc_421.isc_426, NULL, NULL, NULL, NULL);
-#line 3058 "restore.epp"
+					isc_421.isc_426);
+#line 3054 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				// msg 116 restoring file %s 
 				break;
 
 			case att_file_sequence:
 				/*X.RDB$FILE_SEQUENCE*/
 				isc_421.isc_425 = (USHORT) get_numeric();
-#line 3063 "restore.epp"
+#line 3059 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_file_start:
 				/*X.RDB$FILE_START*/
 				isc_421.isc_423 = get_numeric();
-#line 3067 "restore.epp"
+#line 3063 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_file_length:
 				/*X.RDB$FILE_LENGTH*/
 				isc_421.isc_422 = get_numeric();
-#line 3071 "restore.epp"
+#line 3067 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_file_flags:
 				/*X.RDB$FILE_FLAGS*/
 				isc_421.isc_427 |= get_numeric();
-#line 3075 "restore.epp"
+#line 3071 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_shadow_number:
 				/*X.RDB$SHADOW_NUMBER*/
 				isc_421.isc_424 = (USHORT) get_numeric();
-#line 3079 "restore.epp"
+#line 3075 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				if (tdgbl->gbl_sw_kill && /*X.RDB$SHADOW_NUMBER*/
 							  isc_421.isc_424)
-#line 3080 "restore.epp"
+#line 3076 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FILE_FLAGS*/
 					isc_421.isc_427 |= FILE_inactive;
-#line 3081 "restore.epp"
+#line 3077 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -7188,18 +7184,18 @@ bool get_files()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_files_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 268, &isc_421, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_files_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 268, &isc_421, (short) 0);
 	   };
-#line 3090 "restore.epp"
+#line 3086 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3091 "restore.epp"
+#line 3087 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3093 "restore.epp"
+#line 3089 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -7226,14 +7222,14 @@ bool get_filter()
 	{
 	
         if (!tdgbl->handles_get_filter_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_filter_req_handle1, (short) sizeof (isc_411), (char *) isc_411);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_filter_req_handle1, (short) sizeof (isc_411), (char *) isc_411);
 	if (tdgbl->handles_get_filter_req_handle1)
 	   {
 	   isc_412.isc_415 = isc_blob_null;
-#line 3116 "restore.epp"
+#line 3112 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_412.isc_419 = TRUE;
-#line 3117 "restore.epp"
+#line 3113 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -7242,53 +7238,53 @@ bool get_filter()
 			case att_filter_name:
 				GET_TEXT(/*X.RDB$FUNCTION_NAME*/
 					 isc_412.isc_414);
-#line 3124 "restore.epp"
+#line 3120 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose (117, /*X.RDB$FUNCTION_NAME*/
-						   isc_412.isc_414, NULL, NULL, NULL, NULL);
-#line 3125 "restore.epp"
+						   isc_412.isc_414);
+#line 3121 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				// msg 117 restoring filter %s 
 				break;
 
 			case att_filter_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_412.isc_419 = FALSE;
-#line 3130 "restore.epp"
+#line 3126 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_412.isc_415, 1, false);
-#line 3131 "restore.epp"
+#line 3127 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_filter_description2:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_412.isc_419 = FALSE;
-#line 3135 "restore.epp"
+#line 3131 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_412.isc_415, false);
-#line 3136 "restore.epp"
+#line 3132 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_filter_module_name:
 				GET_TEXT(/*X.RDB$MODULE_NAME*/
 					 isc_412.isc_418);
-#line 3140 "restore.epp"
+#line 3136 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_filter_entrypoint:
 				GET_TEXT(/*X.RDB$ENTRYPOINT*/
 					 isc_412.isc_413);
-#line 3144 "restore.epp"
+#line 3140 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_filter_input_sub_type:
 				/*X.RDB$INPUT_SUB_TYPE*/
 				isc_412.isc_417 = (USHORT) get_numeric();
-#line 3148 "restore.epp"
+#line 3144 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_filter_output_sub_type:
 				/*X.RDB$OUTPUT_SUB_TYPE*/
 				isc_412.isc_416 = (USHORT) get_numeric();
-#line 3152 "restore.epp"
+#line 3148 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -7299,18 +7295,18 @@ bool get_filter()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_filter_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 332, &isc_412, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_filter_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 332, &isc_412, (short) 0);
 	   };
-#line 3161 "restore.epp"
+#line 3157 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3162 "restore.epp"
+#line 3158 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3164 "restore.epp"
+#line 3160 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -7340,11 +7336,11 @@ bool get_function()
 	{
 	
         if (!tdgbl->handles_get_function_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_function_req_handle1, (short) sizeof (isc_402), (char *) isc_402);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_function_req_handle1, (short) sizeof (isc_402), (char *) isc_402);
 	if (tdgbl->handles_get_function_req_handle1)
 	   {
 	   isc_403.isc_406 = isc_blob_null;
-#line 3190 "restore.epp"
+#line 3186 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -7353,54 +7349,54 @@ bool get_function()
 			case att_function_name:
 				l = GET_TEXT(/*X.RDB$FUNCTION_NAME*/
 					     isc_403.isc_407);
-#line 3197 "restore.epp"
+#line 3193 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 						isc_403.isc_407, temp, l, sizeof(temp));
-#line 3198 "restore.epp"
-				BURP_verbose (118, temp, NULL, NULL, NULL, NULL);
+#line 3194 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+				BURP_verbose (118, temp);
 				// msg 118 restoring function %s 
 				break;
 
 			case att_function_description:
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_403.isc_406, 0, false);
-#line 3204 "restore.epp"
+#line 3200 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_function_description2:
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_403.isc_406, false);
-#line 3208 "restore.epp"
+#line 3204 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_function_module_name:
 				GET_TEXT(/*X.RDB$MODULE_NAME*/
 					 isc_403.isc_410);
-#line 3212 "restore.epp"
+#line 3208 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_function_entrypoint:
 				GET_TEXT(/*X.RDB$ENTRYPOINT*/
 					 isc_403.isc_405);
-#line 3216 "restore.epp"
+#line 3212 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_function_return_arg:
 				/*X.RDB$RETURN_ARGUMENT*/
 				isc_403.isc_409 = (USHORT) get_numeric();
-#line 3220 "restore.epp"
+#line 3216 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_function_query_name:
 				GET_TEXT(/*X.RDB$QUERY_NAME*/
 					 isc_403.isc_404);
-#line 3224 "restore.epp"
+#line 3220 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_function_type:
 				/*X.RDB$FUNCTION_TYPE*/
 				isc_403.isc_408 = (USHORT) get_numeric();
-#line 3228 "restore.epp"
+#line 3224 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -7411,21 +7407,21 @@ bool get_function()
 		}
 	strcpy (function_name, /*X.RDB$FUNCTION_NAME*/
 			       isc_403.isc_407);
-#line 3237 "restore.epp"
+#line 3233 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_function_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 362, &isc_403, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_function_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 362, &isc_403, (short) 0);
 	   };
-#line 3238 "restore.epp"
+#line 3234 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3239 "restore.epp"
+#line 3235 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3241 "restore.epp"
+#line 3237 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	// at the end of args for a function is the rec_function_end marker 
 	while (get(tdgbl) == rec_function_arg)
@@ -7461,19 +7457,19 @@ void get_function_arg()
 		{
 		
                 if (!tdgbl->handles_get_function_arg_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_388), (char *) isc_388);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_388), (char *) isc_388);
 		if (tdgbl->handles_get_function_arg_req_handle1)
 		   {
-#line 3273 "restore.epp"
+#line 3269 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_SUB_TYPE.NULL*/
 		isc_389.isc_400 = TRUE;
-#line 3274 "restore.epp"
+#line 3270 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID.NULL*/
 		isc_389.isc_398 = TRUE;
-#line 3275 "restore.epp"
+#line 3271 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_PRECISION.NULL*/
 		isc_389.isc_396  = TRUE;
-#line 3276 "restore.epp"
+#line 3272 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			skip_init(&scan_next_attr);
 			while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
@@ -7483,69 +7479,69 @@ void get_function_arg()
 				case att_functionarg_name:
 					l = GET_TEXT(/*X.RDB$FUNCTION_NAME*/
 						     isc_389.isc_390);
-#line 3284 "restore.epp"
+#line 3280 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 							isc_389.isc_390, temp, l, sizeof(temp));
-#line 3285 "restore.epp"
-					BURP_verbose (119, temp, NULL, NULL, NULL, NULL);
+#line 3281 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+					BURP_verbose (119, temp);
 					// msg 119 restoring argument for function %s 
 					break;
 
 				case att_functionarg_position:
 					/*X.RDB$ARGUMENT_POSITION*/
 					isc_389.isc_395 = (USHORT) get_numeric();
-#line 3291 "restore.epp"
+#line 3287 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_mechanism:
 					/*X.RDB$MECHANISM*/
 					isc_389.isc_394 = (USHORT) get_numeric();
-#line 3295 "restore.epp"
+#line 3291 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_type:
 					/*X.RDB$FIELD_TYPE*/
 					isc_389.isc_393 = (USHORT) get_numeric();
-#line 3299 "restore.epp"
+#line 3295 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_scale:
 					/*X.RDB$FIELD_SCALE*/
 					isc_389.isc_392 = (USHORT) get_numeric();
-#line 3303 "restore.epp"
+#line 3299 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_length:
 					/*X.RDB$FIELD_LENGTH*/
 					isc_389.isc_391 = (USHORT) get_numeric();
-#line 3307 "restore.epp"
+#line 3303 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_sub_type:
 					/*X.RDB$FIELD_SUB_TYPE.NULL*/
 					isc_389.isc_400 = FALSE;
-#line 3311 "restore.epp"
+#line 3307 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_SUB_TYPE*/
 					isc_389.isc_401 = (USHORT) get_numeric();
-#line 3312 "restore.epp"
+#line 3308 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_character_set:
 					/*X.RDB$CHARACTER_SET_ID.NULL*/
 					isc_389.isc_398 = FALSE;
-#line 3316 "restore.epp"
+#line 3312 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$CHARACTER_SET_ID*/
 					isc_389.isc_399 = (USHORT) get_numeric();
-#line 3317 "restore.epp"
+#line 3313 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_precision:
 					/*X.RDB$FIELD_PRECISION.NULL*/
 					isc_389.isc_396 = FALSE;
-#line 3321 "restore.epp"
+#line 3317 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_PRECISION*/
 					isc_389.isc_397 = (USHORT) get_numeric();
-#line 3322 "restore.epp"
+#line 3318 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				default:
@@ -7556,18 +7552,18 @@ void get_function_arg()
 			}
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 54, &isc_389, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 54, &isc_389, (short) 0);
 		   };
-#line 3331 "restore.epp"
+#line 3327 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3332 "restore.epp"
+#line 3328 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3334 "restore.epp"
+#line 3330 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 	else
 	{
@@ -7577,16 +7573,16 @@ void get_function_arg()
 		{
 		
                 if (!tdgbl->handles_get_function_arg_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_376), (char *) isc_376);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (short) sizeof (isc_376), (char *) isc_376);
 		if (tdgbl->handles_get_function_arg_req_handle1)
 		   {
-#line 3340 "restore.epp"
+#line 3336 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_SUB_TYPE.NULL*/
 		isc_377.isc_386 = TRUE;
-#line 3341 "restore.epp"
+#line 3337 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID.NULL*/
 		isc_377.isc_384 = TRUE;
-#line 3342 "restore.epp"
+#line 3338 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			skip_init(&scan_next_attr);
 			while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
@@ -7596,60 +7592,60 @@ void get_function_arg()
 				case att_functionarg_name:
 					l = GET_TEXT(/*X.RDB$FUNCTION_NAME*/
 						     isc_377.isc_378);
-#line 3350 "restore.epp"
+#line 3346 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 							isc_377.isc_378, temp, l, sizeof(temp));
-#line 3351 "restore.epp"
-					BURP_verbose (119, temp, NULL, NULL, NULL, NULL);
+#line 3347 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+					BURP_verbose (119, temp);
 					// msg 119 restoring argument for function %s 
 					break;
 
 				case att_functionarg_position:
 					/*X.RDB$ARGUMENT_POSITION*/
 					isc_377.isc_383 = (USHORT) get_numeric();
-#line 3357 "restore.epp"
+#line 3353 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_mechanism:
 					/*X.RDB$MECHANISM*/
 					isc_377.isc_382 = (USHORT) get_numeric();
-#line 3361 "restore.epp"
+#line 3357 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_type:
 					/*X.RDB$FIELD_TYPE*/
 					isc_377.isc_381 = (USHORT) get_numeric();
-#line 3365 "restore.epp"
+#line 3361 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_scale:
 					/*X.RDB$FIELD_SCALE*/
 					isc_377.isc_380 = (USHORT) get_numeric();
-#line 3369 "restore.epp"
+#line 3365 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_length:
 					/*X.RDB$FIELD_LENGTH*/
 					isc_377.isc_379 = (USHORT) get_numeric();
-#line 3373 "restore.epp"
+#line 3369 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_field_sub_type:
 					/*X.RDB$FIELD_SUB_TYPE.NULL*/
 					isc_377.isc_386 = FALSE;
-#line 3377 "restore.epp"
+#line 3373 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_SUB_TYPE*/
 					isc_377.isc_387 = (USHORT) get_numeric();
-#line 3378 "restore.epp"
+#line 3374 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_functionarg_character_set:
 					/*X.RDB$CHARACTER_SET_ID.NULL*/
 					isc_377.isc_384 = FALSE;
-#line 3382 "restore.epp"
+#line 3378 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$CHARACTER_SET_ID*/
 					isc_377.isc_385 = (USHORT) get_numeric();
-#line 3383 "restore.epp"
+#line 3379 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				default:
@@ -7660,18 +7656,18 @@ void get_function_arg()
 			}
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 50, &isc_377, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_function_arg_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 50, &isc_377, (short) 0);
 		   };
-#line 3392 "restore.epp"
+#line 3388 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3393 "restore.epp"
+#line 3389 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3395 "restore.epp"
+#line 3391 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 }
 
@@ -7695,7 +7691,7 @@ bool get_generator()
 	char
 	   name[32];
 
-#line 3415 "restore.epp"
+#line 3411 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	name[0] = 0; // just in case.
 	ATT_TYPE	attribute;
 	scan_attr_t		scan_next_attr;
@@ -7761,7 +7757,7 @@ bool get_global_field()
 		{
 		
                 if (!tdgbl->handles_get_global_field_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_321), (char *) isc_321);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_321), (char *) isc_321);
 		if (tdgbl->handles_get_global_field_req_handle1)
 		   {
 		   isc_322.isc_324 = isc_blob_null;
@@ -7774,96 +7770,96 @@ bool get_global_field()
 		   isc_322.isc_331 = isc_blob_null;
 		   isc_322.isc_333 = isc_blob_null;
 		   isc_322.isc_334 = isc_blob_null;
-#line 3477 "restore.epp"
+#line 3473 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*X.RDB$FIELD_SCALE*/
 		isc_322.isc_375 = /*X.RDB$SEGMENT_LENGTH*/
    isc_322.isc_374 = 0;
-#line 3479 "restore.epp"
+#line 3475 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID*/
 		isc_322.isc_373 = /*X.RDB$COLLATION_ID*/
    isc_322.isc_372 = 0;
-#line 3480 "restore.epp"
+#line 3476 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_SUB_TYPE*/
 		isc_322.isc_371 = 0;
-#line 3481 "restore.epp"
+#line 3477 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COMPUTED_BLR.NULL*/
 		isc_322.isc_370 = TRUE;
-#line 3482 "restore.epp"
+#line 3478 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COMPUTED_SOURCE.NULL*/
 		isc_322.isc_369 = TRUE;
-#line 3483 "restore.epp"
+#line 3479 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$QUERY_NAME.NULL*/
 		isc_322.isc_368 = TRUE;
-#line 3484 "restore.epp"
+#line 3480 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EDIT_STRING.NULL*/
 		isc_322.isc_366 = TRUE;
-#line 3485 "restore.epp"
+#line 3481 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$QUERY_HEADER.NULL*/
 		isc_322.isc_365 = TRUE;
-#line 3486 "restore.epp"
+#line 3482 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MISSING_VALUE.NULL*/
 		isc_322.isc_364 = TRUE;
-#line 3487 "restore.epp"
+#line 3483 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_VALUE.NULL*/
 		isc_322.isc_363 = TRUE;
-#line 3488 "restore.epp"
+#line 3484 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VALIDATION_BLR.NULL*/
 		isc_322.isc_362 = TRUE;
-#line 3489 "restore.epp"
+#line 3485 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VALIDATION_SOURCE.NULL*/
 		isc_322.isc_361 = TRUE;
-#line 3490 "restore.epp"
+#line 3486 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_322.isc_359 = TRUE;
-#line 3491 "restore.epp"
+#line 3487 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$NULL_FLAG.NULL*/
 		isc_322.isc_357 = TRUE;
-#line 3492 "restore.epp"
+#line 3488 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_322.isc_356 = TRUE;
-#line 3493 "restore.epp"
+#line 3489 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DIMENSIONS.NULL*/
 		isc_322.isc_354 = TRUE;
-#line 3494 "restore.epp"
+#line 3490 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_LENGTH.NULL*/
 		isc_322.isc_352 = TRUE;
-#line 3495 "restore.epp"
+#line 3491 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_TYPE.NULL*/
 		isc_322.isc_350 = TRUE;
-#line 3496 "restore.epp"
+#line 3492 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_SCALE.NULL*/
 		isc_322.isc_348 = TRUE;
-#line 3497 "restore.epp"
+#line 3493 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SEGMENT_LENGTH.NULL*/
 		isc_322.isc_347 = TRUE;
-#line 3498 "restore.epp"
+#line 3494 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_LENGTH.NULL*/
 		isc_322.isc_345 = TRUE;
-#line 3499 "restore.epp"
+#line 3495 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MISSING_SOURCE.NULL*/
 		isc_322.isc_344 = TRUE;
-#line 3500 "restore.epp"
+#line 3496 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_SOURCE.NULL*/
 		isc_322.isc_343 = TRUE;
-#line 3501 "restore.epp"
+#line 3497 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_SUB_TYPE.NULL*/
 		isc_322.isc_342 = TRUE;
-#line 3502 "restore.epp"
+#line 3498 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID.NULL*/
 		isc_322.isc_341 = TRUE;
-#line 3503 "restore.epp"
+#line 3499 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COLLATION_ID.NULL*/
 		isc_322.isc_340 = TRUE;
-#line 3504 "restore.epp"
+#line 3500 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_PRECISION.NULL*/
 		isc_322.isc_338 = TRUE;
-#line 3505 "restore.epp"
+#line 3501 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			memset (/*X.RDB$QUERY_NAME*/
 				isc_322.isc_332, ' ', sizeof(/*X.RDB$QUERY_NAME*/
 	      isc_322.isc_332));
-#line 3507 "restore.epp"
+#line 3503 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			skip_init(&scan_next_attr);
 			while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 			{
@@ -7872,108 +7868,108 @@ bool get_global_field()
 				case att_field_name:
 					l = GET_TEXT(/*X.RDB$FIELD_NAME*/
 						     isc_322.isc_323);
-#line 3514 "restore.epp"
+#line 3510 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					MISC_terminate (/*X.RDB$FIELD_NAME*/
 							isc_322.isc_323, temp, l, sizeof(temp));
-#line 3515 "restore.epp"
-					BURP_verbose (121, temp, NULL, NULL, NULL, NULL);
+#line 3511 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+					BURP_verbose (121, temp);
 					// msg 121  restoring global field %s 
 					break;
 
 				case att_field_query_name:
 					GET_TEXT(/*X.RDB$QUERY_NAME*/
 						 isc_322.isc_332);
-#line 3521 "restore.epp"
+#line 3517 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$QUERY_NAME.NULL*/
 					isc_322.isc_368 = FALSE;
-#line 3522 "restore.epp"
+#line 3518 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_edit_string:
 					GET_TEXT(/*X.RDB$EDIT_STRING*/
 						 isc_322.isc_367);
-#line 3526 "restore.epp"
+#line 3522 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EDIT_STRING.NULL*/
 					isc_322.isc_366 = FALSE;
-#line 3527 "restore.epp"
+#line 3523 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_query_header:
 					/*X.RDB$QUERY_HEADER.NULL*/
 					isc_322.isc_365 = FALSE;
-#line 3531 "restore.epp"
+#line 3527 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$QUERY_HEADER*/
 							  isc_322.isc_331, false);
-#line 3532 "restore.epp"
+#line 3528 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_type:
 					/*X.RDB$FIELD_TYPE*/
 					isc_322.isc_337 = (USHORT) get_numeric();
-#line 3536 "restore.epp"
+#line 3532 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_length:
 					/*X.RDB$FIELD_LENGTH*/
 					isc_322.isc_336 = (USHORT) get_numeric();
-#line 3540 "restore.epp"
+#line 3536 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_scale:
 					/*X.RDB$FIELD_SCALE*/
 					isc_322.isc_375 = (USHORT) get_numeric();
-#line 3544 "restore.epp"
+#line 3540 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_SCALE.NULL*/
 					isc_322.isc_335 = FALSE;
-#line 3545 "restore.epp"
+#line 3541 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_sub_type:
 					/*X.RDB$FIELD_SUB_TYPE*/
 					isc_322.isc_371 = (USHORT) get_numeric();
-#line 3549 "restore.epp"
+#line 3545 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_SUB_TYPE.NULL*/
 					isc_322.isc_342 = FALSE;
-#line 3550 "restore.epp"
+#line 3546 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_segment_length:
 					/*X.RDB$SEGMENT_LENGTH*/
 					isc_322.isc_374 = (USHORT) get_numeric();
-#line 3554 "restore.epp"
+#line 3550 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					if (/*X.RDB$SEGMENT_LENGTH*/
 					    isc_322.isc_374)
-#line 3555 "restore.epp"
+#line 3551 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*X.RDB$SEGMENT_LENGTH.NULL*/
 						isc_322.isc_347 = FALSE;
-#line 3556 "restore.epp"
+#line 3552 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_computed_blr:
 					/*X.RDB$COMPUTED_BLR.NULL*/
 					isc_322.isc_370 = FALSE;
-#line 3560 "restore.epp"
+#line 3556 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_blr_blob (&/*X.RDB$COMPUTED_BLR*/
 						       isc_322.isc_334, false);
-#line 3561 "restore.epp"
+#line 3557 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_computed_source:
 					/*X.RDB$COMPUTED_SOURCE.NULL*/
 					isc_322.isc_369 = FALSE;
-#line 3565 "restore.epp"
+#line 3561 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_misc_blob (&/*X.RDB$COMPUTED_SOURCE*/
 							isc_322.isc_333, 1, false);
-#line 3566 "restore.epp"
+#line 3562 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_computed_source2:
 					/*X.RDB$COMPUTED_SOURCE.NULL*/
 					isc_322.isc_369 = FALSE;
-#line 3570 "restore.epp"
+#line 3566 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$COMPUTED_SOURCE*/
 							  isc_322.isc_333, false);
-#line 3571 "restore.epp"
+#line 3567 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_validation_blr:
@@ -7996,10 +7992,10 @@ bool get_global_field()
 						{
 							/*X.RDB$VALIDATION_BLR.NULL*/
 							isc_322.isc_362 = FALSE;
-#line 3592 "restore.epp"
+#line 3588 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							get_blr_blob (&/*X.RDB$VALIDATION_BLR*/
 								       isc_322.isc_328, false);
-#line 3593 "restore.epp"
+#line 3589 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						}
 					}
 					break;
@@ -8024,10 +8020,10 @@ bool get_global_field()
 						{
 							/*X.RDB$VALIDATION_SOURCE.NULL*/
 							isc_322.isc_361 = FALSE;
-#line 3616 "restore.epp"
+#line 3612 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							get_misc_blob (&/*X.RDB$VALIDATION_SOURCE*/
 									isc_322.isc_327, 0, false);
-#line 3617 "restore.epp"
+#line 3613 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						}
 					}
 					break;
@@ -8052,10 +8048,10 @@ bool get_global_field()
 						{
 							/*X.RDB$VALIDATION_SOURCE.NULL*/
 							isc_322.isc_361 = FALSE;
-#line 3640 "restore.epp"
+#line 3636 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							get_source_blob (&/*X.RDB$VALIDATION_SOURCE*/
 									  isc_322.isc_327, false);
-#line 3641 "restore.epp"
+#line 3637 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						}
 					}
 					break;
@@ -8063,145 +8059,145 @@ bool get_global_field()
 				case att_field_missing_value:
 					/*X.RDB$MISSING_VALUE.NULL*/
 					isc_322.isc_364 = FALSE;
-#line 3647 "restore.epp"
+#line 3643 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_blr_blob (&/*X.RDB$MISSING_VALUE*/
 						       isc_322.isc_330, false);
-#line 3648 "restore.epp"
+#line 3644 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_default_value:
 					/*X.RDB$DEFAULT_VALUE.NULL*/
 					isc_322.isc_363 = FALSE;
-#line 3652 "restore.epp"
+#line 3648 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_blr_blob (&/*X.RDB$DEFAULT_VALUE*/
 						       isc_322.isc_329, false);
-#line 3653 "restore.epp"
+#line 3649 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_system_flag:
 					/*X.RDB$SYSTEM_FLAG*/
 					isc_322.isc_360 = (USHORT) get_numeric();
-#line 3657 "restore.epp"
+#line 3653 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$SYSTEM_FLAG.NULL*/
 					isc_322.isc_359 = FALSE;
-#line 3658 "restore.epp"
+#line 3654 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_null_flag:
 					/*X.RDB$NULL_FLAG*/
 					isc_322.isc_358 = (USHORT) get_numeric();
-#line 3662 "restore.epp"
+#line 3658 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$NULL_FLAG.NULL*/
 					isc_322.isc_357 = FALSE;
-#line 3663 "restore.epp"
+#line 3659 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_description:
 					/*X.RDB$DESCRIPTION.NULL*/
 					isc_322.isc_356 = FALSE;
-#line 3667 "restore.epp"
+#line 3663 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_misc_blob (&/*X.RDB$DESCRIPTION*/
 							isc_322.isc_326, 1, false);
-#line 3668 "restore.epp"
+#line 3664 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_description2:
 					/*X.RDB$DESCRIPTION.NULL*/
 					isc_322.isc_356 = FALSE;
-#line 3672 "restore.epp"
+#line 3668 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$DESCRIPTION*/
 							  isc_322.isc_326, false);
-#line 3673 "restore.epp"
+#line 3669 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_external_length:
 					/*X.RDB$EXTERNAL_LENGTH.NULL*/
 					isc_322.isc_352 = FALSE;
-#line 3677 "restore.epp"
+#line 3673 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EXTERNAL_LENGTH*/
 					isc_322.isc_353 = (USHORT) get_numeric();
-#line 3678 "restore.epp"
+#line 3674 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_external_scale:
 					/*X.RDB$EXTERNAL_SCALE.NULL*/
 					isc_322.isc_348 = FALSE;
-#line 3682 "restore.epp"
+#line 3678 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EXTERNAL_SCALE*/
 					isc_322.isc_349 = (USHORT) get_numeric();
-#line 3683 "restore.epp"
+#line 3679 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_external_type:
 					/*X.RDB$EXTERNAL_TYPE.NULL*/
 					isc_322.isc_350 = FALSE;
-#line 3687 "restore.epp"
+#line 3683 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EXTERNAL_TYPE*/
 					isc_322.isc_351 = (USHORT) get_numeric();
-#line 3688 "restore.epp"
+#line 3684 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_dimensions:
 					/*X.RDB$DIMENSIONS.NULL*/
 					isc_322.isc_354 = FALSE;
-#line 3692 "restore.epp"
+#line 3688 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$DIMENSIONS*/
 					isc_322.isc_355 = (USHORT) get_numeric();
-#line 3693 "restore.epp"
+#line 3689 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_character_length:
 					/*X.RDB$CHARACTER_LENGTH.NULL*/
 					isc_322.isc_345 = FALSE;
-#line 3697 "restore.epp"
+#line 3693 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$CHARACTER_LENGTH*/
 					isc_322.isc_346 = (USHORT) get_numeric();
-#line 3698 "restore.epp"
+#line 3694 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_default_source:
 					/*X.RDB$DEFAULT_SOURCE.NULL*/
 					isc_322.isc_343 = FALSE;
-#line 3702 "restore.epp"
+#line 3698 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$DEFAULT_SOURCE*/
 							  isc_322.isc_324, false);
-#line 3703 "restore.epp"
+#line 3699 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_missing_source:
 					/*X.RDB$MISSING_SOURCE.NULL*/
 					isc_322.isc_344 = FALSE;
-#line 3707 "restore.epp"
+#line 3703 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$MISSING_SOURCE*/
 							  isc_322.isc_325, false);
-#line 3708 "restore.epp"
+#line 3704 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_character_set:
 					/*X.RDB$CHARACTER_SET_ID.NULL*/
 					isc_322.isc_341 = FALSE;
-#line 3712 "restore.epp"
+#line 3708 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$CHARACTER_SET_ID*/
 					isc_322.isc_373 = (USHORT) get_numeric();
-#line 3713 "restore.epp"
+#line 3709 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_collation_id:
 					/*X.RDB$COLLATION_ID.NULL*/
 					isc_322.isc_340 = FALSE;
-#line 3717 "restore.epp"
+#line 3713 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$COLLATION_ID*/
 					isc_322.isc_372 = (USHORT) get_numeric();
-#line 3718 "restore.epp"
+#line 3714 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_precision:
 					/*X.RDB$FIELD_PRECISION.NULL*/
 					isc_322.isc_338 = FALSE;
-#line 3722 "restore.epp"
+#line 3718 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_PRECISION*/
 					isc_322.isc_339 = (USHORT) get_numeric();
-#line 3723 "restore.epp"
+#line 3719 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				default:
@@ -8213,36 +8209,36 @@ bool get_global_field()
 
 			if (/*X.RDB$FIELD_TYPE*/
 			    isc_322.isc_337 <= DTYPE_BLR_MAX)
-#line 3733 "restore.epp"
+#line 3729 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			{
 				l = gds_cvt_blr_dtype[/*X.RDB$FIELD_TYPE*/
 						      isc_322.isc_337];
-#line 3735 "restore.epp"
+#line 3731 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				if (l = type_lengths[l])
 					/*X.RDB$FIELD_LENGTH*/
 					isc_322.isc_336 = l;
-#line 3737 "restore.epp"
+#line 3733 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			}
 
 			if (gfield)
 				strcpy (gfield->gfld_name, /*X.RDB$FIELD_NAME*/
 							   isc_322.isc_323);
-#line 3741 "restore.epp"
+#line 3737 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 350, &isc_322, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 350, &isc_322, (short) 0);
 		   };
-#line 3743 "restore.epp"
+#line 3739 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3744 "restore.epp"
+#line 3740 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3746 "restore.epp"
+#line 3742 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	}
 	else /* RESTORE_format < 6 */
@@ -8254,7 +8250,7 @@ bool get_global_field()
 		{
 		
                 if (!tdgbl->handles_get_global_field_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_268), (char *) isc_268);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (short) sizeof (isc_268), (char *) isc_268);
 		if (tdgbl->handles_get_global_field_req_handle1)
 		   {
 		   isc_269.isc_271 = isc_blob_null;
@@ -8267,93 +8263,93 @@ bool get_global_field()
 		   isc_269.isc_278 = isc_blob_null;
 		   isc_269.isc_280 = isc_blob_null;
 		   isc_269.isc_281 = isc_blob_null;
-#line 3754 "restore.epp"
+#line 3750 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*X.RDB$FIELD_SCALE*/
 		isc_269.isc_320 = /*X.RDB$SEGMENT_LENGTH*/
    isc_269.isc_319 = 0;
-#line 3756 "restore.epp"
+#line 3752 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID*/
 		isc_269.isc_318 = /*X.RDB$COLLATION_ID*/
    isc_269.isc_317 = 0;
-#line 3757 "restore.epp"
+#line 3753 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_SUB_TYPE*/
 		isc_269.isc_316 = 0;
-#line 3758 "restore.epp"
+#line 3754 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COMPUTED_BLR.NULL*/
 		isc_269.isc_315 = TRUE;
-#line 3759 "restore.epp"
+#line 3755 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COMPUTED_SOURCE.NULL*/
 		isc_269.isc_314 = TRUE;
-#line 3760 "restore.epp"
+#line 3756 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$QUERY_NAME.NULL*/
 		isc_269.isc_313 = TRUE;
-#line 3761 "restore.epp"
+#line 3757 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EDIT_STRING.NULL*/
 		isc_269.isc_311 = TRUE;
-#line 3762 "restore.epp"
+#line 3758 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$QUERY_HEADER.NULL*/
 		isc_269.isc_310 = TRUE;
-#line 3763 "restore.epp"
+#line 3759 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MISSING_VALUE.NULL*/
 		isc_269.isc_309 = TRUE;
-#line 3764 "restore.epp"
+#line 3760 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_VALUE.NULL*/
 		isc_269.isc_308 = TRUE;
-#line 3765 "restore.epp"
+#line 3761 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VALIDATION_BLR.NULL*/
 		isc_269.isc_307 = TRUE;
-#line 3766 "restore.epp"
+#line 3762 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VALIDATION_SOURCE.NULL*/
 		isc_269.isc_306 = TRUE;
-#line 3767 "restore.epp"
+#line 3763 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_269.isc_304 = TRUE;
-#line 3768 "restore.epp"
+#line 3764 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$NULL_FLAG.NULL*/
 		isc_269.isc_302 = TRUE;
-#line 3769 "restore.epp"
+#line 3765 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_269.isc_301 = TRUE;
-#line 3770 "restore.epp"
+#line 3766 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DIMENSIONS.NULL*/
 		isc_269.isc_299 = TRUE;
-#line 3771 "restore.epp"
+#line 3767 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_LENGTH.NULL*/
 		isc_269.isc_297 = TRUE;
-#line 3772 "restore.epp"
+#line 3768 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_TYPE.NULL*/
 		isc_269.isc_295 = TRUE;
-#line 3773 "restore.epp"
+#line 3769 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_SCALE.NULL*/
 		isc_269.isc_293 = TRUE;
-#line 3774 "restore.epp"
+#line 3770 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SEGMENT_LENGTH.NULL*/
 		isc_269.isc_292 = TRUE;
-#line 3775 "restore.epp"
+#line 3771 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_LENGTH.NULL*/
 		isc_269.isc_290 = TRUE;
-#line 3776 "restore.epp"
+#line 3772 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MISSING_SOURCE.NULL*/
 		isc_269.isc_289 = TRUE;
-#line 3777 "restore.epp"
+#line 3773 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFAULT_SOURCE.NULL*/
 		isc_269.isc_288 = TRUE;
-#line 3778 "restore.epp"
+#line 3774 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FIELD_SUB_TYPE.NULL*/
 		isc_269.isc_287 = TRUE;
-#line 3779 "restore.epp"
+#line 3775 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CHARACTER_SET_ID.NULL*/
 		isc_269.isc_286 = TRUE;
-#line 3780 "restore.epp"
+#line 3776 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$COLLATION_ID.NULL*/
 		isc_269.isc_285 = TRUE;
-#line 3781 "restore.epp"
+#line 3777 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			memset (/*X.RDB$QUERY_NAME*/
 				isc_269.isc_279, ' ', sizeof(/*X.RDB$QUERY_NAME*/
 	      isc_269.isc_279));
-#line 3783 "restore.epp"
+#line 3779 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			skip_init(&scan_next_attr);
 			while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 			{
@@ -8362,108 +8358,108 @@ bool get_global_field()
 				case att_field_name:
 					l = GET_TEXT(/*X.RDB$FIELD_NAME*/
 						     isc_269.isc_270);
-#line 3790 "restore.epp"
+#line 3786 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					MISC_terminate (/*X.RDB$FIELD_NAME*/
 							isc_269.isc_270, temp, l, sizeof(temp));
-#line 3791 "restore.epp"
-					BURP_verbose (121, temp, NULL, NULL, NULL, NULL);
+#line 3787 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+					BURP_verbose (121, temp);
 					// msg 121  restoring global field %s 
 					break;
 
 				case att_field_query_name:
 					GET_TEXT(/*X.RDB$QUERY_NAME*/
 						 isc_269.isc_279);
-#line 3797 "restore.epp"
+#line 3793 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$QUERY_NAME.NULL*/
 					isc_269.isc_313 = FALSE;
-#line 3798 "restore.epp"
+#line 3794 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_edit_string:
 					GET_TEXT(/*X.RDB$EDIT_STRING*/
 						 isc_269.isc_312);
-#line 3802 "restore.epp"
+#line 3798 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EDIT_STRING.NULL*/
 					isc_269.isc_311 = FALSE;
-#line 3803 "restore.epp"
+#line 3799 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_query_header:
 					/*X.RDB$QUERY_HEADER.NULL*/
 					isc_269.isc_310 = FALSE;
-#line 3807 "restore.epp"
+#line 3803 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$QUERY_HEADER*/
 							  isc_269.isc_278, false);
-#line 3808 "restore.epp"
+#line 3804 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_type:
 					/*X.RDB$FIELD_TYPE*/
 					isc_269.isc_284 = (USHORT) get_numeric();
-#line 3812 "restore.epp"
+#line 3808 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_length:
 					/*X.RDB$FIELD_LENGTH*/
 					isc_269.isc_283 = (USHORT) get_numeric();
-#line 3816 "restore.epp"
+#line 3812 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_scale:
 					/*X.RDB$FIELD_SCALE*/
 					isc_269.isc_320 = (USHORT) get_numeric();
-#line 3820 "restore.epp"
+#line 3816 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_SCALE.NULL*/
 					isc_269.isc_282 = FALSE;
-#line 3821 "restore.epp"
+#line 3817 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_sub_type:
 					/*X.RDB$FIELD_SUB_TYPE*/
 					isc_269.isc_316 = (USHORT) get_numeric();
-#line 3825 "restore.epp"
+#line 3821 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$FIELD_SUB_TYPE.NULL*/
 					isc_269.isc_287 = FALSE;
-#line 3826 "restore.epp"
+#line 3822 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_segment_length:
 					/*X.RDB$SEGMENT_LENGTH*/
 					isc_269.isc_319 = (USHORT) get_numeric();
-#line 3830 "restore.epp"
+#line 3826 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					if (/*X.RDB$SEGMENT_LENGTH*/
 					    isc_269.isc_319)
-#line 3831 "restore.epp"
+#line 3827 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*X.RDB$SEGMENT_LENGTH.NULL*/
 						isc_269.isc_292 = FALSE;
-#line 3832 "restore.epp"
+#line 3828 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_computed_blr:
 					/*X.RDB$COMPUTED_BLR.NULL*/
 					isc_269.isc_315 = FALSE;
-#line 3836 "restore.epp"
+#line 3832 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_blr_blob (&/*X.RDB$COMPUTED_BLR*/
 						       isc_269.isc_281, false);
-#line 3837 "restore.epp"
+#line 3833 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_computed_source:
 					/*X.RDB$COMPUTED_SOURCE.NULL*/
 					isc_269.isc_314 = FALSE;
-#line 3841 "restore.epp"
+#line 3837 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_misc_blob (&/*X.RDB$COMPUTED_SOURCE*/
 							isc_269.isc_280, 1, false);
-#line 3842 "restore.epp"
+#line 3838 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_computed_source2:
 					/*X.RDB$COMPUTED_SOURCE.NULL*/
 					isc_269.isc_314 = FALSE;
-#line 3846 "restore.epp"
+#line 3842 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$COMPUTED_SOURCE*/
 							  isc_269.isc_280, false);
-#line 3847 "restore.epp"
+#line 3843 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_validation_blr:
@@ -8486,10 +8482,10 @@ bool get_global_field()
 						{
 							/*X.RDB$VALIDATION_BLR.NULL*/
 							isc_269.isc_307 = FALSE;
-#line 3868 "restore.epp"
+#line 3864 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							get_blr_blob (&/*X.RDB$VALIDATION_BLR*/
 								       isc_269.isc_275, false);
-#line 3869 "restore.epp"
+#line 3865 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						}
 					}
 					break;
@@ -8514,10 +8510,10 @@ bool get_global_field()
 						{
 							/*X.RDB$VALIDATION_SOURCE.NULL*/
 							isc_269.isc_306 = FALSE;
-#line 3892 "restore.epp"
+#line 3888 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							get_misc_blob (&/*X.RDB$VALIDATION_SOURCE*/
 									isc_269.isc_274, 0, false);
-#line 3893 "restore.epp"
+#line 3889 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						}
 					}
 					break;
@@ -8542,10 +8538,10 @@ bool get_global_field()
 						{
 							/*X.RDB$VALIDATION_SOURCE.NULL*/
 							isc_269.isc_306 = FALSE;
-#line 3916 "restore.epp"
+#line 3912 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							get_source_blob (&/*X.RDB$VALIDATION_SOURCE*/
 									  isc_269.isc_274, false);
-#line 3917 "restore.epp"
+#line 3913 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						}
 					}
 					break;
@@ -8553,136 +8549,136 @@ bool get_global_field()
 				case att_field_missing_value:
 					/*X.RDB$MISSING_VALUE.NULL*/
 					isc_269.isc_309 = FALSE;
-#line 3923 "restore.epp"
+#line 3919 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_blr_blob (&/*X.RDB$MISSING_VALUE*/
 						       isc_269.isc_277, false);
-#line 3924 "restore.epp"
+#line 3920 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_default_value:
 					/*X.RDB$DEFAULT_VALUE.NULL*/
 					isc_269.isc_308 = FALSE;
-#line 3928 "restore.epp"
+#line 3924 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_blr_blob (&/*X.RDB$DEFAULT_VALUE*/
 						       isc_269.isc_276, false);
-#line 3929 "restore.epp"
+#line 3925 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_system_flag:
 					/*X.RDB$SYSTEM_FLAG*/
 					isc_269.isc_305 = (USHORT) get_numeric();
-#line 3933 "restore.epp"
+#line 3929 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$SYSTEM_FLAG.NULL*/
 					isc_269.isc_304 = FALSE;
-#line 3934 "restore.epp"
+#line 3930 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_null_flag:
 					/*X.RDB$NULL_FLAG*/
 					isc_269.isc_303 = (USHORT) get_numeric();
-#line 3938 "restore.epp"
+#line 3934 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$NULL_FLAG.NULL*/
 					isc_269.isc_302 = FALSE;
-#line 3939 "restore.epp"
+#line 3935 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_description:
 					/*X.RDB$DESCRIPTION.NULL*/
 					isc_269.isc_301 = FALSE;
-#line 3943 "restore.epp"
+#line 3939 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_misc_blob (&/*X.RDB$DESCRIPTION*/
 							isc_269.isc_273, 1, false);
-#line 3944 "restore.epp"
+#line 3940 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_description2:
 					/*X.RDB$DESCRIPTION.NULL*/
 					isc_269.isc_301 = FALSE;
-#line 3948 "restore.epp"
+#line 3944 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$DESCRIPTION*/
 							  isc_269.isc_273, false);
-#line 3949 "restore.epp"
+#line 3945 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_external_length:
 					/*X.RDB$EXTERNAL_LENGTH.NULL*/
 					isc_269.isc_297 = FALSE;
-#line 3953 "restore.epp"
+#line 3949 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EXTERNAL_LENGTH*/
 					isc_269.isc_298 = (USHORT) get_numeric();
-#line 3954 "restore.epp"
+#line 3950 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_external_scale:
 					/*X.RDB$EXTERNAL_SCALE.NULL*/
 					isc_269.isc_293 = FALSE;
-#line 3958 "restore.epp"
+#line 3954 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EXTERNAL_SCALE*/
 					isc_269.isc_294 = (USHORT) get_numeric();
-#line 3959 "restore.epp"
+#line 3955 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_external_type:
 					/*X.RDB$EXTERNAL_TYPE.NULL*/
 					isc_269.isc_295 = FALSE;
-#line 3963 "restore.epp"
+#line 3959 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$EXTERNAL_TYPE*/
 					isc_269.isc_296 = (USHORT) get_numeric();
-#line 3964 "restore.epp"
+#line 3960 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_dimensions:
 					/*X.RDB$DIMENSIONS.NULL*/
 					isc_269.isc_299 = FALSE;
-#line 3968 "restore.epp"
+#line 3964 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$DIMENSIONS*/
 					isc_269.isc_300 = (USHORT) get_numeric();
-#line 3969 "restore.epp"
+#line 3965 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_character_length:
 					/*X.RDB$CHARACTER_LENGTH.NULL*/
 					isc_269.isc_290 = FALSE;
-#line 3973 "restore.epp"
+#line 3969 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$CHARACTER_LENGTH*/
 					isc_269.isc_291 = (USHORT) get_numeric();
-#line 3974 "restore.epp"
+#line 3970 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_default_source:
 					/*X.RDB$DEFAULT_SOURCE.NULL*/
 					isc_269.isc_288 = FALSE;
-#line 3978 "restore.epp"
+#line 3974 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$DEFAULT_SOURCE*/
 							  isc_269.isc_271, false);
-#line 3979 "restore.epp"
+#line 3975 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_missing_source:
 					/*X.RDB$MISSING_SOURCE.NULL*/
 					isc_269.isc_289 = FALSE;
-#line 3983 "restore.epp"
+#line 3979 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					get_source_blob (&/*X.RDB$MISSING_SOURCE*/
 							  isc_269.isc_272, false);
-#line 3984 "restore.epp"
+#line 3980 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_character_set:
 					/*X.RDB$CHARACTER_SET_ID.NULL*/
 					isc_269.isc_286 = FALSE;
-#line 3988 "restore.epp"
+#line 3984 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$CHARACTER_SET_ID*/
 					isc_269.isc_318 = (USHORT) get_numeric();
-#line 3989 "restore.epp"
+#line 3985 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_field_collation_id:
 					/*X.RDB$COLLATION_ID.NULL*/
 					isc_269.isc_285 = FALSE;
-#line 3993 "restore.epp"
+#line 3989 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$COLLATION_ID*/
 					isc_269.isc_317 = (USHORT) get_numeric();
-#line 3994 "restore.epp"
+#line 3990 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				default:
@@ -8694,36 +8690,36 @@ bool get_global_field()
 
 			if (/*X.RDB$FIELD_TYPE*/
 			    isc_269.isc_284 <= DTYPE_BLR_MAX)
-#line 4004 "restore.epp"
+#line 4000 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			{
 				l = gds_cvt_blr_dtype[/*X.RDB$FIELD_TYPE*/
 						      isc_269.isc_284];
-#line 4006 "restore.epp"
+#line 4002 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				if (l = type_lengths[l])
 					/*X.RDB$FIELD_LENGTH*/
 					isc_269.isc_283 = l;
-#line 4008 "restore.epp"
+#line 4004 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			}
 
 			if (gfield)
 				strcpy (gfield->gfld_name, /*X.RDB$FIELD_NAME*/
 							   isc_269.isc_270);
-#line 4012 "restore.epp"
+#line 4008 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 346, &isc_269, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_global_field_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 346, &isc_269, (short) 0);
 		   };
-#line 4014 "restore.epp"
+#line 4010 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 4015 "restore.epp"
+#line 4011 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 4017 "restore.epp"
+#line 4013 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	}
 
@@ -8755,7 +8751,7 @@ bool get_index (const burp_rel* relation)
 	char
 	   index_name[32];
 
-#line 4045 "restore.epp"
+#line 4041 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	ATT_TYPE	attribute;
 	bool		foreign_index = false;
 	scan_attr_t		scan_next_attr;
@@ -8769,42 +8765,42 @@ bool get_index (const burp_rel* relation)
 	{
 	
         if (!tdgbl->handles_get_index_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle1, (short) sizeof (isc_251), (char *) isc_251);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle1, (short) sizeof (isc_251), (char *) isc_251);
 	if (tdgbl->handles_get_index_req_handle1)
 	   {
 	   isc_252.isc_254 = isc_blob_null;
 	   isc_252.isc_255 = isc_blob_null;
 	   isc_252.isc_257 = isc_blob_null;
-#line 4055 "restore.epp"
+#line 4051 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$RELATION_NAME*/
 			isc_252.isc_258, relation->rel_name);
-#line 4056 "restore.epp"
+#line 4052 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$UNIQUE_FLAG*/
 		isc_252.isc_267 = 0;
-#line 4057 "restore.epp"
+#line 4053 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (!tdgbl->gbl_sw_deactivate_indexes)
 			/*X.RDB$INDEX_INACTIVE*/
 			isc_252.isc_266 = FALSE;
-#line 4059 "restore.epp"
+#line 4055 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		else
 			/*X.RDB$INDEX_INACTIVE*/
 			isc_252.isc_266 = TRUE;
-#line 4061 "restore.epp"
+#line 4057 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$INDEX_TYPE.NULL*/
 		isc_252.isc_264 = TRUE;
-#line 4062 "restore.epp"
+#line 4058 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_252.isc_263 = TRUE;
-#line 4063 "restore.epp"
+#line 4059 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FOREIGN_KEY.NULL*/
 		isc_252.isc_262 = TRUE;
-#line 4064 "restore.epp"
+#line 4060 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXPRESSION_SOURCE.NULL*/
 		isc_252.isc_261 = TRUE;
-#line 4065 "restore.epp"
+#line 4061 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXPRESSION_BLR.NULL*/
 		isc_252.isc_260 = TRUE;
-#line 4066 "restore.epp"
+#line 4062 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -8813,64 +8809,64 @@ bool get_index (const burp_rel* relation)
 			case att_index_name:
 				GET_TEXT(/*X.RDB$INDEX_NAME*/
 					 isc_252.isc_253);
-#line 4073 "restore.epp"
+#line 4069 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				strcpy (index_name, /*X.RDB$INDEX_NAME*/
 						    isc_252.isc_253);
-#line 4074 "restore.epp"
+#line 4070 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose (122, /*X.RDB$INDEX_NAME*/
-						   isc_252.isc_253, NULL, NULL, NULL, NULL);
-#line 4075 "restore.epp"
+						   isc_252.isc_253);
+#line 4071 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_segment_count:
 				/*X.RDB$SEGMENT_COUNT*/
 				isc_252.isc_259 = segments = (USHORT) get_numeric();
-#line 4079 "restore.epp"
+#line 4075 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_unique_flag:
 				/*X.RDB$UNIQUE_FLAG*/
 				isc_252.isc_267 = (USHORT) get_numeric();
-#line 4083 "restore.epp"
+#line 4079 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_inactive:
 				/*X.RDB$INDEX_INACTIVE*/
 				isc_252.isc_266 = (USHORT) get_numeric();
-#line 4087 "restore.epp"
+#line 4083 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				// Defer foreign key index activation 
 				// Modified by Toni Martir, all index deferred when verbose 
 				if (tdgbl->gbl_sw_verbose)
 				{
 					if (/*X.RDB$INDEX_INACTIVE*/
 					    isc_252.isc_266 == FALSE)
-#line 4092 "restore.epp"
+#line 4088 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*X.RDB$INDEX_INACTIVE*/
 						isc_252.isc_266 = DEFERRED_ACTIVE;
-#line 4093 "restore.epp"
+#line 4089 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				}
 				else
 				{
 					if (/*X.RDB$INDEX_INACTIVE*/
 					    isc_252.isc_266 == FALSE && foreign_index)
-#line 4097 "restore.epp"
+#line 4093 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						/*X.RDB$INDEX_INACTIVE*/
 						isc_252.isc_266 = DEFERRED_ACTIVE;
-#line 4098 "restore.epp"
+#line 4094 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				}
 				if (tdgbl->gbl_sw_deactivate_indexes)
 					/*X.RDB$INDEX_INACTIVE*/
 					isc_252.isc_266 = TRUE;
-#line 4101 "restore.epp"
+#line 4097 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_type:
 				/*X.RDB$INDEX_TYPE.NULL*/
 				isc_252.isc_264 = FALSE;
-#line 4105 "restore.epp"
+#line 4101 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$INDEX_TYPE*/
 				isc_252.isc_265 = (USHORT) get_numeric();
-#line 4106 "restore.epp"
+#line 4102 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_field_name:
@@ -8879,70 +8875,70 @@ bool get_index (const burp_rel* relation)
 				{
 				
                                 if (!tdgbl->handles_get_index_req_handle2)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle2, (short) sizeof (isc_246), (char *) isc_246);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle2, (short) sizeof (isc_246), (char *) isc_246);
 				if (tdgbl->handles_get_index_req_handle2)
 				   {
-#line 4111 "restore.epp"
+#line 4107 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*Y.RDB$FIELD_NAME*/
 						 isc_247.isc_249);
-#line 4112 "restore.epp"
+#line 4108 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					strcpy (/*Y.RDB$INDEX_NAME*/
 						isc_247.isc_248, /*X.RDB$INDEX_NAME*/
   isc_252.isc_253);
-#line 4113 "restore.epp"
+#line 4109 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*Y.RDB$FIELD_POSITION*/
 					isc_247.isc_250 = count++;
-#line 4114 "restore.epp"
+#line 4110 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_STORE;*/
 				   
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 66, &isc_247, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 66, &isc_247, (short) 0);
 				   };
-#line 4115 "restore.epp"
+#line 4111 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 4116 "restore.epp"
+#line 4112 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 4118 "restore.epp"
+#line 4114 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_252.isc_263 = FALSE;
-#line 4122 "restore.epp"
+#line 4118 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_252.isc_257, 0, false);
-#line 4123 "restore.epp"
+#line 4119 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_description2:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_252.isc_263 = FALSE;
-#line 4127 "restore.epp"
+#line 4123 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_252.isc_257, false);
-#line 4128 "restore.epp"
+#line 4124 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_expression_source:
 				/*X.RDB$EXPRESSION_SOURCE.NULL*/
 				isc_252.isc_261 = FALSE;
-#line 4132 "restore.epp"
+#line 4128 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$EXPRESSION_SOURCE*/
 						  isc_252.isc_255, false);
-#line 4133 "restore.epp"
+#line 4129 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_expression_blr:
 				/*X.RDB$EXPRESSION_BLR.NULL*/
 				isc_252.isc_260 = FALSE;
-#line 4137 "restore.epp"
+#line 4133 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_blr_blob (&/*X.RDB$EXPRESSION_BLR*/
 					       isc_252.isc_254, false);
-#line 4138 "restore.epp"
+#line 4134 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_index_foreign_key:
@@ -8950,20 +8946,20 @@ bool get_index (const burp_rel* relation)
 				// Defer foreign key index activation 
 				if (/*X.RDB$INDEX_INACTIVE*/
 				    isc_252.isc_266 == FALSE)
-#line 4144 "restore.epp"
+#line 4140 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*X.RDB$INDEX_INACTIVE*/
 					isc_252.isc_266 = DEFERRED_ACTIVE;
-#line 4145 "restore.epp"
+#line 4141 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				if (tdgbl->gbl_sw_deactivate_indexes)
 					/*X.RDB$INDEX_INACTIVE*/
 					isc_252.isc_266 = TRUE;
-#line 4147 "restore.epp"
+#line 4143 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$FOREIGN_KEY.NULL*/
 				isc_252.isc_262 = FALSE;
-#line 4148 "restore.epp"
+#line 4144 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$FOREIGN_KEY*/
 					 isc_252.isc_256);
-#line 4149 "restore.epp"
+#line 4145 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -8980,31 +8976,31 @@ bool get_index (const burp_rel* relation)
 			RFR.RDB$RELATION_NAME = relation->rel_name*/
 		{
                 if (!tdgbl->handles_get_index_req_handle3)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle3, (short) sizeof (isc_240), (char *) isc_240);
-		isc_vtov ((char*)relation->rel_name, (char*)isc_241.isc_242, 32);
-		isc_vtov ((char*)index_name, (char*)isc_241.isc_243, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle3, (short) sizeof (isc_240), (char *) isc_240);
+		isc_vtov ((const char*)relation->rel_name, (char*)isc_241.isc_242, 32);
+		isc_vtov ((const char*)index_name, (char*)isc_241.isc_243, 32);
 		if (tdgbl->handles_get_index_req_handle3)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_241, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle3, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_241, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle3, (short) 1, (short) 2, &isc_244, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle3, (short) 1, (short) 2, &isc_244, (short) 0);
 		   if (!isc_244.isc_245 || isc_status [1]) break;
-#line 4163 "restore.epp"
+#line 4159 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			count++;
 		/*END_FOR;*/
 		   }
 		   };
-#line 4165 "restore.epp"
+#line 4161 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 4166 "restore.epp"
+#line 4162 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 4168 "restore.epp"
+#line 4164 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		if (count != segments)
 		{
@@ -9012,59 +9008,59 @@ bool get_index (const burp_rel* relation)
 				I_S IN RDB$INDEX_SEGMENTS WITH I_S.RDB$INDEX_NAME = index_name*/
 			{
                         if (!tdgbl->handles_get_index_req_handle4)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) sizeof (isc_231), (char *) isc_231);
-			isc_vtov ((char*)index_name, (char*)isc_232.isc_233, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (short) sizeof (isc_231), (char *) isc_231);
+			isc_vtov ((const char*)index_name, (char*)isc_232.isc_233, 32);
 			if (tdgbl->handles_get_index_req_handle4)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_232, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_232, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) 1, (short) 2, &isc_234, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle4, (short) 1, (short) 2, &isc_234, (short) 0);
 			   if (!isc_234.isc_235 || isc_status [1]) break;
-#line 4173 "restore.epp"
+#line 4169 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ERASE I_S;*/
 				{
-                                isc_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) 2, (short) 2, &isc_236, (short) 0);
-#line 4174 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &tdgbl->handles_get_index_req_handle4, (short) 2, (short) 2, &isc_236, (short) 0);
+#line 4170 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 4175 "restore.epp"
+#line 4171 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 4177 "restore.epp"
+#line 4173 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle4, (short) 3, (short) 2, &isc_238, (short) 0);
+                           isc_send (isc_status, (FB_API_HANDLE*) &tdgbl->handles_get_index_req_handle4, (short) 3, (short) 2, &isc_238, (short) 0);
 			   }
 			   };
-#line 4178 "restore.epp"
+#line 4174 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 4179 "restore.epp"
+#line 4175 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 4181 "restore.epp"
+#line 4177 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			return false;
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_index_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 138, &isc_252, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_index_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 138, &isc_252, (short) 0);
 	   };
-#line 4184 "restore.epp"
+#line 4180 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4185 "restore.epp"
+#line 4181 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4187 "restore.epp"
+#line 4183 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -9098,7 +9094,7 @@ void get_misc_blob (ISC_QUAD	*blob_id,
 	else
 		local_trans = gds_trans;
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 	USHORT bpb_length = 0;
 	UCHAR* bpb = NULL;
 	if (isc_create_blob2 (status_vector, &DB, &local_trans, &blob,
@@ -9219,25 +9215,25 @@ bool get_procedure()
 	{
 	
         if (!tdgbl->handles_get_procedure_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_procedure_req_handle1, (short) sizeof (isc_216), (char *) isc_216);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_procedure_req_handle1, (short) sizeof (isc_216), (char *) isc_216);
 	if (tdgbl->handles_get_procedure_req_handle1)
 	   {
 	   isc_217.isc_218 = isc_blob_null;
 	   isc_217.isc_222 = isc_blob_null;
 	   isc_217.isc_223 = isc_blob_null;
-#line 4338 "restore.epp"
+#line 4334 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$PROCEDURE_SOURCE.NULL*/
 		isc_217.isc_230 = TRUE;
-#line 4339 "restore.epp"
+#line 4335 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_217.isc_229 = TRUE;
-#line 4340 "restore.epp"
+#line 4336 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SECURITY_CLASS.NULL*/
 		isc_217.isc_228 = TRUE;
-#line 4341 "restore.epp"
+#line 4337 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$OWNER_NAME.NULL*/
 		isc_217.isc_227 = TRUE;
-#line 4342 "restore.epp"
+#line 4338 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -9246,67 +9242,67 @@ bool get_procedure()
 			case att_procedure_name:
 				l = GET_TEXT(/*X.RDB$PROCEDURE_NAME*/
 					     isc_217.isc_219);
-#line 4349 "restore.epp"
+#line 4345 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						procedure->prc_name_length = l;
 						strcpy (procedure->prc_name, /*X.RDB$PROCEDURE_NAME*/
 									     isc_217.isc_219);
-#line 4351 "restore.epp"
+#line 4347 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_terminate (/*X.RDB$PROCEDURE_NAME*/
 						isc_217.isc_219, temp, l, sizeof(temp));
-#line 4352 "restore.epp"
-				BURP_verbose (195, temp, NULL, NULL, NULL, NULL);
+#line 4348 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+				BURP_verbose (195, temp);
 				// msg 195 restoring stored procedure %s 
 				break;
 
 			case att_procedure_description:
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_217.isc_222, 0, true);
-#line 4358 "restore.epp"
+#line 4354 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_217.isc_229 = FALSE;
-#line 4359 "restore.epp"
+#line 4355 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_description2:
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_217.isc_222, true);
-#line 4363 "restore.epp"
+#line 4359 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_217.isc_229 = FALSE;
-#line 4364 "restore.epp"
+#line 4360 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_source:
 				get_misc_blob (&/*X.RDB$PROCEDURE_SOURCE*/
 						isc_217.isc_223, 0, true);
-#line 4368 "restore.epp"
+#line 4364 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$PROCEDURE_SOURCE.NULL*/
 				isc_217.isc_230 = FALSE;
-#line 4369 "restore.epp"
+#line 4365 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_source2:
 				get_source_blob (&/*X.RDB$PROCEDURE_SOURCE*/
 						  isc_217.isc_223, true);
-#line 4373 "restore.epp"
+#line 4369 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$PROCEDURE_SOURCE.NULL*/
 				isc_217.isc_230 = FALSE;
-#line 4374 "restore.epp"
+#line 4370 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_blr:
 				get_blr_blob (&/*X.RDB$PROCEDURE_BLR*/
 					       isc_217.isc_218, true);
-#line 4378 "restore.epp"
+#line 4374 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_security_class:
 				GET_TEXT(/*X.RDB$SECURITY_CLASS*/
 					 isc_217.isc_221);
-#line 4382 "restore.epp"
+#line 4378 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SECURITY_CLASS.NULL*/
 				isc_217.isc_228 = FALSE;
-#line 4383 "restore.epp"
+#line 4379 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_owner_name:
@@ -9316,23 +9312,23 @@ bool get_procedure()
 			case att_procedure_inputs:
 				/*X.RDB$PROCEDURE_INPUTS*/
 				isc_217.isc_226 = (USHORT) get_numeric();
-#line 4391 "restore.epp"
+#line 4387 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						if (/*X.RDB$PROCEDURE_INPUTS*/
 						    isc_217.isc_226 == 0)
-#line 4392 "restore.epp"
+#line 4388 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 							/*X.RDB$PROCEDURE_INPUTS.NULL*/
 							isc_217.isc_225 = TRUE;
-#line 4393 "restore.epp"
+#line 4389 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						else
 							/*X.RDB$PROCEDURE_INPUTS.NULL*/
 							isc_217.isc_225 = FALSE;
-#line 4395 "restore.epp"
+#line 4391 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedure_outputs:
 				/*X.RDB$PROCEDURE_OUTPUTS*/
 				isc_217.isc_224 = (USHORT) get_numeric();
-#line 4399 "restore.epp"
+#line 4395 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -9343,21 +9339,21 @@ bool get_procedure()
 		}
 		strcpy (procedure_name, /*X.RDB$PROCEDURE_NAME*/
 					isc_217.isc_219);
-#line 4408 "restore.epp"
+#line 4404 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_procedure_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 134, &isc_217, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_procedure_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 134, &isc_217, (short) 0);
 	   };
-#line 4409 "restore.epp"
+#line 4405 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4410 "restore.epp"
+#line 4406 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4412 "restore.epp"
+#line 4408 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	// at the end of prms for a procedure is the rec_procedure_end marker 
 
@@ -9398,17 +9394,17 @@ bool get_procedure_prm (GDS_NAME	procptr)
 	{
 	
         if (!tdgbl->handles_get_procedure_prm_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (short) sizeof (isc_207), (char *) isc_207);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (short) sizeof (isc_207), (char *) isc_207);
 	if (tdgbl->handles_get_procedure_prm_req_handle1)
 	   {
 	   isc_208.isc_212 = isc_blob_null;
-#line 4449 "restore.epp"
+#line 4445 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_208.isc_215 = TRUE;
-#line 4450 "restore.epp"
+#line 4446 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$PROCEDURE_NAME*/
 			isc_208.isc_211, procptr);
-#line 4451 "restore.epp"
+#line 4447 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -9417,48 +9413,48 @@ bool get_procedure_prm (GDS_NAME	procptr)
 			case att_procedureprm_name:
 				l = GET_TEXT(/*X.RDB$PARAMETER_NAME*/
 					     isc_208.isc_210);
-#line 4458 "restore.epp"
+#line 4454 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_terminate (/*X.RDB$PARAMETER_NAME*/
 						isc_208.isc_210, temp, l, sizeof(temp));
-#line 4459 "restore.epp"
-				BURP_verbose (196, temp, NULL, NULL, NULL, NULL);
+#line 4455 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+				BURP_verbose (196, temp);
 				// msg 196 restoring parameter %s for stored procedure 
 				break;
 
 			case att_procedureprm_type:
 				/*X.RDB$PARAMETER_TYPE*/
 				isc_208.isc_214= (USHORT) get_numeric();
-#line 4465 "restore.epp"
+#line 4461 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedureprm_number:
 				/*X.RDB$PARAMETER_NUMBER*/
 				isc_208.isc_213= (USHORT) get_numeric();
-#line 4469 "restore.epp"
+#line 4465 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedureprm_field_source:
 				GET_TEXT(/*X.RDB$FIELD_SOURCE*/
 					 isc_208.isc_209);
-#line 4473 "restore.epp"
+#line 4469 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedureprm_description:
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_208.isc_212, 0, true);
-#line 4477 "restore.epp"
+#line 4473 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_208.isc_215 = FALSE;
-#line 4478 "restore.epp"
+#line 4474 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_procedureprm_description2:
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_208.isc_212, true);
-#line 4482 "restore.epp"
+#line 4478 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_208.isc_215 = FALSE;
-#line 4483 "restore.epp"
+#line 4479 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -9469,18 +9465,18 @@ bool get_procedure_prm (GDS_NAME	procptr)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 110, &isc_208, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_procedure_prm_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 110, &isc_208, (short) 0);
 	   };
-#line 4492 "restore.epp"
+#line 4488 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4493 "restore.epp"
+#line 4489 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4495 "restore.epp"
+#line 4491 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -9507,25 +9503,25 @@ bool get_ref_constraint()
 	{
 	
         if (!tdgbl->handles_get_ref_constraint_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (short) sizeof (isc_195), (char *) isc_195);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (short) sizeof (isc_195), (char *) isc_195);
 	if (tdgbl->handles_get_ref_constraint_req_handle1)
 	   {
-#line 4518 "restore.epp"
+#line 4514 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CONSTRAINT_NAME.NULL*/
 		isc_196.isc_206 = TRUE;
-#line 4519 "restore.epp"
+#line 4515 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CONST_NAME_UQ.NULL*/
 		isc_196.isc_205 = TRUE;
-#line 4520 "restore.epp"
+#line 4516 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MATCH_OPTION.NULL*/
 		isc_196.isc_204 = TRUE;
-#line 4521 "restore.epp"
+#line 4517 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$UPDATE_RULE.NULL*/
 		isc_196.isc_203 = TRUE;
-#line 4522 "restore.epp"
+#line 4518 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DELETE_RULE.NULL*/
 		isc_196.isc_202 = TRUE;
-#line 4523 "restore.epp"
+#line 4519 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -9534,46 +9530,46 @@ bool get_ref_constraint()
 				case att_ref_constraint_name:
 					/*X.RDB$CONSTRAINT_NAME.NULL*/
 					isc_196.isc_206 = FALSE;
-#line 4530 "restore.epp"
+#line 4526 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$CONSTRAINT_NAME*/
 						 isc_196.isc_199);
-#line 4531 "restore.epp"
+#line 4527 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_ref_unique_const_name:
 					/*X.RDB$CONST_NAME_UQ.NULL*/
 					isc_196.isc_205 = FALSE;
-#line 4535 "restore.epp"
+#line 4531 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$CONST_NAME_UQ*/
 						 isc_196.isc_198);
-#line 4536 "restore.epp"
+#line 4532 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_ref_match_option:
 					/*X.RDB$MATCH_OPTION.NULL*/
 					isc_196.isc_204 = FALSE;
-#line 4540 "restore.epp"
+#line 4536 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$MATCH_OPTION*/
 						 isc_196.isc_197);
-#line 4541 "restore.epp"
+#line 4537 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_ref_update_rule:
 					/*X.RDB$UPDATE_RULE.NULL*/
 					isc_196.isc_203 = FALSE;
-#line 4545 "restore.epp"
+#line 4541 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$UPDATE_RULE*/
 						 isc_196.isc_201);
-#line 4546 "restore.epp"
+#line 4542 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_ref_delete_rule:
 					/*X.RDB$DELETE_RULE.NULL*/
 					isc_196.isc_202 = FALSE;
-#line 4550 "restore.epp"
+#line 4546 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$DELETE_RULE*/
 						 isc_196.isc_200);
-#line 4551 "restore.epp"
+#line 4547 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				default:
@@ -9584,18 +9580,18 @@ bool get_ref_constraint()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 106, &isc_196, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_ref_constraint_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 106, &isc_196, (short) 0);
 	   };
-#line 4560 "restore.epp"
+#line 4556 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4561 "restore.epp"
+#line 4557 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4563 "restore.epp"
+#line 4559 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -9636,7 +9632,7 @@ bool get_relation()
 	char
 	   sec_class[32];
 
-#line 4600 "restore.epp"
+#line 4596 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	sec_class[0] = '\0';
 	bool		sec_class_null = true;
 
@@ -9644,7 +9640,7 @@ bool get_relation()
 	char
 	   ext_file_name[254];
 
-#line 4604 "restore.epp"
+#line 4600 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	ext_file_name[0] = '\0';
 	bool		ext_file_name_null = true;
 
@@ -9678,7 +9674,7 @@ bool get_relation()
 			l = GET_TEXT(relation->rel_name);
 			relation->rel_name_length = l;
 			MISC_terminate (relation->rel_name, temp, l, sizeof(temp));
-			BURP_verbose (167, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (167, temp);
 			// msg 167 restoring relation %s 
 			break;
 
@@ -9762,7 +9758,7 @@ bool get_relation()
 	{
 	
         if (!tdgbl->handles_get_relation_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_relation_req_handle1, (short) sizeof (isc_174), (char *) isc_174);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_relation_req_handle1, (short) sizeof (isc_174), (char *) isc_174);
 	if (tdgbl->handles_get_relation_req_handle1)
 	   {
 	   isc_175.isc_177 = isc_blob_null;
@@ -9770,79 +9766,79 @@ bool get_relation()
 	   isc_175.isc_179 = isc_blob_null;
 	   isc_175.isc_180 = isc_blob_null;
 	   isc_175.isc_181 = isc_blob_null;
-#line 4718 "restore.epp"
+#line 4714 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_175.isc_193 = sys_flag_null;
-#line 4720 "restore.epp"
+#line 4716 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FLAGS.NULL*/
 		isc_175.isc_191 = rel_flags_null;
-#line 4721 "restore.epp"
+#line 4717 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SECURITY_CLASS.NULL*/
 		isc_175.isc_190 = sec_class_null;
-#line 4722 "restore.epp"
+#line 4718 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VIEW_BLR.NULL*/
 		isc_175.isc_189 = view_blr_null;
-#line 4723 "restore.epp"
+#line 4719 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VIEW_SOURCE.NULL*/
 		isc_175.isc_188 = view_src_null;
-#line 4724 "restore.epp"
+#line 4720 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_175.isc_187 = rel_desc_null;
-#line 4725 "restore.epp"
+#line 4721 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$RUNTIME.NULL*/
 		isc_175.isc_186 = TRUE;
-#line 4726 "restore.epp"
+#line 4722 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_DESCRIPTION.NULL*/
 		isc_175.isc_185 = ext_desc_null;
-#line 4727 "restore.epp"
+#line 4723 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_FILE.NULL*/
 		isc_175.isc_183 = ext_file_name_null;
-#line 4728 "restore.epp"
+#line 4724 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*X.RDB$SYSTEM_FLAG*/
 		isc_175.isc_194 = (USHORT) sys_flag;
-#line 4730 "restore.epp"
+#line 4726 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FLAGS*/
 		isc_175.isc_192 = (USHORT) rel_flags;
-#line 4731 "restore.epp"
+#line 4727 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VIEW_BLR*/
 		isc_175.isc_181 = view_blr;
-#line 4732 "restore.epp"
+#line 4728 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$VIEW_SOURCE*/
 		isc_175.isc_180 = view_src;
-#line 4733 "restore.epp"
+#line 4729 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION*/
 		isc_175.isc_179 = rel_desc;
-#line 4734 "restore.epp"
+#line 4730 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$EXTERNAL_DESCRIPTION*/
 		isc_175.isc_177 = ext_desc;
-#line 4735 "restore.epp"
+#line 4731 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		strcpy(/*X.RDB$SECURITY_CLASS*/
 		       isc_175.isc_182, sec_class);
-#line 4737 "restore.epp"
+#line 4733 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy(/*X.RDB$RELATION_NAME*/
 		       isc_175.isc_176, relation->rel_name);
-#line 4738 "restore.epp"
+#line 4734 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy(/*X.RDB$EXTERNAL_FILE*/
 		       isc_175.isc_184, ext_file_name);
-#line 4739 "restore.epp"
+#line 4735 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_relation_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 380, &isc_175, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_relation_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 380, &isc_175, (short) 0);
 	   };
-#line 4741 "restore.epp"
+#line 4737 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4742 "restore.epp"
+#line 4738 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4744 "restore.epp"
+#line 4740 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	// Eat up misc. records 
 	BURP_FLD field = NULL;
@@ -9855,50 +9851,50 @@ bool get_relation()
 		case rec_relation_end:
 			if (tdgbl->gbl_sw_incremental)
 			{
-				BURP_verbose (170, relation->rel_name, NULL, NULL, NULL, NULL);
+				BURP_verbose (170, relation->rel_name);
 				// msg 170: committing metadata for relation %s 
 				/*COMMIT*/
 				{
-				isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 4759 "restore.epp"
+				isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 4755 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				// existing ON_ERROR continues past error, beck 
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 4761 "restore.epp"
-					BURP_print (171, relation->rel_name, NULL, NULL, NULL, NULL);
+#line 4757 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+					BURP_print (171, relation->rel_name);
 					// msg 171: error committing metadata for relation %s 
 					BURP_print_status (tdgbl->status_vector);
 					/*ROLLBACK;*/
 					{
-					isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 4765 "restore.epp"
+					isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 4761 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					/*ON_ERROR*/
 					if (isc_status [1])
 					   {
-#line 4766 "restore.epp"
+#line 4762 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 						general_on_error ();
 					/*END_ERROR;*/
 					   }
 					}
-#line 4768 "restore.epp"
+#line 4764 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_ERROR;*/
 				   }
 				}
-#line 4769 "restore.epp"
+#line 4765 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 				{
-				isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_10);
+				isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_10);
 				SQLCODE = isc_sqlcode (isc_status);
 				}
-#line 4770 "restore.epp"
+#line 4766 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				if (gds_status[1])
 					/*EXEC SQL SET TRANSACTION;*/
 					{
-					isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_11);
+					isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_11);
 					SQLCODE = isc_sqlcode (isc_status);
 					}
-#line 4772 "restore.epp"
+#line 4768 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			}
 			return true;
 
@@ -9926,36 +9922,36 @@ bool get_relation()
 	   was once embedded into rec_relation ... otherwise, meta commit happens
 	   when we see the first rec_relation_data */
 
-	BURP_verbose (68, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (68);
 	// msg 68 committing meta data 
 
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 4803 "restore.epp"
+	isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 4799 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4804 "restore.epp"
+#line 4800 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4806 "restore.epp"
+#line 4802 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 	{
-	isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_12);
+	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_12);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
-#line 4808 "restore.epp"
+#line 4804 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	if (gds_status[1])
 		/*EXEC SQL SET TRANSACTION;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_13);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_13);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 4810 "restore.epp"
+#line 4806 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	get_data (relation);
 
@@ -9984,28 +9980,28 @@ bool get_rel_constraint()
 	{
 	
         if (!tdgbl->handles_get_rel_constraint_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (short) sizeof (isc_160), (char *) isc_160);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (short) sizeof (isc_160), (char *) isc_160);
 	if (tdgbl->handles_get_rel_constraint_req_handle1)
 	   {
-#line 4835 "restore.epp"
+#line 4831 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CONSTRAINT_NAME.NULL*/
 		isc_161.isc_173 = TRUE;
-#line 4836 "restore.epp"
+#line 4832 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$CONSTRAINT_TYPE.NULL*/
 		isc_161.isc_172 = TRUE;
-#line 4837 "restore.epp"
+#line 4833 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$RELATION_NAME.NULL*/
 		isc_161.isc_171 = TRUE;
-#line 4838 "restore.epp"
+#line 4834 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DEFERRABLE.NULL*/
 		isc_161.isc_170 = TRUE;
-#line 4839 "restore.epp"
+#line 4835 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$INITIALLY_DEFERRED.NULL*/
 		isc_161.isc_169 = TRUE;
-#line 4840 "restore.epp"
+#line 4836 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$INDEX_NAME.NULL*/
 		isc_161.isc_168 = TRUE;
-#line 4841 "restore.epp"
+#line 4837 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -10014,55 +10010,55 @@ bool get_rel_constraint()
 				case att_rel_constraint_name:
 					/*X.RDB$CONSTRAINT_NAME.NULL*/
 					isc_161.isc_173 = FALSE;
-#line 4848 "restore.epp"
+#line 4844 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$CONSTRAINT_NAME*/
 						 isc_161.isc_164);
-#line 4849 "restore.epp"
+#line 4845 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_rel_constraint_type:
 					/*X.RDB$CONSTRAINT_TYPE.NULL*/
 					isc_161.isc_172 = FALSE;
-#line 4853 "restore.epp"
+#line 4849 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$CONSTRAINT_TYPE*/
 						 isc_161.isc_167);
-#line 4854 "restore.epp"
+#line 4850 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_rel_constraint_rel_name:
 					/*X.RDB$RELATION_NAME.NULL*/
 					isc_161.isc_171 = FALSE;
-#line 4858 "restore.epp"
+#line 4854 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$RELATION_NAME*/
 						 isc_161.isc_163);
-#line 4859 "restore.epp"
+#line 4855 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_rel_constraint_defer:
 					/*X.RDB$DEFERRABLE.NULL*/
 					isc_161.isc_170 = FALSE;
-#line 4863 "restore.epp"
+#line 4859 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$DEFERRABLE*/
 						 isc_161.isc_166);
-#line 4864 "restore.epp"
+#line 4860 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_rel_constraint_init:
 					/*X.RDB$INITIALLY_DEFERRED.NULL*/
 					isc_161.isc_169 = FALSE;
-#line 4868 "restore.epp"
+#line 4864 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$INITIALLY_DEFERRED*/
 						 isc_161.isc_165);
-#line 4869 "restore.epp"
+#line 4865 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				case att_rel_constraint_index:
 					/*X.RDB$INDEX_NAME.NULL*/
 					isc_161.isc_168 = FALSE;
-#line 4873 "restore.epp"
+#line 4869 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					GET_TEXT(/*X.RDB$INDEX_NAME*/
 						 isc_161.isc_162);
-#line 4874 "restore.epp"
+#line 4870 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					break;
 
 				default:
@@ -10073,18 +10069,18 @@ bool get_rel_constraint()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 128, &isc_161, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_rel_constraint_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 128, &isc_161, (short) 0);
 	   };
-#line 4883 "restore.epp"
+#line 4879 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 4884 "restore.epp"
+#line 4880 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 4886 "restore.epp"
+#line 4882 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -10107,7 +10103,7 @@ bool get_relation_data()
 	char
 	   name[32];
 
-#line 4905 "restore.epp"
+#line 4901 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	ATT_TYPE	attribute;
 	scan_attr_t		scan_next_attr;
 
@@ -10178,7 +10174,7 @@ bool get_relation_data()
 			break;
 		}
 	}
-        return true;
+	return true;
 }
 
 bool get_sql_roles()
@@ -10205,17 +10201,17 @@ bool get_sql_roles()
 	{
 	
         if (!tdgbl->handles_get_sql_roles_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
 	if (tdgbl->handles_get_sql_roles_req_handle1)
 	   {
-#line 4998 "restore.epp"
+#line 4995 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*X.RDB$ROLE_NAME.NULL*/
 		isc_155.isc_159 = TRUE;
-#line 5000 "restore.epp"
+#line 4997 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$OWNER_NAME.NULL*/
 		isc_155.isc_158 = TRUE;
-#line 5001 "restore.epp"
+#line 4998 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
@@ -10225,28 +10221,28 @@ bool get_sql_roles()
 			case att_role_name:
 				/*X.RDB$ROLE_NAME.NULL*/
 				isc_155.isc_159 = FALSE;
-#line 5009 "restore.epp"
+#line 5006 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				l = GET_TEXT(/*X.RDB$ROLE_NAME*/
 					     isc_155.isc_157);
-#line 5010 "restore.epp"
+#line 5007 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				MISC_terminate (/*X.RDB$ROLE_NAME*/
 						isc_155.isc_157, temp, l, sizeof(temp));
-#line 5011 "restore.epp"
+#line 5008 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/************************************************
 				**
 				** msg 251, restoring SQL role: %s
 				**
 				*************************************************/
-				BURP_verbose (251, temp, NULL, NULL, NULL, NULL);
+				BURP_verbose (251, temp);
 				break;
 
 			case att_role_owner_name:
 				/*X.RDB$OWNER_NAME.NULL*/
 				isc_155.isc_158 = FALSE;
-#line 5021 "restore.epp"
+#line 5018 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$OWNER_NAME*/
 					 isc_155.isc_156);
-#line 5022 "restore.epp"
+#line 5019 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -10261,18 +10257,18 @@ bool get_sql_roles()
 		}
 	/*END_STORE*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 68, &isc_155, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_sql_roles_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 68, &isc_155, (short) 0);
 	   };
-#line 5035 "restore.epp"
+#line 5032 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5036 "restore.epp"
+#line 5033 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5038 "restore.epp"
+#line 5035 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -10326,24 +10322,24 @@ bool get_security_class()
 	{
 	
         if (!tdgbl->handles_get_security_class_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_security_class_req_handle1, (short) sizeof (isc_148), (char *) isc_148);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_security_class_req_handle1, (short) sizeof (isc_148), (char *) isc_148);
 	if (tdgbl->handles_get_security_class_req_handle1)
 	   {
 	   isc_149.isc_150 = isc_blob_null;
 	   isc_149.isc_152 = isc_blob_null;
-#line 5088 "restore.epp"
+#line 5085 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
 			/*X.RDB$DESCRIPTION.NULL*/
 			isc_149.isc_153 = TRUE;
-#line 5092 "restore.epp"
+#line 5089 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			switch (attribute)
 			{
 			case att_class_security_class:
 				l = GET_TEXT(/*X.RDB$SECURITY_CLASS*/
 					     isc_149.isc_151);
-#line 5096 "restore.epp"
+#line 5093 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 				/* Bug fix for bug_no 7299: There was a V3 bug that inserted
 				   garbage security class entry when doing GBAK. In order to
@@ -10354,46 +10350,46 @@ bool get_security_class()
 				 */
 				is_valid_sec_class = is_ascii_name(/*X.RDB$SECURITY_CLASS*/
 								   isc_149.isc_151, l);
-#line 5105 "restore.epp"
+#line 5102 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				if (!is_valid_sec_class)
 				{
 					MISC_terminate (/*X.RDB$SECURITY_CLASS*/
 							isc_149.isc_151, temp, l, sizeof(temp));
-#line 5108 "restore.epp"
-					BURP_print (234, temp, NULL, NULL, NULL, NULL);
+#line 5105 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+					BURP_print (234, temp);
 					// msg 234   Skipped bad security class entry: %s 
 					break;
 				}
 
 				MISC_terminate (/*X.RDB$SECURITY_CLASS*/
 						isc_149.isc_151, temp, l, sizeof(temp));
-#line 5114 "restore.epp"
-				BURP_verbose (125, temp, NULL, NULL, NULL, NULL);
+#line 5111 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+				BURP_verbose (125, temp);
 					// msg 125   restoring security class %s 
 				break;
 
 			case att_class_acl:
 				get_misc_blob (&/*X.RDB$ACL*/
 						isc_149.isc_150, 0, false);
-#line 5120 "restore.epp"
+#line 5117 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_class_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_149.isc_153 = FALSE;
-#line 5124 "restore.epp"
+#line 5121 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_149.isc_152, 0, false);
-#line 5125 "restore.epp"
+#line 5122 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_class_description2:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_149.isc_153 = FALSE;
-#line 5129 "restore.epp"
+#line 5126 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_149.isc_152, false);
-#line 5130 "restore.epp"
+#line 5127 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -10410,18 +10406,18 @@ bool get_security_class()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_security_class_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 50, &isc_149, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_security_class_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 50, &isc_149, (short) 0);
 	   };
-#line 5145 "restore.epp"
+#line 5142 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5146 "restore.epp"
+#line 5143 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5148 "restore.epp"
+#line 5145 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -10449,7 +10445,7 @@ void get_source_blob (
 
 	// Create new blob
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 	isc_tr_handle	local_trans;
 	if (glb_trans && tdgbl->global_trans)
 		local_trans = tdgbl->global_trans;
@@ -10550,22 +10546,22 @@ bool get_trigger_old (
 	{
 	
         if (!tdgbl->handles_get_trigger_old_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (short) sizeof (isc_135), (char *) isc_135);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (short) sizeof (isc_135), (char *) isc_135);
 	if (tdgbl->handles_get_trigger_old_req_handle1)
 	   {
 	   isc_136.isc_139 = isc_blob_null;
 	   isc_136.isc_140 = isc_blob_null;
 	   isc_136.isc_141 = isc_blob_null;
-#line 5273 "restore.epp"
+#line 5270 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_136.isc_147 = TRUE;
-#line 5274 "restore.epp"
+#line 5271 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$TRIGGER_BLR.NULL*/
 		isc_136.isc_146 = TRUE;
-#line 5275 "restore.epp"
+#line 5272 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$TRIGGER_SOURCE.NULL*/
 		isc_136.isc_145 = TRUE;
-#line 5276 "restore.epp"
+#line 5273 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -10578,28 +10574,28 @@ bool get_trigger_old (
 			case att_trig_blr:
 				/*X.RDB$TRIGGER_BLR.NULL*/
 				isc_136.isc_146 = FALSE;
-#line 5287 "restore.epp"
+#line 5284 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_blr_blob (&/*X.RDB$TRIGGER_BLR*/
 					       isc_136.isc_140, false);
-#line 5288 "restore.epp"
+#line 5285 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_source:
 				/*X.RDB$TRIGGER_SOURCE.NULL*/
 				isc_136.isc_145 = FALSE;
-#line 5292 "restore.epp"
+#line 5289 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$TRIGGER_SOURCE*/
 						isc_136.isc_139, 1, false);
-#line 5293 "restore.epp"
+#line 5290 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_source2:
 				/*X.RDB$TRIGGER_SOURCE.NULL*/
 				isc_136.isc_145 = FALSE;
-#line 5297 "restore.epp"
+#line 5294 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$TRIGGER_SOURCE*/
 						  isc_136.isc_139, false);
-#line 5298 "restore.epp"
+#line 5295 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -10613,7 +10609,7 @@ bool get_trigger_old (
 
 		TEXT* p = /*X.RDB$TRIGGER_NAME*/
 			  isc_136.isc_138;
-#line 5310 "restore.epp"
+#line 5307 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		const TEXT* const end = p + 31;
 		const TEXT* q = relation->rel_name;
 		while (*q)
@@ -10623,21 +10619,21 @@ bool get_trigger_old (
 		{
 			/*X.RDB$TRIGGER_TYPE*/
 			isc_136.isc_144 = TRIG_TYPE_PRE_STORE;
-#line 5318 "restore.epp"
+#line 5315 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			q = "$STORE";
 		}
 		else if (type == trig_pre_modify)
 		{
 			/*X.RDB$TRIGGER_TYPE*/
 			isc_136.isc_144 = TRIG_TYPE_PRE_MODIFY;
-#line 5323 "restore.epp"
+#line 5320 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			q = "$MODIFY";
 		}
 		else if (type == trig_post_erase)
 		{
 			/*X.RDB$TRIGGER_TYPE*/
 			isc_136.isc_144 = TRIG_TYPE_POST_ERASE;
-#line 5328 "restore.epp"
+#line 5325 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			q = "$ERASE";
 		}
 		else
@@ -10652,81 +10648,81 @@ bool get_trigger_old (
 		}
 		*p = 0;
 		BURP_verbose (126, /*X.RDB$TRIGGER_NAME*/
-				   isc_136.isc_138, NULL, NULL, NULL, NULL);
-#line 5342 "restore.epp"
+				   isc_136.isc_138);
+#line 5339 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// msg 126 restoring trigger %s 
 		strncpy (/*X.RDB$RELATION_NAME*/
 			 isc_136.isc_137, relation->rel_name, GDS_NAME_LEN);
-#line 5344 "restore.epp"
+#line 5341 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (name, /*X.RDB$TRIGGER_NAME*/
 			      isc_136.isc_138);
-#line 5345 "restore.epp"
+#line 5342 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$TRIGGER_SEQUENCE*/
 		isc_136.isc_143 = TRIGGER_SEQUENCE_DEFAULT;
-#line 5346 "restore.epp"
+#line 5343 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG*/
 		isc_136.isc_142 = 0;   // restore as vanilla user type 
-#line 5347 "restore.epp"
+#line 5344 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 100, &isc_136, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_old_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 100, &isc_136, (short) 0);
 	   };
-#line 5349 "restore.epp"
+#line 5346 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5350 "restore.epp"
+#line 5347 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5352 "restore.epp"
+#line 5349 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	if (tdgbl->gbl_sw_incremental)
 	{
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 5356 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 5353 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 5358 "restore.epp"
-			BURP_print (94, name, NULL, NULL, NULL, NULL);
+#line 5355 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+			BURP_print (94, name);
 			// msg 94 trigger %s is invalid 
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 5362 "restore.epp"
+			isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 5359 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 5363 "restore.epp"
+#line 5360 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 5365 "restore.epp"
+#line 5362 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_ERROR;*/
 		   }
 		}
-#line 5366 "restore.epp"
+#line 5363 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_14);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_14);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 5367 "restore.epp"
+#line 5364 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_15);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_15);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 5369 "restore.epp"
+#line 5366 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 
 	return true;
@@ -10749,7 +10745,7 @@ bool get_trigger()
 	char
 	   name[32];
 
-#line 5388 "restore.epp"
+#line 5385 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	scan_attr_t		scan_next_attr;
 
 	TGBL tdgbl = GET_THREAD_DATA;
@@ -10763,28 +10759,28 @@ bool get_trigger()
 	{
 	
         if (!tdgbl->handles_get_trigger_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_req_handle1, (short) sizeof (isc_118), (char *) isc_118);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_req_handle1, (short) sizeof (isc_118), (char *) isc_118);
 	if (tdgbl->handles_get_trigger_req_handle1)
 	   {
 	   isc_119.isc_122 = isc_blob_null;
 	   isc_119.isc_123 = isc_blob_null;
 	   isc_119.isc_124 = isc_blob_null;
-#line 5398 "restore.epp"
+#line 5395 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_119.isc_134 = TRUE;
-#line 5399 "restore.epp"
+#line 5396 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$TRIGGER_BLR.NULL*/
 		isc_119.isc_133 = TRUE;
-#line 5400 "restore.epp"
+#line 5397 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$TRIGGER_SOURCE.NULL*/
 		isc_119.isc_132 = TRUE;
-#line 5401 "restore.epp"
+#line 5398 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_119.isc_130 = TRUE;
-#line 5402 "restore.epp"
+#line 5399 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$FLAGS.NULL*/
 		isc_119.isc_128 = TRUE;
-#line 5403 "restore.epp"
+#line 5400 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -10793,101 +10789,101 @@ bool get_trigger()
 			case att_trig_type:
 				/*X.RDB$TRIGGER_TYPE*/
 				isc_119.isc_127 = (USHORT) get_numeric();
-#line 5410 "restore.epp"
+#line 5407 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_flags:
 				/*X.RDB$FLAGS*/
 				isc_119.isc_129 = (USHORT) get_numeric();
-#line 5414 "restore.epp"
+#line 5411 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$FLAGS.NULL*/
 				isc_119.isc_128 = FALSE;
-#line 5415 "restore.epp"
+#line 5412 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_blr:
 				/*X.RDB$TRIGGER_BLR.NULL*/
 				isc_119.isc_133 = FALSE;
-#line 5419 "restore.epp"
+#line 5416 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_blr_blob (&/*X.RDB$TRIGGER_BLR*/
 					       isc_119.isc_123, true);
-#line 5420 "restore.epp"
+#line 5417 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_source:
 				/*X.RDB$TRIGGER_SOURCE.NULL*/
 				isc_119.isc_132 = FALSE;
-#line 5424 "restore.epp"
+#line 5421 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$TRIGGER_SOURCE*/
 						isc_119.isc_122, 1, true);
-#line 5425 "restore.epp"
+#line 5422 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_source2:
 				/*X.RDB$TRIGGER_SOURCE.NULL*/
 				isc_119.isc_132 = FALSE;
-#line 5429 "restore.epp"
+#line 5426 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$TRIGGER_SOURCE*/
 						  isc_119.isc_122, true);
-#line 5430 "restore.epp"
+#line 5427 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_name:
 				GET_TEXT(/*X.RDB$TRIGGER_NAME*/
 					 isc_119.isc_121);
-#line 5434 "restore.epp"
+#line 5431 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				strcpy (name, /*X.RDB$TRIGGER_NAME*/
 					      isc_119.isc_121);
-#line 5435 "restore.epp"
+#line 5432 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				BURP_verbose (126, /*X.RDB$TRIGGER_NAME*/
-						   isc_119.isc_121, NULL, NULL, NULL, NULL);
-#line 5436 "restore.epp"
+						   isc_119.isc_121);
+#line 5433 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				// msg 126 restoring trigger %s 
 				break;
 
 			case att_trig_relation_name:
 				GET_TEXT(/*X.RDB$RELATION_NAME*/
 					 isc_119.isc_120);
-#line 5441 "restore.epp"
+#line 5438 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_sequence:
 				/*X.RDB$TRIGGER_SEQUENCE*/
 				isc_119.isc_126 = (USHORT) get_numeric();
-#line 5445 "restore.epp"
+#line 5442 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_119.isc_134 = FALSE;
-#line 5449 "restore.epp"
+#line 5446 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_119.isc_124, 1, true);
-#line 5450 "restore.epp"
+#line 5447 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_description2:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_119.isc_134 = FALSE;
-#line 5454 "restore.epp"
+#line 5451 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_119.isc_124, true);
-#line 5455 "restore.epp"
+#line 5452 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_system_flag:
 				/*X.RDB$SYSTEM_FLAG*/
 				isc_119.isc_131 = (USHORT) get_numeric();
-#line 5459 "restore.epp"
+#line 5456 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SYSTEM_FLAG.NULL*/
 				isc_119.isc_130 = FALSE;
-#line 5460 "restore.epp"
+#line 5457 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_trig_inactive:
 				/*X.RDB$TRIGGER_INACTIVE*/
 				isc_119.isc_125 = (USHORT) get_numeric();
-#line 5464 "restore.epp"
+#line 5461 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -10898,63 +10894,63 @@ bool get_trigger()
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 108, &isc_119, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 108, &isc_119, (short) 0);
 	   };
-#line 5473 "restore.epp"
+#line 5470 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5474 "restore.epp"
+#line 5471 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5476 "restore.epp"
+#line 5473 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	if (tdgbl->gbl_sw_incremental)
 	{
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 5480 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 5477 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 5482 "restore.epp"
-			BURP_print (94, name, NULL, NULL, NULL, NULL);
+#line 5479 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+			BURP_print (94, name);
 			// msg 94 trigger %s is invalid 
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 5486 "restore.epp"
+			isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 5483 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 5487 "restore.epp"
+#line 5484 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 5489 "restore.epp"
+#line 5486 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_ERROR;*/
 		   }
 		}
-#line 5490 "restore.epp"
+#line 5487 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_16);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_16);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 5491 "restore.epp"
+#line 5488 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_17);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_17);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 5493 "restore.epp"
+#line 5490 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 
 	return true;
@@ -10979,17 +10975,17 @@ bool get_trigger_message()
 	char
 	   name[32];
 
-#line 5514 "restore.epp"
+#line 5511 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$TRIGGER_MESSAGES.RDB$MESSAGE_NUMBER	number;*/
 	short
 	   number;
 
-#line 5515 "restore.epp"
+#line 5512 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$TRIGGER_MESSAGES.RDB$MESSAGE		message;*/
 	char
-	   message[79];
+	   message[254];
 
-#line 5516 "restore.epp"
+#line 5513 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -11007,31 +11003,31 @@ bool get_trigger_message()
 				X.RDB$SYSTEM_FLAG EQ 1 AND X.RDB$TRIGGER_NAME EQ name*/
 			{
                         if (!tdgbl->handles_get_trigger_message_req_handle1)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) sizeof (isc_113), (char *) isc_113);
-			isc_vtov ((char*)name, (char*)isc_114.isc_115, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) sizeof (isc_113), (char *) isc_113);
+			isc_vtov ((const char*)name, (char*)isc_114.isc_115, 32);
 			if (tdgbl->handles_get_trigger_message_req_handle1)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_114, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_114, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) 1, (short) 2, &isc_116, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle1, (short) 1, (short) 2, &isc_116, (short) 0);
 			   if (!isc_116.isc_117 || isc_status [1]) break;
-#line 5531 "restore.epp"
+#line 5528 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				flag = true;
 			/*END_FOR;*/
 			   }
 			   };
-#line 5533 "restore.epp"
+#line 5530 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 5534 "restore.epp"
+#line 5531 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 5536 "restore.epp"
-			BURP_verbose (127, name, NULL, NULL, NULL, NULL);
+#line 5533 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+			BURP_verbose (127, name);
 			// msg 127 restoring trigger message for %s 
 			break;
 
@@ -11062,78 +11058,78 @@ bool get_trigger_message()
 	{
 	
         if (!tdgbl->handles_get_trigger_message_req_handle2)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (short) sizeof (isc_108), (char *) isc_108);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (short) sizeof (isc_108), (char *) isc_108);
 	if (tdgbl->handles_get_trigger_message_req_handle2)
 	   {
-#line 5564 "restore.epp"
+#line 5561 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$TRIGGER_NAME*/
 			isc_109.isc_110, name);
-#line 5565 "restore.epp"
+#line 5562 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$MESSAGE_NUMBER*/
-		isc_109.isc_111 = number;
-#line 5566 "restore.epp"
+		isc_109.isc_112 = number;
+#line 5563 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$MESSAGE*/
-			isc_109.isc_112, message);
-#line 5567 "restore.epp"
+			isc_109.isc_111, message);
+#line 5564 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (isc_handle*) &local_trans, (short) 0, (short) 113, &isc_109, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (isc_tr_handle*) &local_trans, (short) 0, (short) 288, &isc_109, (short) 0);
 	   };
-#line 5568 "restore.epp"
+#line 5565 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5569 "restore.epp"
+#line 5566 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5571 "restore.epp"
+#line 5568 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	if (tdgbl->gbl_sw_incremental)
 	{
 		/*COMMIT*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 5575 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 5572 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// existing ON_ERROR continues past error, beck 
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 5577 "restore.epp"
-			BURP_print (94, name, NULL, NULL, NULL, NULL);
+#line 5574 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
+			BURP_print (94, name);
 			// msg 94 trigger %s is invalid 
 			BURP_print_status (tdgbl->status_vector);
 			/*ROLLBACK;*/
 			{
-			isc_rollback_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 5581 "restore.epp"
+			isc_rollback_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 5578 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 5582 "restore.epp"
+#line 5579 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 5584 "restore.epp"
+#line 5581 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_ERROR;*/
 		   }
 		}
-#line 5585 "restore.epp"
+#line 5582 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_18);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_18);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 5586 "restore.epp"
+#line 5583 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_19);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_19);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 5588 "restore.epp"
+#line 5585 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 
 	return true;
@@ -11163,17 +11159,17 @@ bool get_type()
 	{
 	
         if (!tdgbl->handles_get_type_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_type_req_handle1, (short) sizeof (isc_99), (char *) isc_99);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_type_req_handle1, (short) sizeof (isc_99), (char *) isc_99);
 	if (tdgbl->handles_get_type_req_handle1)
 	   {
 	   isc_100.isc_103 = isc_blob_null;
-#line 5614 "restore.epp"
+#line 5611 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$DESCRIPTION.NULL*/
 		isc_100.isc_107 = TRUE;
-#line 5615 "restore.epp"
+#line 5612 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*X.RDB$SYSTEM_FLAG.NULL*/
 		isc_100.isc_105 = TRUE;
-#line 5616 "restore.epp"
+#line 5613 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -11182,46 +11178,46 @@ bool get_type()
 			case att_type_name:
 				l = GET_TEXT(/*X.RDB$TYPE_NAME*/
 					     isc_100.isc_102);
-#line 5623 "restore.epp"
+#line 5620 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_type_type:
 				/*X.RDB$TYPE*/
 				isc_100.isc_104 = (USHORT) get_numeric();
-#line 5627 "restore.epp"
+#line 5624 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_type_field_name:
 				GET_TEXT(/*X.RDB$FIELD_NAME*/
 					 isc_100.isc_101);
-#line 5631 "restore.epp"
+#line 5628 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_type_description:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_100.isc_107 = FALSE;
-#line 5635 "restore.epp"
+#line 5632 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_misc_blob (&/*X.RDB$DESCRIPTION*/
 						isc_100.isc_103, 1, false);
-#line 5636 "restore.epp"
+#line 5633 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_type_description2:
 				/*X.RDB$DESCRIPTION.NULL*/
 				isc_100.isc_107 = FALSE;
-#line 5640 "restore.epp"
+#line 5637 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				get_source_blob (&/*X.RDB$DESCRIPTION*/
 						  isc_100.isc_103, false);
-#line 5641 "restore.epp"
+#line 5638 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_type_system_flag:
 				/*X.RDB$SYSTEM_FLAG*/
 				isc_100.isc_106 = (USHORT) get_numeric();
-#line 5645 "restore.epp"
+#line 5642 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*X.RDB$SYSTEM_FLAG.NULL*/
 				isc_100.isc_105 = FALSE;
-#line 5646 "restore.epp"
+#line 5643 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -11233,26 +11229,26 @@ bool get_type()
 
 		MISC_terminate (/*X.RDB$TYPE_NAME*/
 				isc_100.isc_102, temp, l, sizeof(temp));
-#line 5656 "restore.epp"
+#line 5653 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		BURP_verbose (128, temp, /*X.RDB$FIELD_NAME*/
-					 isc_100.isc_101, NULL, NULL, NULL);
-#line 5657 "restore.epp"
+					 isc_100.isc_101);
+#line 5654 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		// msg 128  restoring type %s for field %s 
 
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_type_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 80, &isc_100, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_type_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 80, &isc_100, (short) 0);
 	   };
-#line 5660 "restore.epp"
+#line 5657 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5661 "restore.epp"
+#line 5658 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5663 "restore.epp"
+#line 5660 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -11278,42 +11274,42 @@ bool get_user_privilege()
 	char
 	   user[32];
 
-#line 5685 "restore.epp"
+#line 5682 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$GRANTOR	grantor;*/
 	char
 	   grantor[32];
 
-#line 5686 "restore.epp"
+#line 5683 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$PRIVILEGE	privilege;*/
 	char
 	   privilege[7];
 
-#line 5687 "restore.epp"
+#line 5684 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$GRANT_OPTION	grant_option;*/
 	short
 	   grant_option;
 
-#line 5688 "restore.epp"
+#line 5685 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$RELATION_NAME	relation_name;*/
 	char
 	   relation_name[32];
 
-#line 5689 "restore.epp"
+#line 5686 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$FIELD_NAME	field_name;*/
 	char
 	   field_name[32];
 
-#line 5690 "restore.epp"
+#line 5687 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$USER_TYPE	user_type;*/
 	short
 	   user_type;
 
-#line 5691 "restore.epp"
+#line 5688 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*BASED_ON RDB$USER_PRIVILEGES.RDB$OBJECT_TYPE	object_type;*/
 	short
 	   object_type;
 
-#line 5692 "restore.epp"
+#line 5689 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	TGBL tdgbl = GET_THREAD_DATA;
 	user_type = obj_user;
@@ -11328,7 +11324,7 @@ bool get_user_privilege()
 			// default USER_TYPE to USER 
 			flags |= USER_PRIV_USER;
 			GET_TEXT(user);
-			BURP_verbose (123, user, NULL, NULL, NULL, NULL);
+			BURP_verbose (123, user);
 			// msg 123 restoring privilege for user %s 
 			break;
 
@@ -11376,7 +11372,7 @@ bool get_user_privilege()
 	}
 
 	// Check if object exists 
-	isc_tr_handle	local_trans = NULL;
+	isc_tr_handle	local_trans = NULL_HANDLE;
 	bool exists = false;
 	switch (object_type)
 	{
@@ -11421,61 +11417,61 @@ bool get_user_privilege()
 		{
 		
                 if (!tdgbl->handles_get_user_privilege_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (short) sizeof (isc_85), (char *) isc_85);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (short) sizeof (isc_85), (char *) isc_85);
 		if (tdgbl->handles_get_user_privilege_req_handle1)
 		   {
-#line 5796 "restore.epp"
+#line 5793 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			/*X.RDB$FIELD_NAME.NULL*/
 			isc_86.isc_97 = TRUE;
-#line 5798 "restore.epp"
+#line 5795 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*X.RDB$OBJECT_TYPE.NULL*/
 			isc_86.isc_95 = TRUE;
-#line 5799 "restore.epp"
+#line 5796 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			if (flags & USER_PRIV_USER)
 				strcpy (/*X.RDB$USER*/
 					isc_86.isc_89, user);
-#line 5802 "restore.epp"
+#line 5799 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			if (flags & USER_PRIV_GRANTOR)
 				strcpy (/*X.RDB$GRANTOR*/
 					isc_86.isc_88, grantor);
-#line 5805 "restore.epp"
+#line 5802 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			if (flags & USER_PRIV_PRIVILEGE)
 				strcpy (/*X.RDB$PRIVILEGE*/
 					isc_86.isc_98, privilege);
-#line 5808 "restore.epp"
+#line 5805 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			if (flags & USER_PRIV_GRANT_OPTION)
 			{
 				/*X.RDB$GRANT_OPTION*/
 				isc_86.isc_94 = grant_option;
-#line 5812 "restore.epp"
+#line 5809 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					if (grant_option == 0)
 						/*X.RDB$GRANT_OPTION.NULL*/
 						isc_86.isc_93 = TRUE;
-#line 5814 "restore.epp"
+#line 5811 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					else
 						/*X.RDB$GRANT_OPTION.NULL*/
 						isc_86.isc_93 = FALSE;
-#line 5816 "restore.epp"
+#line 5813 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			}
 
 			if (flags & USER_PRIV_OBJECT_NAME)
 				strcpy (/*X.RDB$RELATION_NAME*/
 					isc_86.isc_87, relation_name);
-#line 5820 "restore.epp"
+#line 5817 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			if (flags & USER_PRIV_FIELD_NAME)
 			{
 				/*X.RDB$FIELD_NAME.NULL*/
 				isc_86.isc_97 = FALSE;
-#line 5824 "restore.epp"
+#line 5821 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				strcpy (/*X.RDB$FIELD_NAME*/
 					isc_86.isc_90, field_name);
-#line 5825 "restore.epp"
+#line 5822 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			}
 
 			   /*
@@ -11489,17 +11485,17 @@ bool get_user_privilege()
 
 			/*X.RDB$USER_TYPE.NULL*/
 			isc_86.isc_91 = FALSE;
-#line 5837 "restore.epp"
+#line 5834 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*X.RDB$USER_TYPE*/
 			isc_86.isc_92 = user_type;
-#line 5838 "restore.epp"
+#line 5835 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			/*X.RDB$OBJECT_TYPE.NULL*/
 			isc_86.isc_95 = FALSE;
-#line 5840 "restore.epp"
+#line 5837 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*X.RDB$OBJECT_TYPE*/
 			isc_86.isc_96 = object_type;
-#line 5841 "restore.epp"
+#line 5838 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 
 	   /*
@@ -11522,18 +11518,18 @@ bool get_user_privilege()
 
 		/*END_STORE;*/
 		   
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 149, &isc_86, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_user_privilege_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 149, &isc_86, (short) 0);
 		   };
-#line 5862 "restore.epp"
+#line 5859 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 5863 "restore.epp"
+#line 5860 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 5865 "restore.epp"
+#line 5862 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 
 	return true;
@@ -11567,13 +11563,13 @@ bool get_view (BURP_REL		relation)
 	{
 	
         if (!tdgbl->handles_get_view_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_view_req_handle1, (short) sizeof (isc_79), (char *) isc_79);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_view_req_handle1, (short) sizeof (isc_79), (char *) isc_79);
 	if (tdgbl->handles_get_view_req_handle1)
 	   {
-#line 5895 "restore.epp"
+#line 5892 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$VIEW_NAME*/
 			isc_80.isc_83, relation->rel_name);
-#line 5896 "restore.epp"
+#line 5893 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		skip_init(&scan_next_attr);
 		while (skip_scan(&scan_next_attr), get_attribute(&attribute, tdgbl) != att_end)
 		{
@@ -11582,19 +11578,19 @@ bool get_view (BURP_REL		relation)
 			case att_view_relation_name:
 				GET_TEXT(/*X.RDB$RELATION_NAME*/
 					 isc_80.isc_82);
-#line 5903 "restore.epp"
+#line 5900 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_view_context_name:
 				GET_TEXT(/*X.RDB$CONTEXT_NAME*/
 					 isc_80.isc_81);
-#line 5907 "restore.epp"
+#line 5904 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			case att_view_context_id:
 				/*X.RDB$VIEW_CONTEXT*/
 				isc_80.isc_84 = (USHORT) get_numeric();
-#line 5911 "restore.epp"
+#line 5908 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				break;
 
 			default:
@@ -11605,18 +11601,18 @@ bool get_view (BURP_REL		relation)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_view_req_handle1, (isc_handle*) &local_trans, (short) 0, (short) 98, &isc_80, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_view_req_handle1, (isc_tr_handle*) &local_trans, (short) 0, (short) 98, &isc_80, (short) 0);
 	   };
-#line 5920 "restore.epp"
+#line 5917 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 5921 "restore.epp"
+#line 5918 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 5923 "restore.epp"
+#line 5920 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	return true;
 }
@@ -11837,7 +11833,7 @@ rec_type ignore_data (BURP_REL		relation)
 			break;
 	}
 
-	BURP_verbose (106, (void*) records, NULL, NULL, NULL, NULL);
+	BURP_verbose (106, records);
 	// msg 106 %ld records ignored 
 
 	return record;
@@ -11860,8 +11856,8 @@ void realign(UCHAR* buffer,
  *
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
-	UCHAR* p;
-	const UCHAR* q;
+        UCHAR *p = NULL;
+        const UCHAR *q = NULL;
 
 	for (const burp_fld* field = relation->rel_fields; field; field = field->fld_next)
 	{
@@ -11985,8 +11981,8 @@ bool restore (const TEXT* file_name,
  **************************************/
 	rec_type	record;
 	ATT_TYPE	attribute;
-	isc_req_handle  req_handle1 = NULL, req_handle2 = NULL, req_handle3 = NULL,
-					req_handle5 = NULL;
+	isc_req_handle  req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 = NULL_HANDLE,
+					req_handle5 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -11996,10 +11992,10 @@ bool restore (const TEXT* file_name,
 		&tdgbl->RESTORE_format, &tdgbl->io_cnt, &tdgbl->io_ptr);
 
 	if (tdgbl->gbl_sw_transportable)
-		BURP_verbose (133, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (133);
 		// msg 133 transportable backup -- data in XDR format 
 	if (tdgbl->gbl_sw_compress)
-		BURP_verbose (61, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose (61);
 		// msg 61 backup file is compressed 
 
 
@@ -12007,7 +12003,7 @@ bool restore (const TEXT* file_name,
 
 	if (tdgbl->RESTORE_format < 1 || tdgbl->RESTORE_format > ATT_BACKUP_FORMAT)
 	{
-		BURP_error(44, true, isc_arg_number, (void*)(ULONG)tdgbl->RESTORE_format,
+		BURP_error(44, true, isc_arg_number, (void*)(IPTR)tdgbl->RESTORE_format,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 		// msg 44 Expected backup version 1, 2, or 3.  Found %ld 
 	}
@@ -12016,17 +12012,17 @@ bool restore (const TEXT* file_name,
 
 	/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 	{
-	isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_20);
+	isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_20);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
-#line 6319 "restore.epp"
+#line 6318 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	if (gds_status[1])
 		/*EXEC SQL SET TRANSACTION;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_21);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_21);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 6321 "restore.epp"
+#line 6320 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	/* For V4.0, start a read commited transaction.  This will be used
 	 * to create blobs for global fields and update the record in the
@@ -12035,20 +12031,20 @@ bool restore (const TEXT* file_name,
 
 	/*EXEC SQL SET TRANSACTION NAME tdgbl->global_trans ISOLATION LEVEL READ COMMITTED;*/
 	{
-	isc_start_transaction (isc_status, (isc_handle*) &tdgbl->global_trans, (short) 1, &DB, (short) 5, isc_tpb_22);
+	isc_start_transaction (isc_status, (FB_API_HANDLE*) &tdgbl->global_trans, (short) 1, &DB, (short) 5, isc_tpb_22);
 	SQLCODE = isc_sqlcode (isc_status);
 	}
-#line 6328 "restore.epp"
+#line 6327 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	USHORT db_version = check_db_version();
 	if (db_version < DB_VERSION_CURRENT)
 	{
-		BURP_error(51, true, isc_arg_number, (void*) (ULONG) db_version,
+		BURP_error(51, true, isc_arg_number, (void*) (IPTR) db_version,
 					0, NULL, 0, NULL, 0, NULL, 0, NULL);
 		// msg 51 database format %ld is too old to restore to 
 	}
 
-	BURP_verbose (129, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose (129);
 	// msg 129 started transaction 
 
 	while (get_attribute(&attribute, tdgbl) != att_end)
@@ -12069,53 +12065,53 @@ bool restore (const TEXT* file_name,
 				X IN RDB$DATABASE*/
 			{
                         if (!req_handle2)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_71), (char *) isc_71);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_71), (char *) isc_71);
 			if (req_handle2)
-                           isc_start_request (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 0, (short) 10, &isc_72, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 10, &isc_72, (short) 0);
 			   if (!isc_72.isc_74 || isc_status [1]) break;
-#line 6356 "restore.epp"
+#line 6355 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*MODIFY X USING*/
 				{
-#line 6357 "restore.epp"
+#line 6356 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					if (attribute == att_database_description2)
 						get_source_blob (&/*X.RDB$DESCRIPTION*/
 								  isc_72.isc_73, false);
-#line 6359 "restore.epp"
+#line 6358 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					else
 						get_misc_blob (&/*X.RDB$DESCRIPTION*/
 								isc_72.isc_73, 1, false);
-#line 6361 "restore.epp"
+#line 6360 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_MODIFY;*/
 				isc_75.isc_76 = isc_72.isc_73;
-                                isc_send (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 8, &isc_75, (short) 0);;
-#line 6362 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &req_handle2, (short) 1, (short) 8, &isc_75, (short) 0);;
+#line 6361 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 6363 "restore.epp"
+#line 6362 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 6365 "restore.epp"
+#line 6364 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_handle*) &req_handle2, (short) 2, (short) 2, &isc_77, (short) 0);
+                           isc_send (isc_status, (FB_API_HANDLE*) &req_handle2, (short) 2, (short) 2, &isc_77, (short) 0);
 			   }
 			   };
-#line 6366 "restore.epp"
+#line 6365 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 6367 "restore.epp"
+#line 6366 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 6369 "restore.epp"
+#line 6368 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			break;
 
 		case att_database_dfl_charset:
@@ -12123,48 +12119,48 @@ bool restore (const TEXT* file_name,
 				X IN RDB$DATABASE*/
 			{
                         if (!req_handle3)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_63), (char *) isc_63);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_63), (char *) isc_63);
 			if (req_handle3)
-                           isc_start_request (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 0, (short) 34, &isc_64, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 0, (short) 34, &isc_64, (short) 0);
 			   if (!isc_64.isc_66 || isc_status [1]) break;
-#line 6374 "restore.epp"
+#line 6373 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*MODIFY X USING*/
 				{
-#line 6375 "restore.epp"
+#line 6374 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				GET_TEXT(/*X.RDB$CHARACTER_SET_NAME*/
 					 isc_64.isc_65);
-#line 6376 "restore.epp"
+#line 6375 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*END_MODIFY;*/
 				isc_ftof (isc_64.isc_65, 32, isc_67.isc_68, 32);
-                                isc_send (isc_status, (isc_handle*) &req_handle3, (short) 1, (short) 32, &isc_67, (short) 0);;
-#line 6377 "restore.epp"
+                                isc_send (isc_status, (FB_API_HANDLE*) &req_handle3, (short) 1, (short) 32, &isc_67, (short) 0);;
+#line 6376 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 6378 "restore.epp"
+#line 6377 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 6380 "restore.epp"
+#line 6379 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*END_FOR;*/
-                           isc_send (isc_status, (isc_handle*) &req_handle3, (short) 2, (short) 2, &isc_69, (short) 0);
+                           isc_send (isc_status, (FB_API_HANDLE*) &req_handle3, (short) 2, (short) 2, &isc_69, (short) 0);
 			   }
 			   };
-#line 6381 "restore.epp"
+#line 6380 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 6382 "restore.epp"
+#line 6381 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 6384 "restore.epp"
+#line 6383 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			break;
 
 		default:
@@ -12283,34 +12279,34 @@ bool restore (const TEXT* file_name,
 		case rec_relation_data:
 			if (flag)
 			{
-				BURP_verbose (68, NULL, NULL, NULL, NULL, NULL);
+				BURP_verbose (68);
 				// msg 68 committing meta data 
 				/*COMMIT;*/
 				{
-				isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 6505 "restore.epp"
+				isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 6504 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 6506 "restore.epp"
+#line 6505 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					general_on_error ();
 				/*END_ERROR;*/
 				   }
 				}
-#line 6508 "restore.epp"
+#line 6507 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 				{
-				isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_23);
+				isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_23);
 				SQLCODE = isc_sqlcode (isc_status);
 				}
-#line 6509 "restore.epp"
+#line 6508 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					if (gds_status[1])
 						/*EXEC SQL SET TRANSACTION;*/
 						{
-						isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_24);
+						isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_24);
 						SQLCODE = isc_sqlcode (isc_status);
 						}
-#line 6511 "restore.epp"
+#line 6510 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				flag = false;
 			}
 			if (!get_relation_data())
@@ -12375,30 +12371,30 @@ bool restore (const TEXT* file_name,
 	{
 		/*COMMIT;*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 6574 "restore.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 6573 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 6575 "restore.epp"
+#line 6574 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 6577 "restore.epp"
+#line 6576 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_25);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_25);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 6578 "restore.epp"
+#line 6577 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		if (gds_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_26);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_26);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 6580 "restore.epp"
+#line 6579 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	}
 
 	// put validation clauses for global fields 
@@ -12414,42 +12410,42 @@ bool restore (const TEXT* file_name,
 			AND FIL.RDB$SHADOW_NUMBER NE 0*/
 		{
                 if (!req_handle5)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle5, (short) sizeof (isc_56), (char *) isc_56);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle5, (short) sizeof (isc_56), (char *) isc_56);
 		if (req_handle5)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle5, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle5, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle5, (short) 0, (short) 2, &isc_57, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle5, (short) 0, (short) 2, &isc_57, (short) 0);
 		   if (!isc_57.isc_58 || isc_status [1]) break;
-#line 6593 "restore.epp"
+#line 6592 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ERASE FIL;*/
 		{
-                isc_send (isc_status, (isc_handle*) &req_handle5, (short) 1, (short) 2, &isc_59, (short) 0);
-#line 6594 "restore.epp"
+                isc_send (isc_status, (FB_API_HANDLE*) &req_handle5, (short) 1, (short) 2, &isc_59, (short) 0);
+#line 6593 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 6595 "restore.epp"
+#line 6594 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 6597 "restore.epp"
+#line 6596 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_handle*) &req_handle5, (short) 2, (short) 2, &isc_61, (short) 0);
+                   isc_send (isc_status, (FB_API_HANDLE*) &req_handle5, (short) 2, (short) 2, &isc_61, (short) 0);
 		   }
 		   };
-#line 6598 "restore.epp"
+#line 6597 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 6599 "restore.epp"
+#line 6598 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 6601 "restore.epp"
+#line 6600 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	MISC_release_request_silent(req_handle5);
 
@@ -12469,7 +12465,7 @@ void restore_security_class (const TEXT	*owner_nm,
  *	restore the ownership of the relation in the ACL list
  *
  **************************************/
-	isc_req_handle  req_handle2 = NULL;
+	isc_req_handle  req_handle2 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 	isc_tr_handle local_trans = gds_trans;
@@ -12478,61 +12474,61 @@ void restore_security_class (const TEXT	*owner_nm,
 		X IN RDB$SECURITY_CLASSES WITH X.RDB$SECURITY_CLASS EQ sec_class_nm*/
 	{
         if (!req_handle2)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_46), (char *) isc_46);
-	isc_vtov ((char*)sec_class_nm, (char*)isc_47.isc_48, 32);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_46), (char *) isc_46);
+	isc_vtov ((const char*)sec_class_nm, (char*)isc_47.isc_48, 32);
 	if (req_handle2)
-           isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_47, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_47, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 10, &isc_49, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 10, &isc_49, (short) 0);
 	   if (!isc_49.isc_51 || isc_status [1]) break;
-#line 6627 "restore.epp"
+#line 6626 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		ISC_QUAD new_blob_id;
 		new_blob_id.gds_quad_high = 0;
 		new_blob_id.gds_quad_low  = 0;
 		get_acl (owner_nm, &/*X.RDB$ACL*/
 				    isc_49.isc_50, &new_blob_id);
-#line 6632 "restore.epp"
+#line 6631 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*MODIFY X*/
 		{;
-#line 6634 "restore.epp"
+#line 6633 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			MOVE_FAST (&new_blob_id, &/*X.RDB$ACL*/
 						  isc_49.isc_50, sizeof(ISC_QUAD));
-#line 6635 "restore.epp"
+#line 6634 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*END_MODIFY;*/
 		isc_52.isc_53 = isc_49.isc_50;
-                isc_send (isc_status, (isc_handle*) &req_handle2, (short) 2, (short) 8, &isc_52, (short) 0);;
-#line 6636 "restore.epp"
+                isc_send (isc_status, (FB_API_HANDLE*) &req_handle2, (short) 2, (short) 8, &isc_52, (short) 0);;
+#line 6635 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 6637 "restore.epp"
+#line 6636 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			MISC_release_request_silent(req_handle2);
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 6640 "restore.epp"
+#line 6639 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	/*END_FOR;*/
-           isc_send (isc_status, (isc_handle*) &req_handle2, (short) 3, (short) 2, &isc_54, (short) 0);
+           isc_send (isc_status, (FB_API_HANDLE*) &req_handle2, (short) 3, (short) 2, &isc_54, (short) 0);
 	   }
 	   };
-#line 6642 "restore.epp"
+#line 6641 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 6644 "restore.epp"
+#line 6643 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		MISC_release_request_silent(req_handle2);
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 6647 "restore.epp"
+#line 6646 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	MISC_release_request_silent(req_handle2);
 }
@@ -12558,38 +12554,38 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	{
 	
         if (!tdgbl->handles_store_blr_gen_id_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (short) sizeof (isc_43), (char *) isc_43);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (short) sizeof (isc_43), (char *) isc_43);
 	if (tdgbl->handles_store_blr_gen_id_req_handle1)
 	   {
-#line 6669 "restore.epp"
+#line 6668 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		strcpy (/*X.RDB$GENERATOR_NAME*/
 			isc_44.isc_45, gen_name);
-#line 6670 "restore.epp"
+#line 6669 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_44, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_store_blr_gen_id_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_44, (short) 0);
 	   };
-#line 6671 "restore.epp"
+#line 6670 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 6672 "restore.epp"
+#line 6671 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		general_on_error ();
 	/*END_ERROR;*/
 	   }
 	}
-#line 6674 "restore.epp"
+#line 6673 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 	if (!value)
 	{
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-		BURP_verbose (185, gen_name, (void*) (SLONG) value, NULL, NULL, NULL);
+		BURP_verbose (185, gen_name, value);
 		// msg 185 restoring generator %s value: %ld 
 		return;
 	}
 
 
-	isc_handle gen_id_reqh = NULL;
+	isc_handle gen_id_reqh = NULL_HANDLE;
 	UCHAR blr_buffer[100];  // enough to fit blr
 	UCHAR* blr = blr_buffer;
 
@@ -12663,7 +12659,7 @@ void store_blr_gen_id (const TEXT*	gen_name,	// TEXT GDS_NAME[GDS_NAME_LEN]
 	}
 
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-	BURP_verbose (185, gen_name, (void*) (SLONG) value, NULL, NULL, NULL);
+	BURP_verbose (185, gen_name, value);
 	// msg 185 restoring generator %s value: %ld 
 
 	isc_release_request (status_vector, &gen_id_reqh);
@@ -12682,7 +12678,7 @@ void stuff_string(UCHAR	**ptr,
  *	Stuff a name input a BLR string -- byte count first.
  *
  **************************************/
-	stuff(ptr, strlen (string));
+	stuff(ptr, (UCHAR) strlen (string));
 
 	while (*string)
 		stuff(ptr, *string++);
@@ -12703,7 +12699,7 @@ void update_global_field()
  *
  **************************************/
 	USHORT		length;
-	isc_req_handle  req_handle1 = NULL;
+	isc_req_handle  req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -12713,31 +12709,31 @@ void update_global_field()
 			X IN RDB$FIELDS WITH X.RDB$FIELD_NAME EQ gfield->gfld_name*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_27), (char *) isc_27);
-		isc_vtov ((char*)gfield->gfld_name, (char*)isc_28.isc_29, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_27), (char *) isc_27);
+		isc_vtov ((const char*)gfield->gfld_name, (char*)isc_28.isc_29, 32);
 		if (req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &tdgbl->global_trans, (short) 0, (short) 32, &isc_28, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &tdgbl->global_trans, (short) 0, (short) 32, &isc_28, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 1, (short) 22, &isc_30, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 1, (short) 22, &isc_30, (short) 0);
 		   if (!isc_30.isc_33 || isc_status [1]) break;
-#line 6806 "restore.epp"
+#line 6805 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*MODIFY X*/
 			{
-#line 6807 "restore.epp"
+#line 6806 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 			if (gfield->gfld_flags & GFLD_validation_blr)
 			{
 				/*X.RDB$VALIDATION_BLR.NULL*/
 				isc_30.isc_35 = FALSE;
-#line 6811 "restore.epp"
+#line 6810 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 				if (length = sizeof(ISC_QUAD))
 				{
 					UCHAR* p = (UCHAR *)&/*X.RDB$VALIDATION_BLR*/
 							     isc_30.isc_32;
-#line 6815 "restore.epp"
+#line 6814 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					const UCHAR* q = (UCHAR *)&gfield->gfld_vb;
 
 					do { *p++ = *q++; } while (--length);
@@ -12748,13 +12744,13 @@ void update_global_field()
 			{
 				/*X.RDB$VALIDATION_SOURCE.NULL*/
 				isc_30.isc_34 = FALSE;
-#line 6824 "restore.epp"
+#line 6823 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 				if (length = sizeof(ISC_QUAD))
 				{
 					UCHAR* p = (UCHAR *)&/*X.RDB$VALIDATION_SOURCE*/
 							     isc_30.isc_31;
-#line 6828 "restore.epp"
+#line 6827 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					const UCHAR* q = (UCHAR *)&gfield->gfld_vs;
 
 					do { *p++ = *q++; } while (--length);
@@ -12765,13 +12761,13 @@ void update_global_field()
 			{
 				/*X.RDB$VALIDATION_SOURCE.NULL*/
 				isc_30.isc_34 = FALSE;
-#line 6837 "restore.epp"
+#line 6836 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 				if (length = sizeof(ISC_QUAD))
 				{
 					UCHAR* p = (UCHAR *)&/*X.RDB$VALIDATION_SOURCE*/
 							     isc_30.isc_31;
-#line 6841 "restore.epp"
+#line 6840 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 					const UCHAR* q = (UCHAR *)&gfield->gfld_vs2;
 
 					do { *p++ = *q++; } while (--length);
@@ -12783,32 +12779,32 @@ void update_global_field()
 			isc_36.isc_38 = isc_30.isc_31;
 			isc_36.isc_39 = isc_30.isc_35;
 			isc_36.isc_40 = isc_30.isc_34;
-                        isc_send (isc_status, (isc_handle*) &req_handle1, (short) 2, (short) 20, &isc_36, (short) 0);;
-#line 6848 "restore.epp"
+                        isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 2, (short) 20, &isc_36, (short) 0);;
+#line 6847 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 6849 "restore.epp"
+#line 6848 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 				general_on_error ();
 			/*END_ERROR;*/
 			   }
 			}
-#line 6851 "restore.epp"
+#line 6850 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 
 		/*END_FOR;*/
-                   isc_send (isc_status, (isc_handle*) &req_handle1, (short) 3, (short) 2, &isc_41, (short) 0);
+                   isc_send (isc_status, (FB_API_HANDLE*) &req_handle1, (short) 3, (short) 2, &isc_41, (short) 0);
 		   }
 		   };
-#line 6853 "restore.epp"
+#line 6852 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 6854 "restore.epp"
+#line 6853 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 			general_on_error ();
 		/*END_ERROR;*/
 		   }
 		}
-#line 6856 "restore.epp"
+#line 6855 "g:\\Firebird\\vulcan\\src\\burp\\restore.epp"
 		gfld* n_gfield = gfield->gfld_next;
 		BURP_free (gfield);
 		gfield = n_gfield;

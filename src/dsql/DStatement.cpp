@@ -88,12 +88,9 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			ERRD_post(isc_sqlerr, isc_arg_number, -104, 
 				isc_arg_gds, isc_command_end_err, 0);
 
-		/*** I don't think this is required by any standard.  jas 10/20/04
-		 *** One second thought, maybe it is required...
 		if (req_flags & REQ_cursor_open)
 			ERRD_post(isc_sqlerr, isc_arg_number, -519,
 				  isc_arg_gds, isc_dsql_open_cursor_request, 0);
-		***/
 		
 		reset();
 		transaction = trans;
