@@ -1,3 +1,65 @@
+2005-09-12 23:24  jimstarkey
+
+	* vulcan/vulcan.build:
+	
+	Added new utilties
+
+2005-09-12 23:22  jimstarkey
+
+	* vulcan/src/: build, clean, set_platform, Services/makefile.in,
+	alice/alice.cpp, alice/gen.proto, alice/makefile.in,
+	gsec/gen.proto, gsec/makefile.in, gstat/DbaFile.cpp,
+	gstat/DbaFile.h, gstat/dba.epp, gstat/gen.proto, gstat/makefile.in:
+	
+	Got Posix builds for new utilities and services provider generally
+	working.
+
+2005-09-12 22:56  jimstarkey
+
+	* vulcan/src/alice/alice.vcproj:
+	
+	Pick up some jrd classes required for Unix.
+
+2005-09-12 21:55  jimstarkey
+
+	* vulcan/src/remote/interface.cpp:
+	
+	Make it compile w/ new enc.cpp
+
+2005-09-12 21:54  jimstarkey
+
+	* vulcan/builds/VisualStudio7/burp/burp.vcproj:
+	
+	Add a few new files.
+
+2005-09-12 21:35  jimstarkey
+
+	* vulcan/src/: VSRelo/vsrelo.cpp, jrd/pwd.cpp:
+	
+	Fix transcient password validation problem.
+
+2005-09-12 20:58  jimstarkey
+
+	* vulcan/vulcan.build:
+	
+	Add support for gfix, gsec, gstat, and services provider
+
+2005-09-12 20:43  jimstarkey
+
+	* vulcan/builds/VisualStudio7/: alice/alice.vcproj,
+	alice/vulcan.conf, burp/burp.vcproj, gsec/gsec.vcproj,
+	gsec/vulcan.conf, jrd/jrd.vcproj, gstat/gstat.vcproj,
+	gstat/vulcan.conf, services/services.vcproj, services/vulcan.conf:
+	
+	First crack at utility builds
+
+2005-09-12 19:47  jimstarkey
+
+	* vulcan/src/: alice/aliceswi.h, burp/burp.cpp, jrd/UserData.cpp,
+	jrd/enc.cpp, jrd/pwd.cpp:
+	
+	Fixed "encrypted" passwords
+
 2005-09-11 23:26  jimstarkey
 
 	* vulcan/src/: Services/Services.cpp, jrd/jrd.cpp, jrd/svc.cpp,
