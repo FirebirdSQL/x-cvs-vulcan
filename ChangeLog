@@ -1,3 +1,10 @@
+2005-09-13 22:39  jimstarkey
+
+	* vulcan/src/: burp/backup.boot, burp/restore.boot,
+	dsql/DStatement.cpp, jrd/SecurityDb.cpp, why/YStatement.h:
+	
+	[no log message]
+
 2005-09-12 23:24  jimstarkey
 
 	* vulcan/vulcan.build:
