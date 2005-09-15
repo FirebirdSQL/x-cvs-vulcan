@@ -86,7 +86,7 @@
 #include "../jrd/mov_proto.h"
 #include "../jrd/dsc_proto.h"
 #include "../jrd/dbg_proto.h"	// DBG_supervisor
-#include "../jrd/ExecuteStatement.h"
+#include "../jrd/ExecStatement.h"
 #include "../jrd/Triggers.h"
 #include "../jrd/sbm.h"
 
@@ -4656,7 +4656,7 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 			break;
 
 		case nod_exec_into:
-			csb->csb_impure += sizeof(class ExecuteStatement);
+			csb->csb_impure += sizeof(ExecStatement*);
 			break;
 
 		default:

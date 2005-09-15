@@ -1146,26 +1146,31 @@ USHORT CVT_get_string_ptr(const dsc* desc,
 			|| (desc->dsc_dtype == dtype_cstring)
 			|| (desc->dsc_dtype == dtype_varying)));
 
-/* If the value is already a string (fixed or varying), just return
-   the address and length. */
+	/* If the value is already a string (fixed or varying), just return
+	   the address and length. */
 
-	if (desc->dsc_dtype <= dtype_any_text) {
+	if (desc->dsc_dtype <= dtype_any_text) 
+		{
 		*address = desc->dsc_address;
 		*ttype = INTL_TTYPE(desc);
+		
 		if (desc->dsc_dtype == dtype_text)
 			return desc->dsc_length;
+			
 		if (desc->dsc_dtype == dtype_cstring)
 			return MIN((USHORT) strlen((char *) desc->dsc_address),
 					   desc->dsc_length - 1);
-		if (desc->dsc_dtype == dtype_varying) {
+					   
+		if (desc->dsc_dtype == dtype_varying) 
+			{
 			vary* varying = (vary*) desc->dsc_address;
 			*address = reinterpret_cast<UCHAR*>(varying->vary_string);
-			return MIN(varying->vary_length,
-					   (USHORT) (desc->dsc_length - sizeof(USHORT)));
-		}
+			
+			return MIN(varying->vary_length, (USHORT) (desc->dsc_length - sizeof(USHORT)));
+			}
 	}
 
-/* No luck -- convert value to varying string. */
+	/* No luck -- convert value to varying string. */
 
 	dsc temp_desc;
 	MOVE_CLEAR(&temp_desc, sizeof(temp_desc));

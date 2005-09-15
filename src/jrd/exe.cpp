@@ -76,7 +76,6 @@
 #include "../jrd/blb.h"
 #include "../jrd/blr.h"
 #include "../jrd/all_proto.h"
-//#include "../jrd/bookmark.h"
 #include "../jrd/blb_proto.h"
 #include "../jrd/btr_proto.h"
 #include "../jrd/cmp_proto.h"
@@ -96,7 +95,6 @@
 #include "../jrd/opt_proto.h"
 #include "../jrd/par_proto.h"
 #include "../jrd/rlck_proto.h"
-//#include "../jrd/rse_proto.h"
 #include "../jrd/rng_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/tra_proto.h"
@@ -106,8 +104,7 @@
 #include "../jrd/Procedure.h"
 #include "../jrd/Triggers.h"
 
-//#include "../jrd/ExecuteStatement.h"
-//#include "../dsql/dsql_proto.h"
+#include "../jrd/ExecStatement.h"
 #include "../jrd/rpb_chain.h"
 
 // StatusXcp class implementation
@@ -2263,8 +2260,8 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 			case nod_receive:
 				node = receive_msg(tdbb, node);
 				break;
-
-#ifdef TOTALLY_BROKEN	/* this needs to be rewritten with the DSQL */
+				
+#ifdef NOT_YET_IMPLEMENTED
 			case nod_exec_sql:
 				if (request->req_operation == req_unwind) 
 					{
@@ -2279,18 +2276,23 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 					
 				node = node->nod_parent;
 				break;
+#endif NOT_YET_IMPLEMENTED
 
 			case nod_exec_into: 
 				{
-				ExecuteStatement *impure = (ExecuteStatement*)  IMPURE (request, node->nod_impure);
+				ExecStatement *exec = *(ExecStatement**)  IMPURE (request, node->nod_impure);
+				
+				if (!exec)
+					exec = request->getExecStatement();
 				
 				switch (request->req_operation) 
 					{
 					case req_evaluate:
-						impure->Open(tdbb, node->nod_arg[0], node->nod_count - 2,  (!node->nod_arg[1]));
+						//impure->Open(tdbb, node->nod_arg[0], node->nod_count - 2,  (!node->nod_arg[1]));
+						exec->open(node->nod_arg[0], !node->nod_arg[1]);
 					case req_return:
 					case req_sync:
-						if (impure->Fetch(tdbb, &node->nod_arg[2])) 
+						if (exec->fetch(node->nod_arg[2])) 
 							{
 							request->req_operation = req_evaluate;
 							node = node->nod_arg[1];
@@ -2299,12 +2301,11 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 						request->req_operation = req_return;
 					default:
 						// if have active opened request - close it
-						impure->Close(tdbb);
+						exec->close();
 						node = node->nod_parent;
+						}
 					}
-				}
 				break;
-#endif //TOTALLY_BROKEN	this needs to be rewritten with the DSQL
 
 			case nod_post:
 				{

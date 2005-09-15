@@ -41,6 +41,7 @@
 #include "../jrd/tra.h"
 #include "../jrd/blb.h"
 #include "../jrd/blb_proto.h"
+#include "ExecStatement.h"
 
 Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool), req_fors(pool)
 {
@@ -51,6 +52,7 @@ Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invari
 	memset (req_impure, 0, req_impure_size);
 	req_last_xcp = new StatusXcp;
 	rsbs = NULL;
+	execStatements = NULL;
 }
 
 
@@ -70,6 +72,7 @@ Request::Request(Request* request) : req_invariants(request->req_pool)
 	memset (req_rpb, 0, sizeof (record_param) * req_count);
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
+	execStatements = NULL;
 	
 	for (record_param* rpb1 = req_rpb, *end = rpb1 + req_count, *rpb2 = request->req_rpb; rpb1 < end; rpb1++, rpb2++) 
 		{
@@ -89,6 +92,12 @@ Request::~Request(void)
 		{
 		rsbs = rsb->nextInRequest;
 		delete rsb;
+		}
+	
+	for (ExecStatement *exec; exec = execStatements;)
+		{
+		execStatements = exec->next;
+		delete exec;
 		}
 }
 
@@ -231,4 +240,13 @@ void Request::setThread(thread_db* tdbb)
 {
 	req_tdbb = tdbb;
 	req_attachment = tdbb->tdbb_attachment;
+}
+
+ExecStatement* Request::getExecStatement(void)
+{
+	ExecStatement *exec = new ExecStatement(this);
+	exec->next = execStatements;
+	execStatements = exec;
+	
+	return exec;
 }

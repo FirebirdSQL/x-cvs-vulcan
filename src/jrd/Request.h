@@ -69,6 +69,7 @@ class Procedure;
 class Savepoint;
 class StatusXcp;
 class RecordSource;
+class ExecStatement;
 
 struct record_param;
 struct thread_db;
@@ -136,9 +137,11 @@ public:
 	UCHAR			*req_impure;
 	thread_db		*req_tdbb;
 	RecordSource	*rsbs;
+	ExecStatement	*execStatements;
 	
 	Request* getInstantiatedRequest(int instantiation);
 	Request* findInstantiatedRequest(int instantiation);
+
 	int getRequestInfo(thread_db* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	void release(void);
 	void release(thread_db* tdbb);
@@ -146,6 +149,7 @@ public:
 	void releaseBlobs(void);
 	void releaseProcedureSavePoints(void);
 	void setThread(thread_db* tdbb);
+	ExecStatement* getExecStatement(void);
 };
 
 #endif

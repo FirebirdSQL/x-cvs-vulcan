@@ -1451,14 +1451,16 @@ dsql_nod* PASS1_statement(CStatement* request, dsql_nod* input, bool proc_flag)
 			node = MAKE_node(request->threadData, input->nod_type, input->nod_count);
 			node->nod_arg[e_exec_into_stmnt] =
 				PASS1_node(request, input->nod_arg[e_exec_into_stmnt], proc_flag);
-			if (input->nod_arg[e_exec_into_block]) {
+				
+			if (input->nod_arg[e_exec_into_block]) 
+				{
 				request->loopLevel++;
 				node->nod_arg[e_exec_into_label] = pass1_label(request, input);
 				node->nod_arg[e_exec_into_block] =
 					PASS1_statement(request, input->nod_arg[e_exec_into_block], proc_flag);
 				request->loopLevel--;
 				request->labels.pop();
-			}
+				}
 
 			node->nod_arg[e_exec_into_list] =
 				PASS1_node(request, input->nod_arg[e_exec_into_list], proc_flag);
@@ -4976,22 +4978,27 @@ static dsql_nod* pass1_label(CStatement* request, dsql_nod* input)
 
 	// retrieve a label
 
-	switch (input->nod_type) {
-	case nod_breakleave:
-		label = input->nod_arg[e_breakleave_label];
-		break;
-	case nod_for_select:
-		label = input->nod_arg[e_flp_label];
-		break;
-	case nod_exec_into:
-		label = input->nod_arg[e_exec_into_label];
-		break;
-	case nod_while:
-		label = input->nod_arg[e_while_label];
-		break;
-	default:
-		fb_assert(false);
-	}
+	switch (input->nod_type) 
+		{
+		case nod_breakleave:
+			label = input->nod_arg[e_breakleave_label];
+			break;
+			
+		case nod_for_select:
+			label = input->nod_arg[e_flp_label];
+			break;
+			
+		case nod_exec_into:
+			label = input->nod_arg[e_exec_into_label];
+			break;
+			
+		case nod_while:
+			label = input->nod_arg[e_while_label];
+			break;
+			
+		default:
+			fb_assert(false);
+		}
 
 	// look for a label, if specified
 

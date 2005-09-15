@@ -280,23 +280,6 @@
 				RelativePath=".\BlrPrint.cpp">
 			</File>
 			<File
-				RelativePath="blrtable.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="btn.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -755,6 +738,9 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\ExecStatement.cpp">
 			</File>
 			<File
 				RelativePath=".\ExecutionPathInfoGen.cpp">
@@ -2596,6 +2582,9 @@
 			</File>
 			<File
 				RelativePath="exe_proto.h">
+			</File>
+			<File
+				RelativePath=".\ExecStatement.h">
 			</File>
 			<File
 				RelativePath="ExecuteStatement.h">

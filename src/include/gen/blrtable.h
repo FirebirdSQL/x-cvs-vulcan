@@ -116,7 +116,7 @@ static const SCHAR length_table [] = {
 /*152*/	e_any_length, e_card_length, 1, 1,  0, e_find_dbkey_length, 
 /*158*/	e_any_length, e_extract_length, e_current_date_length, 
 /*161*/	e_current_timestamp_length, e_current_time_length, 
-/*163*/	2, 0, e_sav_length, e_dcl_cursor_length, e_cursor_stmt_length, 
+/*163*/	2, 3, e_sav_length, e_dcl_cursor_length, e_cursor_stmt_length, 
 /*168*/	 0,  0,  0,  0,  0,  0, 1,  0, 1, 1,  0};
 static const SCHAR count_table [] = {
 	 0, 2, 0, 0, 0, 0, 3, 3, 3, 1, 0, 1, 1, 0, 1, e_sto_length - 1, 

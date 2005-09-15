@@ -23,8 +23,9 @@
  * 2002.10.29 Nickolay Samofatov: Added support for savepoints
  */
 
+#include <stdio.h>
 #include "firebird.h"
-#include "../jrd/ib_stdio.h"
+//#include "../jrd/ib_stdio.h"
 #include "../jrd/gds.h"
 #include "../jrd/common.h"
 
@@ -90,7 +91,7 @@ static const VERB verbs[] = {
 	PAIR(nod_post, blr_post, 2, 1, STATEMENT, VALUE),
 	PAIR(nod_post, blr_post_arg, 2, 2, STATEMENT, VALUE),
 	PAIR(nod_exec_sql, blr_exec_sql, 1, 1, STATEMENT, VALUE),
-	PAIR(nod_exec_into, blr_exec_into, 0, 0, STATEMENT, OTHER),
+	PAIR(nod_exec_into, blr_exec_into, 3, 0, STATEMENT, OTHER),
 	PAIR(nod_internal_info, blr_internal_info, 1, 1, VALUE, VALUE),
 	PAIR2(nod_add, blr_add, 2, 2, VALUE, VALUE),
 	PAIR(nod_agg_count, blr_agg_count, 1, 0, VALUE, VALUE),
@@ -101,8 +102,7 @@ static const VERB verbs[] = {
 	PAIR2(nod_agg_total, blr_agg_total, 1, 1, VALUE, VALUE),
 	PAIR2(nod_agg_total_distinct, blr_agg_total_distinct, 2, 1, VALUE, VALUE),
 	PAIR2(nod_agg_average, blr_agg_average, 1, 1, VALUE, VALUE),
-	PAIR2(nod_agg_average_distinct, blr_agg_average_distinct, 2, 1, VALUE,
-		  VALUE),
+	PAIR2(nod_agg_average_distinct, blr_agg_average_distinct, 2, 1, VALUE, VALUE),
 	PAIR(nod_argument, blr_parameter, e_arg_length, 0, VALUE, VALUE),
 	PAIR(nod_argument, blr_parameter2, e_arg_length, 0, VALUE, VALUE),
 	PAIR(nod_argument, blr_parameter3, e_arg_length, 0, VALUE, VALUE),
@@ -248,7 +248,8 @@ int main(int argc, char *argv[])
 	const VERB *verb;
 	int max, blr;
 
-	for (blr = 0; blr < FB_NELEM(table); blr++) {
+	for (blr = 0; blr < FB_NELEM(table); blr++) 
+		{
 		table[blr] = NULL;
 		table2[blr] = NULL;
 		lengths[blr] = NULL;
@@ -256,41 +257,45 @@ int main(int argc, char *argv[])
 		counts[blr] = NULL;
 		types[blr] = NULL;
 		sub_types[blr] = NULL;
-	}
-
-	for (max = 0, verb = verbs; verb->internal; ++verb) {
-		blr = verb->blr;
-		if (table[blr]) {
-			ib_fprintf(ib_stderr, "BLRTABLE: duplicate blr %d\n", blr);
-			exit(1);
 		}
+
+	for (max = 0, verb = verbs; verb->internal; ++verb) 
+		{
+		blr = verb->blr;
+		
+		if (table[blr]) 
+			{
+			fprintf(stderr, "BLRTABLE: duplicate blr %d\n", blr);
+			exit(1);
+			}
+			
 		table[blr] = verb->internal;
-		table2[blr] =
-			(verb->internal2 == 0) ? verb->internal : verb->internal2;
+		table2[blr] = (verb->internal2 == 0) ? verb->internal : verb->internal2;
 		lengths[blr] = verb->length;
 		counts[blr] = verb->count;
 		types[blr] = verb->type;
 		sub_types[blr] = verb->sub_type;
+		
 		if (blr > max)
 			max = blr;
-	}
+		}
 
-	ib_printf("static const UCHAR blr_table4 [] = {\n");
+	printf("static const UCHAR blr_table4 [] = {\n");
 	print(table, max, "(UCHAR) ");
 
-	ib_printf("static const UCHAR blr_table [] = {\n");
+	printf("static const UCHAR blr_table [] = {\n");
 	print(table2, max, "(UCHAR) ");
 
-	ib_printf("static const SCHAR length_table [] = {\n");
+	printf("static const SCHAR length_table [] = {\n");
 	print(lengths, max, "");
 
-	ib_printf("static const SCHAR count_table [] = {\n");
+	printf("static const SCHAR count_table [] = {\n");
 	print(counts, max, "");
 
-	ib_printf("static const SCHAR type_table [] = {\n");
+	printf("static const SCHAR type_table [] = {\n");
 	print(types, max, "");
 
-	ib_printf("static const SCHAR sub_type_table [] = {\n");
+	printf("static const SCHAR sub_type_table [] = {\n");
 	print(sub_types, max, "");
 
 	return 0;
@@ -322,11 +327,11 @@ static void print(const SCHAR ** table, int max, const SCHAR * fudge)
 		while (*s)
 			s++;
 		if (s > buffer + 50) {
-			ib_printf("\t%s\n/*%3d*/", buffer, blr + 1);
+			printf("\t%s\n/*%3d*/", buffer, blr + 1);
 			s = buffer;
 			*s = 0;
 		}
 	}
 
-	ib_printf("\t%s 0};\n", buffer);
+	printf("\t%s 0};\n", buffer);
 }
