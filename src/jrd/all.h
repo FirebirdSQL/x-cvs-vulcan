@@ -26,7 +26,7 @@
 #define JRD_ALL_H
 
 #include "../common/classes/alloc.h"
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/block_cache.h"
 #include "../jrd/lls.h"
 #include "../jrd/MemMgr.h"

@@ -46,6 +46,7 @@
 #include "../jrd/met_proto.h"
 #include "Relation.h"
 #include "scl.h"
+#include "jrd.h"
 
 // User info items
 

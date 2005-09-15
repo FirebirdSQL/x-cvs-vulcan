@@ -31,6 +31,7 @@
 #include "../jrd/jrd_blks.h"
 #include "../include/fb_blk.h"
 
+#include "../jrd/jrd.h"
 #include "../jrd/exe.h"
 #include "../jrd/RecordNumber.h"
 

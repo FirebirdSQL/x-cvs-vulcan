@@ -26,6 +26,7 @@
 #define JRD_LCK_H
 
 class Attachment;
+class Database;
 
 /* Lock types */
 
@@ -103,7 +104,7 @@ public:
 	lck*		lck_prior;
 	lck*		lck_collision;	/* collisions in compatibility table */
 	lck*		lck_identical;	/* identical locks in compatibility table */
-	dbb*		lck_dbb;		/* database object is contained in */
+	Database	*lck_dbb;		/* database object is contained in */
 	void*		lck_object;		/* argument to be passed to ast */
 	class blk*	lck_owner;		/* Logical owner block (transaction, etc.) */
 	class blk*	lck_compatible;	/* Enter into internal_enqueue() and treat as compatible */
