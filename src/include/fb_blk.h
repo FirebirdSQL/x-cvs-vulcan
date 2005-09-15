@@ -20,7 +20,7 @@ typedef blk* BLK;
 class JrdMemoryPool;
 
 //typedef PtrWrapper<BLK> BlkPtr;
-typedef blk* BlkPtr;
+//typedef blk* BlkPtr;
 
 template<SSHORT BLOCK_TYPE = 0>
 class pool_alloc : public blk
@@ -91,7 +91,9 @@ class pool_alloc_rpt : public blk
 
     //private:
         // These operations are not supported on static repeat-base objects
-        void* operator new(size_t s, JrdMemoryPool *p)
+        
+        //void* operator new(size_t s, JrdMemoryPool *p)
+        void* operator new(size_t s, MemoryPool *p)
             { 
             return p->allocate(s); 
             }

@@ -67,7 +67,7 @@ private:
 	firebird::vector<T> vector;
 };
 
-class vec : public vec_base<BlkPtr, type_vec>
+class vec : public vec_base<blk*, type_vec>
 {
 public:
     static vec* newVector(MemoryPool& p, int len)
@@ -84,8 +84,8 @@ public:
 		}
 
 private:
-    vec(MemoryPool& p, int len) : vec_base<BlkPtr, type_vec>(p, len) {}
-    vec(MemoryPool& p, const vec& base) : vec_base<BlkPtr, type_vec>(p, base) {}
+    vec(MemoryPool& p, int len) : vec_base<blk*, type_vec>(p, len) {}
+    vec(MemoryPool& p, const vec& base) : vec_base<blk*, type_vec>(p, base) {}
 };
 typedef vec* VEC;
 
