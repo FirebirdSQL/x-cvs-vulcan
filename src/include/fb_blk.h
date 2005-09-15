@@ -103,13 +103,15 @@ class pool_alloc_rpt : public blk
             
         void operator delete[](void* mem, MemoryPool& p)
             {
-            if (mem) MemoryPool::globalFree(mem); 
+            if (mem) 
+				MemoryPool::globalFree(mem); 
             }
             
         void operator delete[](void* mem) 
 			{
 			if (mem) 
-				p.deallocate(mem); 
+				//p.deallocate(mem); 
+				MemoryPool::globalFree(mem);
 			}
 
 private:

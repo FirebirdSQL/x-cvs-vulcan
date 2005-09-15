@@ -62,6 +62,7 @@
 #include "../jrd/jrd_time.h"
 #include "../jrd/common.h"
 #include "gen/iberror.h"
+#include "../jrd/tdbb.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/isc.h"
 #include "../jrd/gds_proto.h"
@@ -3984,7 +3985,7 @@ void longjmp_sig_handler(int sig_num)
    actally hang the sigsetjmp menber off of THDD, and
    make sure that it is set properly for all sub-systems. */
 
-	tdbb = GET_THREAD_DATA;
+	tdbb = (thread_db*)GET_THREAD_DATA;
 
 	siglongjmp(tdbb->tdbb_sigsetjmp, sig_num);
 }

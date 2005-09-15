@@ -2,6 +2,10 @@
 #ifndef __TDBB_H_
 #define __TDBB_H_
 
+#ifdef UNIX
+#include <setjmp.h>
+#endif
+
 #ifdef MVS
 #include <setjmp.h>
 #endif

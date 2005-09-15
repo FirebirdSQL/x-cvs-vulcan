@@ -101,7 +101,7 @@ $Id$
 #endif
 
 #ifdef ANY_THREADING
-#define GET_THREAD_DATA		((THDD) THD_get_specific())
+#define GET_THREAD_DATA		((THDD) THD_get_specific(THDD_TYPE_TDBB))
 #else
 #define GET_THREAD_DATA		gdbb
 #endif
