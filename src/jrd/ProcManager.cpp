@@ -1,4 +1,5 @@
 #include "firebird.h"
+#include "common.h"
 #include "../jrd/all.h"
 #include "../jrd/lck.h"
 #include "../jrd/lck_proto.h"

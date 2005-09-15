@@ -90,7 +90,7 @@ extern "C"
 #endif
 
 #ifdef _WIN32
-
+#include <windows.h>
 #define INTERLOCKED_INCREMENT(variable)	InterlockedIncrement (&variable)
 #define INTERLOCKED_DECREMENT(variable)	InterlockedDecrement (&variable)
 

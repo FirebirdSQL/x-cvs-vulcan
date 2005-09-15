@@ -24,7 +24,7 @@
 #ifndef JRD_RSE_PROTO_H
 #define JRD_RSE_PROTO_H
 
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/rse.h"
 
 class RecordSource;

@@ -70,7 +70,7 @@
 #include "../jrd/isc_s_proto.h"
 #include "../jrd/file_params.h"
 #include "../jrd/gdsassert.h"
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/sch_proto.h"
 #include "../jrd/Interlock.h"
 

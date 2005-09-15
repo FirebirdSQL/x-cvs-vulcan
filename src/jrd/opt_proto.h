@@ -24,7 +24,7 @@
 #ifndef JRD_OPT_PROTO_H
 #define JRD_OPT_PROTO_H
 
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/btr.h"
 #include "../jrd/rse.h"
 #include "../jrd/lls.h"

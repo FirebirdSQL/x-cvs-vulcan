@@ -25,6 +25,8 @@
 #ifndef JRD_LCK_H
 #define JRD_LCK_H
 
+#include "../jrd/jrd_blks.h"
+
 class Attachment;
 class Database;
 
@@ -119,15 +121,19 @@ public:
 	UCHAR		lck_logical;			/* Logical lock level */
 	UCHAR		lck_physical;			/* Physical lock level */
 	SLONG		lck_data;				/* Data associated with a lock */
+	
 #ifdef SHARED_CACHE
 	SyncObject	syncObject;
 #endif
+
 	bool		lck_long_lock;
 	enum lck_t lck_type;
+	
 	union {
 		SCHAR lck_string[1];
 		SLONG lck_long;
 	} lck_key;
+
 	SCHAR lck_tail[1];			/* Makes the allocater happy */
 	bool equiv(lck* lock);
 	bool compatible(lck* lock, int level);

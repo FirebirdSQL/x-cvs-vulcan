@@ -45,25 +45,6 @@ class Procedure;
 static const int OPT_count		= 1;		// generate Rsb to count records
 static const int OPT_singular	= 2;		// generate Rsb to check record signularity
 
-/***
-struct irsb_sim {
-	ULONG irsb_flags;
-	USHORT irsb_sim_rid;				// next relation id
-	USHORT irsb_sim_fid;				// next field id
-	Request* irsb_sim_req1;		// request handle #1
-	Request* irsb_sim_req2;		// request handle #2
-};
-
-typedef irsb_sim *IRSB_SIM;
-
-const ULONG irsb_sim_alias = 32;		// duplicate relation but w/o user name
-const ULONG irsb_sim_eos = 64;			// encountered end of stream
-const ULONG irsb_sim_active = 128;		// remote simulated stream request is active
-***/
-
-
-
-
 
 // Blocks used to compute optimal join order:
 // indexed relationships block (IRL) holds 

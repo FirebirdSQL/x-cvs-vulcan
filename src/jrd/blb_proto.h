@@ -24,7 +24,7 @@
 #ifndef JRD_BLB_PROTO_H
 #define JRD_BLB_PROTO_H
 
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/blb.h"
 #include "../jrd/exe.h"
 #include "../jrd/lls.h"

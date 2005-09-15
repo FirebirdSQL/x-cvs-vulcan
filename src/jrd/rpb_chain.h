@@ -28,7 +28,7 @@
 #include <string.h>
 
 #include "../common/classes/array.h"
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/req.h"
 #include "SyncObject.h"
 

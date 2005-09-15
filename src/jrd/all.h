@@ -28,14 +28,16 @@
 #include "../common/classes/alloc.h"
 //#include "../jrd/jrd.h"
 #include "../jrd/block_cache.h"
-#include "../jrd/lls.h"
+//#include "../jrd/lls.h"
 #include "../jrd/MemMgr.h"
+#include "../include/fb_blk.h"
 
 #ifdef MEMMGR
 #include "MemoryManager.h"
 #endif
 
 class Database;
+class lls;
 struct thread_db;
 
 TEXT* ALL_cstring(const TEXT* in_string);
@@ -69,8 +71,8 @@ public:
 	static void deletePool(JrdMemoryPool* pool);
 	static void noDbbDeletePool(JrdMemoryPool* pool);
 
-	static class blk* ALL_pop(class lls**);
-	static void       ALL_push(class blk*, class lls**);
+	static class blk* ALL_pop(lls**);
+	static void       ALL_push(blk*, lls**);
 
 	struct Dcc* plb_dccs;
 private:

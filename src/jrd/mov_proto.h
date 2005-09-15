@@ -25,7 +25,7 @@
 #define JRD_MOV_PROTO_H
 
 #include "../jrd/dsc.h"
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/val.h"
 
 struct thread_db;
