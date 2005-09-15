@@ -759,6 +759,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\ExecStatement.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\ExecutionPathInfoGen.cpp">
 			</File>
 			<File
@@ -2249,10 +2252,10 @@
 				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\all.h">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\all.h">
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\all_proto.h">
@@ -2300,10 +2303,10 @@
 				RelativePath="..\..\..\src\jrd\blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\blk.h">
+				RelativePath="..\..\..\src\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\blk.h">
+				RelativePath="..\..\..\src\jrd\blk.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\common\Blob.h">
@@ -2556,6 +2559,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\exe_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExecStatement.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\ExecuteStatement.h">
@@ -3278,10 +3284,10 @@
 				RelativePath="..\..\..\src\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\sqlda.h">
+				RelativePath="..\..\..\src\jrd\Sqlda.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sqlda.h">
+				RelativePath="..\..\..\src\dsql\sqlda.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\SQLError.h">
@@ -3416,10 +3422,10 @@
 				RelativePath="..\..\..\src\jrd\Triggers.h">
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
+				RelativePath="..\..\..\src\jrd\types.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\types.h">
+				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\UserData.h">
