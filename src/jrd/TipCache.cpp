@@ -346,7 +346,7 @@ int TipCache::snapshotState(thread_db* tdbb, int number)
 				// Please review this. This lock has _nothing_ to do in the
 				// permamnent pool!
 				
-				std::auto_ptr<lck> temp_lock(FB_NEW_RPT(*database->dbb_permanent, 0) lck);
+				std::auto_ptr<Lock> temp_lock(FB_NEW_RPT(*database->dbb_permanent, 0) Lock);
 
 				//temp_lock.blk_type = type_lck;
 				temp_lock->lck_dbb = database;

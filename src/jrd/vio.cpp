@@ -52,7 +52,7 @@
 #include "../jrd/tra.h"
 #include "../jrd/req.h"
 #include "gen/ids.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/lls.h"
 #include "../jrd/scl.h"
 //#include "../jrd/y_ref.h"

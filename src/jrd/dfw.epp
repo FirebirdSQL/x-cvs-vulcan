@@ -577,7 +577,7 @@ void DFW_perform_post_commit_work(thread_db* tdbb, Transaction* transaction)
  *	Then, delete it from chain of pending work.
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 	ISC_STATUS_ARRAY status;
 	DeferredWork* work;
 	DeferredWork** ptr;
@@ -1971,7 +1971,7 @@ static bool create_relation(thread_db* tdbb,
 	Relation* relation;
 	USHORT rel_id, external_flag;
 	Request* handle;
-	LCK lock;
+	Lock* lock;
 	USHORT local_min_relation_id;
 
 	bid blob_id;
@@ -2012,7 +2012,7 @@ static bool create_relation(thread_db* tdbb,
 			/* Take a relation lock on rel id -1 before actually
 			   generating a relation id. */
 
-			work->dfw_lock = lock = FB_NEW_RPT(*tdbb->tdbb_default, sizeof(SLONG)) lck;
+			work->dfw_lock = lock = FB_NEW_RPT(*tdbb->tdbb_default, sizeof(SLONG)) Lock;
 			lock->lck_dbb = dbb;
 			lock->lck_attachment = tdbb->tdbb_attachment;
 			lock->lck_length = sizeof(SLONG);

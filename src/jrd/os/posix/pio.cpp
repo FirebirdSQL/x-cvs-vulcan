@@ -1027,7 +1027,7 @@ static FIL setup_file(thread_db *tdbb, const TEXT* file_name, int desc)
 
 	l = p - lock_string;
 
-	LCK lock = dbb->dbb_lock = FB_NEW_RPT(*dbb->dbb_permanent, l) lck();
+	Lock *lock = dbb->dbb_lock = FB_NEW_RPT(*dbb->dbb_permanent, l) Lock();
 	lock->lck_type = LCK_database;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_database);
 	lock->lck_object = reinterpret_cast<blk*>(dbb);

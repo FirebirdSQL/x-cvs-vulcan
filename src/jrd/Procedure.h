@@ -38,7 +38,7 @@
 class dsql_sym;
 class Format;
 class ProcParam;
-class lck;
+class Lock;
 class ProcManager;
 class Database;
 class Request;
@@ -167,9 +167,9 @@ public:
 	//Locking
 	void lockExistence (thread_db* tdbb);
 	void releaseExistence (thread_db* tdbb);
-	inline struct lck * findExistenceLock()
+	inline Lock * findExistenceLock()
 		{return procExistenceLock;};
-	inline void setExistenceLock (struct lck * existence_lock)
+	inline void setExistenceLock (Lock * existence_lock)
 		{procExistenceLock = existence_lock;};
 	inline bool hasExistenceLock()
 		{return procExistenceLock != NULL;};
@@ -252,14 +252,14 @@ protected:
 												procedure  no code should rely on value of this field 
 												(it will usually be 0)
 											*/
-	lck				*procExistenceLock;		/* existence lock, if any */
+	Lock				*procExistenceLock;		/* existence lock, if any */
 	USHORT			procAlterCount;			/* No. of times the procedure was altered */
 	GDS_QUAD		procBlobId;
 	
 public:
 	Procedure(Database *dbb, int id);
 	void init(void);
-	lck* getExistenceLock(thread_db* tdbb);
+	Lock* getExistenceLock(thread_db* tdbb);
 	static int blockingAst(void* object);
 	void blockingAst(void);
 	void parseBlr(thread_db* tdbb, const bid *blobId);

@@ -1137,7 +1137,7 @@ int PageCache::downGradeDatabase(void)
 	   If any case, the other guy probably wants exclusive access,
 	   and we can't give it anyway */
 	   
-	LCK lock = database->dbb_lock;
+	Lock* lock = database->dbb_lock;
 
 	if ((lock->lck_logical == LCK_SW) || (lock->lck_logical == LCK_SR)) 
 		return 0;
@@ -1874,7 +1874,7 @@ LockState PageCache::lockBuffer(thread_db * tdbb, Bdb* bdb, int wait, int page_t
 	TEXT errmsg[MAX_ERRMSG_LEN + 1];
 
 	int lock_type = (bdb->bdb_flags & (BDB_dirty | BDB_writer)) ? LCK_write : LCK_read;
-	LCK lock = bdb->bdb_lock;
+	Lock* lock = bdb->bdb_lock;
 
 	if (lock->lck_logical >= lock_type)
 		return lsLockedHavePage;
@@ -2216,7 +2216,7 @@ void PageCache::downGrade(thread_db * tdbb, Bdb* bdb)
 
 	//printf ("downGrade bdb page %d\n", bdb->bdb_page);
 	bdb->bdb_ast_flags |= BDB_blocking;
-	LCK lock = bdb->bdb_lock;
+	Lock* lock = bdb->bdb_lock;
 
 	if (database->dbb_flags & DBB_bugcheck) 
 		{
@@ -2412,7 +2412,7 @@ bool PageCache::getExclusive(thread_db * tdbb, int level, int wait_flag)
 		return FALSE;
 #endif
 
-	LCK lock = database->dbb_lock;
+	Lock* lock = database->dbb_lock;
 	
 	if (!lock)
 		return FALSE;

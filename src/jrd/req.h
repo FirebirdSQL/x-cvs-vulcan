@@ -42,12 +42,12 @@ class IndexLock;
 class Format;
 class Resource;
 class AccessItem;
+class Lock;
 
 struct SaveRecordParam;
 struct win;
 struct lls;
 struct record_param;
-struct lck;
 
 /* record parameter block */
 
@@ -229,7 +229,7 @@ class IndexLock : public pool_alloc<type_idl>
 {
 public:
 	IndexLock*	idl_next;		/* Next index lock block for relation */
-	lck*		idl_lock;		/* Lock block */
+	Lock*		idl_lock;		/* Lock block */
 	Relation*	idl_relation;	/* Parent relation */
 	USHORT		idl_id;			/* Index id */
 	USHORT		idl_count;		/* Use count */

@@ -61,7 +61,7 @@
 #include "../jrd/req.h"
 #include "../jrd/tra.h"
 #include "../jrd/blb.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/scl.h"
 #include "../jrd/license.h"
 #include "../jrd/os/pio.h"
@@ -2650,7 +2650,7 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 	try
 	{
 		DBB dbb = threadData.getDatabase(); //tdbb->tdbb_database;
-		LCK lock = dbb->dbb_lock;
+		Lock* lock = dbb->dbb_lock;
 		Attachment* attachment = threadData.getAttachment(); //tdbb->tdbb_attachment;
 	
 		if (!attachment->att_event_session &&

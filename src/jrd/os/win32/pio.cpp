@@ -974,7 +974,7 @@ static FIL setup_file(thread_db* tdbb,
  *	Set up file and lock blocks for a file.
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 	UCHAR lock_string[32];
 	BY_HANDLE_FILE_INFORMATION file_info;
 
@@ -1037,7 +1037,7 @@ static FIL setup_file(thread_db* tdbb,
 	
 	l = p - lock_string;
 
-	dbb->dbb_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, l) lck;
+	dbb->dbb_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, l) Lock;
 	lock->lck_type = LCK_database;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_database);
 	lock->lck_object = reinterpret_cast<blk*>(dbb);

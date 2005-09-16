@@ -128,7 +128,7 @@ class BlockingThread;	/* Attachments waiting for update */
 class map;	/* mapping of blobs for REPLAY */
 class Symbol;
 class log;
-class lck;
+class Lock;
 class BackupManager;
 class PageCache;
 class CharSetManager;
@@ -169,13 +169,13 @@ public:
 	Database			*dbb_next;				/* Next database block in system */
 	Attachment			*dbb_attachments;		/* Active attachments */
 	SVector<Relation*>	dbb_relations;			/* relation vector */
-	lck					*dbb_lock;				/* granddaddy lock */
+	Lock					*dbb_lock;				/* granddaddy lock */
 	Transaction			*dbb_sys_trans;			/* system transaction */
 	fil					*dbb_file;				/* files for I/O operations */
 	sdw					*dbb_shadow;			/* shadow control block */
-	lck					*dbb_shadow_lock;		/* lock for synchronizing addition of shadows */
+	Lock					*dbb_shadow_lock;		/* lock for synchronizing addition of shadows */
 	SLONG				dbb_shadow_sync_count;	/* to synchronize changes to shadows */
-	lck					*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
+	Lock					*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
 	plc					*dbb_connection;		/* connection block */
 	PageControl			*dbb_pcontrol;			/* page control */
 #ifdef SHARED_CACHE

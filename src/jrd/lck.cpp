@@ -65,24 +65,24 @@
 static void bug_lck(const TEXT*);
 
 #ifdef MULTI_THREAD
-static LCK		find_block(LCK, USHORT);
-static void		check_lock(LCK, USHORT);
+static Lock*		find_block(Lock*, USHORT);
+static void		check_lock(Lock*, USHORT);
 #endif
 
-//static BOOLEAN	compatible(LCK, LCK, USHORT);
-static void		enqueue(thread_db*, LCK, USHORT, SSHORT);
+//static BOOLEAN	compatible(Lock*, Lock*, USHORT);
+static void		enqueue(thread_db*, Lock*, USHORT, SSHORT);
 static int		external_ast(void *arg);
 
 static USHORT	hash_func(UCHAR *, USHORT);
-static void		hash_allocate(LCK);
-static LCK		hash_get_lock(LCK, USHORT *, LCK **);
-static void		hash_insert_lock(LCK);
-static BOOLEAN	hash_remove_lock(LCK, LCK *);
-static void		internal_ast(LCK);
-static BOOLEAN internal_compatible(LCK, LCK, USHORT);
-static void		internal_dequeue(ISC_STATUS *statusVector, LCK);
-static USHORT	internal_downgrade(ISC_STATUS *statusVector, LCK);
-static BOOLEAN	internal_enqueue(thread_db*, LCK, USHORT, SSHORT, BOOLEAN);
+static void		hash_allocate(Lock*);
+static Lock*		hash_get_lock(Lock*, USHORT *, Lock* **);
+static void		hash_insert_lock(Lock*);
+static BOOLEAN	hash_remove_lock(Lock*, Lock* *);
+static void		internal_ast(Lock*);
+static BOOLEAN internal_compatible(Lock*, Lock*, USHORT);
+static void		internal_dequeue(ISC_STATUS *statusVector, Lock*);
+static USHORT	internal_downgrade(ISC_STATUS *statusVector, Lock*);
+static BOOLEAN	internal_enqueue(thread_db*, Lock*, USHORT, SSHORT, BOOLEAN);
 
 
 /* globals and macros */
@@ -218,7 +218,7 @@ void LCK_ast_enable() {
 #endif
 }
 
-void LCK_assert(thread_db* tdbb, LCK lock)
+void LCK_assert(thread_db* tdbb, Lock* lock)
 {
 /**************************************
  *
@@ -244,7 +244,7 @@ void LCK_assert(thread_db* tdbb, LCK lock)
 }
 
 
-int LCK_convert(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_convert(thread_db* tdbb, Lock* lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -315,7 +315,7 @@ int LCK_convert(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 }
 
 
-int LCK_convert_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_convert_non_blocking(thread_db* tdbb, Lock* lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -398,7 +398,7 @@ int LCK_convert_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wai
 
 
 
-int LCK_convert_opt(thread_db* tdbb, LCK lock, USHORT level)
+int LCK_convert_opt(thread_db* tdbb, Lock* lock, USHORT level)
 {
 /**************************************
  *
@@ -435,7 +435,7 @@ int LCK_convert_opt(thread_db* tdbb, LCK lock, USHORT level)
 
 
 #ifndef VMS
-int LCK_downgrade(thread_db* tdbb, LCK lock)
+int LCK_downgrade(thread_db* tdbb, Lock* lock)
 {
 /**************************************
  *
@@ -632,7 +632,7 @@ void LCK_init(thread_db* tdbb, enum lck_owner_t owner_type)
 }
 
 
-int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_lock(thread_db* tdbb, Lock* lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -700,7 +700,7 @@ int LCK_lock(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 }
 
 
-int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_lock_non_blocking(thread_db* tdbb, Lock* lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -787,7 +787,7 @@ int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 	lock->lck_next = attachment->att_long_locks;
 	lock->lck_prior = NULL;
 	attachment->att_long_locks = lock;
-	LCK next = lock->lck_next;
+	Lock* next = lock->lck_next;
 
 	if (next)
 		next->lck_prior = lock;
@@ -799,7 +799,7 @@ int LCK_lock_non_blocking(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 }
 
 
-int LCK_lock_opt(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
+int LCK_lock_opt(thread_db* tdbb, Lock* lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -835,7 +835,7 @@ int LCK_lock_opt(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
 
 
 #ifndef VMS
-SLONG LCK_query_data(LCK parent, enum lck_t lock_type, USHORT aggregate)
+SLONG LCK_query_data(Lock* parent, enum lck_t lock_type, USHORT aggregate)
 {
 /**************************************
  *
@@ -860,7 +860,7 @@ SLONG LCK_query_data(LCK parent, enum lck_t lock_type, USHORT aggregate)
 #endif
 
 
-SLONG LCK_read_data(LCK lock)
+SLONG LCK_read_data(Lock* lock)
 {
 /**************************************
  *
@@ -891,7 +891,7 @@ SLONG LCK_read_data(LCK lock)
 #endif
 	LCK_release(lock);
 #else
-	LCK parent = lock->lck_parent;
+	Lock* parent = lock->lck_parent;
 #ifdef SHARED_CACHE
 	SLONG data = LockMgr::LOCK_read_data2(
 #else
@@ -908,7 +908,7 @@ SLONG LCK_read_data(LCK lock)
 }
 
 
-void LCK_release(LCK lock)
+void LCK_release(Lock* lock)
 {
 /**************************************
  *
@@ -948,8 +948,8 @@ void LCK_release(LCK lock)
 		attachment->removeLongLock(lock);
 
 	/***
-	LCK next = lock->lck_next;
-	LCK prior = lock->lck_prior;
+	Lock* next = lock->lck_next;
+	Lock* prior = lock->lck_prior;
 
 	if (prior) 
 		{
@@ -977,7 +977,7 @@ void LCK_release(LCK lock)
 }
 
 
-void LCK_re_post(LCK lock)
+void LCK_re_post(Lock* lock)
 {
 /**************************************
  *
@@ -1009,7 +1009,7 @@ void LCK_re_post(LCK lock)
 }
 
 
-void LCK_write_data(LCK lock, SLONG data)
+void LCK_write_data(Lock* lock, SLONG data)
 {
 /**************************************
  *
@@ -1059,7 +1059,7 @@ static void bug_lck(const TEXT* string)
 }
 
 #ifdef MULTI_THREAD
-static void check_lock(LCK lock, USHORT level)
+static void check_lock(Lock* lock, USHORT level)
 {
 /**************************************
  *
@@ -1076,13 +1076,13 @@ static void check_lock(LCK lock, USHORT level)
 
 	fb_assert(LCK_CHECK_LOCK(lock));
 	
-	for (LCK next; next = find_block(lock, level);)
+	for (Lock* next; next = find_block(lock, level);)
 		JRD_blocked(next->lck_attachment, &next->lck_blocked_threads);
 }
 #endif
 
 #ifdef OBSOLETE
-static BOOLEAN compatible(LCK lock1, LCK lock2, USHORT level2)
+static BOOLEAN compatible(Lock* lock1, Lock* lock2, USHORT level2)
 {
 /**************************************
  *
@@ -1122,7 +1122,7 @@ static BOOLEAN compatible(LCK lock1, LCK lock2, USHORT level2)
 }
 #endif
 
-static void enqueue(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
+static void enqueue(thread_db* tdbb, Lock* lock, USHORT level, SSHORT wait)
 {
 /**************************************
  *
@@ -1135,7 +1135,7 @@ static void enqueue(thread_db* tdbb, LCK lock, USHORT level, SSHORT wait)
  *
  **************************************/
 
-	LCK parent;
+	Lock* parent;
 	fb_assert(LCK_CHECK_LOCK(lock));
 
 #ifdef SHARED_CACHE
@@ -1174,13 +1174,13 @@ static int external_ast(void *arg)
  *
  **************************************/
  
-	lck *lock = (lck*) arg;
+	Lock *lock = (Lock*) arg;
 	fb_assert(LCK_CHECK_LOCK(lock));
 
 	/* go through the list, saving the next lock in the list
 	   in case the current one gets deleted in the ast */
 
-	for (LCK next, match = hash_get_lock(lock, 0, 0); match; match = next) 
+	for (Lock* next, *match = hash_get_lock(lock, 0, 0); match; match = next) 
 		{
 		next = match->lck_identical;
 		if (match->lck_ast)
@@ -1193,7 +1193,7 @@ static int external_ast(void *arg)
 
 
 #ifdef MULTI_THREAD
-static LCK find_block(LCK lock, USHORT level)
+static Lock* find_block(Lock* lock, USHORT level)
 {
 /**************************************
  *
@@ -1219,7 +1219,7 @@ static LCK find_block(LCK lock, USHORT level)
 	#ifdef OBSOLETE
 	//SCHAR *end = lock->lck_key.lck_string + lock->lck_length;
 	
-	for (LCK next = attachment->att_long_locks; next; next = next->lck_next)
+	for (Lock* next = attachment->att_long_locks; next; next = next->lck_next)
 		/***
 		if (lock->lck_type == next->lck_type &&
 			lock->lck_parent && next->lck_parent &&
@@ -1280,7 +1280,7 @@ static USHORT hash_func(UCHAR * value, USHORT length)
 }
 
 
-static void hash_allocate(LCK lock)
+static void hash_allocate(Lock* lock)
 {
 /**************************************
  *
@@ -1303,7 +1303,7 @@ static void hash_allocate(LCK lock)
 }
 
 
-static LCK hash_get_lock(LCK lock, USHORT * hash_slot, LCK ** prior)
+static Lock* hash_get_lock(Lock* lock, USHORT * hash_slot, Lock* ** prior)
 {
 /**************************************
  *
@@ -1319,7 +1319,7 @@ static LCK hash_get_lock(LCK lock, USHORT * hash_slot, LCK ** prior)
  *	if requested.
  *
  **************************************/
-	LCK match, collision;
+	Lock *match, *collision;
 	SCHAR *p, *q;
 	SSHORT l;
 
@@ -1339,11 +1339,11 @@ static LCK hash_get_lock(LCK lock, USHORT * hash_slot, LCK ** prior)
 
 	/* if no collisions found, we're done */
 
-	if (!(match = (LCK) (*att->att_compatibility_table)[hash_value]))
+	if (!(match = (Lock*) (*att->att_compatibility_table)[hash_value]))
 		return NULL;
 		
 	if (prior)
-		*prior =(LCK*) &(*att->att_compatibility_table)[hash_value];
+		*prior =(Lock**) &(*att->att_compatibility_table)[hash_value];
 
 	/* look for an identical lock */
 
@@ -1377,7 +1377,7 @@ static LCK hash_get_lock(LCK lock, USHORT * hash_slot, LCK ** prior)
 }
 
 
-static void hash_insert_lock(LCK lock)
+static void hash_insert_lock(Lock* lock)
 {
 /**************************************
  *
@@ -1390,7 +1390,7 @@ static void hash_insert_lock(LCK lock)
  *	compatibility lock table.
  *
  **************************************/
-	LCK identical;
+	Lock* identical;
 	USHORT hash_slot;
 	Attachment* att;
 
@@ -1403,7 +1403,7 @@ static void hash_insert_lock(LCK lock)
 
 	if (!(identical = hash_get_lock(lock, &hash_slot, 0))) {
 		lock->lck_collision =
-			(LCK) (*att->att_compatibility_table)[hash_slot];
+			(Lock*) (*att->att_compatibility_table)[hash_slot];
 		(*att->att_compatibility_table)[hash_slot] = (BLK) lock;
 		return;
 	}
@@ -1415,7 +1415,7 @@ static void hash_insert_lock(LCK lock)
 }
 
 
-static BOOLEAN hash_remove_lock(LCK lock, LCK * match)
+static BOOLEAN hash_remove_lock(Lock* lock, Lock* * match)
 {
 /**************************************
  *
@@ -1430,7 +1430,7 @@ static BOOLEAN hash_remove_lock(LCK lock, LCK * match)
  *	locking found.
  *
  **************************************/
-	LCK next, last, *prior;
+	Lock *next, *last, **prior;
 
 	fb_assert(LCK_CHECK_LOCK(lock));
 
@@ -1477,7 +1477,7 @@ static BOOLEAN hash_remove_lock(LCK lock, LCK * match)
 }
 
 
-static void internal_ast(LCK lock)
+static void internal_ast(Lock* lock)
 {
 /**************************************
  *
@@ -1495,14 +1495,14 @@ static void internal_ast(LCK lock)
  *	on our own process.
  *
  **************************************/
-	//LCK match, next;
+	//Lock* match, next;
 
 	fb_assert(LCK_CHECK_LOCK(lock));
 
 	/* go through the list, saving the next lock in the list
 	   in case the current one gets deleted in the ast */
 
-	for (LCK next, match = hash_get_lock(lock, 0, 0); match; match = next) 
+	for (Lock* next, *match = hash_get_lock(lock, 0, 0); match; match = next) 
 		{
 		next = match->lck_identical;
 
@@ -1515,7 +1515,7 @@ static void internal_ast(LCK lock)
 
 
 
-static BOOLEAN internal_compatible(LCK match, LCK lock, USHORT level)
+static BOOLEAN internal_compatible(Lock* match, Lock* lock, USHORT level)
 {
 /**************************************
  *
@@ -1530,7 +1530,7 @@ static BOOLEAN internal_compatible(LCK match, LCK lock, USHORT level)
  *	that the lock is compatible.
  *
  **************************************/
-	LCK next;
+	Lock* next;
 
 	fb_assert(LCK_CHECK_LOCK(match));
 	fb_assert(LCK_CHECK_LOCK(lock));
@@ -1559,7 +1559,7 @@ static BOOLEAN internal_compatible(LCK match, LCK lock, USHORT level)
 }
 
 
-static void internal_dequeue(ISC_STATUS *statusVector, LCK lock)
+static void internal_dequeue(ISC_STATUS *statusVector, Lock* lock)
 {
 /**************************************
  *
@@ -1573,7 +1573,7 @@ static void internal_dequeue(ISC_STATUS *statusVector, LCK lock)
  *	the lock needs to be downgraded.
  *
  **************************************/
-	LCK match;
+	Lock* match;
 
 	//SET_TDBB(tdbb);
 	fb_assert(LCK_CHECK_LOCK(lock));
@@ -1601,7 +1601,7 @@ static void internal_dequeue(ISC_STATUS *statusVector, LCK lock)
 }
 
 
-static USHORT internal_downgrade(ISC_STATUS *statusVector, LCK first)
+static USHORT internal_downgrade(ISC_STATUS *statusVector, Lock* first)
 {
 /**************************************
  *
@@ -1615,7 +1615,7 @@ static USHORT internal_downgrade(ISC_STATUS *statusVector, LCK first)
  *	highest logical level.
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 	USHORT level = LCK_none;
 
 	//SET_TDBB(tdbb);
@@ -1655,7 +1655,7 @@ static USHORT internal_downgrade(ISC_STATUS *statusVector, LCK first)
 
 static BOOLEAN internal_enqueue(
 								thread_db* tdbb,
-								LCK lock,
+								Lock* lock,
 								USHORT level,
 								SSHORT wait, BOOLEAN convert_flg)
 {
@@ -1675,7 +1675,7 @@ static BOOLEAN internal_enqueue(
  *	itself upward.
  *
  **************************************/
-	LCK match, update;
+	Lock *match, *update;
 	ISC_STATUS *status;
 
 	fb_assert(LCK_CHECK_LOCK(lock));
@@ -1779,7 +1779,7 @@ static BOOLEAN internal_enqueue(
 
 
 
-bool lck::equiv(lck* lock)
+bool Lock::equiv(Lock* lock)
 {
 	if (lck_type != lock->lck_type ||
 		!lck_parent || !lock->lck_parent ||
@@ -1790,7 +1790,7 @@ bool lck::equiv(lck* lock)
 	return memcmp(lck_key.lck_string, lock->lck_key.lck_string, lock->lck_length) == 0;
 }
 
-bool lck::compatible(lck* lock, int level)
+bool Lock::compatible(Lock* lock, int level)
 {
 	fb_assert(LCK_CHECK_LOCK(this));
 	fb_assert(LCK_CHECK_LOCK(lock));

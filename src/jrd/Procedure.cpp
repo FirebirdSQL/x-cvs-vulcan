@@ -253,13 +253,13 @@ void Procedure::setDependencies()
 		}
 }
 
-LCK Procedure::getExistenceLock(thread_db* tdbb)
+Lock* Procedure::getExistenceLock(thread_db* tdbb)
 {
 	if (procExistenceLock)
 		return procExistenceLock;
 
 	Database *database = tdbb->tdbb_database;
-	procExistenceLock = FB_NEW_RPT(*database->dbb_permanent, 0) lck;
+	procExistenceLock = FB_NEW_RPT(*database->dbb_permanent, 0) Lock;
 	procExistenceLock->lck_parent = database->dbb_lock;
 	procExistenceLock->lck_dbb = database;
 	procExistenceLock->lck_key.lck_long = findId();

@@ -52,7 +52,7 @@ int		TRA_snapshot_state(thread_db*, Transaction *, SLONG);
 Transaction* TRA_start(thread_db*, int, const UCHAR*);
 int		TRA_state(UCHAR *, ULONG, ULONG);
 int		TRA_sweep(thread_db*, Transaction *);
-struct lck*	TRA_transaction_lock(thread_db*, struct blk *);
+Lock*	TRA_transaction_lock(thread_db*, struct blk *);
 int		TRA_wait(thread_db*, Transaction *, SLONG, USHORT);
 
 #endif // JRD_TRA_PROTO_H

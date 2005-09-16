@@ -69,7 +69,7 @@
 #include "../jrd/ods.h"
 #include "../jrd/btr.h"
 #include "../jrd/rse.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/intl.h"
 #include "../jrd/rng.h"
 #include "../jrd/sbm.h"
@@ -175,7 +175,7 @@ inline void PreModifyEraseTriggers(thread_db*, Relation*, Triggers**, SSHORT, re
 #ifdef PC_ENGINE
 static JRD_NOD find(thread_db*, JRD_NOD);
 static JRD_NOD find_dbkey(thread_db*, JRD_NOD);
-static LCK implicit_record_lock(thread_db* tdbb, Transaction*, record_param*);
+static Lock* implicit_record_lock(thread_db* tdbb, Transaction*, record_param*);
 static JRD_NOD release_bookmark(thread_db*, JRD_NOD);
 static JRD_NOD set_bookmark(thread_db*, JRD_NOD);
 static JRD_NOD set_index(thread_db*, JRD_NOD);
@@ -2289,7 +2289,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 					{
 					case req_evaluate:
 						//impure->Open(tdbb, node->nod_arg[0], node->nod_count - 2,  (!node->nod_arg[1]));
-						exec->open(node->nod_arg[0], !node->nod_arg[1]);
+						exec->prepare(node->nod_arg[0], !node->nod_arg[1]);
 					case req_return:
 					case req_sync:
 						if (exec->fetch(node->nod_arg[2])) 

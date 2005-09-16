@@ -37,7 +37,7 @@
 #include "../jrd/rse.h"
 #include "gen/iberror.h"
 #include "../jrd/rng.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/blr.h"
 #include "../jrd/all_proto.h"

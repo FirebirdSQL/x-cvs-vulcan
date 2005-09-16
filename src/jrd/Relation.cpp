@@ -252,7 +252,7 @@ int Relation::blockingAst(void)
 
 void Relation::createExistenceLock(thread_db* tdbb)
 {
-	LCK lock = rel_existence_lock = FB_NEW_RPT(*rel_database->dbb_permanent, 0) lck;
+	Lock *lock = rel_existence_lock = FB_NEW_RPT(*rel_database->dbb_permanent, 0) Lock;
 	lock->lck_parent = rel_database->dbb_lock;
 	lock->lck_dbb = rel_database;
 	lock->lck_key.lck_long = rel_id;

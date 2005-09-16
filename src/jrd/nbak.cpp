@@ -367,7 +367,7 @@ int BackupManager::backup_state_ast(void *ast_object) throw()
  *
  **************************************/
 	DBB new_dbb = reinterpret_cast<DBB>(ast_object);
-	LCK lock;
+	Lock* lock;
 	struct tdbb thd_context, *tdbb;
 
 
@@ -420,7 +420,7 @@ int BackupManager::alloc_table_ast(void *ast_object) throw()
  *
  **************************************/
 	DBB new_dbb = reinterpret_cast<DBB>(ast_object);
-	LCK lock;
+	Lock* lock;
 	struct tdbb thd_context, *tdbb;
 
 
@@ -472,7 +472,7 @@ int BackupManager::backup_database_ast(void *ast_object) throw()
  *
  **************************************/
 	DBB new_dbb = reinterpret_cast<DBB>(ast_object);
-	LCK lock;
+	Lock* lock;
 	struct tdbb thd_context, *tdbb;
 	ISC_STATUS_ARRAY ast_status;
 
@@ -991,7 +991,7 @@ BackupManager::BackupManager(thread_db* tdbb, DBB _database, int ini_state) :
 	diff_use_count = 0;
 	diff_generation = 0;
 	
-	state_lock = FB_NEW_RPT(*database->dbb_permanent, 0) lck();
+	state_lock = FB_NEW_RPT(*database->dbb_permanent, 0) Lock();
 	state_lock->lck_type = LCK_backup_state;
 	state_lock->lck_owner_handle = LCK_get_owner_handle(tdbb, state_lock->lck_type);
 	state_lock->lck_parent = database->dbb_lock;
@@ -1000,7 +1000,7 @@ BackupManager::BackupManager(thread_db* tdbb, DBB _database, int ini_state) :
 	state_lock->lck_object = reinterpret_cast<blk*>(database);
 	state_lock->lck_ast = backup_state_ast;
 
-	alloc_lock = FB_NEW_RPT(*database->dbb_permanent, 0) lck();
+	alloc_lock = FB_NEW_RPT(*database->dbb_permanent, 0) Lock();
 	alloc_lock->lck_type = LCK_backup_alloc;
 	alloc_lock->lck_owner_handle = LCK_get_owner_handle(tdbb, alloc_lock->lck_type);
 	alloc_lock->lck_parent = database->dbb_lock;
@@ -1009,7 +1009,7 @@ BackupManager::BackupManager(thread_db* tdbb, DBB _database, int ini_state) :
 	alloc_lock->lck_object = reinterpret_cast<blk*>(database);
 	alloc_lock->lck_ast = alloc_table_ast;
 
-	database_lock = FB_NEW_RPT(*database->dbb_permanent, 0) lck();
+	database_lock = FB_NEW_RPT(*database->dbb_permanent, 0) Lock();
 	database_lock->lck_type = LCK_backup_database;
 	database_lock->lck_owner_handle = LCK_get_owner_handle(tdbb, database_lock->lck_type);
 	database_lock->lck_parent = database->dbb_lock;

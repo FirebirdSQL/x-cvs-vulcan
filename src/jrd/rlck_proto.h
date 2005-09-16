@@ -24,38 +24,39 @@
 #ifndef JRD_RLCK_PROTO_H
 #define JRD_RLCK_PROTO_H
 
+class Lock;
+blk;
+
 #ifdef PC_ENGINE
-struct lck *RLCK_lock_record(thread_db* tdbb, struct rpb *, USHORT, int (*)(),
-									struct blk *);
-struct lck *RLCK_lock_record_implicit(Transaction *, struct rpb *,
-											 USHORT, int (*)(), struct blk *);
-struct lck *RLCK_lock_relation(Relation *, USHORT, int (*)(),
-									  struct blk *);
-struct lck *RLCK_range_relation(thread_db* tdbb, Transaction *, Relation *, int (*)(),
-									   struct blk *);
-struct lck *RLCK_record_locking(thread_db* tdbb, Relation *);
-void RLCK_release_lock(struct lck *);
+Lock *RLCK_lock_record(thread_db* tdbb, struct rpb *, USHORT, int (*)(), blk *);
+Lock *RLCK_lock_record_implicit(Transaction *, struct rpb *,  USHORT, int (*)(), blk *);
+Lock *RLCK_lock_relation(Relation *, USHORT, int (*)(), blk *);
+Lock *RLCK_range_relation(thread_db* tdbb, Transaction *, Relation *, int (*)(),  blk *);
+Lock *RLCK_record_locking(thread_db* tdbb, Relation *);
+void RLCK_release_lock(Lock *);
 void RLCK_release_locks(Attachment *);
 #endif
-struct lck *RLCK_reserve_relation(struct thread_db*, Transaction *,
-										 Relation *, USHORT, USHORT);
+
+Lock *RLCK_reserve_relation(struct thread_db*, Transaction *, Relation *, USHORT, USHORT);
 
 /* TMN: This header did not match the implementation.
  * I moved the #ifdef as noted
  */
 /* #ifdef PC_ENGINE */
+
 void RLCK_shutdown_attachment(thread_db* tdbb, Attachment *);
 void RLCK_shutdown_database(thread_db* tdbb, Database *);
+
 #ifdef PC_ENGINE
 void RLCK_signal_refresh(thread_db* tdbb, Transaction *);
 #endif
 
-struct lck *RLCK_transaction_relation_lock(thread_db* tdbb, Transaction *, Relation *);
+Lock *RLCK_transaction_relation_lock(thread_db* tdbb, Transaction *, Relation *);
 
 #ifdef PC_ENGINE
-void RLCK_unlock_record(thread_db* tdbb, struct lck *, struct rpb *);
-void RLCK_unlock_record_implicit(thread_db* tdbb, struct lck *, struct rpb *);
-void RLCK_unlock_relation(thread_db* tdbb, struct lck *, Relation *);
+void RLCK_unlock_record(thread_db* tdbb, Lock *, struct rpb *);
+void RLCK_unlock_record_implicit(thread_db* tdbb, Lock *, struct rpb *);
+void RLCK_unlock_relation(thread_db* tdbb, Lock *, Relation *);
 #endif
 
 #endif /* JRD_RLCK_PROTO_H */

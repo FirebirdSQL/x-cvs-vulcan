@@ -75,7 +75,7 @@
 #include "../jrd/blb.h"
 #include "gen/iberror.h"
 #include "../jrd/scl.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/lls.h"
 #include "../jrd/intl.h"
 #include "../jrd/intl_classes.h"
@@ -3891,7 +3891,7 @@ static dsc* lock_state(thread_db* tdbb, JRD_NOD node, impure_value* impure)
 			impure->vlu_misc.vlu_long = 2;
 		else 
 			{
-			struct lck temp_lock;
+			struct Lock temp_lock;
 			/* fill out a lock block, zeroing it out first */
 
 			temp_lock.lck_parent = dbb->dbb_lock;

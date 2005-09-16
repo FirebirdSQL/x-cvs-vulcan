@@ -77,7 +77,7 @@ class RecordSelExpr;
 class vcl;
 class ViewContext;
 class ext;
-class lck;
+class Lock;
 class dsql_rel;
 
 struct thread_db;
@@ -151,9 +151,9 @@ public:
 	USHORT		rel_sweep_count;		/* sweep and/or garbage collector threads active */
 	SSHORT		rel_scan_count;			/* concurrent sequential scan count */
 	int			rel_dbkey_length;		/* length of dbkey (duh) */
-	lck			*rel_existence_lock;	/* existence lock, if any */
-	lck			*rel_interest_lock;		/* interest lock to ensure compatibility of relation and record locks */
-	lck			*rel_record_locking;	/* lock to start record locking on relation */
+	Lock			*rel_existence_lock;	/* existence lock, if any */
+	Lock			*rel_interest_lock;		/* interest lock to ensure compatibility of relation and record locks */
+	Lock			*rel_record_locking;	/* lock to start record locking on relation */
 
 	ULONG		rel_explicit_locks;		/* count of records explicitly locked in relation */
 	ULONG		rel_read_locks;			/* count of records read locked in relation (implicit or explicit) */

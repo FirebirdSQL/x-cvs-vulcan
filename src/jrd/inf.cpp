@@ -48,7 +48,7 @@
 #include "../jrd/os/pio.h"
 #include "../jrd/ods.h"
 #include "../jrd/scl.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/license.h"
 #include "../jrd/cch_proto.h"

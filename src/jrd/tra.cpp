@@ -127,7 +127,7 @@ static void THREAD_ROUTINE sweep_database(Database*);
 #endif
 static void transaction_options(thread_db*, Transaction*, const UCHAR*, USHORT);
 #ifdef VMS
-static BOOLEAN vms_convert(LCK, SLONG *, SCHAR, BOOLEAN);
+static BOOLEAN vms_convert(Lock*, SLONG *, SCHAR, BOOLEAN);
 #endif
 
 static const UCHAR sweep_tpb[] = { isc_tpb_version1, isc_tpb_read,
@@ -155,7 +155,7 @@ BOOLEAN TRA_active_transactions(thread_db* tdbb, DBB dbb)
 	WIN window;
 	header_page* header;
 	Transaction *trans;
-	struct lck temp_lock;
+	Lock temp_lock;
 	USHORT shift, state;
 	ULONG byte, oldest, number, base, active;
 
@@ -363,7 +363,7 @@ void TRA_commit(thread_db* tdbb, Transaction* transaction, const bool retaining_
  *	Commit a transaction.
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 
 	/* If this is a commit retaining, and no updates have been performed,
 	   and no events have been posted (via stored procedures etc)
@@ -1126,7 +1126,7 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 	if ( (vector = transaction->tra_relation_locks) )
 		for (i = 0, lock = vector->begin(); i < vector->count(); i++, lock++)
 			if (*lock)
-				LCK_release((LCK)*lock);
+				LCK_release((Lock*)*lock);
 
 	++transaction->tra_use_count;
 	
@@ -1416,7 +1416,7 @@ void TRA_shutdown_attachment(thread_db* tdbb, Attachment* attachment)
 			for (i = 0, lock = vector->begin();
 				 i < vector->count(); i++, lock++)
 				if (*lock)
-					LCK_release((LCK)*lock);
+					LCK_release((Lock*)*lock);
 
 		/* Release transaction lock itself */
 
@@ -1499,7 +1499,7 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
  **************************************/
 	header_page* header;
 	Transaction *trans;
-	struct lck temp_lock;
+	Lock temp_lock;
 	USHORT shift, oldest_state, cleanup;
 	ULONG byte, oldest, number, base, active, oldest_active, oldest_snapshot;
 	SLONG data;
@@ -1522,7 +1522,7 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	Transaction *temp = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction;
 	temp->tra_pool = tdbb->tdbb_default;
 	transaction_options(tdbb, temp, tpb, tpb_length);
-	LCK lock = TRA_transaction_lock(tdbb, reinterpret_cast < blk * >(temp));
+	Lock* lock = TRA_transaction_lock(tdbb, reinterpret_cast < blk * >(temp));
 
 	/* Read header page and allocate transaction number.  Since
 	   the transaction inventory page was initialized to zero, it
@@ -1847,7 +1847,7 @@ int TRA_sweep(thread_db* tdbb, Transaction* trans)
 
 	/* fill out a lock block, zeroing it out first */
 
-	struct lck temp_lock;
+	Lock temp_lock;
 	temp_lock.lck_dbb = dbb;
 	temp_lock.lck_object = reinterpret_cast<blk*>(trans);
 	temp_lock.lck_type = LCK_sweep;
@@ -1968,7 +1968,7 @@ int TRA_sweep(thread_db* tdbb, Transaction* trans)
 }
 
 
-LCK TRA_transaction_lock(thread_db* tdbb, BLK object)
+Lock* TRA_transaction_lock(thread_db* tdbb, BLK object)
 {
 /**************************************
  *
@@ -1981,12 +1981,12 @@ LCK TRA_transaction_lock(thread_db* tdbb, BLK object)
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 
 	SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
 
-	lock = FB_NEW_RPT(*tdbb->tdbb_default, sizeof(SLONG)) lck();
+	lock = FB_NEW_RPT(*tdbb->tdbb_default, sizeof(SLONG)) Lock();
 	lock->lck_type = LCK_tra;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_tra);
 	lock->lck_length = sizeof(SLONG);
@@ -2027,7 +2027,7 @@ int TRA_wait(thread_db* tdbb, Transaction* trans, SLONG number, USHORT wait)
 
 	if (wait) 
 		{
-		struct lck temp_lock;
+		Lock temp_lock;
 		temp_lock.lck_dbb = dbb;
 		temp_lock.lck_type = LCK_tra;
 		temp_lock.lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_tra);
@@ -2160,9 +2160,9 @@ static void compute_oldest_retaining(
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 	SLONG data, number, youngest_retaining;
-	struct lck temp_lock;
+	Lock temp_lock;
 
 	SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
@@ -2171,7 +2171,7 @@ static void compute_oldest_retaining(
 /* Get a commit retaining lock, if not present. */
 
 	if (!(lock = dbb->dbb_retaining_lock)) {
-		lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) lck();
+		lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) Lock();
 		lock->lck_dbb = dbb;
 		lock->lck_type = LCK_retaining;
 		lock->lck_owner_handle = LCK_get_owner_handle(tdbb, lock->lck_type);
@@ -2259,7 +2259,7 @@ static void expand_view_lock(thread_db* tdbb,Transaction* transaction, Relation*
 
 	/* set up the lock on the relation/view */
 
-	LCK lock = RLCK_transaction_relation_lock(tdbb, transaction, relation);
+	Lock* lock = RLCK_transaction_relation_lock(tdbb, transaction, relation);
 
 	lock->lck_logical = lock_type;
 
@@ -2482,7 +2482,7 @@ static void retain_context(thread_db* tdbb, Transaction* transaction, const bool
  *
  **************************************/
 	SLONG new_number, old_number;
-	LCK new_lock, old_lock;
+	Lock *new_lock, *old_lock;
 	DBB dbb = tdbb->tdbb_database;
 
 	/* The new transaction needs to remember the 'commit-retained' transaction
@@ -2633,7 +2633,7 @@ static BOOLEAN start_sweeper(thread_db* tdbb, DBB dbb)
 		return FALSE;
 		}
 
-	lck temp_lock;
+	Lock temp_lock;
 	temp_lock.lck_dbb			= dbb;
 	temp_lock.lck_type			= LCK_sweep;
 	temp_lock.lck_owner_handle	= LCK_get_owner_handle(tdbb, LCK_sweep);
@@ -2917,7 +2917,7 @@ static void transaction_options(thread_db* tdbb,
    If any can't be seized, release all and try again. */
 
 	for (ULONG id = 0; id < vector->count(); id++) {
-		lck* lock = (lck*) (*vector)[id];
+		Lock* lock = (Lock*) (*vector)[id];
 		if (!lock)
 			continue;
 		USHORT level = lock->lck_logical;
@@ -2927,7 +2927,7 @@ static void transaction_options(thread_db* tdbb,
 			continue;
 		}
 		for (USHORT l = 0; l < id; l++)
-			if ( (lock = (LCK) (*vector)[l]) ) {
+			if ( (lock = (Lock*) (*vector)[l]) ) {
 				level = lock->lck_logical;
 				LCK_release(lock);
 				lock->lck_logical = level;
@@ -2942,7 +2942,7 @@ static void transaction_options(thread_db* tdbb,
 
 
 #ifdef VMS
-static BOOLEAN vms_convert(LCK lock, SLONG * data, SCHAR type, BOOLEAN wait)
+static BOOLEAN vms_convert(Lock* lock, SLONG * data, SCHAR type, BOOLEAN wait)
 {
 /**************************************
  *
@@ -3024,7 +3024,7 @@ void Transaction::deleteBlob(blb* blob)
 Transaction::~Transaction(void)
 {
 	VEC vector;
-	LCK lock;
+	Lock* lock;
 	int i;
 	
 	for (Relation* relation; relation = pendingRelations;)
@@ -3038,7 +3038,7 @@ Transaction::~Transaction(void)
 	if (vector)
 	for (i = 0; i < vector->count(); i++)
 	{
-		lock = (LCK)((*vector)[i]);
+		lock = (Lock*)((*vector)[i]);
 		if (lock) delete lock;
 	}
 }

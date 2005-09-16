@@ -44,7 +44,7 @@
 #include "gen/iberror.h"
 #include "../jrd/common.h"
 #include "../jrd/jrn.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/sbm.h"
 #include "../jrd/sort.h"

@@ -62,7 +62,7 @@ $Id$
 #include "../jrd/val.h"
 #include "../jrd/irq.h"
 #include "../jrd/tra.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/ods.h"
 #include "../jrd/btr.h"
 #include "../jrd/req.h"
@@ -3549,7 +3549,7 @@ static int blocking_ast_procedure(void *ast_object)
  **************************************/
  
 	Procedure *procedure = reinterpret_cast<Procedure*>(ast_object);
-	LCK lock = procedure->findExistenceLock();
+	Lock* lock = procedure->findExistenceLock();
 	Database *database = lock->lck_dbb;
 	//struct tdbb thd_context, *tdbb;
 	ISC_STATUS_ARRAY ast_status;

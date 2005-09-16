@@ -409,7 +409,7 @@ int CCH_down_grade_dbb(void* ast_object)
 
 /* Ignore the request if the database or lock block does not appear
    to be valid . */
-	LCK lock;
+	Lock* lock;
 	if ((MemoryPool::blk_type(dbb) != type_dbb) ||
 		!(lock = dbb->dbb_lock) ||
 		(MemoryPool::blk_type(lock) != type_lck) || !(lock->lck_id))
@@ -531,7 +531,7 @@ BOOLEAN CCH_exclusive(TDBB tdbb, USHORT level, SSHORT wait_flag)
 	if (!CCH_exclusive_attachment(tdbb, level, wait_flag))
 		return FALSE;
 #endif
-	LCK lock = dbb->dbb_lock;
+	Lock* lock = dbb->dbb_lock;
 	if (!lock)
 		return FALSE;
 
@@ -2015,7 +2015,7 @@ void CCH_must_write(TDBB tdbb, WIN * window)
 
 
 
-LCK CCH_page_lock(TDBB tdbb)
+Lock* CCH_page_lock(TDBB tdbb)
 {
 /**************************************
  *
@@ -2028,7 +2028,7 @@ LCK CCH_page_lock(TDBB tdbb)
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 
 	SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
@@ -2954,7 +2954,7 @@ static BDB alloc_bdb(TDBB tdbb, BCB bcb, UCHAR ** memory)
  **************************************/
 	BDB bdb_;
 #ifndef PAGE_LATCHING
-	LCK lock;
+	Lock* lock;
 #endif
 	DBB dbb;
 
@@ -4898,7 +4898,7 @@ static SSHORT lock_buffer(
 #ifdef PAGE_LATCHING
 	DBB dbb;
 #else
-	LCK lock;
+	Lock* lock;
 	USHORT lock_type;
 	USHORT must_read;
 	ISC_STATUS_ARRAY alt_status;

@@ -554,7 +554,7 @@ VI. ADDITIONAL NOTES
 #include "../jrd/btr.h"
 #include "../jrd/btn.h"
 #include "../jrd/all.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/rse.h"
 #include "../jrd/sbm.h"

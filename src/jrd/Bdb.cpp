@@ -46,7 +46,7 @@ Bdb::Bdb(thread_db* tdbb, pag* memory)
 	bdb_dbb = database;
 	bdb_buffer = memory;
 	
-	bdb_lock = FB_NEW_RPT(*database->dbb_bufferpool, sizeof(SLONG)) lck;
+	bdb_lock = FB_NEW_RPT(*database->dbb_bufferpool, sizeof(SLONG)) Lock;
 	bdb_lock->lck_type = LCK_bdb;
 	bdb_lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_bdb);
 	bdb_lock->lck_length = sizeof(SLONG);
@@ -105,7 +105,7 @@ void Bdb::init(void)
 }
 
 
-void Bdb::init(thread_db* tdbb, lck *lock, pag* buffer)
+void Bdb::init(thread_db* tdbb, Lock *lock, pag* buffer)
 {
 	bdb_dbb = tdbb->tdbb_database;
 	bdb_buffer = buffer;

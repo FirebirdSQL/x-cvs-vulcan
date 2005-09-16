@@ -259,14 +259,14 @@ void Attachment::shutdown(thread_db* tdbb)
 			{
 			if (*lock)
 				{
-				LCK_release((LCK)(*lock));
+				LCK_release((Lock*)(*lock));
 				delete *lock;
 				}
 			}
 		delete lock_vector;
 		}
 
-    LCK record_lock;
+    Lock* record_lock;
     
 	for (record_lock = att_record_locks; record_lock;
 		 record_lock = record_lock->lck_att_next)
@@ -291,7 +291,7 @@ void Attachment::shutdown(thread_db* tdbb)
 		delete att_compatibility_table;
 }
 
-void Attachment::addLongLock(lck* lock)
+void Attachment::addLongLock(Lock* lock)
 {
 #ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::addLongLock");
@@ -301,7 +301,7 @@ void Attachment::addLongLock(lck* lock)
 /* check to see if lock is already here ???? */
 
 #ifdef DEV_BUILD
-    for (lck *t = att_long_locks; t; t = t->lck_next)
+    for (Lock *t = att_long_locks; t; t = t->lck_next)
 	    if (t == lock) 
 			fb_assert(false);
 #endif
@@ -314,7 +314,7 @@ void Attachment::addLongLock(lck* lock)
 	lock->lck_long_lock = true;
 }
 
-void Attachment::removeLongLock(lck* lock)
+void Attachment::removeLongLock(Lock* lock)
 {
 #ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::removeLockLock");
@@ -342,14 +342,14 @@ void Attachment::removeLongLock(lck* lock)
 	lock->lck_long_lock = false;
 }
 
-lck* Attachment::findBlock(lck* lock, int level)
+Lock* Attachment::findBlock(Lock* lock, int level)
 {
 #ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::findBlock");
 	sync.lock(Shared);
 #endif
 
-	for (LCK next = att_long_locks; next; next = next->lck_next)
+	for (Lock* next = att_long_locks; next; next = next->lck_next)
 		if (lock->lck_attachment != next->lck_attachment &&
 			 next->equiv(lock) && !next->compatible(lock, level))
 			return next;

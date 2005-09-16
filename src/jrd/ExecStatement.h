@@ -52,7 +52,7 @@ public:
 	PreparedStatement	*statement;
 	ResultSet		*resultSet;
 	
-	void open(jrd_nod *sqlNode, bool singleton);
+	void prepare(jrd_nod *sqlNode, bool singleton);
 	void close(void);
 	bool fetch(jrd_nod* valueList);
 	void reset(void);

@@ -72,7 +72,7 @@ static const int BDB_max_shared			= 20;	/* maximum number of shared latch owners
 #endif
 
 class Database;
-class lck;
+class Lock;
 class btb;
 struct pag;
 struct exp_index_buf;
@@ -87,7 +87,7 @@ public:
 
 public:
 	Database*		bdb_dbb;				/* Database block (for ASTs) */
-	lck*			bdb_lock;				/* Lock block for buffer */
+	Lock*			bdb_lock;				/* Lock block for buffer */
 	Que				bdb_que;				/* Buffer que */
 	Que				bdb_in_use;				/* queue of buffers in use */
 	pag*			bdb_buffer;				/* Actual buffer */
@@ -126,7 +126,7 @@ public:
 	
 	volatile INTERLOCK_TYPE bdb_use_count;			/* Number of active users */
 	
-	void		init(thread_db* tdbb, lck *lock, pag* buffer);
+	void		init(thread_db* tdbb, Lock *lock, pag* buffer);
 	USHORT		computeChecksum(void);
 	static int	blockingAstBdb(void* argument);
 	void		addRef(thread_db* tdbb, LockType lockType);

@@ -168,14 +168,14 @@ pre[] = {
 		FLD(PRE, "High: %x", pre_hi),
 		0
 },
-lck[] = {
+Lock[] = {
 	"LOCK",
-		FLD(LCK, "Parent: %x", lck_parent),
-		FLD(LCK, "Object: %x", lck_object),
-		FLD(LCK, "Type: %x", lck_type),
-		FLD(LCK, "Physical: %x", lck_physical),
-		FLD(LCK, "Logical: %x", lck_logical),
-		FLD(LCK, "Length: %x", lck_length),
+		FLD(Lock*, "Parent: %x", lck_parent),
+		FLD(Lock*, "Object: %x", lck_object),
+		FLD(Lock*, "Type: %x", lck_type),
+		FLD(Lock*, "Physical: %x", lck_physical),
+		FLD(Lock*, "Logical: %x", lck_logical),
+		FLD(Lock*, "Length: %x", lck_length),
 		0
 },
 fil[] = {

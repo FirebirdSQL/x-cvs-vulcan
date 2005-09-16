@@ -825,7 +825,7 @@ SLONG PAG_attachment_id(thread_db* tdbb)
 
 	/* Take out lock on attachment id */
 
-	LCK lock = attachment->att_id_lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) lck();
+	Lock* lock = attachment->att_id_lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) Lock();
 	lock->lck_type = LCK_attachment;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_attachment);
 	lock->lck_parent = dbb->dbb_lock;

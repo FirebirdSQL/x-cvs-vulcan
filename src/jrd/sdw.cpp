@@ -308,7 +308,7 @@ void SDW_check(thread_db* tdbb)
 	SDW shadow, next_shadow;
 	//BOOLEAN start_conditional = TRUE;
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 
 	dbb = tdbb->tdbb_database;
 
@@ -343,7 +343,7 @@ void SDW_check(thread_db* tdbb)
 		{
 		if (SDW_lck_update(dbb,  0)) 
 			{
-			lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) lck();
+			lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) Lock();
 			lock->lck_dbb = dbb;
 			lock->lck_attachment = tdbb->tdbb_attachment;
 			lock->lck_length = sizeof(SLONG);
@@ -547,7 +547,7 @@ void SDW_get_shadows(thread_db* tdbb)
 	   signals */
 
 	dbb->pageCache->getShadows = false;
-	LCK lock = dbb->dbb_shadow_lock;
+	Lock* lock = dbb->dbb_shadow_lock;
 
 	if (lock->lck_physical != LCK_SR) 
 		{
@@ -587,7 +587,7 @@ void SDW_init(thread_db* tdbb, bool activate, bool delete_, PageBitmap* pages)
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 	header_page* header;
 	USHORT key_length;
 
@@ -597,7 +597,7 @@ void SDW_init(thread_db* tdbb, bool activate, bool delete_, PageBitmap* pages)
 /* set up the lock block for synchronizing addition of new shadows */
 
 	key_length = sizeof(header->hdr_shadow_count);
-	dbb->dbb_shadow_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, key_length) lck();
+	dbb->dbb_shadow_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, key_length) Lock();
 	lock->lck_type = LCK_shadow;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_shadow);
 	lock->lck_parent = dbb->dbb_lock;
@@ -648,7 +648,7 @@ BOOLEAN SDW_lck_update(DBB dbb, SLONG sdw_update_flags)
  *  	Update the data with sdw_update_flag passed to the function
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 
 	if (!(lock = dbb->dbb_shadow_lock))
 		return FALSE;
@@ -691,7 +691,7 @@ void SDW_notify(thread_db* tdbb)
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 	header_page* header;
 	dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
@@ -743,18 +743,18 @@ bool SDW_rollover_to_shadow(thread_db* tdbb, FIL file, const bool inAst)
  * Functional description
  *
  **************************************/
-	SDW shadow;
+	SDW		shadow;
 	BOOLEAN start_conditional = FALSE;
-	SLONG sdw_update_flags = SDW_rollover;
-	LCK shadow_lock;
-	struct lck temp_lock;
+	SLONG	sdw_update_flags = SDW_rollover;
+	Lock	*shadow_lock;
+	Lock	temp_lock;
 
 	DBB dbb = tdbb->tdbb_database;
 
 	if (file != dbb->dbb_file)
 		return true;
 
-	LCK update_lock = &temp_lock;
+	Lock* update_lock = &temp_lock;
 	update_lock->lck_dbb = dbb;
 	update_lock->lck_attachment = tdbb->tdbb_attachment;
 	update_lock->lck_length = sizeof(SLONG);
@@ -1098,7 +1098,7 @@ int SDW_start_shadowing(void* ast_object)
 	DBB new_dbb = reinterpret_cast<DBB>(ast_object);
 	struct thread_db thd_context, *tdbb;
 
-	LCK lock = new_dbb->dbb_shadow_lock;
+	Lock* lock = new_dbb->dbb_shadow_lock;
 	
 	if (lock->lck_physical != LCK_SR)
 		return 0;

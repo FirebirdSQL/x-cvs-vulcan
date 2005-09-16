@@ -48,7 +48,7 @@
 #include "../jrd/blb.h"
 #include "../jrd/tra.h"
 #include "../jrd/lls.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/jrn.h"
 #include "../jrd/pag.h"

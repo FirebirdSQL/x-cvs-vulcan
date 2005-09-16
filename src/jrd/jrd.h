@@ -190,7 +190,7 @@ class IndexBlock : public pool_alloc<type_idb>
 	struct jrd_nod* idb_expression;			/* node tree for index expression */
 	Request* idb_expression_request;	/* request in which index expression is evaluated */
 	struct dsc idb_expression_desc;	/* descriptor for expression result */
-	struct lck* idb_lock;				/* lock to synchronize changes to index */
+	struct Lock* idb_lock;				/* lock to synchronize changes to index */
 	UCHAR idb_id;
 };
 

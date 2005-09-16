@@ -101,7 +101,7 @@ class vcl;
 class str;
 class UserId;
 class Request;
-class lck;
+class Lock;
 class sort_context;
 class SecurityClass;
 //class Bookmark;
@@ -126,7 +126,7 @@ public:
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
 	Request*	att_requests;			// Requests belonging to attachment
 	sort_context*		att_active_sorts;	// Active sorts
-	lck*		att_id_lock;			// Attachment lock (if any)
+	Lock*		att_id_lock;			// Attachment lock (if any)
 	SLONG		att_attachment_id;		// Attachment ID
 	SLONG		att_lock_owner_handle;	// Handle for the lock manager
 	SLONG		att_event_session;		// Event session id, if any
@@ -135,13 +135,13 @@ public:
 	vcl*		att_counts[DBB_max_count];
 	vec*		att_relation_locks;		// explicit persistent locks for relations
 	//Bookmark*		att_bookmarks;		// list of bookmarks taken out using this attachment
-	lck*		att_record_locks;		// explicit or implicit record locks taken out during attachment
+	Lock*		att_record_locks;		// explicit or implicit record locks taken out during attachment
 	//vec*		att_bkm_quick_ref;		// correspondence table of bookmarks
 	//vec*		att_lck_quick_ref;		// correspondence table of locks
 	ULONG		att_flags;				// Flags describing the state of the attachment
 	SSHORT		att_charset;			// user's charset specified in dpb
 	str*		att_lc_messages;		// attachment's preference for message natural language
-	lck*		att_long_locks;			// outstanding two phased locks
+	Lock*		att_long_locks;			// outstanding two phased locks
 	vec*		att_compatibility_table;	// hash table of compatible locks
 	vcl*		att_val_errors;
 	//str*		att_working_directory;	// Current working directory is cached
@@ -165,9 +165,9 @@ public:
 	void updateAccountInfo(thread_db *tdbb, int apbLength, const UCHAR* apb);
 	void authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb);
 	void shutdown(thread_db *tdbb);
-	void addLongLock(lck* lock);
-	void removeLongLock(lck* lock);
-	lck* findBlock(lck* lock, int level);
+	void addLongLock(Lock* lock);
+	void removeLongLock(Lock* lock);
+	Lock* findBlock(Lock* lock, int level);
 	Relation* findRelation(thread_db* tdbb, int relationId, int csbFlags=0);
 	Relation* getRelation(thread_db* tdbb, int relationId);
 	Relation* findRelation(thread_db* tdbb, const char* relationName, int csbFlags=0);

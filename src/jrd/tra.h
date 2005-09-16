@@ -44,9 +44,9 @@ class Savepoint;
 class DeferredWork;
 class Resource;
 class traRpbList;
-
 class ArrayField;
-struct lck;
+class Lock;
+
 struct vec;
 struct thread_db;
 
@@ -68,7 +68,7 @@ public:
 	JrdMemoryPool*	tra_pool;			/* pool for transaction */
 	blb				*tra_blobs;			/* Linked list of active blobs */
 	ArrayField*		tra_arrays;			/* Linked list of active arrays */
-	lck				*tra_lock;			/* lock for transaction */
+	Lock			*tra_lock;			/* lock for transaction */
 	vec				*tra_relation_locks;	/* locks for relations */
 	UInt32Bitmap*	tra_commit_sub_trans;	/* commited sub-transactions */
 	Savepoint*		tra_save_point;			/* list of savepoints  */
@@ -225,7 +225,7 @@ class DeferredWork : public pool_alloc_rpt<SCHAR, type_dfw>
     public:
 	enum dfw_t dfw_type;			/* type of work deferred */
 	class DeferredWork* dfw_next;	/* next block in transaction */
-	struct lck *dfw_lock;			/* relation creation lock */
+	Lock *dfw_lock;			/* relation creation lock */
 	class DeferredWork* dfw_args;	/* arguments */
 	SLONG dfw_sav_number;			/* save point number */
 	USHORT dfw_name_length;			/* length of object name */

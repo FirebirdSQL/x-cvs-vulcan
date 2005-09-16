@@ -49,7 +49,7 @@
 #include "../jrd/intl.h"
 #include "../jrd/ods.h"
 #include "../jrd/btr.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/tra.h"
 #include "gen/iberror.h"

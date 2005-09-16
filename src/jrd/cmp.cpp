@@ -1592,7 +1592,7 @@ IndexLock* CMP_get_index_lock(thread_db* tdbb, Relation* relation, USHORT id)
 	index->idl_id = id;
 	index->idl_count = 0;
 
-	lck* lock = FB_NEW_RPT(*dbb->dbb_permanent, 0) lck;
+	Lock* lock = FB_NEW_RPT(*dbb->dbb_permanent, 0) Lock;
 	index->idl_lock = lock;
 	lock->lck_parent = dbb->dbb_lock;
 	lock->lck_dbb = dbb;

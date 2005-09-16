@@ -476,7 +476,7 @@ IndexBlock* IDX_create_index_block(thread_db* tdbb, Relation* relation, USHORT i
    any modification to the index so that the cached information
    about the index will be discarded */
 
-	lck* lock = FB_NEW_RPT(*dbb->dbb_permanent, 0) lck;
+	Lock* lock = FB_NEW_RPT(*dbb->dbb_permanent, 0) Lock;
 	index_block->idb_lock = lock;
 	lock->lck_parent = dbb->dbb_lock;
 	lock->lck_dbb = dbb;
@@ -1377,7 +1377,7 @@ static int index_block_flush(void *ast_object)
 
 	SET_THREAD_DATA;
 
-	lck* lock = index_block->idb_lock;
+	Lock* lock = index_block->idb_lock;
 
 	if (lock->lck_attachment)
 		tdbb->tdbb_database = lock->lck_attachment->att_database;
@@ -1515,7 +1515,7 @@ static void signal_index_deletion(thread_db* tdbb, Relation* relation, USHORT id
  *
  **************************************/
 	IndexBlock* index_block;
-	lck* lock = NULL;
+	Lock* lock = NULL;
 	//SET_TDBB(tdbb);
 
 	/* get an exclusive lock on the associated index

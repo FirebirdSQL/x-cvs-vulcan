@@ -47,7 +47,7 @@ ExecStatement::~ExecStatement(void)
 	reset();
 }
 
-void ExecStatement::open(jrd_nod *sqlNode, bool singleton)
+void ExecStatement::prepare(jrd_nod *sqlNode, bool singleton)
 {
 	reset();
 	dsc *desc = EVL_expr(request->req_tdbb, sqlNode);
