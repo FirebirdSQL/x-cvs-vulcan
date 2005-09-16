@@ -977,8 +977,8 @@ static void prt_history(
  **************************************/
 	FPRINTF(outfile, "%s:\n", title);
 
-	for (const his* history = (HIS) ABS_PTR(history_header); true;
-		 history = (HIS) ABS_PTR(history->his_next))
+	for (const LockHistory* history = (LockHistory*) ABS_PTR(history_header); true;
+		 history = (LockHistory*) ABS_PTR(history->his_next))
 	{
 		if (history->his_operation)
 			FPRINTF(outfile,
