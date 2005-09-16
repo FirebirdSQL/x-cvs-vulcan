@@ -82,10 +82,10 @@ enum LockState {
 class Database;
 class bdb;
 class lls;
-class pre;
+class Precedence;
 class Bdb;
-struct fil;
-class sdw;
+class File;
+class Shadow;
 struct Que;
 struct thread_db;
 struct pag;
@@ -130,8 +130,8 @@ public:
 	bool writePage(thread_db* tdbb, Bdb* bdb, bool write_thru, bool inAst);
 	void journalBuffer(Bdb* bdb);
 	bool setWriteDirection(thread_db* tdbb, Bdb* bdb, int direction);
-	bool rolloverToShadow(thread_db* tdbb, fil* file, bool inAst);
-	bool writeAllShadows(thread_db* tdbb, sdw* shadow, Bdb* bdb, int checksum, bool inAst);
+	bool rolloverToShadow(thread_db* tdbb, File* file, bool inAst);
+	bool writeAllShadows(thread_db* tdbb, Shadow* shadow, Bdb* bdb, int checksum, bool inAst);
 	void removeDirtyPage(Bdb* bdb);
 	void unwind(thread_db* tdbb, bool punt);
 	void releaseLatch(thread_db* tdbb, Bdb* bdb, bool repost, bool downgrade_latch, bool rel_mark_latch);
@@ -183,7 +183,7 @@ public:
 	void reorderDirty(void);
 	void recentlyUsed(Bdb* bdb);
 	void requeueRecentlyUsed(void);
-	void deletePrecedence(pre* precedence);
+	void deletePrecedence(Precedence* precedence);
 	void clearPrecedenceSync(Bdb* bdb);
 };
 

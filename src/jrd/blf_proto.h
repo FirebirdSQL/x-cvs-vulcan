@@ -32,12 +32,12 @@ extern "C" {
 ISC_STATUS	BLF_close_blob(thread_db*, ctl**);
 ISC_STATUS	BLF_create_blob(thread_db*, Transaction*, ctl**, bid*,
 										 USHORT, const UCHAR*,
-										 FPTR_BFILTER_CALLBACK, BLF);
+										 FPTR_BFILTER_CALLBACK, BlobFilter*);
 ISC_STATUS	BLF_get_segment(thread_db*, ctl**, USHORT*, USHORT, UCHAR*);
-BLF			BLF_lookup_internal_filter(thread_db*, SSHORT, SSHORT);
+BlobFilter*			BLF_lookup_internal_filter(thread_db*, SSHORT, SSHORT);
 ISC_STATUS	BLF_open_blob(thread_db*, Transaction*, ctl**, const bid*,
 									   USHORT, const UCHAR*,
-									   FPTR_BFILTER_CALLBACK, BLF);
+									   FPTR_BFILTER_CALLBACK, BlobFilter*);
 ISC_STATUS	BLF_put_segment(thread_db*, ctl**, USHORT, const UCHAR*);
 
 } /* extern "C" */

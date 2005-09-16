@@ -139,7 +139,7 @@ int QATEST_entrypoint(ULONG * function, void *arg1, void *arg2, void *arg3)
 #ifdef WIN_NT
 	HANDLE desc;
 #endif
-	FIL file;
+	File *file;
 
 
 	switch (*function) {

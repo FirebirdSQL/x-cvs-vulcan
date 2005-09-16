@@ -441,7 +441,7 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
  *
  **************************************/
 	DBB dbb;
-	FIL file, next;
+	File *file, *next;
 	header_page* header;
 	USHORT sequence;
 	dbb = tdbb->tdbb_database;
@@ -1298,8 +1298,8 @@ void PAG_init2(thread_db* tdbb, USHORT shadow_number)
  *
  **************************************/
 	DBB dbb;
-	FIL file;
-	SDW shadow;
+	File *file;
+	Shadow *shadow;
 	header_page* header;
 	SCHAR *temp_buffer = NULL, *temp_page;
 	USHORT file_length, sequence;
@@ -1608,8 +1608,8 @@ void PAG_set_force_write(thread_db* tdbb, DBB dbb, SSHORT flag)
  *
  **************************************/
 	header_page* header;
-	FIL file;
-	SDW shadow;
+	File *file;
+	Shadow *shadow;
 	//JRNDA record;
 
 	ERR_POST_IF_DATABASE_IS_READONLY(dbb);

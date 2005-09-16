@@ -816,7 +816,7 @@ static FIL setup_file(DBB dbb,
 
 /* Allocate file block and move in file name */
 
-	file = FB_NEW_RPT(dbb->dbb_permanent, file_length + 1) fil();
+	file = FB_NEW_RPT(dbb->dbb_permanent, file_length + 1) File();
 	file->fil_desc = chan;
 	file->fil_length = file_length;
 	file->fil_max_page = -1;

@@ -140,14 +140,12 @@ class SecurityPlugin;
 class TipCache;
 class CommitManager;
 
-struct fil;		/* files for I/O operations */
-class sdw;		/* shadow control block */
-struct bcb;		/* Buffer control block */
+class File;		/* files for I/O operations */
+class Shadow;		/* shadow control block */
+//struct bcb;		/* Buffer control block */
 struct plc;		/* connection block */
 struct PageControl;	/* page control */
-struct blf;		/* known blob filters */
-struct lls;		/* external function/filter modules */
-struct blf;
+struct BlobFilter;		/* known blob filters */
 struct lls;
 struct jrn;		/* journal block */
 //struct tpc;		/* cache of latest known state of all transactions in system */
@@ -169,13 +167,13 @@ public:
 	Database			*dbb_next;				/* Next database block in system */
 	Attachment			*dbb_attachments;		/* Active attachments */
 	SVector<Relation*>	dbb_relations;			/* relation vector */
-	Lock					*dbb_lock;				/* granddaddy lock */
+	Lock				*dbb_lock;				/* granddaddy lock */
 	Transaction			*dbb_sys_trans;			/* system transaction */
-	fil					*dbb_file;				/* files for I/O operations */
-	sdw					*dbb_shadow;			/* shadow control block */
-	Lock					*dbb_shadow_lock;		/* lock for synchronizing addition of shadows */
+	File				*dbb_file;				/* files for I/O operations */
+	Shadow				*dbb_shadow;			/* shadow control block */
+	Lock				*dbb_shadow_lock;		/* lock for synchronizing addition of shadows */
 	SLONG				dbb_shadow_sync_count;	/* to synchronize changes to shadows */
-	Lock					*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
+	Lock				*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
 	plc					*dbb_connection;		/* connection block */
 	PageControl			*dbb_pcontrol;			/* page control */
 #ifdef SHARED_CACHE
@@ -185,7 +183,7 @@ public:
 	SVector<SLONG>		dbb_t_pages;			/* pages number for transactions */
 	SVector<SLONG>		dbb_gen_id_pages;		/* known pages for gen_id */
 #endif
-	struct blf			*dbb_blob_filters;		/* known blob filters */
+	BlobFilter			*dbb_blob_filters;		/* known blob filters */
 	struct lls			*dbb_modules;			/* external function/filter modules */
 	SLONG				dbb_sort_size;			/* Size of sort space per sort */
 

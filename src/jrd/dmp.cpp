@@ -43,6 +43,7 @@
 #include "../jrd/sqz_proto.h"
 #include "../jrd/thd_proto.h"
 #include "PageCache.h"
+#include "Bdb.h"
 #include "jrd.h"
 
 
@@ -376,7 +377,7 @@ void DMP_page(SLONG number, USHORT page_size)
 }
 
 
-static void btc_printer(SLONG level, bdb* bdb, SCHAR * buffer)
+static void btc_printer(SLONG level, Bdb* bdb, SCHAR * buffer)
 {
 /**************************************
  *
@@ -389,31 +390,21 @@ static void btc_printer(SLONG level, bdb* bdb, SCHAR * buffer)
  *
  **************************************/
 
-	if (level >= 48) {
+	if (level >= 48) 
+		{
 		ib_fprintf(dbg_file, "overflow\n");
 		return;
-	}
+		}
 
 	sprintf((buffer + 5 * level + 1), "%.4ld", bdb->bdb_page);
-
-	if (bdb->bdb_left) {
-		buffer[5 * (level + 1)] = 'L';
-		btc_printer(level + 1, bdb->bdb_left, buffer);
-	}
-	else
-		ib_fprintf(dbg_file, "%s\n", buffer);
+	ib_fprintf(dbg_file, "%s\n", buffer);
 
 	memset(buffer, ' ', 250);
 	buffer[249] = 0;
-
-	if (bdb->bdb_right) {
-		buffer[5 * (level + 1)] = 'R';
-		btc_printer(level + 1, bdb->bdb_right, buffer);
-	}
 }
 
 
-static void btc_printer_errors(SLONG level, bdb* bdb, SCHAR * buffer)
+static void btc_printer_errors(SLONG level, Bdb* bdb, SCHAR * buffer)
 {
 /**************************************
  *
@@ -426,6 +417,7 @@ static void btc_printer_errors(SLONG level, bdb* bdb, SCHAR * buffer)
  *
  **************************************/
 
+	/***
 	if (((bdb->bdb_left) && (bdb->bdb_left->bdb_page > bdb->bdb_page)) ||
 		((bdb->bdb_right) && (bdb->bdb_right->bdb_page < bdb->bdb_page)))
 		ib_fprintf(dbg_file, "Whoops! Parent %ld, Left %ld, Right %ld\n",
@@ -438,6 +430,7 @@ static void btc_printer_errors(SLONG level, bdb* bdb, SCHAR * buffer)
 	if (bdb->bdb_right) {
 		btc_printer_errors(level + 1, bdb->bdb_right, buffer);
 	}
+	***/
 }
 
 

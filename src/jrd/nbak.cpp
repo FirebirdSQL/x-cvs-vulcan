@@ -1076,7 +1076,7 @@ bool BackupManager::actualize_state(thread_db* tdbb) throw() {
 	temp_bdb.bdb_page = HEADER_PAGE;
 	temp_bdb.bdb_dbb = database;
 	temp_bdb.bdb_buffer = reinterpret_cast<PAG>(header);
-	FIL file = database->dbb_file;
+	File *file = database->dbb_file;
 	
 	while (!PIO_read(file, &temp_bdb, temp_bdb.bdb_buffer, status)) 
 		{

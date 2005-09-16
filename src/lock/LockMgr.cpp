@@ -3197,7 +3197,7 @@ void LockMgr::lock_initialize(void *arg, SH_MEM shmem_data, bool initialize)
 	SSHORT length;
 	USHORT i, j;
 	PSRQ que;
-	HIS history;
+	LockHistory *history;
 	PTR *prior;
 
 #ifdef WIN_NT
@@ -3285,7 +3285,7 @@ void LockMgr::lock_initialize(void *arg, SH_MEM shmem_data, bool initialize)
 		
 		for (i = 0; i < HISTORY_BLOCKS; i++)
 			{
-			if (!(history = (HIS) alloc(sizeof(his), NULL)))
+			if (!(history = (LockHistory*) alloc(sizeof(LockHistory), NULL)))
 				{
 				gds__log("Fatal lock manager error: lock manager out of room");
 				exit(STARTUP_ERROR);
@@ -3537,12 +3537,12 @@ void LockMgr::post_history(USHORT operation,
  *	Post a history item.
  *
  **************************************/
-	HIS history;
+	LockHistory *history;
 
 	LOCK_TRACE(("post_history (%ld)\n", request));
 
 	if (old_version) {
-		history = (HIS) ABS_PTR(LOCK_header->lhb_history);
+		history = (LockHistory*) ABS_PTR(LOCK_header->lhb_history);
 		ASSERT_ACQUIRED;
 		LOCK_header->lhb_history = history->his_next;
 	}
@@ -3551,7 +3551,7 @@ void LockMgr::post_history(USHORT operation,
 
 		ASSERT_ACQUIRED;
 		shb = (SHB) ABS_PTR(LOCK_header->lhb_secondary);
-		history = (HIS) ABS_PTR(shb->shb_history);
+		history = (LockHistory*) ABS_PTR(shb->shb_history);
 		shb->shb_history = history->his_next;
 	}
 
@@ -4192,13 +4192,13 @@ void LockMgr::validate_history( PTR history_header)
  *	Validate a circular list of history blocks.
  *
  **************************************/
-	HIS history;
+	LockHistory *history;
 	USHORT count = 0;
 
 	LOCK_TRACE(("validate_history: %ld\n", history_header));
 
-	for (history = (HIS) ABS_PTR(history_header); true;
-		 history = (HIS) ABS_PTR(history->his_next)) {
+	for (history = (LockHistory*) ABS_PTR(history_header); true;
+		 history = (LockHistory*) ABS_PTR(history->his_next)) {
 		count++;
 		CHECK(history->his_type == type_his);
 // The following condition is always true because UCHAR >= 0

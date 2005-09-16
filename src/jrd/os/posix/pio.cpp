@@ -124,10 +124,10 @@
 #endif
 
 static void		close_marker_file(TEXT *);
-static FIL		find_file(FIL, Bdb*);
-static FIL		seek_file(FIL, Bdb*, UINT64 *, ISC_STATUS *);
-static FIL		setup_file(thread_db *tdbb, const TEXT*, int);
-static BOOLEAN	unix_error(const TEXT *, FIL, ISC_STATUS, ISC_STATUS *);
+static File*		find_file(File*, Bdb*);
+static File*		seek_file(File*, Bdb*, UINT64 *, ISC_STATUS *);
+static File*		setup_file(thread_db *tdbb, const TEXT*, int);
+static BOOLEAN	unix_error(const TEXT *, File*, ISC_STATUS, ISC_STATUS *);
 
 #if defined PREAD_PWRITE && !(defined HAVE_PREAD && defined HAVE_PWRITE)
 static SLONG	pread(int, SCHAR *, SLONG, SLONG);
@@ -141,7 +141,7 @@ static int		raw_devices_unlink_database (const TEXT*);
 #endif
 
 
-int PIO_add_file(thread_db *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
+int PIO_add_file(thread_db *tdbb, File* main_file, const TEXT* file_name, SLONG start)
 {
 /**************************************
  *
@@ -159,7 +159,7 @@ int PIO_add_file(thread_db *tdbb, FIL main_file, const TEXT* file_name, SLONG st
  *
  **************************************/
 	USHORT sequence;
-	FIL file, new_file;
+	File* file, *new_file;
 
 	Database *dbb = tdbb->tdbb_database;
 	if (!(new_file = PIO_create(tdbb, file_name, strlen(file_name), FALSE, dbb->fileShared)))
@@ -178,7 +178,7 @@ int PIO_add_file(thread_db *tdbb, FIL main_file, const TEXT* file_name, SLONG st
 }
 
 
-void PIO_close(FIL main_file)
+void PIO_close(File* main_file)
 {
 /**************************************
  *
@@ -192,7 +192,7 @@ void PIO_close(FIL main_file)
  *	have been locked before entry.
  *
  **************************************/
-	FIL file;
+	File* file;
 
 	if (main_file) 
 		{
@@ -243,7 +243,7 @@ int PIO_connection(const TEXT* file_name, USHORT* file_length)
 }
 
 
-FIL PIO_create(thread_db *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
+File* PIO_create(thread_db *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
 {
 /**************************************
  *
@@ -259,7 +259,7 @@ FIL PIO_create(thread_db *tdbb, const TEXT* string, SSHORT length, BOOLEAN overw
  *
  **************************************/
 	int desc, flag;
-	FIL file;
+	File* file;
 	TEXT expanded_name[256], temp[256];
 
 	Database *dbb = tdbb->tdbb_database;
@@ -319,7 +319,7 @@ int PIO_expand(const TEXT* file_name, USHORT file_length, TEXT* expanded_name)
 }
 
 
-void PIO_flush(FIL main_file)
+void PIO_flush(File* main_file)
 {
 /**************************************
  *
@@ -331,7 +331,7 @@ void PIO_flush(FIL main_file)
  *	Flush the operating system cache back to good, solid oxide.
  *
  **************************************/
-	FIL file;
+	File* file;
 
 /* Since all SUPERSERVER_V2 database and shadow I/O is synchronous, this
    is a no-op. */
@@ -350,7 +350,7 @@ void PIO_flush(FIL main_file)
 }
 
 
-void PIO_force_write(FIL file, USHORT flag, bool shared)
+void PIO_force_write(File* file, USHORT flag, bool shared)
 {
 /**************************************
  *
@@ -401,7 +401,7 @@ void PIO_header(DBB dbb, SCHAR * address, int length)
 	SSHORT i;
 	UINT64 bytes;
 
-	FIL file = dbb->dbb_file;
+	File* file = dbb->dbb_file;
 	ISC_inhibit();
 
 	if (file->fil_desc == -1)
@@ -501,7 +501,7 @@ SLONG PIO_max_alloc(DBB dbb)
  **************************************/
 	struct stat statistics;
 	UINT64 length;
-	FIL file;
+	File* file;
 
 	for (file = dbb->dbb_file; file->fil_next; file = file->fil_next);
 
@@ -547,7 +547,7 @@ SLONG PIO_act_alloc(DBB dbb)
  **************************************/
 	struct stat statistics;
 	UINT64 length;
-	FIL file;
+	File* file;
 	ULONG tot_pages = 0;
 
 	/**
@@ -579,7 +579,7 @@ SLONG PIO_act_alloc(DBB dbb)
 }
 
 
-FIL PIO_open(thread_db *tdbb,
+File* PIO_open(thread_db *tdbb,
 			 const TEXT* string,
 			 SSHORT trace_flag,
 			 const TEXT* file_name, 
@@ -660,7 +660,7 @@ FIL PIO_open(thread_db *tdbb,
 }
 
 
-int PIO_read(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
+int PIO_read(File* file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -768,7 +768,7 @@ int PIO_read(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 }
 
 
-int PIO_write(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
+int PIO_write(File* file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -902,7 +902,7 @@ static void close_marker_file(TEXT * marker_filename)
 #endif
 
 
-static FIL find_file(FIL file, Bdb *bdb)
+static File* find_file(File* file, Bdb *bdb)
 {
 /**************************************
  *
@@ -927,7 +927,7 @@ static FIL find_file(FIL file, Bdb *bdb)
 }
 
 
-static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_vector)
+static File* seek_file(File* file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -945,7 +945,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 	ULONG page = bdb->bdb_page;
 
 	if (file->fil_desc == -1)
-		return (FIL)(ULONG) unix_error("lseek", file, isc_io_access_err,
+		return (File*)(ULONG) unix_error("lseek", file, isc_io_access_err,
 								status_vector);
 
 	page -= file->fil_min_page - file->fil_fudge;
@@ -955,7 +955,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 
 #if _FILE_OFFSET_BITS != 64
     if (lseek_offset > MAX_SLONG) 
-        return (FIL)(ULONG) unix_error ("lseek", file, isc_io_32bit_exceeded_err, status_vector);
+        return (File*)(ULONG) unix_error ("lseek", file, isc_io_32bit_exceeded_err, status_vector);
 #endif
 
 #ifdef PREAD_PWRITE
@@ -963,7 +963,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 #else
 
 	if ((lseek(file->fil_desc, LSEEK_OFFSET_CAST lseek_offset, 0)) == (off_t)-1) 
-		return (FIL)(ULONG) unix_error("lseek", file, isc_io_access_err,
+		return (File*)(ULONG) unix_error("lseek", file, isc_io_access_err,
 								status_vector);
 #endif
 
@@ -971,7 +971,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 }
 
 
-static FIL setup_file(thread_db *tdbb, const TEXT* file_name, int desc)
+static File* setup_file(thread_db *tdbb, const TEXT* file_name, int desc)
 {
 /**************************************
  *
@@ -989,7 +989,7 @@ static FIL setup_file(thread_db *tdbb, const TEXT* file_name, int desc)
 	/* Allocate file block and copy file name string */
 
 	int file_length = strlen (file_name);
-	FIL file = FB_NEW_RPT(*dbb->dbb_permanent, file_length + 1) fil();
+	File* file = FB_NEW_RPT(*dbb->dbb_permanent, file_length + 1) File();
 	file->fil_desc = desc;
 	file->fil_length = file_length;
 	file->fil_max_page = -1UL;
@@ -1050,7 +1050,7 @@ static FIL setup_file(thread_db *tdbb, const TEXT* file_name, int desc)
 
 
 static BOOLEAN unix_error(const TEXT * string,
-						  FIL file, 
+						  File* file, 
 						  ISC_STATUS operation, 
 						  ISC_STATUS * status_vector)
 {

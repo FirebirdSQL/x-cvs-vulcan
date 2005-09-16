@@ -52,16 +52,16 @@
 
 /* Temporary workfile directory list. */
 
-typedef struct dls {
+struct DirectoryList {
 	SLONG dls_header;
-	dls* dls_next;
+	DirectoryList* dls_next;
 	ULONG dls_size;				/* Maximum size in the directory */
 	ULONG dls_inuse;			/* Occupied space in the directory */
 	TEXT dls_directory[2];		/* Directory name */
-} *DLS;
+};  //*DLS;
 
 typedef struct mdls {
-	DLS mdls_dls;				/* Pointer to the directory list */
+	DirectoryList *mdls_dls;				/* Pointer to the directory list */
 	//BOOLEAN mdls_mutex_init;
 	SyncObject	syncObject;
 	//MUTX_T mdls_mutex[1];		/* Mutex for directory list. Must be locked before list operations */

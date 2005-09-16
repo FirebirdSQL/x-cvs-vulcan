@@ -70,16 +70,16 @@ typedef ctl *CTL;
 
 /* Blob filter management */
 
-class blf : public pool_alloc<type_blf>
+class BlobFilter : public pool_alloc<type_blf>
 {
     public:
-	blf*		blf_next;					/* Next known filter */
-	SSHORT		blf_from;				/* Source sub-type */
-	SSHORT		blf_to;					/* Target sub-type */
+	BlobFilter*		blf_next;					/* Next known filter */
+	SSHORT			blf_from;				/* Source sub-type */
+	SSHORT			blf_to;					/* Target sub-type */
 	FPTR_BFILTER_CALLBACK	blf_filter;		/* Entrypoint of filter */
-	str*		blf_exception_message;	/* message to be used in case of filter exception */
+	str*			blf_exception_message;	/* message to be used in case of filter exception */
 };
-typedef blf *BLF;
+//typedef blf *BLF;
 
 #define ACTION_open			0
 #define ACTION_get_segment	1

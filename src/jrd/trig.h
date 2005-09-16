@@ -68,16 +68,16 @@ typedef struct trigger_msg
 
 /* generator definition structure */
 
-typedef struct gen
+struct Generator
 {
 	const SCHAR*	gen_name;
 	USHORT			gen_id;
 	const char*     gen_description;
-} GEN;
+}; // GEN;
 
 /* generators needed by the system triggers */
 
-static const gen generators[] =
+static const Generator generators[] =
 {
 	{ "RDB$SECURITY_CLASS", 0, NULL },
 	{ "SQL$DEFAULT", 0, NULL },

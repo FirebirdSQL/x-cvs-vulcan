@@ -87,7 +87,7 @@ static blb* copy_blob(thread_db*, const bid*, bid*);
 static void delete_blob(thread_db*, blb*, ULONG);
 static void delete_blob_id(thread_db*, const bid*, ULONG, Relation*);
 static ArrayField* find_array(Transaction*, const bid*);
-static BLF find_filter(thread_db*, SSHORT, SSHORT);
+static BlobFilter* find_filter(thread_db*, SSHORT, SSHORT);
 static blob_page* get_next_page(thread_db*, blb*, WIN *);
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -217,7 +217,7 @@ blb* BLB_create2(thread_db* tdbb,
 	blob->blb_sub_type = to;
 
 	bool filter_required = false;
-	blf* filter = NULL;
+	BlobFilter* filter = NULL;
 
 	if (to && from != to) 
 		{
@@ -232,7 +232,7 @@ blb* BLB_create2(thread_db* tdbb,
 			to_charset = tdbb->tdbb_attachment->att_charset;
 		if ((to_charset != CS_NONE) && (from_charset != to_charset)) 
 			{
-			filter = FB_NEW(*dbb->dbb_permanent) blf();
+			filter = FB_NEW(*dbb->dbb_permanent) BlobFilter();
 			filter->blf_filter = filter_transliterate_text;
 			filter_required = true;
 			}
@@ -1068,7 +1068,7 @@ blb* BLB_open2(thread_db* tdbb,
 	blob->blb_target_interp = to_charset;
 	blob->blb_source_interp = from_charset;
 
-	blf* filter = NULL;
+	BlobFilter* filter = NULL;
 	bool filter_required = false;
 	
 	if (to && from != to) 
@@ -1086,7 +1086,7 @@ blb* BLB_open2(thread_db* tdbb,
 
 		if ((to_charset != CS_NONE) && (from_charset != to_charset)) 
 			{
-			filter = FB_NEW(*dbb->dbb_permanent) blf();
+			filter = FB_NEW(*dbb->dbb_permanent) BlobFilter();
 			filter->blf_filter = filter_transliterate_text;
 			filter_required = true;
 			}
@@ -2005,7 +2005,7 @@ static ArrayField* find_array(Transaction* transaction, const bid* blob_id)
 }
 
 
-static BLF find_filter(thread_db* tdbb, SSHORT from, SSHORT to)
+static BlobFilter* find_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 {
 /**************************************
  *
@@ -2021,7 +2021,7 @@ static BLF find_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-	blf* cache = dbb->dbb_blob_filters;
+	BlobFilter* cache = dbb->dbb_blob_filters;
 	for (; cache; cache = cache->blf_next) {
 		if (cache->blf_from == from && cache->blf_to == to)
 			return cache;

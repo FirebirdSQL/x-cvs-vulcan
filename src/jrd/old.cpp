@@ -615,7 +615,7 @@ static void old_put_db_filename(OLD OLD_handle)
  **************************************/
 	DBB dbb;
 	JRNF journal;
-	FIL fil;
+	File *fil;
 
 	dbb = GET_DBB;
 

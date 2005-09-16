@@ -199,7 +199,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
  *	Process requests for database info.
  *
  **************************************/
-	FIL file;
+	File *file;
 	UCHAR item, buffer[256], *p;
 	SCHAR site[256];
 	SSHORT length, l;

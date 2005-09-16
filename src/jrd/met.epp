@@ -597,7 +597,7 @@ void MET_delete_shadow(thread_db* tdbb, USHORT shadow_number)
 
 	CMP_release(tdbb, (JRD_REQ)handle);
 
-	for (sdw* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next) {
+	for (Shadow* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next) {
 		if (shadow->sdw_number == shadow_number)
 			shadow->sdw_flags |= SDW_shutdown;
 	}
@@ -989,7 +989,7 @@ void MET_get_shadow_files(thread_db* tdbb, bool deleteVar)
 			   block as found for the purposes of this routine;
 			   if the shadow was conditional and is no longer, note it */
 
-			for (sdw* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next)
+			for (Shadow* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next)
 			{
 				if ((shadow->sdw_number == X.RDB$SHADOW_NUMBER) &&
 					!(shadow->sdw_flags & SDW_IGNORE))
@@ -1008,7 +1008,7 @@ void MET_get_shadow_files(thread_db* tdbb, bool deleteVar)
 /* if any current shadows were not defined in database, mark 
    them to be shutdown since they don't exist anymore */
 
-	for (sdw* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next) {
+	for (Shadow* shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next) {
 		if (!(shadow->sdw_flags & SDW_found))
 			shadow->sdw_flags |= SDW_shutdown;
 		else
@@ -1425,7 +1425,7 @@ int MET_lookup_field(thread_db* tdbb, Relation* relation, const TEXT* name, cons
 }
 
 
-BLF MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
+BlobFilter* MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 {
 /**************************************
  *
@@ -1440,7 +1440,7 @@ BLF MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 	DBB dbb = tdbb->tdbb_database;
 
 	FPTR_BFILTER_CALLBACK filter = NULL;
-	BLF blf_ = NULL;
+	BlobFilter* blobFilter = NULL;
 
 	Request *request = CMP_find_request(tdbb, irq_r_filters, IRQ_REQUESTS);
 
@@ -1457,15 +1457,15 @@ BLF MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 								  ISC_EXT_LIB_PATH_ENV, true);
 		if (filter)
 		{
-			blf_ = FB_NEW(*dbb->dbb_permanent) blf();
-			blf_->blf_next = NULL;
-			blf_->blf_from = from;
-			blf_->blf_to = to;
-			blf_->blf_filter = filter;
+			blobFilter = FB_NEW(*dbb->dbb_permanent) BlobFilter();
+			blobFilter->blf_next = NULL;
+			blobFilter->blf_from = from;
+			blobFilter->blf_to = to;
+			blobFilter->blf_filter = filter;
 			str* exception_msg =
 				FB_NEW_RPT(*dbb->dbb_permanent,  strlen(EXCEPTION_MESSAGE) + strlen(X.RDB$FUNCTION_NAME) + strlen(X.RDB$ENTRYPOINT) +  strlen(X.RDB$MODULE_NAME) + 1) str();
 			sprintf((char*)exception_msg->str_data, EXCEPTION_MESSAGE, X.RDB$FUNCTION_NAME, X.RDB$ENTRYPOINT, X.RDB$MODULE_NAME);
-			blf_->blf_exception_message = exception_msg;
+			blobFilter->blf_exception_message = exception_msg;
 		}
 		
 		MOD module = FLU_lookup_module( X.RDB$MODULE_NAME);
@@ -1499,7 +1499,7 @@ BLF MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 	if (!REQUEST(irq_r_filters))
 		REQUEST(irq_r_filters) = request;
 
-	return blf_;
+	return blobFilter;
 }
 
 
@@ -3459,7 +3459,7 @@ const TEXT* MET_trigger_msg(thread_db* tdbb, const TEXT* name, USHORT number)
 }
 
 
-void MET_update_shadow(thread_db* tdbb, SDW shadow, USHORT file_flags)
+void MET_update_shadow(thread_db* tdbb, Shadow *shadow, USHORT file_flags)
 {
 /**************************************
  *

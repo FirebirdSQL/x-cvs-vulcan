@@ -317,7 +317,7 @@ bool PageCache::writePage(thread_db *tdbb, Bdb* bdb, bool write_thru, bool inAst
 		 !(bdb->bdb_flags & BDB_marked)))
 		 return true;
 	
-	FIL file;
+	File *file;
 	//ISC_STATUS statusVector [20];
 	
 	if (bdb->bdb_flags & BDB_not_valid)
@@ -570,7 +570,7 @@ bool PageCache::setWriteDirection(thread_db *tdbb, Bdb* bdb, int direction)
 	return true;
 }
 
-bool PageCache::rolloverToShadow(thread_db *tdbb, fil* file, bool inAst)
+bool PageCache::rolloverToShadow(thread_db *tdbb, File* file, bool inAst)
 {
 	/* Is the shadow subsystem yet initialized */
 	
@@ -583,15 +583,15 @@ bool PageCache::rolloverToShadow(thread_db *tdbb, fil* file, bool inAst)
 	return SDW_rollover_to_shadow(tdbb, file, inAst);
 }
 
-bool PageCache::writeAllShadows(thread_db *tdbb, sdw* shadow, Bdb* bdb, int checksum, bool inAst)
+bool PageCache::writeAllShadows(thread_db *tdbb, Shadow* shadow, Bdb* bdb, int checksum, bool inAst)
 {
 	SLONG last, *spare_buffer = NULL;
-	FIL next_file, shadow_file;
+	File *next_file, *shadow_file;
 	header_page* header;
 	PAG old_buffer, page;
 	UCHAR *q;
 	ISC_STATUS statusVector [20];
-	SDW sdw = shadow ? shadow : database->dbb_shadow;
+	Shadow *sdw = shadow ? shadow : database->dbb_shadow;
 			
 
 	if (!sdw) 
@@ -1340,7 +1340,7 @@ Bdb* PageCache::getBuffer(thread_db * tdbb, SLONG page, int lock_type)
 {
 	QUE que;
 	Bdb *oldest;
-	PRE precedence;
+	Precedence *precedence;
 	int walk = bcb_free_minimum;
 	LockType lockType = (lock_type == LCK_read) ? Shared : Exclusive;
 	//LatchType latch = (lock_type == LCK_read) ? LATCH_shared : LATCH_exclusive;
@@ -1593,7 +1593,7 @@ Bdb* PageCache::getBuffer(thread_db * tdbb, SLONG page, int lock_type)
 				while (QUE_NOT_EMPTY(bdb->bdb_higher)) 
 					{
 					QUE que2 = bdb->bdb_higher.que_forward;
-					precedence = BLOCK(que2, PRE, pre_higher);
+					precedence = BLOCK(que2, Precedence*, pre_higher);
 					deletePrecedence(precedence);
 					}
 					
@@ -1680,7 +1680,7 @@ void PageCache::clearPrecedence(Bdb* bdb)
 	while (QUE_NOT_EMPTY(bdb->bdb_lower)) 
 		{
 		QUE que = bdb->bdb_lower.que_forward;
-		PRE precedence = BLOCK(que, PRE, pre_lower);
+		Precedence *precedence = BLOCK(que, Precedence*, pre_lower);
 		Bdb *low_bdb = precedence->pre_low;
 		int flags = precedence->pre_flags;
 		deletePrecedence(precedence);
@@ -1728,7 +1728,7 @@ void PageCache::clearPrecedence(Bdb* bdb)
 int PageCache::writeBuffer(thread_db * tdbb, Bdb* bdb, SLONG page, bool write_thru, ISC_STATUS* status, bool write_this_page)
 {
 	QUE que;
-	PRE precedence;
+	Precedence *precedence;
 	Bdb	*hi_bdb;
 	SLONG hi_page;
 	int write_status;
@@ -1769,7 +1769,7 @@ int PageCache::writeBuffer(thread_db * tdbb, Bdb* bdb, SLONG page, bool write_th
 				break;
 
 			que = bdb->bdb_higher.que_forward;
-			precedence = BLOCK(que, PRE, pre_higher);
+			precedence = BLOCK(que, Precedence*, pre_higher);
 			
 			if (precedence->pre_flags & PRE_cleared) 
 				{
@@ -2133,7 +2133,7 @@ bool PageCache::writeable(Bdb* bdblock)
 	for (const que* queue = bdblock->bdb_higher.que_forward;
 		 queue != &bdblock->bdb_higher; queue = queue->que_forward)
 		{
-		const pre* precedence = BLOCK(queue, PRE, pre_higher);
+		const Precedence* precedence = BLOCK(queue, Precedence*, pre_higher);
 		
 		if (!(precedence->pre_flags & PRE_cleared) && !writeable(precedence->pre_hi))
 			return false;
@@ -2286,7 +2286,7 @@ void PageCache::downGrade(thread_db * tdbb, Bdb* bdb)
 
 	for (que = bdb->bdb_higher.que_forward; que != &bdb->bdb_higher; que = que->que_forward)
 		{
-		PRE precedence = BLOCK(que, PRE, pre_higher);
+		Precedence *precedence = BLOCK(que, Precedence*, pre_higher);
 		
 		if (precedence->pre_flags & PRE_cleared)
 			continue;
@@ -2363,7 +2363,7 @@ void PageCache::downGrade(thread_db * tdbb, Bdb* bdb)
 
 	for (que = bdb->bdb_lower.que_forward; que != &bdb->bdb_lower; que = que->que_forward)
 		{
-		PRE precedence = BLOCK(que, PRE, pre_lower);
+		Precedence *precedence = BLOCK(que, Precedence*, pre_lower);
 		Bdb	*blocking_bdb = precedence->pre_low;
 		
 		if (bdb->bdb_flags & BDB_not_valid)
@@ -2751,7 +2751,7 @@ void PageCache::fetchPage(thread_db * tdbb, win* window, int compute_checksum, b
 	AST_CHECK;
 	++database->dbb_reads;
 	PAG page = bdb->bdb_buffer;
-	FIL file = database->dbb_file;
+	File *file = database->dbb_file;
 	retryCount = 0;
 
 	/* We will read a page, and if there is an I/O error we will try to
@@ -3289,7 +3289,7 @@ void PageCache::declarePrecedence(thread_db * tdbb, win* window, SLONG page)
 #ifdef SHARED_CACHE
 	syncPrec.lock(Exclusive);
 #endif
-	PRE precedence = new pre;
+	Precedence *precedence = new Precedence;
 	precedence->pre_low = low;
 	precedence->pre_hi = high;
 	precedence->pre_flags = 0;
@@ -3320,7 +3320,7 @@ int PageCache::related(Bdb* low, Bdb* high, int limit)
 		if (!--limit)
 			return PRE_UNKNOWN;
 			
-		PRE precedence = BLOCK(que, PRE, pre_higher);
+		Precedence *precedence = BLOCK(que, Precedence*, pre_higher);
 		
 		if (!(precedence->pre_flags & PRE_cleared)) 
 			{
@@ -4150,7 +4150,7 @@ void PageCache::requeueRecentlyUsed(void)
 		}
 }
 
-void PageCache::deletePrecedence(pre* precedence)
+void PageCache::deletePrecedence(Precedence* precedence)
 {
 	QUE_DELETE(precedence->pre_higher);
 	QUE_DELETE(precedence->pre_lower);

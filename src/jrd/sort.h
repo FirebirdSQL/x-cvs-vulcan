@@ -25,7 +25,7 @@
 #define JRD_SORT_H
 
 #include "../jrd/common.h"
-#include "../jrd/fil.h"
+//#include "../jrd/fil.h"
 
 #include "../jrd/jrd_blks.h"
 #include "../include/fb_blk.h"
@@ -229,19 +229,22 @@ struct work_file_space
 
 /* Sort work file control block */
 
+struct work_file_space;
+struct DirectoryList;
+
 class sort_work_file
 {
 public:
 	sort_work_file(Database *database);
-	ConfObject* configuration;
-	class sort_work_file* sfb_next;
-	int sfb_file;				/* File descriptor */
-	TEXT *sfb_file_name;		/* ALLOC: File name for deletion */
-	ULONG sfb_file_size;		/* Real size of the work file */
-	struct work_file_space* sfb_file_space;	/* ALLOC: Available space in work file */
-	struct work_file_space* sfb_free_wfs;	/* ALLOC: Free space in work file */
-	DLS sfb_dls;				/* Place where file is created */
-	SortMem* sfb_mem;
+	ConfObject*		configuration;
+	sort_work_file* sfb_next;
+	int				sfb_file;				/* File descriptor */
+	TEXT			*sfb_file_name;		/* ALLOC: File name for deletion */
+	ULONG			sfb_file_size;		/* Real size of the work file */
+	work_file_space* sfb_file_space;	/* ALLOC: Available space in work file */
+	work_file_space* sfb_free_wfs;	/* ALLOC: Free space in work file */
+	DirectoryList	*sfb_dls;				/* Place where file is created */
+	SortMem*		sfb_mem;
 };
 
 /* Sort Context Block */

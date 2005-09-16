@@ -85,7 +85,7 @@ static void add_trigger(TEXT*, BLK*, BLK*);
 //static void add_user_priv(thread_db*, TEXT*, TEXT*, TEXT*, TEXT);
 static int init2_helper(const UCHAR* fld, int n, Relation* relation);
 static void modify_relation_field(thread_db*, const UCHAR*, const UCHAR*, Request**);
-static void store_generator(thread_db*, const gen*, Request **);
+static void store_generator(thread_db*, const Generator*, Request **);
 static void store_global_field(thread_db*, gfld*, Request **);
 static void store_intlnames(thread_db*, Database*);
 static void store_functions(thread_db*, Database*);
@@ -390,7 +390,7 @@ void INI_format(thread_db* tdbb, const TEXT* owner, const TEXT* charset)
 
 	handle1 = NULL;
 	
-	for (const gen* generator = generators; generator->gen_name; generator++)
+	for (const Generator* generator = generators; generator->gen_name; generator++)
 		store_generator(tdbb, generator, &handle1);
 
 	CMP_release(tdbb, handle1);
@@ -1240,7 +1240,7 @@ static void modify_relation_field(thread_db*	tdbb,
 }
 
 
-static void store_generator(thread_db* tdbb, const gen* generator, Request **handle)
+static void store_generator(thread_db* tdbb, const Generator* generator, Request **handle)
 {
 /**************************************
  *

@@ -37,6 +37,7 @@
 #include "../jrd/common.h"
 #include "../jrd/jrd.h"
 #include "../jrd/sort.h"
+#include "../jrd/fil.h"
 #include "../jrd/sort_mem.h"
 #include "gen/iberror.h"
 #include "../jrd/intl.h"

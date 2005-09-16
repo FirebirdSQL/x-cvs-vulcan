@@ -192,18 +192,18 @@ static void get_array_desc(thread_db*, const TEXT*, ads*);
 static void get_procedure_dependencies(thread_db* tdbb, DeferredWork*);
 static void get_trigger_dependencies(thread_db* tdbb, DeferredWork*);
 static void	load_trigs(thread_db*, Relation*, Triggers* *);
-static Format* make_format(thread_db*, Relation*, USHORT *, TFB);
+static Format* make_format(thread_db*, Relation*, USHORT *, TempField*);
 static USHORT name_length(const TEXT*);
 static DeferredWork* post_work(Transaction*, SLONG, DeferredWork* *, enum dfw_t, DSC *, USHORT);
 static void put_summary_blob(thread_db* tdbb, blb*, enum rsr_t, bid*);
 static void put_summary_record(thread_db* tdbb, blb*, enum rsr_t, const UCHAR*, USHORT);
-static void	setup_array(thread_db*, blb*, const TEXT*, USHORT, TFB);
+static void	setup_array(thread_db*, blb*, const TEXT*, USHORT, TempField*);
 static blb*	setup_triggers(thread_db*, Relation*, bool, Triggers**, blb*);
 static void	setup_trigger_details(thread_db*, Relation*, blb*, Triggers**, const TEXT*,
 	const TEXT*, bool);
 //static void	setup_trigger_details(thread_db*, Relation*, blb*, VEC *, UCHAR *, UCHAR *, BOOLEAN);
 static bool shadow_defined(thread_db*);
-static bool validate_text_type (thread_db*, ISC_STATUS *, TFB);
+static bool validate_text_type (thread_db*, ISC_STATUS *, TempField*);
 static bool wal_defined(thread_db*);
 
 static const UCHAR nonnull_validation_blr[] =
@@ -874,7 +874,7 @@ static bool add_shadow( thread_db* tdbb, SSHORT phase, DeferredWork* work, Trans
  **************************************/
 
 	Request *handle;
-	SDW shadow;
+	Shadow *shadow;
 	USHORT sequence, add_sequence;
 	bool finished;
 	ULONG min_page;
@@ -3507,7 +3507,7 @@ static void load_trigs(thread_db* tdbb, Relation* relation, Triggers* * triggers
 }
 
 
-static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version, TFB stack)
+static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version, TempField *stack)
 {
 /**************************************
  *
@@ -3522,7 +3522,7 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 	Request *request;
 	Format*	format;
 	Format* old_format;
-	TFB tfb;
+	TempField *tfb;
 	blb* blob;
 	USHORT count;
 	ULONG offset, old_offset;
@@ -3695,7 +3695,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
  *	While we're in the vicinity, also check the updatability of fields.
  *
  **************************************/
-	TFB external, tfb_;
+	TempField *external, *tempField;
 	USHORT version, n;
 	ISC_STATUS_ARRAY status;
 	SSHORT collation;
@@ -3714,7 +3714,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 		case 3:
 			{
 			Relation *relation = NULL;
-			TFB stack = external = NULL;
+			TempField *stack = external = NULL;
 			BOOLEAN computed_field = FALSE;
 
 			for (n = 0; n < TRIGGER_MAX; n++) 
@@ -3858,9 +3858,9 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 
 						/* Make a temporary field block */
 
-						tfb_ = FB_NEW(*tdbb->tdbb_default) tfb;
-						tfb_->tfb_next = stack;
-						stack = tfb_;
+						tempField = FB_NEW(*tdbb->tdbb_default) TempField;
+						tempField->tfb_next = stack;
+						stack = tempField;
 
 						/* for text data types, grab the CHARACTER_SET and
 						   COLLATION to give the type of international text */
@@ -3876,7 +3876,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 						if (!RFR.RDB$COLLATION_ID.NULL)
 							collation = RFR.RDB$COLLATION_ID;
 
-						DSC_make_descriptor(&tfb_->tfb_desc, FLD.RDB$FIELD_TYPE,
+						DSC_make_descriptor(&tempField->tfb_desc, FLD.RDB$FIELD_TYPE,
 											FLD.RDB$FIELD_SCALE,
 											FLD.RDB$FIELD_LENGTH,
 											FLD.RDB$FIELD_SUB_TYPE,
@@ -3884,7 +3884,7 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 
 						/* Make sure the text type specified is implemented */
 						
-						if (!(validate_text_type(tdbb, status, tfb_)))
+						if (!(validate_text_type(tdbb, status, tempField)))
 							{
 							//EXE_unwind(tdbb, request_fmt1);
 							request_fmt1->unwind();
@@ -3900,24 +3900,24 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 						// dimitr: view fields shoudn't be marked as computed
 						
 						if (null_view && !FLD.RDB$COMPUTED_BLR.isEmpty())
-							tfb_->tfb_flags |= TFB_computed;
+							tempField->tfb_flags |= TFB_computed;
 
-						tfb_->tfb_id = RFR.RDB$FIELD_ID;
+						tempField->tfb_id = RFR.RDB$FIELD_ID;
 
 						if ((n = FLD.RDB$DIMENSIONS))
-							setup_array(tdbb, blob, FLD.RDB$FIELD_NAME, n, tfb_);
+							setup_array(tdbb, blob, FLD.RDB$FIELD_NAME, n, tempField);
 
 						if (external_flag)
 							{
-							tfb_ = FB_NEW(*tdbb->tdbb_default) tfb;
-							tfb_->tfb_next = external;
-							external = tfb_;
+							tempField = FB_NEW(*tdbb->tdbb_default) TempField;
+							tempField->tfb_next = external;
+							external = tempField;
 							fb_assert(FLD.RDB$EXTERNAL_TYPE <= MAX_UCHAR);
-							tfb_->tfb_desc.dsc_dtype = (UCHAR)FLD.RDB$EXTERNAL_TYPE;
+							tempField->tfb_desc.dsc_dtype = (UCHAR)FLD.RDB$EXTERNAL_TYPE;
 							fb_assert(FLD.RDB$EXTERNAL_SCALE >= MIN_SCHAR && FLD.RDB$EXTERNAL_SCALE <= MAX_SCHAR);
-							tfb_->tfb_desc.dsc_scale = (SCHAR)FLD.RDB$EXTERNAL_SCALE;
-							tfb_->tfb_desc.dsc_length = FLD.RDB$EXTERNAL_LENGTH;
-							tfb_->tfb_id = RFR.RDB$FIELD_ID;
+							tempField->tfb_desc.dsc_scale = (SCHAR)FLD.RDB$EXTERNAL_SCALE;
+							tempField->tfb_desc.dsc_length = FLD.RDB$EXTERNAL_LENGTH;
+							tempField->tfb_id = RFR.RDB$FIELD_ID;
 							}
 					END_FOR;
 
@@ -4439,7 +4439,7 @@ static bool shadow_defined(thread_db* tdbb)
 }
 
 
-static void setup_array(thread_db* tdbb, blb* blob, const TEXT* field_name, USHORT n, TFB tfb)
+static void setup_array(thread_db* tdbb, blb* blob, const TEXT* field_name, USHORT n, TempField *tfb)
 {
 /**************************************
  *
@@ -4619,7 +4619,7 @@ static void setup_trigger_details(thread_db* tdbb,
 }	
 
 
-static bool validate_text_type(thread_db* tdbb, ISC_STATUS * status, TFB tfb)
+static bool validate_text_type(thread_db* tdbb, ISC_STATUS * status, TempField *tfb)
 {
 /**************************************
  *

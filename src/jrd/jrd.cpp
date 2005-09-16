@@ -340,7 +340,7 @@ static ISC_STATUS	check_database(thread_db*, Attachment*, ISC_STATUS*);
 static void		cleanup(void*);
 static ISC_STATUS	commit(ISC_STATUS*, Transaction**, const bool);
 static STR		copy_string(const TEXT*, int);
-static bool		drop_files(const fil*);
+static bool		drop_files(const File*);
 static ISC_STATUS	error(OSRIException *exception, ISC_STATUS*);
 static void		find_intl_charset(thread_db*, Attachment*, const DPB*);
 static Transaction* find_transaction(thread_db*, Transaction*, ISC_STATUS);
@@ -1734,7 +1734,7 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 			attachment->authenticateUser(threadData, dpb_length, dpb);
 			
 		dbb->dbb_file = PIO_create(threadData, expandedName, expandedName.length(), options.dpb_overwrite, dbb->fileShared);
-		const fil* first_dbb_file = dbb->dbb_file;
+		const File* first_dbb_file = dbb->dbb_file;
 		
 		if (options.dpb_set_page_buffers)
 			dbb->dbb_page_buffers = options.dpb_page_buffers;
@@ -2232,8 +2232,8 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 		dbb->dbb_flags |= DBB_not_in_use;
 		*handle = NULL;
 
-		const fil* file = dbb->dbb_file;
-		const sdw* shadow = dbb->dbb_shadow;
+		const File* file = dbb->dbb_file;
+		const Shadow* shadow = dbb->dbb_shadow;
 
 #ifdef GOVERNOR
 		if (JRD_max_users) 
@@ -4612,7 +4612,7 @@ static STR copy_string(const TEXT* ptr, int length)
 }
 
 
-static bool drop_files(const fil* file)
+static bool drop_files(const File* file)
 {
 /**************************************
  *
@@ -5831,7 +5831,7 @@ TEXT* JRD_num_attachments(TEXT* const buf, USHORT buf_len, USHORT flag,
 	for (DBB dbb = databases; dbb; dbb = dbb->dbb_next) 
 		{
 #ifdef WIN_NT
-		struct fil* files;
+		File* files;
 		struct dls* dirs;
 		struct scb* scb;
 		struct sfb* sfb;

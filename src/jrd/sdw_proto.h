@@ -24,6 +24,9 @@
 #ifndef JRD_SDW_PROTO_H
 #define JRD_SDW_PROTO_H
 
+class Shadow;
+class File;
+
 void	SDW_add(thread_db*, TEXT*, USHORT, USHORT);
 int		SDW_add_file(thread_db*, TEXT*, SLONG, USHORT);
 void	SDW_check(thread_db*);
@@ -34,8 +37,8 @@ void	SDW_get_shadows(thread_db*);
 void	SDW_init(thread_db*, bool, bool, PageBitmap*);
 BOOLEAN	SDW_lck_update(DBB dbb, SLONG);
 void	SDW_notify(thread_db*);
-bool	SDW_rollover_to_shadow(thread_db*, struct fil*, const bool);
-void	SDW_shutdown_shadow(DBB dbb, class sdw*);
+bool	SDW_rollover_to_shadow(thread_db*, File*, const bool);
+void	SDW_shutdown_shadow(DBB dbb, Shadow*);
 void	SDW_start(thread_db*, const TEXT*, USHORT, USHORT, bool);
 int		SDW_start_shadowing(void* ast_object);
 

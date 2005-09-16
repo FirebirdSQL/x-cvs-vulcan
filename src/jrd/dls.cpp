@@ -29,6 +29,7 @@
 #include <string.h>
 //#include <stdlib.h>
 #include "../jrd/sort.h"
+#include "../jrd/fil.h"
 #include "../jrd/dls_proto.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/gdsassert.h"
@@ -158,11 +159,11 @@ BOOLEAN API_ROUTINE DLS_add_dir(ULONG size, const TEXT * dir_name)
  **************************************/
 
 	MDLS *mdls;
-	DLS new_dls;
+	DirectoryList *new_dls;
 
 /* allocate dls structure */
 
-	new_dls = (DLS) gds__alloc((SLONG) (sizeof(dls) +
+	new_dls = (DirectoryList*) gds__alloc((SLONG) (sizeof(DirectoryList) +
 										sizeof(TEXT) * strlen(dir_name)));
 	if (!new_dls)
 		return FALSE;
@@ -196,7 +197,7 @@ BOOLEAN API_ROUTINE DLS_add_dir(ULONG size, const TEXT * dir_name)
 		}
 	else 
 		{
-		DLS dls_iterator = mdls->mdls_dls;
+		DirectoryList *dls_iterator = mdls->mdls_dls;
 		while (dls_iterator->dls_next)
 			dls_iterator = dls_iterator->dls_next;
 		dls_iterator->dls_next = new_dls;

@@ -366,14 +366,14 @@ typedef struct smb {
 
 /* Lock manager history block */
 
-typedef struct his {
+struct LockHistory {
 	UCHAR his_type;				/* memory tag - always type_his */
 	UCHAR his_operation;		/* operation that occured */
 	PTR his_next;				/* PTR to next item in history list */
 	PTR his_process;			/* owner to record for this operation */
 	PTR his_lock;				/* lock to record for operation */
 	PTR his_request;			/* request to record for operation */
-} *HIS;
+}; // *HIS;
 
 /* his_operation definitions */
 #define his_enq         1

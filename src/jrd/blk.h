@@ -49,7 +49,7 @@ BLKDEF(type_rec, Record, 1)	/* record parameter */
 BLKDEF(type_rsb, RecordSource, sizeof(((RecordSource*) NULL)->rsb_arg[0]))	/* Done record source */
 BLKDEF(type_bms, bms, 0)	/* bit map segment */
 BLKDEF(type_dfw, DeferredWork, 1)	/* deferred work block */
-BLKDEF(type_tfb, tfb, 0)	/* temporary field block */
+BLKDEF(type_tfb, TempField, 0)	/* temporary field block */
 BLKDEF(type_str, str, 1)	/* random string block */
 BLKDEF(type_dcc, Dcc, 0)	/* data compression control */
 BLKDEF(type_sbm, SparseBitmap, sizeof(((SparseBitmap*) NULL)->sbm_segments[0]))	/* done sparse bit map */

@@ -75,6 +75,7 @@ public:
 typedef firebird::BePlusTree<AllocItem, ULONG, MemoryPool, AllocItem> AllocItemTree;
 
 class Database;
+class File;
 struct thread_db;
 
 class BackupManager {
@@ -153,7 +154,7 @@ public:
 #endif
 private:
 	 Database* database;
-	class fil* diff_file;
+	File* diff_file;
 	AllocItemTree* alloc_table; // Cached allocation table of pages in difference file
 	volatile SATOM backup_state;
 	ULONG last_allocated_page; // Last physical page allocated in the difference file
