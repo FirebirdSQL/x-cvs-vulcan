@@ -1,3 +1,71 @@
+2005-09-15 22:19  jimstarkey
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Picked up ExecStatement
+
+2005-09-15 22:14  jimstarkey
+
+	* vulcan/src/jrd/RsbMerge.cpp:
+	
+	Got beast to compile on Redhat 7.2
+
+2005-09-15 21:30  jimstarkey
+
+	* vulcan/src/jrd/Stack.h:
+	
+	Eliminated unnecessary ::
+
+2005-09-15 21:15  jimstarkey
+
+	* vulcan/src/: include/fb_blk.h, jrd/isc_sync.cpp, jrd/tdbb.h,
+	jrd/thd.h:
+	
+	Fix compilation on gcc 3.4.4
+
+2005-09-15 21:06  jimstarkey
+
+	* vulcan/src/jrd/: ExecStatement.cpp, ExecStatement.h:
+	
+	Added new files
+
+2005-09-15 20:57  jimstarkey
+
+	* vulcan/src/: include/fb_blk.h, jrd/old_vector.h:
+	
+	More include file unscrambling
+
+2005-09-15 19:56  jimstarkey
+
+	* vulcan/src/jrd/: Interlock.h, ProcManager.cpp, all.h,
+	blb_proto.h, isc_sync.cpp, lck.h, mov_proto.h, opt_proto.h,
+	rpb_chain.h, rse.h, rse_proto.h:
+	
+	Trying to unscramble include files
+
+2005-09-15 18:55  jimstarkey
+
+	* vulcan/src/jrd/: Attachment.cpp, all.h, lck.h, req.h,
+	blrtable/blrtable.vcproj:
+	
+	Unscramble include files
+
+2005-09-15 18:33  jimstarkey
+
+	* vulcan/src/: dsql/pass1.cpp, include/gen/blrtable.h,
+	jrd/InternalStatement.cpp, jrd/Request.cpp, jrd/Request.h,
+	jrd/blrtable.cpp, jrd/cmp.cpp, jrd/cvt.cpp, jrd/dls_proto.h,
+	jrd/dsc.h, jrd/exe.cpp, jrd/jrd.vcproj, jrd/par.cpp:
+	
+	Untangle include files, specifically dls_proto.h.  Also work in
+	progress on execute statement.
+
+2005-09-15 17:54  jimstarkey
+
+	* vulcan/src/Services/gen.proto:
+	
+	Adding missing file.
+
 2005-09-13 22:39  jimstarkey
 
 	* vulcan/src/: burp/backup.boot, burp/restore.boot,
