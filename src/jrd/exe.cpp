@@ -2276,7 +2276,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 					
 				node = node->nod_parent;
 				break;
-#endif NOT_YET_IMPLEMENTED
+#endif //NOT_YET_IMPLEMENTED
 
 			case nod_exec_into: 
 				{

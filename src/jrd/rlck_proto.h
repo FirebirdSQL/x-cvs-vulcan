@@ -25,7 +25,7 @@
 #define JRD_RLCK_PROTO_H
 
 class Lock;
-blk;
+struct blk;
 
 #ifdef PC_ENGINE
 Lock *RLCK_lock_record(thread_db* tdbb, struct rpb *, USHORT, int (*)(), blk *);
