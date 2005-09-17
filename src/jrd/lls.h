@@ -24,8 +24,8 @@
 #ifndef JRD_LLS_H
 #define JRD_LLS_H
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
 #include "Stack.h"
 
 class Record;

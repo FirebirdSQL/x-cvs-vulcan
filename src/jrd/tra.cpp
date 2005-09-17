@@ -45,6 +45,7 @@
 #include "../jrd/exe.h"
 #include "../jrd/rse.h"
 #include "../jrd/jrd_pwd.h"
+#include "../jrd/blb.h"
 #include "../jrd/all_proto.h"
 #include "../jrd/blb_proto.h"
 #include "../jrd/cch_proto.h"
@@ -824,7 +825,7 @@ void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* res
 
 			if (!tra_rsc) 
 				{
-				Resource* new_rsc = FB_NEW(*tdbb->tdbb_default) Resource();
+				Resource* new_rsc = FB_NEW(*tdbb->tdbb_default) Resource;
 				new_rsc->rsc_next = transaction->tra_resources;
 				transaction->tra_resources = new_rsc;
 				new_rsc->rsc_id = rsc->rsc_id;

@@ -124,7 +124,6 @@ class Transaction;
 class Request;
 class str;
 class BlockingThread;	/* Attachments waiting for update */
-//class BlockingThread;	/* Unused btb blocks */
 class map;	/* mapping of blobs for REPLAY */
 class Symbol;
 class log;

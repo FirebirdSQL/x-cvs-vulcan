@@ -1227,7 +1227,7 @@ void PAG_init(thread_db* tdbb)
  **************************************/
  
 	Database* dbb = tdbb->tdbb_database;
-	PageControl* control = dbb->dbb_pcontrol = FB_NEW(*dbb->dbb_permanent) PageControl();
+	PageControl* control = dbb->dbb_pcontrol = FB_NEW(*dbb->dbb_permanent) PageControl;
 	control->pgc_bytes = dbb->dbb_page_size - OFFSETA(page_inv_page*, pip_bits);
 	control->pgc_ppp = control->pgc_bytes * 8;
 	control->pgc_tpt = (dbb->dbb_page_size - OFFSETA(tx_inv_page*, tip_transactions)) * 4;

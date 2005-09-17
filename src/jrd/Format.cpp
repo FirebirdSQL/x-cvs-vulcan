@@ -1,7 +1,7 @@
 /*
- *	PROGRAM:	JRD Access Method
- *	MODULE:		sqz_proto.h
- *	DESCRIPTION:	Prototype header file for sqz.cpp
+ *	PROGRAM:	JRD access method
+ *	MODULE:		Format.cpp
+ *	DESCRIPTION:	Definitions associated with Format class
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -19,22 +19,30 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
+ *
+ * 2002.10.29 Sean Leyne - Removed obsolete "Netware" port
+ *
+ * 2002.10.30 Sean Leyne - Removed support for obsolete "PC_PLATFORM" define
+ *
  */
 
-#ifndef JRD_SQZ_PROTO_H
-#define JRD_SQZ_PROTO_H
+#include <memory.h>
+#include "firebird.h"
+#include "common.h"
+#include "Format.h"
 
-class Record;
-class Decompress;
+Format::Format(MemoryPool& p, int len) : fmt_desc(len, p, type_fmt)
+{
+	fmt_length = 0;
+	fmt_count = len;
+	fmt_version = 0;
+}
 
-USHORT	SQZ_apply_differences(Record*, SCHAR*, SCHAR*);
-USHORT	SQZ_compress(Decompress*, const SCHAR*, SCHAR*, int);
-USHORT	SQZ_compress_length(Decompress*, SCHAR*, int);
-SCHAR*	SQZ_decompress(const SCHAR*, USHORT, SCHAR*, const SCHAR*);
-USHORT	SQZ_differences(SCHAR*, USHORT, SCHAR*, USHORT, SCHAR*, int);
-USHORT	SQZ_no_differences(SCHAR*, int);
-void	SQZ_fast(Decompress*, SCHAR*, SCHAR*);
-USHORT	SQZ_length(thread_db*, SCHAR*, int, Decompress*);
+Format::~Format(void)
+{
+}
 
-#endif // JRD_SQZ_PROTO_H
-
+Format* Format::newFmt(MemoryPool& p, int len)
+{ 
+	return FB_NEW(p) Format(p, len); 
+}

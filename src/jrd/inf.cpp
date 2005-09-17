@@ -63,6 +63,7 @@
 #include "../jrd/err_proto.h"
 #include "PageCache.h"
 #include "Sync.h"
+#include "Format.h"
 
 using namespace NAMESPACE;
 

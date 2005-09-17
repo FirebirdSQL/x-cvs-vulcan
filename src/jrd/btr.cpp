@@ -70,6 +70,7 @@
 #include "OSRIException.h"
 #include "PageCache.h"
 #include "Bdb.h"
+#include "Format.h"
 
 #define JUMP_TABLE
 
@@ -183,7 +184,7 @@ static void copy_key(const temporary_key*, temporary_key*);
 static CONTENTS delete_node(thread_db*, WIN*, UCHAR* );
 static void delete_tree(thread_db*, USHORT, USHORT, SLONG, SLONG);
 static dsc* eval(thread_db*, JRD_NOD, dsc*, bool*);
-static SLONG fast_load(thread_db*, Relation*, Transaction*, index_desc*, USHORT, sort_context*, 
+static SLONG fast_load(thread_db*, Relation*, Transaction*, index_desc*, USHORT, SortContext*, 
 					   SelectivityList&);
 
 static index_root_page* fetch_root(thread_db*, WIN*, Relation*);
@@ -260,7 +261,7 @@ void BTR_create(thread_db* tdbb,
 				Transaction* transaction,
 				index_desc* idx,
 				USHORT key_length,
-				sort_context* sort_handle,
+				SortContext* sort_handle,
 				SelectivityList& selectivity)
 {
 /**************************************
@@ -2872,7 +2873,7 @@ static SLONG fast_load(thread_db* tdbb,
 					   Transaction* transaction,
 					   index_desc* idx,
 					   USHORT key_length,
-					   sort_context* sort_handle,
+					   SortContext* sort_handle,
 					   SelectivityList& selectivity)
 {
 /**************************************
@@ -3695,17 +3696,16 @@ static index_root_page* fetch_root(thread_db* tdbb, WIN*  window, Relation* rela
  *	and return no indices.
  *
  **************************************/
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
-	if ((window->win_page = relation->rel_index_root) == 0) {
-		if (relation->rel_id == 0) {
+	if ((window->win_page = relation->rel_index_root) == 0) 
+		if (relation->rel_id == 0) 
 			return NULL;
-		}
-		else {
+		else 
+			{
 			DPM_scan_pages(tdbb);
 			window->win_page = relation->rel_index_root;
-		}
-	}
+			}
 
 	return (index_root_page*) CCH_FETCH(tdbb, window, LCK_read, pag_root);
 }

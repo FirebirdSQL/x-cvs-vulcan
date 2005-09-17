@@ -933,7 +933,7 @@ static void close_merge(thread_db* tdbb, RecordSource* rsb, IRSB_MRG impure)
 		   if one exists. */
 
 		merge_file* mfb = &tail->irsb_mrg_file;
-		sort_work_file* sfb = mfb->mfb_sfb;
+		SortWorkFile* sfb = mfb->mfb_sfb;
 		if (sfb) {
 			if (sfb->sfb_file_name) {
 				close(sfb->sfb_file);
@@ -3154,7 +3154,7 @@ static void open_sort(thread_db* tdbb, RecordSource* rsb, IRSB_SORT impure, UINT
 	// Initialize for sort. If this is really a project operation,
 	// establish a callback routine to reject duplicate records.
 
-	sort_context* handle = SORT_init(tdbb,
+	SortContext* handle = SORT_init(tdbb,
 						   map->smb_length,
 						   map->smb_keys,
 						   map->smb_keys,
@@ -3796,11 +3796,11 @@ static void write_merge_block(thread_db* tdbb, merge_file* mfb, ULONG block)
  *	the file doesn't exist, by all means, create one.
  *
  **************************************/
-	sort_work_file* sfb_ = mfb->mfb_sfb;
+	SortWorkFile* sfb_ = mfb->mfb_sfb;
 	
 	if (!sfb_) 
 		{
-		sfb_ = mfb->mfb_sfb = FB_NEW(*getDefaultMemoryPool()) sort_work_file (tdbb->tdbb_database);
+		sfb_ = mfb->mfb_sfb = FB_NEW(*getDefaultMemoryPool()) SortWorkFile (tdbb->tdbb_database);
 		//memset(sfb_, 0, sizeof(struct sfb));
 		}
 		

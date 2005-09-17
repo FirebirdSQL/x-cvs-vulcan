@@ -103,6 +103,7 @@
 #include "../jrd/OSRIException.h"
 #include "../jrd/Procedure.h"
 #include "../jrd/Triggers.h"
+#include "Format.h"
 
 #include "../jrd/ExecStatement.h"
 #include "../jrd/rpb_chain.h"
@@ -1212,14 +1213,12 @@ static void execute_looper(
  *	looper with the save point mechanism.
  *
  **************************************/
-	DBB dbb;
 
-	DEV_BLKCHK(request, type_req);
+	//DEV_BLKCHK(request, type_req);
+	//SET_TDBB(tdbb);
+	DBB dbb = tdbb->tdbb_database;
 
-	SET_TDBB(tdbb);
-	dbb = tdbb->tdbb_database;
-
-/* Start a save point */
+	/* Start a save point */
 
 	if (!(request->req_flags & req_proc_fetch) && request->req_transaction)
 		if (transaction && (transaction != dbb->dbb_sys_trans))
@@ -1230,16 +1229,13 @@ static void execute_looper(
 
 	looper(tdbb, request, request->req_next);
 
-/* If any requested modify/delete/insert ops have completed, forget them */
+	/* If any requested modify/delete/insert ops have completed, forget them */
 
 	if (!(request->req_flags & req_proc_fetch) && request->req_transaction)
 		if (transaction && (transaction != dbb->dbb_sys_trans) &&
-			transaction->tra_save_point &&
-			!transaction->tra_save_point->sav_verb_count) {
-			/* Forget about any undo for this verb */
-
-			VIO_verb_cleanup(tdbb, transaction);
-		}
+			 transaction->tra_save_point &&
+			 !transaction->tra_save_point->sav_verb_count) 
+			VIO_verb_cleanup(tdbb, transaction); //Forget about any undo for this verb 
 }
 
 #ifdef TOTALLY_BROKEN	/* this needs to be rewritten with the DSQL */

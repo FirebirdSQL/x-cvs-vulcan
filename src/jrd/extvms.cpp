@@ -164,7 +164,7 @@ EXT EXT_file(tdbb *tdbb, REL relation, TEXT * file_name, SLONG * description)
    format. */
 
 	l = strlen(file_name);
-	relation->rel_file = file = FB_NEW_RPT(dbb->dbb_permanent, l) ext();
+	relation->rel_file = file = FB_NEW_RPT(dbb->dbb_permanent, l) ExternalFile();
 	strcpy(file->ext_filename, file_name);
 	//format = file->ext_format = MET_format(tdbb, relation, 0);
 	format = file->ext_format = relation->getFormat(tdbb, 0);

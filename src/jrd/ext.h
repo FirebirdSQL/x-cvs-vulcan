@@ -24,14 +24,17 @@
 #ifndef JRD_EXT_H
 #define JRD_EXT_H
 
+class Format;
+
 /* External file access block */
 
-class ext : public pool_alloc_rpt<SCHAR, type_ext>
+class ExternalFile : public pool_alloc_rpt<SCHAR, type_ext>
 {
     public:
-	class Format* ext_format;	/* External format */
-	UCHAR *ext_stuff;			/* Random stuff */
-	USHORT ext_flags;			/* Misc and cruddy flags */
+	Format		*ext_format;	/* External format */
+	UCHAR		*ext_stuff;		/* Random stuff */
+	USHORT		ext_flags;		/* Misc and cruddy flags */
+	
 #ifdef VMS
 	int ext_ifi;				/* Internal file identifier */
 	int ext_isi;				/* Internal stream (default) */
@@ -39,14 +42,15 @@ class ext : public pool_alloc_rpt<SCHAR, type_ext>
 	int *ext_ifi;				/* Internal file identifier */
 	int *ext_isi;				/* Internal stream (default) */
 #endif
-	USHORT ext_record_length;	/* Record length */
-	USHORT ext_file_type;		/* File type */
-	USHORT ext_index_count;		/* Number of indices */
-	UCHAR *ext_indices;			/* Index descriptions */
-	UCHAR ext_dbkey[8];			/* DBKEY */
-	UCHAR ext_filename[1];
+
+	USHORT		ext_record_length;	/* Record length */
+	USHORT		ext_file_type;		/* File type */
+	USHORT		ext_index_count;		/* Number of indices */
+	UCHAR		*ext_indices;			/* Index descriptions */
+	UCHAR		ext_dbkey[8];			/* DBKEY */
+	UCHAR		ext_filename[1];
 };
-typedef ext *EXT;
+//typedef ext *EXT;
 
 #define EXT_opened	1			/* File has been opened */
 #define EXT_eof		2			/* Positioned at EOF */

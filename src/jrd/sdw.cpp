@@ -1181,28 +1181,27 @@ static Shadow *allocate_shadow(DBB dbb,
  **************************************/
 	Shadow *shadow, **pShadow;
 
-	shadow = FB_NEW(*dbb->dbb_permanent) Shadow();
+	shadow = FB_NEW(*dbb->dbb_permanent) Shadow;
 	shadow->sdw_file = shadow_file;
 	shadow->sdw_number = shadow_number;
+	
 	if (file_flags & FILE_manual)
 		shadow->sdw_flags |= SDW_manual;
+		
 	if (file_flags & FILE_conditional)
 		shadow->sdw_flags |= SDW_conditional;
 
-/* Link the new shadow into the list of shadows according to
- * shadow number position.  This is so we will activate
- * conditional shadows in the order specified by shadow number.
- * Note that the shadow number may not be unique in this list
- * - as could happen when shadow X is dropped, and then X is
- * recreated.
- */
+	/* Link the new shadow into the list of shadows according to
+	 * shadow number position.  This is so we will activate
+	 * conditional shadows in the order specified by shadow number.
+	 * Note that the shadow number may not be unique in this list
+	 * - as could happen when shadow X is dropped, and then X is
+	 * recreated.
+	 */
 
-	for (pShadow = &dbb->dbb_shadow; *pShadow;
-		 pShadow = &((*pShadow)->sdw_next))
-	{
+	for (pShadow = &dbb->dbb_shadow; *pShadow; pShadow = &((*pShadow)->sdw_next))
 		if ((*pShadow)->sdw_number >=shadow_number)
 			break;
-	}
 
 	shadow->sdw_next = *pShadow;
 	*pShadow = shadow;

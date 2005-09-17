@@ -32,7 +32,7 @@
 #include "../jrd/jrd_blks.h"
 #include "../include/fb_blk.h"
 
-#include "../jrd/err_proto.h"    /* Index error types */
+//#include "../jrd/err_proto.h"    /* Index error types */
 #include "../jrd/RecordNumber.h"
 #include "../jrd/sbm.h"
 
@@ -118,14 +118,17 @@ const int idx_marker		= 128;	/* marker used in procedure sort_indices */
 
 /* Index insertion block -- parameter block for index insertions */
 
+class Transaction;
+struct temporary_key;
+
 struct index_insertion {
-	RecordNumber iib_number;			/* record number (or lower level page) */
-	SLONG iib_sibling;					/* right sibling page */
-	index_desc* iib_descriptor;			/* index descriptor */
-	Relation* iib_relation;				/* relation block */
-	struct temporary_key* iib_key;		/* varying string for insertion */
-	RecordBitmap* iib_duplicates;		/* spare bit map of duplicates */
-	class Transaction* iib_transaction;	/* insertion transaction */
+	RecordNumber	iib_number;			/* record number (or lower level page) */
+	SLONG			iib_sibling;					/* right sibling page */
+	index_desc*		iib_descriptor;			/* index descriptor */
+	Relation*		iib_relation;				/* relation block */
+	temporary_key*	iib_key;		/* varying string for insertion */
+	RecordBitmap*	iib_duplicates;		/* spare bit map of duplicates */
+	Transaction*	iib_transaction;	/* insertion transaction */
 };
 
 

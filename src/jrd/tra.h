@@ -260,8 +260,8 @@ typedef firebird::BePlusTree<UndoItem, SLONG, MemoryPool, UndoItem> UndoItemTree
 
 class VerbAction : public pool_alloc<type_vct>
 {
-    public:
-	struct VerbAction* vct_next;		/* Next action within verb */
+public:
+	VerbAction* vct_next;		/* Next action within verb */
 	Relation* vct_relation;				/* Relation involved */
 	RecordBitmap* vct_records;			/* Record involved */
 	UndoItemTree* vct_undo;				/* Data for undo records */

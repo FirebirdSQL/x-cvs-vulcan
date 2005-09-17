@@ -74,6 +74,7 @@ $Id$
 #include "../jrd/dsc_proto.h"
 #include "PageCache.h"
 #include "Sync.h"
+#include "Format.h"
 
 #define MAX_BLOB_SEGMENT	65535
 #define STREAM				(blob->blb_flags & BLB_stream)
@@ -232,7 +233,7 @@ blb* BLB_create2(thread_db* tdbb,
 			to_charset = tdbb->tdbb_attachment->att_charset;
 		if ((to_charset != CS_NONE) && (from_charset != to_charset)) 
 			{
-			filter = FB_NEW(*dbb->dbb_permanent) BlobFilter();
+			filter = FB_NEW(*dbb->dbb_permanent) BlobFilter;
 			filter->blf_filter = filter_transliterate_text;
 			filter_required = true;
 			}
@@ -1086,7 +1087,7 @@ blb* BLB_open2(thread_db* tdbb,
 
 		if ((to_charset != CS_NONE) && (from_charset != to_charset)) 
 			{
-			filter = FB_NEW(*dbb->dbb_permanent) BlobFilter();
+			filter = FB_NEW(*dbb->dbb_permanent) BlobFilter;
 			filter->blf_filter = filter_transliterate_text;
 			filter_required = true;
 			}
@@ -1418,7 +1419,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 	/* Make sure relation is scanned */
 	MET_scan_relation(tdbb, relation);
 
-	jrd_fld* field;
+	Field* field;
 
 	if (n < 0 || !(field = MET_get_field(relation, n))) 
 		IBERROR(197);			/* msg 197 field for array not known */
@@ -1769,7 +1770,7 @@ static ISC_STATUS blob_filter(	USHORT	action,
 
 	case ACTION_alloc:
 	    // pointer to ISC_STATUS!!!
-		return (ISC_STATUS) FB_NEW(*transaction->tra_pool) ctl();
+		return (ISC_STATUS) FB_NEW(*transaction->tra_pool) ctl;
 
 	case ACTION_free:
 		delete control;

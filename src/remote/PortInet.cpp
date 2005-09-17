@@ -1393,7 +1393,7 @@ int PortInet::selectWait(slct* selct)
 #endif
 			else 
 				{
-				THREAD_ENTER;
+				//THREAD_ENTER;
 				sprintf(msg, "INET/select_wait: select failed, errno = %d",
 						ERRNO);
 				gds__log(msg, 0);
@@ -1401,7 +1401,7 @@ int PortInet::selectWait(slct* selct)
 				}
 			}	// for (;;)
 
-		THREAD_ENTER;
+		//THREAD_ENTER;
 		}
 }
 
@@ -2880,7 +2880,7 @@ static in_addr get_host_address(const TEXT* name)
 			inet_copy(host->h_addr, (SCHAR*) &address, sizeof(address));
 		}
 
-	THREAD_ENTER;
+	//THREAD_ENTER;
 
 	return address;
 }

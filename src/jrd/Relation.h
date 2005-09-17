@@ -39,7 +39,7 @@
 #include "JString.h"
 #include "SyncObject.h"
 #include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../include/fb_blk.h"
 #include "../include/fb_vector.h"
 #include "SIVector.h"
 #include "SVector.h"
@@ -76,7 +76,7 @@ class Format;
 class RecordSelExpr;
 class vcl;
 class ViewContext;
-class ext;
+class ExternalFile;
 class Lock;
 class dsql_rel;
 
@@ -84,14 +84,14 @@ struct thread_db;
 
 typedef firebird::vector<Trigger> TriggerVector;
 
-struct prim {
+struct PrimaryKeyDependency {
 	vec* prim_reference_ids;
 	vec* prim_relations;
 	vec* prim_indexes;
-	prim(void);
+	PrimaryKeyDependency(void);
 };
 
-typedef prim *PRIM;
+//typedef prim *PRIM;
 
 /* Foreign references to other relations' primary/unique keys */
 
@@ -134,7 +134,7 @@ public:
 	ViewContext*	rel_view_contexts;		/* linked list of view contexts */
 
 	TEXT			*rel_security_name;		/* pointer to security class name for relation */
-	ext				*rel_file;				/* external file name */
+	ExternalFile	*rel_file;				/* external file name */
 	SLONG			rel_index_root;			/* index root page number */
 	SLONG			rel_data_pages;			/* count of relation data pages */
 
@@ -168,7 +168,7 @@ public:
 	Triggers		*rel_post_modify;	/* Post-operation modify trigger */
 	Triggers		*rel_pre_store;		/* Pre-operation store trigger */
 	Triggers		*rel_post_store;	/* Post-operation store trigger */
-	prim			rel_primary_dpnds;	/* foreign dependencies on this relation's primary key */
+	PrimaryKeyDependency	rel_primary_dpnds;	/* foreign dependencies on this relation's primary key */
 	frgn			rel_foreign_refs;	/* foreign references to other relations' primary keys */
 	dsql_rel		*dsqlRelation;
 	

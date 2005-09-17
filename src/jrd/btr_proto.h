@@ -25,13 +25,18 @@
 #define _JRD_BTR_PROTO_H_
 
 #include "../jrd/btr.h"
-#include "../jrd/ods.h"
-#include "../jrd/req.h"
+//#include "../jrd/ods.h"
+//#include "../jrd/req.h"
 
 class Transaction;
+struct IndexDescAlloc;
+struct index_desc;
+struct index_root_page;
+struct btree_page;
+
 
 USHORT	BTR_all(thread_db*, Relation*, IndexDescAlloc**);
-void	BTR_create(thread_db*, Relation*, Transaction*, index_desc*, USHORT, sort_context*, SelectivityList&);
+void	BTR_create(thread_db*, Relation*, Transaction*, index_desc*, USHORT, SortContext*, SelectivityList&);
 void	BTR_delete_index(thread_db*, win*, USHORT);
 //USHORT	BTR_delete_node(thread_db*, btree_page*, USHORT);
 bool	BTR_description(thread_db*, Relation*, index_root_page*, index_desc*, SSHORT);

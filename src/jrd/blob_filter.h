@@ -24,8 +24,8 @@
 #ifndef JRD_BLF_H
 #define JRD_BLF_H
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
 
 /* Note: The CTL structure is the internal version of the
  * blob control structure (ISC_BLOB_CTL) which is in ibase.h.
@@ -72,7 +72,7 @@ typedef ctl *CTL;
 
 class BlobFilter : public pool_alloc<type_blf>
 {
-    public:
+public:
 	BlobFilter*		blf_next;					/* Next known filter */
 	SSHORT			blf_from;				/* Source sub-type */
 	SSHORT			blf_to;					/* Target sub-type */

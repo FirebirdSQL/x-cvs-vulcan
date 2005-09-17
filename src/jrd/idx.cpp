@@ -93,7 +93,7 @@ static bool key_equal(const temporary_key*, const temporary_key*);
 static void signal_index_deletion(thread_db*, Relation*, USHORT);
 
 
-void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, Relation* view, Relation* relation, JRD_FLD field)
+void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, Relation* view, Relation* relation, Field *field)
 {
 /**************************************
  *
@@ -144,7 +144,7 @@ void IDX_check_access(thread_db* tdbb, CompilerScratch* csb, Relation* view, Rel
 			
 			for (USHORT i = 0; i < referenced_idx.idx_count; i++, idx_desc++) 
 				{
-				jrd_fld* referenced_field = MET_get_field(referenced_relation, idx_desc->idx_field);
+				Field* referenced_field = MET_get_field(referenced_relation, idx_desc->idx_field);
 				CMP_post_access(tdbb, csb,
 								referenced_relation->rel_security_name, 
 									(view ? view->rel_id : 0),
@@ -226,7 +226,7 @@ void IDX_create_index(thread_db* tdbb,
 
 	bool key_is_null = false;
 
-	sort_key_def key_desc[2];
+	SortKeyDef key_desc[2];
 	// Key sort description
 	key_desc[0].skd_dtype = SKD_bytes;
 	key_desc[0].skd_flags = SKD_ascending;
@@ -245,7 +245,7 @@ void IDX_create_index(thread_db* tdbb,
 	void* callback_arg = 
 		(idx->idx_flags & idx_unique) ? &ifl_data : NULL;
 
-	sort_context* sort_handle = SORT_init(tdbb,
+	SortContext* sort_handle = SORT_init(tdbb,
 							key_length + sizeof(index_sort_record),
 							2, 1, key_desc, callback, callback_arg,
 							tdbb->tdbb_attachment, 0);

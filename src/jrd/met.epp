@@ -113,6 +113,7 @@ $Id$
 #include "ProcManager.h"
 #include "TempSpace.h"
 #include "Triggers.h"
+#include "Format.h"
 
 
 #ifdef HAVE_CTYPE_H
@@ -379,10 +380,11 @@ void MET_activate_shadow(thread_db* tdbb)
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 
-/* Erase any secondary files of the primary database of the
-   shadow being activated. */
+	/* Erase any secondary files of the primary database of the
+	  shadow being activated. */
 
-	blk* handle = NULL;
+	Request* handle = NULL;
+	
 	FOR(REQUEST_HANDLE handle) X IN RDB$FILES
 		WITH X.RDB$SHADOW_NUMBER NOT MISSING
 			AND X.RDB$SHADOW_NUMBER EQ 0 
@@ -393,9 +395,10 @@ void MET_activate_shadow(thread_db* tdbb)
 
 	const char* dbb_file_name = dbb->dbb_file->fil_string;
 
-/* go through files looking for any that expand to the current database name */
+	/* go through files looking for any that expand to the current database name */
 	SCHAR expanded_name[MAXPATHLEN];
-	blk* handle2 = handle = NULL;
+	Request *handle2 = handle = NULL;
+	
 	FOR(REQUEST_HANDLE handle) X IN RDB$FILES
 		WITH X.RDB$SHADOW_NUMBER NOT MISSING
 			AND X.RDB$SHADOW_NUMBER NE 0
@@ -588,7 +591,7 @@ void MET_delete_shadow(thread_db* tdbb, USHORT shadow_number)
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 
-	blk* handle = NULL;
+	Request* handle = NULL;
 
 	FOR(REQUEST_HANDLE handle)
 		X IN RDB$FILES WITH X.RDB$SHADOW_NUMBER EQ shadow_number 
@@ -744,7 +747,7 @@ Format* MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 		REQUEST(irq_r_format) = request;
 
 	if (!format)
-		format = Format::newFmt(*dbb->dbb_permanent);
+		format = Format::newFmt(*dbb->dbb_permanent, 0);
 
 	format->fmt_version = number;
 
@@ -862,7 +865,7 @@ JRD_NOD MET_get_dependencies(thread_db*	tdbb,
 
 	if (type == (USHORT) obj_computed)
 		{
-		blk* handle = NULL;
+		Request* handle = NULL;
 		FOR(REQUEST_HANDLE handle)
 			RLF IN RDB$RELATION_FIELDS CROSS
 				FLD IN RDB$FIELDS WITH
@@ -889,7 +892,7 @@ JRD_NOD MET_get_dependencies(thread_db*	tdbb,
 }
 
 
-JRD_FLD MET_get_field(Relation* relation, USHORT id)
+Field *MET_get_field(Relation* relation, USHORT id)
 {
 /**************************************
  *
@@ -972,7 +975,7 @@ void MET_get_shadow_files(thread_db* tdbb, bool deleteVar)
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 
-	blk* handle = NULL;
+	Request* handle = NULL;
 	
 	FOR(REQUEST_HANDLE handle) X IN RDB$FILES
 		WITH X.RDB$SHADOW_NUMBER NOT MISSING
@@ -1019,60 +1022,6 @@ void MET_get_shadow_files(thread_db* tdbb, bool deleteVar)
 }
 
 
-ULONG MET_get_walinfo(
-					thread_db* tdbb,
-					LGFILE ** logfiles_, ULONG* number, LGFILE ** over_flow)
-{
-/**************************************
- *
- *      M E T _ g e t _ w a l i n f o
- *
- **************************************
- *
- * Functional description
- *      Get WAL information from RDB$LOG_FILES
- *      Initialize over_flow pointer if over flow file is specified.
- *
- **************************************/
-	//SET_TDBB(tdbb);
-	DBB dbb = tdbb->tdbb_database;
-
-    ULONG num = 0;
-	blk* handle = NULL;
-	FOR(REQUEST_HANDLE handle)
-		LOG IN RDB$LOG_FILES SORTED BY LOG.RDB$FILE_SEQUENCE
-			logfiles_[num] = FB_NEW_RPT(*dbb->dbb_permanent,
-											   LGFILE_SIZE + MAXPATHLEN) logfiles();
-		strcpy(logfiles_[num]->lg_name, LOG.RDB$FILE_NAME);
-		logfiles_[num]->lg_size = LOG.RDB$FILE_LENGTH;
-		logfiles_[num]->lg_partitions = LOG.RDB$FILE_PARTITIONS;
-		logfiles_[num]->lg_flags = LOG.RDB$FILE_FLAGS;
-		logfiles_[num]->lg_sequence = LOG.RDB$FILE_SEQUENCE;
-
-		++num;
-	END_FOR;
-
-	if (handle)
-	{
-		CMP_release(tdbb, (JRD_REQ)handle);
-	}
-
-	if (num)
-	{
-		*over_flow = logfiles_[num - 1];
-
-		/* The overflow file will be passed separately */
-
-		if (over_flow[0]->lg_flags & LOG_overflow)
-			num--;
-		else
-			*over_flow = NULL;
-	}
-
-	*number = num;
-
-	return num;
-}
 
 
 void MET_load_trigger(thread_db* tdbb,
@@ -1456,8 +1405,8 @@ BlobFilter* MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 			ISC_lookup_entrypoint(dbb, X.RDB$MODULE_NAME, X.RDB$ENTRYPOINT,
 								  ISC_EXT_LIB_PATH_ENV, true);
 		if (filter)
-		{
-			blobFilter = FB_NEW(*dbb->dbb_permanent) BlobFilter();
+			{
+			blobFilter = FB_NEW(*dbb->dbb_permanent) BlobFilter;
 			blobFilter->blf_next = NULL;
 			blobFilter->blf_from = from;
 			blobFilter->blf_to = to;
@@ -1466,7 +1415,7 @@ BlobFilter* MET_lookup_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 				FB_NEW_RPT(*dbb->dbb_permanent,  strlen(EXCEPTION_MESSAGE) + strlen(X.RDB$FUNCTION_NAME) + strlen(X.RDB$ENTRYPOINT) +  strlen(X.RDB$MODULE_NAME) + 1) str();
 			sprintf((char*)exception_msg->str_data, EXCEPTION_MESSAGE, X.RDB$FUNCTION_NAME, X.RDB$ENTRYPOINT, X.RDB$MODULE_NAME);
 			blobFilter->blf_exception_message = exception_msg;
-		}
+			}
 		
 		MOD module = FLU_lookup_module( X.RDB$MODULE_NAME);
 		if (module)
@@ -1684,7 +1633,7 @@ int MET_lookup_partner(
 	Request* request;
 	Relation* partner_relation;
 	int index_number, found;
-	PRIM dependencies;
+	PrimaryKeyDependency* dependencies;
 	FRGN references;
 
 	//SET_TDBB(tdbb);
@@ -3471,19 +3420,19 @@ void MET_update_shadow(thread_db* tdbb, Shadow *shadow, USHORT file_flags)
  *      Update the stored file flags for the specified shadow.
  *
  **************************************/
-	DBB dbb;
-	BLK handle;
 
 	//SET_TDBB(tdbb);
-	dbb = tdbb->tdbb_database;
+	DBB dbb = tdbb->tdbb_database;
 
-	handle = NULL;
+	Request *handle = NULL;
+	
 	FOR(REQUEST_HANDLE handle)
 		FIL IN RDB$FILES WITH FIL.RDB$SHADOW_NUMBER EQ shadow->sdw_number
 		MODIFY FIL USING
 			FIL.RDB$FILE_FLAGS = file_flags;
 		END_MODIFY;
 	END_FOR;
+	
 	CMP_release(tdbb, (JRD_REQ)handle);
 }
 
@@ -3693,7 +3642,7 @@ static bool get_type(thread_db* tdbb, SSHORT* id, const TEXT* name, const TEXT* 
 	/* Try for exact name match */
 
 	bool found = false;
-	BLK handle = NULL;
+	Request *handle = NULL;
 	
 	FOR(REQUEST_HANDLE handle)
 		FIRST 1 T IN RDB$TYPES WITH
@@ -3747,7 +3696,7 @@ static void lookup_view_contexts(thread_db* tdbb, Relation* view)
 		/* allocate a view context block and link it in
 		   to the relation block's linked list */
 
-		view_context = FB_NEW(*tdbb->tdbb_default) ViewContext();
+		view_context = FB_NEW(*tdbb->tdbb_default) ViewContext;
 		*vcx_ptr = view_context;
 		vcx_ptr = &view_context->vcx_next;
 
@@ -4171,8 +4120,8 @@ static void store_dependencies(thread_db*	tdbb,
  *      compilation of blr for a trigger, view, etc.
  *
  **************************************/
-	Request*		request;
-	JRD_FLD		field;
+	Request*	request;
+	Field		*field;
 	JRD_NOD		field_node;
 	SSHORT	fld_id;
 	SSHORT	dpdo_type;
@@ -4233,7 +4182,7 @@ static void store_dependencies(thread_db*	tdbb,
 					if (field = MET_get_field(relation, fld_id))
 						field_name = field->fld_name;
 					else if (procedure)
-						field = (JRD_FLD) procedure->findOutputParameter (fld_id);
+						field = (Field*) procedure->findOutputParameter (fld_id);
 					}
 				}
 			else

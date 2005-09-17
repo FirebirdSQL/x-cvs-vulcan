@@ -47,6 +47,8 @@
 #include "../jrd/constants.h"
 #include "../jrd/tra.h"
 #include "../jrd/req.h"
+#include "../jrd/BlobID.h"
+#include "../jrd/blb.h"
 
 #ifdef VMS
 double MTH$CVT_D_G(), MTH$CVT_G_D();

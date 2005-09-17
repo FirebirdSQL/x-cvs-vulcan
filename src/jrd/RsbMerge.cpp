@@ -329,7 +329,7 @@ void RsbMerge::close(Request* request)
 		   if one exists. */
 
 		MergeFile* mfb = &tail->irsb_mrg_file;
-		sort_work_file* sfb = mfb->mfb_sfb;
+		SortWorkFile* sfb = mfb->mfb_sfb;
 		
 		if (sfb) 
 			{
@@ -510,11 +510,11 @@ int RsbMerge::compareLongs(const SLONG* p, const SLONG* q, int count)
 
 void RsbMerge::writeMergeBlock(thread_db* tdbb, MergeFile* mfb, ULONG block)
 {
-	sort_work_file* sfb_ = mfb->mfb_sfb;
+	SortWorkFile* sfb_ = mfb->mfb_sfb;
 	
 	if (!sfb_) 
 		{
-		sfb_ = mfb->mfb_sfb = FB_NEW(*getDefaultMemoryPool()) sort_work_file (tdbb->tdbb_database);
+		sfb_ = mfb->mfb_sfb = FB_NEW(*getDefaultMemoryPool()) SortWorkFile (tdbb->tdbb_database);
 		//memset(sfb_, 0, sizeof(struct sfb));
 		}
 		

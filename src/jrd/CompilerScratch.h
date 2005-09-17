@@ -32,7 +32,8 @@
 #define _COMPILER_SCRATCH_H_
 
 #include "sbm.h"
-#include "rse.h"
+#include "lls.h"
+//#include "rse.h"
 
 const int csb_internal			= 1;	/* "csb_g_flag" switch */
 const int csb_get_dependencies	= 2;

@@ -32,8 +32,8 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "jrd_blks.h"
+//#include "../include/fb_blk.h"
 #include "../common/classes/array.h"
 #include "SVector.h"
 #include "JString.h"
@@ -74,7 +74,7 @@ class ExecStatement;
 struct record_param;
 struct thread_db;
 
-class Request: public pool_alloc <type_req>
+class Request //: public pool_alloc <type_req>
 {
 public:
 	Request(JrdMemoryPool* pool, int rpbCount, int impureSize);
@@ -150,6 +150,7 @@ public:
 	void releaseProcedureSavePoints(void);
 	void setThread(thread_db* tdbb);
 	ExecStatement* getExecStatement(void);
+	void init(void);
 };
 
 #endif

@@ -89,6 +89,7 @@
 #include "../jrd/ExecStatement.h"
 #include "../jrd/Triggers.h"
 #include "../jrd/sbm.h"
+#include "Format.h"
 
 /* Pick up relation ids */
 
@@ -744,7 +745,7 @@ void CMP_get_desc(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, DSC * des
 				csb->csb_rpt[(USHORT)(long) sub->
 							 nod_arg[e_fld_stream]].csb_relation;
 			const USHORT id = (USHORT)(long) sub->nod_arg[e_fld_id];
-			const jrd_fld* field = MET_get_field(relation, id);
+			const Field* field = MET_get_field(relation, id);
 			const ArrayField* array;
 			if (!field || !(array = field->fld_array))
 				IBERROR(223);	// msg 223 argument of scalar operation must be an array
@@ -1585,7 +1586,7 @@ IndexLock* CMP_get_index_lock(thread_db* tdbb, Relation* relation, USHORT id)
 		if (index->idl_id == id)
 			return index;
 
-	index = FB_NEW(*dbb->dbb_permanent) IndexLock();
+	index = FB_NEW(*dbb->dbb_permanent) IndexLock;
 	index->idl_next = relation->rel_index_locks;
 	relation->rel_index_locks = index;
 	index->idl_relation = relation;
@@ -2413,7 +2414,7 @@ static JRD_NOD copy(thread_db* tdbb,
 			if (remap_fld) 
 				{
 				Relation *relation;
-				JRD_FLD field;
+				Field *field;
 
 				relation = csb->csb_rpt[stream].csb_relation;
 				field = MET_get_field(relation, field_id);
@@ -3013,7 +3014,7 @@ static JRD_NOD pass1(thread_db* tdbb,
 		case nod_field:
 			{
 			Relation *relation;
-			JRD_FLD field;
+			Field *field;
 			UCHAR *map, local_map[MAP_LENGTH];
 
 			stream = (USHORT)(long) node->nod_arg[e_fld_stream];
@@ -3150,7 +3151,7 @@ static JRD_NOD pass1(thread_db* tdbb,
 
 		case nod_assignment:
 			{
-			JRD_FLD field;
+			Field *field;
 			sub = node->nod_arg[e_asgn_from];
 			
 			if (sub->nod_type == nod_field) 
@@ -3478,7 +3479,7 @@ static JRD_NOD pass1_expand_view(thread_db* tdbb,
 	//Relation *relation;
 	//VEC fields;
 	//vec::iterator ptr, end;
-	//JRD_FLD field;
+	//Field *field;
 	//LLS stack;
 	//USHORT id = 0, new_id = 0;
 	DSC desc;
@@ -5306,10 +5307,11 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, Form
 
 	SET_TDBB(tdbb);
 
-	if (!(format = *input_format)) {
+	if (!(format = *input_format)) 
+		{
 		format = *input_format = Format::newFmt(*tdbb->tdbb_default, map->nod_count);
 		format->fmt_count = map->nod_count;
-	}
+		}
 
 	// process alternating rse and map blocks
 

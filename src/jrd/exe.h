@@ -155,7 +155,7 @@ public:
 	SCHAR	nod_scale;
 	USHORT	nod_count;
 	dsc		asb_desc;
-	struct sort_key_def* asb_key_desc;	/* for the aggregate   */
+	struct SortKeyDef* asb_key_desc;	/* for the aggregate   */
 	UCHAR	asb_key_data[1];
 };
 

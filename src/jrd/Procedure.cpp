@@ -12,10 +12,12 @@
 #include "TempSpace.h"
 #include "Request.h"
 #include "blb.h"
+#include "val.h"
 #include "blr.h"
 #include "blb_proto.h"
 #include "par_proto.h"
 #include "CompilerScratch.h"
+#include "Format.h"
 
 #define BLR_BYTE        *(csb->csb_running)++
 

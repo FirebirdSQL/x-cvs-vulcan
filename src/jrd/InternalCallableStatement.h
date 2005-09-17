@@ -31,13 +31,13 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Connection.h"
+//#include "Connection.h"
 #include "InternalPreparedStatement.h"
-#include "Values.h"
-#include "DateTime.h"	// Added by ClassView
-#include "SqlTime.h"
-#include "TimeStamp.h"	// Added by ClassView
-#include "JString.h"	// Added by ClassView
+//#include "Values.h"
+//#include "DateTime.h"	// Added by ClassView
+//#include "SqlTime.h"
+//#include "TimeStamp.h"	// Added by ClassView
+//#include "JString.h"	// Added by ClassView
 
 class InternalCallableStatement : public InternalPreparedStatement, public CallableStatement  
 {

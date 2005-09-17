@@ -60,6 +60,8 @@
 #include "../jrd/acl.h"
 #include "../jrd/irq.h"
 #include "PageCache.h"
+#include "BlobID.h"
+#include "Format.h"
 
 DATABASE DB = FILENAME "ODS.RDB";
 
@@ -550,7 +552,7 @@ void INI_init(thread_db* tdbb)
 			const GFLD* gfield = &gfields[fld[RFLD_F_ID]];
 			desc->dsc_length = gfield->gfld_length;
 			desc->dsc_dtype = gfield->gfld_dtype;
-			//*itr = field = FB_NEW_RPT(*dbb->dbb_permanent,0) jrd_fld();
+			//*itr = field = FB_NEW_RPT(*dbb->dbb_permanent,0) Field();
 			//*itr = field;
 			Field *field = new Field;
 			relation->rel_fields[fieldId] = field;
@@ -924,7 +926,7 @@ static void add_index_set(thread_db* tdbb,
 				const ini_idx_t::ini_idx_segment_t* segment = 
 					&index->ini_idx_segment[position];
 				STORE(REQUEST_HANDLE handle2) Y IN RDB$INDEX_SEGMENTS
-					jrd_fld* field = relation->rel_fields[segment->ini_idx_rfld_id];
+					Field* field = relation->rel_fields[segment->ini_idx_rfld_id];
 					Y.RDB$FIELD_POSITION = position;
 					PAD(X.RDB$INDEX_NAME, Y.RDB$INDEX_NAME);
 					PAD(field->fld_name, Y.RDB$FIELD_NAME);

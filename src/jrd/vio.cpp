@@ -94,6 +94,7 @@
 #include "../jrd/vio_proto.h"
 #include "../jrd/PageCache.h"
 #include "../jrd/TipCache.h"
+#include "Format.h"
 
 
 static void check_class(thread_db*, Transaction*, record_param *, record_param *, USHORT);
@@ -966,13 +967,11 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 
 #ifdef VIO_DEBUG
 	if (debug_flag > DEBUG_READS)
-	{
 		ib_printf("VIO_data (rpb %"SLONGFORMAT", pool %p)\n",
 					rpb->rpb_number.getValue(),
 					pool);
-	}
+
 	if (debug_flag > DEBUG_READS_INFO)
-	{
 		ib_printf("   record  %"SLONGFORMAT":%d, rpb_trans %"SLONGFORMAT
 				 ", flags %d, back %"SLONGFORMAT":%d, fragment %"SLONGFORMAT":%d\n",
 				 rpb->rpb_page, rpb->rpb_line,
@@ -980,39 +979,38 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 				 rpb->rpb_flags,
 				 rpb->rpb_b_page, rpb->rpb_b_line,
 				 rpb->rpb_f_page, rpb->rpb_f_line);
-	}
 #endif
 
-/* If we're not already set up for this format version number, find
-   the format block and set up the record block.  This is a performance
-   optimization. */
+	/* If we're not already set up for this format version number, find
+	   the format block and set up the record block.  This is a performance
+	   optimization. */
 
 	Record* record = VIO_record(tdbb, rpb, 0, (JrdMemoryPool*) pool);
 	Format* format = record->rec_format;
 
-/* If the record is a delta version, start with data from prior record. */
+	/* If the record is a delta version, start with data from prior record. */
+	
 	UCHAR *tail, *tail_end, differences[MAX_DIFFERENCES];
 	Record* prior = rpb->rpb_prior;
+	
 	if (prior)
-	{
+		{
 		tail = differences;
 		tail_end = differences + sizeof(differences);
 		if (prior != record)
-			MOVE_FASTER(prior->rec_data, record->rec_data,
-						format->fmt_length);
-	}
+			MOVE_FASTER(prior->rec_data, record->rec_data, format->fmt_length);
+		}
 	else
-	{
+		{
 		tail = record->rec_data;
 		tail_end = tail + record->rec_length;
-	}
+		}
 
-/* Set up prior record point for next version */
+	/* Set up prior record point for next version */
 
-	rpb->rpb_prior = (rpb->rpb_b_page
-					  && (rpb->rpb_flags & rpb_delta)) ? record : 0;
+	rpb->rpb_prior = (rpb->rpb_b_page && (rpb->rpb_flags & rpb_delta)) ? record : 0;
 
-/* Snarf data from record */
+	/* Snarf data from record */
 
 	tail =
 		reinterpret_cast<UCHAR*>(
@@ -1022,11 +1020,12 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 							reinterpret_cast<char*>(tail_end)));
 
 	if (rpb->rpb_flags & rpb_incomplete)
-	{
+		{
 		const ULONG back_page  = rpb->rpb_b_page;
 		const USHORT back_line = rpb->rpb_b_line;
+		
 		while (rpb->rpb_flags & rpb_incomplete)
-		{
+			{
 			DPM_fetch_fragment(tdbb, rpb, LCK_read);
 
 			SCHAR* pIn		= reinterpret_cast<char*>(rpb->rpb_address);
@@ -1035,29 +1034,26 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 
 			SCHAR* pRet = SQZ_decompress(pIn, rpb->rpb_length, pOut, pOutEnd);
 			tail = reinterpret_cast<UCHAR*>(pRet);
-		}
+			}
+			
 		rpb->rpb_b_page = back_page;
 		rpb->rpb_b_line = back_line;
-	}
+		}
 
 	CCH_RELEASE(tdbb, &rpb->rpb_window);
 
-/* If this is a delta version, apply changes */
+	/* If this is a delta version, apply changes */
+	
 	USHORT length;
 	if (prior)
-	{
-		length =
-			SQZ_apply_differences(record,
+		length = SQZ_apply_differences(record,
 								  reinterpret_cast<char*>(differences),
 								  reinterpret_cast<char*>(tail));
-	}
 	else
-	{
 		length = tail - record->rec_data;
-	}
 
 	if (format->fmt_length != length)
-	{
+		{
 #ifdef VIO_DEBUG
 	    if (debug_flag > DEBUG_WRITES)
 			ib_printf ("VIO_erase (rpb %"SLONGFORMAT"d, length %d expected %d)\n", rpb->rpb_number.getValue(), 
@@ -1070,7 +1066,7 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 			    rpb->rpb_b_page, rpb->rpb_b_line, rpb->rpb_f_page, rpb->rpb_f_line);
 #endif
 		BUGCHECK(183);			/* msg 183 wrong record length */
-	}
+		}
 
 	rpb->rpb_address = record->rec_data;
 	rpb->rpb_length = format->fmt_length;
@@ -2481,7 +2477,7 @@ void VIO_start_save_point(thread_db* tdbb, Transaction* transaction)
  **************************************/
 	SET_TDBB(tdbb);
 
-	Savepoint* sav_point = FB_NEW(*transaction->tra_pool) Savepoint();
+	Savepoint* sav_point = FB_NEW(*transaction->tra_pool) Savepoint;
 	sav_point->sav_number = ++transaction->tra_save_point_number;
 	sav_point->sav_next = transaction->tra_save_point;
 	transaction->tra_save_point = sav_point;
@@ -3029,7 +3025,7 @@ void VIO_merge_proc_sav_points(thread_db* tdbb,
 
 		VIO_verb_cleanup(tdbb, transaction);
 
-		sav_point = FB_NEW(*transaction->tra_pool) Savepoint();
+		sav_point = FB_NEW(*transaction->tra_pool) Savepoint;
 		sav_point->sav_verb_count = 0;
 		sav_point->sav_next = sav_next;
 		sav_point->sav_number = sav_number;
@@ -4623,25 +4619,28 @@ static void verb_post(
 	JrdMemoryPool* old_pool = tdbb->tdbb_default;
 	tdbb->tdbb_default = transaction->tra_pool;
 
-/* Find action block for relation */
+	/* Find action block for relation */
+	
 	VerbAction* action;
-	for (action = transaction->tra_save_point->sav_verb_actions; action;
-		 action = action->vct_next)
-	{
+	
+	for (action = transaction->tra_save_point->sav_verb_actions; action; action = action->vct_next)
 		if (action->vct_relation == rpb->rpb_relation)
 			break;
-	}
 
-	if (!action) {
-		action = FB_NEW(*tdbb->tdbb_default) VerbAction();
+	if (!action) 
+		{
+		action = FB_NEW(*tdbb->tdbb_default) VerbAction;
 		action->vct_next = transaction->tra_save_point->sav_verb_actions;
 		transaction->tra_save_point->sav_verb_actions = action;
 		action->vct_relation = rpb->rpb_relation;
-	}
+		}
 
-	if (!RecordBitmap::test(action->vct_records, rpb->rpb_number.getValue())) {
+	if (!RecordBitmap::test(action->vct_records, rpb->rpb_number.getValue())) 
+		{
 		RBM_SET(tdbb->tdbb_default, &action->vct_records, rpb->rpb_number.getValue());
-		if (old_data) {
+		
+		if (old_data) 
+			{
 			/* An update-in-place is being posted to this savepoint, and this
 			   savepoint hasn't seen this record before. */
 
@@ -4649,25 +4648,30 @@ static void verb_post(
 			data->rec_number = rpb->rpb_number;
 			data->rec_length = old_data->rec_length;
 			data->rec_format = old_data->rec_format;
+			
 			if (same_tx)
 				data->rec_flags |= REC_same_tx;
+				
 			UCHAR* p = data->rec_data;
 			const UCHAR* q = old_data->rec_data;
+			
 			for (const UCHAR* const end = q + old_data->rec_length; q < end; q++)
-			{
 				*p++ = *q;
-			}
+
 			if (!action->vct_undo)
 				action->vct_undo = new UndoItemTree(tdbb->tdbb_default);
+				
 			action->vct_undo->add(UndoItem(rpb->rpb_number.getValue(), data));
-		}
-		else if (same_tx) {
+			}
+		else if (same_tx) 
+			{
 			/* An insert/update followed by a delete is posted to this savepoint,
 			   and this savepoint hasn't seen this record before. */
 
 			Record* data = FB_NEW_RPT(*tdbb->tdbb_default, 1) Record;
 			data->rec_number = rpb->rpb_number;
 			data->rec_length = 0;
+			
 			if (new_ver)
 				data->rec_flags |= (REC_same_tx | REC_new_version);
 			else
@@ -4675,16 +4679,19 @@ static void verb_post(
 
 			if (!action->vct_undo)
 				action->vct_undo = new UndoItemTree(tdbb->tdbb_default);
+				
 			action->vct_undo->add(UndoItem(rpb->rpb_number.getValue(), data));
+			}
 		}
-	}
-	else if (same_tx) {
+	else if (same_tx) 
+		{
 		if (action->vct_undo && action->vct_undo->locate(rpb->rpb_number.getValue())) {
 			/* An insert/update followed by a delete is posted to this savepoint,
 			   and this savepoint has already undo for this record. */
 			action->vct_undo->current().rec_data->rec_flags |= REC_same_tx;
-		}
-		else {
+			}
+		else 
+			{
 			/* An insert/update followed by a delete is posted to this savepoint,
 			   and this savepoint has seen this record before but it doesn't have
 			   undo data. */
@@ -4696,21 +4703,19 @@ static void verb_post(
 			if (!action->vct_undo)
 				action->vct_undo = new UndoItemTree(tdbb->tdbb_default);
 			action->vct_undo->add(UndoItem(rpb->rpb_number.getValue(), data));
-		}
-		if (old_data) {
+			}
+		if (old_data) 
 			/* The passed old_data will not be used.  Thus, garbage collect. */
 
 			garbage_collect_idx(tdbb, rpb, new_rpb, old_data);
 		}
-	}
-	else if (old_data) {
+	else if (old_data)
 		/* We are posting an update-in-place, but the current savepoint has
 		   already undo data for this record.  The old_data will not be used,
 		   so make sure we garbage collect before we loose track of the
 		   in-place-updated record. */
 
 		garbage_collect_idx(tdbb, rpb, new_rpb, old_data);
-	}
 
 	tdbb->tdbb_default = old_pool;
 }

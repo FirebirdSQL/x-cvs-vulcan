@@ -1,7 +1,7 @@
 /*
- *	PROGRAM:	JRD Access Method
- *	MODULE:		sqz.h
- *	DESCRIPTION:	Data compression control block
+ *	PROGRAM:	JRD access method
+ *	MODULE:		Format.h
+ *	DESCRIPTION:	Definitions associated with Format class
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -19,22 +19,36 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
+ *
+ * 2002.10.29 Sean Leyne - Removed obsolete "Netware" port
+ *
+ * 2002.10.30 Sean Leyne - Removed support for obsolete "PC_PLATFORM" define
+ *
  */
 
-#ifndef JRD_SQZ_H
-#define JRD_SQZ_H
+#ifndef _FORMAT_H
+#define _FORMAT_H
 
-#include "../jrd/all.h"
-//#include "../include/fb_blk.h"
+#include "../jrd/jrd_blks.h"
+#include "../include/fb_blk.h"
+#include "../include/fb_vector.h"
+#include "../jrd/dsc.h"
 
-class Decompress : public pool_alloc<type_dcc>
+
+class Format
 {
 public:
-	JrdMemoryPool *dcc_pool;
-	Decompress *dcc_next;		/* Next block if overflow */
-	SCHAR *dcc_end;				/* End of control string */
-	SCHAR dcc_string[128];
-};
-//typedef Dcc *DCC;
+	Format(MemoryPool& p, int len);
+	~Format(void);
 
-#endif /* JRD_SQZ_H */
+	USHORT fmt_length;
+	USHORT fmt_count;
+	USHORT fmt_version;
+	
+	static Format* newFmt(MemoryPool& p, int len);
+	firebird::vector<dsc> fmt_desc;
+	typedef firebird::vector<dsc>::iterator fmt_desc_iterator;
+	typedef firebird::vector<dsc>::const_iterator fmt_desc_const_iterator;
+};
+
+#endif

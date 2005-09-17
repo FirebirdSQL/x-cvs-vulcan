@@ -102,6 +102,7 @@
 #include "RsbCount.h"
 #include "RsbSingular.h"
 #include "ExecutionPathInfoGen.h"
+#include "Format.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -3762,7 +3763,7 @@ static RecordSource* gen_aggregate(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* 
 			(from->nod_type == nod_agg_average_distinct))
 		{
 			const USHORT count = asb_delta + 1 +
-					(sizeof(sort_key_def) + sizeof(jrd_nod**) - 1) / sizeof(jrd_nod**);
+					(sizeof(SortKeyDef) + sizeof(jrd_nod**) - 1) / sizeof(jrd_nod**);
 			AggregateSort* asb = (AggregateSort*) PAR_make_node(tdbb, count);
 			asb->nod_type = nod_asb;
 			asb->nod_count = 0;
@@ -3778,7 +3779,7 @@ static RecordSource* gen_aggregate(thread_db* tdbb, OptimizerBlk* opt, jrd_nod* 
 				desc->dsc_length--;
 			}
 
-			sort_key_def* sort_key = asb->asb_key_desc = (sort_key_def*) asb->asb_key_data;
+			SortKeyDef* sort_key = asb->asb_key_desc = (SortKeyDef*) asb->asb_key_data;
 			sort_key->skd_offset = 0;
 // UCHAR desc->dsc_dtype is always >=0
 //			fb_assert(desc->dsc_dtype >= 0)
@@ -5143,7 +5144,7 @@ static RsbSort* gen_sort(thread_db* tdbb,
 	   end. */
 
 	const USHORT count = items +
-		(sizeof(sort_key_def) * 2 * sort->nod_count + sizeof(smb_repeat) -
+		(sizeof(SortKeyDef) * 2 * sort->nod_count + sizeof(smb_repeat) -
 		 1) / sizeof(smb_repeat);
 		 
 	SortMap* map = FB_NEW_RPT(*tdbb->tdbb_default, count) SortMap();
@@ -5160,7 +5161,7 @@ static RsbSort* gen_sort(thread_db* tdbb,
 	// and one for field itself.
 	
 	smb_repeat* map_item = map->smb_rpt;
-	sort_key_def* sort_key = (sort_key_def*) & map->smb_rpt[items];
+	SortKeyDef* sort_key = (SortKeyDef*) & map->smb_rpt[items];
 	map->smb_key_desc = sort_key;
 	
 	for (jrd_nod** node_ptr = sort->nod_arg; node_ptr < end_node; node_ptr++, map_item++)
@@ -5333,7 +5334,7 @@ static RsbSort* gen_sort(thread_db* tdbb,
 
 	/* Make fields to store varying and cstring length. */
 
-	const sort_key_def* const end_key = sort_key;
+	const SortKeyDef* const end_key = sort_key;
 	
 	for (sort_key = map->smb_key_desc; sort_key < end_key; sort_key++) 
 		if (sort_key->skd_dtype == SKD_varying || sort_key->skd_dtype == SKD_cstring)
@@ -5888,7 +5889,7 @@ static IndexedRelationship* indexed_relationship(thread_db* tdbb, OptimizerBlk* 
 
 		if (opt->opt_segments[0].opt_lower || opt->opt_segments[0].opt_upper) {
 			if (!relationship) {
-				relationship = FB_NEW(*tdbb->tdbb_default) IndexedRelationship();
+				relationship = FB_NEW(*tdbb->tdbb_default) IndexedRelationship;
 			}
 			if (idx->idx_flags & idx_unique) {
 				relationship->irl_unique = TRUE;

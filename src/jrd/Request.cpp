@@ -40,24 +40,25 @@
 #include "cmp_proto.h"
 #include "../jrd/tra.h"
 #include "../jrd/blb.h"
+#include "../jrd/val.h"
 #include "../jrd/blb_proto.h"
 #include "ExecStatement.h"
 
 Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool), req_fors(pool)
 {
+	init();
 	req_rpb = new record_param [rpbCount];
 	memset (req_rpb, 0, sizeof (record_param) * rpbCount);
 	req_impure_size = impureSize;
 	req_impure = new UCHAR [req_impure_size];
 	memset (req_impure, 0, req_impure_size);
 	req_last_xcp = new StatusXcp;
-	rsbs = NULL;
-	execStatements = NULL;
 }
 
 
 Request::Request(Request* request) : req_invariants(request->req_pool)
 {
+	init();
 	req_attachment = request->req_attachment;
 	req_count = request->req_count;
 	req_pool = request->req_pool;
@@ -249,4 +250,58 @@ ExecStatement* Request::getExecStatement(void)
 	execStatements = exec;
 	
 	return exec;
+}
+
+void Request::init(void)
+{
+	req_attachment = NULL;		// database attachment
+	req_count = 0;			// number of streams
+	req_incarnation = 0;	// incarnation number
+	req_impure_size = 0;	// size of impure area
+	req_pool = NULL;
+	req_sub_requests = NULL;	// vector of sub-requests
+	req_transaction = NULL;
+	req_request = NULL;		// next request in dbb
+	req_caller = NULL;			// Caller of this request
+	req_access = NULL;			// Access items to be checked
+	req_resources = NULL;		// Resources (relations and indices)
+	req_message = NULL;		// Current message for send/receive
+	
+#ifdef SCROLLABLE_CURSORS
+	req_async_message = NULL;	// Asynchronous message (used in scrolling)
+#endif
+
+	req_refresh_ranges = NULL;	// Vector of refresh_ranges 
+	req_procedure = NULL;		// procedure, if any 
+	req_length = 0;			// message length for send/receive 
+	req_nmsgs = 0;			// number of message types 
+	req_mmsg = 0;			// highest message type 
+	req_msend = 0;			// longest send message 
+	req_mreceive = 0;		// longest receive message 
+
+	req_records_selected = 0;	/* count of records selected by request (meeting selection criteria) */
+	req_records_inserted = 0;	/* count of records inserted by request */
+	req_records_updated = 0;	/* count of records updated by request */
+	req_records_deleted = 0;	/* count of records deleted by request */
+
+	req_records_affected = 0;	/* count of records affected by the last statement */
+
+	req_view_flags = 0;			/* special flags for virtual ops on views */
+	req_top_view_store = NULL;		/* the top view in store(), if any */
+	req_top_view_modify = NULL;	/* the top view in modify(), if any */
+	req_top_view_erase = NULL;		/* the top view in erase(), if any */
+
+	req_top_node = NULL;			/* top of execution tree */
+	req_next = NULL;				/* next node for execution */
+	req_cursors = NULL;			/* Vector of named cursors, if any */
+	req_label = 0;				/* label for leave */
+	req_flags = 0;				/* misc request flags */
+	req_proc_sav_point = NULL;		/* procedure savepoint list */
+	req_timestamp = 0;			/* Start time of request */
+    req_last_xcp = NULL;			/* last known exception */
+	req_rpb = NULL;				/* record parameter blocks */
+	req_impure = NULL;
+	req_tdbb = NULL;
+	rsbs = NULL;
+	execStatements = NULL;
 }

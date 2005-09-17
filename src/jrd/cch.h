@@ -24,7 +24,7 @@
 #ifndef JRD_CCH_H
 #define JRD_CCH_H
 
-#include "../include/fb_blk.h"
+//#include "../include/fb_blk.h"
 
 /* Page buffer cache size constraints. */
 
@@ -219,7 +219,7 @@ typedef lwt *LWT;
 
 #define LWT_pending	1			/* latch request is pending */
 
-#include "../jrd/os/pio.h"
+//#include "../jrd/os/pio.h"
 
 /* Constants used by prefetch mechanism */
 

@@ -21,7 +21,7 @@ class MemMgr;
 
 /* general purpose vector */
 template <class T, USHORT TYPE = type_vec>
-class vec_base : protected pool_alloc<TYPE>
+class vec_base //: protected pool_alloc<TYPE>
 {
 public:
 	typedef typename firebird::vector<T>::iterator iterator;

@@ -24,10 +24,10 @@
 #ifndef JRD_MET_PROTO_H
 #define JRD_MET_PROTO_H
 
-#include "../jrd/exe.h"
-#include "../jrd/jrn.h"
-#include "../jrd/blob_filter.h"
-#include "../jrd/Trigger.h"
+//#include "../jrd/exe.h"
+//#include "../jrd/jrn.h"
+//#include "../jrd/blob_filter.h"
+//#include "../jrd/Trigger.h"
 
 class Transaction;
 class Request;
@@ -40,6 +40,8 @@ class CompilerScratch;
 class logfiles;
 class Shadow;
 class Triggers;
+class Relation;
+class BlobFilter;
 
 struct bid;
 struct dsc;
@@ -60,14 +62,13 @@ jrd_nod*	MET_get_dependencies(thread_db*, Relation*, TEXT*,
 								CompilerScratch**, const TEXT*, USHORT, USHORT);
 Field*		MET_get_field(Relation*, USHORT);
 void		MET_get_shadow_files(thread_db*, bool);
-//ULONG		MET_get_walinfo(thread_db* tdbb, logfiles **, ULONG *, logfiles **);
 void		MET_load_trigger(thread_db*, Relation*, const TEXT*, Triggers**);
 void		MET_lookup_cnstrt_for_index(thread_db*, TEXT* constraint, const TEXT* index_name);
 void		MET_lookup_cnstrt_for_trigger(thread_db*, TEXT*, TEXT*, const TEXT*);
 void		MET_lookup_exception(thread_db*, SLONG, /* INOUT */ TEXT*, /* INOUT */ TEXT*);
 SLONG		MET_lookup_exception_number(thread_db*, const TEXT*);
 int			MET_lookup_field(thread_db*, Relation*, const TEXT*, const TEXT*);
-BlobFilter*			MET_lookup_filter(thread_db*, SSHORT, SSHORT);
+BlobFilter*	MET_lookup_filter(thread_db*, SSHORT, SSHORT);
 SLONG		MET_lookup_generator(thread_db*, const TEXT*);
 void		MET_lookup_generator_id(thread_db*, SLONG, TEXT *);
 void		MET_lookup_index(thread_db*, TEXT*, const TEXT*, USHORT);

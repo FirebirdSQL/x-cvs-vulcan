@@ -48,6 +48,7 @@
 #include "../jrd/evl_proto.h"
 #include "../jrd/mov_proto.h"
 #include "../jrd/par_proto.h"
+#include "../jrd/err_proto.h"
 
 #ifdef _MSC_VER
 #undef min

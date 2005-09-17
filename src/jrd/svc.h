@@ -24,11 +24,6 @@
 #ifndef JRD_SVC_H
 #define JRD_SVC_H
 
-// TMN: To be removed once the C++ conversion is completed
-#ifdef INCLUDE_OLD_FB_BLK
-#error You can not include both old_fb_blk.h and this file
-#endif
-
 //#include "../jrd/jrd_pwd.h"
 #include "../jrd/isc.h"
 #include "../jrd/svc_undoc.h"
@@ -123,7 +118,7 @@ void SVC_STATUS_ARG(ISC_STATUS*& status, USHORT type, const void* value);
 //typedef Service *SVC;
 
 #ifdef UNDEF
-class svc : public pool_alloc<type_svc>
+class svc //: public pool_alloc<type_svc>
 {
 public:
 	SLONG	svc_handle;			/* "handle" of process/thread running service */

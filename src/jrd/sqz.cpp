@@ -85,7 +85,7 @@ USHORT SQZ_apply_differences(Record* record, SCHAR* differences, SCHAR* end)
 }
 
 
-USHORT SQZ_compress(DCC dcc, const SCHAR* input, SCHAR* output, int space)
+USHORT SQZ_compress(Decompress *dcc, const SCHAR* input, SCHAR* output, int space)
 {
 /**************************************
  *
@@ -150,7 +150,7 @@ USHORT SQZ_compress(DCC dcc, const SCHAR* input, SCHAR* output, int space)
 }
 
 
-USHORT SQZ_compress_length(DCC dcc, SCHAR* input, int space)
+USHORT SQZ_compress_length(Decompress *dcc, SCHAR* input, int space)
 {
 /**************************************
  *
@@ -374,7 +374,7 @@ USHORT SQZ_differences(SCHAR*	rec1,
 }
 
 
-void SQZ_fast(DCC dcc, SCHAR* input, SCHAR* output)
+void SQZ_fast(Decompress *dcc, SCHAR* input, SCHAR* output)
 {
 /**************************************
  *
@@ -418,7 +418,7 @@ void SQZ_fast(DCC dcc, SCHAR* input, SCHAR* output)
 }
 
 
-USHORT SQZ_length(thread_db* tdbb, SCHAR* data, int length, DCC dcc)
+USHORT SQZ_length(thread_db* tdbb, SCHAR* data, int length, Decompress *dcc)
 {
 /**************************************
  *
@@ -435,7 +435,7 @@ USHORT SQZ_length(thread_db* tdbb, SCHAR* data, int length, DCC dcc)
 	USHORT max;
 	SCHAR c, *end, *start, *control, *end_control;
 
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
 	dcc->dcc_next = NULL;
 	control = dcc->dcc_string;
@@ -485,7 +485,7 @@ USHORT SQZ_length(thread_db* tdbb, SCHAR* data, int length, DCC dcc)
 				}
 				else
 				{
-					dcc->dcc_next = FB_NEW(*tdbb->tdbb_default) Dcc();
+					dcc->dcc_next = FB_NEW(*tdbb->tdbb_default) Decompress;
 					dcc = dcc->dcc_next;
 					dcc->dcc_pool = tdbb->tdbb_default;
 				}
@@ -523,7 +523,7 @@ USHORT SQZ_length(thread_db* tdbb, SCHAR* data, int length, DCC dcc)
 				}
 				else
 				{
-					dcc->dcc_next = FB_NEW(*tdbb->tdbb_default) Dcc();
+					dcc->dcc_next = FB_NEW(*tdbb->tdbb_default) Decompress;
 					dcc = dcc->dcc_next;
 					dcc->dcc_pool = tdbb->tdbb_default;
 				}

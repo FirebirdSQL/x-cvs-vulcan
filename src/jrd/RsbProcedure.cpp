@@ -30,6 +30,7 @@
 #include "rse.h"
 #include "Request.h"
 #include "Procedure.h"
+#include "Format.h"
 #include "req.h"
 #include "val.h"
 #include "ExecutionPathInfoGen.h"

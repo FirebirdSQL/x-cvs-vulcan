@@ -49,6 +49,8 @@
 #include "Sync.h"
 #include "Triggers.h"
 #include "CompilerScratch.h"
+#include "exe.h"
+#include "Format.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -145,7 +147,7 @@ void Relation::scan(thread_db* tdbb)
 }
 
 
-prim::prim(void)
+PrimaryKeyDependency::PrimaryKeyDependency(void)
 {
 	prim_reference_ids = NULL;
 	prim_relations = NULL;

@@ -24,9 +24,9 @@
 #ifndef JRD_IDX_PROTO_H
 #define JRD_IDX_PROTO_H
 
-#include "../jrd/btr.h"
-#include "../jrd/exe.h"
-#include "../jrd/req.h"
+//#include "../jrd/btr.h"
+//#include "../jrd/exe.h"
+//#include "../jrd/req.h"
 
 
 void IDX_check_access(thread_db*, class CompilerScratch*, Relation* , Relation* ,

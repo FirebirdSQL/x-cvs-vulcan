@@ -115,6 +115,7 @@
 #include "../jrd/cvt_proto.h"
 #include "../jrd/misc_func_ids.h"
 #include "RsbBoolean.h"
+#include "Format.h"
 //#include "../jrd/authenticate.h"
 //#include "../common/config/config.h"
 
@@ -1721,7 +1722,7 @@ USHORT EVL_group(thread_db* tdbb, RecordSource* rsb, JRD_NOD node, USHORT state)
 					impure_agg_sort* asb_impure = (impure_agg_sort*) IMPURE (request, asb->nod_impure);
 					UCHAR* data;
 					SORT_put(tdbb,
-							 reinterpret_cast<sort_context*>(asb_impure->iasb_sort_handle),
+							 reinterpret_cast<SortContext*>(asb_impure->iasb_sort_handle),
 							 reinterpret_cast<ULONG**>(&data));
 					MOVE_CLEAR(data, ROUNDUP_LONG(asb->asb_key_desc->skd_length));
 					asb->asb_desc.dsc_address = data;
@@ -3255,7 +3256,7 @@ static void compute_agg_distinct(thread_db* tdbb, jrd_nod* node)
 /* Sort the values already "put" to sort */
 
 	if (!SORT_sort(tdbb,
-				   reinterpret_cast<sort_context*>(asb_impure->iasb_sort_handle)))
+				   reinterpret_cast<SortContext*>(asb_impure->iasb_sort_handle)))
 		{
 		ERR_punt();
 		}
@@ -3266,7 +3267,7 @@ static void compute_agg_distinct(thread_db* tdbb, jrd_nod* node)
 		{
 		UCHAR* data;
 		SORT_get(tdbb,
-				 reinterpret_cast < sort_context* > (asb_impure->iasb_sort_handle),
+				 reinterpret_cast < SortContext* > (asb_impure->iasb_sort_handle),
 				 reinterpret_cast < ULONG ** >(&data)
 #ifdef SCROLLABLE_CURSORS
 				 , RSE_get_forward
@@ -3276,7 +3277,7 @@ static void compute_agg_distinct(thread_db* tdbb, jrd_nod* node)
 		if (data == NULL) 
 			{
 			/* we are done, close the sort */
-			SORT_fini(reinterpret_cast < sort_context* > (asb_impure->iasb_sort_handle),
+			SORT_fini(reinterpret_cast < SortContext* > (asb_impure->iasb_sort_handle),
 					  tdbb->tdbb_attachment);
 			asb_impure->iasb_sort_handle = NULL;
 			break;
@@ -3832,9 +3833,9 @@ static void init_agg_distinct(thread_db* tdbb, const jrd_nod* node)
 
 	const AggregateSort* agSortBlk = (AggregateSort*) node->nod_arg[1];
 	impure_agg_sort* asb_impure = (impure_agg_sort*) IMPURE (request, agSortBlk->nod_impure);
-	const sort_key_def* sort_key = agSortBlk->asb_key_desc;
+	const SortKeyDef* sort_key = agSortBlk->asb_key_desc;
 
-	sort_context* handle =
+	SortContext* handle =
 		SORT_init(tdbb,
 				  ROUNDUP_LONG(sort_key->skd_length), 1, 1, sort_key,
 				  reject_duplicate, 0,

@@ -57,6 +57,7 @@
 #include "BdbSort.h"
 #include "Interlock.h"
 #include "CommitManager.h"
+#include "../jrd/os/pio.h"
 //#include "../jrd/sbm.h"
 
 #undef CACHE_WRITER

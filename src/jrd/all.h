@@ -26,9 +26,7 @@
 #define JRD_ALL_H
 
 #include "../common/classes/alloc.h"
-//#include "../jrd/jrd.h"
 #include "../jrd/block_cache.h"
-//#include "../jrd/lls.h"
 #include "../jrd/MemMgr.h"
 #include "../include/fb_blk.h"
 
@@ -50,6 +48,8 @@ void ALL_print_memory_pool_info(IB_FILE*, Database*);
 #ifdef DEV_BUILD
 void ALL_check_memory(void);
 #endif
+
+class Decompress;
 
 class JrdMemoryPool : public MemoryPool
 {
@@ -74,7 +74,7 @@ public:
 	static class blk* ALL_pop(lls**);
 	static void       ALL_push(blk*, lls**);
 
-	struct Dcc* plb_dccs;
+	Decompress* plb_dccs;
 private:
 	BlockCache<lls> lls_cache;  /* Was plb_lls */
 	Database *database;

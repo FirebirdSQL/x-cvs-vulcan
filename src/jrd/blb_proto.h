@@ -25,10 +25,15 @@
 #define JRD_BLB_PROTO_H
 
 //#include "../jrd/jrd.h"
-#include "../jrd/blb.h"
-#include "../jrd/exe.h"
+//#include "../jrd/blb.h"
+//#include "../jrd/exe.h"
 #include "../jrd/lls.h"
-#include "../jrd/val.h"
+//#include "../jrd/val.h"
+
+class blb;
+class ArrayField;
+struct impure_value;
+struct bid;
 
 void   BLB_cancel(thread_db*, blb*);
 void   BLB_close(thread_db*, blb*);

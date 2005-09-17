@@ -25,6 +25,7 @@
 #define JRD_CMP_PROTO_H
 
 #include "CompilerScratch.h"
+#include "req.h"
 
 // Note: Due to bad planning, the enum "rsc_s" is defined in req.h, which must be include
 // before this file.
@@ -37,6 +38,7 @@ class Relation;
 class Resource;
 class Format;
 class IndexLock;
+//class Resource;
 
 struct thread_db;
 

@@ -48,12 +48,16 @@ const UCHAR SPECIAL_DOUBLE	= dtype_d_float;
 
 #endif
 
+/***
 #ifndef REQUESTER
-class Format : public pool_alloc<type_fmt>
+class FormatX //: public pool_alloc<type_fmt>
 {
 public:
 	Format(MemoryPool& p, int len) : fmt_desc(len, p, type_fmt)
 		{
+		fmt_length = 0;
+		fmt_count = 0;
+		fmt_version = 0;
 		}
 		
 	static Format* newFmt(MemoryPool& p, int len = 0)
@@ -62,12 +66,14 @@ public:
 	USHORT fmt_length;
 	USHORT fmt_count;
 	USHORT fmt_version;
+	
 	firebird::vector<dsc> fmt_desc;
 	typedef firebird::vector<dsc>::iterator fmt_desc_iterator;
 	typedef firebird::vector<dsc>::const_iterator fmt_desc_const_iterator;
 };
 //typedef fmt* FMT;
-#endif /* REQUESTER */
+#endif // REQUESTER
+***/
 
 #define MAX_FORMAT_SIZE		65535
 

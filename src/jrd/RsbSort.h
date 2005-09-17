@@ -33,7 +33,7 @@
 #include "RecordSource.h"
 #include "dsc.h"
 
-struct sort_context;
+struct SortContext;
 
 // Sort map block
 
@@ -52,7 +52,7 @@ public:
 	USHORT smb_count;			// total number of fields
 	USHORT smb_length;			// sort record length
 	USHORT smb_key_length;		// key length in longwords
-	struct sort_key_def* smb_key_desc;	// address of key descriptors
+	struct SortKeyDef* smb_key_desc;	// address of key descriptors
 	USHORT smb_flags;			// misc sort flags
     smb_repeat smb_rpt[1];
 };
@@ -70,7 +70,7 @@ const USHORT SMB_tag = 2;		// beast is a tag sort
 
 struct irsb_sort {
 	ULONG		  irsb_flags;
-	sort_context* irsb_sort_handle;
+	SortContext* irsb_sort_handle;
 };
 
 typedef irsb_sort *IRSB_SORT;

@@ -27,7 +27,7 @@
 #ifndef _INTERNALPREPAREDSTATEMENT_H_
 #define _INTERNALPREPAREDSTATEMENT_H_
 
-#include "Connection.h"
+//#include "Connection.h"
 #include "InternalStatement.h"
 #include "Values.h"
 

@@ -24,17 +24,19 @@
 #ifndef JRD_SCL_PROTO_H
 #define JRD_SCL_PROTO_H
 
+class SecurityClass;
+
 CLASS (Generate);
 
 void SCL_check_access(thread_db* tdbb, struct SecurityClass*, SLONG, const TEXT*,
 					  const TEXT*, USHORT, const TEXT*, const TEXT*);
 void SCL_check_procedure(thread_db* tdbb, struct dsc*, USHORT);
 void SCL_check_relation(thread_db* tdbb, struct dsc*, USHORT);
-struct SecurityClass* SCL_get_class(thread_db* tdbb, const TEXT*);
+SecurityClass* SCL_get_class(thread_db* tdbb, const TEXT*);
 int SCL_get_mask(thread_db* tdbb, const TEXT*, const TEXT*);
 void SCL_init(bool, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*, const TEXT* securityDatabase, thread_db*, bool);
 void SCL_move_priv(Generate *acl, USHORT);
-struct SecurityClass* SCL_recompute_class(thread_db*, TEXT*);
+SecurityClass* SCL_recompute_class(thread_db*, TEXT*);
 void SCL_release(thread_db* tdbb, struct SecurityClass*);
 void SCL_check_index(thread_db*, const TEXT*, UCHAR, USHORT);
 

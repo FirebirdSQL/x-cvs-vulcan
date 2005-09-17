@@ -9,8 +9,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-//#include "../jrd/jrd_blks.h"
-//#include "../include/fb_blk.h"
+#include "../jrd/jrd_blks.h"
+#include "../include/fb_blk.h"
 #include "AsyncEvent.h"
 #include "JString.h"
 #include "TempSpace.h"
@@ -53,7 +53,7 @@ struct serv
 
 typedef serv *SERV;
 
-class Service// : public pool_alloc<type_svc>
+class Service //: public pool_alloc<type_svc>
 {
 public:
 	Service(ConfObject *configuration);

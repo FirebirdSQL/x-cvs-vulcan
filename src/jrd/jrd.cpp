@@ -79,6 +79,7 @@
 #include "PageCache.h"
 #include "DatabaseManager.h"
 #include "Sync.h"
+#include "Format.h"
 
 #ifdef SERVICES
 #include "../jrd/svc.h"

@@ -24,13 +24,13 @@
 #ifndef JRD_EXT_PROTO_H
 #define JRD_EXT_PROTO_H
 
-class ext;
+class ExternalFile;
 class Transaction;
 struct thread_db;
 
 void	EXT_close(thread_db* tdbb, RecordSource*);
 void	EXT_erase(thread_db* tdbb, record_param*, int*);
-ext*	EXT_file(thread_db* tdbb, Relation*, const TEXT*, SLONG*);
+ExternalFile*	EXT_file(thread_db* tdbb, Relation*, const TEXT*, SLONG*);
 void	EXT_fini(thread_db* tdbb, Relation*);
 int		EXT_get(thread_db* tdbb, RecordSource*);
 void	EXT_modify(thread_db* tdbb, record_param*, record_param*, int*);

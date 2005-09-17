@@ -27,10 +27,10 @@
 #ifndef JRD_BTN_H_
 #define JRD_BTN_H_
 
-#include "firebird.h"			// needed for get_long
+//#include "firebird.h"			// needed for get_long
 #include "memory_routines.h"	// needed for get_long
 
-#include "../jrd/common.h"
+//#include "../jrd/common.h"
 #include "../jrd/ods.h"
 #include "../include/fb_vector.h"
 #include "../common/classes/array.h"

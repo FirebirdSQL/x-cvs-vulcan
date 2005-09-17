@@ -57,6 +57,7 @@
 #include "../jrd/vio_proto.h"
 #include "../jrd/dls_proto.h"
 #include "CompilerScratch.h"
+#include "Format.h"
 
 #include "DirectoryList.h"
 #include "ConfObject.h"
@@ -141,7 +142,7 @@ void EXT_erase(thread_db* tdbb, record_param* rpb, int *transaction)
 }
 
 
-EXT EXT_file(thread_db* tdbb, Relation* relation, const TEXT * file_name, SLONG * description)
+ExternalFile *EXT_file(thread_db* tdbb, Relation* relation, const TEXT * file_name, SLONG * description)
 {
 /**************************************
  *
@@ -153,7 +154,7 @@ EXT EXT_file(thread_db* tdbb, Relation* relation, const TEXT * file_name, SLONG 
  *	Create a file block for external file access.
  *
  **************************************/
-	EXT file;
+	ExternalFile *file;
 
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
@@ -188,7 +189,7 @@ EXT EXT_file(thread_db* tdbb, Relation* relation, const TEXT * file_name, SLONG 
 	DirectoryList directoryList (option, directories);
 	
 	relation->rel_file = file =
-		FB_NEW_RPT(*dbb->dbb_permanent, (strlen(file_name) + 1)) ext();
+		FB_NEW_RPT(*dbb->dbb_permanent, (strlen(file_name) + 1)) ExternalFile();
 	strcpy(reinterpret_cast<char*>(file->ext_filename), file_name);
 	file->ext_flags = 0;
 	file->ext_ifi = NULL;
@@ -237,7 +238,7 @@ void EXT_fini(thread_db* tdbb, Relation* relation)
  *	Close the file associated with a relation.
  *
  **************************************/
-	EXT file;
+	ExternalFile *file;
 
 	if (relation->rel_file) {
 		file = relation->rel_file;
@@ -264,7 +265,7 @@ int EXT_get(thread_db* tdbb, RecordSource* rsb)
  **************************************/
 	JRD_REQ request;
 	Relation* relation;
-	EXT file;
+	ExternalFile *file;
 	record_param* rpb;
 	Record* record;
 	Format* format;
@@ -486,7 +487,7 @@ void EXT_store(DBB dbb, record_param* rpb, int *transaction)
 	Relation* relation;
 	Record* record;
 	Format* format;
-	EXT file;
+	ExternalFile *file;
 	//JRD_FLD field;
 	Literal* literal;
 	DSC desc;

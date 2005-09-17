@@ -34,9 +34,12 @@
 #include "../jrd/dsc.h"
 #include "../jrd/all.h"
 //#include "../jrd/nbak.h"
+
+/***
 #if defined(UNIX) && defined(SUPERSERVER)
 #include <setjmp.h>
 #endif
+***/
 
 #include "../include/fb_vector.h"
 
@@ -177,28 +180,29 @@ const int VAL_MAX_ERROR					= 25;
 
 //#include "Field.h"
 class Field;
-typedef Field jrd_fld;
-typedef Field *JRD_FLD;
+//typedef Field jrd_fld;
+//typedef Field *JRD_FLD;
 
+struct jrd_nod;
 
 /* Index block to cache index information */
 
 class IndexBlock : public pool_alloc<type_idb>
 {
-    public:
-	class IndexBlock* idb_next;
-	struct jrd_nod* idb_expression;			/* node tree for index expression */
-	Request* idb_expression_request;	/* request in which index expression is evaluated */
-	struct dsc idb_expression_desc;	/* descriptor for expression result */
-	struct Lock* idb_lock;				/* lock to synchronize changes to index */
-	UCHAR idb_id;
+public:
+	IndexBlock	*idb_next;
+	jrd_nod*	idb_expression;			/* node tree for index expression */
+	Request*	idb_expression_request;	/* request in which index expression is evaluated */
+	dsc			idb_expression_desc;	/* descriptor for expression result */
+	Lock*		idb_lock;				/* lock to synchronize changes to index */
+	UCHAR		idb_id;
 };
 
 
 
 /* view context block to cache view aliases */
 
-class ViewContext: public pool_alloc<type_vcx>
+class ViewContext : public pool_alloc<type_vcx>
 {
     public:
 	class ViewContext* vcx_next;
@@ -304,11 +308,15 @@ class BlockingThread : public pool_alloc<type_btb>
 // and reside in ods.h, although I watched a place with 1 and others with members
 // of a struct.
 
+class Bdb;
+struct pag;
+struct exp_index_buf;
+
 typedef struct win {
 	SLONG		win_page;
-	struct pag* win_buffer;
-	struct exp_index_buf* win_expanded_buffer;
-	class Bdb*	win_bdb;
+	pag*		win_buffer;
+	exp_index_buf* win_expanded_buffer;
+	Bdb*		win_bdb;
 	//class bdb*	win_bdb;
 	SSHORT		win_scans;
 	USHORT		win_flags;

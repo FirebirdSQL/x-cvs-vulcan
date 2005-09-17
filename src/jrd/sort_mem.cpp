@@ -101,7 +101,7 @@ size_t SortMem::MemoryBlock::write(size_t position, char *buffer, size_t length)
  *	File block implementation
  */
 
-SortMem::FileBlock::FileBlock(Block *tail, size_t length, struct sort_work_file* blk, size_t position)
+SortMem::FileBlock::FileBlock(Block *tail, size_t length, SortWorkFile* blk, size_t position)
 	: Block(tail, length), file(blk), offset(position)
 {
 }
@@ -141,7 +141,7 @@ size_t SortMem::FileBlock::write(size_t position, char *buffer, size_t length)
  *	Virtual scratch file implementation
  */
 
-SortMem::SortMem(struct sort_work_file* blk, size_t size)
+SortMem::SortMem(SortWorkFile* blk, size_t size)
 	: internal(blk), logical_size(0), physical_size(0), file_size(0), head(0), tail(0)
 {
 	// Initialize itself
@@ -342,7 +342,7 @@ size_t SortMem::write(size_t position, char *address, size_t length)
 	return position + copied;
 }
 
-sort_work_file::sort_work_file (Database *database)
+SortWorkFile::SortWorkFile (Database *database)
 {
 	memset (this, 0, sizeof (*this));
 	configuration = database->configuration;

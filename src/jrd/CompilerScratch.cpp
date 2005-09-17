@@ -33,6 +33,8 @@
 #include "../jrd/jrd.h"
 #include "CompilerScratch.h"
 #include "err_proto.h"
+#include "RecordSource.h"
+#include "rse.h"
 
 CompilerScratch::CompilerScratch(MemoryPool& p, size_t len)
 	:   csb_dependencies(p),

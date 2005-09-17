@@ -1239,8 +1239,7 @@ int common_main(int		argc,
 
 		exit_local(result, const_cast<tgbl*>(tdgbl));
 		return result;
-		}	// try
-
+		}
 	catch (const std::exception&)
 		{
 		// All calls to exit_local(), normal and error exits, wind up here 

@@ -29,8 +29,7 @@
 
 
 #include "InternalResultSet.h"
-#include "InternalResultSet.h"
-#include "JString.h"	// Added by ClassView
+#include "JString.h"
 
 class InternalDatabaseMetaData;
 class InternalResultSet;

@@ -32,17 +32,19 @@
 
 #include "RecordSource.h"
 
+class SortWorkFile;
+
 // Merge (equivalence) file block
 
 struct MergeFile 
 {
-	class sort_work_file* mfb_sfb;				// merge file uses SORT I/O routines
-	ULONG mfb_equal_records;			// equality group cardinality
-	ULONG mfb_record_size;				// matches sort map length
-	ULONG mfb_current_block;			// current merge block in buffer
-	ULONG mfb_block_size;				// merge block I/O size
-	ULONG mfb_blocking_factor;			// merge equality records per block
-	UCHAR *mfb_block_data;				// merge block I/O buffer
+	SortWorkFile	*mfb_sfb;				// merge file uses SORT I/O routines
+	ULONG			mfb_equal_records;			// equality group cardinality
+	ULONG			mfb_record_size;				// matches sort map length
+	ULONG			mfb_current_block;			// current merge block in buffer
+	ULONG			mfb_block_size;				// merge block I/O size
+	ULONG			mfb_blocking_factor;			// merge equality records per block
+	UCHAR			*mfb_block_data;				// merge block I/O buffer
 };
 
 const ULONG MERGE_BLOCK_SIZE	= 65536;

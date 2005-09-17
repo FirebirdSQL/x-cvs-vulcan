@@ -45,6 +45,7 @@
 #include "../jrd/align.h"
 #include "../jrd/lls.h"
 #include "../jrd/rse.h"	// for MAX_STREAMS
+#include "Format.h"
 
 #include "../jrd/Relation.h"
 #include "../jrd/Field.h"
@@ -1461,13 +1462,17 @@ static JRD_NOD par_message(thread_db* tdbb, CompilerScratch* csb)
 	ULONG offset = 0;
 
 	Format::fmt_desc_iterator desc, end;
-	for (desc = format->fmt_desc.begin(), end = desc + n; desc < end; desc++) {
+	
+	for (desc = format->fmt_desc.begin(), end = desc + n; desc < end; desc++) 
+		{
 		const USHORT alignment = PAR_desc(csb, &*desc);
+		
 		if (alignment)
 			offset = FB_ALIGN(offset, alignment);
+			
 		desc->dsc_address = (UCHAR *) (long) offset;
 		offset += desc->dsc_length;
-	}
+		}
 
 	if (offset > MAX_FORMAT_SIZE)
 		error(csb, isc_imp_exc, isc_arg_gds, isc_blktoobig, 0);

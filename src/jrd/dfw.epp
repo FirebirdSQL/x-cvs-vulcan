@@ -110,6 +110,7 @@
 #include "OSRIException.h"
 #include "PageCache.h"
 #include "ProcManager.h"
+#include "Format.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -215,13 +216,13 @@ static const UCHAR nonnull_validation_blr[] =
 	blr_eoc
 };
 
-typedef struct task
+struct DeferredTask
 {
 	enum dfw_t task_type;
 	bool (*task_routine) (thread_db*, SSHORT, DeferredWork*, Transaction*);
-} TASK;
+}; // TASK;
 
-static const TASK task_table[] =
+static const DeferredTask task_table[] =
 {
 	{ dfw_add_file, add_file },
 	{ dfw_add_shadow, add_shadow },
@@ -516,7 +517,7 @@ void DFW_perform_work(thread_db* tdbb, Transaction* transaction)
 		try 
 			{
 			DeferredWork* prior = NULL;
-			for (const TASK* task = task_table; task->task_type != dfw_null; ++task)
+			for (const DeferredTask* task = task_table; task->task_type != dfw_null; ++task)
 				for (work = transaction->tra_deferred_work; work; work = work->dfw_next)
 					if (work->dfw_type == task->task_type)
 						{

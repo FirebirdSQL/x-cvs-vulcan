@@ -36,8 +36,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
 #include "../include/fb_vector.h"
 #include "JString.h"
 #include "SyncObject.h"
@@ -102,7 +102,7 @@ class str;
 class UserId;
 class Request;
 class Lock;
-class sort_context;
+class SortContext;
 class SecurityClass;
 //class Bookmark;
 
@@ -125,7 +125,7 @@ public:
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
 	Request*	att_requests;			// Requests belonging to attachment
-	sort_context*		att_active_sorts;	// Active sorts
+	SortContext*		att_active_sorts;	// Active sorts
 	Lock*		att_id_lock;			// Attachment lock (if any)
 	SLONG		att_attachment_id;		// Attachment ID
 	SLONG		att_lock_owner_handle;	// Handle for the lock manager

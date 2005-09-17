@@ -24,7 +24,7 @@
 #ifndef JRD_ISC_PROTO_H
 #define JRD_ISC_PROTO_H
 
-#include "../jrd/isc.h"
+//#include "../jrd/isc.h"
 
 void	ISC_ast_enter(void);
 void	ISC_ast_exit(void);

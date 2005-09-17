@@ -41,6 +41,7 @@
 #include "../jrd/intl.h"
 #include "../jrd/intl_proto.h"
 #include "../jrd/btr.h"					// this really doesn't belong here!
+#include "../jrd/err_proto.h"    /* Index error types */
 
 RsbSort::RsbSort(CompilerScratch *csb, RecordSource *source, SortMap *sortMap) : RecordSource(csb, rsb_sort)
 {
@@ -92,7 +93,7 @@ void RsbSort::open(Request* request)
 	// Initialize for sort. If this is really a project operation,
 	// establish a callback routine to reject duplicate records.
 
-	sort_context* handle = SORT_init(tdbb,
+	SortContext* handle = SORT_init(tdbb,
 						   map->smb_length,
 						   map->smb_keys,
 						   map->smb_keys,
