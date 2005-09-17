@@ -1,3 +1,45 @@
+2005-09-16 19:00  jimstarkey
+
+	* vulcan/src/lock/print.cpp:
+	
+	Fix lock print to use new struct/class names
+
+2005-09-16 18:54  jimstarkey
+
+	* vulcan/src/: jrd/Database.h, jrd/PageCache.cpp, jrd/PageCache.h,
+	jrd/blb.cpp, jrd/blf_proto.h, jrd/blk.h, jrd/blob_filter.cpp,
+	jrd/blob_filter.h, jrd/cch.h, jrd/dbt.cpp, jrd/dfw.epp,
+	jrd/dls.cpp, jrd/dmp.cpp, jrd/fil.h, jrd/inf.cpp, jrd/ini.epp,
+	jrd/jrd.cpp, jrd/met.epp, jrd/met.h, jrd/met_proto.h, jrd/nbak.cpp,
+	jrd/nbak.h, jrd/old.cpp, jrd/pag.cpp, jrd/qatest.cpp, jrd/sdw.cpp,
+	jrd/sdw.h, jrd/sdw_proto.h, jrd/sort.cpp, jrd/sort.h, jrd/trig.h,
+	jrd/os/pio.h, jrd/os/pio_proto.h, jrd/os/posix/pio.cpp,
+	jrd/os/posix/unix.cpp, jrd/os/vms/pio.cpp, jrd/os/win32/pio.cpp,
+	lock/LockMgr.cpp, lock/LockMgr.h:
+	
+	More arbitrary and capricious name changes to elminate engine TLAs
+
+2005-09-16 16:07  jimstarkey
+
+	* vulcan/src/jrd/: exe.cpp, rlck_proto.h:
+	
+	Fixed some platform specic typos in lck -> Lock conversion.
+
+2005-09-16 16:03  jimstarkey
+
+	* vulcan/src/jrd/: Attachment.cpp, Attachment.h, Bdb.cpp, Bdb.h,
+	Database.h, ExecStatement.cpp, ExecStatement.h, PageCache.cpp,
+	Procedure.cpp, Procedure.h, Relation.cpp, Relation.h, TipCache.cpp,
+	btr.cpp, cch.cpp, cmp.cpp, dbt.cpp, dfw.epp, dpm.epp, evl.cpp,
+	exe.cpp, idx.cpp, inf.cpp, jrd.cpp, jrd.h, lck.cpp, lck.h,
+	lck_proto.h, met.epp, nav.cpp, nbak.cpp, pag.cpp, pcmet.epp,
+	rec.cpp, req.h, rlck.cpp, rlck_proto.h, rng.cpp, rse.cpp, sdw.cpp,
+	tpc.cpp, tra.cpp, tra.h, tra_proto.h, val.cpp, validation.cpp,
+	vio.cpp, os/posix/pio.cpp, os/posix/unix.cpp, os/vms/pio.cpp,
+	os/win32/pio.cpp, os/win32/winnt.cpp:
+	
+	Change lck to Lock and LCK to Lock*
+
 2005-09-15 22:19  jimstarkey
 
 	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
