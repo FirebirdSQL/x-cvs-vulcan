@@ -25,6 +25,7 @@
 #define _JRD_BTR_PROTO_H_
 
 #include "../jrd/btr.h"
+#include "../jrd/err_proto.h"
 //#include "../jrd/ods.h"
 //#include "../jrd/req.h"
 
