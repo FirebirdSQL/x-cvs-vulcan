@@ -1,3 +1,47 @@
+2005-09-17 22:50  jimstarkey
+
+	* vulcan/src/jrd/: AsyncEvent.h, btr_proto.h, makefile.in:
+	
+	Fixed a few, new cross platform compilation issues.
+
+2005-09-17 22:39  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/gsec/gsec.vcproj,
+	builds/VisualStudio7/gsec/vulcan.conf,
+	builds/VisualStudio7/jrd/jrd.vcproj, install/server.conf,
+	install/vulcan.conf, src/burp/burp.cpp, src/jrd/AsyncEvent.h,
+	src/jrd/Attachment.h, src/jrd/CompilerScratch.cpp,
+	src/jrd/CompilerScratch.h, src/jrd/Database.h, src/jrd/Format.cpp,
+	src/jrd/Format.h, src/jrd/InternalCallableStatement.h,
+	src/jrd/InternalMetaDataResultSet.h,
+	src/jrd/InternalPreparedStatement.h, src/jrd/InternalResultSet.h,
+	src/jrd/InternalStatement.h, src/jrd/Optimizer.cpp,
+	src/jrd/PageCache.cpp, src/jrd/Procedure.cpp, src/jrd/Relation.cpp,
+	src/jrd/Relation.h, src/jrd/Request.cpp, src/jrd/Request.h,
+	src/jrd/RsbMerge.cpp, src/jrd/RsbMerge.h, src/jrd/RsbProcedure.cpp,
+	src/jrd/RsbSort.cpp, src/jrd/RsbSort.h, src/jrd/Service.h,
+	src/jrd/all.h, src/jrd/blb.cpp, src/jrd/blb_proto.h,
+	src/jrd/blob_filter.h, src/jrd/btn.h, src/jrd/btr.cpp,
+	src/jrd/btr.h, src/jrd/btr_proto.h, src/jrd/cch.h, src/jrd/cmp.cpp,
+	src/jrd/cmp_proto.h, src/jrd/cvt2.cpp, src/jrd/dfw.epp,
+	src/jrd/dls.cpp, src/jrd/dls_proto.h, src/jrd/dpm.epp,
+	src/jrd/dyn_def.epp, src/jrd/dyn_mod.epp, src/jrd/evl.cpp,
+	src/jrd/exe.cpp, src/jrd/exe.h, src/jrd/ext.cpp, src/jrd/ext.h,
+	src/jrd/ext_proto.h, src/jrd/extvms.cpp, src/jrd/idx.cpp,
+	src/jrd/idx_proto.h, src/jrd/inf.cpp, src/jrd/ini.epp,
+	src/jrd/isc_proto.h, src/jrd/jrd.cpp, src/jrd/jrd.h,
+	src/jrd/jrd.vcproj, src/jrd/lls.h, src/jrd/met.epp,
+	src/jrd/met_proto.h, src/jrd/old_vector.h, src/jrd/opt.cpp,
+	src/jrd/pag.cpp, src/jrd/pag.h, src/jrd/par.cpp, src/jrd/rse.cpp,
+	src/jrd/scl.epp, src/jrd/scl_proto.h, src/jrd/sdw.cpp,
+	src/jrd/sdw.h, src/jrd/sort.cpp, src/jrd/sort.h,
+	src/jrd/sort_mem.cpp, src/jrd/sort_mem.h, src/jrd/sort_proto.h,
+	src/jrd/sqz.cpp, src/jrd/sqz.h, src/jrd/sqz_proto.h, src/jrd/svc.h,
+	src/jrd/tra.cpp, src/jrd/tra.h, src/jrd/val.h,
+	src/jrd/validation.cpp, src/jrd/vio.cpp, src/remote/PortInet.cpp:
+	
+	[no log message]
+
 2005-09-16 19:00  jimstarkey
 
 	* vulcan/src/lock/print.cpp:
