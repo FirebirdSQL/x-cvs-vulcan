@@ -160,6 +160,7 @@ public:
 		} data;
 	void setValue(dsc* desc, InternalStatement *statement);
 	bool getValue(dsc* desc);
+	dsc getDescriptor(void);
 };
 
 #endif // !defined(AFX_VALUE_H__02AD6A4B_A433_11D2_AB5B_0000C01D2301__INCLUDED_)

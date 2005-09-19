@@ -1037,7 +1037,7 @@ bool Value::getValue(dsc* desc)
 			break;
 			
 		case dtype_short:
-			*((short*) p) = getByte(desc->dsc_scale);
+			*((short*) p) = getShort(desc->dsc_scale);
 			break;
 			
 		case dtype_long:
@@ -1068,4 +1068,70 @@ bool Value::getValue(dsc* desc)
 		}
 	
 	return type == Null;
+}
+
+dsc Value::getDescriptor(void)
+{
+	dsc desc;
+
+	switch (type)
+		{
+		case Null:
+			desc.dsc_dtype = dtype_unknown;
+			break;
+
+		case String:
+		case Char:
+			desc.dsc_dtype = dtype_text;
+			desc.dsc_address = (UCHAR*) data.string.string;
+			desc.dsc_length = data.string.length;
+			break;
+
+		case Short:
+			desc.dsc_dtype = dtype_short;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.smallInt);
+			desc.dsc_scale = scale;
+			break;
+
+		case Long:
+			desc.dsc_dtype = dtype_long;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.integer);
+			desc.dsc_scale = scale;
+			break;
+
+		case Quad:
+			desc.dsc_dtype = dtype_int64;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.quad);
+			desc.dsc_scale = scale;
+			break;
+
+		case Double:
+			desc.dsc_dtype = dtype_double;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.dbl);
+			break;
+
+		case Date:
+			desc.dsc_dtype = dtype_sql_date;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.date);
+			break;
+
+		case Timestamp:
+			desc.dsc_dtype = dtype_timestamp;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.timestamp);
+			break;
+
+		case BlobPtr:
+		case ClobPtr:
+
+		default:
+			NOT_YET_IMPLEMENTED;
+		}
+	
+	return desc;
 }

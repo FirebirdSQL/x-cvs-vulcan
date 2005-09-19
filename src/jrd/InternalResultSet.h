@@ -112,6 +112,8 @@ public:
 	dsc				*descriptors;
 	InternalStatement	*statement;
 	InternalResultSetMetaData *metaData;
+	//virtual dsc getDescriptor(int id);
+	//virtual dsc getDescriptor(const char* columnName);
 };
 
 #endif

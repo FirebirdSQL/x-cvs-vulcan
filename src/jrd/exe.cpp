@@ -2279,19 +2279,28 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 				ExecStatement *exec = *(ExecStatement**)  IMPURE (request, node->nod_impure);
 				
 				if (!exec)
-					exec = request->getExecStatement();
+					*(ExecStatement**) IMPURE (request, node->nod_impure) = exec = request->getExecStatement();
 				
 				switch (request->req_operation) 
 					{
 					case req_evaluate:
 						//impure->Open(tdbb, node->nod_arg[0], node->nod_count - 2,  (!node->nod_arg[1]));
 						exec->prepare(node->nod_arg[0], !node->nod_arg[1]);
+						exec->execute(node->nod_arg[2]);
 					case req_return:
 					case req_sync:
 						if (exec->fetch(node->nod_arg[2])) 
 							{
-							request->req_operation = req_evaluate;
-							node = node->nod_arg[1];
+							if (node->nod_arg[1])
+								{
+								request->req_operation = req_evaluate;
+								node = node->nod_arg[1];
+								}
+							else
+								{
+								request->req_operation = req_return;
+								node = node->nod_parent;
+								}
 							break;
 							}
 						request->req_operation = req_return;

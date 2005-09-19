@@ -151,6 +151,7 @@ public:
 	void setThread(thread_db* tdbb);
 	ExecStatement* getExecStatement(void);
 	void init(void);
+	void reset(void);
 };
 
 #endif

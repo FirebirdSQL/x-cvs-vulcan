@@ -36,6 +36,7 @@ class InternalStatementMetaData;
 class BinaryBlob;
 class AsciiBlob;
 class SqlTime;
+struct dsc;
 
 class InternalPreparedStatement : public InternalStatement, public PreparedStatement
 {
@@ -83,6 +84,7 @@ public:
 
 	Values		parameters;
 	InternalStatementMetaData	*statementMetaData;
+	virtual void setDescriptor(int index , dsc* value);
 };
 
 #endif

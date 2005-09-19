@@ -51,11 +51,16 @@ public:
 	JString			sqlString;
 	PreparedStatement	*statement;
 	ResultSet		*resultSet;
+	int				numberParameters;
+	int				numberColumns;
+	bool			singleton;
+	bool			first;
 	
 	void prepare(jrd_nod *sqlNode, bool singleton);
 	void close(void);
 	bool fetch(jrd_nod* valueList);
 	void reset(void);
+	void execute(jrd_nod* list);
 };
 
 #endif

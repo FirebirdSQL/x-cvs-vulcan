@@ -31,9 +31,15 @@
 #include "../jrd/jrd.h"
 #include "../jrd/req.h"
 #include "../jrd/dsc.h"
-#include "../jrd/evl_proto.h"
 #include "Connection.h"
 #include "InternalConnection.h"
+#include "InternalPreparedStatement.h"
+#include "InternalResultSet.h"
+#include "Value.h"
+#include "err_proto.h"
+#include "gen/iberror.h"
+#include "../jrd/evl_proto.h"
+#include "../jrd/mov_proto.h"
 
 ExecStatement::ExecStatement(Request *req)
 {
@@ -47,9 +53,10 @@ ExecStatement::~ExecStatement(void)
 	reset();
 }
 
-void ExecStatement::prepare(jrd_nod *sqlNode, bool singleton)
+void ExecStatement::prepare(jrd_nod *sqlNode, bool singletonFlag)
 {
 	reset();
+	singleton = singletonFlag;
 	dsc *desc = EVL_expr(request->req_tdbb, sqlNode);
 	const char *p = (const char*) desc->dsc_address;
 	JString string;
@@ -76,15 +83,60 @@ void ExecStatement::prepare(jrd_nod *sqlNode, bool singleton)
 	Connection *connection = request->req_attachment->getUserConnection(request->req_transaction);
 	statement = connection->prepareStatement(string);
 	sqlString = string;
+	StatementMetaData *metaData = statement->getStatementMetaData();
+	numberParameters = metaData->getParameterCount();
 }
 
-void ExecStatement::close(void)
+void ExecStatement::execute(jrd_nod* list)
 {
+	if (numberParameters > list->nod_count)
+		ERR_post(isc_wronumarg, 0);
+		
+	for (int n = 0; n < numberParameters; ++n)
+		{
+		dsc *desc = EVL_expr(request->req_tdbb, list->nod_arg[n]);
+		((InternalPreparedStatement*) statement)->setDescriptor(n + 1, desc);
+		}
+	
+	first = true;
+	statement->execute();
 }
 
 bool ExecStatement::fetch(jrd_nod* valueList)
 {
-	return false;
+	if (!resultSet)
+		{
+		resultSet = statement->getResultSet();
+		ResultSetMetaData *metaData = resultSet->getMetaData();
+		numberColumns = metaData->getColumnCount();
+		}
+	
+	if (!resultSet->next())
+		{
+		if (singleton && first)
+			ERR_post(isc_sing_select_err, 0);
+			
+		return false;
+		}
+	
+	first = false;
+	
+	for (int n = 0; n < numberColumns; ++n)
+		{
+		dsc *to = EVL_assign_to(request->req_tdbb, valueList->nod_arg[numberParameters + n]);
+		Value *value = ((InternalResultSet*) resultSet)->getValue(n + 1);
+		
+		if (value->getValue(to))
+			to->dsc_flags |= DSC_null;
+		else
+			to->dsc_flags &= ~DSC_null;
+		}
+
+	return true;
+}
+
+void ExecStatement::close(void)
+{
 }
 
 void ExecStatement::reset(void)

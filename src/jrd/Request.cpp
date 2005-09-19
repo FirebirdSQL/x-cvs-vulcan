@@ -88,17 +88,12 @@ Request::~Request(void)
 	delete req_last_xcp;
 	delete [] req_rpb;
 	delete [] req_impure;
-	
+	reset();
+
 	for (RecordSource *rsb; rsb = rsbs;)
 		{
 		rsbs = rsb->nextInRequest;
 		delete rsb;
-		}
-	
-	for (ExecStatement *exec; exec = execStatements;)
-		{
-		execStatements = exec->next;
-		delete exec;
 		}
 }
 
@@ -146,6 +141,7 @@ void Request::unwind(void)
 {
 	//DBB dbb = req_attachment->att_database;
 	//thread_db *tdbb = req_tdbb;
+	reset();
 	
 	if (req_flags & req_active) 
 		{
@@ -304,4 +300,13 @@ void Request::init(void)
 	req_tdbb = NULL;
 	rsbs = NULL;
 	execStatements = NULL;
+}
+
+void Request::reset(void)
+{
+	for (ExecStatement *exec; exec = execStatements;)
+		{
+		execStatements = exec->next;
+		delete exec;
+		}
 }

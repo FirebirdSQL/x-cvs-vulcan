@@ -283,3 +283,8 @@ void InternalPreparedStatement::mapParameters(dsql_msg* message)
 		}
 
 }
+
+void InternalPreparedStatement::setDescriptor(int index , dsc* value)
+{
+	getParameter (index - 1)->setValue (value, this);
+}

@@ -2412,7 +2412,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 			node->nod_arg[0] = parse(tdbb, csb, VALUE);			// SQL string
 			
 			if (BLR_BYTE) // singleton
-				node->nod_arg[1] = 0;
+				node->nod_arg[1] = NULL;
 			else
 				node->nod_arg[1] = parse(tdbb, csb, STATEMENT);	// body
 			

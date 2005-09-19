@@ -130,7 +130,7 @@ static const SCHAR count_table [] = {
 /*121*/	 0,  0,  0, 2,  0,  0, 0, 0, e_blk_length, 1, 1,  0, 
 /*133*/	 0, 0, 0, 1,  0,  0, 1, 0, 0, 0, 1, 0, 0, 0, 0,  0, 
 /*149*/	 0, 1, 1, 1, 0, 0, 0,  0, 2, 1, e_extract_count, 0, 
-/*161*/	0, 0, 2, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0, 0,  0, 
+/*161*/	0, 0, 2, 3, 0, 0, 0,  0,  0,  0,  0,  0,  0, 0,  0, 
 /*176*/	1, 1,  0};
 static const SCHAR type_table [] = {
 	 0, STATEMENT, STATEMENT, STATEMENT, STATEMENT, STATEMENT, 
