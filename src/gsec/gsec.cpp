@@ -44,6 +44,9 @@
 #include "../utilities/common/cmd_util_proto.h"
 //#include "../common/classes/ClumpletWriter.h"
 #include "PBGen.h"
+#include "ConfigFile.h"
+#include "Parameters.h"
+#include "Element.h"
 
 #include "../gsec/call_service.h"
 
@@ -250,11 +253,17 @@ int common_main(int argc,
 
 		ISC_STATUS* status = tdsec->tsec_status;
 		SSHORT ret = parse_cmd_line(argc, argv, tdsec);
-		
-#ifndef SUPERCLIENT
-		TEXT database_name[MAXPATHLEN];
-		//SecurityDatabase::getPath(database_name);
-#endif
+
+		JString databaseName;
+
+		if (user_data->database_entered)
+			databaseName = user_data->database_name;
+		else
+			{
+			ConfigFile *configFile = new ConfigFile(0);
+			Element *globalName = configFile->findGlobalAttribute(SecurityDatabase);
+			databaseName = (globalName) ? globalName->value : "security.fdb";
+			}
 
 		const TEXT* serverName = "";
 		
@@ -290,7 +299,7 @@ int common_main(int argc,
 			if (user_data->sql_role_name_entered) 
 				dpb.putParameter(isc_dpb_sql_role_name,  user_data->sql_role_name);
 
-			if (isc_attach_database(status, 0, database_name, &db_handle, 
+			if (isc_attach_database(status, 0, databaseName, &db_handle, 
 					dpb.getLength(), (char*) dpb.buffer))
 				GSEC_error_redirect(tdsec, status, GsecMsg15, NULL, NULL);
 			}
@@ -608,118 +617,149 @@ static bool get_switches(int argc,
 	int l;
 	SSHORT err_msg_no;
 
-/* look at each argument.   it's either a switch or a parameter.
-   parameters must always follow a switch, but not all switches
-   need parameters.   this is how, for example, parameters are
-   cleared (like a -fname switch followed by no first name
-   parameter). */
+	/* look at each argument.   it's either a switch or a parameter.
+	   parameters must always follow a switch, but not all switches
+	   need parameters.   this is how, for example, parameters are
+	   cleared (like a -fname switch followed by no first name
+	   parameter). */
 
 	internal_user_data* user_data = tdsec->tsec_user_data;
 	*quitflag = false;
 	USHORT last_sw = IN_SW_GSEC_0;
 	tdsec->tsec_sw_version = false;
-	for (--argc; argc > 0; argc--) {
+	
+	for (--argc; argc > 0; argc--) 
+		{
 		const TEXT* string = *++argv;
+		
 		if (*string == '?')
 			user_data->operation = HELP_OPER;
-		else if (*string != '-') {
+		else if (*string != '-') 
+			{
 			/* this is not a switch, so it must be a parameter for
 			   the previous switch, if any */
 
-			switch (last_sw) {
-			case IN_SW_GSEC_ADD:
-			case IN_SW_GSEC_DEL:
-			case IN_SW_GSEC_DIS:
-			case IN_SW_GSEC_MOD:
-				for (l = 0; l < 32 && string[l] && string[l] != ' '; l++)
-					user_data->user_name[l] = UPPER(string[l]);
-				if (l == 32) {
+			switch (last_sw) 
+				{
+				case IN_SW_GSEC_ADD:
+				case IN_SW_GSEC_DEL:
+				case IN_SW_GSEC_DIS:
+				case IN_SW_GSEC_MOD:
+					for (l = 0; l < 32 && string[l] && string[l] != ' '; l++)
+						user_data->user_name[l] = UPPER(string[l]);
+						
+					if (l == 32) 
+						{
 #ifdef SERVICE_THREAD
-					GSEC_error(tdsec, GsecMsg76, NULL, NULL, NULL, NULL, NULL);
+						GSEC_error(tdsec, GsecMsg76, NULL, NULL, NULL, NULL, NULL);
 #else
-					GSEC_print(tdsec, GsecMsg76, NULL, NULL, NULL, NULL, NULL);
+						GSEC_print(tdsec, GsecMsg76, NULL, NULL, NULL, NULL, NULL);
 #endif
-					/* invalid user name (maximum 31 bytes allowed) */
+						/* invalid user name (maximum 31 bytes allowed) */
+						return false;
+						}
+						
+					user_data->user_name[l] = '\0';
+					user_data->user_name_entered = true;
+					break;
+					
+				case IN_SW_GSEC_PASSWORD:
+					for (l = 0; l < 9 && string[l] && string[l] != ' '; l++)
+						user_data->password[l] = string[l];
+						
+					if (l == 9) 
+						GSEC_print(tdsec, GsecMsg77, NULL, NULL, NULL, NULL, NULL);
+						/* warning password maximum 8 significant bytes used */
+
+					user_data->password[l] = '\0';
+					user_data->password_entered = true;
+					break;
+					
+				case IN_SW_GSEC_UID:
+					user_data->uid = atoi(string);
+					user_data->uid_entered = true;
+					break;
+					
+				case IN_SW_GSEC_GID:
+					user_data->gid = atoi(string);
+					user_data->gid_entered = true;
+					break;
+					
+				case IN_SW_GSEC_SYSU:
+					strncpy(user_data->sys_user_name, string, sizeof(user_data->sys_user_name));
+					user_data->sys_user_entered = true;
+					break;
+					
+				case IN_SW_GSEC_GROUP:
+					strncpy(user_data->group_name, string, sizeof(user_data->group_name));
+					user_data->group_name_entered = true;
+					break;
+					
+				case IN_SW_GSEC_FNAME:
+					strncpy(user_data->first_name, string, sizeof(user_data->first_name));
+					user_data->first_name_entered = true;
+					break;
+					
+				case IN_SW_GSEC_MNAME:
+					strncpy(user_data->middle_name, string, sizeof(user_data->middle_name));
+					user_data->middle_name_entered = true;
+					break;
+					
+				case IN_SW_GSEC_LNAME:
+					strncpy(user_data->last_name, string, sizeof(user_data->last_name));
+					user_data->last_name_entered = true;
+					break;
+				
+				case IN_SW_GSEC_DATABASE:
+					strncpy(user_data->database_name, string, 512);
+					user_data->database_entered = true;
+					break;
+					
+				/***	
+				case IN_SW_GSEC_SERVER:
+					strncpy(user_data->server_name, string, sizeof(user_data->server_name));
+					user_data->server_entered = true;
+					break;
+				***/
+				
+				case IN_SW_GSEC_DBA_USER_NAME:
+					strncpy(user_data->dba_user_name, string, sizeof(user_data->dba_user_name));
+					user_data->dba_user_name_entered = true;
+					break;
+					
+				case IN_SW_GSEC_DBA_PASSWORD:
+					strncpy(user_data->dba_password, string, sizeof(user_data->dba_password));
+					user_data->dba_password_entered = true;
+					break;
+					
+				case IN_SW_GSEC_SQL_ROLE_NAME:
+					strncpy(user_data->sql_role_name, string, sizeof(user_data->sql_role_name));
+					user_data->sql_role_name_entered = true;
+					break;
+					
+				case IN_SW_GSEC_Z:
+				case IN_SW_GSEC_0:
+#ifdef SERVICE_THREAD
+					GSEC_error(tdsec, GsecMsg29, NULL, NULL, NULL, NULL, NULL);
+#else
+					GSEC_print(tdsec, GsecMsg29, NULL, NULL, NULL, NULL, NULL);
+#endif
+					/* gsec - invalid parameter, no switch defined */
+					
 					return false;
 				}
-				user_data->user_name[l] = '\0';
-				user_data->user_name_entered = true;
-				break;
-			case IN_SW_GSEC_PASSWORD:
-				for (l = 0; l < 9 && string[l] && string[l] != ' '; l++)
-					user_data->password[l] = string[l];
-				if (l == 9) {
-					GSEC_print(tdsec, GsecMsg77, NULL, NULL, NULL, NULL, NULL);
-					/* warning password maximum 8 significant bytes used */
-				}
-				user_data->password[l] = '\0';
-				user_data->password_entered = true;
-				break;
-			case IN_SW_GSEC_UID:
-				user_data->uid = atoi(string);
-				user_data->uid_entered = true;
-				break;
-			case IN_SW_GSEC_GID:
-				user_data->gid = atoi(string);
-				user_data->gid_entered = true;
-				break;
-			case IN_SW_GSEC_SYSU:
-				strncpy(user_data->sys_user_name, string, sizeof(user_data->sys_user_name));
-				user_data->sys_user_entered = true;
-				break;
-			case IN_SW_GSEC_GROUP:
-				strncpy(user_data->group_name, string, sizeof(user_data->group_name));
-				user_data->group_name_entered = true;
-				break;
-			case IN_SW_GSEC_FNAME:
-				strncpy(user_data->first_name, string, sizeof(user_data->first_name));
-				user_data->first_name_entered = true;
-				break;
-			case IN_SW_GSEC_MNAME:
-				strncpy(user_data->middle_name, string, sizeof(user_data->middle_name));
-				user_data->middle_name_entered = true;
-				break;
-			case IN_SW_GSEC_LNAME:
-				strncpy(user_data->last_name, string, sizeof(user_data->last_name));
-				user_data->last_name_entered = true;
-				break;
-			case IN_SW_GSEC_SERVER:
-				strncpy(user_data->server_name, string, sizeof(user_data->server_name));
-				user_data->server_entered = true;
-				break;
-			case IN_SW_GSEC_DBA_USER_NAME:
-				strncpy(user_data->dba_user_name, string, sizeof(user_data->dba_user_name));
-				user_data->dba_user_name_entered = true;
-				break;
-			case IN_SW_GSEC_DBA_PASSWORD:
-				strncpy(user_data->dba_password, string, sizeof(user_data->dba_password));
-				user_data->dba_password_entered = true;
-				break;
-			case IN_SW_GSEC_SQL_ROLE_NAME:
-				strncpy(user_data->sql_role_name, string, sizeof(user_data->sql_role_name));
-				user_data->sql_role_name_entered = true;
-				break;
-			case IN_SW_GSEC_Z:
-			case IN_SW_GSEC_0:
-#ifdef SERVICE_THREAD
-				GSEC_error(tdsec, GsecMsg29, NULL, NULL, NULL, NULL, NULL);
-#else
-				GSEC_print(tdsec, GsecMsg29, NULL, NULL, NULL, NULL, NULL);
-#endif
-				/* gsec - invalid parameter, no switch defined */
-				return false;
-			}
 			last_sw = IN_SW_GSEC_0;
-		}
-		else {
+			}
+		else 
+			{
 			/* iterate through the switch table, looking for matches */
 
 			USHORT in_sw = IN_SW_GSEC_0;
 			{ // scope
 			const TEXT* q;
-			for (const in_sw_tab_t* in_sw_tab = in_sw_table;
-				q = in_sw_tab->in_sw_name; in_sw_tab++)
-			{
+			
+			for (const in_sw_tab_t* in_sw_tab = in_sw_table; q = in_sw_tab->in_sw_name; in_sw_tab++)
+				{
 				const TEXT* p = string + 1;
 
 				/* handle orphaned hyphen case */
@@ -730,23 +770,27 @@ static bool get_switches(int argc,
 				/* compare switch to switch name in table */
 
 				l = 0;
-				while (*p) {
-					if (!*++p) {
+				
+				while (*p) 
+					{
+					if (!*++p) 
+						{
 						if (l >= in_sw_tab->in_sw_min_length)
 							in_sw = in_sw_tab->in_sw;
 						else
 							in_sw = IN_SW_GSEC_AMBIG;
-					}
+						}
+						
 					if (UPPER(*p) != *q++)
 						break;
 					l++;
-				}
+					}
 
 				/* end of input means we got a match.  stop looking */
 
 				if (!*p)
 					break;
-			}
+				}
 			} // scope
 
 			/* this checks to make sure that the switch is not a duplicate.   if
@@ -755,182 +799,249 @@ static bool get_switches(int argc,
 			   and the applicable parameter value is set to its null value, in
 			   case the user really wants to remove an existing parameter. */
 
-			switch (in_sw) {
-			case IN_SW_GSEC_ADD:
-			case IN_SW_GSEC_DEL:
-			case IN_SW_GSEC_DIS:
-			case IN_SW_GSEC_MOD:
-			case IN_SW_GSEC_QUIT:
-			case IN_SW_GSEC_HELP:
-				if (user_data->operation) {
-					GSEC_error(tdsec, GsecMsg30, NULL, NULL, NULL, NULL, NULL);
-					/* gsec - operation already specified */
-					return false;
-				}
-				switch (in_sw) {
+			switch (in_sw) 
+				{
 				case IN_SW_GSEC_ADD:
-					user_data->operation = ADD_OPER;
-					break;
 				case IN_SW_GSEC_DEL:
-					user_data->operation = DEL_OPER;
-					break;
 				case IN_SW_GSEC_DIS:
-					user_data->operation = DIS_OPER;
-					break;
 				case IN_SW_GSEC_MOD:
-					user_data->operation = MOD_OPER;
-					break;
 				case IN_SW_GSEC_QUIT:
-					user_data->operation = QUIT_OPER;
-					*quitflag = true;
-					break;
 				case IN_SW_GSEC_HELP:
-					user_data->operation = HELP_OPER;
+					if (user_data->operation) 
+						{
+						GSEC_error(tdsec, GsecMsg30, NULL, NULL, NULL, NULL, NULL);
+						/* gsec - operation already specified */
+						return false;
+						}
+						
+					switch (in_sw) 
+						{
+						case IN_SW_GSEC_ADD:
+							user_data->operation = ADD_OPER;
+							break;
+							
+						case IN_SW_GSEC_DEL:
+							user_data->operation = DEL_OPER;
+							break;
+							
+						case IN_SW_GSEC_DIS:
+							user_data->operation = DIS_OPER;
+							break;
+							
+						case IN_SW_GSEC_MOD:
+							user_data->operation = MOD_OPER;
+							break;
+							
+						case IN_SW_GSEC_QUIT:
+							user_data->operation = QUIT_OPER;
+							*quitflag = true;
+							break;
+							
+						case IN_SW_GSEC_HELP:
+							user_data->operation = HELP_OPER;
+							break;
+						}
+						
+					user_data->user_name[0] = '\0';
+					tdsec->tsec_interactive = false;
 					break;
-				}
-				user_data->user_name[0] = '\0';
-				tdsec->tsec_interactive = false;
-				break;
-			case IN_SW_GSEC_PASSWORD:
-			case IN_SW_GSEC_UID:
-			case IN_SW_GSEC_GID:
-			case IN_SW_GSEC_SYSU:
-			case IN_SW_GSEC_GROUP:
-			case IN_SW_GSEC_FNAME:
-			case IN_SW_GSEC_MNAME:
-			case IN_SW_GSEC_LNAME:
-			case IN_SW_GSEC_SERVER:
-			case IN_SW_GSEC_DBA_USER_NAME:
-			case IN_SW_GSEC_DBA_PASSWORD:
-			case IN_SW_GSEC_SQL_ROLE_NAME:
-				err_msg_no = 0;
-				switch (in_sw) {
+					
 				case IN_SW_GSEC_PASSWORD:
-					if (user_data->password_specified) {
-						err_msg_no = GsecMsg31;
-						break;
-					}
-					user_data->password_specified = true;
-					user_data->password[0] = '\0';
-					break;
 				case IN_SW_GSEC_UID:
-					if (user_data->uid_specified) {
-						err_msg_no = GsecMsg32;
-						break;
-					}
-					user_data->uid_specified = true;
-					user_data->uid = 0;
-					break;
 				case IN_SW_GSEC_GID:
-					if (user_data->gid_specified) {
-						err_msg_no = GsecMsg33;
-						break;
-					}
-					user_data->gid_specified = true;
-					user_data->gid = 0;
-					break;
 				case IN_SW_GSEC_SYSU:
-					if (user_data->sys_user_specified) {
-						err_msg_no = GsecMsg34;
-						break;
-					}
-					user_data->sys_user_specified = true;
-					user_data->sys_user_name[0] = '\0';
-					break;
 				case IN_SW_GSEC_GROUP:
-					if (user_data->group_name_specified) {
-						err_msg_no = GsecMsg35;
-						break;
-					}
-					user_data->group_name_specified = true;
-					user_data->group_name[0] = '\0';
-					break;
 				case IN_SW_GSEC_FNAME:
-					if (user_data->first_name_specified) {
-						err_msg_no = GsecMsg36;
-						break;
-					}
-					user_data->first_name_specified = true;
-					user_data->first_name[0] = '\0';
-					break;
 				case IN_SW_GSEC_MNAME:
-					if (user_data->middle_name_specified) {
-						err_msg_no = GsecMsg37;
-						break;
-					}
-					user_data->middle_name_specified = true;
-					user_data->middle_name[0] = '\0';
-					break;
 				case IN_SW_GSEC_LNAME:
-					if (user_data->last_name_specified) {
-						err_msg_no = GsecMsg38;
-						break;
-					}
-					user_data->last_name_specified = true;
-					user_data->last_name[0] = '\0';
-					break;
-				case IN_SW_GSEC_SERVER:
-					if (user_data->server_specified) {
-						err_msg_no = GsecMsg78;
-						break;
-					}
-					user_data->server_specified = true;
-					user_data->server_name[0] = '\0';
-					break;
+				//case IN_SW_GSEC_SERVER:
+				case IN_SW_GSEC_DATABASE:
 				case IN_SW_GSEC_DBA_USER_NAME:
-					if (user_data->dba_user_name_specified) {
-						err_msg_no = GsecMsg79;
-						break;
-					}
-					user_data->dba_user_name_specified = true;
-					user_data->dba_user_name[0] = '\0';
-					break;
 				case IN_SW_GSEC_DBA_PASSWORD:
-					if (user_data->dba_password_specified) {
-						err_msg_no = GsecMsg80;
-						break;
-					}
-					user_data->dba_password_specified = true;
-					user_data->dba_password[0] = '\0';
-					break;
 				case IN_SW_GSEC_SQL_ROLE_NAME:
-					if (user_data->sql_role_name_specified) {
-						err_msg_no = GsecMsg81;
+					err_msg_no = 0;
+					
+					switch (in_sw) 
+						{
+						case IN_SW_GSEC_PASSWORD:
+							if (user_data->password_specified)
+								{
+								err_msg_no = GsecMsg31;
+								break;
+								}
+								
+							user_data->password_specified = true;
+							user_data->password[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_UID:
+							if (user_data->uid_specified) 
+								{
+								err_msg_no = GsecMsg32;
+								break;
+								}
+								
+							user_data->uid_specified = true;
+							user_data->uid = 0;
+							break;
+							
+						case IN_SW_GSEC_GID:
+							if (user_data->gid_specified) 
+								{
+								err_msg_no = GsecMsg33;
+								break;
+								}
+								
+							user_data->gid_specified = true;
+							user_data->gid = 0;
+							break;
+							
+						case IN_SW_GSEC_SYSU:
+							if (user_data->sys_user_specified) 
+								{
+								err_msg_no = GsecMsg34;
+								break;
+								}
+								
+							user_data->sys_user_specified = true;
+							user_data->sys_user_name[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_GROUP:
+							if (user_data->group_name_specified) 
+								{
+								err_msg_no = GsecMsg35;
+								break;
+								}
+								
+							user_data->group_name_specified = true;
+							user_data->group_name[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_FNAME:
+							if (user_data->first_name_specified) 
+								{
+								err_msg_no = GsecMsg36;
+								break;
+								}
+								
+							user_data->first_name_specified = true;
+							user_data->first_name[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_MNAME:
+							if (user_data->middle_name_specified) 
+								{
+								err_msg_no = GsecMsg37;
+								break;
+								}
+								
+							user_data->middle_name_specified = true;
+							user_data->middle_name[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_LNAME:
+							if (user_data->last_name_specified) 
+								{
+								err_msg_no = GsecMsg38;
+								break;
+								}
+								
+							user_data->last_name_specified = true;
+							user_data->last_name[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_DATABASE:
+							if (user_data->database_specified) 
+								{
+								err_msg_no = GsecMsg78;
+								break;
+								}
+								
+							user_data->database_specified = true;
+							user_data->database_name[0] = '\0';
+							break;
+							
+						/***
+						case IN_SW_GSEC_SERVER:
+							if (user_data->server_specified) 
+								{
+								err_msg_no = GsecMsg78;
+								break;
+								}
+								
+							user_data->server_specified = true;
+							user_data->server_name[0] = '\0';
+							break;
+						***/
+						
+						case IN_SW_GSEC_DBA_USER_NAME:
+							if (user_data->dba_user_name_specified) 
+								{
+								err_msg_no = GsecMsg79;
+								break;
+								}
+								
+							user_data->dba_user_name_specified = true;
+							user_data->dba_user_name[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_DBA_PASSWORD:
+							if (user_data->dba_password_specified) 
+								{
+								err_msg_no = GsecMsg80;
+								break;
+								}
+								
+							user_data->dba_password_specified = true;
+							user_data->dba_password[0] = '\0';
+							break;
+							
+						case IN_SW_GSEC_SQL_ROLE_NAME:
+							if (user_data->sql_role_name_specified) 
+								{
+								err_msg_no = GsecMsg81;
+								break;
+								}
+							user_data->sql_role_name_specified = true;
+							user_data->sql_role_name[0] = '\0';
+							break;
+							}
+							
+						if (err_msg_no) 
+							{
+							GSEC_error(tdsec, err_msg_no, NULL, NULL, NULL, NULL, NULL);
+							return false;
+							}
 						break;
+						
+					case IN_SW_GSEC_Z:
+						if (!tdsec->tsec_sw_version) 
+							{
+							msg_get(GsecMsg39, msg);
+							util_output(tdsec, "%s %s\n", msg, GDS_VERSION);
+							}
+							
+						tdsec->tsec_sw_version = true;
+						break;
+						
+					case IN_SW_GSEC_0:
+#ifdef SERVICE_THREAD
+						GSEC_error(tdsec, GsecMsg40, NULL, NULL, NULL, NULL, NULL);
+#else
+						GSEC_print(tdsec, GsecMsg40, NULL, NULL, NULL, NULL, NULL);
+#endif
+						/* gsec - invalid switch specified */
+						return false;
+					case IN_SW_GSEC_AMBIG:
+#ifdef SERVICE_THREAD
+						GSEC_error(tdsec, GsecMsg41, NULL, NULL, NULL, NULL, NULL);
+#else
+						GSEC_print(tdsec, GsecMsg41, NULL, NULL, NULL, NULL, NULL);
+#endif
+						/* gsec - ambiguous switch specified */
+						return false;
 					}
-					user_data->sql_role_name_specified = true;
-					user_data->sql_role_name[0] = '\0';
-					break;
-				}
-				if (err_msg_no) {
-					GSEC_error(tdsec, err_msg_no, NULL, NULL, NULL, NULL, NULL);
-					return false;
-				}
-				break;
-			case IN_SW_GSEC_Z:
-				if (!tdsec->tsec_sw_version) {
-					msg_get(GsecMsg39, msg);
-					util_output(tdsec, "%s %s\n", msg, GDS_VERSION);
-				}
-				tdsec->tsec_sw_version = true;
-				break;
-			case IN_SW_GSEC_0:
-#ifdef SERVICE_THREAD
-				GSEC_error(tdsec, GsecMsg40, NULL, NULL, NULL, NULL, NULL);
-#else
-				GSEC_print(tdsec, GsecMsg40, NULL, NULL, NULL, NULL, NULL);
-#endif
-				/* gsec - invalid switch specified */
-				return false;
-			case IN_SW_GSEC_AMBIG:
-#ifdef SERVICE_THREAD
-				GSEC_error(tdsec, GsecMsg41, NULL, NULL, NULL, NULL, NULL);
-#else
-				GSEC_print(tdsec, GsecMsg41, NULL, NULL, NULL, NULL, NULL);
-#endif
-				/* gsec - ambiguous switch specified */
-				return false;
-			}
 			last_sw = in_sw;
 		}
 
@@ -1154,10 +1265,12 @@ static SSHORT parse_cmd_line(int argc, const TEXT* const* argv, tsec* tdsec)
 	internal_user_data* user_data = tdsec->tsec_user_data;
 	memset(user_data, 0, sizeof(internal_user_data));
 
-/* Call a subroutine to process the input line. */
+	/* Call a subroutine to process the input line. */
 
 	SSHORT ret = 0;
-	if (!get_switches(argc, argv, gsec_in_sw_table, tdsec, &quitflag)) {
+	
+	if (!get_switches(argc, argv, gsec_in_sw_table, tdsec, &quitflag)) 
+		{
 #ifdef SERVICE_THREAD
 		GSEC_error(tdsec, GsecMsg16, NULL, NULL, NULL, NULL, NULL);
 #else
@@ -1165,20 +1278,21 @@ static SSHORT parse_cmd_line(int argc, const TEXT* const* argv, tsec* tdsec)
 #endif
 		/* gsec - error in switch specifications */
 		ret = -1;
-	}
+		}
 	else if (user_data->operation)
-		if (user_data->operation == HELP_OPER) {
+		if (user_data->operation == HELP_OPER) 
+			{
 			printhelp(tdsec);
 			ret = -1;
-		}
+			}
 		else if (user_data->operation != DIS_OPER &&
 				 user_data->operation != QUIT_OPER &&
 				 !user_data->user_name_entered)
-		{
+			{
 			GSEC_error(tdsec, GsecMsg18, NULL, NULL, NULL, NULL, NULL);
 			/* gsec - no user name specified */
 			ret = -1;
-		}
+			}
 
 	if (quitflag)
 		ret = 1;

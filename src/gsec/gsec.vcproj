@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\install\bin\gsec"
+				OutputFile="..\..\install\bin\gsec.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
@@ -116,10 +116,25 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\config\AdminException.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\AsyncEvent.cpp">
 			</File>
 			<File
 				RelativePath=".\call_service.cpp">
+			</File>
+			<File
+				RelativePath="..\config\ConfigFile.cpp">
+			</File>
+			<File
+				RelativePath="..\config\ConfObj.cpp">
+			</File>
+			<File
+				RelativePath="..\config\ConfObject.cpp">
+			</File>
+			<File
+				RelativePath="..\config\Element.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\enc.cpp">
@@ -128,10 +143,19 @@
 				RelativePath="..\jrd\Error.cpp">
 			</File>
 			<File
+				RelativePath="..\config\FileName.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Generate.cpp">
 			</File>
 			<File
 				RelativePath=".\gsec.cpp">
+			</File>
+			<File
+				RelativePath="..\config\InputFile.cpp">
+			</File>
+			<File
+				RelativePath="..\config\InputStream.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\isc.cpp">
@@ -146,16 +170,34 @@
 				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
+				RelativePath="..\config\Lex.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\PathName.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\PBGen.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\RefObject.cpp">
+			</File>
+			<File
+				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
 				RelativePath=".\security.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\Service.cpp">
+			</File>
+			<File
+				RelativePath="..\config\Stream.cpp">
+			</File>
+			<File
+				RelativePath="..\config\StreamSegment.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\Sync.cpp">
@@ -172,16 +214,34 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\config\AdminException.h">
+			</File>
+			<File
 				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
 				RelativePath=".\call_service.h">
 			</File>
 			<File
+				RelativePath="..\config\ConfigFile.h">
+			</File>
+			<File
+				RelativePath="..\config\ConfObj.h">
+			</File>
+			<File
+				RelativePath="..\config\ConfObject.h">
+			</File>
+			<File
+				RelativePath="..\config\Element.h">
+			</File>
+			<File
 				RelativePath="..\jrd\enc_proto.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Error.h">
+			</File>
+			<File
+				RelativePath="..\config\FileName.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Generate.h">
@@ -196,22 +256,46 @@
 				RelativePath=".\gsecswi.h">
 			</File>
 			<File
+				RelativePath="..\config\InputFile.h">
+			</File>
+			<File
+				RelativePath="..\config\InputStream.h">
+			</File>
+			<File
 				RelativePath="..\jrd\jrd_pwd.h">
 			</File>
 			<File
 				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
+				RelativePath="..\config\Lex.h">
+			</File>
+			<File
 				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
+				RelativePath="..\jrd\PathName.h">
+			</File>
+			<File
 				RelativePath="..\jrd\PBGen.h">
+			</File>
+			<File
+				RelativePath="..\jrd\RefObject.h">
+			</File>
+			<File
+				RelativePath="..\config\ScanDir.h">
 			</File>
 			<File
 				RelativePath=".\secur_proto.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Service.h">
+			</File>
+			<File
+				RelativePath="..\config\Stream.h">
+			</File>
+			<File
+				RelativePath="..\config\StreamSegment.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Sync.h">

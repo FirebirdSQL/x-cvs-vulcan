@@ -226,6 +226,8 @@ protected:
 public:
 	void addClient(Port* port);
 	void removeClient(Port* client);
+	virtual ISC_STATUS updateAccountInfo(p_update_account* data, Packet* packet);
+	virtual ISC_STATUS authenticateUser(p_authenticate* data, Packet* packet);
 };
 
 #endif

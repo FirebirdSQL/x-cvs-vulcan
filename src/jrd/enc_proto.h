@@ -24,6 +24,8 @@
 #ifndef JRD_ENC_PROTO_H
 #define JRD_ENC_PROTO_H
 
+#define PASSWORD_SALT  "9z"
+
 static const int ENCRYPT_SIZE = 21;
 
 //TEXT* ENC_crypt(const TEXT*, const TEXT*, TEXT *cryptresult);

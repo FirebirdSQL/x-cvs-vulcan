@@ -178,13 +178,13 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 		"select * from users where user_name=?");
 	statement->setString(1, accountName);
 	RSet resultSet = statement->executeQuery();
+	JString oldHash = userData.getOldPasswordHash();
 	int hit = false;
 	
 	if (resultSet->next())
 		{
 		hit = true;
 		const char *password = resultSet->getString("PASSWD");
-		JString oldHash = userData.getOldPasswordHash();
 
 		if (oldHash != password)		
 			throw OSRIException(isc_login, 0);
@@ -236,8 +236,17 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	
 	if (!hit)
 		{
-		if (strcasecmp(accountName, "AUTHENTICATOR") || strcmp(userData.password, "none"))
+		if (strcasecmp(accountName, "AUTHENTICATOR") != 0)
 			throw OSRIException(isc_login, 0);
+		
+		if (strcmp(userData.password, "none") != 0)
+			{
+			TEXT pw1 [ENCRYPT_SIZE];
+			ENC_crypt(pw1, sizeof(pw1), "none", PASSWORD_SALT);
+			
+			if (strcmp(pw1, userData.encryptedPassword) != 0)
+				throw OSRIException(isc_login, 0);
+			}
 			
 		for (int n = 0; n < itemsLength; ++n)
 			{

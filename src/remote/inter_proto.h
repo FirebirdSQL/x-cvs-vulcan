@@ -112,7 +112,19 @@ ISC_STATUS	REM_service_query(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const SCH
 									  USHORT, const SCHAR*, USHORT, SCHAR*);
 ISC_STATUS	REM_service_start(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const SCHAR*);
 
+ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
+									RDatabase** db_handle,
+									SSHORT apb_length,
+									const UCHAR* apb);
 
-
+ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
+									RDatabase** db_handle,
+									SSHORT dpb_length,
+									const UCHAR* dpb,
+									SSHORT info_length,
+									const UCHAR *info,
+									SSHORT buffer_length,
+									UCHAR *buffer);
+									
 #endif	/* REMOTE_INTER_PROTO_H */
 

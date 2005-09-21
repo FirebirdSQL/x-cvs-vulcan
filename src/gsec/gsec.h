@@ -51,6 +51,7 @@ const int ALT_NAME_LEN	= 129;
 const int NAME_LEN		= 33;
 const int PASS_LEN		= MAX_PASSWORD_LENGTH + 1;
 const int SERVER_LEN	= 128;
+const int DATABASE_LEN	= 512;
 
 /***
 #if !(defined REMOTE_REMOTE_H || defined JRD_JRD_H)
@@ -103,6 +104,9 @@ struct internal_user_data {
 	TEXT	server_name [SERVER_LEN];	/* remote host name */
 	bool	server_entered;		/* remote host entered flag */
 	bool	server_specified;	/* remote host specified flag */
+    TEXT	database_name [DATABASE_LEN];	/* database pathname */
+    bool	database_entered;	/* database entered flag */
+    bool	database_specified;	/* database specified flag */
 
 };
 

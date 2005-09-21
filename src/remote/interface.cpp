@@ -46,9 +46,7 @@
 #endif
 #endif
 
-//#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
-//#include "../jrd/thd.h"
 #include "../jrd/license.h"
 #include "../jrd/fil.h"
 #include "../jrd/sdl.h"
@@ -159,20 +157,25 @@ static bool release_object(RDatabase*, P_OP, USHORT);
 //static void release_sql_request(RStatement*);
 //static void release_transaction(RTransaction*);
 static ISC_STATUS return_success(RDatabase*);
+
 #ifdef SCROLLABLE_CURSORS
 static RMessage *scroll_cache(ISC_STATUS *, struct trdb *, RRQ, Port*, rrq_repeat *,
 						USHORT *, ULONG *);
 #endif
+
 static ISC_STATUS send_and_receive(RDatabase*, PACKET *, ISC_STATUS *);
 static ISC_STATUS send_blob(ISC_STATUS*, RBL, USHORT, const UCHAR*);
 static void send_cancel_event(RVNT);
 static bool send_packet(Port*, PACKET *, ISC_STATUS *);
+
 #ifdef NOT_USED_OR_REPLACED
 static bool send_partial_packet(Port*, PACKET *, ISC_STATUS *);
 #endif
+
 #ifdef MULTI_THREAD
 static void server_death(Port*);
 #endif
+
 static void stuff_vax_integer(UCHAR*, SLONG, USHORT);
 static ISC_STATUS svcstart(ISC_STATUS*, RDatabase*, P_OP, USHORT, USHORT, USHORT, const SCHAR*);
 static ISC_STATUS unsupported(ISC_STATUS*);
@@ -4407,32 +4410,165 @@ ISC_STATUS GDS_TRANSACTION_INFO(ISC_STATUS* user_status,
  * Functional description
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RTransaction* transaction = *tra_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
 	RDatabase* rdb = transaction->rtr_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
+		//trdb->trdb_status_vector = user_status;
+		//trdb->trdb_database = rdb;
 
 	ISC_STATUS status;
+	
 	try
-	{
+		{
 		status =
 			info(user_status, rdb, op_info_transaction, transaction->rtr_id, 0,
 				 item_length, items, 0, 0,
 				 buffer_length, buffer);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		status = error(user_status);
-	}
+		}
 
-	//RESTORE_THREAD_DATA;
+
+	return status;
+}
+
+ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
+									RDatabase** db_handle,
+									SSHORT dpb_length,
+									const UCHAR* dpb,
+									SSHORT info_length,
+									const UCHAR *info,
+									SSHORT buffer_length,
+									UCHAR *buffer)
+{
+/**************************************
+ *
+ *		R E M _ a u t h e n t i c a t e _ u s e r
+ *
+ **************************************
+ *
+ * Functional description
+ *
+ **************************************/
+
+	RDatabase* rdb = *db_handle;
+	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
+	rdb->rdb_status_vector = user_status;
+	ISC_STATUS status;
+	
+	try
+		{
+		/* Build the primary packet to get the operation started. */
+
+		PACKET* packet = &rdb->rdb_packet;
+		packet->p_operation = op_authenticate_user;
+		p_authenticate* stuff = &packet->p_authenticate_user;
+		stuff->p_auth_database = rdb->rdb_id;
+		stuff->p_auth_dpb.cstr_length = dpb_length;
+		stuff->p_auth_dpb.cstr_address = (UCHAR *) dpb;
+		stuff->p_auth_buffer_length = buffer_length;
+		
+		/* Assume the result will be successful */
+
+		fb_assert(user_status == rdb->rdb_status_vector);
+		user_status[0] = isc_arg_gds;
+		user_status[1] = FB_SUCCESS;
+		user_status[2] = isc_arg_end;
+
+		if (!send_packet(rdb->rdb_port, packet, user_status))
+			return user_status[1];
+
+		/* Set up for the response packet. */
+
+		P_RESP* response = &packet->p_resp;
+		CSTRING temp = response->p_resp_data;
+		response->p_resp_data.cstr_allocated = buffer_length;
+		response->p_resp_data.cstr_address = (UCHAR *) buffer;
+
+		if (!receive_response(rdb, packet))
+			{
+			response->p_resp_data = temp;
+			return user_status[1];
+			}
+
+		response->p_resp_data = temp;
+
+		return rdb->rdb_status_vector[1];
+		}
+	catch (const firebird::status_exception& /*e*/)
+		{
+		status = error(user_status);
+		}
+
+	return status;
+}
+ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
+									RDatabase** db_handle,
+									SSHORT apb_length,
+									const UCHAR* apb)
+{
+/**************************************
+ *
+ *		R E M _ u p d a t e _ a c c o u n t _ i n f o
+ *
+ **************************************
+ *
+ * Functional description
+ *
+ **************************************/
+
+	RDatabase* rdb = *db_handle;
+	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
+	rdb->rdb_status_vector = user_status;
+	ISC_STATUS status;
+	
+	try
+		{
+		/* Build the primary packet to get the operation started. */
+
+		PACKET* packet = &rdb->rdb_packet;
+		packet->p_operation = op_update_account_info;
+		p_update_account* information = &packet->p_account_update;
+		information->p_account_database = rdb->rdb_id;
+		information->p_account_apb.cstr_length = apb_length;
+		information->p_account_apb.cstr_address = (UCHAR *) apb;
+		
+		/* Assume the result will be successful */
+
+		fb_assert(user_status == rdb->rdb_status_vector);
+		user_status[0] = isc_arg_gds;
+		user_status[1] = FB_SUCCESS;
+		user_status[2] = isc_arg_end;
+
+		if (!send_packet(rdb->rdb_port, packet, user_status))
+			return user_status[1];
+
+		/* Set up for the response packet. */
+
+		P_RESP* response = &packet->p_resp;
+		CSTRING temp = response->p_resp_data;
+		//response->p_resp_data.cstr_allocated = buffer_length;
+		//response->p_resp_data.cstr_address = (UCHAR *) buffer;
+
+		if (!receive_response(rdb, packet))
+			{
+			response->p_resp_data = temp;
+			return user_status[1];
+			}
+
+		response->p_resp_data = temp;
+
+		return rdb->rdb_status_vector[1];
+		}
+	catch (const firebird::status_exception& /*e*/)
+		{
+		status = error(user_status);
+		}
 
 	return status;
 }
@@ -5575,7 +5711,6 @@ static bool get_new_dpb(const UCHAR*	dpb,
  *	(Based on JRD get_options())
  *
  **************************************/
-	TEXT	pw_buffer[MAX_PASSWORD_ENC_LENGTH + 6];
 
 	*user_string = 0;
 	*new_dpb_length = 0;
@@ -5633,14 +5768,16 @@ static bool get_new_dpb(const UCHAR*	dpb,
 		 * move the first byte (isc_spb_version) into the new spb so that
 		 * it can be saved off
 		 */
+		 
 		if (*p == isc_spb_version)
 			*s++ = *p++;
+			
 		*s++ = *p++;
 		}
 
 	bool result = false;
 	SSHORT password_length = 0;
-	const UCHAR* password = 0;
+	const UCHAR* password = NULL;
 	bool moved_some = false;
 	
 	while (p < end_dpb)
@@ -5684,6 +5821,8 @@ static bool get_new_dpb(const UCHAR*	dpb,
 			}
 		}
 
+	TEXT	pw_buffer[ENCRYPT_SIZE];
+
 #ifdef NO_PASSWORD_ENCRYPTION
 	if (password)
 		{
@@ -5704,10 +5843,11 @@ static bool get_new_dpb(const UCHAR*	dpb,
 		strncpy((char*) pw_buffer, (const char*) password, l);
 		pw_buffer[l] = 0;
 		char temp[ENCRYPT_SIZE];
-		ENC_crypt(pw_buffer, sizeof(pw_buffer) ,PASSWORD_SALT, temp);
-		*s++ = (UCHAR) strlen(pw_buffer);
+		//ENC_crypt(pw_buffer, sizeof(pw_buffer) ,PASSWORD_SALT, temp);
+		ENC_crypt(temp, sizeof(temp), pw_buffer, PASSWORD_SALT);
+		*s++ = (UCHAR) strlen(temp);
 		
-		for (p = (UCHAR*) pw_buffer; *p;)
+		for (p = (UCHAR*) temp; *p;)
 			*s++ = *p++;
 		}
 #endif
@@ -5811,7 +5951,7 @@ static ISC_STATUS info(
  *
  **************************************/
 
-/* Build the primary packet to get the operation started. */
+	/* Build the primary packet to get the operation started. */
 
 	PACKET* packet = &rdb->rdb_packet;
 	packet->p_operation = operation;
@@ -5820,13 +5960,16 @@ static ISC_STATUS info(
 	information->p_info_incarnation = incarnation;
 	information->p_info_items.cstr_length = item_length;
 	information->p_info_items.cstr_address = (UCHAR *) items;
-	if (operation == op_service_info) {
+	
+	if (operation == op_service_info) 
+		{
 		information->p_info_recv_items.cstr_length = recv_item_length;
 		information->p_info_recv_items.cstr_address = (UCHAR *) recv_items;
-	}
+		}
+		
 	information->p_info_buffer_length = buffer_length;
 
-/* Assume the result will be successful */
+	/* Assume the result will be successful */
 
 	fb_assert(user_status == rdb->rdb_status_vector);
 	user_status[0] = isc_arg_gds;
@@ -5836,17 +5979,18 @@ static ISC_STATUS info(
 	if (!send_packet(rdb->rdb_port, packet, user_status))
 		return user_status[1];
 
-/* Set up for the response packet. */
+	/* Set up for the response packet. */
 
 	P_RESP* response = &packet->p_resp;
 	CSTRING temp = response->p_resp_data;
 	response->p_resp_data.cstr_allocated = buffer_length;
 	response->p_resp_data.cstr_address = (UCHAR *) buffer;
 
-	if (!receive_response(rdb, packet)) {
+	if (!receive_response(rdb, packet))
+		{
 		response->p_resp_data = temp;
 		return user_status[1];
-	}
+		}
 
 	response->p_resp_data = temp;
 

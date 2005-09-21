@@ -82,6 +82,12 @@ $Id$
 
 #define PROTOCOL_VERSION10	10
 
+/* Protocol 11 adds the new Firebird account management functions, fb_update_account_info
+ * and fb_authenticate_user
+ */
+
+#define PROTOCOL_VERSION11	11
+
 #ifdef SCROLLABLE_CURSORS
 This Protocol includes support for scrollable cursors
 and is purposely being undefined so that changes can be made
@@ -263,6 +269,8 @@ typedef enum
 	op_service_start		= 85,
 
 	op_rollback_retaining	= 86,
+	op_update_account_info	= 87,
+	op_authenticate_user	= 88,
 
 	op_max
 } P_OP;
@@ -566,7 +574,20 @@ typedef struct p_sqlcur {
     CSTRING	p_sqlcur_cursor_name;	/* cursor name */
     USHORT	p_sqlcur_type;		/* type of cursor */
 } P_SQLCUR;
-
+
+struct p_update_account {
+    OBJCT			p_account_database;		/* Database object id */
+    CSTRING_CONST	p_account_apb;			/* Account parameter block (apb) */
+};
+
+struct p_authenticate {
+    OBJCT			p_auth_database;		/* Database object id */
+    CSTRING_CONST	p_auth_dpb;				/* Database parameter block w/ user credentials */
+	CSTRING			p_auth_items;			/* Information */
+	CSTRING			p_auth_recv_items;		/* Receive information */
+	USHORT			p_auth_buffer_length;	/* Target buffer length */
+};
+
 /* Generalize packet (sic!) */
 
 struct Packet {
@@ -577,6 +598,7 @@ struct Packet {
 
     P_MALLOC	p_malloc [P_MALLOC_SIZE]; /* Debug xdr memory allocations */
 #endif
+
     P_OP	p_operation;	/* Operation/packet type */
     P_CNCT	p_cnct;		/* Connect block */
     P_ACPT	p_acpt;		/* Accept connection */
@@ -597,10 +619,13 @@ struct Packet {
     P_SLR	p_slr;		/* Slice response */
     P_SEEK	p_seek;		/* Blob seek */
     P_SQLST	p_sqlst;	/* DSQL Prepare & Execute immediate */
-    P_SQLDATA	p_sqldata;	/* DSQL Open Cursor, Execute, Fetch */
-    P_SQLCUR	p_sqlcur;	/* DSQL Set cursor name */
-    P_SQLFREE	p_sqlfree;	/* DSQL Free statement */
-    P_TRRQ	p_trrq;		/* Transact request packet */
+    P_SQLDATA			p_sqldata;	/* DSQL Open Cursor, Execute, Fetch */
+    P_SQLCUR			p_sqlcur;	/* DSQL Set cursor name */
+    P_SQLFREE			p_sqlfree;	/* DSQL Free statement */
+    P_TRRQ				p_trrq;		/* Transact request packet */
+    p_authenticate		p_authenticate_user;
+    p_update_account	p_account_update;
+    
 	void zap(void);
 	void zap(bool newPacket);
 };

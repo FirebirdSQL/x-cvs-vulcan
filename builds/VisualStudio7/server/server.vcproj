@@ -301,6 +301,9 @@
 				RelativePath="..\..\..\src\jrd\SyncObject.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\thd.cpp">
 			</File>
 			<File
@@ -523,6 +526,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\SyncObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TempSpace.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Thread.h">

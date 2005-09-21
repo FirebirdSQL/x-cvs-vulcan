@@ -20,7 +20,7 @@ public:
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration); 
@@ -29,14 +29,14 @@ public:
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration); 
 	virtual ISC_STATUS databaseInfo(ISC_STATUS* userStatus, DbHandle *dbHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	virtual ISC_STATUS detachDatabase(ISC_STATUS* userStatus, DbHandle *dbHandle);
 	virtual ISC_STATUS dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle);
 
-	virtual ISC_STATUS startMultiple(ISC_STATUS *, TraHandle *traHandle, int, teb *);
+	virtual ISC_STATUS startMultiple(ISC_STATUS *, TraHandle *traHandle, int, const teb *);
 	virtual ISC_STATUS reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*);
 	virtual ISC_STATUS transactionInfo(ISC_STATUS* userStatus, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	virtual ISC_STATUS prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int, UCHAR*);
@@ -164,8 +164,8 @@ public:
 								 int eventsLength,
 								 UCHAR* events, 
 								 UCHAR *buffer);
-	void enterSystem(void);
-	ISC_STATUS exitSystem(ISC_STATUS code);
+	virtual ISC_STATUS updateAccountInfo(ISC_STATUS* userStatus, DbHandle* dbHandle, int apbLength, const UCHAR* apb);
+	virtual ISC_STATUS authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandle, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 };
 
 #endif

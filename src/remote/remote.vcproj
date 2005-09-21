@@ -316,6 +316,9 @@
 				RelativePath="..\jrd\SyncObject.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\TempSpace.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Thread.cpp">
 			</File>
 			<File
@@ -582,6 +585,9 @@
 				RelativePath="..\jrd\SyncObject.h">
 			</File>
 			<File
+				RelativePath="..\jrd\TempSpace.h">
+			</File>
+			<File
 				RelativePath="..\jrd\thd.h">
 			</File>
 			<File
@@ -606,10 +612,10 @@
 				RelativePath=".\window_proto.h">
 			</File>
 			<File
-				RelativePath=".\wnet_proto.h">
+				RelativePath=".\os\win32\wnet_proto.h">
 			</File>
 			<File
-				RelativePath=".\os\win32\wnet_proto.h">
+				RelativePath=".\wnet_proto.h">
 			</File>
 			<File
 				RelativePath=".\xdr.h">

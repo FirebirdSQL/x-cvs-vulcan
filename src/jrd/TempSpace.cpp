@@ -64,10 +64,10 @@ TempSpace::~TempSpace(void)
 		delete space;
 }
 
-void TempSpace::resize(int newLength, bool copy)
+UCHAR* TempSpace::resize(int newLength, bool copy)
 {
 	if (newLength <= size)
-		return;
+		return space;
 	
 	UCHAR *old = space;
 	space = new UCHAR [newLength];
@@ -79,6 +79,8 @@ void TempSpace::resize(int newLength, bool copy)
 	
 	if (old != initialSpace)
 		delete old;
+	
+	return space;
 }
 
 void TempSpace::addByte(UCHAR data)

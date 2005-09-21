@@ -296,6 +296,9 @@
 				RelativePath="..\jrd\SyncObject.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\TempSpace.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\thd.cpp">
 			</File>
 			<File
@@ -521,6 +524,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\SyncObject.h">
+			</File>
+			<File
+				RelativePath="..\jrd\TempSpace.h">
 			</File>
 			<File
 				RelativePath="..\jrd\thd.h">

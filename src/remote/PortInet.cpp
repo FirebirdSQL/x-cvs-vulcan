@@ -373,7 +373,7 @@ Port* INET_analyze(	ConfObject *configuration,
 	/* Establish connection to server */
 
 	/* Note: prior to V3.1E a recievers could not in truth handle more
-	then 5 protocol descriptions, so we try them in chunks of 5 or less */
+	   then 5 protocol descriptions, so we try them in chunks of 5 or less */
 
 	/* If we want user verification, we can't speak anything less than version 7 */
 
@@ -385,7 +385,8 @@ Port* INET_analyze(	ConfObject *configuration,
 	static const p_cnct::p_cnct_repeat protocols_to_try1[] =
 		{
 		REMOTE_PROTOCOL(PROTOCOL_VERSION8, ptype_rpc, MAX_PTYPE, 1),
-		REMOTE_PROTOCOL(PROTOCOL_VERSION10, ptype_rpc, MAX_PTYPE, 2)
+		REMOTE_PROTOCOL(PROTOCOL_VERSION10, ptype_rpc, MAX_PTYPE, 2),
+		REMOTE_PROTOCOL(PROTOCOL_VERSION11, ptype_rpc, MAX_PTYPE, 4)
 #ifdef SCROLLABLE_CURSORS
 		,
 		REMOTE_PROTOCOL(PROTOCOL_SCROLLABLE_CURSORS, ptype_rpc, MAX_PTYPE, 3)

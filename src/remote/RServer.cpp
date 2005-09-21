@@ -406,6 +406,14 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 				port->set_cursor(&receive->p_sqlcur, send);
 				break;
 
+			case op_update_account_info:
+				port->updateAccountInfo(&receive->p_account_update, send);
+				break;
+
+			case op_authenticate_user:
+				port->authenticateUser(&receive->p_authenticate_user, send);
+				break;
+
 			case op_dummy:
 				send->p_operation = op_dummy;
 				port->sendPacket(send);
@@ -483,27 +491,31 @@ bool RServer::acceptConnection(Port* port, P_CNCT* connect, Packet* send)
 	protocol = connect->p_cnct_versions;
 
 	for (end = protocol + connect->p_cnct_count; protocol < end; protocol++)
-		if ((protocol->p_cnct_version == PROTOCOL_VERSION3 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION4 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION5 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION6 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION7 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION8 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION9 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION10
-#ifdef SCROLLABLE_CURSORS
-			 || protocol->p_cnct_version == PROTOCOL_SCROLLABLE_CURSORS
-#endif
-			) &&
-			 (protocol->p_cnct_architecture == arch_generic ||
-			 protocol->p_cnct_architecture == ARCHITECTURE) &&
-			protocol->p_cnct_weight >= weight)
+		switch (protocol->p_cnct_version)
 			{
-			weight = protocol->p_cnct_weight;
-			version = protocol->p_cnct_version;
-			architecture = protocol->p_cnct_architecture;
-			type = MIN(protocol->p_cnct_max_type, ptype_out_of_band);
-			send->p_operation = op_accept;
+			case PROTOCOL_VERSION3:
+			case PROTOCOL_VERSION4:
+			case PROTOCOL_VERSION5:
+			case PROTOCOL_VERSION6:
+			case PROTOCOL_VERSION7:
+			case PROTOCOL_VERSION8:
+			case PROTOCOL_VERSION9:
+			case PROTOCOL_VERSION10:
+			case PROTOCOL_VERSION11:
+#ifdef SCROLLABLE_CURSORS
+			case PROTOCOL_SCROLLABLE_CURSORS:
+#endif
+				if ((protocol->p_cnct_architecture == arch_generic ||
+				      protocol->p_cnct_architecture == ARCHITECTURE) &&
+				     protocol->p_cnct_weight >= weight)
+					{
+					weight = protocol->p_cnct_weight;
+					version = protocol->p_cnct_version;
+					architecture = protocol->p_cnct_architecture;
+					type = MIN(protocol->p_cnct_max_type, ptype_out_of_band);
+					send->p_operation = op_accept;
+					}
+				break;
 			}
 
 	/* Send off out gracious acceptance or flag rejection */

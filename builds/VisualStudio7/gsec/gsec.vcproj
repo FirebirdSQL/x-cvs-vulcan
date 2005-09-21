@@ -116,10 +116,28 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\..\..\src\config\AdminException.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\gsec\call_service.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfigFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObj.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObject.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\DirectoryList.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Element.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\enc.cpp">
@@ -128,10 +146,19 @@
 				RelativePath="..\..\..\src\jrd\Error.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\config\FileName.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Generate.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\gsec\gsec.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputStream.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\isc.cpp">
@@ -146,16 +173,34 @@
 				RelativePath="..\..\..\src\jrd\JString.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\config\Lex.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Mutex.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\PathName.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\PBGen.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RefObject.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ScanDir.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\gsec\security.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Service.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Stream.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\StreamSegment.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Sync.cpp">
@@ -172,16 +217,37 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\..\..\src\config\AdminException.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\gsec\call_service.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\config\ConfigFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObj.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\DirectoryList.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Element.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\enc_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Error.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\FileName.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Generate.h">
@@ -196,22 +262,49 @@
 				RelativePath="..\..\..\src\gsec\gsecswi.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\config\InputFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputStream.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\jrd_pwd.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\JString.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\config\Lex.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Mutex.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\config\Parameters.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PathName.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\PBGen.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RefObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ScanDir.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\gsec\secur_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Service.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Stream.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\StreamSegment.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Sync.h">

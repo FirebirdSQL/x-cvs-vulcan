@@ -54,6 +54,7 @@
 #include "OSRIException.h"
 #include "SyncObject.h"
 #include "Sync.h"
+#include "TempSpace.h"
 #include "gen/iberror.h"
 
 #ifdef SUPERSERVER
@@ -1497,27 +1498,24 @@ ISC_STATUS Port::info(P_OP op, P_INFO * stuff, PACKET* send)
  *	statement, or transaction.
  *
  **************************************/
-	RDB rdb;
 	RBL blob;
 	RTR transaction;
 	RRQ request;
 	RSR statement;
-	UCHAR *buffer, temp [1024], *temp_buffer;
+	UCHAR temp [1024], *temp_buffer;
 	TEXT version [256];
 	ISC_STATUS status;
 	ISC_STATUS_ARRAY status_vector;
 
-	rdb = port_context;
+	RDB rdb = port_context;
 
 	/* Make sure there is a suitable temporary blob buffer */
 
-	buffer = new UCHAR [stuff->p_info_buffer_length]; //ALLR_alloc((SLONG) stuff->p_info_buffer_length);
+	UCHAR *buffer = new UCHAR [stuff->p_info_buffer_length]; //ALLR_alloc((SLONG) stuff->p_info_buffer_length);
 	memset(buffer, 0, stuff->p_info_buffer_length);
 	
 	if (op == op_info_database && stuff->p_info_buffer_length > sizeof(temp)) 
-		{
 	    temp_buffer = new UCHAR [stuff->p_info_buffer_length]; //ALLR_alloc((SLONG) stuff->p_info_buffer_length);
-		}
 	else
     	temp_buffer = temp;
 
@@ -1610,11 +1608,9 @@ ISC_STATUS Port::info(P_OP op, P_INFO * stuff, PACKET* send)
 		}
 
 	if (temp_buffer != temp) 
-		{
     	delete [] temp_buffer; //ALLR_free(temp_buffer);
-		}
 
-/* Send a response that includes the segment. */
+	/* Send a response that includes the segment. */
 
 	send->p_resp.p_resp_data.cstr_address = buffer;
 
@@ -3300,4 +3296,41 @@ void Port::removeClient(Port* port)
 			port->release();
 			break;
 			}
+}
+
+ISC_STATUS Port::updateAccountInfo(p_update_account* data, Packet* send)
+{
+	ISC_STATUS_ARRAY status_vector;
+	RDatabase *rdb = port_context;
+
+	fb_update_account_info(status_vector, 
+						   &rdb->rdb_handle,
+ 						   data->p_account_apb.cstr_length,
+ 						   data->p_account_apb.cstr_address);
+ 						   
+	return send_response(send, 0, 0, status_vector);
+}
+
+ISC_STATUS Port::authenticateUser(p_authenticate* data, Packet* send)
+{
+	ISC_STATUS_ARRAY status_vector;
+	RDatabase *rdb = port_context;
+	UCHAR temp[1024];
+	TempSpace space(sizeof(temp), temp);
+	int bufferLength = data->p_auth_buffer_length;
+	UCHAR *buffer = space.resize(bufferLength);
+	memset(buffer, 0, bufferLength);
+
+	fb_authenticate_user(status_vector, 
+						   &rdb->rdb_handle,
+ 						   data->p_auth_dpb.cstr_length,
+ 						   data->p_auth_dpb.cstr_address,
+ 						   data->p_auth_items.cstr_length,
+ 						   data->p_auth_items.cstr_address,
+ 						   bufferLength,
+ 						   buffer);
+ 						   
+	send->p_resp.p_resp_data.cstr_address = buffer;
+
+	return send_response(send, 0, bufferLength, status_vector);
 }

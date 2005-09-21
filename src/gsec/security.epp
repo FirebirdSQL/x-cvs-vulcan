@@ -173,6 +173,8 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 
 		if (io_user_data->last_name_entered)
 			apb.putParameter(fb_apb_uid, io_user_data->last_name);
+
+		ret = fb_update_account_info(isc_status, &DB, apb.getLength(), apb.buffer);
 		}
 
 	
@@ -358,6 +360,11 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 			break;
 #endif // OBSOLETE
 
+		case DEL_OPER:
+		case MOD_OPER:
+		case ADD_OPER:
+			break;
+			
 		case DIS_OPER:
 			/* gets either the desired record, or all records, and displays them */
 

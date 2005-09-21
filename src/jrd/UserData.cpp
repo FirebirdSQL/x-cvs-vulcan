@@ -347,7 +347,7 @@ JString UserData::getOldPasswordHash(void)
 	
 	if (encryptedPassword.IsEmpty())
 		{
-		ENC_crypt(pw1, sizeof(pw2), password, PASSWORD_SALT);
+		ENC_crypt(pw1, sizeof(pw1), password, PASSWORD_SALT);
 		ENC_crypt(pw2, sizeof(pw2), pw1 + 2, PASSWORD_SALT);
 		}
 	else

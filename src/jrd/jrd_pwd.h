@@ -37,7 +37,7 @@
 
 const int MAX_PASSWORD_ENC_LENGTH = 12;	// passed by remote protocol
 const int MAX_PASSWORD_LENGTH = 64;		// used to store passwords internally
-static const char* PASSWORD_SALT  = "9z";	// for old ENC_crypt()
+//static const char* PASSWORD_SALT  = "9z";	// for old ENC_crypt()
 const int SALT_LENGTH = 12;				// measured after base64 coding
 
 class SecurityDatabase

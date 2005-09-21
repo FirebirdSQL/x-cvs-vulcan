@@ -38,7 +38,7 @@ public:
 	int		length;				// effective length (length <= size)
 	int		increment;
 	
-	void resize(int newLength, bool copy=false);
+	UCHAR *resize(int newLength, bool copy=false);
 	TempSpace(int length);
 	void addByte(UCHAR data);
 	void addBytes(int numberBytes, const UCHAR* data);
