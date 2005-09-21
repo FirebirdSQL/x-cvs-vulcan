@@ -4461,6 +4461,9 @@ ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
 	rdb->rdb_status_vector = user_status;
 	ISC_STATUS status;
 	
+	if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION11) 
+		return unsupported(user_status);
+	
 	try
 		{
 		/* Build the primary packet to get the operation started. */
@@ -4526,6 +4529,9 @@ ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
 	ISC_STATUS status;
+
+	if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION11) 
+		return unsupported(user_status);
 	
 	try
 		{
@@ -5335,12 +5341,14 @@ static bool check_response(RDatabase* rdb,
 			{
 			case isc_arg_warning:
 			case isc_arg_gds:
-				if (port->port_protocol < PROTOCOL_VERSION10) {
+				if (port->port_protocol < PROTOCOL_VERSION10) 
+					{
 					fb_assert(vec == isc_arg_gds);
 					*vector = gds__encode(*vector, 0);
-				}
+					}
 				else
 					*vector = *vector;
+					
 				vector++;
 				break;
 
@@ -7028,7 +7036,7 @@ static ISC_STATUS svcstart(ISC_STATUS*	user_status,
  *
  **************************************/
 
-/* Build the primary packet to get the operation started. */
+	/* Build the primary packet to get the operation started. */
 
 	PACKET* packet = &rdb->rdb_packet;
 	packet->p_operation = operation;
@@ -7039,7 +7047,7 @@ static ISC_STATUS svcstart(ISC_STATUS*	user_status,
 	information->p_info_items.cstr_address = (UCHAR *) items; // const_cast
 	information->p_info_buffer_length = item_length;
 
-/* Assume the result will be successful */
+	/* Assume the result will be successful */
 
 	fb_assert(user_status == rdb->rdb_status_vector);
 	user_status[0] = isc_arg_gds;
@@ -7049,15 +7057,16 @@ static ISC_STATUS svcstart(ISC_STATUS*	user_status,
 	if (!send_packet(rdb->rdb_port, packet, user_status))
 		return user_status[1];
 
-/* Set up for the response packet. */
+	/* Set up for the response packet. */
 
 	P_RESP* response = &packet->p_resp;
 	CSTRING temp = response->p_resp_data;
 
-	if (!receive_response(rdb, packet)) {
+	if (!receive_response(rdb, packet)) 
+		{
 		response->p_resp_data = temp;
 		return user_status[1];
-	}
+		}
 
 	response->p_resp_data = temp;
 
