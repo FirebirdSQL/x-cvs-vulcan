@@ -1,3 +1,38 @@
+2005-09-21 23:35  jimstarkey
+
+	* vulcan/src/remote/interface.cpp:
+	
+	Check protcol version numbers on the security api calls through the
+	remote interface.
+
+2005-09-21 23:13  jimstarkey
+
+	* vulcan/install/vulcan.conf:
+	
+	Removed old Vulcan.conf file
+
+2005-09-21 23:11  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/gsec/gsec.vcproj,
+	builds/VisualStudio7/remote/remote.vcproj,
+	builds/VisualStudio7/server/server.vcproj,
+	builds/VisualStudio7/winserver/winserver.vcproj,
+	install/client.conf, install/master.conf, install/server.conf,
+	src/gsec/gsec.cpp, src/gsec/gsec.h, src/gsec/gsec.vcproj,
+	src/gsec/gsecswi.h, src/gsec/security.epp, src/jrd/SecurityDb.cpp,
+	src/jrd/TempSpace.cpp, src/jrd/TempSpace.h, src/jrd/UserData.cpp,
+	src/jrd/enc_proto.h, src/jrd/jrd_pwd.h, src/jrd/vulcan.conf,
+	src/remote/Port.cpp, src/remote/Port.h, src/remote/PortInet.cpp,
+	src/remote/RServer.cpp, src/remote/Remote8.cpp,
+	src/remote/Remote8.h, src/remote/inter_proto.h,
+	src/remote/interface.cpp, src/remote/protocol.cpp,
+	src/remote/protocol.h, src/remote/remote.vcproj,
+	src/server/server.vcproj, src/winserver/winserver.vcproj:
+	
+	Implemented remote fb_authenticate_user and fb_update_account_info.
+	 Also changed the master configuration file from "vulcan.conf" to
+	"master.conf"
+
 2005-09-19 22:13  jimstarkey
 
 	* vulcan/src/: include/gen/blrtable.h, jrd/ExecStatement.cpp,
