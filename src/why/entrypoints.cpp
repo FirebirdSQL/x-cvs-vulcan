@@ -127,7 +127,7 @@ ISC_STATUS API_ROUTINE isc_drop_database (ISC_STATUS* userStatus, DbHandle *dbHa
 	}
 
 
-ISC_STATUS API_ROUTINE isc_start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, teb *stuff)
+ISC_STATUS API_ROUTINE isc_start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, const TransactionElement *stuff)
 	{
 	if (!dispatch)
 		initialize();
@@ -138,11 +138,11 @@ ISC_STATUS API_ROUTINE isc_start_multiple(ISC_STATUS* userStatus, TraHandle *tra
 
 ISC_STATUS API_ROUTINE_VARARG isc_start_transaction (ISC_STATUS* userStatus, TraHandle *traHandle, SSHORT count, ...)
 	{
-	teb vector [32];
+	TransactionElement vector [32];
 	va_list ptr;
 	VA_START(ptr, count);
 
-	for (teb *t = vector, *end = vector + count; t < end; ++t)
+	for (TransactionElement *t = vector, *end = vector + count; t < end; ++t)
 		{
 		t->dbHandle = va_arg(ptr, DbHandle*);
 		t->tpbLength = va_arg(ptr, int);
@@ -949,22 +949,22 @@ ISC_STATUS API_ROUTINE gds__drop_database (ISC_STATUS* userStatus, DbHandle *dbH
 	}
 
 
-ISC_STATUS API_ROUTINE gds__start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, teb *stuff)
+ISC_STATUS API_ROUTINE gds__start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, void *stuff)
 	{
 	if (!dispatch)
 		initialize();
 		
-	return dispatch->startMultiple (userStatus, traHandle, count, stuff);
+	return dispatch->startMultiple (userStatus, traHandle, count, (TransactionElement*) stuff);
 	}
 
 
 ISC_STATUS API_ROUTINE_VARARG gds__start_transaction (ISC_STATUS* userStatus, TraHandle *traHandle, SSHORT count, ...)
 	{
-	teb vector [32];
+	TransactionElement vector [32];
 	va_list ptr;
 	VA_START(ptr, count);
 
-	for (teb *t = vector, *end = vector + count; t < end; ++t)
+	for (TransactionElement *t = vector, *end = vector + count; t < end; ++t)
 		{
 		t->dbHandle = va_arg(ptr, DbHandle*);
 		t->tpbLength = va_arg(ptr, int);

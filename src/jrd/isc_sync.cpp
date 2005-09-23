@@ -1183,11 +1183,11 @@ SLONG ISC_event_clear(AsyncEvent* event)
  **************************************/
 
 	ResetEvent((HANDLE) event->event_handle);
-
 	AsyncEvent* pEvent = event;
-	if (pEvent->event_shared) {
+	
+	if (pEvent->event_shared)
 		pEvent = pEvent->event_shared;
-	}
+
 	return pEvent->event_count + 1;
 }
 

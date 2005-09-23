@@ -91,16 +91,29 @@ typedef ISC_LONG isc_resv_handle;
 #ifndef ISC_TIMESTAMP_DEFINED
 typedef SLONG		ISC_DATE;
 typedef ULONG		ISC_TIME;
+
 typedef struct
 {
 	ISC_DATE timestamp_date;
 	ISC_TIME timestamp_time;
 } ISC_TIMESTAMP;
+
 #define ISC_TIMESTAMP_DEFINED
 #endif	/* ISC_TIMESTAMP_DEFINED */
 
 #define ISC_TIME_SECONDS_PRECISION          10000L
 #define ISC_TIME_SECONDS_PRECISION_SCALE    (-4)
+
+/*******************************************************************/
+/* Transaction Element Block (for isc_start_multiple)                  */
+/*******************************************************************/
+
+typedef struct{
+	isc_db_handle	*teb_database;
+	int				teb_tpb_length;
+	UCHAR			*teb_tpb;
+} teb;
+
 
 /*******************************************************************/
 /* Blob id structure                                               */
@@ -355,6 +368,8 @@ typedef struct
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#define const
 #endif
 
 ISC_STATUS ISC_EXPORT isc_attach_database(ISC_STATUS*,
@@ -1765,6 +1780,12 @@ enum info_db_provider
 /*********************************/
 
 #define isc_info_tra_id                   4
+
+/*********************************/
+/* Event Parameter Block items   */
+/*********************************/
+
+#define isc_epb_version1			1
 
 /*****************************
  * Service action items      *

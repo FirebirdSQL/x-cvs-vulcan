@@ -3096,9 +3096,11 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 
 #pragma FB_COMPILER_MESSAGE("Remote event arguments are broken")
 
+		/***
 		if (true)
 			return unsupported(user_status);
-
+		***/
+		
 		P_EVENT* event = &packet->p_event;
 		event->p_event_database = rdb->rdb_id;
 		event->p_event_items.cstr_length = length;

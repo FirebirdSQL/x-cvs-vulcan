@@ -150,38 +150,48 @@ USHORT API_ROUTINE isc_event_block_a(SCHAR** event_buffer,
  **************************************/
 #define 	MAX_NAME_LENGTH		31
 
-/* calculate length of event parameter block, 
-   setting initial length to include version
-   and counts for each argument */
+	/* calculate length of event parameter block, 
+	  setting initial length to include version
+	  and counts for each argument */
 
 	USHORT i = count;
 	TEXT** nb = name_buffer;
 	SLONG length = 0;
-	while (i--) {
+	
+	while (i--) 
+		{
 		const TEXT* const q = *nb++;
 
 		/* Strip trailing blanks from string */
 		const char* end;
-		for (end = q + MAX_NAME_LENGTH; --end >= q && *end == ' ';);
+		
+		for (end = q + MAX_NAME_LENGTH; --end >= q && *end == ' ';)
+			;
+			
 		length += end - q + 1 + 5;
-	}
+		}
 
 
 	i = count;
 	char* p = *event_buffer = (SCHAR *) gds__alloc((SLONG) length);
-/* FREE: apparently never freed */
+	
+	/* FREE: apparently never freed */
+	
 	if (!(*event_buffer))		/* NOMEM: */
 		return 0;
-	if ((*result_buffer = (SCHAR *) gds__alloc((SLONG) length)) == NULL) {	/* NOMEM: */
+		
+	if ((*result_buffer = (SCHAR *) gds__alloc((SLONG) length)) == NULL) 
+		{
 		/* FREE: apparently never freed */
 		gds__free(*event_buffer);
 		*event_buffer = NULL;
 		return 0;
-	}
+		}
 
 #ifdef DEBUG_GDS_ALLOC
-/* I can find no place where these are freed */
-/* 1994-October-25 David Schnepper  */
+	/* I can find no place where these are freed */
+	/* 1994-October-25 David Schnepper  */
+	
 	gds_alloc_flag_unfreed((void *) *event_buffer);
 	gds_alloc_flag_unfreed((void *) *result_buffer);
 #endif /* DEBUG_GDS_ALLOC */
@@ -190,20 +200,26 @@ USHORT API_ROUTINE isc_event_block_a(SCHAR** event_buffer,
 
 	nb = name_buffer;
 
-	while (i--) {
+	while (i--) 
+		{
 		const TEXT* q = *nb++;
 
 		/* Strip trailing blanks from string */
 		const char* end;
-		for (end = q + MAX_NAME_LENGTH; --end >= q && *end == ' ';);
+		
+		for (end = q + MAX_NAME_LENGTH; --end >= q && *end == ' ';)
+			;
+			
 		*p++ = end - q + 1;
+		
 		while (q <= end)
 			*p++ = *q++;
+			
 		*p++ = 0;
 		*p++ = 0;
 		*p++ = 0;
 		*p++ = 0;
-	}
+		}
 
 	return (p - *event_buffer);
 }

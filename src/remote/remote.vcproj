@@ -40,6 +40,7 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/remote.pdb"
 				SubSystem="2"
+				ImportLibrary="..\..\install\lib\remote.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

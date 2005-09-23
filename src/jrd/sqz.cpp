@@ -34,7 +34,7 @@
 
 
 
-USHORT SQZ_apply_differences(Record* record, SCHAR* differences, SCHAR* end)
+USHORT SQZ_apply_differences(Record* record, const UCHAR* differences, const UCHAR* end)
 {
 /**************************************
  *
@@ -48,38 +48,32 @@ USHORT SQZ_apply_differences(Record* record, SCHAR* differences, SCHAR* end)
  **************************************/
 
 	if (end - differences > MAX_DIFFERENCES)
-	{
 		BUGCHECK(176);			/* msg 176 bad difference record */
-	}
 
-	SCHAR* p     = (SCHAR*) record->rec_data;
-	SCHAR* p_end = (SCHAR*) p + record->rec_length;
+	UCHAR* p     = record->rec_data;
+	UCHAR* p_end = p + record->rec_length;
 
 	while (differences < end && p < p_end)
-	{
-		SSHORT l = *differences++;
-		if (l > 0)
 		{
-			if (p + l > p_end)
+		SSHORT l = *(SCHAR*) differences++;
+		
+		if (l > 0)
 			{
+			if (p + l > p_end)
 				BUGCHECK(177);	/* msg 177 applied differences will not fit in record */
-			}
+
 			memcpy(p, differences, l);
 			p += l;
 			differences += l;
-		}
+			}
 		else
-		{
 			p += -l;
 		}
-	}
 
-	const USHORT length = (p - (SCHAR *) record->rec_data);
+	const USHORT length = p - record->rec_data;
 
 	if (length > record->rec_length || differences < end)
-	{
 		BUGCHECK(177);			/* msg 177 applied differences will not fit in record */
-	}
 
 	return length;
 }
@@ -104,49 +98,54 @@ USHORT SQZ_compress(Decompress *dcc, const SCHAR* input, SCHAR* output, int spac
 	const SCHAR* start = input;
 
 	while (true)
-	{
-		control = dcc->dcc_string;
-		while (control < dcc->dcc_end)
 		{
-			if (--space <= 0)
+		control = dcc->dcc_string;
+		
+		while (control < dcc->dcc_end)
 			{
+			if (--space <= 0)
+				{
 				if (space == 0)
 					*output = 0;
+					
 				return input - start;
-			}
+				}
 			else if ((length = *output++ = *control++) & 128)
-			{
+				{
 				// TMN: This is bad code. It assumes char is 8 bits
 				// and that bit 7 is the sign-bit.
 				--space;
 				*output++ = *input;
 				input += (-length) & 255;
-			}
+				}
 			else
-			{
-				if ((space -= length) < 0)
 				{
+				if ((space -= length) < 0)
+					{
 					length += space;
 					output[-1] = length;
+					
 					if (length > 0)
-					{
+						{
 						MOVE_FAST(input, output, length);
 						input += length;
-					}
+						}
+						
 					return input - start;
-				}
-				if (length > 0) {
+					}
+					
+				if (length > 0) 
+					{
 					MOVE_FAST(input, output, length);
 					output += length;
 					input += length;
+					}
 				}
 			}
-		}
+			
 		if (!(dcc = dcc->dcc_next))
-		{
 			BUGCHECK(178);		/* msg 178 record length inconsistent */
 		}
-	}
 }
 
 
@@ -165,30 +164,36 @@ USHORT SQZ_compress_length(Decompress *dcc, SCHAR* input, int space)
  **************************************/
 	SSHORT length;
 	SCHAR *control;
-	SCHAR *start;
 
-	start = input;
+	SCHAR *start = input;
 
-	while (true) {
+	while (true) 
+		{
 		control = dcc->dcc_string;
+		
 		while (control < dcc->dcc_end)
 			if (--space <= 0)
 				return input - start;
-			else if ((length = *control++) & 128) {
+			else if ((length = *control++) & 128) 
+				{
 				--space;
 				input += (-length) & 255;
-			}
-			else {
-				if ((space -= length) < 0) {
+				}
+			else 
+				{
+				if ((space -= length) < 0) 
+					{
 					length += space;
 					input += length;
 					return input - start;
-				}
+					}
+					
 				input += length;
-			}
+				}
+				
 		if (!(dcc = dcc->dcc_next))
 			BUGCHECK(178);		/* msg 178 record length inconsistent */
-	}
+		}
 }
 
 
@@ -209,47 +214,42 @@ SCHAR* SQZ_decompress(const SCHAR*	input,
  *	where the output stopped.
  *
  **************************************/
-	SSHORT l;
 
 	const SCHAR* last = input + length;
 
 	while (input < last)
-	{
-		l = *input++;
-		if (l < 0)
 		{
+		SSHORT l = *input++;
+		
+		if (l < 0)
+			{
 			const SCHAR c = *input++;
 
 			if ((output - l) > output_end)
-			{
 				BUGCHECK(179);	/* msg 179 decompression overran buffer */
-			}
+
 			memset(output, (UCHAR) c, (-1 * l));
 			output -= l;
-		}
-		else
-		{
-			if ((output + l) > output_end)
-			{
-				BUGCHECK(179);	/* msg 179 decompression overran buffer */
 			}
+		else
+			{
+			if ((output + l) > output_end)
+				BUGCHECK(179);	/* msg 179 decompression overran buffer */
+
 			MOVE_FAST(input, output, l);
 			output += l;
 			input += l;
+			}
 		}
-	}
 
 	if (output > output_end)
-	{
 		BUGCHECK(179);			/* msg 179 decompression overran buffer */
-	}
 
 	return output;
 }
 
 
-USHORT SQZ_no_differences(SCHAR*	out,
-						  int	length)
+USHORT SQZ_no_differences (SCHAR* out, int length)
 {
 /**************************************
  *
@@ -262,12 +262,16 @@ USHORT SQZ_no_differences(SCHAR*	out,
  *
  **************************************/
 	SCHAR *temp = out;
-	while (length > 127) {
+	
+	while (length > 127) 
+		{
 	  *temp++ = -127;
 	  length-=127;
-	}
+		}
+		
 	if (length)
-	  *temp++ = -length;
+		*temp++ = -length;
+		
 	return temp-out;
 }
 
@@ -297,78 +301,87 @@ USHORT SQZ_differences(SCHAR*	rec1,
  *	Return the total length of the differences string.  
  *
  **************************************/
-	SCHAR *p, *yellow, *end, *end1, *end2, *start;
+	SCHAR *p, *yellow;
 	SLONG l;					/* This could be more than 32K since the Old and New records 
 								   could be the same for more than 32K characters. 
 								   MAX record size is currently 64K. Hence it is defined as a SLONG */
 
 #define STUFF(val)	if (out < end) *out++ = val; else return 32000;
-/* WHY IS THIS RETURNING 32000 ??? 
- * It returns a large Positive value to indicate to the caller that we ran out
- * of buffer space in the 'out' argument. Thus we could not create a
- * successful differences record. Now it is upto the caller to check the
- * return value of this function and figure out whether the differences record
- * was created or not. Check prepare_update() (JRD/vio.c) for further
- * information. Of course, the size for a 'differences' record is not expected
- * to go near 32000 in the future. If the case arises where we want to store
- * differences record of 32000 bytes and more, please change the return value
- * above to accomodate a failure value. 
- * 
- * This was investigated as a part of solving bug 10206, bsriram - 25-Feb-1999. 
- */
 
-	start = out;
-	end = out + length;
-	end1 = rec1 + MIN(length1, length2);
-	end2 = rec2 + length2;
+	/* WHY IS THIS RETURNING 32000 ??? 
+	 * It returns a large Positive value to indicate to the caller that we ran out
+	 * of buffer space in the 'out' argument. Thus we could not create a
+	 * successful differences record. Now it is upto the caller to check the
+	 * return value of this function and figure out whether the differences record
+	 * was created or not. Check prepare_update() (JRD/vio.c) for further
+	 * information. Of course, the size for a 'differences' record is not expected
+	 * to go near 32000 in the future. If the case arises where we want to store
+	 * differences record of 32000 bytes and more, please change the return value
+	 * above to accomodate a failure value. 
+	 * 
+	 * This was investigated as a part of solving bug 10206, bsriram - 25-Feb-1999. 
+	 */
 
-	while (end1 - rec1 > 2) {
-		if (rec1[0] != rec2[0] || rec1[1] != rec2[1]) {
+	SCHAR *start = out;
+	SCHAR *end = out + length;
+	SCHAR *end1 = rec1 + MIN(length1, length2);
+	SCHAR *end2 = rec2 + length2;
+
+	while (end1 - rec1 > 2)
+		{
+		if (rec1[0] != rec2[0] || rec1[1] != rec2[1]) 
+			{
 			p = out++;
 
 			/* cast this to LONG to take care of OS/2 pointer arithmetic
 			   when rec1 is at the end of a segment, to avoid wrapping around */
 
 			yellow = (SCHAR *) MIN((U_IPTR) end1, ((U_IPTR) rec1 + 127)) - 1;
+			
 			while (rec1 <= yellow &&
-				   (rec1[0] != rec2[0] ||
-					(rec1[1] != rec2[1] && rec1 < yellow))) {
+				   (rec1[0] != rec2[0] || (rec1[1] != rec2[1] && rec1 < yellow))) 
+				{
 				STUFF(*rec2++);
 				++rec1;
-			}
+				}
+				
 			*p = out - p - 1;
 			continue;
-		}
+			}
+			
 		for (p = rec2; rec1 < end1 && *rec1 == *rec2; rec1++, rec2++)
-		{
 			;
-		}
+
 		l = p - rec2;
+		
 		while (l < -127)
-		{
+			{
 			STUFF(-127);
 			l += 127;
-		}
+			}
+			
 		if (l)
-		{
+			{
 			STUFF(l);
+			}
 		}
-	}
 
 	while (rec2 < end2)
-	{
+		{
 		p = out++;
 
 		/* cast this to LONG to take care of OS/2 pointer arithmetic
 		   when rec1 is at the end of a segment, to avoid wrapping around */
 
 		yellow = (SCHAR *) MIN((U_IPTR) end2, ((U_IPTR) rec2 + 127));
+		
 		while (rec2 < yellow)
-		{
+			{
 			STUFF(*rec2++);
-		}
+			}
+			
 		*p = out - p - 1;
-	}
+		}
 
 	return out - start;
 }
@@ -387,34 +400,35 @@ void SQZ_fast(Decompress *dcc, SCHAR* input, SCHAR* output)
  *	check nuttin' -- go for speed, man, raw SPEED!
  *
  **************************************/
-	SCHAR *control;
 	SSHORT length;
 
 	while (true)
-	{
-		control = dcc->dcc_string;
-		while (control < dcc->dcc_end)
 		{
+		SCHAR *control = dcc->dcc_string;
+		
+		while (control < dcc->dcc_end)
+			{
 			length = *control++;
 			*output++ = length;
+			
 			if (length < 0)
-			{
+				{
 				*output++ = *input;
 				input -= length;
-			}
+				}
 			else if (length > 0)
-			{
+				{
 				MOVE_FAST(input, output, length);
 				output += length;
 				input += length;
+				}
 			}
-		}
+			
 		dcc = dcc->dcc_next;
+		
 		if (!dcc)
-		{
 			break;
 		}
-	}
 }
 
 
@@ -433,105 +447,108 @@ USHORT SQZ_length(thread_db* tdbb, SCHAR* data, int length, Decompress *dcc)
  **************************************/
 	USHORT count;
 	USHORT max;
-	SCHAR c, *end, *start, *control, *end_control;
+	SCHAR c, *start;
 
 	//SET_TDBB(tdbb);
 
 	dcc->dcc_next = NULL;
-	control = dcc->dcc_string;
-	end_control = dcc->dcc_string + sizeof(dcc->dcc_string);
-	end = &data[length];
+	SCHAR *control = dcc->dcc_string;
+	SCHAR *end_control = dcc->dcc_string + sizeof(dcc->dcc_string);
+	SCHAR *end = &data[length];
 	length = 0;
 
 	while ( (count = end - data) )
-	{
+		{
 		start = data;
 
 		/* Find length of non-compressable run */
 
 		if ((max = count - 1) > 1)
-		{
+			{
 			do {
 				if (data[0] != data[1] || data[0] != data[2])
-				{
 					data++;
-				}
 				else
-				{
+					{
 					count = data - start;
 					break;
-				}
+					}
 			} while (--max > 1);
-		}
+			}
 		data = start + count;
 
 		/* Non-compressable runs are limited to 127 bytes */
 
 		while (count)
-		{
+			{
 			max = MIN(count, 127);
 			length += 1 + max;
 			count -= max;
 			*control++ = max;
+			
 			if (control == end_control)
-			{
-				dcc->dcc_end = control;
-				if ( (dcc->dcc_next = tdbb->tdbb_default->plb_dccs) )
 				{
+				dcc->dcc_end = control;
+				
+				if ( (dcc->dcc_next = tdbb->tdbb_default->plb_dccs) )
+					{
 					dcc = dcc->dcc_next;
 					tdbb->tdbb_default->plb_dccs = dcc->dcc_next;
 					dcc->dcc_next = NULL;
 					fb_assert(dcc->dcc_pool == tdbb->tdbb_default);
-				}
+					}
 				else
-				{
+					{
 					dcc->dcc_next = FB_NEW(*tdbb->tdbb_default) Decompress;
 					dcc = dcc->dcc_next;
 					dcc->dcc_pool = tdbb->tdbb_default;
-				}
+					}
+					
 				control = dcc->dcc_string;
 				end_control = dcc->dcc_string + sizeof(dcc->dcc_string);
+				}
 			}
-		}
 
 		/* Find compressible run.  Compressable runs are limited to 128 bytes */
 
 		if ((max = MIN(128, end - data)) >= 3)
-		{
+			{
 			start = data;
 			c = *data;
-			do
-			{
+			
+			do {
 				if (*data != c)
-				{
 					break;
-				}
+					
 				++data;
 			} while (--max);
 
 			*control++ = start - data;
 			length += 2;
+			
 			if (control == end_control)
-			{
-				dcc->dcc_end = control;
-				if ( (dcc->dcc_next = tdbb->tdbb_default->plb_dccs) )
 				{
+				dcc->dcc_end = control;
+				
+				if ( (dcc->dcc_next = tdbb->tdbb_default->plb_dccs) )
+					{
 					dcc = dcc->dcc_next;
 					tdbb->tdbb_default->plb_dccs = dcc->dcc_next;
 					dcc->dcc_next = NULL;
 					fb_assert(dcc->dcc_pool == tdbb->tdbb_default);
-				}
+					}
 				else
-				{
+					{
 					dcc->dcc_next = FB_NEW(*tdbb->tdbb_default) Decompress;
 					dcc = dcc->dcc_next;
 					dcc->dcc_pool = tdbb->tdbb_default;
-				}
+					}
+					
 				control = dcc->dcc_string;
 				end_control = dcc->dcc_string + sizeof(dcc->dcc_string);
+				}
 			}
 		}
-	}
 
 	dcc->dcc_end = control;
 

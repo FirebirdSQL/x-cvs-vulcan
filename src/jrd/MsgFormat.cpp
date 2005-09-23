@@ -47,25 +47,29 @@ int MsgFormat::format(int facility, int number, int bufferLength, TEXT* buffer, 
 {
 	va_list		args;
 	va_start	(args, buffer);
+	int ret = format(facility, number, args, bufferLength, buffer);
+	va_end(args);
 	
-	return format(facility, number, args, bufferLength, buffer);
+	return ret;
 }
 
 int MsgFormat::format(const TEXT* message, int bufferLength, TEXT* buffer, ...)
 {
 	va_list		args;
 	va_start	(args, buffer);
+	int ret = format(message, args, bufferLength, buffer);
+	va_end(args);
 	
-	return format(message, args, bufferLength, buffer);
+	return ret;
 }
 
 int MsgFormat::format(const TEXT* message, va_list stuff, int bufferLength, TEXT* buffer)
 {
 	va_list args;
 	va_copy (args, stuff);
-	
 	int ret = vsnprintf(buffer, bufferLength, message, args);
-
+	va_end(args);
+	
 	return ret;
 }
 
@@ -104,6 +108,7 @@ int MsgFormat::format(int facility, int number, va_list stuff, int bufferLength,
 	len = gds__msg_lookup(NULL, facility, number, len, msg, NULL);
 	len = format(msg, args, bufferLength, buffer);
 	delete [] msg;
-	
+	va_end(args);
+
 	return len;
 }

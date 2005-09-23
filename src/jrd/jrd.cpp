@@ -2649,16 +2649,14 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 
 	//tdbb->tdbb_status_vector = user_status;
 	try
-	{
+		{
 		DBB dbb = threadData.getDatabase(); //tdbb->tdbb_database;
 		Lock* lock = dbb->dbb_lock;
 		Attachment* attachment = threadData.getAttachment(); //tdbb->tdbb_attachment;
 	
 		if (!attachment->att_event_session &&
-			!(attachment->att_event_session = EVENT_create_session(user_status, dbb)))
-		{
+			 !(attachment->att_event_session = EVENT_create_session(user_status, dbb)))
 			return error(NULL, user_status);
-		}
 	
 		*id = EVENT_que(user_status,
 						attachment->att_event_session,
@@ -2668,11 +2666,11 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 		LOG_call(log_handle_returned, *id);
 #endif
-	}
+		}
 	catch (OSRIException& exception)
-	{
+		{
 		return error(&exception, user_status);
-	}
+		}
 
 	return return_success(threadData);
 }
@@ -3441,7 +3439,7 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 							Transaction** tra_handle,
 							USHORT count,
-							const TEB * vector)
+							const TransElement * vector)
 {
 /**************************************
  *
@@ -3458,8 +3456,8 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 	ThreadData threadData (user_status);
 
 	NULL_CHECK(tra_handle, isc_bad_trans_handle);
-	const TEB* const end = vector + count;
-	const TEB *v;
+	const TransElement* const end = vector + count;
+	const TransElement *v;
 
 	for (v = vector; v < end; v++) 
 		{
@@ -3550,7 +3548,7 @@ ISC_STATUS GDS_START_TRANSACTION(ISC_STATUS * user_status,
  *	Start a transaction.
  *
  **************************************/
-	TEB tebs[16], *teb, *end;
+	TransElement tebs[16], *teb, *end;
 	va_list ptr;
 	api_entry_point_init(user_status);
 	VA_START(ptr, count);

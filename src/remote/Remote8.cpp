@@ -98,7 +98,7 @@ ISC_STATUS Remote8::dropDatabase (ISC_STATUS* statusVector, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Remote8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle, int count, const teb *tebs)
+ISC_STATUS Remote8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle, int count, const TransactionElement *tebs)
 {
 
 	//return REM_start_transaction (statusVector, (RTransaction**) traHandle, count, tebs);
@@ -327,13 +327,15 @@ ISC_STATUS Remote8::getSlice(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHa
 
 ISC_STATUS Remote8::cancelEvents(ISC_STATUS* statusVector, DbHandle *dbHandle, SLONG* eventId)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_cancel_events (statusVector, (RDatabase**) dbHandle, eventId);
 }
 
 
-ISC_STATUS Remote8::queEvents(ISC_STATUS* statusVector, DbHandle *dbHandle, SLONG* eventId, int eventsLength, UCHAR* events, FPTR_VOID ast,void* astArg)
+ISC_STATUS Remote8::queEvents(ISC_STATUS* statusVector, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast,void* astArg)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_que_events (statusVector, (RDatabase**) dbHandle, 
+						   eventId, eventsLength, events, 
+						   (FPTR_EVENT_CALLBACK) ast, astArg);
 }
 
 

@@ -1995,13 +1995,7 @@ ISC_STATUS Port::que_events(P_EVENT * stuff, PACKET* send)
 			break;
 
 	if (!event)
-		{
-		//event = (RVNT) ALLOC(type_rvnt);
 		event = rdb->createEvent();
-		
-		event->rvnt_next = rdb->rdb_events;
-		rdb->rdb_events = event;
-		}
 
 	event->rvnt_ast = stuff->p_event_ast;
 	// CVC: Going from SLONG to void*, problems when sizeof(void*) > 4
@@ -2712,6 +2706,8 @@ static void server_ast(void* event_void, USHORT length, const UCHAR* items)
 	p_event->p_event_rid = event->rvnt_rid;
 
 	port->sendPacket(&packet);
+	//delete event;
+	event->rvnt_id = 0;
 }
 
 

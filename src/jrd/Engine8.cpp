@@ -283,11 +283,11 @@ ISC_STATUS Engine8::startAndSend(ISC_STATUS *statusVector, ReqHandle *reqHandle,
 					   level));
 }
 
-ISC_STATUS Engine8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle, int count, const teb *tebs)
+ISC_STATUS Engine8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle, int count, const TransactionElement *tebs)
 {
 	enterSystem();
 
-	return exitSystem (jrd8_start_multiple (statusVector, (Transaction**) traHandle, count, tebs));
+	return exitSystem (jrd8_start_multiple (statusVector, (Transaction**) traHandle, count, (TransElement*) tebs));
 }
 
 ISC_STATUS Engine8::transactionInfo(ISC_STATUS* statusVector, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
@@ -307,14 +307,24 @@ ISC_STATUS Engine8::commitRetaining(ISC_STATUS *statusVector, TraHandle *traHand
 	return exitSystem (jrd8_commit_retaining (statusVector, (Transaction**) traHandle));
 }
 
-ISC_STATUS Engine8::queEvents(ISC_STATUS *statusVector, DbHandle *dbHandle, SLONG *, int, UCHAR *, FPTR_VOID, void *)
+ISC_STATUS Engine8::queEvents(ISC_STATUS *statusVector, DbHandle *dbHandle, SLONG *eventId, int eventLength, const UCHAR *events, FPTR_VOID ast, void *astArg)
 {
-	return entrypointUnavailable (statusVector);
+	enterSystem();
+
+	return exitSystem (jrd8_que_events (statusVector, 
+					   (Attachment**) dbHandle, 
+					   eventId, 
+					   eventLength, 
+					   events, 
+					   (FPTR_EVENT_CALLBACK) ast, 
+					   astArg));
 }
 
-ISC_STATUS Engine8::cancelEvents(ISC_STATUS *statusVector, DbHandle *dbHandle, SLONG *)
+ISC_STATUS Engine8::cancelEvents(ISC_STATUS *statusVector, DbHandle *dbHandle, SLONG *eventId)
 {
-	return entrypointUnavailable (statusVector);
+	return exitSystem (jrd8_cancel_events (statusVector, 
+					   (Attachment**) dbHandle, 
+					   eventId));
 }
 
 ISC_STATUS Engine8::executeDDL(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR *ddl)

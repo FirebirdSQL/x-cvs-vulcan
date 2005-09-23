@@ -43,13 +43,13 @@ class StatusVector;
 class SubsysHandle;
 class HandleManager;
 
-struct teb;
+//struct teb;
 
 struct TranDb
 	{
-	SubsysHandle	*subsystem;
-	teb				element;
-	TraHandle		handle;
+	SubsysHandle		*subsystem;
+	TransactionElement	element;
+	TraHandle			handle;
 	};
 
 class YTransaction  

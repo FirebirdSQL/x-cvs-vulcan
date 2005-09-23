@@ -1046,9 +1046,7 @@ void VIO_data(thread_db* tdbb, record_param* rpb, JrdMemoryPool* pool)
 	
 	USHORT length;
 	if (prior)
-		length = SQZ_apply_differences(record,
-								  reinterpret_cast<char*>(differences),
-								  reinterpret_cast<char*>(tail));
+		length = SQZ_apply_differences(record, differences, tail);
 	else
 		length = tail - record->rec_data;
 
@@ -3137,44 +3135,51 @@ static void delete_record(thread_db* tdbb, record_param* rpb, SLONG prior_page, 
  *	deleted.
  *
  **************************************/
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
 #ifdef VIO_DEBUG
-	if (debug_flag > DEBUG_WRITES) {
+	if (debug_flag > DEBUG_WRITES) 
 		ib_printf("delete_record (rpb %"SLONGFORMAT", prior_page %ld, pool %p)\n",
 				  rpb->rpb_number.getValue(), prior_page,
 				  pool);
-	}
-	if (debug_flag > DEBUG_WRITES_INFO) {
+
+	if (debug_flag > DEBUG_WRITES_INFO) 
 		ib_printf
 			("   delete_record record  %"SLONGFORMAT":%d, rpb_trans %"SLONGFORMAT
 			 ", flags %d, back %"SLONGFORMAT":%d, fragment %"SLONGFORMAT":%d\n",
 			 rpb->rpb_page, rpb->rpb_line, rpb->rpb_transaction,
 			 rpb->rpb_flags, rpb->rpb_b_page, rpb->rpb_b_line,
 			 rpb->rpb_f_page, rpb->rpb_f_line);
-	}
+
 #endif
 	UCHAR *tail, *tail_end, differences[MAX_DIFFERENCES];
 	Record* record;
 	const Record* prior = 0;
-	if (!pool || (rpb->rpb_flags & rpb_deleted)) {
+	
+	if (!pool || (rpb->rpb_flags & rpb_deleted)) 
+		{
 		prior = NULL;
 		tail = tail_end = NULL;
-	}
-	else {
+		}
+	else 
+		{
 		record = VIO_record(tdbb, rpb, 0, pool);
 		prior = rpb->rpb_prior;
-		if (prior) {
+		
+		if (prior) 
+			{
 			tail = differences;
 			tail_end = differences + sizeof(differences);
 			if (prior != record)
-				MOVE_FASTER(prior->rec_data, record->rec_data,
-							record->rec_format->fmt_length);
-		}
-		else {
+				MOVE_FASTER(prior->rec_data, record->rec_data, record->rec_format->fmt_length);
+			}
+		else 
+			{
 			tail = record->rec_data;
 			tail_end = tail + record->rec_length;
-		}
+			}
+			
+		//tail = SQZ_decompress(rpb->rpb_address, rpb->rpb_length, tail, tail_end);
 		tail =
 			reinterpret_cast <
 			UCHAR *
@@ -3183,15 +3188,15 @@ static void delete_record(thread_db* tdbb, record_param* rpb, SLONG prior_page, 
 			   reinterpret_cast < char *>(tail),
 			   reinterpret_cast < char *>(tail_end)));
 		rpb->rpb_prior = (rpb->rpb_flags & rpb_delta) ? record : 0;
-	}
+		}
+
 
 	record_param temp_rpb = *rpb;
 	DPM_delete(tdbb, &temp_rpb, prior_page);
 	tail = delete_tail(tdbb, &temp_rpb, temp_rpb.rpb_page, tail, tail_end);
 
 	if (pool && prior)
-		SQZ_apply_differences(record, reinterpret_cast < char *>(differences),
-							  reinterpret_cast < char *>(tail));
+		SQZ_apply_differences(record, differences, tail);
 }
 
 

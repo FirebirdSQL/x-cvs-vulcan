@@ -82,10 +82,10 @@ ISC_STATUS Gateway::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Gateway::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, teb *tebs)
+ISC_STATUS Gateway::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, const TransactionElement *tebs)
 {
 	ENTRY (isc_start_multiple, (ISC_STATUS*, void*, int, void*))
-			(userStatus, traHandle, count, tebs);
+			(userStatus, traHandle, count, (void*) tebs);
 
 	return entrypointUnavailable (userStatus);
 }
@@ -266,7 +266,7 @@ ISC_STATUS Gateway::cancelEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLO
 }
 
 
-ISC_STATUS Gateway::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, UCHAR* events, FPTR_VOID ast,void* astArg)
+ISC_STATUS Gateway::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast,void* astArg)
 {
 	return entrypointUnavailable (userStatus);
 }

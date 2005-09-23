@@ -26,18 +26,19 @@
  *
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "firebird.h"
 #include "common.h"
 #include "Database.h"
 #include "../jrd/ib_stdio.h"
-#include <stdlib.h>
-#include <string.h>
-#include "../jrd/common.h"
+//#include "../jrd/common.h"
 #include "gen/iberror.h"
 #include "../jrd/thd.h"
 #include "../jrd/event.h"
 #include "../jrd/gdsassert.h"
-#include "../jrd/isc_signal.h"
+//#include "../jrd/isc_signal.h"
 #include "../jrd/event_proto.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/isc_proto.h"
@@ -46,8 +47,7 @@
 #include "../jrd/thd_proto.h"
 #include "../jrd/err_proto.h"
 #include "../jrd/os/isc_i_proto.h"
-//#include "../common/config/config.h"
-#include "Database.h"
+//#include "Database.h"
 #include "Configuration.h"
 #include "ConfObject.h"
 #include "Parameters.h"
@@ -262,17 +262,22 @@ void EVENT_deliver()
 
 	bool flag = true;
 
-	while (flag) {
+	while (flag) 
+		{
 		flag = false;
-		QUE_LOOP (EVENT_header->evh_processes, que)	{
+		
+		QUE_LOOP (EVENT_header->evh_processes, que)	
+			{
 			PRB process = (PRB) ((UCHAR*) que - OFFSET (PRB, prb_processes));
-			if (process->prb_flags & PRB_wakeup) {
+			
+			if (process->prb_flags & PRB_wakeup) 
+				{
 				post_process(process);
 				flag = true;
 				break;
+				}
 			}
 		}
-	}
 
 	RELEASE;
 }
@@ -377,33 +382,37 @@ int EVENT_post(ISC_STATUS * status_vector,
  *	Post an event.
  *
  **************************************/
-	SRQ *que;
 
-/* If we're not initialized, do so now */
+	/* If we're not initialized, do so now */
 
 	if (!EVENT_header && !EVENT_init(status_vector, database, FALSE))
 		return status_vector[1];
 
 	ACQUIRE;
-
 	EVNT event;
 	EVNT parent = find_event(major_length, major_code, 0);
-	if (parent &&
-		(event = find_event(minor_length, minor_code, parent)))
-	{
+
+	if (parent && (event = find_event(minor_length, minor_code, parent)))
+		{
 		event->evnt_count += count;
-		QUE_LOOP(event->evnt_interests, que) {
+		SRQ *que;
+		
+		QUE_LOOP(event->evnt_interests, que) 
+			{
 			RINT interest = (RINT) ((UCHAR *) que - OFFSET(RINT, rint_interests));
-			if (interest->rint_request) {
+			
+			if (interest->rint_request) 
+				{
 				EVT_REQ request = (EVT_REQ) ABS_PTR(interest->rint_request);
 
-				if (interest->rint_count <= event->evnt_count) {
+				if (interest->rint_count <= event->evnt_count) 
+					{
 					PRB process = (PRB) ABS_PTR(request->req_process);
 					process->prb_flags |= PRB_wakeup;
+					}
 				}
 			}
 		}
-	}
 
 	RELEASE;
 
@@ -428,7 +437,8 @@ SLONG EVENT_que(ISC_STATUS* status_vector,
  * Functional description
  *
  **************************************/
-// Allocate request block
+
+	// Allocate request block
 
 	ACQUIRE;
 	EVT_REQ request = (EVT_REQ) alloc_global(type_req, sizeof(evt_req), FALSE);
@@ -443,17 +453,20 @@ SLONG EVENT_que(ISC_STATUS* status_vector,
 
 	const SLONG request_offset = REL_PTR(request);
 
-/* Find parent block */
+	/* Find parent block */
+	
 	EVNT parent = find_event(string_length, string, 0);
-	if (!parent) {
+	
+	if (!parent) 
+		{
 		parent = make_event(string_length, string, 0);
 		request = (EVT_REQ) ABS_PTR(request_offset);
 		session = (SES) ABS_PTR(session_id);
-	}
+		}
 
 	const SLONG parent_offset = REL_PTR(parent);
 
-/* Process event block */
+	/* Process event block */
 
 	PTR* ptr = &request->req_interests;
 	SLONG ptr_offset = REL_PTR(ptr);
@@ -461,43 +474,47 @@ SLONG EVENT_que(ISC_STATUS* status_vector,
 	const UCHAR* const end = events + events_length;
 	bool flag = false;
 
-	while (p < end) {
-
+	while (p < end) 
+		{
 		const USHORT count = *p++;
 
 		/* The data in the event block may have trailing blanks.  Strip them off. */
 
         const UCHAR* find_end = p + count;
+        
 		while (--find_end >= p && *find_end == ' ')
-			; // nothing to do.
+			;
+			
 		const USHORT len = find_end - p + 1;
 		EVNT event = find_event(len, reinterpret_cast<const char*>(p), parent);
-		if (!event) {
-			event =
-				make_event(len, reinterpret_cast<const char*>(p), parent_offset);
+		
+		if (!event) 
+			{
+			event = make_event(len, reinterpret_cast<const char*>(p), parent_offset);
 			parent = (EVNT) ABS_PTR(parent_offset);
 			session = (SES) ABS_PTR(session_id);
 			request = (EVT_REQ) ABS_PTR(request_offset);
 			ptr = (PTR *) ABS_PTR(ptr_offset);
-		}
+			}
+			
 		p += count;
 		const SLONG event_offset = REL_PTR(event);
 		RINT interest, prior;
-		if (interest = historical_interest(session, event_offset)) {
-			for (PTR* ptr2 = &session->ses_interests;
-				 *ptr2 && (prior = (RINT) ABS_PTR(*ptr2));
-				 ptr2 = &prior->rint_next)
+		
+		if (interest = historical_interest(session, event_offset)) 
 			{
-				if (prior == interest) {
+			for (PTR* ptr2 = &session->ses_interests; *ptr2 && (prior = (RINT) ABS_PTR(*ptr2));
+				 ptr2 = &prior->rint_next)
+				if (prior == interest) 
+					{
 					*ptr2 = interest->rint_next;
 					interest->rint_next = 0;
 					break;
-				}
+					}
 			}
-		}
-		else {
-			interest =
-				(RINT) alloc_global(type_rint, (SLONG) sizeof(struct rint), FALSE);
+		else
+			{
+			interest = (RINT) alloc_global(type_rint, (SLONG) sizeof(struct rint), FALSE);
 			event = (EVNT) ABS_PTR(event_offset);
 			insert_tail(&event->evnt_interests, &interest->rint_interests);
 			interest->rint_event = event_offset;
@@ -506,16 +523,18 @@ SLONG EVENT_que(ISC_STATUS* status_vector,
 			request = (EVT_REQ) ABS_PTR(request_offset);
 			ptr = (PTR *) ABS_PTR(ptr_offset);
 			session = (SES) ABS_PTR(session_id);
-		}
+			}
+			
 		*ptr = REL_PTR(interest);
 		ptr = &interest->rint_next;
 		ptr_offset = REL_PTR(ptr);
 		interest->rint_request = request_offset;
 		interest->rint_count = gds__vax_integer(p, 4);
 		p += 4;
+		
 		if (interest->rint_count <= event->evnt_count)
 			flag = true;
-	}
+		}
 
 	if (flag)
 		post_process((PRB) ABS_PTR(EVENT_process_offset));
@@ -542,21 +561,25 @@ static EVH acquire(void)
 
 	int mutex_state;
 	EVH header = NULL;
+	
 #ifdef MULTI_THREAD
 	if (mutex_state = ISC_mutex_lock(MUTEX))
 		mutex_bugcheck("mutex lock", mutex_state);
+		
 	EVENT_header->evh_current_process = EVENT_process_offset;
 #else
-	if (++acquire_count == 1) {
+	if (++acquire_count == 1) 
+		{
 #ifndef SERVER
 		if (mutex_state = ISC_mutex_lock(MUTEX))
 			mutex_bugcheck("mutex lock", mutex_state);
 #endif
 		EVENT_header->evh_current_process = EVENT_process_offset;
-	}
+		}
 #endif
 
-	if (EVENT_header->evh_length > EVENT_data.sh_mem_length_mapped) {
+	if (EVENT_header->evh_length > EVENT_data.sh_mem_length_mapped)
+		{
 		const SLONG length = EVENT_header->evh_length;
 
 #ifdef WIN_NT
@@ -574,26 +597,29 @@ static EVH acquire(void)
 
 		post_process(process);
 
-		while (true) {
+		while (true) 
+			{
 			RELEASE;
 			Sleep(3);
 			ACQUIRE;
-
 			process = (PRB) ABS_PTR(EVENT_process_offset);
+			
 			if (!(process->prb_flags & PRB_remap))
 				break;
-		}
+			}
 #endif /* WIN_NT */
 
 #if (!(defined SUPERSERVER) && (defined HAVE_MMAP))
 		ISC_STATUS_ARRAY status_vector;
 		header = (evh*) ISC_remap_file(status_vector, &EVENT_data, length, FALSE);
 #endif
-		if (!header) {
+		if (!header) 
+			{
 			RELEASE;
 			gds__log("acquire: Event table remap failed");
 			exit(FINI_ERROR);
-		}
+			}
+			
 		EVENT_header = header;
 
 #ifdef WIN_NT
@@ -978,31 +1004,38 @@ static AST_TYPE deliver(void* arg)
 	PRB process = (PRB) ABS_PTR(EVENT_process_offset);
 	process->prb_flags &= ~PRB_pending;
 
-	QUE_LOOP(process->prb_sessions, que2) {
+	QUE_LOOP(process->prb_sessions, que2) 
+		{
 		SES session = (SES) ((UCHAR *) que2 - OFFSET(SES, ses_sessions));
 #ifdef MULTI_THREAD
 		session->ses_flags |= SES_delivering;
 #endif
 		const SLONG session_offset = REL_PTR(session);
 		const SLONG que2_offset = REL_PTR(que2);
-		for (bool flag = true; flag;) {
+		
+		for (bool flag = true; flag;) 
+			{
 			flag = false;
-			QUE_LOOP(session->ses_requests, que) {
+			
+			QUE_LOOP(session->ses_requests, que) 
+				{
 				EVT_REQ request = (EVT_REQ) ((UCHAR *) que - OFFSET(EVT_REQ, req_requests));
-				if (request_completed(request)) {
+				
+				if (request_completed(request)) 
+					{
 					deliver_request(request);
 					process = (PRB) ABS_PTR(EVENT_process_offset);
 					session = (SES) ABS_PTR(session_offset);
 					que2 = (SRQ *) ABS_PTR(que2_offset);
 					flag = true;
 					break;
+					}
 				}
 			}
-		}
 #ifdef MULTI_THREAD
 		session->ses_flags &= ~SES_delivering;
 #endif
-	}
+		}
 
 	RELEASE;
 }
@@ -1030,35 +1063,42 @@ static void deliver_request(EVT_REQ request)
 	const UCHAR* end = buffer + sizeof(buffer);
 	*p++ = EPB_version1;
 
-/* Loop thru interest block picking up event name, counts, and unlinking
-   stuff */
+	/* Loop thru interest block picking up event name, counts, and unlinking
+	   stuff */
 
 	RINT interest;
-	for (PTR next = request->req_interests;
-		 next && (interest = (RINT) ABS_PTR(next));
+	
+	for (PTR next = request->req_interests; next && (interest = (RINT) ABS_PTR(next));
 		 next = interest->rint_next)
-	{
+		{
 		interest = (RINT) ABS_PTR(next);
 		EVNT event = (EVNT) ABS_PTR(interest->rint_event);
+		
 		if (end < p + event->evnt_length + 5)
-		{
+			{
 			/* Running out of space - allocate some more and copy it over */
+			
 			fb_assert(event_buffer == buffer);	/* we're in this block only once */
+			
 			// CVC: We don't check at run-time in the release version, it's
 			// likely to produce a buffer overrun if we reach MAX_EVENT_BUFFER,
 			// since new_buffer will be again and again this number.
+			
 			UCHAR* new_buffer = (UCHAR*)gds__alloc((SLONG) MAX_EVENT_BUFFER);
 			/* FREE: at procedure exit */
+			
 			if (!new_buffer)
-			{	/* NOMEM: */
+				{	/* NOMEM: */
 				gds__log("failed to post all events");
 				break;			/* exit loop and send what we have */
-			}
+				}
+				
 			event_buffer = new_buffer;
 			memcpy(event_buffer, buffer, p - buffer);
 			p = event_buffer + (p - buffer);
 			end = event_buffer + MAX_EVENT_BUFFER;
-		}
+			}
+			
 		*p++ = event->evnt_length;
 		memcpy(p, event->evnt_name, event->evnt_length);
 		p += event->evnt_length;
@@ -1067,15 +1107,15 @@ static void deliver_request(EVT_REQ request)
 		*p++ = (UCHAR) (count >> 8);
 		*p++ = (UCHAR) (count >> 16);
 		*p++ = (UCHAR) (count >> 24);
-	}
+		}
 
 	delete_request(request);
 	RELEASE;
 	reinterpret_cast<void(*)(...)>(*ast)(arg, p - event_buffer, event_buffer);
+	
 	if (event_buffer != buffer)
-	{
 		gds__free(event_buffer);
-	}
+
 	ACQUIRE;
 }
 
@@ -1452,23 +1492,29 @@ static void release(void)
 
 #ifdef MULTI_THREAD
 	EVENT_header->evh_current_process = 0;
+	
 	if (mutex_state = ISC_mutex_unlock(MUTEX))
 		mutex_bugcheck("mutex lock", mutex_state);
 #else
-	if (!--acquire_count) {
+	if (!--acquire_count) 
+		{
 		EVENT_header->evh_current_process = 0;
+		
 #ifndef SERVER
 		if (mutex_state = ISC_mutex_unlock(MUTEX))
 			mutex_bugcheck("mutex lock", mutex_state);
 #endif
+
 #ifdef UNIX
-		if (EVENT_process_offset) {
+		if (EVENT_process_offset) 
+			{
 			PRB process = (PRB) ABS_PTR(EVENT_process_offset);
+			
 			if (process->prb_flags & PRB_pending)
 				ISC_kill(process->prb_process_id, EVENT_SIGNAL);
-		}
+			}
 #endif
-	}
+		}
 #endif
 }
 
@@ -1597,33 +1643,42 @@ static void THREAD_ROUTINE watcher_thread(void *dummy)
  *	Wait for something to happen.
  *
  **************************************/
-	while (EVENT_process_offset) {
+ 
+	while (EVENT_process_offset) 
+		{
 		ACQUIRE;
 		PRB process = (PRB) ABS_PTR(EVENT_process_offset);
 		process->prb_flags &= ~PRB_wakeup;
 
-		if (process->prb_flags & PRB_exiting) {
+		if (process->prb_flags & PRB_exiting) 
+			{
 			process->prb_flags &= ~PRB_exiting;
 			ISC_event_post(process->prb_event);
 			RELEASE;
 			break;
-		}
+			}
+			
 #ifdef WIN_NT
-		if (process->prb_flags & PRB_remap) {
+		if (process->prb_flags & PRB_remap) 
+			{
 			process->prb_flags |= PRB_remap_over;
 			process->prb_flags &= ~PRB_remap;
 			RELEASE;
-			while (true) {
+			
+			while (true) 
+				{
 				Sleep(3);
 				ACQUIRE;
 				process = (PRB) ABS_PTR(EVENT_process_offset);
 				RELEASE;
+				
 				if (!(process->prb_flags & PRB_remap_over))
 					break;
-			}
+				}
+				
 			ACQUIRE;
 			process = (PRB) ABS_PTR(EVENT_process_offset);
-		}
+			}
 #endif
 
 		SLONG value = ISC_event_clear(process->prb_event);
@@ -1632,13 +1687,15 @@ static void THREAD_ROUTINE watcher_thread(void *dummy)
 		ACQUIRE;
 		process = (PRB) ABS_PTR(EVENT_process_offset);
 		RELEASE;
+		
 #ifdef SOLARIS_MT
 		AsyncEvent* events = EVENT_process->prb_event;
 #else
 		AsyncEvent* events = process->prb_event;
 #endif
+
 		ISC_event_wait(1, &events, &value, 0, 0, 0);
-	}
+		}
 
 }
 #endif

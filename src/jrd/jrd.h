@@ -260,13 +260,14 @@ typedef str *STR;
 //
 // Transaction element block
 //
-struct teb {
+
+struct TransElement {
 	Attachment** teb_database;
-	int teb_tpb_length;
+	int			 teb_tpb_length;
 	UCHAR *teb_tpb;
 };
 
-typedef teb TEB;
+//typedef teb TEB;
 
 /* Blocking Thread Block */
 

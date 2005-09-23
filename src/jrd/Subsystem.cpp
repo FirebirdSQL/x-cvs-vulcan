@@ -119,7 +119,7 @@ ISC_STATUS Subsystem::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Subsystem::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int, const teb *)
+ISC_STATUS Subsystem::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int, const TransactionElement *)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -285,7 +285,7 @@ ISC_STATUS Subsystem::cancelEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, S
 }
 
 
-ISC_STATUS Subsystem::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, UCHAR* events, FPTR_VOID ast,void* astArg)
+ISC_STATUS Subsystem::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast,void* astArg)
 {
 	return entrypointUnavailable (userStatus);
 }

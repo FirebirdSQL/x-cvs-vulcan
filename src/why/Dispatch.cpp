@@ -423,7 +423,7 @@ ISC_STATUS Dispatch::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, const teb *tebs)
+ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, const TransactionElement *tebs)
 {
 	trace ("startMultiple");
 	StatusVector statusVector (userStatus, traceFlags);
@@ -435,7 +435,7 @@ ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle,
 
 	for (int n = 0; n < count; ++n)
 		{
-		const teb *element = tebs + n;
+		const TransactionElement *element = tebs + n;
 		SubsysHandle *subsystem = getDatabase (element->dbHandle);
 		if (!subsystem)
 			{
@@ -1027,14 +1027,40 @@ ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHan
 ISC_STATUS Dispatch::cancelEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId)
 {
 	trace ("cancelEvents");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+		
+	handle->subsystem->cancelEvents(
+			statusVector, 
+			&handle->handle, 
+			eventId);
+
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, UCHAR* events, FPTR_VOID ast,void* astArg)
+ISC_STATUS Dispatch::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast,void* astArg)
 {
 	trace ("queEvents");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+		
+	handle->subsystem->queEvents(
+			statusVector, 
+			&handle->handle, 
+			eventId,
+			eventsLength,
+			events,
+			ast,
+			astArg);
+
+	return statusVector.getReturn();
 }
 
 
@@ -2342,7 +2368,7 @@ ISC_STATUS Dispatch::alterDatabase (ISC_STATUS* userStatus,
 	StatusVector statusVector (userStatus, traceFlags);
 	SubsysHandle *handle = getDatabase (dbHandle);
 
-	struct teb	trBlock;
+	TransactionElement	trBlock;
 	trBlock.dbHandle = dbHandle;
 	trBlock.tpb = NULL;
 	trBlock.tpbLength = 0;

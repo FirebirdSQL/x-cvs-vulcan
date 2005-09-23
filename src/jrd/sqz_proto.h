@@ -27,7 +27,7 @@
 class Record;
 class Decompress;
 
-USHORT	SQZ_apply_differences(Record*, SCHAR*, SCHAR*);
+USHORT	SQZ_apply_differences(Record*, const UCHAR*, const UCHAR*);
 USHORT	SQZ_compress(Decompress*, const SCHAR*, SCHAR*, int);
 USHORT	SQZ_compress_length(Decompress*, SCHAR*, int);
 SCHAR*	SQZ_decompress(const SCHAR*, USHORT, SCHAR*, const SCHAR*);

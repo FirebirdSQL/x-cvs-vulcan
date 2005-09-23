@@ -38,8 +38,6 @@ struct EventArg {
 	SCHAR	*buffer;
 	};
 
-extern "C" {
-
 static void stuffInt (UCHAR **ptr, int verb, int value)
 {
 	UCHAR *p = *ptr;
@@ -112,6 +110,8 @@ static void stuffSecData (UCHAR **ptr, const USER_SEC_DATA *data)
 	*ptr = p;
 }
 
+extern "C" {
+
 ISC_STATUS ISC_EXPORT isc_add_user(ISC_STATUS * status, const USER_SEC_DATA *data)
 	{
 	UCHAR apb [512], *p = apb;
@@ -139,17 +139,18 @@ ISC_STATUS API_ROUTINE isc_delete_user(ISC_STATUS * status, const USER_SEC_DATA 
 	return fb_update_account_info (status, NULL, p - apb, apb);
 	}
 
-static void eventAst (UCHAR *buffer, int length, EventArg *eventArg)
+static void eventAst (EventArg *eventArg, int length, UCHAR *buffer)
 	{
 	memcpy (eventArg->buffer, buffer, length);
 	ISC_event_post (&eventArg->event);
 	}
 
-ISC_STATUS API_ROUTINE isc_event_wait (ISC_STATUS *status, isc_db_handle* dbHandle, USHORT eventLength, SCHAR *events, SCHAR *buffer)
+ISC_STATUS API_ROUTINE isc_event_wait (ISC_STATUS *status, isc_db_handle* dbHandle, USHORT eventLength, const SCHAR *events, SCHAR *buffer)
 	{
 	EventArg eventArg;
+	eventArg.buffer = buffer;
 	ISC_LONG eventId;
-
+	ISC_event_init(&eventArg.event, 0, 0);
 	SLONG eventCount = ISC_event_clear (&eventArg.event);
 
 	if (isc_que_events (status, dbHandle, &eventId, eventLength, events, (FPTR_EVENT_CALLBACK) eventAst, &eventArg))
@@ -168,15 +169,14 @@ ISC_STATUS API_ROUTINE isc_print_status(const ISC_STATUS *status)
 	return gds__print_status (status);
 }
 
-} /* extern "C" */
-
 
 ISC_STATUS API_ROUTINE isc_wait_for_event(ISC_STATUS *status,
 										  isc_db_handle* dbHandle,
 										  SSHORT eventsLength,
-										  SCHAR *events, 
+										  const SCHAR *events, 
 										  SCHAR *eventsUpdated)
 {
 	return isc_event_wait (status, dbHandle, eventsLength, events, eventsUpdated);
 }
 
+} /* extern "C" */

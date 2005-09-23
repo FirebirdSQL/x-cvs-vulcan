@@ -30,6 +30,8 @@ class Service;
 class blb;
 class Transaction;
 class Request;
+struct TransElement;
+
 CLASS(ConfObject);
 
 
@@ -45,13 +47,17 @@ ISC_STATUS jrd8_blob_info(ISC_STATUS*, blb**, SSHORT,
 										const UCHAR*, SSHORT, UCHAR*);
 ISC_STATUS jrd8_cancel_blob(ISC_STATUS *, blb **);
 ISC_STATUS jrd8_cancel_events(ISC_STATUS *, Attachment **, SLONG *);
+
 #ifdef CANCEL_OPERATION
+
 #define CANCEL_disable	1
 #define CANCEL_enable	2
 #define CANCEL_raise	3
+
 ISC_STATUS jrd8_cancel_operation(ISC_STATUS *, Attachment **,
 											   USHORT);
 #endif
+
 ISC_STATUS jrd8_close_blob(ISC_STATUS *, blb **);
 ISC_STATUS jrd8_commit_transaction(ISC_STATUS *, Transaction **);
 ISC_STATUS jrd8_commit_retaining(ISC_STATUS *, Transaction **);
@@ -123,7 +129,7 @@ ISC_STATUS jrd8_start_and_send(ISC_STATUS *, Request **,
 ISC_STATUS jrd8_start_request(ISC_STATUS *, Request **,
 											Transaction **, SSHORT);
 ISC_STATUS jrd8_start_multiple(ISC_STATUS *, Transaction **, USHORT,
-											 const struct teb *);
+											 const  TransElement *);
 ISC_STATUS jrd8_start_transaction(ISC_STATUS *, Transaction **,
 												SSHORT, ...);
 ISC_STATUS jrd8_transaction_info(ISC_STATUS*, Transaction**,

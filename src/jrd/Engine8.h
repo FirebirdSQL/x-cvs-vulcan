@@ -62,7 +62,7 @@ public:
 	virtual ISC_STATUS detachDatabase(ISC_STATUS*, DbHandle *dbHandle);
 	virtual ISC_STATUS dropDatabase (ISC_STATUS*, DbHandle *dbHandle);
 
-	virtual ISC_STATUS startMultiple(ISC_STATUS *, TraHandle *traHandle, int, const teb *);
+	virtual ISC_STATUS startMultiple(ISC_STATUS *, TraHandle *traHandle, int, const TransactionElement *);
 	virtual ISC_STATUS reconnectTransaction(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*);
 
 	virtual ISC_STATUS transactionInfo(ISC_STATUS* userStatus, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
@@ -97,7 +97,7 @@ public:
 	virtual ISC_STATUS getSlice(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, SLONG *, int, UCHAR *, int, UCHAR *, SLONG, UCHAR *, SLONG *);
 
 	virtual ISC_STATUS cancelEvents(ISC_STATUS*, DbHandle *dbHandle, SLONG*);
-	virtual ISC_STATUS queEvents(ISC_STATUS*, DbHandle *dbHandle, SLONG*, int, UCHAR*, FPTR_VOID,void*);
+	virtual ISC_STATUS queEvents(ISC_STATUS*, DbHandle *dbHandle, SLONG*, int, const UCHAR*, FPTR_VOID,void*);
 
 	virtual ISC_STATUS dsqlAllocateStatement(ISC_STATUS*, DbHandle *dbHandle, DsqlHandle *dsqlHandle);
 	virtual ISC_STATUS dsqlSqlInfo(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
