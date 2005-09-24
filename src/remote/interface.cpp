@@ -4439,6 +4439,7 @@ ISC_STATUS GDS_TRANSACTION_INFO(ISC_STATUS* user_status,
 	return status;
 }
 
+
 ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
 									RDatabase** db_handle,
 									SSHORT dpb_length,
@@ -4512,6 +4513,8 @@ ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
 
 	return status;
 }
+
+
 ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
 									RDatabase** db_handle,
 									SSHORT apb_length,
