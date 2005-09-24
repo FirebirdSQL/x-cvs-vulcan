@@ -3,10 +3,28 @@
 #include <stdlib.h>
 #include "Events.h"
 
-int main(int argc, const char *argv)
+int main(int argc, const char **argv)
 {
-	isc_db_handle dbHandle = NULL;
-	isc_attach_database(NULL, 0, "localhost:events.fdb", &dbHandle, 0, NULL);
+	const char *dbName = "localhost:events.fdb";
+
+	for (int n = 1; n < argc;)
+		{
+		const char *arg = argv[n++];
+		if (*arg == '-')
+			switch (arg[1])
+				{
+				case 'd':
+					dbName = argv[n++];
+					break;
+
+				default:
+					fprintf(stderr, "don't understand switch %s\n", arg);
+					return 1;
+				}
+		}
+
+	isc_db_handle dbHandle = 0;
+	isc_attach_database(NULL, 0, dbName,  &dbHandle, 0, NULL);
 	Events events(dbHandle, 2, "george", "martha");
 	
 	if (!events.waitForEvents())

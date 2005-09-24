@@ -53,6 +53,7 @@ public:
 	int				eventId;
 	int				numberEvents;
 	bool			sleeping;
+	bool			wakeup;
 	
 #ifdef _WIN32
 	void	*event;

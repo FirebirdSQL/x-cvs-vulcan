@@ -24,6 +24,7 @@
 
 #include <stdarg.h>
 #include <string.h>
+#include <stdio.h>
 #include "Events.h"
 
 #ifndef va_copy
@@ -82,6 +83,7 @@ void Events::init(void)
 	eventBlockLength = 0;
 	eventId = 0;
 	sleeping = false;
+	wakeup = false;
 	numberEvents = 0;
 	
 #ifdef _WIN32
@@ -191,11 +193,21 @@ void Events::wake(void)
 
 #ifdef _PTHREADS
 	int ret = pthread_mutex_lock (&mutex);
-	CHECK_RET ("pthread_mutex_lock failed, errno %d", errno);
+
+	if (ret)
+		{
+		fprintf(stderr, "pthread_mutex_lock failed, errno %d\n", errno);
+		return;
+		}
+
 	wakeup = true;
 	pthread_cond_broadcast (&condition);
-	ret = pthread_mutex_unlock (&mutex);
-	CHECK_RET ("pthread_mutex_unlock failed, errno %d", errno);
+
+	if (ret = pthread_mutex_unlock (&mutex))
+		{
+		fprintf(stderr, "pthread_mutex_unlock failed, errno %d\n", errno);
+		return;
+		}
 #endif
 }
 
@@ -218,14 +230,23 @@ void Events::sleep(void)
 
 #ifdef _PTHREADS
 	int ret = pthread_mutex_lock (&mutex);
-	CHECK_RET ("pthread_mutex_lock failed, errno %d", errno);
+
+	if (ret)
+		{
+		fprintf(stderr, "pthread_mutex_lock failed, errno %d\n", errno);
+		return;
+		}
 
 	while (!wakeup)
 		pthread_cond_wait (&condition, &mutex);
 
 	wakeup = false;
-	ret = pthread_mutex_unlock (&mutex);
-	CHECK_RET ("pthread_mutex_unlock failed, errno %d", errno);
+	
+	if (ret = pthread_mutex_unlock (&mutex))
+		{
+		fprintf(stderr, "pthread_mutex_unlock failed, errno %d\n", errno);
+		return;
+		}
 #endif
 
 	sleeping = false;

@@ -1085,7 +1085,10 @@ static int thread_start(
 
 	pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
 	state = pthread_create(&thread, &pattr, (void*(*)(void*))routine, arg);
-	memcpy(thd_id, &thread, sizeof(thread));
+
+	if (thd_id)
+		memcpy(thd_id, &thread, sizeof(thread));
+
 	pthread_attr_destroy(&pattr);
 	return state;
 
@@ -1093,7 +1096,10 @@ static int thread_start(
 #if ( defined LINUX || defined FREEBSD || defined MVS)
 		if (state = pthread_create(&thread, NULL, (void*(*)(void*))routine, arg))
 		return state;
-	memcpy(thd_id, &thread, sizeof(thread));
+
+	if (thd_id)
+		memcpy(thd_id, &thread, sizeof(thread));
+
 #ifdef MVS
 	return pthread_detach(&thread);
 #else
