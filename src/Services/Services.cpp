@@ -61,7 +61,7 @@ ISC_STATUS Services::serviceAttach(ISC_STATUS *userStatus, const TEXT* service, 
 
 	try
 		{
-		*svcHandle = SVC_attach(servicesConfiguration,  service, spbLength, spb);
+		*svcHandle = SVC_attach(servicesConfiguration, service, spbLength, spb);
 		}
 	catch (OSRIException& exception)
 		{
