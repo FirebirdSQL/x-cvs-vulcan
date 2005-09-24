@@ -630,7 +630,7 @@ int common_main(int			argc,
 		return exit_code;
 		}
 
-		return 0;					// compiler silencer
+	return 0;					// compiler silencer
 }
 
 
