@@ -1,3 +1,20 @@
+2005-09-23 22:30  jimstarkey
+
+	* vulcan/src/: gateway/Gateway.cpp, gateway/Gateway.h,
+	events/Events.cpp, events/Events.h, events/events.vcproj,
+	events/main.cpp, events/vulcan.conf, jrd/Attachment.cpp,
+	jrd/Engine8.cpp, jrd/Engine8.h, jrd/MsgFormat.cpp,
+	jrd/Subsystem.cpp, jrd/Subsystem.h, jrd/Sync.h, jrd/alt.cpp,
+	jrd/event.cpp, jrd/ibase.h, jrd/isc_sync.cpp, jrd/jrd.cpp,
+	jrd/jrd.h, jrd/jrd_proto.h, jrd/sqz.cpp, jrd/sqz_proto.h,
+	jrd/vio.cpp, jrd/vulcan.conf, jrd/why_proto.h, remote/Port.cpp,
+	remote/Remote8.cpp, remote/Remote8.h, remote/interface.cpp,
+	remote/remote.vcproj, why/Dispatch.cpp, why/Dispatch.h,
+	why/YTransaction.h, why/entrypoints.cpp, why/local.cpp:
+	
+	Got events working, locally and remotely.  Also wrote a general
+	purpose Events class.
+
 2005-09-21 23:35  jimstarkey
 
 	* vulcan/src/remote/interface.cpp:
