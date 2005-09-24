@@ -2009,7 +2009,7 @@ void put_index( BURP_REL relation)
 	
 			if (count != (ULONG) X.RDB$SEGMENT_COUNT) 
 			{
-				BURP_print(180, X.RDB$INDEX_NAME, count,X.RDB$SEGMENT_COUNT);
+				BURP_print(180, X.RDB$INDEX_NAME, count, X.RDB$SEGMENT_COUNT);
 				continue; 
 			}
 	

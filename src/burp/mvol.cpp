@@ -909,7 +909,7 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 				}
 			else
 				{
-				BURP_msg_put(261, tdgbl->mvol_volume_count,new_file);
+				BURP_msg_put(261, tdgbl->mvol_volume_count, new_file);
 				// Starting with volume #vol_count, new_file 
 				BURP_verbose(75, new_file);	// msg 75  creating file %s 
 				}

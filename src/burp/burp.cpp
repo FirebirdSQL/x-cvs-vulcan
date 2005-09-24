@@ -1173,7 +1173,7 @@ int common_main(int		argc,
 
 			if (temp != tdgbl->gbl_sw_page_size) 
 				{
-				BURP_print(103, tdgbl->gbl_sw_page_size,temp);
+				BURP_print(103, tdgbl->gbl_sw_page_size, temp);
 				// msg 103 page size specified (%ld bytes) rounded up to %ld bytes 
 				tdgbl->gbl_sw_page_size = temp;
 				}
@@ -1545,7 +1545,6 @@ void BURP_output_version(void* arg1, const TEXT* arg2)
 }
 
 
-
 void BURP_print(USHORT number, ...)
 				/***
 				const void* arg1,
@@ -1572,6 +1571,7 @@ void BURP_print(USHORT number, ...)
 	va_start	(args, number);
 	BURP_print(args, number);
 }
+
 
 void BURP_print(va_list stuff, USHORT number)
 {
