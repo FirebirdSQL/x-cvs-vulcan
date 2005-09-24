@@ -91,12 +91,14 @@ void ExecStatement::execute(jrd_nod* list)
 {
 	if (numberParameters > list->nod_count)
 		ERR_post(isc_wronumarg, 0);
-		
+
+	/***		
 	for (int n = 0; n < numberParameters; ++n)
 		{
 		dsc *desc = EVL_expr(request->req_tdbb, list->nod_arg[n]);
 		((InternalPreparedStatement*) statement)->setDescriptor(n + 1, desc);
 		}
+	***/
 	
 	first = true;
 	statement->execute();
@@ -123,7 +125,8 @@ bool ExecStatement::fetch(jrd_nod* valueList)
 	
 	for (int n = 0; n < numberColumns; ++n)
 		{
-		dsc *to = EVL_assign_to(request->req_tdbb, valueList->nod_arg[numberParameters + n]);
+		//dsc *to = EVL_assign_to(request->req_tdbb, valueList->nod_arg[numberParameters + n]);
+		dsc *to = EVL_assign_to(request->req_tdbb, valueList->nod_arg[n]);
 		Value *value = ((InternalResultSet*) resultSet)->getValue(n + 1);
 		
 		if (value->getValue(to))

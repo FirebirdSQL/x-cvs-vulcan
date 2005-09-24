@@ -703,8 +703,8 @@ DIRS = $(SRCDIR)/config \
 </template>
 
 <template name="Production">
-<BuildExe exe="config"/>
-<Install file="config"/>
+<BuildExe exe="fbconfig"/>
+<Install file="fbconfig"/>
 </template>
 
 <template name="Includes">-I$(SRCDIR)/config \
