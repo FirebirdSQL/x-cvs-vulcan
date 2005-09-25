@@ -74,6 +74,7 @@ void Error::log(const char* text, ...)
 	if (vsnprintf (buffer, sizeof (buffer) - 1, text, args) < 0)
 		buffer [sizeof (buffer) - 1] = 0;
 
+	va_end(args);
 #ifdef SUPERSERVER
 	gds__log (buffer);
 

@@ -45,6 +45,7 @@ SQLError::SQLError (SqlCode code, const char *txt, ...)
 	if (vsnprintf (temp, sizeof (temp) - 1, txt, args) < 0)
 		temp [sizeof (temp) - 1] = 0;
 
+	va_end(args);
 	text = temp;
 	sqlcode = (int) code;
 }
@@ -75,6 +76,7 @@ SQLError::SQLError(Stream * trace, SqlCode code, const char * txt, ...)
 	if (vsnprintf (temp, sizeof (temp) - 1, txt, args) < 0)
 		temp [sizeof (temp) - 1] = 0;
 
+	va_end(args);
 	text = temp;
 	sqlcode = (int) code;
 }
@@ -154,6 +156,7 @@ SQLError::SQLError(int code, const char * txt, ...)
 	if (vsnprintf (temp, sizeof (temp) - 1, txt, args) < 0)
 		temp [sizeof (temp) - 1] = 0;
 
+	va_end(args);
 	text = temp;
 	sqlcode = (int) code;
 }

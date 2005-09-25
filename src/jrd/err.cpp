@@ -416,6 +416,7 @@ void ERR_post(ISC_STATUS status, ...)
 	va_list		args;
 	va_start	(args, status);
 	throw OSRIException (args, status);
+#pragma FB_COMPILER_MESSAGE("No va_end here, maybe create the exception, va_end and throw it?")
 
 #ifdef OBSOLETE
 	ISC_STATUS *status_vector;

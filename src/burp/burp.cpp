@@ -1448,6 +1448,7 @@ void BURP_msg_partial(	USHORT number, ...)
 	***/
 	
 	MsgFormat::format(burp_msg_fac, number, args, sizeof(buffer), buffer);
+	va_end(args);
 	burp_output("%s", buffer);
 }
 
@@ -1485,6 +1486,7 @@ void BURP_msg_put(	USHORT number, ...)
 	***/
 	
 	MsgFormat::format(burp_msg_fac, number, args, sizeof(buffer), buffer);
+	va_end(args);
 	translate_cp(buffer);
 	burp_output("%s\n", buffer);
 }
@@ -1522,6 +1524,7 @@ void BURP_msg_get(	USHORT number, TEXT* output_msg,  ...)
 					static_cast<const char*>(arg5));
 	***/
 	MsgFormat::format(burp_msg_fac, number, args, sizeof(buffer), buffer);
+	va_end(args);
 	strcpy(output_msg, buffer);
 }
 
@@ -1570,6 +1573,7 @@ void BURP_print(USHORT number, ...)
 	va_list		args;
 	va_start	(args, number);
 	BURP_print(args, number);
+	va_end(args);
 }
 
 
@@ -1724,6 +1728,8 @@ void BURP_verbose(USHORT number, ...)
 		BURP_print(args, number);
 	else
 		burp_output("%s","");
+		
+	va_end(args);
 }
 
 

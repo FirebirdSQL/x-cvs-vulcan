@@ -186,6 +186,7 @@ void JString::Format (const char* stuff, ...)
 
 	//vsprintf (temp, stuff, args);
 	int length = vsnprintf (temp, sizeof (temp) - 1, stuff, args);
+	va_end(args);
 	setString (temp);
 }
 

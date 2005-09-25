@@ -5107,6 +5107,7 @@ void LockMgr::lockTrace(const char* text, ...)
 	
 	*p++ = ' ';	
 	vsprintf (p, text, args);
+	va_end(args);
 	ib_printf ("%s", temp); 
 	ib_fflush (ib_stdout); 
 	gds__log (temp);

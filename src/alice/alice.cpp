@@ -660,6 +660,7 @@ void ALICE_print(AliceGlobals* tdgbl, USHORT	number,...)
 	va_start	(args, number);
 	TEXT buffer[256];
 	MsgFormat::format(ALICE_MSG_FAC, number, args, sizeof(buffer), buffer);
+	va_end(args);
 	
 	//gds__msg_format(0, ALICE_MSG_FAC, number, sizeof(buffer), buffer, arg1, arg2, arg3, arg4, arg5);
 	translate_cp(buffer);
@@ -748,6 +749,7 @@ void ALICE_error(AliceGlobals* tdgbl, USHORT number, ...)
 
 	TEXT buffer[256];
 	MsgFormat::format(ALICE_MSG_FAC, number, args, sizeof(buffer), buffer);
+	va_end(args);
 	//gds__msg_format(0, ALICE_MSG_FAC, number, sizeof(buffer), buffer, arg1, arg2, arg3, arg4, arg5);
 	translate_cp(buffer);
 	alice_output(tdgbl, "%s\n", buffer);

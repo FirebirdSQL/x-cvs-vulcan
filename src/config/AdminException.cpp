@@ -55,6 +55,7 @@ AdminException::AdminException(const char *txt, ...)
 		{
 		int l = sizeof (temp) * 2;
 		char *buffer = new char [l];
+		// Maybe we need to va_end/va_start?
 		vsnprintf (buffer, l, txt, args);
 		text = buffer;
 		delete [] buffer;
@@ -63,12 +64,15 @@ AdminException::AdminException(const char *txt, ...)
 		{
 		int l = ret + 1;
 		char *buffer = new char [l];
+		// Maybe we need to va_end/va_start?
 		vsnprintf (buffer, l, txt, args);
 		text = buffer;
 		delete [] buffer;
 		}
 	else
 		text = temp;
+		
+	va_end(args);
 }
 
 AdminException::~AdminException()

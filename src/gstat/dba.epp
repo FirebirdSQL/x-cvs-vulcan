@@ -488,7 +488,7 @@ int dba_main(int argc, char** argv, Service *service)
 									isc_arg_number, (void*)(IPTR) ODS_VERSION,
 									isc_arg_number, (void*)(IPTR) (header->hdr_ods_version & ~ODS_FIREBIRD_FLAG),
 									0, NULL, 0, NULL, 0, NULL);
-			dba_error(tddba, 3,  ODS_VERSION,  (header->hdr_ods_version & ~ODS_FIREBIRD_FLAG),
+			dba_error(tddba, 3, ODS_VERSION, (header->hdr_ods_version & ~ODS_FIREBIRD_FLAG),
 					0, 0, 0);		/* msg 3: Wrong ODS version, expected %d, encountered %d? */
 #endif
 			}
@@ -1442,6 +1442,7 @@ static void dba_print(DbaData* tddba, USHORT number, ...)
 	va_start	(args, number);
 
 	MsgFormat::format(GSTAT_MSG_FAC, number, args, sizeof(buffer), buffer);
+	va_end(args);
 	TRANSLATE_CP(buffer);
 	FPRINTF(tddba->sw_outfile, "%s\n", buffer);
 }

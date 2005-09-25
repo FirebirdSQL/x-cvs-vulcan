@@ -82,6 +82,8 @@ int MsgFormat::format(int facility, int number, va_list stuff, int bufferLength,
 	int len = gds__msg_lookup(NULL, facility, number, sizeof(message), message, NULL);
 
 	if (len < 0)
+	{
+		va_end(args);
 		switch (len)
 			{
 			case -1:
@@ -99,10 +101,15 @@ int MsgFormat::format(int facility, int number, va_list stuff, int bufferLength,
 								facility, number, len);
 				return len;
 			}
+	}
 			
 			
 	if (len < sizeof(message))
-		return format(message, args, bufferLength, buffer);
+	{
+		int rc = format(message, args, bufferLength, buffer);
+		va_end(args);
+		return rc;
+	}
 	
 	TEXT *msg = new TEXT [len + 1];
 	len = gds__msg_lookup(NULL, facility, number, len, msg, NULL);

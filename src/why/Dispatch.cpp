@@ -2210,6 +2210,7 @@ void Dispatch::trace(const char* method, ...)
 		va_start	(args, method);
 		printf ("Dispatch: ");
 		vprintf (method, args);
+		va_end(args);
 		printf ("\n");
 		}
 }
@@ -2220,6 +2221,7 @@ void Dispatch::printTrace(const char* method, ...)
 	va_start	(args, method);
 	printf ("Dispatch: ");
 	vprintf (method, args);
+	va_end(args);
 	printf ("\n");
 }
 

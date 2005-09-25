@@ -139,6 +139,7 @@ ISC_STATUS StatusVector::post(ISC_STATUS iscStatus, ...)
 			}
 		}
 
+	va_end(args);
 	return statusVector [1];
 }
 

@@ -71,6 +71,7 @@ OSRIException::OSRIException(OSRIException* exception, ISC_STATUS code, ...)
 	va_start	(args, code);
 
 	post (exception, code, args);
+	va_end(args);
 	printStatus();
 }
 
