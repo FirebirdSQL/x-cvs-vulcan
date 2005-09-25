@@ -469,9 +469,8 @@ ISC_STATUS Dispatch::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHa
 		return statusVector.postAndReturn (isc_bad_db_handle);
 
 	YTransaction *transaction = new YTransaction (1);
-	transaction->setDatabase (0, handle, infoLength, info);
 
-	if (!transaction->reconnect (statusVector))
+	if (!transaction->reconnect (statusVector, handle, infoLength, info))
 		SET_HANDLE (isc_tr_handle, traHandle, transactionHandles.allocateHandle (transaction));
 	else
 		delete transaction;

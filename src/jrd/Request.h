@@ -152,6 +152,8 @@ public:
 	ExecStatement* getExecStatement(void);
 	void init(void);
 	void reset(void);
+	void postResource(Resource* resource);
+	void purgeProcedure(Procedure* procedure);
 };
 
 #endif

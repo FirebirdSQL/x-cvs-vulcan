@@ -25,7 +25,8 @@
 #define JRD_CMP_PROTO_H
 
 #include "CompilerScratch.h"
-#include "req.h"
+//#include "req.h"
+//#include "Resource.h"
 
 // Note: Due to bad planning, the enum "rsc_s" is defined in req.h, which must be include
 // before this file.
@@ -59,8 +60,8 @@ Request*	CMP_make_request(thread_db*, CompilerScratch*);
 void		CMP_post_access(thread_db*, CompilerScratch*, const TEXT*, SLONG,
 					 const TEXT*, const TEXT*, USHORT, const TEXT*,
 					 const TEXT*);
-void		CMP_post_resource(thread_db*, Resource**, blk*, enum Resource::rsc_s, USHORT);
-void		CMP_release_resource(Resource**, enum Resource::rsc_s, USHORT);
+//void		CMP_post_resource(thread_db*, Resource**, blk*, enum Resource::rsc_s, USHORT);
+//void		CMP_release_resource(Resource**, enum Resource::rsc_s, USHORT);
 void		CMP_release(thread_db*, Request*);
 void		CMP_shutdown_database(thread_db*);
 

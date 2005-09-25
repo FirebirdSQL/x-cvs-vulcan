@@ -2786,21 +2786,22 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 
 	//tdbb->tdbb_status_vector = user_status;
 	try
-	{
+		{
 		Transaction* transaction = TRA_reconnect(threadData, id, length);
 		*tra_handle = transaction;
 	
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 		LOG_call(log_handle_returned, *tra_handle);
 #endif
-	}
+		}
 	catch (OSRIException& exception)
-	{
+		{
 		unlockAST(attachment->att_database);
 		return error(&exception, user_status);
-	}
+		}
 
 	unlockAST(attachment->att_database);
+	
 	return return_success(threadData);
 }
 

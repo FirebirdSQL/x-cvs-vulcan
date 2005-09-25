@@ -79,6 +79,7 @@ protected:
 public:
 	Procedure* findObsoleteProcedure(thread_db* tdbb, int id);
 	void remove(Procedure* procedure);
+	void purgeDependencies(Procedure* procedure);
 };
 #endif
 

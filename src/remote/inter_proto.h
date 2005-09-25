@@ -97,7 +97,7 @@ ISC_STATUS	REM_seek_blob(ISC_STATUS *, RBlob **, SSHORT, SLONG, SLONG *);
 ISC_STATUS	REM_send(ISC_STATUS *, RRequest **, USHORT, USHORT, const UCHAR *, SSHORT);
 ISC_STATUS	REM_start_and_send(ISC_STATUS *, RRequest **, RTransaction **, USHORT, USHORT, const UCHAR *, SSHORT);
 ISC_STATUS	REM_start_request(ISC_STATUS *, RRequest **, RTransaction **, USHORT);
-ISC_STATUS	REM_start_transaction(ISC_STATUS *, RTransaction **, SSHORT, RDatabase **, SSHORT, UCHAR *);
+ISC_STATUS	REM_start_transaction(ISC_STATUS *, RTransaction **, SSHORT, RDatabase **, SSHORT, const UCHAR *);
 ISC_STATUS	REM_transact_request(ISC_STATUS*, RDatabase**, RTransaction**,
 	USHORT, const UCHAR*, USHORT, UCHAR*, USHORT, UCHAR*);
 ISC_STATUS	REM_transaction_info(ISC_STATUS*, RTransaction**, SSHORT,

@@ -5,7 +5,7 @@
 
 int main(int argc, const char **argv)
 {
-	const char *dbName = "localhost:events.fdb";
+	const char *dbName = "events.fdb";
 
 	for (int n = 1; n < argc;)
 		{
@@ -25,7 +25,10 @@ int main(int argc, const char **argv)
 
 	isc_db_handle dbHandle = 0;
 	isc_attach_database(NULL, 0, dbName,  &dbHandle, 0, NULL);
-	Events events(dbHandle, 2, "george", "martha");
+	//Events events(dbHandle, 2, "george", "martha");
+	Events events(dbHandle, 0);
+	events.addEvent("george");
+	events.addEvent("martha");
 	
 	if (!events.waitForEvents())
 		{

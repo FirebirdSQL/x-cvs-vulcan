@@ -148,6 +148,7 @@ public:
 	static CompilerScratch* newCsb(MemoryPool & p, size_t len);
 	void addRsb(RecordSource* rsb);
 	RecordSource* stealRsbs(void);
+	void postResource(Resource* resource);
 };
 
 #endif

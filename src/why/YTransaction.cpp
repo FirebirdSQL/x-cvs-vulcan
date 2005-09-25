@@ -204,15 +204,12 @@ ISC_STATUS  YTransaction::transactionInfo(StatusVector& statusVector,int itemsLe
 	return statusVector.getCode();		
 }
 
-ISC_STATUS  YTransaction::reconnect(StatusVector& statusVector)
+ISC_STATUS  YTransaction::reconnect(StatusVector& statusVector, SubsysHandle *subsystem, int infoLength, const UCHAR *info)
 {
 	TranDb *database = databases;
+	database->subsystem = subsystem;
 	
-	if (!database->subsystem->subsystem->reconnectTransaction (statusVector, 
-															   database->element.dbHandle,
-															   &database->handle, 
-															   database->element.tpbLength, 
-															   database->element.tpb))
+	if (!database->subsystem->subsystem->reconnectTransaction (statusVector, &subsystem->handle, &database->handle, infoLength,  info))
 		database->subsystem->transactionStarted (this);
 		
 	return statusVector.getCode();		

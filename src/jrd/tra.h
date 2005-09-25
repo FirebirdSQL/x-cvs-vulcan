@@ -96,6 +96,7 @@ public:
 	void		addPendingRelation(Relation* relation);
 	Relation*	findRelation(thread_db* tdbb, const char* relationName);
 	InternalConnection* getConnection(void);
+	void postResource(Resource* resource);
 };
 
 const ULONG TRA_system			= 1L;		/* system transaction */

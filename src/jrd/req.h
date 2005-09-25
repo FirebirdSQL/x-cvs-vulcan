@@ -206,13 +206,14 @@ enum {
  * but this enum is used in the C API. Can you say "legacy"? :-(
  */
 
+/***
 class Resource : public pool_alloc<type_rsc>
 {
 public:
-	Resource* rsc_next;			/* Next resource in request */
-	Relation* rsc_rel;			/* Relation block */
-	Procedure* rsc_prc;			/* Relation block */
-	USHORT rsc_id;				/* Id of parent */
+	Resource* rsc_next;			// Next resource in request 
+	Relation* rsc_rel;			// Relation block 
+	Procedure* rsc_prc;			// Relation block 
+	USHORT rsc_id;				// Id of parent 
 
 	enum rsc_s {
 		rsc_relation,
@@ -222,6 +223,7 @@ public:
 
 	enum rsc_s rsc_type;
 };
+***/
 
 /* Index lock block */
 

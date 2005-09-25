@@ -40,6 +40,8 @@
 #include "../jrd/Relation.h"
 #include "../jrd/Procedure.h"
 #include "../jrd/RsbNavigate.h"
+#include "../jrd/Resource.h"
+#include "../jrd/Request.h"
 
 #include "../jrd/btr_proto.h"
 #include "../jrd/cch_proto.h"
@@ -1600,16 +1602,13 @@ jrd_nod* OptimizerRetrieval::makeIndexNode(const index_desc* idx) const
 
 	// check whether this is during a compile or during
 	// a SET INDEX operation
-	if (csb) {
-		CMP_post_resource(tdbb, &csb->csb_resources,
-						  reinterpret_cast < BLK > (relation), 
-						  Resource::rsc_index, idx->idx_id);
-	}
-	else {
-		CMP_post_resource(tdbb, &tdbb->tdbb_request->req_resources,
-						  reinterpret_cast < BLK > (relation), 
-						  Resource::rsc_index, idx->idx_id);
-	}
+	
+	if (csb) 
+		//CMP_post_resource(tdbb, &csb->csb_resources, reinterpret_cast < BLK > (relation),  Resource::rsc_index, idx->idx_id);
+		csb->postResource(new Resource(relation, idx->idx_id));
+	else 
+		//CMP_post_resource(tdbb, &tdbb->tdbb_request->req_resources, reinterpret_cast < BLK > (relation), Resource::rsc_index, idx->idx_id);
+		tdbb->tdbb_request->postResource(new Resource(relation, idx->idx_id));
 
 	jrd_nod* node = PAR_make_node(tdbb, e_idx_length);
 	node->nod_type = nod_index;

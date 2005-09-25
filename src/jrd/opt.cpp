@@ -103,6 +103,7 @@
 #include "RsbSingular.h"
 #include "ExecutionPathInfoGen.h"
 #include "Format.h"
+#include "Resource.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG
@@ -5954,30 +5955,31 @@ static JRD_NOD make_index_node(thread_db* tdbb, Relation* relation,
  *	Make an index node and an index retrieval block.
  *
  **************************************/
-	DEV_BLKCHK(relation, type_rel);
-	DEV_BLKCHK(csb, type_csb);
-	SET_TDBB(tdbb);
-/* check whether this is during a compile or during
-   a SET INDEX operation */
+	//DEV_BLKCHK(relation, type_rel);
+	//DEV_BLKCHK(csb, type_csb);
+	//SET_TDBB(tdbb);
+	
+	/* check whether this is during a compile or during
+	  a SET INDEX operation */
+	  
 	if (csb)
-		CMP_post_resource(tdbb, &csb->csb_resources,
-						  reinterpret_cast < BLK > (relation), 
-						  Resource::rsc_index, idx->idx_id);
+		//CMP_post_resource(tdbb, &csb->csb_resources, reinterpret_cast < BLK > (relation),  Resource::rsc_index, idx->idx_id);
+		csb->postResource(new Resource(relation));
 	else
-		CMP_post_resource(tdbb, &tdbb->tdbb_request->req_resources,
-						  reinterpret_cast < BLK > (relation), 
-						  Resource::rsc_index, idx->idx_id);
-
+		//CMP_post_resource(tdbb, &tdbb->tdbb_request->req_resources,reinterpret_cast < BLK > (relation), Resource::rsc_index, idx->idx_id);
+		tdbb->tdbb_request->postResource(new Resource(relation));
+		
 	jrd_nod* node = PAR_make_node(tdbb, e_idx_length);
 	node->nod_type = nod_index;
 	node->nod_count = 0;
-	IndexRetrieval* retrieval =
-		FB_NEW_RPT(*tdbb->tdbb_default, idx->idx_count * 2) IndexRetrieval();
+	IndexRetrieval* retrieval = FB_NEW_RPT(*tdbb->tdbb_default, idx->idx_count * 2) IndexRetrieval();
 	node->nod_arg[e_idx_retrieval] = (jrd_nod*) retrieval;
 	retrieval->irb_index = idx->idx_id;
 	MOVE_FAST(idx, &retrieval->irb_desc, sizeof(retrieval->irb_desc));
+	
 	if (csb)
 		node->nod_impure = CMP_impure(csb, sizeof(impure_inversion));
+		
 	return node;
 }
 

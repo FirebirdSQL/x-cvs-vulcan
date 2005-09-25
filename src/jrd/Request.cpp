@@ -43,6 +43,7 @@
 #include "../jrd/val.h"
 #include "../jrd/blb_proto.h"
 #include "ExecStatement.h"
+#include "Resource.h"
 
 Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool), req_fors(pool)
 {
@@ -309,4 +310,21 @@ void Request::reset(void)
 		execStatements = exec->next;
 		delete exec;
 		}
+}
+
+void Request::postResource(Resource* resource)
+{
+	resource->next = req_resources;
+	req_resources = resource;
+}
+
+void Request::purgeProcedure(Procedure* procedure)
+{
+	for (Resource **ptr = &req_resources, *resource; resource = *ptr; ptr = &resource->next)
+		if (resource->procedure == procedure)
+			{
+			*ptr = resource->next;
+			delete resource;
+			break;
+			}
 }

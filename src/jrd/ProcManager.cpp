@@ -12,6 +12,7 @@
 #include "../jrd/cmp_proto.h"
 #include "Stream.h"
 #include "Sync.h"
+#include "Resource.h"
 
 ProcManager::ProcManager(Database * dbb)
 {
@@ -244,10 +245,10 @@ void ProcManager::validateCache (thread_db* tdbb)
 				if (prc->hasRequest()) 
 					{
 					for (Resource* resource = prc->findRequest()->req_resources; resource;
-						resource = resource->rsc_next)
+						resource = resource->next)
 						{
-						if (resource->rsc_type == Resource::rsc_procedure)
-							if (resource->rsc_prc == procedure) 
+						if (resource->type == Resource::rsc_procedure)
+							if (resource->procedure == procedure) 
 								stream.format ("%d:%s\n", 
 									prc->findId(), (const TEXT *)prc->findName());
 						}
@@ -344,11 +345,11 @@ void ProcManager::adjustDependencies(Procedure* procedure)
 	if (request) 
 		{
 		for (Resource* resource = request->req_resources; resource;
-		  resource = resource->rsc_next) 
+		  resource = resource->next) 
 			{
-			if (resource->rsc_type == Resource::rsc_procedure) 
+			if (resource->type == Resource::rsc_procedure) 
 				{
-				procedure = resource->rsc_prc;
+				procedure = resource->procedure;
 				
 				if (procedure->findInternalUseCount() == procedure->findUseCount())
 					adjustDependencies (procedure); 
@@ -369,10 +370,10 @@ bool ProcManager::procedureInUse (thread_db* tdbb, Procedure *proc)
 			 !(procedure->checkFlags (PRC_obsolete))) 
 			{
 			for (Resource* resource = procedure->findRequest()->req_resources; resource;
-				 resource = resource->rsc_next)
+				 resource = resource->next)
 				{
-				if (resource->rsc_type == Resource::rsc_procedure)
-					resource->rsc_prc->incrementInternalUseCount();				
+				if (resource->type == Resource::rsc_procedure)
+					resource->procedure->incrementInternalUseCount();				
 				}
 			}
 		}
@@ -422,4 +423,11 @@ void ProcManager::remove(Procedure* procedure)
 			//delete procedure;
 			break;
 			}
+}
+
+void ProcManager::purgeDependencies(Procedure* procedure)
+{
+	for (Procedure *procedure = findFirst(); procedure; procedure = procedure->findNext())
+		if (procedure->procRequest)
+			procedure->procRequest->purgeProcedure(procedure);
 }

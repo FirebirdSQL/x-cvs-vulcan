@@ -4227,7 +4227,7 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 ISC_STATUS GDS_START_TRANSACTION(ISC_STATUS * user_status,
 							 RTransaction* * rtr_handle,
 							 SSHORT count,
-							 RDatabase* * db_handle, SSHORT tpb_length, UCHAR * tpb)
+							 RDatabase* * db_handle, SSHORT tpb_length, const UCHAR * tpb)
 {
 /**************************************
  *
@@ -4257,7 +4257,7 @@ ISC_STATUS GDS_START_TRANSACTION(ISC_STATUS * user_status,
 		P_STTR* trans = &packet->p_sttr;
 		trans->p_sttr_database = rdb->rdb_id;
 		trans->p_sttr_tpb.cstr_length = tpb_length;
-		trans->p_sttr_tpb.cstr_address = tpb;
+		trans->p_sttr_tpb.cstr_address = (UCHAR*) tpb;
 
 		if (send_and_receive(rdb, packet, user_status)) 
 			return error(user_status);

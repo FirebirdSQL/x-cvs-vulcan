@@ -114,6 +114,7 @@ $Id$
 #include "TempSpace.h"
 #include "Triggers.h"
 #include "Format.h"
+#include "Resource.h"
 
 
 #ifdef HAVE_CTYPE_H
@@ -201,9 +202,9 @@ void post_used_procedures(thread_db* tdbb, Triggers* vector)
 		Trigger *trigger = (*vector)[n];
 		
 		if (trigger->request) 
-			for (Resource* resource = trigger->request->req_resources; resource; resource = resource->rsc_next)
-				if (resource->rsc_type == Resource::rsc_procedure)
-						resource->rsc_prc->incrementInternalUseCount();
+			for (Resource* resource = trigger->request->req_resources; resource; resource = resource->next)
+				if (resource->type == Resource::rsc_procedure)
+						resource->procedure->incrementInternalUseCount();
 		}
 }
 

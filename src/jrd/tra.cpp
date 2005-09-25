@@ -79,6 +79,7 @@
 #include "TipCache.h"
 #include "PBGen.h"
 #include "dyn.h"
+#include "Resource.h"
 
 #ifndef VMS
 //#include "../lock/lock_proto.h"
@@ -813,40 +814,42 @@ void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* res
 	sync.lock(Exclusive);
 #endif
 	
-	for (Resource* rsc = resources; rsc; rsc = rsc->rsc_next)
-		if (rsc->rsc_type == Resource::rsc_relation || 
-			rsc->rsc_type == Resource::rsc_procedure) 
+	for (Resource* rsc = resources; rsc; rsc = rsc->next)
+		if (rsc->type == Resource::rsc_relation || 
+			rsc->type == Resource::rsc_procedure) 
 			{
 			Resource* tra_rsc;
 			
-			for (tra_rsc = transaction->tra_resources; tra_rsc; tra_rsc = tra_rsc->rsc_next)
-				if (rsc->rsc_type == tra_rsc->rsc_type && rsc->rsc_id == tra_rsc->rsc_id)
+			for (tra_rsc = transaction->tra_resources; tra_rsc; tra_rsc = tra_rsc->next)
+				if (rsc->type == tra_rsc->type && rsc->parentId == tra_rsc->parentId)
 					break;
 
 			if (!tra_rsc) 
 				{
-				Resource* new_rsc = FB_NEW(*tdbb->tdbb_default) Resource;
-				new_rsc->rsc_next = transaction->tra_resources;
-				transaction->tra_resources = new_rsc;
-				new_rsc->rsc_id = rsc->rsc_id;
-				new_rsc->rsc_type = rsc->rsc_type;
+				//Resource* new_rsc = FB_NEW(*tdbb->tdbb_default) Resource;
+				Resource *new_rsc = rsc->clone();
+				transaction->postResource(new_rsc);
+				//new_rsc->next = transaction->tra_resources;
+				//transaction->tra_resources = new_rsc;
+				//new_rsc->parentId = rsc->parentId;
+				//new_rsc->type = rsc->type;
 
-				switch (rsc->rsc_type) 
+				switch (rsc->type) 
 					{
 					case Resource::rsc_relation:
-						new_rsc->rsc_rel = rsc->rsc_rel;
-						MET_post_existence(tdbb, new_rsc->rsc_rel);
+						//new_rsc->relation = rsc->relation;
+						MET_post_existence(tdbb, new_rsc->relation);
 						break;
 						
 					case Resource::rsc_procedure:
-						new_rsc->rsc_prc = rsc->rsc_prc;
-						new_rsc->rsc_prc->incrementUseCount();
+						//new_rsc->procedure = rsc->procedure;
+						new_rsc->procedure->incrementUseCount();
 #ifdef DEBUG_PROCS
 							{
 							char buffer[256];
 							sprintf(buffer,
 									"Called from TRA_post_resources():\n\t Incrementing use count of %s\n",
-									(const TEXT *)new_rsc->rsc_prc->getName());
+									(const TEXT *)new_rsc->procedure->getName());
 							JRD_print_procedure_info(tdbb, buffer);
 							}
 #endif
@@ -1110,15 +1113,15 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 
 	/* Release interest in relation/procedure existence for transaction */
 
-	for (Resource* rsc = transaction->tra_resources; rsc; rsc = rsc->rsc_next)
-		switch (rsc->rsc_type) 
+	for (Resource* rsc = transaction->tra_resources; rsc; rsc = rsc->next)
+		switch (rsc->type) 
 			{
 			case Resource::rsc_procedure:
-				CMP_decrement_prc_use_count(tdbb, rsc->rsc_prc);
+				CMP_decrement_prc_use_count(tdbb, rsc->procedure);
 				break;
 				
 			default:
-				MET_release_existence(rsc->rsc_rel);
+				MET_release_existence(rsc->relation);
 				break;
 			}
 
@@ -3097,4 +3100,10 @@ Relation* Transaction::findRelation(thread_db* tdbb, const char* relationName)
 		}
 	
 	return relation;
+}
+
+void Transaction::postResource(Resource* resource)
+{
+	resource->next = tra_resources;
+	tra_resources = resource;
 }

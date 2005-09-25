@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "firebird.h"
 #include "jrd.h"
 #include "../jrd/all.h"
@@ -18,6 +19,7 @@
 #include "par_proto.h"
 #include "CompilerScratch.h"
 #include "Format.h"
+#include "Resource.h"
 
 #define BLR_BYTE        *(csb->csb_running)++
 
@@ -79,7 +81,10 @@ void Procedure::init(void)
 Procedure::~Procedure()
 {
 	if (procManager)
+		{
+		procManager->purgeDependencies(this);
 		procManager->remove(this);
+		}
 		
 	while (ProcParam *param = procOutputParams)
 		{
@@ -241,18 +246,14 @@ bool Procedure::operator != (Procedure *proc)
 void Procedure::setDependencies()
 {
 	/* Walk procedures and calculate internal dependencies */
+	
 	if (Request *request = findRequest() ) 
-		{
-		Resource* resource = request->req_resources;
-		for (; resource; resource = resource->rsc_next)
-			{
-			if (resource->rsc_type == Resource::rsc_procedure)
+		for (Resource* resource = request->req_resources; resource; resource = resource->next)
+			if (resource->type == Resource::rsc_procedure)
 				{
-				fb_assert(resource->rsc_prc->findInternalUseCount() >= 0);
-				resource->rsc_prc->incrementInternalUseCount();				
+				fb_assert(resource->procedure->findInternalUseCount() >= 0);
+				resource->procedure->incrementInternalUseCount();				
 				}
-			}
-		}
 }
 
 Lock* Procedure::getExistenceLock(thread_db* tdbb)

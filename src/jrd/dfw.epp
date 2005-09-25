@@ -111,6 +111,7 @@
 #include "PageCache.h"
 #include "ProcManager.h"
 #include "Format.h"
+#include "Resource.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -2833,8 +2834,8 @@ static bool delete_relation(thread_db* tdbb, SSHORT phase, DeferredWork* work, T
 			adjusted = FALSE;
 			
 			if (relation->useCount == 1)
-				for (rsc = transaction->tra_resources; rsc; rsc = rsc->rsc_next)
-					if (rsc->rsc_rel == relation)
+				for (rsc = transaction->tra_resources; rsc; rsc = rsc->next)
+					if (rsc->relation == relation)
 						{
 						relation->decrementUseCount();
 						adjusted = TRUE;
@@ -3342,7 +3343,6 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
  **************************************/
 	JRD_REQ request;
 	JrdMemoryPool *old_pool;
-
 	DBB dbb = tdbb->tdbb_database;
 
 #ifdef SHARED_CACHE
@@ -3377,10 +3377,13 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
 	if (procedure && !blob_id.isEmpty())
 		{
 		old_pool = tdbb->tdbb_default;
+		
 		/* Nickolay Samofatov: allocate statement memory pool... */
+		
 		tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
 		MET_get_dependencies(tdbb, NULL, NULL, NULL, &blob_id, &request,
-							NULL, work->dfw_name, obj_procedure, 0);
+							 NULL, work->dfw_name, obj_procedure, 0);
+							
 		if (request)
 			CMP_release(tdbb, request);
 		else
@@ -3391,7 +3394,7 @@ static void get_procedure_dependencies(thread_db* tdbb, DeferredWork* work)
 #endif
 
 		tdbb->tdbb_default = old_pool;
-	}
+		}
 }
 
 

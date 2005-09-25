@@ -38,9 +38,9 @@
  * 2003.10.05 Dmitry Yemanov: Added support for explicit cursors in PSQL
  */
 
-#include "firebird.h"
 #include <string.h>
 #include <stdlib.h>				// abort
+#include "firebird.h"
 #include "../jrd/common.h"
 //#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
@@ -90,6 +90,7 @@
 #include "../jrd/Triggers.h"
 #include "../jrd/sbm.h"
 #include "Format.h"
+#include "Resource.h"
 
 /* Pick up relation ids */
 
@@ -1787,14 +1788,13 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 		// a little complicated since relation locks MUST be taken before
 		// index locks.
 
-		for (Resource* resource = request->req_resources; resource;
-			 resource = resource->rsc_next)
+		for (Resource* resource = request->req_resources; resource; resource = resource->next)
 			{
-			switch (resource->rsc_type)
+			switch (resource->type)
 				{
 				case Resource::rsc_relation:
 					{
-					Relation *relation = resource->rsc_rel;
+					Relation *relation = resource->relation;
 					MET_post_existence(tdbb, relation);
 					break;
 					}
@@ -1802,12 +1802,12 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 				case Resource::rsc_index:
 					{
 
-					Relation *relation = resource->rsc_rel;
+					Relation *relation = resource->relation;
 #ifdef SHARED_CACHE
 					Sync sync(&relation->syncObject, "CMP_make_request");
 					sync.lock(Exclusive);
 #endif
-					IndexLock* index = CMP_get_index_lock(tdbb, relation, resource->rsc_id);
+					IndexLock* index = CMP_get_index_lock(tdbb, relation, resource->parentId);
 
 					if (index)
 						{
@@ -1821,7 +1821,7 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 					
 				case Resource::rsc_procedure:
 					{
-					Procedure *procedure = resource->rsc_prc;
+					Procedure *procedure = resource->procedure;
 					procedure->incrementUseCount();
 #ifdef DEBUG_PROCS
 						{
@@ -1960,7 +1960,7 @@ void CMP_post_access(thread_db* tdbb,
 #endif
 }
 
-
+#ifdef OBSOLETE
 void CMP_post_resource(thread_db* tdbb,
 						Resource** rsc_ptr,
 						BLK rel_or_prc,
@@ -1977,36 +1977,40 @@ void CMP_post_resource(thread_db* tdbb,
  *	Post a resource usage to the compiler scratch block.
  *
  **************************************/
+ 
+	//DEV_BLKCHK(*rsc_ptr, type_rsc);
+	//SET_TDBB(tdbb);
 	Resource* resource;
 
-	DEV_BLKCHK(*rsc_ptr, type_rsc);
-
-	SET_TDBB(tdbb);
-
-	for (resource = *rsc_ptr; resource; resource = resource->rsc_next)
-		if (resource->rsc_type == type && resource->rsc_id == id)
+	for (resource = *rsc_ptr; resource; resource = resource->next)
+		if (resource->type == type && resource->parentId == id)
 			return;
 
 	resource = FB_NEW(*tdbb->tdbb_default) Resource;
-	resource->rsc_next = *rsc_ptr;
+	resource->next = *rsc_ptr;
 	*rsc_ptr = resource;
-	resource->rsc_type = type;
-	resource->rsc_id = id;
-	switch (type) {
-	case Resource::rsc_relation:
-	case Resource::rsc_index:
-		resource->rsc_rel = (Relation*) rel_or_prc;
-		break;
-	case Resource::rsc_procedure:
-		resource->rsc_prc = (Procedure *) rel_or_prc;
-		break;
-	default:
-		BUGCHECK(220);			/* msg 220 unknown resource */
-		break;
-	}
+	resource->type = type;
+	resource->parentId = id;
+	
+	switch (type) 
+		{
+		case Resource::rsc_relation:
+		case Resource::rsc_index:
+			resource->relation = (Relation*) rel_or_prc;
+			break;
+			
+		case Resource::rsc_procedure:
+			resource->procedure = (Procedure *) rel_or_prc;
+			break;
+			
+		default:
+			BUGCHECK(220);			/* msg 220 unknown resource */
+			break;
+		}
 }
+#endif // OBSOLETE
 
-
+#ifdef OBSOLETE
 void CMP_release_resource(Resource** rsc_ptr, enum Resource::rsc_s type, USHORT id)
 {
 /**************************************
@@ -2023,8 +2027,8 @@ void CMP_release_resource(Resource** rsc_ptr, enum Resource::rsc_s type, USHORT 
 
 	DEV_BLKCHK(*rsc_ptr, type_rsc);
 
-	for (; (resource = *rsc_ptr); rsc_ptr = &resource->rsc_next)
-		if (resource->rsc_type == type && resource->rsc_id == id)
+	for (; (resource = *rsc_ptr); rsc_ptr = &resource->next)
+		if (resource->type == type && resource->parentId == id)
 			break;
 
 	if (!resource)
@@ -2032,9 +2036,10 @@ void CMP_release_resource(Resource** rsc_ptr, enum Resource::rsc_s type, USHORT 
 
 	// take out of the linked list and release
 
-	*rsc_ptr = resource->rsc_next;
+	*rsc_ptr = resource->next;
 	delete resource;
 }
+#endif // OBSOLETE
 
 
 void CMP_decrement_prc_use_count(thread_db* tdbb, Procedure * procedure)
@@ -2113,18 +2118,18 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 	Attachment* attachment = request->req_attachment;
 	
 	if (!attachment || !(attachment->att_flags & ATT_shutdown))
-		for (resource = request->req_resources; resource; resource = resource->rsc_next)
-			switch (resource->rsc_type) 
+		for (resource = request->req_resources; resource; resource = resource->next)
+			switch (resource->type) 
 				{
 				case Resource::rsc_relation:
-					relation = resource->rsc_rel;
+					relation = resource->relation;
 					MET_release_existence(relation);
 					break;
 					
 				case Resource::rsc_index:
-					relation = resource->rsc_rel;
+					relation = resource->relation;
 					
-					if ( (index = CMP_get_index_lock(tdbb, relation, resource->rsc_id)) )
+					if ( (index = CMP_get_index_lock(tdbb, relation, resource->parentId)) )
 						{
 						if (index->idl_count)
 							--index->idl_count;
@@ -2134,7 +2139,7 @@ void CMP_release(thread_db* tdbb, JRD_REQ request)
 					break;
 					
 				case Resource::rsc_procedure:
-					CMP_decrement_prc_use_count(tdbb, resource->rsc_prc);
+					CMP_decrement_prc_use_count(tdbb, resource->procedure);
 					break;
 					
 				default:
@@ -3205,8 +3210,8 @@ static JRD_NOD pass1(thread_db* tdbb,
 		case nod_exec_proc:
 			procedure = (Procedure *) node->nod_arg[e_esp_procedure];
 			post_procedure_access(tdbb, csb, procedure);
-			CMP_post_resource(tdbb, &csb->csb_resources, (BLK) procedure,
-							Resource::rsc_procedure, procedure->findId());
+			//CMP_post_resource(tdbb, &csb->csb_resources, (BLK) procedure, Resource::rsc_procedure, procedure->findId());
+			csb->postResource(new Resource(procedure));
 			break;
 
 		case nod_store:
@@ -3888,8 +3893,8 @@ static void pass1_source(thread_db*     tdbb,
 		pass1(tdbb, csb, source, parent_view, view_stream, false);
 		Procedure *procedure = dbb->findProcedure(tdbb, (SSHORT)(long) source->nod_arg[e_prc_procedure]);
 		post_procedure_access(tdbb, csb, procedure);
-		CMP_post_resource(tdbb, &csb->csb_resources, (BLK) procedure,
-						  Resource::rsc_procedure, procedure->findId());
+		//CMP_post_resource(tdbb, &csb->csb_resources, (BLK) procedure, Resource::rsc_procedure, procedure->findId());
+		csb->postResource(new Resource(procedure));
 		return;
 		}
 
@@ -3914,8 +3919,8 @@ static void pass1_source(thread_db*     tdbb,
 	// relation is accessed.
 
 	view = (Relation*) source->nod_arg[e_rel_relation];
-	CMP_post_resource(tdbb, &csb->csb_resources, (BLK) view, Resource::rsc_relation,
-					  view->rel_id);
+	//CMP_post_resource(tdbb, &csb->csb_resources, (BLK) view, Resource::rsc_relation, view->rel_id);
+	csb->postResource(new Resource(view));
 	source->nod_arg[e_rel_view] = (JRD_NOD) parent_view;
 
 	stream = (USHORT)(long) source->nod_arg[e_rel_stream];
@@ -4101,8 +4106,8 @@ static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 		if (!(source = pass1_update(tdbb, csb, relation, trigger, stream, stream, priv,
 									parent, parent_stream))) 
 			{
-			CMP_post_resource(tdbb, &csb->csb_resources, (BLK) relation,
-							  Resource::rsc_relation, relation->rel_id);
+			//CMP_post_resource(tdbb, &csb->csb_resources, (BLK) relation, Resource::rsc_relation, relation->rel_id);
+			csb->postResource(new Resource(relation));
 			return very_orig;
 			}
 
@@ -4122,8 +4127,8 @@ static JRD_NOD pass1_store(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node)
 			}
 		else 
 			{
-			CMP_post_resource(tdbb, &csb->csb_resources, (BLK) relation,
-							  Resource::rsc_relation, relation->rel_id);
+			//CMP_post_resource(tdbb, &csb->csb_resources, (BLK) relation, Resource::rsc_relation, relation->rel_id);
+			csb->postResource(new Resource(relation));
 			trigger_seen = true;
 			view_node = copy(tdbb, csb, node, map, 0, NULL, false);
 			node->nod_arg[e_sto_sub_store] = view_node;

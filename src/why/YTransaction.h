@@ -75,7 +75,7 @@ public:
 	void setTransactionHandle(SubsysHandle* subsystem, TraHandle transactionHandle);
 	ISC_STATUS prepare(StatusVector& statusVector, int msgLength, const UCHAR* msg);
 	ISC_STATUS  transactionInfo(StatusVector& statusVector, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
-	ISC_STATUS  reconnect(StatusVector& statusVector);
+	ISC_STATUS  reconnect(StatusVector& statusVector, SubsysHandle *handle, int infoLength, const UCHAR *info);
 };
 
 #endif // !defined(AFX_YTRANSACTION_H__8FF55D15_110C_4BB4_A7E4_3F529B5AC96E__INCLUDED_)

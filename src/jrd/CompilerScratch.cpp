@@ -26,15 +26,16 @@
 
 // AB:Sync FB 1.236
 
+#include <string.h>
 #include "firebird.h"
 #include "common.h"
-#include <string.h>
 #include "../jrd/ibase.h"
 #include "../jrd/jrd.h"
 #include "CompilerScratch.h"
 #include "err_proto.h"
 #include "RecordSource.h"
 #include "rse.h"
+#include "Resource.h"
 
 CompilerScratch::CompilerScratch(MemoryPool& p, size_t len)
 	:   csb_dependencies(p),
@@ -97,4 +98,10 @@ RecordSource* CompilerScratch::stealRsbs(void)
 	rsbs = NULL;
 	
 	return temp;
+}
+
+void CompilerScratch::postResource(Resource* resource)
+{
+	resource->next = csb_resources;
+	csb_resources = resource;
 }
