@@ -1,3 +1,51 @@
+2005-09-25 03:19  robocop
+
+	* vulcan/src/jrd/TempSpace.h:
+	
+	Spaces.
+
+2005-09-24 22:14  jimstarkey
+
+	* vulcan/: vulcan.build, builds/VisualStudio7/config/config.vcproj,
+	src/config/ConfigFile.cpp, src/config/config.vcproj,
+	src/gateway/gateway.vcproj, src/jrd/ExecStatement.cpp:
+	
+	Changed name of config utility to fbconfig.
+
+2005-09-24 21:20  jimstarkey
+
+	* vulcan/src/: events/Events.cpp, events/Events.h, events/main.cpp,
+	events/makefile, jrd/thd.cpp:
+	
+	Got events working on Linux.
+
+2005-09-24 09:01  robocop
+
+	* vulcan/src/remote/interface.cpp:
+	
+	Separate functions' bodies by at least one line.  Historically, we
+	have used two lines, so I'm doing that.
+
+2005-09-24 08:44  robocop
+
+	* vulcan/src/Services/Services.cpp:
+	
+	I wrote in another commit: "Separate function arguments by
+	comma+space, please." Now I add "but don't usee multiple spaces
+	between the comma and the next argument either".  :-)
+
+2005-09-24 08:32  robocop
+
+	* vulcan/src/burp/: backup.epp, burp.cpp, mvol.cpp:
+	
+	Separate function arguments by comma+space, please.
+
+2005-09-24 07:53  robocop
+
+	* vulcan/src/alice/alice.cpp:
+	
+	Indentation.
+
 2005-09-23 22:30  jimstarkey
 
 	* vulcan/src/: gateway/Gateway.cpp, gateway/Gateway.h,
