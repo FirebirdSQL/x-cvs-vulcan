@@ -61,7 +61,7 @@ TempSpace::TempSpace(int initialSize, void* initial)
 TempSpace::~TempSpace(void)
 {
 	if (space && space != initialSpace)
-		delete space;
+		delete [] space;
 }
 
 UCHAR* TempSpace::resize(int newLength, bool copy)
@@ -78,7 +78,7 @@ UCHAR* TempSpace::resize(int newLength, bool copy)
 	size = newLength;
 	
 	if (old != initialSpace)
-		delete old;
+		delete [] old;
 	
 	return space;
 }

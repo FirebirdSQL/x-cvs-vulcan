@@ -164,7 +164,7 @@ ISC_STATUS YTransaction::rollbackRetaining(StatusVector& statusVector)
 	return statusVector.getCode();		
 }
 
-void YTransaction::setDatabase(int index, SubsysHandle* handle, int tpbLength, UCHAR* tpb)
+void YTransaction::setDatabase(int index, SubsysHandle* handle, int tpbLength, const UCHAR* tpb)
 {
 	TranDb *db = databases + index;
 	db->element.tpbLength = tpbLength;
@@ -196,5 +196,24 @@ ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, cons
 	
 	inLimbo = true;
 	
+	return statusVector.getCode();		
+}
+
+ISC_STATUS  YTransaction::transactionInfo(StatusVector& statusVector,int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+{
+	return statusVector.getCode();		
+}
+
+ISC_STATUS  YTransaction::reconnect(StatusVector& statusVector)
+{
+	TranDb *database = databases;
+	
+	if (!database->subsystem->subsystem->reconnectTransaction (statusVector, 
+															   database->element.dbHandle,
+															   &database->handle, 
+															   database->element.tpbLength, 
+															   database->element.tpb))
+		database->subsystem->transactionStarted (this);
+		
 	return statusVector.getCode();		
 }

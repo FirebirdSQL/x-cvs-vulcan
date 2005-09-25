@@ -71,9 +71,11 @@ protected:
 public:
 	ISC_STATUS commitRetaining(StatusVector& statusVector);
 	ISC_STATUS rollbackRetaining(StatusVector& statusVector);
-	void setDatabase(int index, SubsysHandle* handle, int tdbLength, UCHAR* tpb);
+	void setDatabase(int index, SubsysHandle* handle, int tdbLength, const UCHAR* tpb);
 	void setTransactionHandle(SubsysHandle* subsystem, TraHandle transactionHandle);
 	ISC_STATUS prepare(StatusVector& statusVector, int msgLength, const UCHAR* msg);
+	ISC_STATUS  transactionInfo(StatusVector& statusVector, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	ISC_STATUS  reconnect(StatusVector& statusVector);
 };
 
 #endif // !defined(AFX_YTRANSACTION_H__8FF55D15_110C_4BB4_A7E4_3F529B5AC96E__INCLUDED_)

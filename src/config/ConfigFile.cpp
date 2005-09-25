@@ -275,7 +275,6 @@ const char* ConfigFile::getInstallDirectory(void)
 		}
 	
 #ifdef _WIN32
-	/***
 	char keyString [256];
 	HKEY key;
 	long ret = RegOpenKey (HKEY_LOCAL_MACHINE, PATH_KEY, &key);
@@ -300,15 +299,12 @@ const char* ConfigFile::getInstallDirectory(void)
 			if (keyString [length - 2] == '\\')
 				keyString [length - 2] = 0;
 			installDirectory = keyString;
+			return installDirectory;
 			}
-		else
-			installDirectory = "c:\\Program Files\\Firebird";
 		}
-	***/
 
-#ifdef _WIN32
 	HMODULE handle = GetModuleHandle("firebird.dll");
-	char modulePathname[256];
+	char modulePathname[MAXPATHLEN];
 	int len = GetModuleFileName(handle, modulePathname, sizeof(modulePathname));
 	
 	if (len > 0)
@@ -325,7 +321,6 @@ const char* ConfigFile::getInstallDirectory(void)
 		return installDirectory;
 		}
 		
-#endif
 #else
 	installDirectory = "/opt/firebird";
 

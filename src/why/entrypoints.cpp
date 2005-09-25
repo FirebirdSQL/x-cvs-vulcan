@@ -43,6 +43,16 @@ static void initialize()
 	mutex.release();
 }
 
+JString truncateName(int fileLength, const TEXT *fileName)
+{
+	const char *p = fileName + fileLength;
+	
+	while (p > fileName && p[-1] == ' ')
+		--p;
+		
+	return JString(fileName, fileName - p);
+}
+
 extern "C" {
 
 ISC_STATUS API_ROUTINE isc_create_database (ISC_STATUS* userStatus, 
@@ -56,17 +66,11 @@ ISC_STATUS API_ROUTINE isc_create_database (ISC_STATUS* userStatus,
 	if (!dispatch)
 		initialize();
 		
-	char temp [256];
+	JString temp;
 	const char *name = fileName;
 	
 	if (fileLength)
-		{
-		memcpy (temp, fileName, fileLength);
-		temp [fileLength] = 0;
-		for (char *p = temp + fileLength; p > temp && p [-1] == ' '; --p)
-			*p = 0;
-		name = temp;
-		}
+		name = temp = truncateName(fileLength, fileName);
 		
 	if (!dispatch)
 		initialize();
@@ -84,17 +88,11 @@ ISC_STATUS API_ROUTINE isc_attach_database(ISC_STATUS* userStatus,
 	if (!dispatch)
 		initialize();
 		
-	char temp [256];
+	JString temp;
 	const char *name = fileName;
 	
 	if (fileLength)
-		{
-		memcpy (temp, fileName, fileLength);
-		temp [fileLength] = 0;
-		for (char *p = temp + fileLength; p > temp && p [-1] == ' '; --p)
-			*p = 0;
-		name = temp;
-		}
+		name = temp = truncateName(fileLength, fileName);
 		
 	return dispatch->attachDatabase (userStatus, name, name, dbHandle, dpbLength, dpb, NULL, NULL);
 	}
@@ -826,20 +824,12 @@ ISC_STATUS API_ROUTINE isc_service_attach(ISC_STATUS* userStatus,
 	if (!dispatch)
 		initialize();
 		
-	char temp [256];
+	JString temp;
 	const char *name = service;
 	
 	if (serviceLength)
-		{
-		memcpy (temp, service, serviceLength);
-		temp [serviceLength] = 0;
-		
-		for (char *p = temp + serviceLength; p > temp && p [-1] == ' '; --p)
-			*p = 0;
-			
-		name = temp;
-		}
-		
+		name = temp = truncateName(serviceLength, service);
+
 	return dispatch->serviceAttach (userStatus, name, dbHandle, spbLength, spb, NULL, NULL);
 	}
 

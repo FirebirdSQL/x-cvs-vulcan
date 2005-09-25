@@ -3538,7 +3538,6 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 		count = MAX(count, tfb->tfb_id);
 
 	format = Format::newFmt(*dbb->dbb_permanent, count + 1);
-	format->fmt_count = count + 1;
 	
 	if (version)
 		format->fmt_version = *version;

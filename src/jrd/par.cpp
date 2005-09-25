@@ -724,7 +724,7 @@ static JRD_NOD par_cast(thread_db* tdbb, CompilerScratch* csb)
 	node->nod_count = count_table[blr_cast];
 
 	Format* format = Format::newFmt(*tdbb->tdbb_default, 1);
-	format->fmt_count = 1;
+	//format->fmt_count = 1;
 	node->nod_arg[e_cast_fmt] = (JRD_NOD) format;
 
 	dsc* desc = &format->fmt_desc[0];
@@ -1458,7 +1458,7 @@ static JRD_NOD par_message(thread_db* tdbb, CompilerScratch* csb)
 	n = BLR_WORD;
 	Format* format = Format::newFmt(*tdbb->tdbb_default, n);
 	node->nod_arg[e_msg_format] = (JRD_NOD) format;
-	format->fmt_count = n;
+	//format->fmt_count = n;
 	ULONG offset = 0;
 
 	Format::fmt_desc_iterator desc, end;

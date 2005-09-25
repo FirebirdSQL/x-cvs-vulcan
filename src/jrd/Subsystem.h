@@ -47,7 +47,7 @@ typedef void*	SvcHandle;
 struct TransactionElement {
 	DbHandle	*dbHandle;
 	int			tpbLength;
-	UCHAR		*tpb;
+	const UCHAR	*tpb;
 	};
 
 typedef void DatabaseCleanupRoutine(DbHandle*, SLONG);

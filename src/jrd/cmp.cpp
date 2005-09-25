@@ -5308,10 +5308,7 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, Form
 	SET_TDBB(tdbb);
 
 	if (!(format = *input_format)) 
-		{
 		format = *input_format = Format::newFmt(*tdbb->tdbb_default, map->nod_count);
-		format->fmt_count = map->nod_count;
-		}
 
 	// process alternating rse and map blocks
 

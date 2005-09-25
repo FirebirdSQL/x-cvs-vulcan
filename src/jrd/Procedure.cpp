@@ -369,7 +369,7 @@ bool Procedure::parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, 
 		USHORT count = BLR_BYTE;
 		count += (BLR_BYTE) << 8;
 		Format* format = Format::newFmt(*tdbb->tdbb_default, count);
-		format->fmt_count = count;
+		//format->fmt_count = count;
 		// CVC: This offset should be protected against 32K overflow in the future
 		USHORT offset = 0;
 		

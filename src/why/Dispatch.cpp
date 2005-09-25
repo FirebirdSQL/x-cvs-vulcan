@@ -450,7 +450,7 @@ ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle,
 		transaction->setDatabase (n, subsystem, element->tpbLength, element->tpb);
 		}
 		
-	if (statusVector.success() && !transaction->start (statusVector), &databaseHandles)
+	if (statusVector.success() && !transaction->start (statusVector))
 		SET_HANDLE (isc_tr_handle, traHandle, transactionHandles.allocateHandle (transaction));
 	else
 		delete transaction;
@@ -459,17 +459,39 @@ ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle,
 }
 
 
-ISC_STATUS Dispatch::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*)
+ISC_STATUS Dispatch::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int infoLength, const UCHAR *info)
 {
 	trace ("reconnectTransaction");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = new YTransaction (1);
+	transaction->setDatabase (0, handle, infoLength, info);
+
+	if (!transaction->reconnect (statusVector))
+		SET_HANDLE (isc_tr_handle, traHandle, transactionHandles.allocateHandle (transaction));
+	else
+		delete transaction;
+	
+	return statusVector.getReturn();
 }
 
 
 ISC_STATUS Dispatch::transactionInfo(ISC_STATUS* userStatus, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	trace ("transactionInfo");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	transaction->transactionInfo(statusVector, itemsLength, items, bufferLength, buffer);
+	
+	return statusVector.getReturn();
 }
 
 
