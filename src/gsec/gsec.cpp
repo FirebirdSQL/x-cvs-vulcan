@@ -711,7 +711,7 @@ static bool get_switches(int argc,
 					break;
 				
 				case IN_SW_GSEC_DATABASE:
-					strncpy(user_data->database_name, string, 512);
+					strncpy(user_data->database_name, string, sizeof(user_data->database_name));
 					user_data->database_entered = true;
 					break;
 					
