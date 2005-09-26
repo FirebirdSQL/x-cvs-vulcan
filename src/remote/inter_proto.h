@@ -99,18 +99,17 @@ ISC_STATUS	REM_start_and_send(ISC_STATUS *, RRequest **, RTransaction **, USHORT
 ISC_STATUS	REM_start_request(ISC_STATUS *, RRequest **, RTransaction **, USHORT);
 ISC_STATUS	REM_start_transaction(ISC_STATUS *, RTransaction **, SSHORT, RDatabase **, SSHORT, const UCHAR *);
 ISC_STATUS	REM_transact_request(ISC_STATUS*, RDatabase**, RTransaction**,
-	USHORT, const UCHAR*, USHORT, UCHAR*, USHORT, UCHAR*);
+	USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
 ISC_STATUS	REM_transaction_info(ISC_STATUS*, RTransaction**, SSHORT,
 	const UCHAR*, SSHORT, UCHAR*);
 ISC_STATUS	REM_unwind_request(ISC_STATUS *, RRequest **, USHORT);
 
 ISC_STATUS	REM_rollback_retaining(ISC_STATUS *, RTransaction* *);
-ISC_STATUS	REM_service_attach(ISC_STATUS*, USHORT, const TEXT*, RDatabase**, USHORT,
-	const SCHAR*);
+ISC_STATUS	REM_service_attach(ISC_STATUS*,const TEXT*, RDatabase**, USHORT, const UCHAR*);
 ISC_STATUS	REM_service_detach(ISC_STATUS *, RDatabase* *);
-ISC_STATUS	REM_service_query(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const SCHAR*,
-									  USHORT, const SCHAR*, USHORT, SCHAR*);
-ISC_STATUS	REM_service_start(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const SCHAR*);
+ISC_STATUS	REM_service_query(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const UCHAR*,
+									  USHORT, const UCHAR*, USHORT, UCHAR*);
+ISC_STATUS	REM_service_start(ISC_STATUS*, RDatabase**, USHORT, const UCHAR*);
 
 ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
 									RDatabase** db_handle,

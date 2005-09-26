@@ -515,13 +515,14 @@ ISC_STATUS Remote8::serviceQuery(ISC_STATUS *statusVector,
 								int bufferLength, 
 								UCHAR *buffer)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_service_query(statusVector, (RDatabase**) dbHandle, NULL, 
+							 inItemLength, inItem, outItemLength, outItem, bufferLength, buffer);
 }
 
 
 ISC_STATUS Remote8::serviceDetach(ISC_STATUS *statusVector, SvcHandle *dbHandle)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_service_detach(statusVector, (RDatabase**) dbHandle);
 }
 
 
@@ -533,16 +534,16 @@ ISC_STATUS Remote8::serviceAttach(ISC_STATUS *statusVector,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_service_attach(statusVector, service, (RDatabase**) dbHandle, spbLength, spb);
 }
 
 
 ISC_STATUS Remote8::serviceStart(ISC_STATUS* statusVector,
 								 SvcHandle *dbHandle,
 								 int spbLength, 
-								 UCHAR * spb)
+								 const UCHAR * spb)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_service_start(statusVector,(RDatabase**) dbHandle, spbLength, spb);
 }
 
 
@@ -556,13 +557,15 @@ ISC_STATUS Remote8::transactRequest(ISC_STATUS* statusVector,
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_transact_request(statusVector, (RDatabase**) dbHandle, (RTransaction**) traHandle,
+						 blrLength, blr, inMsgLength, inMsg, outMsgLength, outMsg);
 }
 
 
 ISC_STATUS Remote8::executeDDL(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_ddl (statusVector, (RDatabase**) dbHandle, (RTransaction**) traHandle,
+						    ddlLength, ddl);
 }
 
 ISC_STATUS Remote8::updateAccountInfo(ISC_STATUS* userStatus, DbHandle* dbHandle, int apbLength, const UCHAR* apb)

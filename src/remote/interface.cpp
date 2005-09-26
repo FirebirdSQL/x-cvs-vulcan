@@ -177,7 +177,7 @@ static void server_death(Port*);
 #endif
 
 static void stuff_vax_integer(UCHAR*, SLONG, USHORT);
-static ISC_STATUS svcstart(ISC_STATUS*, RDatabase*, P_OP, USHORT, USHORT, USHORT, const SCHAR*);
+static ISC_STATUS svcstart(ISC_STATUS*, RDatabase*, P_OP, USHORT, USHORT, USHORT, const UCHAR*);
 static ISC_STATUS unsupported(ISC_STATUS*);
 
 static void mov_faster(const SLONG*, SLONG*, USHORT);
@@ -3773,7 +3773,6 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 
 
 ISC_STATUS GDS_SERVICE_ATTACH(ISC_STATUS* user_status,
-								USHORT service_length,
 								const TEXT* service_name,
 								RDatabase** handle, USHORT spb_length, const UCHAR* spb)
 {
@@ -3793,15 +3792,7 @@ ISC_STATUS GDS_SERVICE_ATTACH(ISC_STATUS* user_status,
 	//SET_THREAD_DATA;
 	ConfObj configuration = Configuration::findObject ("provider", "remote8");
 	NULL_CHECK(handle, isc_bad_svc_handle);
-
-	if (service_length) 
-		{
-		strncpy((char *) expanded_name, (char *) service_name, service_length);
-		expanded_name[service_length] = 0;
-		}
-	else
-		strcpy((char *) expanded_name, (char *) service_name);
-		
+	strcpy((char *) expanded_name, (char *) service_name);
 	USHORT length = strlen((char *) expanded_name);
 
 	ISC_STATUS* v = user_status;
@@ -4009,7 +4000,7 @@ ISC_STATUS GDS_SERVICE_QUERY(ISC_STATUS* user_status,
 
 ISC_STATUS GDS_SERVICE_START(ISC_STATUS * user_status,
 						 RDatabase** svc_handle,
-						 ULONG* reserved, USHORT item_length, const SCHAR* items)
+						 USHORT item_length, const UCHAR* items)
 {
 /**************************************
  *
@@ -4279,7 +4270,7 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS* user_status,
 							USHORT blr_length,
 							const UCHAR* blr,
 							USHORT in_msg_length,
-							UCHAR* in_msg,
+							const UCHAR* in_msg,
 							USHORT out_msg_length, UCHAR* out_msg)
 {
 /**************************************
@@ -4330,29 +4321,34 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS* user_status,
 		procedure->clear();
 		RMessage *message = PARSE_messages(blr, blr_length);
 		
-		if (message != (REM_MSG) - 1) {
-			while (message) {
-				if (message->msg_number == 0) {
+		if (message != (REM_MSG) - 1) 
+			{
+			while (message) 
+				{
+				if (message->msg_number == 0) 
+					{
 					procedure->rpr_in_msg = message;
 					procedure->rpr_in_format = message->msg_format;
-					message->msg_address = in_msg;
+					message->msg_address = (UCHAR*) in_msg;
 					message = message->msg_next;
 					procedure->rpr_in_msg->msg_next = NULL;
-				}
-				else if (message->msg_number == 1) {
+					}
+				else if (message->msg_number == 1) 
+					{
 					procedure->rpr_out_msg = message;
 					procedure->rpr_out_format = message->msg_format;
 					message->msg_address = out_msg;
 					message = message->msg_next;
 					procedure->rpr_out_msg->msg_next = NULL;
-				}
-				else {
+					}
+				else 
+					{
 					RMessage *temp = message;
 					message = message->msg_next;
 					temp->release();
+					}
 				}
 			}
-		}
 		/*
 		else
 			error
@@ -7028,7 +7024,7 @@ static ISC_STATUS svcstart(ISC_STATUS*	user_status,
 					   USHORT	object,
 					   USHORT	incarnation,
 					   USHORT	item_length,
-					   const SCHAR*	items)
+					   const UCHAR*	items)
  {
 /**************************************
  *

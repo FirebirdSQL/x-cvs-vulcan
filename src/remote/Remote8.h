@@ -141,7 +141,7 @@ public:
 	virtual ISC_STATUS serviceStart(ISC_STATUS* userStatus,
 									 SvcHandle *dbHandle,
 									 int spbLength, 
-									 UCHAR * spb);
+									 const UCHAR * spb);
 	virtual ISC_STATUS transactRequest(ISC_STATUS* userStatus, 
 									   DbHandle *dbHandle, 
 									   TraHandle *traHandle, 
