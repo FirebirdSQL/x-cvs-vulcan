@@ -535,6 +535,7 @@ void DFW_perform_work(thread_db* tdbb, Transaction* transaction)
 		catch (OSRIException& exception) 
 			{
 			/* Do any necessary cleanup */
+			pendingException = exception;
 			if (!phase)
 				throw;
 			phase = 0;
@@ -1928,10 +1929,16 @@ static bool create_procedure(	thread_db* tdbb,
  *
  **************************************/
 
-	//SET_TDBB(tdbb);
-
 	switch (phase)
 		{
+		case 0:
+			{
+			Procedure* procedure = tdbb->tdbb_database->findProcedure(tdbb, work->dfw_name, FALSE);
+			if (procedure && procedure->checkFlags (PRC_create))
+				delete procedure;
+			break;
+			}
+
 		case 1:
 		case 2:
 			return true;
@@ -1945,9 +1952,14 @@ static bool create_procedure(	thread_db* tdbb,
 				return false;
 		
 			procedure->addFlags (PRC_create);
-			delete procedure;
+			return true;
 			}
-			break;
+		case 4:
+			{
+			Procedure* procedure = tdbb->tdbb_database->findProcedure(tdbb, work->dfw_name, FALSE);
+			if (procedure && procedure->checkFlags (PRC_create))
+				delete procedure;
+			}
 		}
 
 	return false;
