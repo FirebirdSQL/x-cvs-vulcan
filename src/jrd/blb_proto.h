@@ -53,7 +53,7 @@ blb* BLB_open(thread_db*, Transaction*, const bid*);
 blb* BLB_open2(thread_db*, Transaction*, const bid*, USHORT, const UCHAR*);
 void BLB_put_segment(thread_db*, blb*, const UCHAR*, USHORT);
 void BLB_put_slice(thread_db*, Transaction*, bid*, const UCHAR*, USHORT,
-	const SLONG*, SLONG, UCHAR*);
+	const SLONG*, SLONG, const UCHAR*);
 void BLB_release_array(ArrayField*);
 void BLB_scalar(thread_db*, Transaction*, const bid*, USHORT, SLONG*, impure_value*);
 

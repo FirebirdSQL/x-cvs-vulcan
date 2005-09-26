@@ -2919,7 +2919,7 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
 					 USHORT sdl_length,
 					 const UCHAR* sdl,
 					 USHORT param_length,
-					 const UCHAR* param, SLONG slice_length, UCHAR* slice)
+					 const UCHAR* param, SLONG slice_length, const UCHAR* slice)
 {
 /**************************************
  *
@@ -2976,12 +2976,12 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
 		data->p_slc_parameters.cstr_length = param_length;
 		data->p_slc_parameters.cstr_address = const_cast<UCHAR*>(param); // safe
 		data->p_slc_slice.lstr_length = slice_length;
-		data->p_slc_slice.lstr_address = slice;
+		data->p_slc_slice.lstr_address = (UCHAR*) slice;
 
 		P_SLR* response = &packet->p_slr;
 		response->p_slr_sdl = old_sdl; //const_cast<UCHAR*>(sdl);
 		response->p_slr_sdl_length = sdl_length;
-		response->p_slr_slice.lstr_address = slice;
+		response->p_slr_slice.lstr_address = (UCHAR*) slice;
 		response->p_slr_slice.lstr_length = slice_length;
 
 		send_and_receive(rdb, packet, user_status);

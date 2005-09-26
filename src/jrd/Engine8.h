@@ -93,8 +93,14 @@ public:
 	virtual ISC_STATUS closeBlob (ISC_STATUS*, BlbHandle *blbHandle);
 	virtual ISC_STATUS cancelBlob(ISC_STATUS*, BlbHandle *blbHandle);
 
-	virtual ISC_STATUS putSlice(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, SLONG*, int, UCHAR*, int, UCHAR*, SLONG, UCHAR*);
-	virtual ISC_STATUS getSlice(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, SLONG *, int, UCHAR *, int, UCHAR *, SLONG, UCHAR *, SLONG *);
+	virtual ISC_STATUS putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							    int sdlLength, const UCHAR* sdl, 
+							    int paramLength, const UCHAR* param, 
+							    SLONG sliceLength, const UCHAR* slice);
+	virtual ISC_STATUS getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							    int sdlLength, const UCHAR *sdl, 
+							    int paramLength, const UCHAR *param, 
+							    SLONG sliceLength, UCHAR *slice, SLONG *returnLength);
 
 	virtual ISC_STATUS cancelEvents(ISC_STATUS*, DbHandle *dbHandle, SLONG*);
 	virtual ISC_STATUS queEvents(ISC_STATUS*, DbHandle *dbHandle, SLONG*, int, const UCHAR*, FPTR_VOID,void*);
@@ -143,7 +149,7 @@ public:
 	virtual ISC_STATUS serviceAttach(ISC_STATUS *, const TEXT *, SvcHandle *dbHandle, int, const UCHAR*,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration);
-	virtual ISC_STATUS transactRequest(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*,int, UCHAR*, int, UCHAR*);
+	virtual ISC_STATUS transactRequest(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*,int, const UCHAR*, int, UCHAR*);
 	virtual ISC_STATUS executeDDL(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*);
 
 	virtual const TEXT* getDescription();

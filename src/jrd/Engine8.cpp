@@ -148,16 +148,6 @@ ISC_STATUS Engine8::createBlob (ISC_STATUS* statusVector, DbHandle *dbHandle, Tr
 										bpb));
 }
 
-/***
-ISC_STATUS Engine8::createDatabase (ISC_STATUS* statusVector, 
-									int fileLength, 
-									const TEXT* fileName, D
-									DbHandle *dbHandle, 
-									int dpbLength, 
-									UCHAR* dpb, 
-									int databaseType, 
-									const char *providerName)
-***/
 ISC_STATUS Engine8::createDatabase (ISC_STATUS* statusVector, 
 									  const TEXT* orgName, 
 									  const TEXT* translatedName, 
@@ -224,9 +214,11 @@ ISC_STATUS Engine8::prepareTransaction(ISC_STATUS *statusVector, TraHandle *traH
 	return exitSystem (jrd8_prepare_transaction (statusVector, (Transaction**) traHandle, msgLength, msg));
 }
 
-ISC_STATUS Engine8::reconnectTransaction(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR *)
+ISC_STATUS Engine8::reconnectTransaction(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int tidLength, const UCHAR *tid)
 {
-	return entrypointUnavailable (statusVector);
+	enterSystem();
+
+	return exitSystem (jrd8_reconnect_transaction (statusVector, (Attachment**) dbHandle, (Transaction**) traHandle, tidLength, tid));
 }
 
 ISC_STATUS Engine8::receive(ISC_STATUS *statusVector, ReqHandle *reqHandle, int msgType, int msgLength, UCHAR *msg, int level)
@@ -292,7 +284,10 @@ ISC_STATUS Engine8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle
 
 ISC_STATUS Engine8::transactionInfo(ISC_STATUS* statusVector, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
-	return entrypointUnavailable (statusVector);
+	enterSystem();
+
+	return exitSystem (jrd8_transaction_info (statusVector, (Transaction**) traHandle,
+											  itemsLength, items, bufferLength, buffer));
 }
 
 ISC_STATUS Engine8::unwindRequest(ISC_STATUS *statusVector, ReqHandle *reqHandle, int level)
@@ -338,8 +333,10 @@ ISC_STATUS Engine8::executeDDL(ISC_STATUS *statusVector, DbHandle *dbHandle, Tra
 }
 
 ISC_STATUS Engine8::getSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
-							 SLONG *arrayId, int sdlLength, UCHAR *sdl, int paramLength, 
-							 UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
+							 SLONG *arrayId, 
+							 int sdlLength, const UCHAR *sdl, 
+							 int paramLength, const UCHAR *param, 
+							 SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
 	enterSystem();
 
@@ -348,8 +345,10 @@ ISC_STATUS Engine8::getSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHa
 }
 
 ISC_STATUS Engine8::putSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
-							 SLONG *arrayId, int sdlLength, UCHAR *sdl, int paramLength, 
-							 UCHAR *param, SLONG sliceLength, UCHAR *slice)
+							 SLONG *arrayId, 
+							 int sdlLength, const UCHAR *sdl, 
+							 int paramLength,  const UCHAR *param, 
+							 SLONG sliceLength, const UCHAR *slice)
 {
 	enterSystem();
 
@@ -357,9 +356,15 @@ ISC_STATUS Engine8::putSlice(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHa
 					   arrayId, sdlLength, sdl, paramLength, param, sliceLength, slice));
 }
 
-ISC_STATUS Engine8::transactRequest(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR *, int, UCHAR *, int, UCHAR *)
+ISC_STATUS Engine8::transactRequest(ISC_STATUS *statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
+									int blrLength, const UCHAR *blr, 
+									int inMsgLength, const UCHAR *inMsg, 
+									int outMsgLength, UCHAR *outMsg)
 {
-	return entrypointUnavailable (statusVector);
+	enterSystem();
+
+	return exitSystem (jrd8_transact_request(statusVector, (Attachment**) dbHandle, (Transaction**) traHandle, 
+					   blrLength, blr, inMsgLength, inMsg, outMsgLength, outMsg));
 }
 
 ISC_STATUS Engine8::dropDatabase(ISC_STATUS *statusVector, DbHandle *dbHandle )

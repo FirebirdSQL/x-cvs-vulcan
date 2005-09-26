@@ -31,7 +31,7 @@ EXPORTS
     gds__create_blob=gds__create_blob @13
     gds__create_blob2=gds__create_blob2 @14
     gds__create_database=gds__create_database @15
-    gds__database_cleanup=gds__database_cleanup @16
+    ;gds__database_cleanup=gds__database_cleanup @16
     gds__database_info=gds__database_info @17
     gds__ddl=gds__ddl @18
     gds__declare=gds__declare @19
@@ -237,7 +237,7 @@ EXPORTS
     isc_drop_database=isc_drop_database @229
     isc_dsql_exec_immed3_m=isc_dsql_exec_immed3_m @230
     gds__temp_file=gds__temp_file @231
-    gds__transaction_cleanup=gds__transaction_cleanup @235
+    ;gds__transaction_cleanup=gds__transaction_cleanup @235
     isc_blob_gen_bpb=isc_blob_gen_bpb @236
     isc_blob_lookup_desc=isc_blob_lookup_desc @237
     isc_blob_set_desc=isc_blob_set_desc @238

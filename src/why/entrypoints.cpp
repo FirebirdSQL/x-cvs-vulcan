@@ -860,9 +860,9 @@ ISC_STATUS API_ROUTINE isc_transact_request(ISC_STATUS* userStatus,
 									   DbHandle *dbHandle, 
 									   TraHandle *traHandle, 
 									   USHORT blrLength, 
-									   UCHAR* blr,
+									   const UCHAR* blr,
 									   USHORT inMsgLength, 
-									   UCHAR* inMsg, 
+									   const UCHAR* inMsg, 
 									   USHORT outMsgLength, 
 									   UCHAR* outMsg)
 	{
@@ -1656,16 +1656,22 @@ ISC_STATUS API_ROUTINE gds__transact_request(ISC_STATUS* userStatus,
 									   DbHandle *dbHandle, 
 									   TraHandle *traHandle, 
 									   USHORT blrLength, 
-									   UCHAR* blr,
+									   const UCHAR* blr,
 									   USHORT inMsgLength, 
-									   UCHAR* inMsg, 
+									   const UCHAR* inMsg, 
 									   USHORT outMsgLength, 
 									   UCHAR* outMsg)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->transactRequest (userStatus, dbHandle, traHandle, blrLength, blr, inMsgLength, inMsg, outMsgLength, outMsg);
+	***/
+	return isc_transact_request(userStatus, dbHandle, traHandle, 
+								blrLength, blr, 
+								inMsgLength, inMsg,
+								outMsgLength, outMsg);
 	}
 
 
@@ -1696,6 +1702,7 @@ void API_ROUTINE gds__thread_exit(void)
 	}
 ***/
 
+/***
 ISC_STATUS API_ROUTINE gds__database_cleanup(ISC_STATUS* userStatus, 
 											 DbHandle *dbHandle, 
 											 DatabaseCleanupRoutine * routine, 
@@ -1716,6 +1723,7 @@ ISC_STATUS API_ROUTINE gds__transaction_cleanup(ISC_STATUS* userStatus,
 		
 	return dispatch->transactionCleanup (userStatus, traHandle, routine, arg);
 	}
+***/
 
 /***
 int API_ROUTINE gds__disable_subsystem(TEXT * subsystem)
@@ -1762,7 +1770,7 @@ void CVT_move (void)
 	}
 ***/
 
-
+/***
 ISC_STATUS API_ROUTINE isc_database_cleanup(ISC_STATUS * userStatus,
 											 DbHandle *handle,
 											 DatabaseCleanupRoutine * routine,
@@ -1773,6 +1781,7 @@ ISC_STATUS API_ROUTINE isc_database_cleanup(ISC_STATUS * userStatus,
 		
 	return dispatch->registerCleanupHandler (userStatus, handle, routine, arg);
 	}
+***/
 
 int API_ROUTINE fb_shutdown_connections (int type, int milliseconds)
 	{

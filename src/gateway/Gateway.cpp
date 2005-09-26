@@ -247,13 +247,19 @@ ISC_STATUS Gateway::cancelBlob(ISC_STATUS* userStatus, BlbHandle *blbHandle)
 
 
 
-ISC_STATUS Gateway::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, SLONG sliceLength, UCHAR* slice)
+ISC_STATUS Gateway::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle,  SLONG* arrayId, 
+							 int sdlLength,  const UCHAR* sdl, 
+							 int paramLength, const UCHAR* param, 
+							 SLONG sliceLength, const UCHAR* slice)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
-ISC_STATUS Gateway::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
+ISC_STATUS Gateway::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							 int sdlLength, const UCHAR *sdl, 
+							 int paramLength, const UCHAR *param, 
+							 SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -475,7 +481,6 @@ int Gateway::disableSubsystem (TEXT* subSystem)
 {
 	return false;
 }
-***/
 
 ISC_STATUS Gateway::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
@@ -493,6 +498,7 @@ ISC_STATUS Gateway::transactionCleanup (ISC_STATUS* userStatus,
 {
 	return entrypointUnavailable (userStatus);
 }
+***/
 
 
 ISC_STATUS Gateway::seekBlob (ISC_STATUS* userStatus, 

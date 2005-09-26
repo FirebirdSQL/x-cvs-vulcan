@@ -107,15 +107,17 @@ ISC_STATUS Remote8::startMultiple(ISC_STATUS *statusVector, TraHandle *traHandle
 }
 
 
-ISC_STATUS Remote8::reconnectTransaction(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Remote8::reconnectTransaction(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, int tidLength, const UCHAR *tid)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_reconnect_transaction (statusVector, 
+									  (RDatabase**) dbHandle, 
+									  (RTransaction**) traHandle, tidLength, tid);
 }
 
 
 ISC_STATUS Remote8::transactionInfo(ISC_STATUS* statusVector, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_transaction_info (statusVector, (RTransaction**) traHandle, itemsLength, items, bufferLength, buffer);
 }
 
 
@@ -217,37 +219,32 @@ ISC_STATUS Remote8::requestInfo(ISC_STATUS* statusVector, ReqHandle *reqHandle, 
 
 ISC_STATUS Remote8::receive(ISC_STATUS* statusVector, ReqHandle *reqHandle, int msgType, int msgLength, UCHAR* msg, int level)
 {
-
-	return REM_receive (statusVector, 
-								 (RRequest**) reqHandle, 
-								 msgType, msgLength, msg, level);
+	return REM_receive (statusVector,  (RRequest**) reqHandle, 
+						msgType, msgLength, msg, level);
 }
 
 
 ISC_STATUS Remote8::unwindRequest(ISC_STATUS* statusVector, ReqHandle *reqHandle, int level)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_unwind_request (statusVector,  (RRequest**) reqHandle, level);
 }
 
 
 ISC_STATUS Remote8::releaseRequest(ISC_STATUS*statusVector, ReqHandle *reqHandle)
 {
-
 	return REM_release_request (statusVector, (RRequest**) reqHandle);
 }
-
-
 
 ISC_STATUS Remote8::createBlob (ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, BlbHandle *blbHandle, bid* blobId, int bpbLength, const UCHAR* bpb)
 {
 	
 	return REM_create_blob2 (statusVector, 
-										(RDatabase**) dbHandle, 
-										(RTransaction**) traHandle,
-										(RBlob**) blbHandle,
-										blobId,
-										bpbLength,
-										bpb);
+							 (RDatabase**) dbHandle, 
+							 (RTransaction**) traHandle,
+							 (RBlob**) blbHandle,
+							  blobId,
+							  bpbLength,
+							  bpb);
 }
 
 
@@ -255,34 +252,31 @@ ISC_STATUS Remote8::openBlob(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHa
 {
 	
 	return REM_open_blob2 (statusVector, 
-										(RDatabase**) dbHandle, 
-										(RTransaction**) traHandle,
-										(RBlob**) blbHandle,
-										blobId,
-										bpbLength,
-										bpb);
+							(RDatabase**) dbHandle, 
+							(RTransaction**) traHandle,
+							(RBlob**) blbHandle,
+							blobId,
+							bpbLength,
+							bpb);
 }
 
 
 ISC_STATUS Remote8::blobInfo(ISC_STATUS* statusVector, BlbHandle *blbHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
-	
 	return REM_blob_info (statusVector, (RBlob**) blbHandle, 
-									  itemsLength, items,
-									  bufferLength, buffer);
+							itemsLength, items,
+							bufferLength, buffer);
 }
 
 
 ISC_STATUS Remote8::putSegment(ISC_STATUS* statusVector, BlbHandle *blbHandle, int segmentLength, UCHAR* segment)
 {
-	
 	return REM_put_segment (statusVector, (RBlob**) blbHandle, segmentLength, segment);
 }
 
 
 ISC_STATUS Remote8::getSegment (ISC_STATUS* statusVector, BlbHandle *blbHandle, int* segmentLength, int bufferLength, UCHAR* buffer)
 {
-	
 	return REM_get_segment (statusVector, (RBlob**) blbHandle, segmentLength, bufferLength, buffer);
 }
 
@@ -293,34 +287,44 @@ ISC_STATUS Remote8::seekBlob (ISC_STATUS* userStatus,
 							 SLONG offset,
 							 SLONG *result)
 {
-	
 	return REM_seek_blob (userStatus, (RBlob**) blbHandle, mode, offset, result);
 }
 
 ISC_STATUS Remote8::closeBlob (ISC_STATUS* statusVector, BlbHandle *blbHandle)
 {
-	
 	return REM_close_blob (statusVector, (RBlob**) blbHandle);
 }
 
 
 ISC_STATUS Remote8::cancelBlob(ISC_STATUS* statusVector, BlbHandle *blbHandle)
 {
-	
 	return REM_cancel_blob (statusVector, (RBlob**) blbHandle);
 }
 
 
 
-ISC_STATUS Remote8::putSlice(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, SLONG sliceLength, UCHAR* slice)
+ISC_STATUS Remote8::putSlice(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+						 int sdlLength, const UCHAR* sdl, int paramLength, const UCHAR* param, 
+						 SLONG sliceLength, const UCHAR* slice)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_put_slice (statusVector, (RDatabase**) dbHandle, (RTransaction**) traHandle, 
+						  (bid*) arrayId, 
+						  sdlLength, sdl, 
+						  paramLength, param,
+						  sliceLength, slice);
 }
 
 
-ISC_STATUS Remote8::getSlice(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
+ISC_STATUS Remote8::getSlice(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							 int sdlLength, const UCHAR *sdl, int paramLength, const UCHAR *param, 
+							 SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
-	return entrypointUnavailable (statusVector);
+	return REM_get_slice (statusVector, (RDatabase**) dbHandle, (RTransaction**) traHandle, 
+						  (bid*) arrayId, 
+						  sdlLength, sdl, 
+						  paramLength, param,
+						  sliceLength, slice,
+						  returnLength);
 }
 
 
@@ -546,9 +550,9 @@ ISC_STATUS Remote8::transactRequest(ISC_STATUS* statusVector,
 								   DbHandle *dbHandle, 
 								   TraHandle *traHandle, 
 								   int blrLength, 
-								   UCHAR* blr,
+								   const UCHAR* blr,
 								   int inMsgLength, 
-								   UCHAR* inMsg, 
+								   const UCHAR* inMsg, 
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
@@ -584,6 +588,7 @@ int Remote8::disableSubsystem (TEXT* subSystem)
 }
 ***/
 
+/***
 ISC_STATUS Remote8::databaseCleanup (ISC_STATUS* statusVector, 
 									 DbHandle *dbHandle, 
 									 DatabaseCleanupRoutine *routine, 
@@ -600,4 +605,5 @@ ISC_STATUS Remote8::transactionCleanup (ISC_STATUS* statusVector,
 {
 	return entrypointUnavailable (statusVector);
 }
+***/
 

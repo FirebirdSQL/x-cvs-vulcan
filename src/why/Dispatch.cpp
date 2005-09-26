@@ -972,8 +972,8 @@ ISC_STATUS Dispatch::cancelBlob(ISC_STATUS* userStatus, BlbHandle *blbHandle)
 
 
 ISC_STATUS Dispatch::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-							  SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, 
-							  SLONG sliceLength, UCHAR* slice)
+							  SLONG* arrayId, int sdlLength, const UCHAR* sdl, int paramLength, const UCHAR* param, 
+							  SLONG sliceLength, const UCHAR* slice)
 {
 	trace ("putSlice");
 	StatusVector statusVector (userStatus, traceFlags);
@@ -1008,7 +1008,9 @@ ISC_STATUS Dispatch::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHan
 
 
 ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-							  SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, 
+							  SLONG* arrayId, 
+							  int sdlLength, const UCHAR *sdl, 
+							  int paramLength, const UCHAR *param, 
 							  SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
 	trace ("getSlice");
@@ -1935,7 +1937,7 @@ ISC_STATUS Dispatch::serviceAttach(ISC_STATUS *userStatus,
 		return statusVector->getReturn();
 		}
 		
-	return statusVector->getReturn();
+	return entrypointUnavailable (userStatus);
 }
 
 
@@ -1964,14 +1966,41 @@ ISC_STATUS Dispatch::transactRequest(ISC_STATUS* userStatus,
 								   DbHandle *dbHandle, 
 								   TraHandle *traHandle, 
 								   int blrLength, 
-								   UCHAR* blr,
+								   const UCHAR* blr,
 								   int inMsgLength, 
-								   UCHAR* inMsg, 
+								   const UCHAR* inMsg, 
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
 	trace ("transactRequest");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	TraHandle trHandle = transaction->getDbHandle (handle);
+
+	if (!trHandle)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	handle->subsystem->transactRequest (
+			statusVector, 
+			&handle->handle,
+			&trHandle,
+			blrLength,
+			blr,
+			inMsgLength,
+			inMsg,
+			outMsgLength,
+			outMsg);
+	
+	return statusVector.getReturn();
 }
 
 
@@ -2019,6 +2048,7 @@ int Dispatch::disableSubsystem (TEXT* subSystem)
 }
 ***/
 
+/***
 ISC_STATUS Dispatch::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
 									 DatabaseCleanupRoutine *routine, 
@@ -2037,7 +2067,7 @@ ISC_STATUS Dispatch::transactionCleanup (ISC_STATUS* userStatus,
 	trace ("transactionCleanup");
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 
 ISC_STATUS Dispatch::seekBlob (ISC_STATUS* userStatus, 
 							 BlbHandle *blbHandle,
@@ -2091,12 +2121,13 @@ ISC_STATUS Dispatch::postError(ISC_STATUS *statusVector, ISC_STATUS *userVector)
 	return statusVector [1];
 }
 
+/***
 ISC_STATUS Dispatch::registerCleanupHandler(ISC_STATUS *userStatus, DbHandle *handle, DatabaseCleanupRoutine *routine, void *arg)
 {
 	trace ("registerCleanupHandler");
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 int Dispatch::rewriteDpb(int dpbLength, UCHAR **dpbPtr)
 {
 	UCHAR *p = *dpbPtr, *end = p + dpbLength;

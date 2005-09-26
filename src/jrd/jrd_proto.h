@@ -96,7 +96,7 @@ ISC_STATUS jrd8_put_segment(ISC_STATUS*, blb**, USHORT,
 ISC_STATUS jrd8_put_slice(ISC_STATUS*, Attachment**,
 										Transaction**, SLONG*, USHORT,
 										const UCHAR*, USHORT, const UCHAR*, SLONG,
-										UCHAR*);
+										const UCHAR*);
 ISC_STATUS jrd8_que_events(ISC_STATUS*, Attachment**, SLONG*,
 										 SSHORT, const UCHAR*,
 										 FPTR_EVENT_CALLBACK, void*);
@@ -136,9 +136,10 @@ ISC_STATUS jrd8_transaction_info(ISC_STATUS*, Transaction**,
 											   SSHORT, const UCHAR*, SSHORT,
 											   UCHAR*);
 ISC_STATUS jrd8_transact_request(ISC_STATUS*, Attachment**,
-											   Transaction**, USHORT, const SCHAR*,
-											   USHORT, SCHAR*, USHORT,
-											   SCHAR*);
+											   Transaction**, 
+											   USHORT, const UCHAR*,
+											   USHORT, const UCHAR*, 
+											   USHORT, UCHAR*);
 ISC_STATUS jrd8_unwind_request(ISC_STATUS *, Request **, SSHORT);
 ISC_STATUS jrd8_update_account_info(ISC_STATUS *, Attachment**, int apbLength, const UCHAR *apb);
 ISC_STATUS jrd8_user_info(ISC_STATUS*, Attachment**, int dpbLength, const UCHAR *dpb,

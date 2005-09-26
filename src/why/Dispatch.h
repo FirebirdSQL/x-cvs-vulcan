@@ -57,7 +57,7 @@ class Dispatch : public Subsystem
 public:
 	void stuff (UCHAR **ptr, UCHAR what, int length, const char *data);
 	int rewriteDpb (int dpbLengh, UCHAR **dpbPtr);
-	ISC_STATUS registerCleanupHandler (ISC_STATUS *userState, DbHandle *handle, DatabaseCleanupRoutine *routine, void *arg);
+	//ISC_STATUS registerCleanupHandler (ISC_STATUS *userState, DbHandle *handle, DatabaseCleanupRoutine *routine, void *arg);
 	virtual ISC_STATUS postError(ISC_STATUS *statusVector, ISC_STATUS *userVector);
 	virtual ISC_STATUS postError(ISC_STATUS *userStatus, ISC_STATUS code);
 	Dispatch(int flags);
@@ -111,8 +111,12 @@ public:
 	virtual ISC_STATUS closeBlob (ISC_STATUS* userStatus, BlbHandle *blbHandle);
 	virtual ISC_STATUS cancelBlob(ISC_STATUS* userStatus, BlbHandle *blbHandle);
 
-	virtual ISC_STATUS putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, SLONG sliceLength, UCHAR* slice);
-	virtual ISC_STATUS getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength);
+	virtual ISC_STATUS putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							    int sdlLength, const UCHAR* sdl, int paramLength, const UCHAR* param, 
+							    SLONG sliceLength, const UCHAR* slice);
+	virtual ISC_STATUS getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							    int sdlLength, const UCHAR *sdl, int paramLength, const UCHAR *param, 
+							    SLONG sliceLength, UCHAR *slice, SLONG *returnLength);
 
 	virtual ISC_STATUS cancelEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId);
 	virtual ISC_STATUS queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast,void* astArg);
@@ -196,14 +200,15 @@ public:
 									   DbHandle *dbHandle, 
 									   TraHandle *traHandle, 
 									   int blrLength, 
-									   UCHAR* blr,
+									   const UCHAR* blr,
 									   int inMsgLength, 
-									   UCHAR* inMsg, 
+									   const UCHAR* inMsg, 
 									   int outMsgLength, 
 									   UCHAR* outMsg);
 	virtual ISC_STATUS executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl);
 	//virtual int enableSubsystem (TEXT* subSystem);
 	//virtual int disableSubsystem (TEXT* subSystem);
+	/***
 	virtual ISC_STATUS databaseCleanup (ISC_STATUS* userStatus, 
 										 DbHandle *dbHandle, 
 										 DatabaseCleanupRoutine *routine, 
@@ -212,6 +217,7 @@ public:
 										   TraHandle *traHandle, 
 										   TransactionCleanupRoutine *routine, 
 										   SLONG arg);
+	***/
 	virtual ISC_STATUS seekBlob (ISC_STATUS* userStatus, 
 								 BlbHandle *blbHandle,
 								 int mode,

@@ -82,7 +82,7 @@ ISC_STATUS	REM_open_blob2(ISC_STATUS*, RDatabase**, RTransaction**,
 ISC_STATUS	REM_prepare_transaction(ISC_STATUS *, RTransaction **, USHORT, UCHAR *);
 ISC_STATUS	REM_put_segment(ISC_STATUS*, RBlob**, USHORT, const UCHAR*);
 ISC_STATUS	REM_put_slice(ISC_STATUS*, RDatabase**, RTransaction**, bid*, USHORT,
-	const UCHAR*, USHORT, const UCHAR*, SLONG, UCHAR*);
+	const UCHAR*, USHORT, const UCHAR*, SLONG, const UCHAR*);
 ISC_STATUS	REM_que_events(ISC_STATUS*, RDatabase**, SLONG*, SSHORT,
 	const UCHAR*, FPTR_EVENT_CALLBACK, void*);
 ISC_STATUS	REM_query_service(ISC_STATUS *, RDatabase **, USHORT, SCHAR *, USHORT, SCHAR *, USHORT, SCHAR *);

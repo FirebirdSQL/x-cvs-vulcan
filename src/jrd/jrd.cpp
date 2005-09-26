@@ -2567,7 +2567,7 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
 						USHORT param_length,
 						const UCHAR* param,
 						SLONG slice_length,
-						UCHAR* slice)
+						const UCHAR* slice)
 {
 /**************************************
  *
@@ -3571,7 +3571,7 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS*	user_status,
 								USHORT blr_length,
 								const UCHAR* blr,
 								USHORT in_msg_length,
-								UCHAR* in_msg,
+								const UCHAR* in_msg,
 								USHORT out_msg_length,
 								UCHAR* out_msg)
 {

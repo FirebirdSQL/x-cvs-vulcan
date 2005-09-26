@@ -1378,7 +1378,7 @@ void BLB_put_slice(	thread_db*		tdbb,
 					USHORT			param_length,
 					const SLONG*	param,
 					SLONG			slice_length,
-					UCHAR*			slice_addr)
+					const UCHAR*	slice_addr)
 {
 /**************************************
  *
@@ -1484,10 +1484,10 @@ void BLB_put_slice(	thread_db*		tdbb,
 		arg.slice_high_water = (BLOB_PTR *) array->arr_data;
 		}
 
-/* Walk array */
+	/* Walk array */
 
 	arg.slice_desc = info.sdl_info_element;
-	arg.slice_desc.dsc_address = slice_addr;
+	arg.slice_desc.dsc_address = (UCHAR*) slice_addr;
 	arg.slice_end = (BLOB_PTR*) slice_addr + slice_length;
 	arg.slice_count = 0;
 	arg.slice_element_length = info.sdl_info_element.dsc_length;

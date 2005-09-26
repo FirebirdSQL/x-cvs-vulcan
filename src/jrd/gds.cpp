@@ -1786,10 +1786,11 @@ void API_ROUTINE gds__register_cleanup(FPTR_VOID_PTR routine, void* arg)
  *
  **************************************/
 
-/* 
- * Ifdef out for windows client.  We have not implemented any way of 
- * determining when a task ends, therefore this never gets called.
-*/
+	/* 
+	 * Ifdef out for windows client.  We have not implemented any way of 
+	 * determining when a task ends, therefore this never gets called.
+	 */
+	 
 	Sync sync (&syncObject, "gds__register_cleanup");
 	sync.lock (Exclusive);
 
