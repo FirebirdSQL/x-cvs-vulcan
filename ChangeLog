@@ -1,3 +1,51 @@
+2005-09-25 22:44  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/jrd/jrd.vcproj,
+	src/events/main.cpp, src/jrd/CompilerScratch.cpp,
+	src/jrd/CompilerScratch.h, src/jrd/InternalCallableStatement.h,
+	src/jrd/Optimizer.cpp, src/jrd/ProcManager.cpp,
+	src/jrd/ProcManager.h, src/jrd/Procedure.cpp, src/jrd/Request.cpp,
+	src/jrd/Request.h, src/jrd/Resource.cpp, src/jrd/Resource.h,
+	src/jrd/cmp.cpp, src/jrd/cmp_proto.h, src/jrd/dfw.epp,
+	src/jrd/err.cpp, src/jrd/jrd.cpp, src/jrd/jrd.vcproj,
+	src/jrd/met.epp, src/jrd/opt.cpp, src/jrd/req.h, src/jrd/tra.cpp,
+	src/jrd/tra.h, src/remote/inter_proto.h, src/remote/interface.cpp,
+	src/why/Dispatch.cpp, src/why/YTransaction.cpp,
+	src/why/YTransaction.h:
+	
+	Promoted Resource to real class
+
+2005-09-25 18:24  jimstarkey
+
+	* vulcan/src/: config/ConfigFile.cpp, jrd/Procedure.cpp,
+	jrd/Subsystem.h, jrd/TempSpace.cpp, jrd/cmp.cpp, jrd/dfw.epp,
+	jrd/ini.epp, jrd/met.epp, jrd/par.cpp, why/Dispatch.cpp,
+	why/YTransaction.cpp, why/YTransaction.h, why/entrypoints.cpp:
+	
+	Tweaks to config, minor coding cleanups, and loose ends
+
+2005-09-25 11:29  robocop
+
+	* vulcan/src/: IscDbc/Error.cpp, IscDbc/JString.cpp,
+	IscDbc/SQLError.cpp, alice/alice.cpp, burp/burp.cpp,
+	config/AdminException.cpp, config/ArgsException.cpp,
+	config/Stream.cpp, dsql/errd.cpp, dsql/movd.cpp, gstat/dba.epp,
+	jrd/Error.cpp, jrd/JString.cpp, jrd/MsgFormat.cpp,
+	jrd/OSRIBugcheck.cpp, jrd/OSRIException.cpp,
+	jrd/OSRIMemException.cpp, jrd/SQLError.cpp, jrd/StatusVector.cpp,
+	jrd/err.cpp, jrd/svc.cpp, lock/LockMgr.cpp, why/Dispatch.cpp:
+	
+	It seems to me that Vulcan was missing nearly 30 va_end's, so I put
+	them but found places where it can't be put and signaled those with
+	FB_COMPILER_MESSAGE because a throw happens and the exception's
+	constructor is using the varargs.
+
+2005-09-25 11:23  robocop
+
+	* vulcan/src/gsec/gsec.cpp:
+	
+	Use sizeof instead of hardcoded value.
+
 2005-09-25 03:19  robocop
 
 	* vulcan/src/jrd/TempSpace.h:
