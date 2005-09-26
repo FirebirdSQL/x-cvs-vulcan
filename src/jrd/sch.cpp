@@ -192,7 +192,7 @@ void API_ROUTINE gds__thread_exit(void)
 
 
 #ifdef VMS
-int API_ROUTINE gds__thread_wait(FPTR_INT entrypoint, SLONG arg)
+int API_ROUTINE THD_thread_wait(FPTR_INT entrypoint, SLONG arg)
 {
 /**************************************
  *

@@ -984,10 +984,10 @@ int LockMgr::LOCK_init(Database *dbb, ISC_STATUS * status_vector,
 		LockEvent *event = allocEvent(owner);
 		owner->own_blocking_event = REL_PTR(event);
 #ifdef SHARED_CACHE
-		ULONG status = gds__thread_start(blocking_action_thread, &LOCK_owner_offset, THREAD_high, 0, 
+		ULONG status = THD_start_thread(blocking_action_thread, &LOCK_owner_offset, THREAD_high, 0, 
 										&blocking_action_thread_handle);
 #else
-		ULONG status = gds__thread_start(blocking_action_thread, (void *)this, THREAD_high, 0, 
+		ULONG status = THD_start_thread(blocking_action_thread, (void *)this, THREAD_high, 0, 
 										&blocking_action_thread_handle);
 #endif
 
@@ -4108,7 +4108,7 @@ void LockMgr::shutdown_blocking_thread(LockOwner *owner)
 #endif
 	
 	event->event.post();
-	gds__thread_wait(&blocking_action_thread_handle);
+	THD_thread_wait(&blocking_action_thread_handle);
 	blocking_action_thread_initialized = false;
 	shutdownComplete.wait(shutdownCount, 2000000);
 	shutdownComplete.fini();

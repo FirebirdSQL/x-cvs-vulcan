@@ -259,7 +259,7 @@ const char* ConfigFile::getInstallDirectory(void)
 {
 	if (!installDirectory.IsEmpty())
 		return installDirectory;
-	
+
 	const char *home = getenv ("VULCAN");
 	
 	if (home)
@@ -304,8 +304,9 @@ const char* ConfigFile::getInstallDirectory(void)
 		}
 
 	HMODULE handle = GetModuleHandle("firebird.dll");
-	char modulePathname[MAXPATHLEN];
-	int len = GetModuleFileName(handle, modulePathname, sizeof(modulePathname));
+	char modulePathname[MAXPATHLEN + 1];
+	int len = GetModuleFileName(handle, modulePathname, sizeof(modulePathname) - 1);
+	modulePathname[len] = 0;
 	
 	if (len > 0)
 		{

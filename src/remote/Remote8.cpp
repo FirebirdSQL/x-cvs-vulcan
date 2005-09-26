@@ -571,6 +571,7 @@ ISC_STATUS Remote8::authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandle,
 	return REM_authenticate_user(userStatus, (RDatabase**) dbHandle, dpbLength, dpb, itemsLength, items, bufferLength, buffer);
 }
 
+/***
 int Remote8::enableSubsystem (TEXT* subSystem)
 {
 	return false;
@@ -581,7 +582,7 @@ int Remote8::disableSubsystem (TEXT* subSystem)
 {
 	return false;
 }
-
+***/
 
 ISC_STATUS Remote8::databaseCleanup (ISC_STATUS* statusVector, 
 									 DbHandle *dbHandle, 
@@ -600,13 +601,3 @@ ISC_STATUS Remote8::transactionCleanup (ISC_STATUS* statusVector,
 	return entrypointUnavailable (statusVector);
 }
 
-
-
-ISC_STATUS Remote8::eventWait(ISC_STATUS* statusVector,
-							 DbHandle *dbHandle,
-							 int eventsLength,
-							 UCHAR* events, 
-							 UCHAR *buffer)
-{
-	return entrypointUnavailable (statusVector);
-}

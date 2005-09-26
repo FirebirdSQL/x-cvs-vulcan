@@ -1127,7 +1127,7 @@ int ISC_event_wait(
 	wait.wait_count = count;
 	wait.wait_events = events;
 	wait.wait_values = values;
-	gds__thread_wait(event_test, &wait);
+	THD_thread_wait(event_test, &wait);
 
 	return 0;
 }
@@ -2782,7 +2782,7 @@ int ISC_mutex_lock(MTX mutex)
 		for (;;) {
 			if (!lib$bbssi(&bit, mutex->mtx_event_count))
 				break;
-			gds__thread_wait(mutex_test, mutex);
+			THD_thread_wait(mutex_test, mutex);
 		}
 
 	--mutex->mtx_wait;

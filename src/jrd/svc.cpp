@@ -749,7 +749,7 @@ void SVC_detach(Service* service)
 		{
 #ifdef SUPERSERVER
 		int flShutdownComplete = 0;
-		gds__thread_start(shutdown_thread, &flShutdownComplete, THREAD_medium, 0, 0);
+		THD_start_thread(shutdown_thread, &flShutdownComplete, THREAD_medium, 0, 0);
 		THREAD_EXIT;
 		int timeout = 10;	// seconds
 		
@@ -1992,14 +1992,14 @@ void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
 			* particular service has reached a point in which it can start to return
 			* information to the client.  This will allow isc_service_start to
 			* include in its status vector information about the service's ability to
-			* start.  This is needed since gds__thread_start will almost always
+			* start.  This is needed since THD_start_thread will almost always
 			* succeed.
 			*/
 			
 			ISC_event_init(evnt_ptr, 0, 0);
 			count = ISC_event_clear(evnt_ptr);
 
-			gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>(serv->serv_thd), 
+			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>(serv->serv_thd), 
 							  service, THREAD_medium, 0,
 							( void*) &service->svc_handle);
 
@@ -2848,7 +2848,7 @@ static void service_fork(void (*service_executable) (), Service* service)
 	service->svc_stdout = new UCHAR[SVC_STDOUT_BUFFER_SIZE + 1];
 
 	THREAD_EXIT;
-	gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>(service_executable),
+	THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>(service_executable),
 						service, 0, 0, (void*)&service->svc_handle);
 	THREAD_ENTER;
 }

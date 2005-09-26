@@ -3064,7 +3064,7 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 				
 			threads->start ("", event_thread, port->port_async);
 			/***
-			gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>(event_thread),
+			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>(event_thread),
 							port->port_async, THREAD_high, THREAD_ast, 0);
 			***/
 #else

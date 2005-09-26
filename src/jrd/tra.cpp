@@ -2664,7 +2664,7 @@ static BOOLEAN start_sweeper(thread_db* tdbb, DBB dbb)
 	strcpy(database, pszFilename);
 	***/
 	
-	if (gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>(sweep_database),
+	if (THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>(sweep_database),
 							dbb,
 							THREAD_medium,
 							0,

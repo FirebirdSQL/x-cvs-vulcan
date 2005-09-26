@@ -946,7 +946,7 @@ void ISC_wait(SSHORT * iosb, SLONG event_flag)
 		return;
 	}
 
-	gds__thread_wait(wait_test, iosb);
+	THD_thread_wait(wait_test, iosb);
 }
 #endif
 

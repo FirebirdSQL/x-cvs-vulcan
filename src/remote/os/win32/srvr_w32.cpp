@@ -203,9 +203,11 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 		server_flag |= SRVR_non_service;
 #endif
 
+	/***
 	if (server_flag & SRVR_multi_client) 
 		gds__thread_enable(-1);
-
+	***/
+	
 	protocol_inet[0] = 0;
 	protocol_wnet[0] = 0;
 
@@ -299,15 +301,15 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 	else 
 		{
 		if (server_flag & SRVR_inet) 
-			gds__thread_start(inet_connect_wait_thread, 0, THREAD_medium, 0, 0);
+			THD_start_thread(inet_connect_wait_thread, 0, THREAD_medium, 0, 0);
 #ifdef WNET
 		if (server_flag & SRVR_wnet)
-			gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>
+			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
 							  (wnet_connect_wait_thread), 0, THREAD_medium, 0, 0);
 #endif
 #ifdef XNET
 		if (server_flag & SRVR_xnet)
-			gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>
+			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
 							  (xnet_connect_wait_thread), 0, THREAD_medium, 0, 0);
 #endif
 		/* No need to waste a thread if we are running as a window.  Just start
@@ -438,7 +440,7 @@ static void THREAD_ROUTINE wnet_connect_wait_thread( void *dummy)
 			break;
 			}
 			
-		gds__thread_start((FPTR_INT_VOID_PTR) process_connection_thread, port, THREAD_medium, 0, 0);
+		THD_start_thread((FPTR_INT_VOID_PTR) process_connection_thread, port, THREAD_medium, 0, 0);
 		}
 
 	if (!(server_flag & SRVR_non_service)) {
@@ -529,24 +531,24 @@ static void THREAD_ROUTINE start_connections_thread( int flag)
 	HANDLE ipc_thread_handle = 0;
 
 	if (server_flag & SRVR_inet) 
-		gds__thread_start(inet_connect_wait_thread, 0, THREAD_medium, 0, 0);
+		THD_start_thread(inet_connect_wait_thread, 0, THREAD_medium, 0, 0);
 		
 #ifdef WNET
 	if (server_flag & SRVR_wnet) 
-		gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>
+		THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
 						  (wnet_connect_wait_thread), 0, THREAD_medium, 0, 0);
 #endif
 
 #ifdef XNET
 	if (server_flag & SRVR_xnet) 
-		gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>
+		THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
 						  (xnet_connect_wait_thread), 0, THREAD_medium, 0, 0);
 #endif
 
 	if (server_flag & SRVR_ipc) 
 		{
 		const int bFailed =
-			gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>
+			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
 							  (ipc_connect_wait_thread),
 							  0,
 							  THREAD_medium,

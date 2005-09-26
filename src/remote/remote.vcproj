@@ -320,6 +320,9 @@
 				RelativePath="..\jrd\TempSpace.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\thd.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Thread.cpp">
 			</File>
 			<File

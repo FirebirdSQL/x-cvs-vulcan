@@ -400,7 +400,7 @@ void SRVR_multi_thread( PORT main_port, USHORT flags)
 				
 				if (extra_threads < 0) 
 					{
-					gds__thread_start(	reinterpret_cast<FPTR_INT_VOID_PTR>(thread),
+					THD_start_thread(	reinterpret_cast<FPTR_INT_VOID_PTR>(thread),
 										(void*)(long) flags,
 										THREAD_medium,
 										THREAD_ast,

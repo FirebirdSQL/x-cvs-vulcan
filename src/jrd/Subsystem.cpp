@@ -482,7 +482,7 @@ ISC_STATUS Subsystem::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, Tra
 	return entrypointUnavailable (userStatus);
 }
 
-
+/***
 int Subsystem::enableSubsystem (TEXT* subSystem)
 {
 	return false;
@@ -493,7 +493,7 @@ int Subsystem::disableSubsystem (TEXT* subSystem)
 {
 	return false;
 }
-
+***/
 
 ISC_STATUS Subsystem::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
@@ -523,15 +523,6 @@ ISC_STATUS Subsystem::seekBlob (ISC_STATUS* userStatus,
 }
 
 
-
-ISC_STATUS Subsystem::eventWait(ISC_STATUS* userStatus,
-							 DbHandle *dbHandle,
-							 int eventsLength,
-							 UCHAR* events, 
-							 UCHAR *buffer)
-{
-	return entrypointUnavailable (userStatus);
-}
 
 
 int Subsystem::shutdownConnections(int type, int milliseconds)

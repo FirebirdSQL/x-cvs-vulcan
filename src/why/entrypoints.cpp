@@ -33,6 +33,7 @@
 static Dispatch	*dispatch;
 static Mutex	mutex;
 
+
 static void initialize()
 {
 	mutex.lock();
@@ -54,6 +55,8 @@ JString truncateName(int fileLength, const TEXT *fileName)
 }
 
 extern "C" {
+
+ISC_STATUS API_ROUTINE isc_event_wait (ISC_STATUS *status, DbHandle* dbHandle, USHORT eventLength, const UCHAR *events, UCHAR *buffer);
 
 ISC_STATUS API_ROUTINE isc_create_database (ISC_STATUS* userStatus, 
 									   USHORT fileLength, 
@@ -1678,6 +1681,7 @@ ISC_STATUS API_ROUTINE gds__ddl(ISC_STATUS* userStatus,
 	return dispatch->executeDDL (userStatus, dbHandle, traHandle, ddlLength, ddl);
 	}
 
+/***
 int API_ROUTINE gds__thread_enable(int enable_flag)
 	{
 	return true;
@@ -1689,14 +1693,6 @@ void API_ROUTINE gds__thread_enter(void)
 
 void API_ROUTINE gds__thread_exit(void)
 	{
-	}
-
-/***
-int API_ROUTINE gds__thread_start(FPTR_INT_VOID_PTR entrypoint,
-								  void *arg,
-								  int priority, int flags, void *thd_id)
-	{
-	return 0;
 	}
 ***/
 
@@ -1721,6 +1717,7 @@ ISC_STATUS API_ROUTINE gds__transaction_cleanup(ISC_STATUS* userStatus,
 	return dispatch->transactionCleanup (userStatus, traHandle, routine, arg);
 	}
 
+/***
 int API_ROUTINE gds__disable_subsystem(TEXT * subsystem)
 	{
 	if (!dispatch)
@@ -1736,6 +1733,7 @@ int API_ROUTINE gds__enable_subsystem(TEXT * subsystem)
 		
 	return dispatch->enableSubsystem (subsystem);
 	}
+***/
 
 ISC_STATUS API_ROUTINE gds__seek_blob(ISC_STATUS* userStatus, 
 									 BlbHandle *blbHandle,
@@ -1755,10 +1753,7 @@ ISC_STATUS API_ROUTINE gds__event_wait(ISC_STATUS* userStatus,
 									   UCHAR* events, 
 									   UCHAR *buffer)
 	{
-	if (!dispatch)
-		initialize();
-		
-	return dispatch->eventWait (userStatus, dbHandle, eventsLength, events, buffer);
+	return isc_event_wait(userStatus, dbHandle, eventsLength, events, buffer);
 	}
 
 /***

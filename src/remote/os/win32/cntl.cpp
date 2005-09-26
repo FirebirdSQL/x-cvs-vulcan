@@ -159,7 +159,7 @@ void WINAPI CNTL_main_thread( DWORD argc, LPTSTR* argv)
 	if (report_status(SERVICE_START_PENDING, NO_ERROR, 1, 3000) &&
 		(stop_event_handle = CreateEvent(NULL, TRUE, FALSE, NULL)) != NULL &&
 		report_status(SERVICE_START_PENDING, NO_ERROR, 2, 3000) &&
-		!gds__thread_start(reinterpret_cast < FPTR_INT_VOID_PTR >
+		!THD_start_thread(reinterpret_cast < FPTR_INT_VOID_PTR >
 						   (main_handler), (void *) flag, 0, 0, 0)
 		&& report_status(SERVICE_RUNNING, NO_ERROR, 0, 0))
 	{
@@ -173,12 +173,13 @@ void WINAPI CNTL_main_thread( DWORD argc, LPTSTR* argv)
 
 	if (stop_event_handle)
 		CloseHandle(stop_event_handle);
-/* set the status with the timer, start the cleanup thread and wait for the
- * cleanup thread to exit or the timer to expire, once we reach the max number
- * of loops or the thread exits set the state to shutdown and exit */
-#pragma FB_COMPILER_MESSAGE("May we always use gds__thread_start?")
+		
+	/* set the status with the timer, start the cleanup thread and wait for the
+	 * cleanup thread to exit or the timer to expire, once we reach the max number
+	 * of loops or the thread exits set the state to shutdown and exit */
+	 
 #ifdef THREAD_PSCHED
-	gds__thread_start(cleanup_thread, NULL, THREAD_medium, 0, 
+	THD_start_thread(cleanup_thread, NULL, THREAD_medium, 0, 
 		&cleanup_thread_handle);
 #else
 	cleanup_thread_handle =
@@ -283,37 +284,41 @@ static void WINAPI control_thread( DWORD action)
  *	Process a service control request.
  *
  **************************************/
-	DWORD state;
+ 
+	DWORD state = SERVICE_RUNNING;
 
-	state = SERVICE_RUNNING;
+	switch (action) 
+		{
+		case SERVICE_CONTROL_STOP:
+			report_status(SERVICE_STOP_PENDING, NO_ERROR, 1, 3000);
+			
+			if (bGuarded == true)
+				ReleaseMutex(hMutex);
+				
+			SetEvent(stop_event_handle);
+			return;
 
-	switch (action) {
-	case SERVICE_CONTROL_STOP:
-		report_status(SERVICE_STOP_PENDING, NO_ERROR, 1, 3000);
-		if (bGuarded == true)
-			ReleaseMutex(hMutex);
-		SetEvent(stop_event_handle);
-		return;
-
-	case SERVICE_CONTROL_INTERROGATE:
-		break;
+		case SERVICE_CONTROL_INTERROGATE:
+			break;
 
 #if (defined SUPERCLIENT || defined SUPERSERVER)
-	case SERVICE_CREATE_GUARDIAN_MUTEX:
-		hMutex = OpenMutex(SYNCHRONIZE, FALSE, GUARDIAN_MUTEX);
-		if (hMutex) {
-			UINT error_mode = SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX |
-				SEM_NOOPENFILEERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT;
-			SetErrorMode(error_mode);
-			bGuarded = true;
-			WaitForSingleObject(hMutex, INFINITE);
-		}
-		break;
+		case SERVICE_CREATE_GUARDIAN_MUTEX:
+			hMutex = OpenMutex(SYNCHRONIZE, FALSE, GUARDIAN_MUTEX);
+			
+			if (hMutex) 
+				{
+				UINT error_mode = SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX |
+					SEM_NOOPENFILEERRORBOX | SEM_NOALIGNMENTFAULTEXCEPT;
+				SetErrorMode(error_mode);
+				bGuarded = true;
+				WaitForSingleObject(hMutex, INFINITE);
+				}
+			break;
 #endif
 
-	default:
-		break;
-	}
+		default:
+			break;
+		}
 
 	report_status(state, NO_ERROR, 0, 0);
 }
@@ -403,27 +408,28 @@ static void parse_switch(const TEXT * switches, int *flag)
 	TEXT c;
 
 	while (c = *switches++)
-		switch (UPPER(c)) {
-		case 'B':
-			*flag |= SRVR_high_priority;
-			break;
+		switch (UPPER(c)) 
+			{
+			case 'B':
+				*flag |= SRVR_high_priority;
+				break;
 
-		case 'I':
-			*flag |= SRVR_inet;
-			break;
+			case 'I':
+				*flag |= SRVR_inet;
+				break;
 
-		case 'R':
-			*flag &= ~SRVR_high_priority;
-			break;
+			case 'R':
+				*flag &= ~SRVR_high_priority;
+				break;
 
-		case 'W':
-			*flag |= SRVR_wnet;
-			break;
+			case 'W':
+				*flag |= SRVR_wnet;
+				break;
 
-		case 'X':
-			*flag |= SRVR_xnet;
-			break;
-		}
+			case 'X':
+				*flag |= SRVR_xnet;
+				break;
+			}
 
 #if (defined SUPERCLIENT || defined SUPERSERVER)
 	*flag |= SRVR_multi_client;

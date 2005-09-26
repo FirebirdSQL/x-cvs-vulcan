@@ -40,10 +40,10 @@ EXPORTS
     gds__describe=gds__describe @22
     gds__describe_bind=gds__describe_bind @23
     gds__detach_database=gds__detach_database @24
-    gds__disable_subsystem=gds__disable_subsystem @25
+    ;gds__disable_subsystem=gds__disable_subsystem @25
     gds__dsql_finish=gds__dsql_finish @26
     gds__edit=gds__edit @27
-    gds__enable_subsystem=gds__enable_subsystem @28
+    ;gds__enable_subsystem=gds__enable_subsystem @28
     gds__encode=gds__encode @29
     gds__encode_date=gds__encode_date @30
     gds__event_block=gds__event_block @31
@@ -91,10 +91,10 @@ EXPORTS
     gds__start_multiple=gds__start_multiple @73
     gds__start_request=gds__start_request @74
     gds__start_transaction=gds__start_transaction @75
-    gds__thread_enable=gds__thread_enable @76
-    gds__thread_enter=gds__thread_enter @77
-    gds__thread_exit=gds__thread_exit @78
-    gds__thread_start=gds__thread_start @79
+    ;gds__thread_enable=gds__thread_enable @76
+    ;gds__thread_enter=gds__thread_enter @77
+    ;gds__thread_exit=gds__thread_exit @78
+    ;gds__thread_start=gds__thread_start @79
     gds__to_sqlda=gds__to_sqlda @80
     gds__transaction_info=gds__transaction_info @81
     gds__unwind_request=gds__unwind_request @82

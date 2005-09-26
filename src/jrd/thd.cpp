@@ -116,7 +116,7 @@ static DWORD t_key;
 static Mutex	threadInitMutex;
 
 
-int API_ROUTINE gds__thread_start(
+int API_ROUTINE THD_start_thread(
 								  FPTR_INT_VOID_PTR entrypoint,
 								  void *arg,
 								  int priority, int flags, void *thd_id)
@@ -135,7 +135,7 @@ int API_ROUTINE gds__thread_start(
 	return thread_start(entrypoint, arg, priority, flags, thd_id);
 }
 
-int API_ROUTINE gds__thread_wait(void *thd_id)
+int API_ROUTINE THD_thread_wait(void *thd_id)
 {
 #ifdef WIN_NT
 	WaitForSingleObject(*(HANDLE*)thd_id, INFINITE );

@@ -223,485 +223,490 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 	err_att = att = NULL;
 	const SCHAR* q;
 
-	while (items < end_items && *items != isc_info_end) {
+	while (items < end_items && *items != isc_info_end) 
+		{
 		p = buffer;
-		switch ((item = *items++)) {
-		case isc_info_end:
-			break;
+		
+		switch ((item = *items++)) 
+			{
+			case isc_info_end:
+				break;
 
-		case isc_info_reads:
-			length = INF_convert(dbb->dbb_reads, buffer);
-			break;
+			case isc_info_reads:
+				length = INF_convert(dbb->dbb_reads, buffer);
+				break;
 
-		case isc_info_writes:
-			length = INF_convert(dbb->dbb_writes, buffer);
-			break;
+			case isc_info_writes:
+				length = INF_convert(dbb->dbb_writes, buffer);
+				break;
 
-		case isc_info_fetches:
-			length = INF_convert(dbb->dbb_fetches, buffer);
-			break;
+			case isc_info_fetches:
+				length = INF_convert(dbb->dbb_fetches, buffer);
+				break;
 
-		case isc_info_marks:
-			length = INF_convert(dbb->dbb_marks, buffer);
-			break;
+			case isc_info_marks:
+				length = INF_convert(dbb->dbb_marks, buffer);
+				break;
 
-		case isc_info_page_size:
-			length = INF_convert(dbb->dbb_page_size, buffer);
-			break;
+			case isc_info_page_size:
+				length = INF_convert(dbb->dbb_page_size, buffer);
+				break;
 
-		case isc_info_num_buffers:
-			length = INF_convert(dbb->pageCache->bcb_count, buffer);
-			break;
+			case isc_info_num_buffers:
+				length = INF_convert(dbb->pageCache->bcb_count, buffer);
+				break;
 
-		case isc_info_set_page_buffers:
-			length = INF_convert(dbb->dbb_page_buffers, buffer);
-			break;
+			case isc_info_set_page_buffers:
+				length = INF_convert(dbb->dbb_page_buffers, buffer);
+				break;
 
 #ifdef SUPERSERVER
-		case isc_info_current_memory:
-			length = INF_convert(dbb->dbb_current_memory, buffer);
-			break;
+			case isc_info_current_memory:
+				length = INF_convert(dbb->dbb_current_memory, buffer);
+				break;
 
-		case isc_info_max_memory:
-			length = INF_convert(dbb->dbb_max_memory, buffer);
-			break;
+			case isc_info_max_memory:
+				length = INF_convert(dbb->dbb_max_memory, buffer);
+				break;
 #else
-		case isc_info_current_memory:
-			//length = INF_convert(MemoryPool::process_current_memory, buffer);
-			length = INF_convert(getDefaultMemoryManager()->currentMemory, buffer);
-			break;
+			case isc_info_current_memory:
+				//length = INF_convert(MemoryPool::process_current_memory, buffer);
+				length = INF_convert(getDefaultMemoryManager()->currentMemory, buffer);
+				break;
 
-		case isc_info_max_memory:
-			//length = INF_convert(MemoryPool::process_max_memory, buffer);
-			length = INF_convert(getDefaultMemoryManager()->maxMemory, buffer);
-			break;
+			case isc_info_max_memory:
+				//length = INF_convert(MemoryPool::process_max_memory, buffer);
+				length = INF_convert(getDefaultMemoryManager()->maxMemory, buffer);
+				break;
 #endif
 
-		case isc_info_attachment_id:
-			length = INF_convert(PAG_attachment_id(tdbb), buffer);
-			break;
+			case isc_info_attachment_id:
+				length = INF_convert(PAG_attachment_id(tdbb), buffer);
+				break;
 
-		case isc_info_ods_version:
-			length = INF_convert(dbb->dbb_ods_version, buffer);
-			break;
+			case isc_info_ods_version:
+				length = INF_convert(dbb->dbb_ods_version, buffer);
+				break;
 
-		case isc_info_ods_minor_version:
-			length = INF_convert(dbb->dbb_minor_version, buffer);
-			break;
+			case isc_info_ods_minor_version:
+				length = INF_convert(dbb->dbb_minor_version, buffer);
+				break;
 
-		case isc_info_allocation:
-			CCH_FLUSH(tdbb, (USHORT) FLUSH_ALL, 0L);
-			length = INF_convert(PIO_max_alloc(dbb), buffer);
-			break;
+			case isc_info_allocation:
+				CCH_FLUSH(tdbb, (USHORT) FLUSH_ALL, 0L);
+				length = INF_convert(PIO_max_alloc(dbb), buffer);
+				break;
 
-		case isc_info_sweep_interval:
-			length = INF_convert(dbb->dbb_sweep_interval, buffer);
-			break;
+			case isc_info_sweep_interval:
+				length = INF_convert(dbb->dbb_sweep_interval, buffer);
+				break;
 
-		case isc_info_read_seq_count:
-			length =
-				get_counts(tdbb, DBB_read_seq_count,
-						   buffer,
-						   sizeof(buffer));
-			break;
+			case isc_info_read_seq_count:
+				length =
+					get_counts(tdbb, DBB_read_seq_count,
+							buffer,
+							sizeof(buffer));
+				break;
 
-		case isc_info_read_idx_count:
-			length =
-				get_counts(tdbb, DBB_read_idx_count, buffer, sizeof(buffer));
-			break;
+			case isc_info_read_idx_count:
+				length =
+					get_counts(tdbb, DBB_read_idx_count, buffer, sizeof(buffer));
+				break;
 
-		case isc_info_update_count:
-			length =
-				get_counts(tdbb, DBB_update_count, buffer, sizeof(buffer));
-			break;
+			case isc_info_update_count:
+				length =
+					get_counts(tdbb, DBB_update_count, buffer, sizeof(buffer));
+				break;
 
-		case isc_info_insert_count:
-			length =
-				get_counts(tdbb, DBB_insert_count, buffer, sizeof(buffer));
-			break;
+			case isc_info_insert_count:
+				length =
+					get_counts(tdbb, DBB_insert_count, buffer, sizeof(buffer));
+				break;
 
-		case isc_info_delete_count:
-			length =
-				get_counts(tdbb, DBB_delete_count, buffer, sizeof(buffer));
-			break;
+			case isc_info_delete_count:
+				length =
+					get_counts(tdbb, DBB_delete_count, buffer, sizeof(buffer));
+				break;
 
-		case isc_info_backout_count:
-			length =
-				get_counts(tdbb, DBB_backout_count, buffer, sizeof(buffer));
-			break;
+			case isc_info_backout_count:
+				length =
+					get_counts(tdbb, DBB_backout_count, buffer, sizeof(buffer));
+				break;
 
-		case isc_info_purge_count:
-			length =
-				get_counts(tdbb, DBB_purge_count, buffer, sizeof(buffer));
-			break;
+			case isc_info_purge_count:
+				length =
+					get_counts(tdbb, DBB_purge_count, buffer, sizeof(buffer));
+				break;
 
-		case isc_info_expunge_count:
-			length =
-				get_counts(tdbb, DBB_expunge_count,  buffer, sizeof(buffer));
-			break;
+			case isc_info_expunge_count:
+				length =
+					get_counts(tdbb, DBB_expunge_count,  buffer, sizeof(buffer));
+				break;
 
-		case isc_info_implementation:
-			STUFF(p, 1);		/* Count */
-			STUFF(p, IMPLEMENTATION);
-			STUFF(p, 1);		/* Class */
-			length = p - buffer;
-			break;
+			case isc_info_implementation:
+				STUFF(p, 1);		/* Count */
+				STUFF(p, IMPLEMENTATION);
+				STUFF(p, 1);		/* Class */
+				length = p - buffer;
+				break;
 
-		case isc_info_base_level:
-			/* info_base_level is used by the client to represent
-			 * what the server is capable of.  It is equivalent to the
-			 * ods version of a database.  For example,
-			 * ods_version represents what the database 'knows'
-			 * base_level represents what the server 'knows'
-			 */
-			STUFF(p, 1);		/* Count */
+			case isc_info_base_level:
+				/* info_base_level is used by the client to represent
+				* what the server is capable of.  It is equivalent to the
+				* ods version of a database.  For example,
+				* ods_version represents what the database 'knows'
+				* base_level represents what the server 'knows'
+				*/
+				STUFF(p, 1);		/* Count */
 #ifdef SCROLLABLE_CURSORS
-			UPDATE WITH VERSION OF SERVER SUPPORTING
-				SCROLLABLE CURSORS STUFF(p, 5);	/* base level of scrollable cursors */
+				UPDATE WITH VERSION OF SERVER SUPPORTING
+					SCROLLABLE CURSORS STUFF(p, 5);	/* base level of scrollable cursors */
 #else
-			/* IB_MAJOR_VER is defined as a character string */
-			STUFF(p, DBSERVER_BASE_LEVEL);	/* base level of current version */
+				/* IB_MAJOR_VER is defined as a character string */
+				STUFF(p, DBSERVER_BASE_LEVEL);	/* base level of current version */
 #endif
-			length = p - buffer;
-			break;
+				length = p - buffer;
+				break;
 
-		case isc_info_isc_version:
-			STUFF(p, 1);
-			STUFF(p, sizeof(ISC_VERSION) - 1);
-			for (q = ISC_VERSION; *q;)
-				STUFF(p, *q++);
-			length = p - buffer;
-			break;
+			case isc_info_isc_version:
+				STUFF(p, 1);
+				STUFF(p, sizeof(ISC_VERSION) - 1);
+				for (q = ISC_VERSION; *q;)
+					STUFF(p, *q++);
+				length = p - buffer;
+				break;
 
-		case isc_info_firebird_version:
-		    STUFF(p, 1);
-			STUFF(p, sizeof(FB_VERSION) - 1);
-			for (q = FB_VERSION; *q;)
-				STUFF(p, *q++);
-			length = p - buffer;
-			break;
+			case isc_info_firebird_version:
+				STUFF(p, 1);
+				STUFF(p, sizeof(FB_VERSION) - 1);
+				for (q = FB_VERSION; *q;)
+					STUFF(p, *q++);
+				length = p - buffer;
+				break;
 
-		case isc_info_db_id:
-			{
-			const char *string = tdbb->tdbb_attachment->att_filename;
-			STUFF(p, 2);
-			*p++ = l = (SSHORT) strlen (string);
-			
-			for (q = string; *q;)
-				*p++ = *q++;
-				
-			ISC_get_host(site, sizeof(site));
-			*p++ = l = (SSHORT) strlen(site);
-			
-			for (q = site; *q;)
-				*p++ = *q++;
-				
-			length = p - buffer;
-			}
-			break;
-
-		case isc_info_no_reserve:
-			*p++ = (dbb->dbb_flags & DBB_no_reserve) ? 1 : 0;
-			length = p - buffer;
-			break;
-
-		case isc_info_forced_writes:
-			if (!header_refreshed)
-			{
-				file = dbb->dbb_file;
-				PAG_header(tdbb, file->fil_string);
-				header_refreshed = TRUE;
-			}
-			*p++ = (dbb->dbb_flags & DBB_force_write) ? 1 : 0;
-			length = p - buffer;
-			break;
-
-		case isc_info_limbo:
-			if (!transaction)
-				transaction = TRA_start(tdbb, 0, NULL);
-			for (id = transaction->tra_oldest;
-				 id < transaction->tra_number; id++)
-				if (TRA_snapshot_state(tdbb, transaction, id) == tra_limbo &&
-					TRA_wait(tdbb, transaction, id, TRUE) == tra_limbo)
+			case isc_info_db_id:
 				{
-					length = INF_convert(id, buffer);
-					if (!
-						(info =
-						 INF_put_item(item, length, buffer, info, end)))
-					{
-						if (transaction)
-							TRA_commit(tdbb, transaction, false);
-						return FALSE;
-					}
-				}
-			continue;
-
-		case isc_info_active_transactions:
-			if (!transaction)
-				transaction = TRA_start(tdbb, 0, NULL);
-			for (id = transaction->tra_oldest_active;
-				 id < transaction->tra_number; id++)
-				if (TRA_snapshot_state(tdbb, transaction, id) == tra_active) {
-					length = INF_convert(id, buffer);
-					if (!
-						(info =
-						 INF_put_item(item, length, buffer, info, end)))
-					{
-						if (transaction)
-							TRA_commit(tdbb, transaction, false);
-						return FALSE;
-					}
-				}
-			continue;
-
-		case isc_info_user_names:
-			{
-#ifdef SHARED_CACHE
-			Sync sync (&dbb->syncAttachments, "INF_database_info");
-			sync.lock (Shared);
-#endif
-			for (att = dbb->dbb_attachments; att; att = att->att_next) 
-				{
-				if (att->att_flags & ATT_shutdown)
-					continue;
-                
-                user = att->att_user;
-				if (user) 
-					{
-					const char* user_name = (!user->usr_user_name.IsEmpty()) ?
-						(const char *)user->usr_user_name : "(SQL Server)";
-						
-					p = buffer;
-					*p++ = l = (SSHORT) strlen (user_name);
+				const char *string = tdbb->tdbb_attachment->att_filename;
+				STUFF(p, 2);
+				*p++ = l = (SSHORT) strlen (string);
+				
+				for (q = string; *q;)
+					*p++ = *q++;
 					
-					for (q = user_name; l; l--)
-						*p++ = *q++;
-						
-					length = p - buffer;
-                    info = INF_put_item(item, length, buffer, info, end);
-					if (!info) 
+				ISC_get_host(site, sizeof(site));
+				*p++ = l = (SSHORT) strlen(site);
+				
+				for (q = site; *q;)
+					*p++ = *q++;
+					
+				length = p - buffer;
+				}
+				break;
+
+			case isc_info_no_reserve:
+				*p++ = (dbb->dbb_flags & DBB_no_reserve) ? 1 : 0;
+				length = p - buffer;
+				break;
+
+			case isc_info_forced_writes:
+				if (!header_refreshed)
+				{
+					file = dbb->dbb_file;
+					PAG_header(tdbb, file->fil_string);
+					header_refreshed = TRUE;
+				}
+				*p++ = (dbb->dbb_flags & DBB_force_write) ? 1 : 0;
+				length = p - buffer;
+				break;
+
+			case isc_info_limbo:
+				if (!transaction)
+					transaction = TRA_start(tdbb, 0, NULL);
+				for (id = transaction->tra_oldest;
+					id < transaction->tra_number; id++)
+					if (TRA_snapshot_state(tdbb, transaction, id) == tra_limbo &&
+						TRA_wait(tdbb, transaction, id, TRUE) == tra_limbo)
+					{
+						length = INF_convert(id, buffer);
+						if (!
+							(info =
+							INF_put_item(item, length, buffer, info, end)))
 						{
-						if (transaction)
-							TRA_commit(tdbb, transaction, false);
-						return FALSE;
+							if (transaction)
+								TRA_commit(tdbb, transaction, false);
+							return FALSE;
+						}
+					}
+				continue;
+
+			case isc_info_active_transactions:
+				if (!transaction)
+					transaction = TRA_start(tdbb, 0, NULL);
+				for (id = transaction->tra_oldest_active;
+					id < transaction->tra_number; id++)
+					if (TRA_snapshot_state(tdbb, transaction, id) == tra_active) {
+						length = INF_convert(id, buffer);
+						if (!
+							(info =
+							INF_put_item(item, length, buffer, info, end)))
+						{
+							if (transaction)
+								TRA_commit(tdbb, transaction, false);
+							return FALSE;
+						}
+					}
+				continue;
+
+			case isc_info_user_names:
+				{
+#ifdef SHARED_CACHE
+				Sync sync (&dbb->syncAttachments, "INF_database_info");
+				sync.lock (Shared);
+#endif
+				for (att = dbb->dbb_attachments; att; att = att->att_next) 
+					{
+					if (att->att_flags & ATT_shutdown)
+						continue;
+	                
+					user = att->att_user;
+					if (user) 
+						{
+						const char* user_name = (!user->usr_user_name.IsEmpty()) ?
+							(const char *)user->usr_user_name : "(SQL Server)";
+							
+						p = buffer;
+						*p++ = l = (SSHORT) strlen (user_name);
+						
+						for (q = user_name; l; l--)
+							*p++ = *q++;
+							
+						length = p - buffer;
+						info = INF_put_item(item, length, buffer, info, end);
+						if (!info) 
+							{
+							if (transaction)
+								TRA_commit(tdbb, transaction, false);
+							return FALSE;
+							}
 						}
 					}
 				}
-			}
-			continue;
+				continue;
 
-		case isc_info_page_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val =
-					(*err_att->att_val_errors)[VAL_PAG_WRONG_TYPE]
-					+ (*err_att->att_val_errors)[VAL_PAG_CHECKSUM_ERR]
-					+ (*err_att->att_val_errors)[VAL_PAG_DOUBLE_ALLOC]
-					+ (*err_att->att_val_errors)[VAL_PAG_IN_USE]
-					+ (*err_att->att_val_errors)[VAL_PAG_ORPHAN];
-			}
-			else
-				err_val = 0;
+			case isc_info_page_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors)
+					{
+					err_val =
+						(*err_att->att_val_errors)[VAL_PAG_WRONG_TYPE]
+						+ (*err_att->att_val_errors)[VAL_PAG_CHECKSUM_ERR]
+						+ (*err_att->att_val_errors)[VAL_PAG_DOUBLE_ALLOC]
+						+ (*err_att->att_val_errors)[VAL_PAG_IN_USE]
+						+ (*err_att->att_val_errors)[VAL_PAG_ORPHAN];
+					}
+				else
+					err_val = 0;
 
-			length = INF_convert(err_val, buffer);
-			break;
+				length = INF_convert(err_val, buffer);
+				break;
 
-		case isc_info_bpage_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val =
-					(*err_att->att_val_errors)[VAL_BLOB_INCONSISTENT]
-					+ (*err_att->att_val_errors)[VAL_BLOB_CORRUPT]
-					+ (*err_att->att_val_errors)[VAL_BLOB_TRUNCATED];
-			}
-			else
-				err_val = 0;
+			case isc_info_bpage_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors)
+					 {
+					err_val =
+						(*err_att->att_val_errors)[VAL_BLOB_INCONSISTENT]
+						+ (*err_att->att_val_errors)[VAL_BLOB_CORRUPT]
+						+ (*err_att->att_val_errors)[VAL_BLOB_TRUNCATED];
+					}
+				else
+					err_val = 0;
 
-			length = INF_convert(err_val, buffer);
-			break;
+				length = INF_convert(err_val, buffer);
+				break;
 
-		case isc_info_record_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val =
-					(*err_att->att_val_errors)[VAL_REC_CHAIN_BROKEN]
-					+ (*err_att->att_val_errors)[VAL_REC_DAMAGED]
-					+ (*err_att->att_val_errors)[VAL_REC_BAD_TID]
-					+
-					(*err_att->att_val_errors)[VAL_REC_FRAGMENT_CORRUPT] +
-					(*err_att->att_val_errors)[VAL_REC_WRONG_LENGTH] +
-					(*err_att->att_val_errors)[VAL_REL_CHAIN_ORPHANS];
-			}
-			else
-				err_val = 0;
-
-			length = INF_convert(err_val, buffer);
-			break;
-
-		case isc_info_dpage_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val =
-					(*err_att->att_val_errors)[VAL_DATA_PAGE_CONFUSED]
-					+
-					(*err_att->att_val_errors)[VAL_DATA_PAGE_LINE_ERR];
-			}
-			else
-				err_val = 0;
-
-			length = INF_convert(err_val, buffer);
-			break;
-
-		case isc_info_ipage_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val =
-					(*err_att->att_val_errors)[VAL_INDEX_PAGE_CORRUPT]
-					+
-					(*err_att->att_val_errors)[VAL_INDEX_ROOT_MISSING] +
-					(*err_att->att_val_errors)[VAL_INDEX_MISSING_ROWS] +
-					(*err_att->att_val_errors)[VAL_INDEX_ORPHAN_CHILD];
-			}
-			else
-				err_val = 0;
-
-			length = INF_convert(err_val, buffer);
-			break;
-
-		case isc_info_ppage_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val = (*err_att->att_val_errors)[VAL_P_PAGE_LOST]
-					+
-					(*err_att->att_val_errors)[VAL_P_PAGE_INCONSISTENT];
-			}
-			else
-				err_val = 0;
-
-			length = INF_convert(err_val, buffer);
-			break;
-
-		case isc_info_tpage_errors:
-			err_att = tdbb->tdbb_attachment;
-			if (err_att->att_val_errors) {
-				err_val = (*err_att->att_val_errors)[VAL_TIP_LOST]
-					+ (*err_att->att_val_errors)[VAL_TIP_LOST_SEQUENCE]
-					+ (*err_att->att_val_errors)[VAL_TIP_CONFUSED];
-			}
-			else
-				err_val = 0;
-
-			length = INF_convert(err_val, buffer);
-			break;
-
-		case isc_info_db_sql_dialect:
-			/*
-			   **
-			   ** there are 3 types of databases:
-			   **
-			   **   1. a DB that is created before V6.0. This DB only speak SQL
-			   **        dialect 1 and 2.
-			   **
-			   **   2. a non ODS 10 DB is backed up/restored in IB V6.0. Since
-			   **        this DB contained some old SQL dialect, therefore it
-			   **        speaks SQL dialect 1, 2, and 3
-			   **
-			   **   3. a DB that is created in V6.0. This DB speak SQL
-			   **        dialect 1, 2 or 3 depending the DB was created
-			   **        under which SQL dialect.
-			   **
-			 */
-			if (ENCODE_ODS(dbb->dbb_ods_version, dbb->dbb_minor_original)
-				>= ODS_10_0)
-			{
-				if (dbb->dbb_flags & DBB_DB_SQL_dialect_3) {
-					/*
-					   ** DB created in IB V6.0 by client SQL dialect 3
-					 */
-					*p++ = SQL_DIALECT_V6;
+			case isc_info_record_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors) {
+					err_val =
+						(*err_att->att_val_errors)[VAL_REC_CHAIN_BROKEN]
+						+ (*err_att->att_val_errors)[VAL_REC_DAMAGED]
+						+ (*err_att->att_val_errors)[VAL_REC_BAD_TID]
+						+
+						(*err_att->att_val_errors)[VAL_REC_FRAGMENT_CORRUPT] +
+						(*err_att->att_val_errors)[VAL_REC_WRONG_LENGTH] +
+						(*err_att->att_val_errors)[VAL_REL_CHAIN_ORPHANS];
 				}
-				else {
-					/*
-					   ** old DB was gbaked in IB V6.0
-					 */
-					*p++ = SQL_DIALECT_V5;
+				else
+					err_val = 0;
+
+				length = INF_convert(err_val, buffer);
+				break;
+
+			case isc_info_dpage_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors) {
+					err_val =
+						(*err_att->att_val_errors)[VAL_DATA_PAGE_CONFUSED]
+						+
+						(*err_att->att_val_errors)[VAL_DATA_PAGE_LINE_ERR];
 				}
+				else
+					err_val = 0;
+
+				length = INF_convert(err_val, buffer);
+				break;
+
+			case isc_info_ipage_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors) {
+					err_val =
+						(*err_att->att_val_errors)[VAL_INDEX_PAGE_CORRUPT]
+						+
+						(*err_att->att_val_errors)[VAL_INDEX_ROOT_MISSING] +
+						(*err_att->att_val_errors)[VAL_INDEX_MISSING_ROWS] +
+						(*err_att->att_val_errors)[VAL_INDEX_ORPHAN_CHILD];
+				}
+				else
+					err_val = 0;
+
+				length = INF_convert(err_val, buffer);
+				break;
+
+			case isc_info_ppage_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors) {
+					err_val = (*err_att->att_val_errors)[VAL_P_PAGE_LOST]
+						+
+						(*err_att->att_val_errors)[VAL_P_PAGE_INCONSISTENT];
+				}
+				else
+					err_val = 0;
+
+				length = INF_convert(err_val, buffer);
+				break;
+
+			case isc_info_tpage_errors:
+				err_att = tdbb->tdbb_attachment;
+				if (err_att->att_val_errors) {
+					err_val = (*err_att->att_val_errors)[VAL_TIP_LOST]
+						+ (*err_att->att_val_errors)[VAL_TIP_LOST_SEQUENCE]
+						+ (*err_att->att_val_errors)[VAL_TIP_CONFUSED];
+				}
+				else
+					err_val = 0;
+
+				length = INF_convert(err_val, buffer);
+				break;
+
+			case isc_info_db_sql_dialect:
+				/*
+				**
+				** there are 3 types of databases:
+				**
+				**   1. a DB that is created before V6.0. This DB only speak SQL
+				**        dialect 1 and 2.
+				**
+				**   2. a non ODS 10 DB is backed up/restored in IB V6.0. Since
+				**        this DB contained some old SQL dialect, therefore it
+				**        speaks SQL dialect 1, 2, and 3
+				**
+				**   3. a DB that is created in V6.0. This DB speak SQL
+				**        dialect 1, 2 or 3 depending the DB was created
+				**        under which SQL dialect.
+				**
+				*/
+				if (ENCODE_ODS(dbb->dbb_ods_version, dbb->dbb_minor_original)
+					>= ODS_10_0)
+				{
+					if (dbb->dbb_flags & DBB_DB_SQL_dialect_3) {
+						/*
+						** DB created in IB V6.0 by client SQL dialect 3
+						*/
+						*p++ = SQL_DIALECT_V6;
+					}
+					else {
+						/*
+						** old DB was gbaked in IB V6.0
+						*/
+						*p++ = SQL_DIALECT_V5;
+					}
+				}
+				else
+					*p++ = SQL_DIALECT_V5;	/* pre ODS 10 DB */
+
+				length = p - buffer;
+				break;
+
+			case isc_info_db_read_only:
+				*p++ = (dbb->dbb_flags & DBB_read_only) ? 1 : 0;
+				length = p - buffer;
+
+				break;
+
+			case isc_info_db_size_in_pages:
+				CCH_FLUSH(tdbb, (USHORT) FLUSH_ALL, 0L);
+				length = INF_convert(PIO_act_alloc(dbb), buffer);
+				break;
+
+			case isc_info_oldest_transaction:
+				if (!header_refreshed)
+				{
+					file = dbb->dbb_file;
+					PAG_header(tdbb, file->fil_string);
+					header_refreshed = TRUE;
+				}
+				length = INF_convert(dbb->dbb_oldest_transaction, buffer);
+				break;
+
+			case isc_info_oldest_active:
+				if (!header_refreshed)
+				{
+					file = dbb->dbb_file;
+					PAG_header(tdbb, file->fil_string);
+					header_refreshed = TRUE;
+				}
+				length = INF_convert(dbb->dbb_oldest_active, buffer);
+				break;
+
+			case isc_info_oldest_snapshot:
+				if (!header_refreshed)
+				{
+					file = dbb->dbb_file;
+					PAG_header(tdbb, file->fil_string);
+					header_refreshed = TRUE;
+				}
+				length = INF_convert(dbb->dbb_oldest_snapshot, buffer);
+				break;
+
+			case isc_info_next_transaction:
+				if (!header_refreshed)
+				{
+					file = dbb->dbb_file;
+					PAG_header(tdbb, file->fil_string);
+					header_refreshed = TRUE;
+				}
+				length = INF_convert(dbb->dbb_next_transaction, buffer);
+				break;
+
+			case isc_info_db_provider:
+				length = INF_convert(isc_info_db_code_firebird, buffer);
+				break;
+
+			case isc_info_db_class:
+				length = INF_convert(FB_ARCHITECTURE, buffer);
+				break;
+
+			case frb_info_att_charset:
+				length = INF_convert(tdbb->tdbb_attachment->att_charset, buffer);
+				break;
+
+			default:
+				buffer[0] = item;
+				item = isc_info_error;
+				length = 1 + INF_convert(isc_infunk, buffer + 1);
+				break;
 			}
-			else
-				*p++ = SQL_DIALECT_V5;	/* pre ODS 10 DB */
-
-			length = p - buffer;
-			break;
-
-		case isc_info_db_read_only:
-			*p++ = (dbb->dbb_flags & DBB_read_only) ? 1 : 0;
-			length = p - buffer;
-
-			break;
-
-		case isc_info_db_size_in_pages:
-			CCH_FLUSH(tdbb, (USHORT) FLUSH_ALL, 0L);
-			length = INF_convert(PIO_act_alloc(dbb), buffer);
-			break;
-
-		case isc_info_oldest_transaction:
-			if (!header_refreshed)
-			{
-				file = dbb->dbb_file;
-				PAG_header(tdbb, file->fil_string);
-				header_refreshed = TRUE;
-			}
-			length = INF_convert(dbb->dbb_oldest_transaction, buffer);
-			break;
-
-		case isc_info_oldest_active:
-			if (!header_refreshed)
-			{
-				file = dbb->dbb_file;
-				PAG_header(tdbb, file->fil_string);
-				header_refreshed = TRUE;
-			}
-		    length = INF_convert(dbb->dbb_oldest_active, buffer);
-		    break;
-
-		case isc_info_oldest_snapshot:
-			if (!header_refreshed)
-			{
-				file = dbb->dbb_file;
-				PAG_header(tdbb, file->fil_string);
-				header_refreshed = TRUE;
-			}
-			length = INF_convert(dbb->dbb_oldest_snapshot, buffer);
-			break;
-
-		case isc_info_next_transaction:
-			if (!header_refreshed)
-			{
-				file = dbb->dbb_file;
-				PAG_header(tdbb, file->fil_string);
-				header_refreshed = TRUE;
-			}
-			length = INF_convert(dbb->dbb_next_transaction, buffer);
-			break;
-
-		case isc_info_db_provider:
-		    length = INF_convert(isc_info_db_code_firebird, buffer);
-			break;
-
-		case isc_info_db_class:
-		    length = INF_convert(FB_ARCHITECTURE, buffer);
-			break;
-
-		case frb_info_att_charset:
-			length = INF_convert(tdbb->tdbb_attachment->att_charset, buffer);
-			break;
-
-		default:
-			buffer[0] = item;
-			item = isc_info_error;
-			length = 1 + INF_convert(isc_infunk, buffer + 1);
-			break;
-		}
 		if (!(info = INF_put_item(item, length, buffer, info, end))) {
 			if (transaction)
 				TRA_commit(tdbb, transaction, false);
@@ -934,30 +939,33 @@ int INF_transaction_info(const Transaction* transaction,
  *	Process requests for blob info.
  *
  **************************************/
+
 	UCHAR item, buffer[128];
 	SSHORT length;
-
 	const UCHAR* const end_items = items + item_length;
 	const UCHAR* const end = info + output_length;
 
-	while (items < end_items && *items != isc_info_end) {
-		switch ((item = *items++)) {
-		case isc_info_end:
-			break;
+	while (items < end_items && *items != isc_info_end) 
+		{
+		switch ((item = *items++)) 
+			{
+			case isc_info_end:
+				break;
 
-		case isc_info_tra_id:
-			length = INF_convert(transaction->tra_number, buffer);
-			break;
+			case isc_info_tra_id:
+				length = INF_convert(transaction->tra_number, buffer);
+				break;
 
-		default:
-			buffer[0] = item;
-			item = isc_info_error;
-			length = 1 + INF_convert(isc_infunk, buffer + 1);
-			break;
-		}
+			default:
+				buffer[0] = item;
+				item = isc_info_error;
+				length = 1 + INF_convert(isc_infunk, buffer + 1);
+				break;
+			}
+			
 		if (!(info = INF_put_item(item, length, buffer, info, end)))
 			return FALSE;
-	}
+		}
 
 	*info++ = isc_info_end;
 

@@ -2576,7 +2576,7 @@ void XNET_srv(USHORT flag)
 					
 		if (xpm && port) {
 			// start the thread for this client
-			gds__thread_start(reinterpret_cast<FPTR_INT_VOID_PTR>(process_connection_thread),
+			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>(process_connection_thread),
 				              port, THREAD_medium, 0, 0);
 		}
 		else {

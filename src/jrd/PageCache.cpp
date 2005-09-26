@@ -198,7 +198,7 @@ void PageCache::initialize(thread_db *tdbb, int numberBuffers)
 	ISC_event_init(event, 0, 0);
 	count = ISC_event_clear(event);
 
-	if (gds__thread_start
+	if (THD_start_thread
 		(reinterpret_cast < FPTR_INT_VOID_PTR > (cache_reader), dbb,
 		 THREAD_high, 0, 0))
 		ERR_bugcheck_msg("cannot start thread");
@@ -213,7 +213,7 @@ void PageCache::initialize(thread_db *tdbb, int numberBuffers)
 		ISC_event_init(event, 0, 0);
 		count = ISC_event_clear(event);
 
-		if (gds__thread_start (FPTR_INT_VOID_PTR) cache_writer, dbb,THREAD_high, 0, 0)) 
+		if (THD_start_thread (FPTR_INT_VOID_PTR) cache_writer, dbb,THREAD_high, 0, 0)) 
 			ERR_bugcheck_msg("cannot start thread");
 
 		ISC_event_wait(1, &event, &count, 5 * 1000000, NULL, 0);

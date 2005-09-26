@@ -27,7 +27,7 @@
 #include <memory.h>
 #include "firebird.h"
 #include "common.h"
-#include "iberror.h"
+#include "../include/gen/iberror.h"
 #include "OSRIException.h"
 #include "Mutex.h"
 #include "Sync.h"

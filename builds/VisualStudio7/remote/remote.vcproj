@@ -327,6 +327,9 @@
 				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\thd.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Thread.cpp">
 			</File>
 			<File

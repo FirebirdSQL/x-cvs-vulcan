@@ -1655,7 +1655,6 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbH
 	trace ("dsqlExecuteImmediate2");
 	traceSql (sqlLength, sql);
 	StatusVector statusVector (userStatus, traceFlags);
-	
 	SubsysHandle *subsystem = getDatabase (dbHandle);
 
 	if (!subsystem)
@@ -1760,7 +1759,16 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 										 int msgType, int msgLength, UCHAR* msg)
 {
 	trace ("dsqlExecuteImmediate");
-	return entrypointUnavailable (userStatus);
+
+	return dsqlExecuteImmediate2 (
+				userStatus,
+				dbHandle,
+				traHandle,
+				sqlLength, sql, dialect,
+				blrLength, blr,					// inBlrLength, inBlr,
+				msgType, msgLength, msg,	// inMsgType, inMsgLength, inMsg,
+				0, NULL,						//outBlrLength, outBlr,
+				0, 0, NULL);					//outMsgType, outMsgLength, outMsg);
 }
 
 
@@ -1927,7 +1935,7 @@ ISC_STATUS Dispatch::serviceAttach(ISC_STATUS *userStatus,
 		return statusVector->getReturn();
 		}
 		
-	return entrypointUnavailable (userStatus);
+	return statusVector->getReturn();
 }
 
 
@@ -1996,7 +2004,7 @@ ISC_STATUS Dispatch::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraH
 	return statusVector.getReturn();
 }
 
-
+/***
 int Dispatch::enableSubsystem (TEXT* subSystem)
 {
 	trace ("enableSubsystem");
@@ -2009,7 +2017,7 @@ int Dispatch::disableSubsystem (TEXT* subSystem)
 	trace ("disableSubsystem");
 	return false;
 }
-
+***/
 
 ISC_STATUS Dispatch::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
@@ -2053,17 +2061,6 @@ ISC_STATUS Dispatch::seekBlob (ISC_STATUS* userStatus,
 	return statusVector.getReturn();
 }
 
-
-
-ISC_STATUS Dispatch::eventWait(ISC_STATUS* userStatus,
-							 DbHandle *dbHandle,
-							 int eventsLength,
-							 UCHAR* events, 
-							 UCHAR *buffer)
-{
-	trace ("eventWait");
-	return entrypointUnavailable (userStatus);
-}
 
 
 

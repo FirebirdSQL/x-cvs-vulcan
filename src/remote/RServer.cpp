@@ -857,7 +857,7 @@ void RServer::processRequest(ServerRequest* request, int flags)
 	
 	if (extraThreads < 0) 
 		{
-		gds__thread_start(	serverThread,
+		THD_start_thread(	serverThread,
 							this, //(void*)(long) flags,
 							THREAD_medium,
 							THREAD_ast,

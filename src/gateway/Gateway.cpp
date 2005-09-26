@@ -464,7 +464,7 @@ ISC_STATUS Gateway::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHa
 	return entrypointUnavailable (userStatus);
 }
 
-
+/***
 int Gateway::enableSubsystem (TEXT* subSystem)
 {
 	return false;
@@ -475,7 +475,7 @@ int Gateway::disableSubsystem (TEXT* subSystem)
 {
 	return false;
 }
-
+***/
 
 ISC_STATUS Gateway::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
@@ -506,12 +506,4 @@ ISC_STATUS Gateway::seekBlob (ISC_STATUS* userStatus,
 
 
 
-ISC_STATUS Gateway::eventWait(ISC_STATUS* userStatus,
-							 DbHandle *dbHandle,
-							 int eventsLength,
-							 UCHAR* events, 
-							 UCHAR *buffer)
-{
-	return entrypointUnavailable (userStatus);
-}
 

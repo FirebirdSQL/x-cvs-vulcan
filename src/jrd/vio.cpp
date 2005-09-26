@@ -1938,7 +1938,7 @@ void VIO_init(thread_db* tdbb)
 		ISC_event_init(gc_event_init, 0, 0);
 		count = ISC_event_clear(gc_event_init);
 
-		if (gds__thread_start
+		if (THD_start_thread
 			(reinterpret_cast < FPTR_INT_VOID_PTR > (garbage_collector), dbb,
 			THREAD_medium, 0, 0)) {
 			ERR_bugcheck_msg("cannot start thread");

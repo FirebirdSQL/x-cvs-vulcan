@@ -31,6 +31,7 @@
 #include <string.h>
 #include "firebird.h"
 #include "common.h"
+#include "ibase.h"
 #include "iberror.h"
 #include "YTransaction.h"
 #include "SubsysHandle.h"
@@ -201,6 +202,26 @@ ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, cons
 
 ISC_STATUS  YTransaction::transactionInfo(StatusVector& statusVector,int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
+	UCHAR *ptr = buffer;
+	UCHAR *end = buffer + bufferLength;
+	
+	for (int n = 0; n < numberDatabases; ++n)
+		{
+		TranDb *database = databases + n;
+		
+		if (database->subsystem->subsystem->transactionInfo (statusVector, &database->handle, itemsLength, items, end - ptr, ptr))
+			return statusVector.getCode();
+			
+		while (*ptr == isc_info_tra_id)
+			{
+			int len = ptr[1] + (ptr[2] << 8);
+			ptr += 3 + len;
+			}
+			
+		if (*ptr != isc_info_end)
+			return statusVector.getCode();
+		}
+		
 	return statusVector.getCode();		
 }
 

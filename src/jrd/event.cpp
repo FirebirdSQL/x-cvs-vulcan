@@ -787,7 +787,7 @@ static SLONG create_process(void)
 	RELEASE;
 
 #ifdef MULTI_THREAD
-	if (gds__thread_start
+	if (THD_start_thread
 		(reinterpret_cast < FPTR_INT_VOID_PTR > (watcher_thread), NULL,
 		 THREAD_medium, THREAD_blast, 0))
 		//ERR_bugcheck_msg("cannot start thread");

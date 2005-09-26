@@ -349,7 +349,7 @@ SLONG EVENT_que(ISC_STATUS * status_vector,
 
 	if (!thread_started) {
 		thread_started = TRUE;
-		gds__thread_start(delivery_thread, 0, THREAD_high, THREAD_ast);
+		THD_start_thread(delivery_thread, 0, THREAD_high, THREAD_ast);
 	}
 
 /* Cleanup any residual stuff */
@@ -709,7 +709,7 @@ static void delivery_thread(void)
 					deliver_request(request);
 					request->req_ast = NULL;
 				}
-		gds__thread_wait(delivery_wait, 0);
+		THD_thread_wait(delivery_wait, 0);
 	}
 }
 

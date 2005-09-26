@@ -148,8 +148,8 @@ public:
 									   int outMsgLength, 
 									   UCHAR* outMsg);
 	virtual ISC_STATUS executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl);
-	virtual int enableSubsystem (TEXT* subSystem);
-	virtual int disableSubsystem (TEXT* subSystem);
+	//virtual int enableSubsystem (TEXT* subSystem);
+	//virtual int disableSubsystem (TEXT* subSystem);
 	virtual ISC_STATUS databaseCleanup (ISC_STATUS* userStatus, 
 										 DbHandle *dbHandle, 
 										 DatabaseCleanupRoutine *routine, 
@@ -159,11 +159,6 @@ public:
 										   TransactionCleanupRoutine *routine, 
 										   SLONG arg);
 
-	virtual ISC_STATUS eventWait(ISC_STATUS* userStatus,
-								 DbHandle *dbHandle,
-								 int eventsLength,
-								 UCHAR* events, 
-								 UCHAR *buffer);
 	virtual ISC_STATUS updateAccountInfo(ISC_STATUS* userStatus, DbHandle* dbHandle, int apbLength, const UCHAR* apb);
 	virtual ISC_STATUS authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandle, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 };
