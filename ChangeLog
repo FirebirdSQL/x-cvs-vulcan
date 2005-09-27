@@ -1,3 +1,52 @@
+2005-09-27 00:09  jimstarkey
+
+	* vulcan/src/remote/: Remote8.cpp, Remote8.h, inter_proto.h,
+	interface.cpp:
+	
+	Finished up remote loose ends
+
+2005-09-26 23:37  jimstarkey
+
+	* vulcan/: builds/win32/defs/gds32.def, src/gateway/Gateway.cpp,
+	src/gateway/Gateway.h, src/jrd/Engine8.cpp, src/jrd/Engine8.h,
+	src/jrd/Subsystem.cpp, src/jrd/Subsystem.h, src/jrd/blb.cpp,
+	src/jrd/blb_proto.h, src/jrd/gds.cpp, src/jrd/gdsold.h,
+	src/jrd/jrd.cpp, src/jrd/jrd_proto.h, src/remote/Remote8.cpp,
+	src/remote/Remote8.h, src/remote/inter_proto.h,
+	src/remote/interface.cpp, src/why/Dispatch.cpp, src/why/Dispatch.h,
+	src/why/entrypoints.cpp:
+	
+	Cleaning up const consistence of provider calls.
+
+2005-09-26 22:25  awharrison
+
+	* vulcan/src/jrd/dfw.epp:
+	
+	handle partial expansion of procedures with more than one dependent
+	procedure
+
+2005-09-26 20:44  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/jrd/jrd.vcproj,
+	builds/VisualStudio7/remote/remote.vcproj,
+	builds/win32/defs/gds32.def, src/config/ConfigFile.cpp,
+	src/dsql/errd.cpp, src/gateway/Gateway.cpp, src/gateway/Gateway.h,
+	src/jrd/OSRIException.cpp, src/jrd/PageCache.cpp,
+	src/jrd/Subsystem.cpp, src/jrd/Subsystem.h, src/jrd/event.cpp,
+	src/jrd/inf.cpp, src/jrd/isc.cpp, src/jrd/isc_sync.cpp,
+	src/jrd/sch.cpp, src/jrd/sch_proto.h, src/jrd/svc.cpp,
+	src/jrd/thd.cpp, src/jrd/thd_proto.h, src/jrd/tra.cpp,
+	src/jrd/vio.cpp, src/jrd/vmsevent.cpp, src/lock/LockMgr.cpp,
+	src/lock/lock.cpp, src/remote/RServer.cpp, src/remote/Remote8.cpp,
+	src/remote/Remote8.h, src/remote/interface.cpp,
+	src/remote/remote.vcproj, src/remote/server.cpp,
+	src/remote/xnet.cpp, src/remote/os/win32/cntl.cpp,
+	src/remote/os/win32/srvr_w32.cpp, src/why/Dispatch.cpp,
+	src/why/Dispatch.h, src/why/YTransaction.cpp,
+	src/why/entrypoints.cpp:
+	
+	Numerous cleanups to external API.
+
 2005-09-25 22:44  jimstarkey
 
 	* vulcan/: builds/VisualStudio7/jrd/jrd.vcproj,
