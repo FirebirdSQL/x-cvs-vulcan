@@ -119,7 +119,7 @@ public:
 									int bufferLength, 
 									UCHAR *buffer);
 	//virtual ISC_STATUS dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda);
-	virtual ISC_STATUS dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg);
+	//virtual ISC_STATUS dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg);
 
 	virtual ISC_STATUS dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, UCHAR* msg);
 	//virtual ISC_STATUS dsqlExecuteImmediate2(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*, int, int, UCHAR *, int, int, UCHAR *, int, UCHAR*, int, int, UCHAR*);

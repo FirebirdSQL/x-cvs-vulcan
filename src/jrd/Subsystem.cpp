@@ -338,23 +338,23 @@ ISC_STATUS Subsystem::dsqlDescribeBind(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 }
 
 
+/***
 ISC_STATUS Subsystem::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	return entrypointUnavailable (userStatus);
 }
 
-
 ISC_STATUS Subsystem::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
 {
 	return entrypointUnavailable (userStatus);
 }
+***/
 
 
 ISC_STATUS Subsystem::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	return entrypointUnavailable (userStatus);
 }
-
 
 ISC_STATUS Subsystem::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, UCHAR* msg)
 {

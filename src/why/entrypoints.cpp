@@ -524,18 +524,26 @@ ISC_STATUS API_ROUTINE isc_dsql_describe_bind(ISC_STATUS* userStatus,
 
 ISC_STATUS API_ROUTINE isc_dsql_insert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, SSHORT dialect, XSQLDA *sqlda)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, dialect, sqlda);
+	***/
+	
+	return dispatch->entrypointUnavailable(userStatus);
 	}
 
 ISC_STATUS API_ROUTINE isc_dsql_insert_m(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, USHORT blrLength, UCHAR* blr, USHORT msgType, USHORT msgLength, UCHAR* msg)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, blrLength, blr, msgType, msgLength, msg);
+	***/
+	
+	return dispatch->entrypointUnavailable(userStatus);
 	}
 
 
@@ -1334,18 +1342,24 @@ ISC_STATUS API_ROUTINE gds__dsql_describe_bind(ISC_STATUS* userStatus,
 
 ISC_STATUS API_ROUTINE gds__dsql_insert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, SSHORT dialect, XSQLDA *sqlda)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, dialect, sqlda);
+	***/
+	return isc_dsql_insert(userStatus, dsqlHandle, dialect, sqlda);
 	}
 
 ISC_STATUS API_ROUTINE gds__dsql_insert_m(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, USHORT blrLength, UCHAR* blr, USHORT msgType, USHORT msgLength, UCHAR* msg)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, blrLength, blr, msgType, msgLength, msg);
+	***/
+	return isc_dsql_insert_m(userStatus, dsqlHandle, blrLength, blr, msgType, msgLength, msg);
 	}
 
 

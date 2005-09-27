@@ -461,11 +461,12 @@ ISC_STATUS Engine8::dsqlFreeStatement(ISC_STATUS *statusVector, DsqlHandle *dsql
 	return exitSystem (ret);
 }
 
+/***
 ISC_STATUS Engine8::dsqlInsert(ISC_STATUS *statusVector, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
 {
 	return entrypointUnavailable (statusVector);
 }
-
+***/
 
 ISC_STATUS Engine8::dsqlPrepare(ISC_STATUS *statusVector, 
 								TraHandle *traHandle, 

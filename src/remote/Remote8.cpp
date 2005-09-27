@@ -395,7 +395,7 @@ ISC_STATUS Remote8::dsqlDescribeBind(ISC_STATUS* statusVector, DsqlHandle *dsqlH
 	//return REM_describe_bind (statusVector, (RStatement**) dsqlHandle, dialect, sqlda);
 }
 
-
+/***
 ISC_STATUS Remote8::dsqlInsert(ISC_STATUS* statusVector, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	return entrypointUnavailable (statusVector);
@@ -406,7 +406,7 @@ ISC_STATUS Remote8::dsqlInsert(ISC_STATUS* statusVector, DsqlHandle *dsqlHandle,
 {
 	return entrypointUnavailable (statusVector);
 }
-
+***/
 
 ISC_STATUS Remote8::dsqlFetch(ISC_STATUS* statusVector, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {

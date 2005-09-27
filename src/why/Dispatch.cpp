@@ -1322,7 +1322,7 @@ ISC_STATUS Dispatch::dsqlDescribeBind(ISC_STATUS* userStatus, DsqlHandle *dsqlHa
 	return statusVector.getReturn();
 }
 
-
+/***
 ISC_STATUS Dispatch::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	trace ("dsqlInsert");
@@ -1335,7 +1335,7 @@ ISC_STATUS Dispatch::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, 
 	trace ("dsqlInsert");
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 
 ISC_STATUS Dispatch::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {

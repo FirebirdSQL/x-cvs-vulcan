@@ -320,7 +320,7 @@ ISC_STATUS Gateway::dsqlDescribeBind(ISC_STATUS* userStatus, DsqlHandle *dsqlHan
 	return entrypointUnavailable (userStatus);
 }
 
-
+/***
 ISC_STATUS Gateway::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	return entrypointUnavailable (userStatus);
@@ -331,7 +331,7 @@ ISC_STATUS Gateway::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, i
 {
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 
 ISC_STATUS Gateway::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
