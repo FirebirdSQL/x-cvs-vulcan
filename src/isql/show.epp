@@ -37,11 +37,12 @@
  */
 
 #include <stdio.h>
-#include "fbdev.h"
-#include "../jrd/license.h"
 #include <string.h>
+#include "fbdev.h"
+#include "ib_stdio.h"
+#include "../jrd/license.h"
 
-#include "../jrd/common.h"
+//#include "../jrd/common.h"
 #include "../jrd/gds.h"
 #include "../dsql/dsql.h"
 #include "../isql/isql.h"

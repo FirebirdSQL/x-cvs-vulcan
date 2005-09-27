@@ -2,8 +2,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <stdarg.h>
 #include "fbdev.h"
-#include "common.h"
+//#include "common.h"
 #include "DStatement.h"
 #include "dsql.h"
 #include "CStatement.h"
