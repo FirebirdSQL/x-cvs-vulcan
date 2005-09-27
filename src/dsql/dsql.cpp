@@ -59,7 +59,7 @@ nested FOR loops are added.
     THREAD_ENTER;               // First statement after FOR loop
 ***************************************************************/
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_exception.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>

@@ -24,7 +24,7 @@
 #include "../jrd/common.h"
 
 #ifdef VMS
-#include "firebird.h"
+#include "fbdev.h"
 #include <types.h>
 #include "times.h"
 #else

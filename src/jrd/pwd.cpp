@@ -23,7 +23,7 @@
  * 2003.02.02 Dmitry Yemanov: Implemented cached security database connection
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include <stdlib.h>
 //#include "../jrd/y_ref.h"

@@ -38,7 +38,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "Args.h"
 #include "ArgsException.h"
 

@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include <windows.h>
 #include <winsock2.h>

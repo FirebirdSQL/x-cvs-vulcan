@@ -43,7 +43,7 @@
 
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

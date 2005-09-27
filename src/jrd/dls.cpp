@@ -25,7 +25,7 @@
  * 26-Sept-2001 Paul Beach - External File Directory Config. Parameter
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 //#include <stdlib.h>
 #include "../jrd/sort.h"

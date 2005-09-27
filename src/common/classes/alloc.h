@@ -46,9 +46,9 @@
 #endif
 
 #include "../../include/fb_types.h"
-#include "../../include/firebird.h"
-#include "../jrd/common.h"
-#include "../jrd/ib_stdio.h"
+//#include "../../include/fbdev.h"
+//#include "../jrd/common.h"
+//#include "../jrd/ib_stdio.h"
 #include "tree.h"
 
 #ifdef HAVE_STDLIB_H

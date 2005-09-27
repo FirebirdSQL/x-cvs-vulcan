@@ -22,7 +22,7 @@
  */
 
 #define STRICT
-#include "firebird.h" 
+#include "fbdev.h" 
 #include <windows.h>
 #pragma hdrstop
 //#include "../jrd/ib_stdio.h"

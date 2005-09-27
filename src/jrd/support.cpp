@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "../jrd/gds_proto.h"

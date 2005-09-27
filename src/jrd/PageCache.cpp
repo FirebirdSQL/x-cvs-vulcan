@@ -24,7 +24,7 @@
 #define NEW_PAGE_CACHE
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "PageCache.h"
 #include "jrd.h"

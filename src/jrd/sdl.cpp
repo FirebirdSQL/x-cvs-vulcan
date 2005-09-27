@@ -23,7 +23,7 @@
 
 #include <string.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../jrd/ibase.h"
 #include "../jrd/dsc.h"

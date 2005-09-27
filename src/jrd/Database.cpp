@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "Database.h"
 #include "all.h"

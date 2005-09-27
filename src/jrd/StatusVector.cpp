@@ -31,7 +31,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "StatusVector.h"
 #include "StatusPrint.h"

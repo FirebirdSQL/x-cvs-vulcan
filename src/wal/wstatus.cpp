@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../wal/wal.h"
 #include "../wal/walc_proto.h"
 #include "../wal/wstat_proto.h"

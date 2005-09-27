@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Sync.h"
 #include "SynchronizationObject.h"

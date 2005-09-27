@@ -34,7 +34,7 @@
  * 2003.10.05 Dmitry Yemanov: Added support for explicit cursors in PSQL
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../jrd/common.h"

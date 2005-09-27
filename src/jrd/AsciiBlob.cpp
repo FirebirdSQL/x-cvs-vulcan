@@ -7,7 +7,7 @@
  */
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "AsciiBlob.h"
 #include "BinaryBlob.h"
 

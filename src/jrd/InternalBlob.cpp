@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "InternalBlob.h"
 #include "InternalResultSet.h"

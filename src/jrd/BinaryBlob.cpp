@@ -34,7 +34,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "BinaryBlob.h"
 
 #ifdef ENGINE

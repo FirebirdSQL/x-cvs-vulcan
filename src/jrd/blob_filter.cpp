@@ -31,7 +31,7 @@
  * Marco Romanini (27-January-1999) */
 // CVC: This file is really pure CPP now.
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include <stdio.h>
 

@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../jrd/dsc.h"
 #include "SubsysHandle.h"

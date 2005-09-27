@@ -28,7 +28,7 @@
 #if defined(MVS)
 #include <strings.h> // for strcasecmp
 #endif
-#include "firebird.h"
+#include "fbdev.h"
 #include "DirectoryList.h"
 #include "AdminException.h"
 

@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "../dsql/dsql_rel.h"
 #include "../jrd/ProcParam.h"

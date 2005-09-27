@@ -26,7 +26,7 @@
 
 #include <time.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "InternalConnection.h"
 #include "SQLError.h"

@@ -25,7 +25,7 @@
  */
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Stack.h"
 
 #ifdef _DEBUG

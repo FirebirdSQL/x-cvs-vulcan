@@ -20,7 +20,7 @@
  */
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "RRequest.h"

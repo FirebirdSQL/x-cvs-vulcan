@@ -39,7 +39,7 @@
 
 #include <time.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "Connection.h"
 #include "TimeStamp.h"

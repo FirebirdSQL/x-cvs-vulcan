@@ -26,7 +26,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <rpc/types.h>
 #include <sys/times.h>

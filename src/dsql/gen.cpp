@@ -34,7 +34,7 @@
 
 /* AB:Sync FB 1.79 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include <stdio.h>
 #include "../dsql/dsql.h"

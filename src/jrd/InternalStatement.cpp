@@ -31,7 +31,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 //#include "ibase.h"
 #include "InternalStatement.h"

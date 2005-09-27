@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "common.h"
 #include "RServer.h"

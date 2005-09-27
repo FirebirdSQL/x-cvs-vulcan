@@ -27,7 +27,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../alice/all.h"
 #include "../alice/alice.h"

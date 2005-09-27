@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Dispatch.h"
 #include "iberror.h"
@@ -51,7 +51,7 @@ JString truncateName(int fileLength, const TEXT *fileName)
 	while (p > fileName && p[-1] == ' ')
 		--p;
 		
-	return JString(fileName, fileName - p);
+	return JString(fileName, p - fileName);
 }
 
 extern "C" {

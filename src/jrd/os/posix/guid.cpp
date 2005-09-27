@@ -38,7 +38,7 @@
 
 #include "../jrd/os/guid.h"
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_exception.h"
 #include <unistd.h>
 #include <sys/types.h>

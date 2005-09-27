@@ -24,7 +24,7 @@
  */
 
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "OSRIMemException.h"
 #include "gen/iberror.h"
 

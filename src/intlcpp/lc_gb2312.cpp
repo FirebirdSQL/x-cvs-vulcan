@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../intlcpp/ldcommon.h"
 
 /* These macros have a duplicate in cv_gb2312.c */

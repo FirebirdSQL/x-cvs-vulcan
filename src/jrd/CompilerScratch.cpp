@@ -27,7 +27,7 @@
 // AB:Sync FB 1.236
 
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../jrd/ibase.h"
 #include "../jrd/jrd.h"

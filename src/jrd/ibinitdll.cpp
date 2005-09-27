@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <windows.h>
 #include "../utilities/registry.h"
 

@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalProcedureColumnsResultSet.h"
 #include "InternalSqlType.h"
 

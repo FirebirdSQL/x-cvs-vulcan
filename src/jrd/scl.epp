@@ -31,7 +31,7 @@
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include <string.h>
 #if defined(MVS)

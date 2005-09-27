@@ -32,7 +32,7 @@
 // TODO: reference additional headers your program requires here
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../../jrd/common.h"
 
 //#ifdef __cplusplus

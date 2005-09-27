@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Triggers.h"
 #include "Trigger.h"

@@ -33,7 +33,7 @@
  */
  
 #include <errno.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "RecordSource.h"
 #include "Request.h"
 #include "Relation.h"

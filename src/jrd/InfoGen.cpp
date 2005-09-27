@@ -4,7 +4,7 @@
 
 #include <memory.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InfoGen.h"
 #include "ibase.h"
 

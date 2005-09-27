@@ -16,7 +16,7 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  */
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include <windows.h>
 #include <stdio.h>

@@ -27,7 +27,7 @@
 
 #include <stdlib.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "InternalPreparedStatement.h"
 #include "SQLError.h"

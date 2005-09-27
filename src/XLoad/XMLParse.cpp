@@ -31,7 +31,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "XMLParse.h"
 #include "Element.h"
 #include "InputStream.h"

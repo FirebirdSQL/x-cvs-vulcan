@@ -51,7 +51,7 @@ nested FOR loops are added.
 ***************************************************************/
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/ib_stdio.h"
 #include "../dsql/all.h"

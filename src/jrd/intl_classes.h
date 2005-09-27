@@ -24,7 +24,7 @@
 #ifndef JRD_INTL_CLASSES_H
 #define JRD_INTL_CLASSES_H
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd.h"
 #include "../jrd/constants.h"
 #include "../jrd/intlobj.h"

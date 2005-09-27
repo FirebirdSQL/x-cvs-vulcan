@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "SymbolManager.h"
 #include "Sync.h"

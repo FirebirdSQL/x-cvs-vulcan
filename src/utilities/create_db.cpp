@@ -1,5 +1,5 @@
 
-#include "firebird.h"
+#include "fbdev.h"
 
 #include "../jrd/ibase.h"
 #include "../jrd/common.h"

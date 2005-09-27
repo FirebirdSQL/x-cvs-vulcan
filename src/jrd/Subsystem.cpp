@@ -24,7 +24,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Subsystem.h"
 #include "iberror.h"
 

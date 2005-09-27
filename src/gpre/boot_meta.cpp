@@ -36,7 +36,7 @@
  *	$Id$
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/gds.h"
 #include "../gpre/gpre.h"

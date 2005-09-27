@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>

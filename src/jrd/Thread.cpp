@@ -38,7 +38,7 @@
 #undef ASSERT
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Thread.h"
 #include "Threads.h"

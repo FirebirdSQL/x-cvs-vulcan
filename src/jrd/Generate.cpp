@@ -28,7 +28,7 @@
 
 #include <memory.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "Generate.h"
 
 #define ALLOCATION_DELTA	1024

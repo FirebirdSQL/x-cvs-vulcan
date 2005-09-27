@@ -20,7 +20,7 @@
  *  Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 
 //#include "../common/config/config.h"
 #include "../jrd/gds_proto.h"

@@ -27,7 +27,7 @@
 #ifndef JRD_BTN_H_
 #define JRD_BTN_H_
 
-//#include "firebird.h"			// needed for get_long
+//#include "fbdev.h"			// needed for get_long
 #include "memory_routines.h"	// needed for get_long
 
 //#include "../jrd/common.h"

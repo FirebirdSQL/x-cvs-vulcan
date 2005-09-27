@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <setjmp.h>
 #include <string.h>
 #include "../dudley/ddl.h"

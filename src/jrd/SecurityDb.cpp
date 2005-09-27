@@ -28,7 +28,7 @@
 #include <strings.h> // for strcasecmp
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "SecurityDb.h"
 #include "ConfObject.h"

@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 
 int (*_libfun_strcmp) () = 0;
 int (*_libfun_sprintf) () = 0;

@@ -37,7 +37,7 @@
 //#define ISC_TIME_SECONDS_PRECISION		10000L
 //#define ISC_TIME_SECONDS_PRECISION_SCALE	-4
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "ibase.h"
 #include "../jrd/ib_stdio.h"

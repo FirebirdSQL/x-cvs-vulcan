@@ -85,7 +85,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 
 #if defined _AIX || defined MVS

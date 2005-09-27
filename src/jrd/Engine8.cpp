@@ -25,7 +25,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "Engine8.h"
 #include "common.h"

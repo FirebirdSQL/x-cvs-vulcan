@@ -36,7 +36,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/Relation.h"

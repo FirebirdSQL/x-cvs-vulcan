@@ -36,7 +36,7 @@
  *
  */
 
-#include "../../include/firebird.h"
+#include "../../include/fbdev.h"
 #include "tree.h"
 #include "alloc.h"
 #include <stdio.h>

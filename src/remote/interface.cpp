@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "../jrd/ib_stdio.h"
 #include "../remote/remote.h"

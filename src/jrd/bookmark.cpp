@@ -22,7 +22,7 @@
  */
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd.h"
 #include "../jrd/exe.h"
 #include "../jrd/rse.h"

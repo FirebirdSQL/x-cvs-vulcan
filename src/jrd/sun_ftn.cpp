@@ -82,7 +82,7 @@
  * copyright (c) 1990, 1995 by Borland International
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include <stdarg.h>
 #include "../jrd/gds.h"

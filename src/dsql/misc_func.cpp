@@ -20,7 +20,7 @@
  *  Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../dsql/dsql.h"
 #include "../dsql/misc_func.h"
 

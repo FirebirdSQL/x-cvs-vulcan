@@ -24,7 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../gsec/call_service.h"
 #include "gdsassert.h"

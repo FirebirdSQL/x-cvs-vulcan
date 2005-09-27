@@ -20,7 +20,7 @@
  * Contributor(s): ______________________________________.
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../common/classes/alloc.h"
 #include "../jrd/Relation.h"

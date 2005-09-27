@@ -29,11 +29,12 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
+#include "ib_stdio.h"
 #include "../jrd/file_params.h"
 #include "../jrd/jrd.h"
 #include "../jrd/lck.h"

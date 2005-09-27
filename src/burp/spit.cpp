@@ -31,7 +31,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/common.h"
 

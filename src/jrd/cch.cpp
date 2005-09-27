@@ -26,7 +26,7 @@
  * 2002.10.29 Sean Leyne - Removed obsolete "Netware" port
  *
  */
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include <stdlib.h>

@@ -541,7 +541,7 @@ VI. ADDITIONAL NOTES
 
 // AB:Sync FB 1.6
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "memory_routines.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"

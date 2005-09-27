@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "PBGen.h"
 
 PBGen::PBGen(void)

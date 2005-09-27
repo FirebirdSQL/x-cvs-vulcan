@@ -1,7 +1,7 @@
 #include <memory.h>
 #include <string.h>
 #include <limits.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/constants.h"
 #include "common.h"
 #include "JrdMove.h"

@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Threads.h"
 #include "Thread.h"

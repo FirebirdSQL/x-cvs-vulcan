@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "XDump.h"
 #include "Connection.h"
 #include "Element.h"

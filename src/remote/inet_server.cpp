@@ -36,7 +36,7 @@ $Id$
 */
 
 #include <stdlib.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"
 #include "../jrd/isc_proto.h"

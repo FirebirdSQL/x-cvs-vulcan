@@ -36,7 +36,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "jrd.h"
 #include "ods.h"

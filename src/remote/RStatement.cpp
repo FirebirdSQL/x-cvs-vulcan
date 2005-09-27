@@ -19,7 +19,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "RStatement.h"
 #include "remote.h"

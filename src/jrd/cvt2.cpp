@@ -25,7 +25,7 @@
  * other datatypes by request from Ann Harrison.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/val.h"

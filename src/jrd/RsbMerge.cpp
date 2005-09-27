@@ -24,7 +24,7 @@
  */
  
 #include <errno.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "RsbMerge.h"
 #include "RsbSort.h"

@@ -25,7 +25,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ExecStatement.h"
 #include "../jrd/jrd.h"

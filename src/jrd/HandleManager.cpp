@@ -25,7 +25,7 @@
  */
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "HandleManager.h"
 #include "Sync.h"

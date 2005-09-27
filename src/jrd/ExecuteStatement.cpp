@@ -20,7 +20,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_types.h"
 #include "gen/iberror.h"
 

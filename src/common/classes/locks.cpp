@@ -24,7 +24,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "../../include/firebird.h"
+#include "../../include/fbdev.h"
 #include "../../common/classes/locks.h"
 
 namespace firebird {

@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 
 int DBG_supervisor(int arg)

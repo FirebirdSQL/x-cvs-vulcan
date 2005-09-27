@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 
 #define QLI_MAIN
 

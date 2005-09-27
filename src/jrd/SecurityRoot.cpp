@@ -22,7 +22,7 @@
  *  All Rights Reserved.
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "SecurityRoot.h"
 #include "Database.h"

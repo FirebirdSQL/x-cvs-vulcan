@@ -26,7 +26,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "JString.h"
 

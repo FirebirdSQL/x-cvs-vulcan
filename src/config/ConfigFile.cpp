@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ConfigFile.h"
 #include "ConfObject.h"
 #include "InputFile.h"

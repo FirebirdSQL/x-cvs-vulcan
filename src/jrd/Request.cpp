@@ -26,7 +26,7 @@
  */
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../common/classes/alloc.h"
 #include "Request.h"

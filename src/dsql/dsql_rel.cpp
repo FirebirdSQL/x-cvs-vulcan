@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "dsql_rel.h"
 #include "dsc.h"

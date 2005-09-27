@@ -29,7 +29,7 @@
  *    NULLs in outer joins.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../dsql/dsql.h"
 //#include "../jrd/y_ref.h"

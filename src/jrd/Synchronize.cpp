@@ -51,7 +51,7 @@
 #include <errno.h>
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Synchronize.h"
 //#include "Log.h"

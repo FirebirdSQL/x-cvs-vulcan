@@ -90,7 +90,7 @@
  * copyright (c) 1992, 1993 by Borland International
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/req.h"

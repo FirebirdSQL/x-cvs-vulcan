@@ -25,7 +25,7 @@
 
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../include/gen/iberror.h"
 #include "OSRIException.h"
@@ -81,6 +81,7 @@ OSRIException::OSRIException(va_list args, ISC_STATUS code)
 	type = osriException;
 	post (NULL, code, args);
 	printStatus();
+	va_end (args);
 }
 
 

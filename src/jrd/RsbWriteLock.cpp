@@ -22,7 +22,8 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
+#include "common.h"
 #include "ibase.h"
 #include "RsbWriteLock.h"
 #include "jrd.h"

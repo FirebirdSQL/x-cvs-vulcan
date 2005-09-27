@@ -38,7 +38,7 @@
 #undef TRACE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../jrd/err_proto.h"
 

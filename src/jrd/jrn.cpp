@@ -30,7 +30,7 @@
 #define ALIGN 1  /* prevents define of ALIGNMENT in socket.h */
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/common.h"
 #include <string.h>

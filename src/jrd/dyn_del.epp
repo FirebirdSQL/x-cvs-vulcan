@@ -26,7 +26,7 @@
  * 20-Jun-2001 Claudio Valderrama - Make available DYN_delete_generator.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdio.h>
 #include <string.h>
 

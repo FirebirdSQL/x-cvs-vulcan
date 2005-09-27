@@ -17,7 +17,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 
 

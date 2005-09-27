@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../jrd/jrd.h"
 //#include "../jrd/req.h"

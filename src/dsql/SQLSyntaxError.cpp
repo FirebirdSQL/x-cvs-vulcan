@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "SQLSyntaxError.h"
 
 SQLSyntaxError::SQLSyntaxError(void)

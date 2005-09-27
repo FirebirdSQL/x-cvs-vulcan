@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../intlcpp/ldcommon.h"
 #include "../intlcpp/cv_big5.h"
 

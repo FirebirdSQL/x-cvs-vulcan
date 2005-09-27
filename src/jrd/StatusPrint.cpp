@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "StatusPrint.h"
 #include "gds_proto.h"

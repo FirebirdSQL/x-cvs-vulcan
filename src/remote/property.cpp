@@ -28,7 +28,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <windows.h>
 #include <shellapi.h>
 #include <prsht.h>

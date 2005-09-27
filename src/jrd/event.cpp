@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Database.h"
 #include "../jrd/ib_stdio.h"

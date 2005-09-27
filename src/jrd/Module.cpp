@@ -20,7 +20,7 @@
  *  Contributor(s): James A. Starkey
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Module.h"
 #include "ExternalLibrary.h"

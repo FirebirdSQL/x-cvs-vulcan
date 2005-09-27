@@ -20,7 +20,7 @@
  *  Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 
 #include "../../common/config/config.h"
 #include "../../common/config/config_impl.h"

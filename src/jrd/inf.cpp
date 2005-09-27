@@ -35,7 +35,7 @@
  *      operation.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 //#include "../jrd/y_ref.h"

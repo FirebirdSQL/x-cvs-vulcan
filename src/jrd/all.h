@@ -43,7 +43,7 @@ void ALL_fini(void);
 void ALL_init(thread_db *tdbb);
 //void ALL_push(BLK , LLS *);
 //BLK ALL_pop(LLS *);
-void ALL_print_memory_pool_info(IB_FILE*, Database*);
+//void ALL_print_memory_pool_info(IB_FILE*, Database*);
 
 #ifdef DEV_BUILD
 void ALL_check_memory(void);

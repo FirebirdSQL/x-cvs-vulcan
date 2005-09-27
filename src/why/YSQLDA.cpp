@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 //#include "fb_types.h"
 #include "../dsql/sqlda.h"

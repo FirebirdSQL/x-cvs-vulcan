@@ -41,12 +41,13 @@
  * 2003.02.04 Dmitry Yemanov: support for universal triggers
  */
 
-#include "firebird.h"
-//#include "../jrd/ib_stdio.h"
 #include <string.h>
 #include <math.h>
 #include <ctype.h>				/* isdigit */
-#include "../jrd/common.h"
+#include <stdio.h>
+#include "fbdev.h"
+#include "../jrd/ib_stdio.h"
+//#include "../jrd/common.h"
 #include "../jrd/gds.h"
 #include "../dsql/dsql.h"
 #include "../isql/isql.h"

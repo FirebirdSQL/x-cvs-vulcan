@@ -1,5 +1,5 @@
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "common.h"
 #include "Remote8.h"

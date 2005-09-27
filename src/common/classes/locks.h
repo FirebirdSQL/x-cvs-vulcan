@@ -39,7 +39,7 @@
 #ifndef LOCKS_H
 #define LOCKS_H
 
-#include "firebird.h"
+//#include "fbdev.h"
 
 #ifdef MULTI_THREAD
 #ifdef WIN_NT

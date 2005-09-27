@@ -27,7 +27,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ib_stdio.h"
 #include <fcntl.h>

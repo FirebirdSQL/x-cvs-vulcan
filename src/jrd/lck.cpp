@@ -27,7 +27,7 @@
  */
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/jrd.h"
 #include "../jrd/lck.h"

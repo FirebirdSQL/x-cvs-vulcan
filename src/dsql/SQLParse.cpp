@@ -24,7 +24,7 @@
  */
  
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "SQLParse.h"
 #include "SQLSyntaxError.h"

@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "Stream.h"
 #include "StreamSegment.h"
 

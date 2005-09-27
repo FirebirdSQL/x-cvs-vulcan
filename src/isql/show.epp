@@ -37,7 +37,7 @@
  */
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/license.h"
 #include <string.h>
 

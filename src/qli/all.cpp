@@ -40,7 +40,7 @@ $Id$
    - THANK YOU
 ***************************************************/
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../qli/everything.h"
 #include "../qli/all_proto.h"

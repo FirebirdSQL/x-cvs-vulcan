@@ -22,7 +22,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Resource.h"
 #include "Relation.h"

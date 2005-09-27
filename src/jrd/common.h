@@ -56,7 +56,7 @@ $Id$
 #ifndef JRD_COMMON_H
 #define JRD_COMMON_H
 
-#include "firebird.h"
+//#include "fbdev.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>

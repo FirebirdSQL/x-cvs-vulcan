@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Config.h"
 #include "Configuration.h"

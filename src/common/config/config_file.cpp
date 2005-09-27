@@ -28,7 +28,7 @@
  *  Contributor(s):
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 
 #include "../../common/config/config_file.h"
 #include "../jrd/os/fbsyslog.h"

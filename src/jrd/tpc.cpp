@@ -23,7 +23,7 @@
 
 #include <memory>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd.h"
 #include "../jrd/tpc.h"
 #include "../jrd/ods.h"

@@ -27,7 +27,7 @@
 #ifndef GBAK_STD_DESC_H
 #define GBAK_STD_DESC_H
 
-#include "firebird.h"
+//#include "fbdev.h"
 
 #ifdef WIN_NT
 #include <windows.h> // HANDLE

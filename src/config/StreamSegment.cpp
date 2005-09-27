@@ -29,7 +29,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "StreamSegment.h"
 #include "Stream.h"
 

@@ -23,7 +23,7 @@
  * 2003.05.01 Victor Seryodkin, Dmitry Yemanov: Completed XNET implementation
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "../jrd/ib_stdio.h"
 #include "../remote/remote.h"

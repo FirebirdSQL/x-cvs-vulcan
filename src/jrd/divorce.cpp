@@ -52,7 +52,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../jrd/divorce.h"
 

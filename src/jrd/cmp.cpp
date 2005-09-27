@@ -40,7 +40,7 @@
 
 #include <string.h>
 #include <stdlib.h>				// abort
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 //#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"

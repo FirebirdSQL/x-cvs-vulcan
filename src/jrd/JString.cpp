@@ -26,7 +26,7 @@
  * copyright (c) 1997 - 2000 by James A. Starkey for IBPhoenix.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "MemMgr.h"
 #include <memory.h>

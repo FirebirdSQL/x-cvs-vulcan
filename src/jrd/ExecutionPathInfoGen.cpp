@@ -28,8 +28,8 @@
 
 #include <memory.h>
 #include <string.h>
+#include "fbdev.h"
 #include "ExecutionPathInfoGen.h"
-#include "firebird.h"
 #include "ibase.h"
 #include "jrd.h"
 #include "Relation.h"

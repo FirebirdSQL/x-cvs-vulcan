@@ -23,7 +23,7 @@
 
 #include <memory>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "TipCache.h"
 #include "../jrd/jrd.h"

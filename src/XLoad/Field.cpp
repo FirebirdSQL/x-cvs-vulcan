@@ -25,7 +25,7 @@
  *  Contributor(s): James A. Starkey
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Field.h"
 #include "Connection.h"
 

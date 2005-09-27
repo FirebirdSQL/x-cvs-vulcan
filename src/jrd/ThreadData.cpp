@@ -29,7 +29,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "jrd_proto.h"
 #include "inuse_proto.h"

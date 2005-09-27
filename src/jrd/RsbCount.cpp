@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "RsbCount.h"
 #include "jrd.h"
 #include "rse.h"

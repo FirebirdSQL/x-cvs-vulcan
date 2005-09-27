@@ -33,7 +33,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/jrd_time.h"

@@ -39,7 +39,7 @@
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <ctype.h>
 #include <string.h>
 #include "../dsql/dsql.h"

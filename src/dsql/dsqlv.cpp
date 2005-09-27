@@ -34,7 +34,7 @@
 /**************************************************************
 ***************************************************************/
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_exception.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>

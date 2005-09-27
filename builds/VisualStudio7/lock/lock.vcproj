@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../src/jrd;../../../src/config;../../../src/include;../../../src/include/gen;../../../src/common"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=lockprint"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=lockprint;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"

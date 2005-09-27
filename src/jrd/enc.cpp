@@ -4,7 +4,7 @@
  * 2002.10.30 Sean Leyne - Removed support for obsolete "PC_PLATFORM" define
  *
 */
-#include "firebird.h"
+#include "fbdev.h"
 
 #include "../jrd/common.h"
 #include "../jrd/enc_proto.h"

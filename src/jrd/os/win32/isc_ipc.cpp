@@ -41,7 +41,7 @@
 #include <windows.h>
 #include <process.h>
 #include <signal.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include "../jrd/common.h"

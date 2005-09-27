@@ -22,7 +22,7 @@
  */
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include ssdef
 #include descrip
 

@@ -60,7 +60,7 @@
  * 2003.08.10 Claudio Valderrama: Fix SF bug# 784121.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include <string.h>
 #include "../jrd/ibase.h"

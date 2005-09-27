@@ -23,7 +23,7 @@
  * Refactored July 25, 2005 by James A. Starkey
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "RsbNavigate.h"
 #include "jrd.h"

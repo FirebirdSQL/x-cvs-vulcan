@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalResultSetMetaData.h"
 #include "InternalResultSet.h"
 #include "SQLError.h"

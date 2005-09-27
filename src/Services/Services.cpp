@@ -26,7 +26,7 @@
 
 
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Services.h"
 #include "iberror.h"

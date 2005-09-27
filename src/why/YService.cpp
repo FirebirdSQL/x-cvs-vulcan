@@ -24,7 +24,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "YService.h"
 
 YService::YService(Subsystem *sys, SvcHandle orgHandle)

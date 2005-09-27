@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Gateway.h"
 #include "iberror.h"

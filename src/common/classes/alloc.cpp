@@ -41,7 +41,7 @@
 #define MEMMGR2
 #endif
 
-#include "../../include/firebird.h"
+#include "../../include/fbdev.h"
 #include "alloc.h"
 
 // Size in bytes, must be aligned according to ALLOC_ALIGNMENT

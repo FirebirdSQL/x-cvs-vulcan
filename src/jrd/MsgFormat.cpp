@@ -26,7 +26,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "MsgFormat.h"
 #include "gds_proto.h"

@@ -539,7 +539,7 @@ VI. ADDITIONAL NOTES
 
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "memory_routines.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"

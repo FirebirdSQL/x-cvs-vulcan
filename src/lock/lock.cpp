@@ -42,7 +42,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"

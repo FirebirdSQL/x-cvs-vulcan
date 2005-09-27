@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalResultSet.h"
 #include "InternalResultSetMetaData.h"
 #include "InternalStatement.h"

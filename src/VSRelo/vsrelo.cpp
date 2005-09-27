@@ -26,7 +26,7 @@
 #include <windows.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Args.h"
 #include "Relo.h"

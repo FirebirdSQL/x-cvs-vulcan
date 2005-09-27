@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Connect.h"
 
 Connect::Connect(void)

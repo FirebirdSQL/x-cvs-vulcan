@@ -23,7 +23,7 @@
 
 // AB:Sync FB 1.48
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "memory_routines.h"
 #include "../jrd/jrd.h"

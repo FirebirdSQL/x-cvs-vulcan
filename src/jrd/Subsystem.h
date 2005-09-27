@@ -31,7 +31,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "firebird.h"
+//#include "fbdev.h"
 #include "../dsql/sqlda.h"
 
 static const int interfaceVersion1	= 1;

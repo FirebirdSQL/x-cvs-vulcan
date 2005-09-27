@@ -40,7 +40,7 @@
 //
 //	$Id$
 //
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdio.h>
 #include <string.h>
 #include "../gpre/gpre.h"

@@ -25,7 +25,7 @@
  *                            to be stored (DB$xxx, for example)
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/jrd.h"

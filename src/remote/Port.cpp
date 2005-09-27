@@ -28,7 +28,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>

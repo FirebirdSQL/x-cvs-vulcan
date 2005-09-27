@@ -28,7 +28,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../gpre/gpre.h"

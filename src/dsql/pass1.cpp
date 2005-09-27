@@ -139,7 +139,7 @@
 
 #include <string.h>
 #include <memory>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/ibase.h"
 #include "../dsql/dsql.h"

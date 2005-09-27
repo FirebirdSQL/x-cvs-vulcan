@@ -43,7 +43,7 @@
 /*
 $Id$
 */
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "../jrd/ib_stdio.h"
 #ifdef HAVE_SYS_TYPES_H

@@ -48,7 +48,7 @@ $Id$
 
 #include <string.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 //#include "../common/config/config.h"
 //#include "../common/config/dir_list.h"

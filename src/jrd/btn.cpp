@@ -26,7 +26,7 @@
 
 // AB:Sync FB 1.19
 
-#include "firebird.h"			// needed for get_long
+#include "fbdev.h"			// needed for get_long
 #include "memory_routines.h"	// needed for get_long
 
 #include "../jrd/common.h"		// needed for SINT64

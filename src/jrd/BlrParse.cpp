@@ -24,7 +24,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "BlrParse.h"
 #include "dsc.h"

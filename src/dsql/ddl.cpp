@@ -68,7 +68,7 @@
 
 /* AB:Sync FB 1.132 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../dsql/dsql.h"

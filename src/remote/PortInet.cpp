@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "remote.h"

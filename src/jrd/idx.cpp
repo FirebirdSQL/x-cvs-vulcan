@@ -31,7 +31,7 @@
 
 // AB:Sync FB 1.88
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/Relation.h"

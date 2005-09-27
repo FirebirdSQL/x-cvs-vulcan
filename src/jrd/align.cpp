@@ -20,7 +20,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ibsetjmp.h"
 #include <signal.h>
 #include "../jrd/ib_stdio.h"

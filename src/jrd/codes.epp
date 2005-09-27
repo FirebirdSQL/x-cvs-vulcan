@@ -22,7 +22,7 @@
  *                 Mark O'Donohue skywalker@users.sourceforge.net
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H

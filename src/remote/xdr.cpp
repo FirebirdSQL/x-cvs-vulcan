@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include <string.h>
 #include "../remote/protocol.h"

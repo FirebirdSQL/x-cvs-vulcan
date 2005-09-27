@@ -23,7 +23,7 @@
  * Refactored July 11, 2005 by James A. Starkey
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "RsbCross.h"
 #include "jrd.h"

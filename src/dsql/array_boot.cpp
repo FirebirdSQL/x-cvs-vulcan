@@ -38,7 +38,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/common.h"
 #include <stdarg.h>

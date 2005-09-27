@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "SQLError.h"
 #include "Stream.h"
 

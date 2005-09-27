@@ -24,7 +24,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Configuration.h"
 #include "ConfigFile.h"
 

@@ -42,7 +42,7 @@ $Id$
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include <stdlib.h>

@@ -26,7 +26,7 @@
 
 // AB:Sync FB 1.142
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>

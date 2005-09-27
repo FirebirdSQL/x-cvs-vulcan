@@ -22,7 +22,7 @@
  */
 #ifdef PYXIS
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../qli/dtr.h"
 #include "../qli/exe.h"
 #include "../qli/form.h"

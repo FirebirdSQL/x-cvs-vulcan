@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/os/thd_priority.h"
 //#include "../common/config/config.h"
 #include "Configuration.h"

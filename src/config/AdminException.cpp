@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include "AdminException.h"
