@@ -107,14 +107,14 @@ Procedure::~Procedure()
 }
 
 //
-//  Add and output parameter
+//  Add an output parameter
 //
 
 void Procedure::setOutputParameter (ProcParam *parameter)
 {
 	ProcParam **ptr;
-	
-	for (ptr = &procOutputParams; *ptr && (*ptr)->paramId < parameter->paramId; ptr = &(*ptr)->paramNext)
+
+	for (ptr = &procOutputParams; *ptr; ptr = &(*ptr)->paramNext)
 		;
 	
 	*ptr = parameter;	
@@ -128,7 +128,7 @@ void Procedure::setInputParameter (ProcParam *parameter)
 {
 	ProcParam **ptr;
 	
-	for (ptr = &procInputParams; *ptr && (*ptr)->paramId < parameter->paramId; ptr = &(*ptr)->paramNext)
+	for (ptr = &procInputParams; *ptr; ptr = &(*ptr)->paramNext)
 		;
 	
 	*ptr = parameter;	
