@@ -3,8 +3,8 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version WI-V2.0.0.4027 Vulcan 1.0 Development **********************/
-#line 1 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+#line 1 "backup.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
  *	MODULE:		backup.epp
@@ -47,7 +47,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <memory.h>
 #include <string.h>
@@ -3437,7 +3437,7 @@ static const char
 
 /**** end of GPRE definitions ****/
 
-#line 67 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 67 "backup.epp"
 
 #define DB			tdgbl->db_handle
 #define gds_trans	tdgbl->tr_handle
@@ -3619,7 +3619,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
           char  isc_615 [32];	/* RDB$SECURITY_CLASS */
           short isc_616;	/* isc_utility */
    } isc_612;
-#line 242 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 242 "backup.epp"
 /**************************************
  *
  *	B A C K U P _ b a c k u p
@@ -3663,14 +3663,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_0);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 281 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 281 "backup.epp"
 		if (isc_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
 			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 283 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 283 "backup.epp"
 	}
 
 	if (!gds_trans)
@@ -3680,14 +3680,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_2);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
-#line 288 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 288 "backup.epp"
 		if (isc_status[1])
 			/*EXEC SQL SET TRANSACTION NAME gds_trans;*/
 			{
 			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
-#line 290 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 290 "backup.epp"
 	}
 
 
@@ -3838,37 +3838,37 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 50, &isc_612, (short) 0);
 		   if (!isc_612.isc_616 || isc_status [1]) break;
-#line 430 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 430 "backup.epp"
 			put(tdgbl, rec_security_class);
 			const ULONG l = PUT_TEXT (att_class_security_class, /*X.RDB$SECURITY_CLASS*/
 									    isc_612.isc_615);
-#line 432 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 432 "backup.epp"
 			MISC_terminate (/*X.RDB$SECURITY_CLASS*/
 					isc_612.isc_615, temp, l, sizeof(temp));
-#line 433 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 433 "backup.epp"
 			BURP_verbose (155, temp);
 			// msg 155 writing security class %s 
 			put_blr_blob (att_class_acl, (ISC_QUAD *)&/*X.RDB$ACL*/
 								  isc_612.isc_614);
-#line 436 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 436 "backup.epp"
 			put_source_blob (att_class_description2, att_class_description,
 							 (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 								      isc_612.isc_613);
-#line 438 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 438 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 440 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 440 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 441 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 441 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 443 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 443 "backup.epp"
 
 		MISC_release_request_silent(req_handle1);
 	}
@@ -3923,46 +3923,46 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	/*COMMIT;*/
 	{
 	isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
-#line 495 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 495 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 496 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 496 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 498 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 498 "backup.epp"
 
 	if (gds_trans)
 		/*COMMIT gds_trans;*/
 		{
 		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
-#line 501 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 501 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 502 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 502 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 504 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 504 "backup.epp"
 
 	/*FINISH*/
 	{
 	if (DB)
 	   isc_detach_database (isc_status, &DB);;
-#line 506 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 506 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 507 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 507 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 509 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 509 "backup.epp"
 
 	return FINI_OK;
 }
@@ -4608,7 +4608,7 @@ namespace // unnamed, private
    struct {
           char  isc_574 [32];	/* RDB$RELATION_NAME */
    } isc_573;
-#line 515 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 515 "backup.epp"
 
 void compress(const UCHAR* data, ULONG length)
 {
@@ -4757,94 +4757,94 @@ BURP_FLD get_fields( BURP_REL relation)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 404, &isc_575, (short) 0);
 		   if (!isc_575.isc_587 || isc_status [1]) break;
-#line 652 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 652 "backup.epp"
 	
 			field = (BURP_FLD) BURP_alloc_zero(sizeof(burp_fld));
 			field->fld_number = count++;
 			field->fld_type = /*Y.RDB$FIELD_TYPE*/
 					  isc_575.isc_610;
-#line 656 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 656 "backup.epp"
 			field->fld_sub_type = /*Y.RDB$FIELD_SUB_TYPE*/
 					      isc_575.isc_609;
-#line 657 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 657 "backup.epp"
 			field->fld_length = /*Y.RDB$FIELD_LENGTH*/
 					    isc_575.isc_608;
-#line 658 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 658 "backup.epp"
 			field->fld_scale = /*Y.RDB$FIELD_SCALE*/
 					   isc_575.isc_607;
-#line 659 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 659 "backup.epp"
 			field->fld_id = /*X.RDB$FIELD_ID*/
 					isc_575.isc_606;
-#line 660 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 660 "backup.epp"
 	
 			if (!/*X.RDB$DESCRIPTION.NULL*/
 			     isc_575.isc_605)
-#line 662 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 662 "backup.epp"
 			{
 				blob_id = &/*X.RDB$DESCRIPTION*/
 					   isc_575.isc_586;
-#line 664 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 664 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_description = /*X.RDB$DESCRIPTION*/
 								 isc_575.isc_586;
-#line 666 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 666 "backup.epp"
 			}
 	
 			if (!/*X.RDB$QUERY_HEADER.NULL*/
 			     isc_575.isc_604)
-#line 669 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 669 "backup.epp"
 			{
 				blob_id = &/*X.RDB$QUERY_HEADER*/
 					   isc_575.isc_585;
-#line 671 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 671 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_query_header = /*X.RDB$QUERY_HEADER*/
 								  isc_575.isc_585;
-#line 673 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 673 "backup.epp"
 			}
 
 			if (/*X.RDB$FIELD_POSITION.NULL*/
 			    isc_575.isc_602)
-#line 676 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 676 "backup.epp"
 				field->fld_flags |= FLD_position_missing;
 			else
 				field->fld_position = /*X.RDB$FIELD_POSITION*/
 						      isc_575.isc_603;
-#line 679 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 679 "backup.epp"
 			field->fld_view_context = /*X.RDB$VIEW_CONTEXT*/
 						  isc_575.isc_601;
-#line 680 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 680 "backup.epp"
 			if (/*X.RDB$UPDATE_FLAG.NULL*/
 			    isc_575.isc_599)
-#line 681 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 681 "backup.epp"
 				field->fld_flags |= FLD_update_missing;
 			else
 				field->fld_update_flag = /*X.RDB$UPDATE_FLAG*/
 							 isc_575.isc_600;
-#line 684 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 684 "backup.epp"
 
 			COPY (/*X.RDB$FIELD_NAME*/
 			      isc_575.isc_584, field->fld_name);
-#line 686 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 686 "backup.epp"
 			COPY (/*X.RDB$FIELD_SOURCE*/
 			      isc_575.isc_583, field->fld_source);
-#line 687 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 687 "backup.epp"
 			COPY (/*X.RDB$BASE_FIELD*/
 			      isc_575.isc_582, field->fld_base);
-#line 688 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 688 "backup.epp"
 			COPY (/*X.RDB$QUERY_NAME*/
 			      isc_575.isc_581, field->fld_query_name);
-#line 689 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 689 "backup.epp"
 			COPY (/*X.RDB$EDIT_STRING*/
 			      isc_575.isc_598, field->fld_edit_string);
-#line 690 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 690 "backup.epp"
 			COPY (/*X.RDB$COMPLEX_NAME*/
 			      isc_575.isc_580, field->fld_complex_name);
-#line 691 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 691 "backup.epp"
 
 			blob_id = &/*Y.RDB$COMPUTED_BLR*/
 				   isc_575.isc_579;
-#line 693 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 693 "backup.epp"
 
 			if (blob_id->gds_quad_low || blob_id->gds_quad_high) {
 				field->fld_flags |= FLD_computed;
@@ -4852,22 +4852,22 @@ BURP_FLD get_fields( BURP_REL relation)
 
 			field->fld_system_flag = /*X.RDB$SYSTEM_FLAG*/
 						 isc_575.isc_597;
-#line 699 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 699 "backup.epp"
 
 			COPY (/*X.RDB$SECURITY_CLASS*/
 			      isc_575.isc_578, field->fld_security_class);
-#line 701 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 701 "backup.epp"
 
 			// use the fld_flags to mark the field as an array and
 			// to differentiate it from other blobs
 
 			if (/*Y.RDB$DIMENSIONS*/
 			    isc_575.isc_596) {
-#line 706 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 706 "backup.epp"
 				field->fld_flags |= FLD_array;
 				field->fld_dimensions = /*Y.RDB$DIMENSIONS*/
 							isc_575.isc_596;
-#line 708 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 708 "backup.epp"
 				if (field->fld_dimensions < 0) {
 					BURP_error_redirect (NULL, 52, field->fld_name, NULL);
 				}
@@ -4877,54 +4877,54 @@ BURP_FLD get_fields( BURP_REL relation)
 
 			if (!/*X.RDB$NULL_FLAG.NULL*/
 			     isc_575.isc_594) {
-#line 716 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 716 "backup.epp"
 				field->fld_null_flag = /*X.RDB$NULL_FLAG*/
 						       isc_575.isc_595;
-#line 717 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 717 "backup.epp"
 				field->fld_flags |= FLD_null_flag;
 			}
 
 			if (!/*X.RDB$DEFAULT_VALUE.NULL*/
 			     isc_575.isc_593) {
-#line 721 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 721 "backup.epp"
 				blob_id = &/*X.RDB$DEFAULT_VALUE*/
 					   isc_575.isc_577;
-#line 722 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 722 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high) {
 					field->fld_default_value = /*X.RDB$DEFAULT_VALUE*/
 								   isc_575.isc_577;
-#line 724 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 724 "backup.epp"
 				}
 			}
 
 			if (!/*X.RDB$DEFAULT_SOURCE.NULL*/
 			     isc_575.isc_592) {
-#line 728 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 728 "backup.epp"
 				blob_id = &/*X.RDB$DEFAULT_SOURCE*/
 					   isc_575.isc_576;
-#line 729 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 729 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high) {
 					field->fld_default_source = /*X.RDB$DEFAULT_SOURCE*/
 								    isc_575.isc_576;
-#line 731 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 731 "backup.epp"
 				}
 			}
 
 			if (!(/*Y.RDB$CHARACTER_SET_ID.NULL*/
 			      isc_575.isc_590)) {
-#line 735 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 735 "backup.epp"
 				field->fld_character_set_id = /*Y.RDB$CHARACTER_SET_ID*/
 							      isc_575.isc_591;
-#line 736 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 736 "backup.epp"
 				field->fld_flags |= FLD_charset_flag;
 			}
 
 			if (!/*X.RDB$COLLATION_ID.NULL*/
 			     isc_575.isc_588) {
-#line 740 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 740 "backup.epp"
 				field->fld_collation_id = /*X.RDB$COLLATION_ID*/
 							  isc_575.isc_589;
-#line 741 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 741 "backup.epp"
 				field->fld_flags |= FLD_collate_flag;
 			}
 	
@@ -4934,16 +4934,16 @@ BURP_FLD get_fields( BURP_REL relation)
 		/*END_FOR;*/
 		   }
 		   };
-#line 748 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 748 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 749 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 749 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 751 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 751 "backup.epp"
 	}
 	else {
 		/*FOR (REQUEST_HANDLE tdgbl->handles_get_fields_req_handle1)
@@ -4961,81 +4961,81 @@ BURP_FLD get_fields( BURP_REL relation)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 336, &isc_549, (short) 0);
 		   if (!isc_549.isc_558 || isc_status [1]) break;
-#line 757 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 757 "backup.epp"
 
 			field = (BURP_FLD) BURP_alloc_zero (sizeof(burp_fld));
 			field->fld_number = count++;
 			field->fld_type = /*Y.RDB$FIELD_TYPE*/
 					  isc_549.isc_571;
-#line 761 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 761 "backup.epp"
 			field->fld_sub_type = /*Y.RDB$FIELD_SUB_TYPE*/
 					      isc_549.isc_570;
-#line 762 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 762 "backup.epp"
 			field->fld_length = /*Y.RDB$FIELD_LENGTH*/
 					    isc_549.isc_569;
-#line 763 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 763 "backup.epp"
 			field->fld_scale = /*Y.RDB$FIELD_SCALE*/
 					   isc_549.isc_568;
-#line 764 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 764 "backup.epp"
 			field->fld_id = /*X.RDB$FIELD_ID*/
 					isc_549.isc_567;
-#line 765 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 765 "backup.epp"
 			if (!/*X.RDB$DESCRIPTION.NULL*/
 			     isc_549.isc_566) {
-#line 766 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 766 "backup.epp"
 				blob_id = &/*X.RDB$DESCRIPTION*/
 					   isc_549.isc_557;
-#line 767 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 767 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_description = /*X.RDB$DESCRIPTION*/
 								 isc_549.isc_557;
-#line 769 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 769 "backup.epp"
 			}
 			if (!/*X.RDB$QUERY_HEADER.NULL*/
 			     isc_549.isc_565) {
-#line 771 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 771 "backup.epp"
 				blob_id = &/*X.RDB$QUERY_HEADER*/
 					   isc_549.isc_556;
-#line 772 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 772 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_query_header = /*X.RDB$QUERY_HEADER*/
 								  isc_549.isc_556;
-#line 774 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 774 "backup.epp"
 			}
 			if (/*X.RDB$FIELD_POSITION.NULL*/
 			    isc_549.isc_563)
-#line 776 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 776 "backup.epp"
 				field->fld_flags |= FLD_position_missing;
 			else
 				field->fld_position = /*X.RDB$FIELD_POSITION*/
 						      isc_549.isc_564;
-#line 779 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 779 "backup.epp"
 			field->fld_view_context = /*X.RDB$VIEW_CONTEXT*/
 						  isc_549.isc_562;
-#line 780 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 780 "backup.epp"
 			if (/*X.RDB$UPDATE_FLAG.NULL*/
 			    isc_549.isc_560)
-#line 781 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 781 "backup.epp"
 				field->fld_flags |= FLD_update_missing;
 			else
 				field->fld_update_flag = /*X.RDB$UPDATE_FLAG*/
 							 isc_549.isc_561;
-#line 784 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 784 "backup.epp"
 			COPY (/*X.RDB$FIELD_NAME*/
 			      isc_549.isc_555, field->fld_name);
-#line 785 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 785 "backup.epp"
 			COPY (/*X.RDB$FIELD_SOURCE*/
 			      isc_549.isc_554, field->fld_source);
-#line 786 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 786 "backup.epp"
 			COPY (/*X.RDB$BASE_FIELD*/
 			      isc_549.isc_553, field->fld_base);
-#line 787 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 787 "backup.epp"
 			COPY (/*X.RDB$QUERY_NAME*/
 			      isc_549.isc_552, field->fld_query_name);
-#line 788 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 788 "backup.epp"
 			COPY (/*X.RDB$EDIT_STRING*/
 			      isc_549.isc_559, field->fld_edit_string);
-#line 789 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 789 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
 				/*FOR (REQUEST_HANDLE tdgbl->handles_get_fields_req_handle2)
@@ -5053,27 +5053,27 @@ BURP_FLD get_fields( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (short) 1, (short) 34, &isc_543, (short) 0);
 				   if (!isc_543.isc_545 || isc_status [1]) break;
-#line 794 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 794 "backup.epp"
 					COPY (/*RFR.RDB$COMPLEX_NAME*/
 					      isc_543.isc_544, field->fld_complex_name);
-#line 795 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 795 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 796 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 796 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 797 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 797 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 799 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 799 "backup.epp"
 			}
 			blob_id = &/*Y.RDB$COMPUTED_BLR*/
 				   isc_549.isc_550;
-#line 801 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 801 "backup.epp"
 			if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 				field->fld_flags |= FLD_computed;
 			if (tdgbl->BCK_capabilities & BCK_rfr_sys_flag)
@@ -5094,23 +5094,23 @@ BURP_FLD get_fields( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (short) 1, (short) 4, &isc_536, (short) 0);
 				   if (!isc_536.isc_537 || isc_status [1]) break;
-#line 809 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 809 "backup.epp"
 					field->fld_system_flag = /*RFR.RDB$SYSTEM_FLAG*/
 								 isc_536.isc_538;
-#line 810 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 810 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 811 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 811 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 812 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 812 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 814 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 814 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_security)
 			{
@@ -5130,23 +5130,23 @@ BURP_FLD get_fields( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (short) 1, (short) 34, &isc_529, (short) 0);
 				   if (!isc_529.isc_531 || isc_status [1]) break;
-#line 821 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 821 "backup.epp"
 					COPY (/*RFR.RDB$SECURITY_CLASS*/
 					      isc_529.isc_530, field->fld_security_class);
-#line 822 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 822 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 823 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 823 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 824 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 824 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 826 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 826 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
@@ -5163,17 +5163,17 @@ BURP_FLD get_fields( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (short) 1, (short) 4, &isc_522, (short) 0);
 				   if (!isc_522.isc_523 || isc_status [1]) break;
-#line 831 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 831 "backup.epp"
 					// use the fld_flags to mark the field as an array and
 					// to differentiate it from other blobs
 					if (/*RF.RDB$DIMENSIONS*/
 					    isc_522.isc_524)
-#line 834 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 834 "backup.epp"
 					{
 						field->fld_flags |= FLD_array;
 						field->fld_dimensions = /*RF.RDB$DIMENSIONS*/
 									isc_522.isc_524;
-#line 837 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 837 "backup.epp"
 						if (field->fld_dimensions < 0) {
 							BURP_error_redirect (NULL, 52, field->fld_name, NULL);
 						}
@@ -5183,16 +5183,16 @@ BURP_FLD get_fields( BURP_REL relation)
 				/*END_FOR;*/
 				   }
 				   };
-#line 844 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 844 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 845 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 845 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 847 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 847 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -5213,72 +5213,72 @@ BURP_FLD get_fields( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (short) 1, (short) 34, &isc_507, (short) 0);
 				   if (!isc_507.isc_510 || isc_status [1]) break;
-#line 855 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 855 "backup.epp"
 
 					if (!/*X2.RDB$NULL_FLAG.NULL*/
 					     isc_507.isc_517)
-#line 857 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 857 "backup.epp"
 					{
 						field->fld_null_flag = /*X2.RDB$NULL_FLAG*/
 								       isc_507.isc_518;
-#line 859 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 859 "backup.epp"
 						field->fld_flags |= FLD_null_flag;
 					}
 					if (!/*X2.RDB$DEFAULT_VALUE.NULL*/
 					     isc_507.isc_516)
-#line 862 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 862 "backup.epp"
 					{
 						blob_id = &/*X2.RDB$DEFAULT_VALUE*/
 							   isc_507.isc_509;
-#line 864 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 864 "backup.epp"
 						if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 							field->fld_default_value = /*X2.RDB$DEFAULT_VALUE*/
 										   isc_507.isc_509;
-#line 866 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 866 "backup.epp"
 					}
 					if (!/*X2.RDB$DEFAULT_SOURCE.NULL*/
 					     isc_507.isc_515)
-#line 868 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 868 "backup.epp"
 					{
 						blob_id = &/*X2.RDB$DEFAULT_SOURCE*/
 							   isc_507.isc_508;
-#line 870 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 870 "backup.epp"
 						if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 							field->fld_default_source = /*X2.RDB$DEFAULT_SOURCE*/
 										    isc_507.isc_508;
-#line 872 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 872 "backup.epp"
 					}
 					if (!(/*F2.RDB$CHARACTER_SET_ID.NULL*/
 					      isc_507.isc_513))
-#line 874 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 874 "backup.epp"
 					{
 						field->fld_character_set_id = /*F2.RDB$CHARACTER_SET_ID*/
 									      isc_507.isc_514;
-#line 876 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 876 "backup.epp"
 						field->fld_flags |= FLD_charset_flag;
 					}
 					if (!/*X2.RDB$COLLATION_ID.NULL*/
 					     isc_507.isc_511)
-#line 879 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 879 "backup.epp"
 					{
 						field->fld_collation_id = /*X2.RDB$COLLATION_ID*/
 									  isc_507.isc_512;
-#line 881 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 881 "backup.epp"
 						field->fld_flags |= FLD_collate_flag;
 					}
 				/*END_FOR;*/
 				   }
 				   };
-#line 884 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 884 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 885 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 885 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 887 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 887 "backup.epp"
 			}
 	
 			field->fld_next = fields;
@@ -5287,16 +5287,16 @@ BURP_FLD get_fields( BURP_REL relation)
 		/*END_FOR;*/
 		   }
 		   };
-#line 893 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 893 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 894 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 894 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 896 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 896 "backup.epp"
 	}
 
 	return fields;
@@ -5475,34 +5475,34 @@ void get_ranges( BURP_FLD field)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) 1, (short) 12, &isc_498, (short) 0);
 	   if (!isc_498.isc_501 || isc_status [1]) break; 
-#line 1063 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1063 "backup.epp"
 	
 		if (count != /*X.RDB$DIMENSION*/
 			     isc_498.isc_502)
-#line 1065 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1065 "backup.epp"
 			BURP_error_redirect (NULL, 52, field->fld_name, NULL);
 			// msg 52 array dimension for field %s is invalid 
 		*rp++ = /*X.RDB$LOWER_BOUND*/
 			isc_498.isc_500;
-#line 1068 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1068 "backup.epp"
 		*rp++ = /*X.RDB$UPPER_BOUND*/
 			isc_498.isc_499;
-#line 1069 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1069 "backup.epp"
 		count++;
 	
 	/*END_FOR;*/
 	   }
 	   };
-#line 1072 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1072 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 1073 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1073 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 1075 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1075 "backup.epp"
 
 	if (count != field->fld_dimensions)
 		BURP_error_redirect(NULL, 52, field->fld_name, NULL);
@@ -6357,7 +6357,7 @@ void put_index( BURP_REL relation)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 104, &isc_481, (short) 0);
 		   if (!isc_481.isc_487 || isc_status [1]) break;
-#line 1918 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1918 "backup.epp"
 	
 			count = 0;
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle2)
@@ -6378,53 +6378,53 @@ void put_index( BURP_REL relation)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 2, &isc_476, (short) 0);
 			   if (!isc_476.isc_477 || isc_status [1]) break; 
-#line 1926 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1926 "backup.epp"
 	
 				count++;
 	
 			/*END_FOR;*/
 			   }
 			   };
-#line 1930 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1930 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 1931 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1931 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 1933 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1933 "backup.epp"
 	
 			if (count != (ULONG) /*X.RDB$SEGMENT_COUNT*/
 					     isc_481.isc_494) 
-#line 1935 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1935 "backup.epp"
 			{
 				BURP_print(180, /*X.RDB$INDEX_NAME*/
 						isc_481.isc_486, count, /*X.RDB$SEGMENT_COUNT*/
 	 isc_481.isc_494);
-#line 1937 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1937 "backup.epp"
 				continue;
 			}
 	
 			put(tdgbl, rec_index);
 			const ULONG l = PUT_TEXT (att_index_name, /*X.RDB$INDEX_NAME*/
 								  isc_481.isc_486);
-#line 1942 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1942 "backup.epp"
 			MISC_terminate (/*X.RDB$INDEX_NAME*/
 					isc_481.isc_486, temp, l, sizeof(temp));
-#line 1943 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1943 "backup.epp"
 			BURP_verbose (151, temp);
 			// msg 151 writing index %s 
 			put_numeric (att_segment_count, /*X.RDB$SEGMENT_COUNT*/
 							isc_481.isc_494);
-#line 1946 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1946 "backup.epp"
 			put_numeric (att_index_inactive, /*X.RDB$INDEX_INACTIVE*/
 							 isc_481.isc_493);
-#line 1947 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1947 "backup.epp"
 			put_numeric (att_index_unique_flag, /*X.RDB$UNIQUE_FLAG*/
 							    isc_481.isc_492);
-#line 1948 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1948 "backup.epp"
 	
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle5)
 				Y IN RDB$INDEX_SEGMENTS WITH 
@@ -6441,69 +6441,69 @@ void put_index( BURP_REL relation)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_469, (short) 0);
 			   if (!isc_469.isc_471 || isc_status [1]) break;
-#line 1953 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1953 "backup.epp"
 	
 				PUT_TEXT (att_index_field_name, /*Y.RDB$FIELD_NAME*/
 								isc_469.isc_470);
-#line 1955 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1955 "backup.epp"
 	
 			/*END_FOR;*/
 			   }
 			   };
-#line 1957 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1957 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 1958 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1958 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 1960 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1960 "backup.epp"
 	
 			put_source_blob (att_index_description2, att_index_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_481.isc_485);
-#line 1962 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1962 "backup.epp"
 			put_numeric (att_index_type, /*X.RDB$INDEX_TYPE*/
 						     isc_481.isc_491);
-#line 1963 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1963 "backup.epp"
 	
 			if (!/*X.RDB$EXPRESSION_SOURCE.NULL*/
 			     isc_481.isc_490)
-#line 1965 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1965 "backup.epp"
 				put_source_blob (att_index_expression_source,
 								 att_index_expression_source,
 								 (ISC_QUAD *)&/*X.RDB$EXPRESSION_SOURCE*/
 									      isc_481.isc_484);
-#line 1968 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1968 "backup.epp"
 			if (!/*X.RDB$EXPRESSION_BLR.NULL*/
 			     isc_481.isc_489)
-#line 1969 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1969 "backup.epp"
 				put_blr_blob (att_index_expression_blr,
 							  (ISC_QUAD *)&/*X.RDB$EXPRESSION_BLR*/
 								       isc_481.isc_483);
-#line 1971 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1971 "backup.epp"
 			if (!/*X.RDB$FOREIGN_KEY.NULL*/
 			     isc_481.isc_488)
-#line 1972 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1972 "backup.epp"
 				PUT_TEXT (att_index_foreign_key, /*X.RDB$FOREIGN_KEY*/
 								 isc_481.isc_482);
-#line 1973 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1973 "backup.epp"
 			put(tdgbl, att_end);
 	
 		/*END_FOR;*/
 		   }
 		   };
-#line 1976 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1976 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 1977 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1977 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 1979 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1979 "backup.epp"
 	}
 	else
 	{
@@ -6521,7 +6521,7 @@ void put_index( BURP_REL relation)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 46, &isc_460, (short) 0);
 		   if (!isc_460.isc_463 || isc_status [1]) break;
-#line 1985 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1985 "backup.epp"
 	
 			count = 0;
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle2)
@@ -6538,7 +6538,7 @@ void put_index( BURP_REL relation)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 34, &isc_454, (short) 0);
 			   if (!isc_454.isc_456 || isc_status [1]) break;
-#line 1990 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1990 "backup.epp"
 				bool match = false;
 	
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle3)
@@ -6557,65 +6557,65 @@ void put_index( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (short) 1, (short) 2, &isc_449, (short) 0);
 				   if (!isc_449.isc_450 || isc_status [1]) break; 
-#line 1996 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1996 "backup.epp"
 					match = true;
 				/*END_FOR;*/
 				   }
 				   };
-#line 1998 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1998 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 1999 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 1999 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2001 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2001 "backup.epp"
 				if (!match)
 					BURP_print (179, /*I_S.RDB$FIELD_NAME*/
 							 isc_454.isc_455, /*X.RDB$INDEX_NAME*/
   isc_460.isc_462); 
-#line 2003 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2003 "backup.epp"
 				else
 					count++;
 			/*END_FOR;*/
 			   }
 			   };
-#line 2006 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2006 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2007 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2007 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2009 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2009 "backup.epp"
 	
 			if (count != (ULONG) /*X.RDB$SEGMENT_COUNT*/
 					     isc_460.isc_465) 
-#line 2011 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2011 "backup.epp"
 			{
 				BURP_print(180, /*X.RDB$INDEX_NAME*/
-						isc_460.isc_462, count,/*X.RDB$SEGMENT_COUNT*/
-	isc_460.isc_465);
-#line 2013 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+						isc_460.isc_462, count, /*X.RDB$SEGMENT_COUNT*/
+	 isc_460.isc_465);
+#line 2013 "backup.epp"
 				continue; 
 			}
 	
 			put(tdgbl, rec_index);
 			const ULONG l = PUT_TEXT (att_index_name, /*X.RDB$INDEX_NAME*/
 								  isc_460.isc_462);
-#line 2018 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2018 "backup.epp"
 			MISC_terminate (/*X.RDB$INDEX_NAME*/
 					isc_460.isc_462, temp, l, sizeof(temp));
-#line 2019 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2019 "backup.epp"
 			BURP_verbose (151, temp);
 			// msg 151 writing index %s 
 			put_numeric (att_segment_count, /*X.RDB$SEGMENT_COUNT*/
 							isc_460.isc_465);
-#line 2022 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2022 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_idx_inactive)
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle4)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
@@ -6630,26 +6630,26 @@ void put_index( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (short) 1, (short) 4, &isc_442, (short) 0);
 				   if (!isc_442.isc_443 || isc_status [1]) break;
-#line 2025 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2025 "backup.epp"
 					put_numeric (att_index_inactive, /*I.RDB$INDEX_INACTIVE*/
 									 isc_442.isc_444); 
-#line 2026 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2026 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 2027 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2027 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 2028 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2028 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2030 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2030 "backup.epp"
 			put_numeric (att_index_unique_flag, /*X.RDB$UNIQUE_FLAG*/
 							    isc_460.isc_464);
-#line 2031 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2031 "backup.epp"
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle5)
 				Y IN RDB$INDEX_SEGMENTS WITH Y.RDB$INDEX_NAME EQ X.RDB$INDEX_NAME
 				SORTED BY Y.RDB$FIELD_POSITION*/
@@ -6664,27 +6664,27 @@ void put_index( BURP_REL relation)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_436, (short) 0);
 			   if (!isc_436.isc_438 || isc_status [1]) break;
-#line 2034 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2034 "backup.epp"
 				PUT_TEXT (att_index_field_name, /*Y.RDB$FIELD_NAME*/
 								isc_436.isc_437);
-#line 2035 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2035 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2036 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2036 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2037 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2037 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2039 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2039 "backup.epp"
 			put_source_blob (att_index_description2, att_index_description,
 							 (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 								      isc_460.isc_461);
-#line 2041 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2041 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle6)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
@@ -6699,23 +6699,23 @@ void put_index( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (short) 1, (short) 4, &isc_430, (short) 0);
 				   if (!isc_430.isc_431 || isc_status [1]) break;
-#line 2044 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2044 "backup.epp"
 					put_numeric (att_index_type, /*I.RDB$INDEX_TYPE*/
 								     isc_430.isc_432);
-#line 2045 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2045 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 2046 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2046 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 2047 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2047 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2049 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2049 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle7)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
@@ -6730,56 +6730,56 @@ void put_index( BURP_REL relation)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (short) 1, (short) 56, &isc_419, (short) 0);
 				   if (!isc_419.isc_423 || isc_status [1]) break;
-#line 2052 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2052 "backup.epp"
 					if (!/*I.RDB$EXPRESSION_SOURCE.NULL*/
 					     isc_419.isc_426)
-#line 2053 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2053 "backup.epp"
 						put_source_blob (att_index_expression_source,
 										 att_index_expression_source,
 										 (ISC_QUAD *)&/*I.RDB$EXPRESSION_SOURCE*/
 											      isc_419.isc_422);
-#line 2056 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2056 "backup.epp"
 					if (!/*I.RDB$EXPRESSION_BLR.NULL*/
 					     isc_419.isc_425)
-#line 2057 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2057 "backup.epp"
 						put_blr_blob (att_index_expression_blr,
 									  (ISC_QUAD *)&/*I.RDB$EXPRESSION_BLR*/
 										       isc_419.isc_421);
-#line 2059 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2059 "backup.epp"
 					if (!/*I.RDB$FOREIGN_KEY.NULL*/
 					     isc_419.isc_424)
-#line 2060 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2060 "backup.epp"
 						PUT_TEXT (att_index_foreign_key, /*I.RDB$FOREIGN_KEY*/
 										 isc_419.isc_420);
-#line 2061 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2061 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 2062 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2062 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 2063 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2063 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2065 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2065 "backup.epp"
 			put(tdgbl, att_end);
 	
 		/*END_FOR;*/
 		   }
 		   };
-#line 2068 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2068 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2069 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2069 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 2071 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2071 "backup.epp"
 	}
 }
 
@@ -7035,31 +7035,31 @@ void put_relation( BURP_REL relation)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (short) 1, (short) 68, &isc_411, (short) 0);
 			   if (!isc_411.isc_414 || isc_status [1]) break;
-#line 2315 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2315 "backup.epp"
 				put(tdgbl, rec_view);
 				PUT_TEXT (att_view_relation_name, /*X.RDB$RELATION_NAME*/
 								  isc_411.isc_413);
-#line 2317 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2317 "backup.epp"
 				put_numeric (att_view_context_id, /*X.RDB$VIEW_CONTEXT*/
 								  isc_411.isc_415);
-#line 2318 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2318 "backup.epp"
 				PUT_TEXT (att_view_context_name, /*X.RDB$CONTEXT_NAME*/
 								 isc_411.isc_412);
-#line 2319 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2319 "backup.epp"
 				put(tdgbl, att_end);
 			/*END_FOR*/
 			   }
 			   };
-#line 2321 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2321 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2322 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2322 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2324 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2324 "backup.epp"
 		}
 		else
 		{
@@ -7076,28 +7076,28 @@ void put_relation( BURP_REL relation)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (short) 1, (short) 36, &isc_404, (short) 0);
 			   if (!isc_404.isc_406 || isc_status [1]) break;
-#line 2329 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2329 "backup.epp"
 				put(tdgbl, rec_view);
 				PUT_TEXT (att_view_relation_name, /*X.RDB$RELATION_NAME*/
 								  isc_404.isc_405);
-#line 2331 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2331 "backup.epp"
 				put_numeric (att_view_context_id, /*X.RDB$VIEW_CONTEXT*/
 								  isc_404.isc_407);
-#line 2332 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2332 "backup.epp"
 				put(tdgbl, att_end);
 			/*END_FOR;*/
 			   }
 			   };
-#line 2334 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2334 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2335 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2335 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2337 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2337 "backup.epp"
 		}
 	}
 	put(tdgbl, (UCHAR) (rec_relation_end));
@@ -7299,21 +7299,21 @@ void set_capabilities(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req, (short) 1, (short) 2, &isc_399, (short) 0);
 		   if (!isc_399.isc_400 || isc_status [1]) break;
-#line 2526 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2526 "backup.epp"
 			tdgbl->BCK_capabilities |= rel_field_table->bit_mask;
 		/*END_FOR;*/
 		   }
 		   };
-#line 2528 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2528 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2529 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2529 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 2531 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2531 "backup.epp"
 	}
 
 	isc_release_request(isc_status, &req);
@@ -7386,65 +7386,65 @@ void write_character_sets(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 156, &isc_380, (short) 0);
 	   if (!isc_380.isc_387 || isc_status [1]) break;
-#line 2593 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2593 "backup.epp"
 		put(tdgbl, rec_charset);
 		PUT_TEXT (att_charset_name, /*X.RDB$CHARACTER_SET_NAME*/
 					    isc_380.isc_385);
-#line 2595 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2595 "backup.epp"
 		if (!/*X.RDB$FORM_OF_USE.NULL*/
 		     isc_380.isc_394)
-#line 2596 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2596 "backup.epp"
 			PUT_TEXT (att_charset_form, /*X.RDB$FORM_OF_USE*/
 						    isc_380.isc_384);
-#line 2597 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2597 "backup.epp"
 		if (!/*X.RDB$NUMBER_OF_CHARACTERS.NULL*/
 		     isc_380.isc_393)
-#line 2598 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2598 "backup.epp"
 			put_numeric (att_charset_numchar, /*X.RDB$NUMBER_OF_CHARACTERS*/
 							  isc_380.isc_386);
-#line 2599 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2599 "backup.epp"
 		PUT_TEXT (att_charset_coll, /*X.RDB$DEFAULT_COLLATE_NAME*/
 					    isc_380.isc_383);
-#line 2600 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2600 "backup.epp"
 		put_numeric (att_charset_id, /*X.RDB$CHARACTER_SET_ID*/
 					     isc_380.isc_392);
-#line 2601 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2601 "backup.epp"
 		if (/*X.RDB$SYSTEM_FLAG*/
 		    isc_380.isc_391)
-#line 2602 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2602 "backup.epp"
 			put_numeric (att_charset_sysflag, /*X.RDB$SYSTEM_FLAG*/
 							  isc_380.isc_391);
-#line 2603 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2603 "backup.epp"
 		if (!/*X.RDB$DESCRIPTION.NULL*/
 		     isc_380.isc_390)
-#line 2604 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2604 "backup.epp"
 			put_source_blob (att_charset_description, att_charset_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													isc_380.isc_382);
-#line 2605 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2605 "backup.epp"
 		if (!/*X.RDB$FUNCTION_NAME.NULL*/
 		     isc_380.isc_389)
-#line 2606 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2606 "backup.epp"
 			PUT_TEXT (att_charset_funct, /*X.RDB$FUNCTION_NAME*/
 						     isc_380.isc_381);
-#line 2607 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2607 "backup.epp"
 		put_numeric (att_charset_bytes_char, /*X.RDB$BYTES_PER_CHARACTER*/
 						     isc_380.isc_388);
-#line 2608 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2608 "backup.epp"
 	
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2611 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2611 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2612 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2612 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2614 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2614 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -7479,32 +7479,32 @@ void write_check_constraints(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 68, &isc_374, (short) 0);
 	   if (!isc_374.isc_377 || isc_status [1]) break;
-#line 2638 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2638 "backup.epp"
 		put(tdgbl, rec_chk_constraint);
 	
 		PUT_TEXT (att_chk_constraint_name, /*X.RDB$CONSTRAINT_NAME*/
 						   isc_374.isc_376);
-#line 2641 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2641 "backup.epp"
 		if (!(/*X.RDB$TRIGGER_NAME.NULL*/
 		      isc_374.isc_378))
-#line 2642 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2642 "backup.epp"
 			PUT_TEXT (att_chk_trigger_name, /*X.RDB$TRIGGER_NAME*/
 							isc_374.isc_375);
-#line 2643 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2643 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2645 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2645 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2646 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2646 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2648 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2648 "backup.epp"
 	
 	MISC_release_request_silent(req_handle1);
 }
@@ -7539,53 +7539,53 @@ void write_collations(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 86, &isc_362, (short) 0);
 	   if (!isc_362.isc_366 || isc_status [1]) break;
-#line 2672 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2672 "backup.epp"
 		put(tdgbl, rec_collation);
 		PUT_TEXT (att_coll_name, /*X.RDB$COLLATION_NAME*/
 					 isc_362.isc_365);
-#line 2674 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2674 "backup.epp"
 		put_numeric (att_coll_id, /*X.RDB$COLLATION_ID*/
 					  isc_362.isc_372);
-#line 2675 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2675 "backup.epp"
 		put_numeric (att_coll_cs_id, /*X.RDB$CHARACTER_SET_ID*/
 					     isc_362.isc_371);
-#line 2676 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2676 "backup.epp"
 		put_numeric (att_coll_attr, /*X.RDB$COLLATION_ATTRIBUTES*/
 					    isc_362.isc_370);
-#line 2677 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2677 "backup.epp"
 		if (/*X.RDB$SYSTEM_FLAG*/
 		    isc_362.isc_369)
-#line 2678 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2678 "backup.epp"
 			put_numeric (att_coll_sysflag, /*X.RDB$SYSTEM_FLAG*/
 						       isc_362.isc_369);
-#line 2679 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2679 "backup.epp"
 		if (!/*X.RDB$DESCRIPTION.NULL*/
 		     isc_362.isc_368)
-#line 2680 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2680 "backup.epp"
 			put_source_blob (att_coll_description, att_coll_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												  isc_362.isc_364);
-#line 2681 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2681 "backup.epp"
 		if (!/*X.RDB$FUNCTION_NAME.NULL*/
 		     isc_362.isc_367)
-#line 2682 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2682 "backup.epp"
 			PUT_TEXT (att_coll_funct, /*X.RDB$FUNCTION_NAME*/
 						  isc_362.isc_363);
-#line 2683 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2683 "backup.epp"
 	
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2686 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2686 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2687 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2687 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2689 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2689 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -7709,36 +7709,36 @@ void write_database( const TEXT* dbb_file)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 78, &isc_354, (short) 0);
 		   if (!isc_354.isc_358 || isc_status [1]) break;
-#line 2802 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2802 "backup.epp"
 
 			if (!/*D.RDB$SECURITY_CLASS.NULL*/
 			     isc_354.isc_360)
-#line 2804 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2804 "backup.epp"
 				PUT_TEXT (att_database_security_class, /*D.RDB$SECURITY_CLASS*/
 								       isc_354.isc_357);
-#line 2805 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2805 "backup.epp"
 			put_source_blob (att_database_description2, att_database_description, (ISC_QUAD *)&/*D.RDB$DESCRIPTION*/
 													   isc_354.isc_356);
-#line 2806 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2806 "backup.epp"
 			if (!/*D.RDB$CHARACTER_SET_NAME.NULL*/
 			     isc_354.isc_359)
-#line 2807 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2807 "backup.epp"
 				PUT_TEXT (att_database_dfl_charset, /*D.RDB$CHARACTER_SET_NAME*/
 								    isc_354.isc_355);
-#line 2808 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2808 "backup.epp"
 		/*END_FOR;*/
 		   }
 		   };
-#line 2809 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2809 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2810 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2810 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 2812 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2812 "backup.epp"
 	}
 	else
 	{
@@ -7756,26 +7756,26 @@ void write_database( const TEXT* dbb_file)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 36, &isc_349, (short) 0);
 			   if (!isc_349.isc_351 || isc_status [1]) break;
-#line 2819 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2819 "backup.epp"
 				if (!/*D.RDB$SECURITY_CLASS.NULL*/
 				     isc_349.isc_352)
-#line 2820 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2820 "backup.epp"
 					PUT_TEXT (att_database_security_class, /*D.RDB$SECURITY_CLASS*/
 									       isc_349.isc_350);
-#line 2821 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2821 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2822 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2822 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2823 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2823 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2825 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2825 "backup.epp"
 		}
 
 		if (tdgbl->BCK_capabilities & BCK_db_description)
@@ -7792,24 +7792,24 @@ void write_database( const TEXT* dbb_file)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 10, &isc_345, (short) 0);
 			   if (!isc_345.isc_347 || isc_status [1]) break;
-#line 2831 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2831 "backup.epp"
 				put_source_blob (att_database_description2, att_database_description,
 					(ISC_QUAD *)&/*D.RDB$DESCRIPTION*/
 						     isc_345.isc_346);
-#line 2833 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2833 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2834 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2834 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2835 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2835 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2837 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2837 "backup.epp"
 		}
 
 		if (tdgbl->BCK_capabilities & BCK_ods8)
@@ -7826,26 +7826,26 @@ void write_database( const TEXT* dbb_file)
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 0, (short) 36, &isc_340, (short) 0);
 			   if (!isc_340.isc_342 || isc_status [1]) break;
-#line 2843 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2843 "backup.epp"
 				if (!/*D.RDB$CHARACTER_SET_NAME.NULL*/
 				     isc_340.isc_343)
-#line 2844 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2844 "backup.epp"
 					PUT_TEXT (att_database_dfl_charset, /*D.RDB$CHARACTER_SET_NAME*/
 									    isc_340.isc_341);
-#line 2845 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2845 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2846 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2846 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2847 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2847 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2849 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2849 "backup.epp"
 		}
 	}
 
@@ -7887,36 +7887,36 @@ void write_exceptions(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 296, &isc_334, (short) 0);
 	   if (!isc_334.isc_337 || isc_status [1]) break;
-#line 2880 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2880 "backup.epp"
 		put(tdgbl, rec_exception);
 		const SSHORT l = PUT_TEXT (att_exception_name, /*X.RDB$EXCEPTION_NAME*/
 							       isc_334.isc_336);
-#line 2882 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2882 "backup.epp"
 		MISC_terminate (/*X.RDB$EXCEPTION_NAME*/
 				isc_334.isc_336, temp, l, sizeof(temp));
-#line 2883 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2883 "backup.epp"
 		BURP_verbose (198, temp);
 		// msg 198 writing exception %s
 		PUT_MESSAGE(att_exception_msg, /*X.RDB$MESSAGE*/
 					       isc_334.isc_338);
-#line 2886 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2886 "backup.epp"
 		put_source_blob (att_exception_description2, att_procedure_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_334.isc_335);
-#line 2887 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2887 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2889 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2889 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2890 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2890 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2892 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2892 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -7950,34 +7950,34 @@ void write_field_dimensions(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 44, &isc_327, (short) 0);
 	   if (!isc_327.isc_331 || isc_status [1]) break;
-#line 2915 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2915 "backup.epp"
 		put(tdgbl, rec_field_dimensions);
 		PUT_TEXT (att_field_name, /*X.RDB$FIELD_NAME*/
 					  isc_327.isc_328);
-#line 2917 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2917 "backup.epp"
 		put_numeric (att_field_dimensions, /*X.RDB$DIMENSION*/
 						   isc_327.isc_332);
-#line 2918 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2918 "backup.epp"
 		put_numeric (att_field_range_low, /*X.RDB$LOWER_BOUND*/
 						  isc_327.isc_330);
-#line 2919 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2919 "backup.epp"
 		put_numeric (att_field_range_high, /*X.RDB$UPPER_BOUND*/
 						   isc_327.isc_329);
-#line 2920 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2920 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2922 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2922 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2923 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2923 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2925 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2925 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8013,45 +8013,45 @@ void write_filters(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 332, &isc_318, (short) 0);
 	   if (!isc_318.isc_322 || isc_status [1]) break;
-#line 2950 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2950 "backup.epp"
 		put(tdgbl, rec_filter);
 		const SSHORT l = PUT_TEXT (att_filter_name, /*X.RDB$FUNCTION_NAME*/
 							    isc_318.isc_321);
-#line 2952 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2952 "backup.epp"
 		MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 				isc_318.isc_321, temp, l, sizeof(temp));
-#line 2953 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2953 "backup.epp"
 		BURP_verbose (145, temp);
 		// msg 145 writing filter %s
 		put_source_blob (att_filter_description2, att_filter_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 											       isc_318.isc_320);
-#line 2956 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2956 "backup.epp"
 		PUT_TEXT (att_filter_module_name, /*X.RDB$MODULE_NAME*/
 						  isc_318.isc_325);
-#line 2957 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2957 "backup.epp"
 		PUT_TEXT (att_filter_entrypoint, /*X.RDB$ENTRYPOINT*/
 						 isc_318.isc_319);
-#line 2958 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2958 "backup.epp"
 		put_numeric (att_filter_input_sub_type, /*X.RDB$INPUT_SUB_TYPE*/
 							isc_318.isc_324);
-#line 2959 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2959 "backup.epp"
 		put_numeric (att_filter_output_sub_type, /*X.RDB$OUTPUT_SUB_TYPE*/
 							 isc_318.isc_323);
-#line 2960 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2960 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2962 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2962 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2963 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2963 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2965 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2965 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -8087,53 +8087,53 @@ void write_functions(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 364, &isc_308, (short) 0);
 	   if (!isc_308.isc_313 || isc_status [1]) break;
-#line 2990 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2990 "backup.epp"
 		put(tdgbl, rec_function);
 		const SSHORT l = PUT_TEXT (att_function_name, /*X.RDB$FUNCTION_NAME*/
 							      isc_308.isc_312);
-#line 2992 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2992 "backup.epp"
 		MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 				isc_308.isc_312, temp, l, sizeof(temp));
-#line 2993 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2993 "backup.epp"
 		BURP_verbose (147, temp);
 		/* msg 147 writing function %.*s */
 		put_source_blob (att_function_description2, att_function_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												   isc_308.isc_311);
-#line 2996 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2996 "backup.epp"
 		PUT_TEXT (att_function_module_name, /*X.RDB$MODULE_NAME*/
 						    isc_308.isc_316);
-#line 2997 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2997 "backup.epp"
 		PUT_TEXT (att_function_entrypoint, /*X.RDB$ENTRYPOINT*/
 						   isc_308.isc_310);
-#line 2998 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2998 "backup.epp"
 		put_numeric (att_function_return_arg, /*X.RDB$RETURN_ARGUMENT*/
 						      isc_308.isc_315);
-#line 2999 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 2999 "backup.epp"
 		put_numeric (att_function_type, /*X.RDB$FUNCTION_TYPE*/
 						isc_308.isc_314);
-#line 3000 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3000 "backup.epp"
 		PUT_TEXT (att_function_query_name, /*X.RDB$QUERY_NAME*/
 						   isc_308.isc_309);
-#line 3001 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3001 "backup.epp"
 		put(tdgbl, att_end);
 		COPY (/*X.RDB$FUNCTION_NAME*/
 		      isc_308.isc_312, func);
-#line 3003 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3003 "backup.epp"
 		write_function_args (func);
 		put(tdgbl, rec_function_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3006 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3006 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3007 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3007 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3009 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3009 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8176,62 +8176,62 @@ void write_function_args( GDS_NAME funcptr)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 54, &isc_294, (short) 0);
 		   if (!isc_294.isc_296 || isc_status [1]) break;
-#line 3040 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3040 "backup.epp"
 
 			put(tdgbl, rec_function_arg);
 			const SSHORT l = PUT_TEXT (att_functionarg_name, /*X.RDB$FUNCTION_NAME*/
 									 isc_294.isc_295);
-#line 3043 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3043 "backup.epp"
 			MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 					isc_294.isc_295, temp, l, sizeof(temp));
-#line 3044 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3044 "backup.epp"
 			BURP_verbose (141, temp);
 			// msg 141 writing argument for function %s 
 			put_numeric (att_functionarg_position, /*X.RDB$ARGUMENT_POSITION*/
 							       isc_294.isc_306);
-#line 3047 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3047 "backup.epp"
 			put_numeric (att_functionarg_mechanism, /*X.RDB$MECHANISM*/
 								isc_294.isc_305);
-#line 3048 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3048 "backup.epp"
 			put_numeric (att_functionarg_field_type, /*X.RDB$FIELD_TYPE*/
 								 isc_294.isc_304);
-#line 3049 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3049 "backup.epp"
 			put_numeric (att_functionarg_field_scale, /*X.RDB$FIELD_SCALE*/
 								  isc_294.isc_303);
-#line 3050 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3050 "backup.epp"
 			put_numeric (att_functionarg_field_length, /*X.RDB$FIELD_LENGTH*/
 								   isc_294.isc_302);
-#line 3051 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3051 "backup.epp"
 			put_numeric (att_functionarg_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 								     isc_294.isc_301);
-#line 3052 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3052 "backup.epp"
 			if (!(/*X.RDB$CHARACTER_SET_ID.NULL*/
 			      isc_294.isc_299))
-#line 3053 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3053 "backup.epp"
 				put_numeric (att_functionarg_character_set, /*X.RDB$CHARACTER_SET_ID*/
 									    isc_294.isc_300);
-#line 3054 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3054 "backup.epp"
 			
 			if (!(/*X.RDB$FIELD_PRECISION.NULL*/
 			      isc_294.isc_297))
-#line 3056 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3056 "backup.epp"
 				put_numeric (att_functionarg_field_precision, /*X.RDB$FIELD_PRECISION*/
 									      isc_294.isc_298);
-#line 3057 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3057 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3059 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3059 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3060 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3060 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3062 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3062 "backup.epp"
 	}
 	else
 	{
@@ -8249,35 +8249,35 @@ void write_function_args( GDS_NAME funcptr)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 46, &isc_282, (short) 0);
 		   if (!isc_282.isc_284 || isc_status [1]) break;
-#line 3068 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3068 "backup.epp"
 
 			put(tdgbl, rec_function_arg);
 			const SSHORT l = PUT_TEXT (att_functionarg_name, /*X.RDB$FUNCTION_NAME*/
 									 isc_282.isc_283);
-#line 3071 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3071 "backup.epp"
 			MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 					isc_282.isc_283, temp, l, sizeof(temp));
-#line 3072 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3072 "backup.epp"
 			BURP_verbose (141, temp);
 			// msg 141 writing argument for function %s 
 			put_numeric (att_functionarg_position, /*X.RDB$ARGUMENT_POSITION*/
 							       isc_282.isc_290);
-#line 3075 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3075 "backup.epp"
 			put_numeric (att_functionarg_mechanism, /*X.RDB$MECHANISM*/
 								isc_282.isc_289);
-#line 3076 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3076 "backup.epp"
 			put_numeric (att_functionarg_field_type, /*X.RDB$FIELD_TYPE*/
 								 isc_282.isc_288);
-#line 3077 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3077 "backup.epp"
 			put_numeric (att_functionarg_field_scale, /*X.RDB$FIELD_SCALE*/
 								  isc_282.isc_287);
-#line 3078 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3078 "backup.epp"
 			put_numeric (att_functionarg_field_length, /*X.RDB$FIELD_LENGTH*/
 								   isc_282.isc_286);
-#line 3079 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3079 "backup.epp"
 			put_numeric (att_functionarg_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 								     isc_282.isc_285);
-#line 3080 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3080 "backup.epp"
 		
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -8297,14 +8297,14 @@ void write_function_args( GDS_NAME funcptr)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) 1, (short) 6, &isc_275, (short) 0);
 				   if (!isc_275.isc_276 || isc_status [1]) break;;
-#line 3087 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3087 "backup.epp"
 
 					if (!(/*X2.RDB$CHARACTER_SET_ID.NULL*/
 					      isc_275.isc_277))
-#line 3089 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3089 "backup.epp"
 						put_numeric (att_functionarg_character_set, /*X2.RDB$CHARACTER_SET_ID*/
 											    isc_275.isc_278);
-#line 3090 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3090 "backup.epp"
 				/* Note that BCK_ods10 canNOT be set if we're in this
 				   "else" branch.  Hence there is no need to test that
 				   bit and store the RDB$FIELD_PRECISION. */
@@ -8312,32 +8312,32 @@ void write_function_args( GDS_NAME funcptr)
 				/*END_FOR;*/
 				   }
 				   };
-#line 3095 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3095 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3096 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3096 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3098 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3098 "backup.epp"
 			}
 			put(tdgbl, att_end);
 
 		/*END_FOR;*/
 		   }
 		   };
-#line 3102 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3102 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3103 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3103 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3105 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3105 "backup.epp"
 	}
 }
 
@@ -8371,40 +8371,40 @@ void write_generators(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 34, &isc_268, (short) 0);
 	   if (!isc_268.isc_270 || isc_status [1]) break;
-#line 3128 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3128 "backup.epp"
 		put(tdgbl, rec_generator);
 		const SSHORT l = PUT_TEXT (att_gen_generator, /*X.RDB$GENERATOR_NAME*/
 							      isc_268.isc_269);
-#line 3130 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3130 "backup.epp"
 		SINT64 value = 0;
 		
 		if (!tdgbl->gbl_sw_meta) 
 			{
 			value = get_gen_id (/*X.RDB$GENERATOR_NAME*/
 					    isc_268.isc_269, l);
-#line 3135 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3135 "backup.epp"
 			put_int64 (att_gen_value_int64, value);
 			}
 			
 		put(tdgbl, att_end);
 		MISC_terminate (/*X.RDB$GENERATOR_NAME*/
 				isc_268.isc_269, temp, l, sizeof(temp));
-#line 3140 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3140 "backup.epp"
 		BURP_verbose (165, temp, value);
 		// msg 165 writing generator %s value %ld
 	/*END_FOR;*/
 	   }
 	   };
-#line 3143 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3143 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3144 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3144 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3146 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3146 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8453,161 +8453,161 @@ void write_global_fields(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 316, &isc_230, (short) 0);
 		   if (!isc_230.isc_243 || isc_status [1]) break;
-#line 3184 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3184 "backup.epp"
 
 			put(tdgbl, rec_global_field);
 			const SSHORT l = PUT_TEXT (att_field_name, /*X.RDB$FIELD_NAME*/
 								   isc_230.isc_242);
-#line 3187 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3187 "backup.epp"
 			MISC_terminate (/*X.RDB$FIELD_NAME*/
 					isc_230.isc_242, temp, l, sizeof(temp));
-#line 3188 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3188 "backup.epp"
 			BURP_verbose (149, temp);
 			/* msg 149  writing global field %.*s */
 			if (/*X.RDB$QUERY_NAME*/
 			    isc_230.isc_241 [0] != ' ')
-#line 3191 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3191 "backup.epp"
 				PUT_TEXT (att_field_query_name, /*X.RDB$QUERY_NAME*/
 								isc_230.isc_241);
-#line 3192 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3192 "backup.epp"
 			if (/*X.RDB$EDIT_STRING*/
 			    isc_230.isc_266 [0] != ' ')
-#line 3193 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3193 "backup.epp"
 				PUT_TEXT (att_field_edit_string, /*X.RDB$EDIT_STRING*/
 								 isc_230.isc_266);
-#line 3194 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3194 "backup.epp"
 			put_source_blob (att_field_query_header, att_field_query_header, (ISC_QUAD *)&/*X.RDB$QUERY_HEADER*/
 												      isc_230.isc_240);
-#line 3195 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3195 "backup.epp"
 			put_numeric (att_field_type, /*X.RDB$FIELD_TYPE*/
 						     isc_230.isc_265);
-#line 3196 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3196 "backup.epp"
 			put_numeric (att_field_length, /*X.RDB$FIELD_LENGTH*/
 						       isc_230.isc_264);
-#line 3197 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3197 "backup.epp"
 			put_numeric (att_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 							 isc_230.isc_263);
-#line 3198 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3198 "backup.epp"
 			put_numeric (att_field_scale, /*X.RDB$FIELD_SCALE*/
 						      isc_230.isc_262);
-#line 3199 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3199 "backup.epp"
 			put_blr_blob (att_field_missing_value, (ISC_QUAD *)&/*X.RDB$MISSING_VALUE*/
 									    isc_230.isc_239);
-#line 3200 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3200 "backup.epp"
 			put_blr_blob (att_field_default_value, (ISC_QUAD *)&/*X.RDB$DEFAULT_VALUE*/
 									    isc_230.isc_238);
-#line 3201 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3201 "backup.epp"
 			put_blr_blob (att_field_validation_blr, (ISC_QUAD *)&/*X.RDB$VALIDATION_BLR*/
 									     isc_230.isc_237);
-#line 3202 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3202 "backup.epp"
 			put_source_blob (att_field_validation_source2, att_field_validation_source, (ISC_QUAD *)&/*X.RDB$VALIDATION_SOURCE*/
 														 isc_230.isc_236);
-#line 3203 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3203 "backup.epp"
 			put_blr_blob (att_field_computed_blr, &/*X.RDB$COMPUTED_BLR*/
 							       isc_230.isc_235);
-#line 3204 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3204 "backup.epp"
 			put_source_blob (att_field_computed_source2, att_field_computed_source, (ISC_QUAD *)&/*X.RDB$COMPUTED_SOURCE*/
 													     isc_230.isc_234);
-#line 3205 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3205 "backup.epp"
 			if (/*X.RDB$SEGMENT_LENGTH*/
 			    isc_230.isc_261)
-#line 3206 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3206 "backup.epp"
 				put_numeric (att_field_segment_length, /*X.RDB$SEGMENT_LENGTH*/
 								       isc_230.isc_261);
-#line 3207 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3207 "backup.epp"
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_230.isc_260)
-#line 3208 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3208 "backup.epp"
 				put_numeric (att_field_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								    isc_230.isc_260);
-#line 3209 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3209 "backup.epp"
 			put_source_blob (att_field_description2, att_field_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_230.isc_233);
-#line 3210 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3210 "backup.epp"
 			
 			if (/*X.RDB$EXTERNAL_LENGTH*/
 			    isc_230.isc_259)
-#line 3212 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3212 "backup.epp"
 				put_numeric (att_field_external_length, /*X.RDB$EXTERNAL_LENGTH*/
 									isc_230.isc_259);
-#line 3213 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3213 "backup.epp"
 			if (/*X.RDB$EXTERNAL_TYPE*/
 			    isc_230.isc_258) 
-#line 3214 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3214 "backup.epp"
 				put_numeric (att_field_external_type, /*X.RDB$EXTERNAL_TYPE*/
 								      isc_230.isc_258);
-#line 3215 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3215 "backup.epp"
 			if (/*X.RDB$EXTERNAL_SCALE*/
 			    isc_230.isc_257)
-#line 3216 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3216 "backup.epp"
 				put_numeric (att_field_external_scale, /*X.RDB$EXTERNAL_SCALE*/
 								       isc_230.isc_257);
-#line 3217 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3217 "backup.epp"
 			if (/*X.RDB$DIMENSIONS*/
 			    isc_230.isc_256)
-#line 3218 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3218 "backup.epp"
 				put_numeric (att_field_dimensions, /*X.RDB$DIMENSIONS*/
 								   isc_230.isc_256);
-#line 3219 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3219 "backup.epp"
 			if (!(/*X.RDB$NULL_FLAG.NULL*/
 			      isc_230.isc_254))
-#line 3220 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3220 "backup.epp"
 				put_numeric (att_field_null_flag, /*X.RDB$NULL_FLAG*/
 								  isc_230.isc_255);
-#line 3221 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3221 "backup.epp"
 			if (!(/*X.RDB$CHARACTER_LENGTH.NULL*/
 			      isc_230.isc_252))
-#line 3222 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3222 "backup.epp"
 				put_numeric (att_field_character_length, /*X.RDB$CHARACTER_LENGTH*/
 									 isc_230.isc_253);
-#line 3223 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3223 "backup.epp"
 			if (!(/*X.RDB$DEFAULT_SOURCE.NULL*/
 			      isc_230.isc_251))
-#line 3224 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3224 "backup.epp"
 				put_source_blob (att_field_default_source, att_field_default_source, (ISC_QUAD *)&/*X.RDB$DEFAULT_SOURCE*/
 														  isc_230.isc_232);
-#line 3225 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3225 "backup.epp"
 			if (!(/*X.RDB$MISSING_SOURCE.NULL*/
 			      isc_230.isc_250))
-#line 3226 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3226 "backup.epp"
 				put_source_blob (att_field_missing_source, att_field_missing_source, (ISC_QUAD *)&/*X.RDB$MISSING_SOURCE*/
 														  isc_230.isc_231);
-#line 3227 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3227 "backup.epp"
 			if (!(/*X.RDB$CHARACTER_SET_ID.NULL*/
 			      isc_230.isc_248))
-#line 3228 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3228 "backup.epp"
 				put_numeric (att_field_character_set, /*X.RDB$CHARACTER_SET_ID*/
 								      isc_230.isc_249);
-#line 3229 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3229 "backup.epp"
 			if (!(/*X.RDB$COLLATION_ID.NULL*/
 			      isc_230.isc_246))
-#line 3230 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3230 "backup.epp"
 				put_numeric (att_field_collation_id, /*X.RDB$COLLATION_ID*/
 								     isc_230.isc_247);
-#line 3231 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3231 "backup.epp"
 			
 			if (!(/*X.RDB$FIELD_PRECISION.NULL*/
 			      isc_230.isc_244))
-#line 3233 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3233 "backup.epp"
 				put_numeric (att_field_precision, /*X.RDB$FIELD_PRECISION*/
 								  isc_230.isc_245);
-#line 3234 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3234 "backup.epp"
 			
 			put(tdgbl, att_end);
 
 		/*END_FOR;*/
 		   }
 		   };
-#line 3238 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3238 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3239 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3239 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3241 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3241 "backup.epp"
 	}
 	else
 	{
@@ -8625,77 +8625,77 @@ void write_global_fields(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 268, &isc_210, (short) 0);
 		   if (!isc_210.isc_221 || isc_status [1]) break;
-#line 3248 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3248 "backup.epp"
 
 			put(tdgbl, rec_global_field);
 			const SSHORT l = PUT_TEXT (att_field_name, /*X.RDB$FIELD_NAME*/
 								   isc_210.isc_220);
-#line 3251 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3251 "backup.epp"
 			MISC_terminate (/*X.RDB$FIELD_NAME*/
 					isc_210.isc_220, temp, l, sizeof(temp));
-#line 3252 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3252 "backup.epp"
 			BURP_verbose (149, temp);
 			/* msg 149  writing global field %.*s */
 			if (/*X.RDB$QUERY_NAME*/
 			    isc_210.isc_219 [0] != ' ')
-#line 3255 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3255 "backup.epp"
 				PUT_TEXT (att_field_query_name, /*X.RDB$QUERY_NAME*/
 								isc_210.isc_219);
-#line 3256 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3256 "backup.epp"
 			if (/*X.RDB$EDIT_STRING*/
 			    isc_210.isc_228 [0] != ' ')
-#line 3257 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3257 "backup.epp"
 				PUT_TEXT (att_field_edit_string, /*X.RDB$EDIT_STRING*/
 								 isc_210.isc_228);
-#line 3258 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3258 "backup.epp"
 			put_source_blob (att_field_query_header, att_field_query_header, (ISC_QUAD *)&/*X.RDB$QUERY_HEADER*/
 												      isc_210.isc_218);
-#line 3259 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3259 "backup.epp"
 			put_numeric (att_field_type, /*X.RDB$FIELD_TYPE*/
 						     isc_210.isc_227);
-#line 3260 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3260 "backup.epp"
 			put_numeric (att_field_length, /*X.RDB$FIELD_LENGTH*/
 						       isc_210.isc_226);
-#line 3261 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3261 "backup.epp"
 			put_numeric (att_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 							 isc_210.isc_225);
-#line 3262 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3262 "backup.epp"
 			put_numeric (att_field_scale, /*X.RDB$FIELD_SCALE*/
 						      isc_210.isc_224);
-#line 3263 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3263 "backup.epp"
 			put_blr_blob (att_field_missing_value, (ISC_QUAD *)&/*X.RDB$MISSING_VALUE*/
 									    isc_210.isc_217);
-#line 3264 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3264 "backup.epp"
 			put_blr_blob (att_field_default_value, (ISC_QUAD *)&/*X.RDB$DEFAULT_VALUE*/
 									    isc_210.isc_216);
-#line 3265 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3265 "backup.epp"
 			put_blr_blob (att_field_validation_blr, (ISC_QUAD *)&/*X.RDB$VALIDATION_BLR*/
 									     isc_210.isc_215);
-#line 3266 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3266 "backup.epp"
 			put_source_blob (att_field_validation_source2, att_field_validation_source, (ISC_QUAD *)&/*X.RDB$VALIDATION_SOURCE*/
 														 isc_210.isc_214);
-#line 3267 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3267 "backup.epp"
 			put_blr_blob (att_field_computed_blr, (ISC_QUAD *)&/*X.RDB$COMPUTED_BLR*/
 									   isc_210.isc_213);
-#line 3268 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3268 "backup.epp"
 			put_source_blob (att_field_computed_source2, att_field_computed_source, (ISC_QUAD *)&/*X.RDB$COMPUTED_SOURCE*/
 													     isc_210.isc_212);
-#line 3269 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3269 "backup.epp"
 			if (/*X.RDB$SEGMENT_LENGTH*/
 			    isc_210.isc_223)
-#line 3270 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3270 "backup.epp"
 				put_numeric (att_field_segment_length, /*X.RDB$SEGMENT_LENGTH*/
 								       isc_210.isc_223);
-#line 3271 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3271 "backup.epp"
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_210.isc_222)
-#line 3272 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3272 "backup.epp"
 				put_numeric (att_field_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								    isc_210.isc_222);
-#line 3273 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3273 "backup.epp"
 			put_source_blob (att_field_description2, att_field_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_210.isc_211);
-#line 3274 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3274 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
 				/*FOR (REQUEST_HANDLE req_handle2)
@@ -8711,45 +8711,45 @@ void write_global_fields(void)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 10, &isc_203, (short) 0);
 				   if (!isc_203.isc_204 || isc_status [1]) break;
-#line 3278 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3278 "backup.epp"
 					
 					if (/*F.RDB$EXTERNAL_LENGTH*/
 					    isc_203.isc_208)
-#line 3280 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3280 "backup.epp"
 						put_numeric (att_field_external_length, /*F.RDB$EXTERNAL_LENGTH*/
 											isc_203.isc_208);
-#line 3281 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3281 "backup.epp"
 					if (/*F.RDB$EXTERNAL_TYPE*/
 					    isc_203.isc_207) 
-#line 3282 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3282 "backup.epp"
 						put_numeric (att_field_external_type, /*F.RDB$EXTERNAL_TYPE*/
 										      isc_203.isc_207);
-#line 3283 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3283 "backup.epp"
 					if (/*F.RDB$EXTERNAL_SCALE*/
 					    isc_203.isc_206)
-#line 3284 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3284 "backup.epp"
 						put_numeric (att_field_external_scale, /*F.RDB$EXTERNAL_SCALE*/
 										       isc_203.isc_206);
-#line 3285 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3285 "backup.epp"
 					if (/*F.RDB$DIMENSIONS*/
 					    isc_203.isc_205)
-#line 3286 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3286 "backup.epp"
 						put_numeric (att_field_dimensions, /*F.RDB$DIMENSIONS*/
 										   isc_203.isc_205);
-#line 3287 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3287 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 3288 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3288 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3289 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3289 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3291 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3291 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -8766,43 +8766,43 @@ void write_global_fields(void)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 38, &isc_186, (short) 0);
 				   if (!isc_186.isc_189 || isc_status [1]) break;
-#line 3296 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3296 "backup.epp"
 					if (!(/*F.RDB$NULL_FLAG.NULL*/
 					      isc_186.isc_198))
-#line 3297 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3297 "backup.epp"
 						put_numeric (att_field_null_flag, /*F.RDB$NULL_FLAG*/
 										  isc_186.isc_199);
-#line 3298 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3298 "backup.epp"
 					if (!(/*F.RDB$CHARACTER_LENGTH.NULL*/
 					      isc_186.isc_196))
-#line 3299 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3299 "backup.epp"
 						put_numeric (att_field_character_length, /*F.RDB$CHARACTER_LENGTH*/
 											 isc_186.isc_197);
-#line 3300 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3300 "backup.epp"
 					if (!(/*F.RDB$DEFAULT_SOURCE.NULL*/
 					      isc_186.isc_195))
-#line 3301 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3301 "backup.epp"
 						put_source_blob (att_field_default_source, att_field_default_source, (ISC_QUAD *)&/*F.RDB$DEFAULT_SOURCE*/
 																  isc_186.isc_188);
-#line 3302 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3302 "backup.epp"
 					if (!(/*F.RDB$MISSING_SOURCE.NULL*/
 					      isc_186.isc_194))
-#line 3303 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3303 "backup.epp"
 						put_source_blob (att_field_missing_source, att_field_missing_source, (ISC_QUAD *)&/*F.RDB$MISSING_SOURCE*/
 																  isc_186.isc_187);
-#line 3304 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3304 "backup.epp"
 					if (!(/*F.RDB$CHARACTER_SET_ID.NULL*/
 					      isc_186.isc_192))
-#line 3305 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3305 "backup.epp"
 						put_numeric (att_field_character_set, /*F.RDB$CHARACTER_SET_ID*/
 										      isc_186.isc_193);
-#line 3306 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3306 "backup.epp"
 					if (!(/*F.RDB$COLLATION_ID.NULL*/
 					      isc_186.isc_190))
-#line 3307 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3307 "backup.epp"
 						put_numeric (att_field_collation_id, /*F.RDB$COLLATION_ID*/
 										     isc_186.isc_191);
-#line 3308 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3308 "backup.epp"
 
 					if (tdgbl->BCK_capabilities & BCK_ods10)
 					{
@@ -8819,55 +8819,55 @@ void write_global_fields(void)
 						   {
                                                    isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 6, &isc_179, (short) 0);
 						   if (!isc_179.isc_180 || isc_status [1]) break;
-#line 3313 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3313 "backup.epp"
 							if (!(/*K.RDB$FIELD_PRECISION.NULL*/
 							      isc_179.isc_181))
-#line 3314 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3314 "backup.epp"
 								put_numeric (att_field_precision, /*K.RDB$FIELD_PRECISION*/
 												  isc_179.isc_182);
-#line 3315 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3315 "backup.epp"
 						/*END_FOR;*/
 						   }
 						   };
-#line 3316 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3316 "backup.epp"
 						/*ON_ERROR*/
 						if (isc_status [1])
 						   {
-#line 3317 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3317 "backup.epp"
 							general_on_error();
 						/*END_ERROR;*/
 						   }
 						}
-#line 3319 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3319 "backup.epp"
 					}
 				/*END_FOR;*/
 				   }
 				   };
-#line 3321 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3321 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3322 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3322 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3324 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3324 "backup.epp"
 			}
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3327 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3327 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3328 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3328 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3330 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3330 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);
@@ -8908,62 +8908,62 @@ void write_procedures(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 128, &isc_165, (short) 0);
 	   if (!isc_165.isc_172 || isc_status [1]) break;
-#line 3360 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3360 "backup.epp"
 		put(tdgbl, rec_procedure);
 		const SSHORT l = PUT_TEXT (att_procedure_name, /*X.RDB$PROCEDURE_NAME*/
 							       isc_165.isc_171);
-#line 3362 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3362 "backup.epp"
 		MISC_terminate (/*X.RDB$PROCEDURE_NAME*/
 				isc_165.isc_171, temp, l, sizeof(temp));
-#line 3363 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3363 "backup.epp"
 		BURP_verbose (193, temp);
 		/* msg 193 writing stored procedure %.*s */
 		put_numeric (att_procedure_inputs, /*X.RDB$PROCEDURE_INPUTS*/
 						   isc_165.isc_175);
-#line 3366 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3366 "backup.epp"
 		put_numeric (att_procedure_outputs, /*X.RDB$PROCEDURE_OUTPUTS*/
 						    isc_165.isc_174);
-#line 3367 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3367 "backup.epp"
 		put_source_blob (att_procedure_description2, att_procedure_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_165.isc_170);
-#line 3368 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3368 "backup.epp"
 		put_source_blob (att_procedure_source2, att_procedure_source, (ISC_QUAD *)&/*X.RDB$PROCEDURE_SOURCE*/
 											   isc_165.isc_169);
-#line 3369 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3369 "backup.epp"
 		put_blr_blob (att_procedure_blr, (ISC_QUAD *)&/*X.RDB$PROCEDURE_BLR*/
 							      isc_165.isc_168);
-#line 3370 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3370 "backup.epp"
 		if (!/*X.RDB$SECURITY_CLASS.NULL*/
 		     isc_165.isc_173)
-#line 3371 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3371 "backup.epp"
 			PUT_TEXT (att_procedure_security_class, /*X.RDB$SECURITY_CLASS*/
 								isc_165.isc_167);
-#line 3372 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3372 "backup.epp"
 		if (!/*X.RDB$SECURITY_CLASS.NULL*/
 		     isc_165.isc_173)
-#line 3373 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3373 "backup.epp"
 			PUT_TEXT (att_procedure_owner_name, /*X.RDB$OWNER_NAME*/
 							    isc_165.isc_166);
-#line 3374 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3374 "backup.epp"
 		put(tdgbl, att_end);
 		COPY(/*X.RDB$PROCEDURE_NAME*/
 		     isc_165.isc_171, proc);
-#line 3376 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3376 "backup.epp"
 		write_procedure_prms (proc);
 		put(tdgbl, rec_procedure_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3379 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3379 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3380 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3380 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3382 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3382 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8998,42 +8998,42 @@ void write_procedure_prms( GDS_NAME procptr)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) 1, (short) 78, &isc_157, (short) 0);
 	   if (!isc_157.isc_161 || isc_status [1]) break;
-#line 3405 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3405 "backup.epp"
 		put(tdgbl, rec_procedure_prm);
 		const SSHORT l = PUT_TEXT (att_procedureprm_name, /*X.RDB$PARAMETER_NAME*/
 								  isc_157.isc_160);
-#line 3407 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3407 "backup.epp"
 		MISC_terminate (/*X.RDB$PARAMETER_NAME*/
 				isc_157.isc_160, temp, l, sizeof(temp));
-#line 3408 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3408 "backup.epp"
 		BURP_verbose (194, temp);
 		// msg 194 writing parameter %s for stored procedure 
 		put_numeric (att_procedureprm_number, /*X.RDB$PARAMETER_NUMBER*/
 						      isc_157.isc_163);
-#line 3411 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3411 "backup.epp"
 		put_numeric (att_procedureprm_type, /*X.RDB$PARAMETER_type*/
 						    isc_157.isc_162);
-#line 3412 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3412 "backup.epp"
 		PUT_TEXT (att_procedureprm_field_source, /*X.RDB$FIELD_SOURCE*/
 							 isc_157.isc_159);
-#line 3413 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3413 "backup.epp"
 		put_source_blob (att_procedureprm_description2, att_procedureprm_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													   isc_157.isc_158);
-#line 3414 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3414 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3416 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3416 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3417 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3417 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3419 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3419 "backup.epp"
 }
 
 
@@ -9066,37 +9066,37 @@ void write_ref_constraints(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 98, &isc_147, (short) 0);
 	   if (!isc_147.isc_153 || isc_status [1]) break;
-#line 3441 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3441 "backup.epp"
 		put(tdgbl, rec_ref_constraint);
 		PUT_TEXT (att_ref_constraint_name, /*X.RDB$CONSTRAINT_NAME*/
 						   isc_147.isc_150);
-#line 3443 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3443 "backup.epp"
 		PUT_TEXT (att_ref_unique_const_name, /*X.RDB$CONST_NAME_UQ*/
 						     isc_147.isc_149);
-#line 3444 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3444 "backup.epp"
 		PUT_TEXT (att_ref_match_option, /*X.RDB$MATCH_OPTION*/
 						isc_147.isc_148);
-#line 3445 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3445 "backup.epp"
 		PUT_MESSAGE (att_ref_update_rule, /*X.RDB$UPDATE_RULE*/
 						  isc_147.isc_152);
-#line 3446 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3446 "backup.epp"
 		PUT_MESSAGE (att_ref_delete_rule, /*X.RDB$DELETE_RULE*/
 						  isc_147.isc_151);
-#line 3447 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3447 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3449 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3449 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3450 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3450 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3452 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3452 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9131,48 +9131,48 @@ void write_rel_constraints(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 120, &isc_137, (short) 0);
 	   if (!isc_137.isc_144 || isc_status [1]) break;
-#line 3476 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3476 "backup.epp"
 		put(tdgbl, rec_rel_constraint);
 		const SSHORT l = PUT_TEXT (att_rel_constraint_name, /*X.RDB$CONSTRAINT_NAME*/
 								    isc_137.isc_140);
-#line 3478 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3478 "backup.epp"
 		MISC_terminate (/*X.RDB$CONSTRAINT_NAME*/
 				isc_137.isc_140, temp, l, sizeof(temp));
-#line 3479 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3479 "backup.epp"
 		BURP_verbose (207, temp);
 		// msg 207 writing constraint %s 
 		PUT_MESSAGE (att_rel_constraint_type, /*X.RDB$CONSTRAINT_TYPE*/
 						      isc_137.isc_143);
-#line 3482 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3482 "backup.epp"
 		PUT_TEXT (att_rel_constraint_rel_name, /*X.RDB$RELATION_NAME*/
 						       isc_137.isc_139);
-#line 3483 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3483 "backup.epp"
 		PUT_TEXT (att_rel_constraint_defer, /*X.RDB$DEFERRABLE*/
 						    isc_137.isc_142);
-#line 3484 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3484 "backup.epp"
 		PUT_TEXT (att_rel_constraint_init, /*X.RDB$INITIALLY_DEFERRED*/
 						   isc_137.isc_141);
-#line 3485 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3485 "backup.epp"
 		if (!(/*X.RDB$INDEX_NAME.NULL*/
 		      isc_137.isc_145))
-#line 3486 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3486 "backup.epp"
 			PUT_TEXT (att_rel_constraint_index, /*X.RDB$INDEX_NAME*/
 							    isc_137.isc_138);
-#line 3487 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3487 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3489 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3489 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3490 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3490 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3492 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3492 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9219,16 +9219,16 @@ void write_relations(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 396, &isc_120, (short) 0);
 		   if (!isc_120.isc_128 || isc_status [1]) break;
-#line 3528 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3528 "backup.epp"
 
 			SSHORT flags = 0;
 			put(tdgbl, rec_relation);
 			const SSHORT l = PUT_TEXT (att_relation_name, /*X.RDB$RELATION_NAME*/
 								      isc_120.isc_127);
-#line 3532 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3532 "backup.epp"
 			MISC_terminate (/*X.RDB$RELATION_NAME*/
 					isc_120.isc_127, temp, l, sizeof(temp));
-#line 3533 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3533 "backup.epp"
 			BURP_verbose (153, temp);
 		/* msg 153 writing relation %.*s */
 
@@ -9238,48 +9238,48 @@ void write_relations(void)
 
 			if (put_blr_blob (att_relation_view_blr, (ISC_QUAD *)&/*X.RDB$VIEW_BLR*/
 									      isc_120.isc_126))
-#line 3541 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3541 "backup.epp"
 				flags |= REL_view;
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_120.isc_135)
-#line 3543 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3543 "backup.epp"
 				put_numeric (att_relation_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								       isc_120.isc_135);
-#line 3544 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3544 "backup.epp"
 			if (!(/*X.RDB$FLAGS.NULL*/
 			      isc_120.isc_133))
-#line 3545 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3545 "backup.epp"
 				put_numeric (att_relation_flags, /*X.RDB$FLAGS*/
 								 isc_120.isc_134);
-#line 3546 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3546 "backup.epp"
 			if (!/*X.RDB$SECURITY_CLASS.NULL*/
 			     isc_120.isc_132)
-#line 3547 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3547 "backup.epp"
 				PUT_TEXT (att_relation_security_class, /*X.RDB$SECURITY_CLASS*/
 								       isc_120.isc_125);
-#line 3548 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3548 "backup.epp"
 			
 			put_source_blob (att_relation_description2, att_relation_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													   isc_120.isc_124);
-#line 3550 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3550 "backup.epp"
 			put_source_blob (att_relation_view_source2, att_relation_view_source, (ISC_QUAD *)&/*X.RDB$VIEW_SOURCE*/
 													   isc_120.isc_123);
-#line 3551 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3551 "backup.epp"
 			
 			put_source_blob (att_relation_ext_description2, att_relation_ext_description, (ISC_QUAD *)&/*X.RDB$EXTERNAL_DESCRIPTION*/
 														   isc_120.isc_122);
-#line 3553 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3553 "backup.epp"
 			PUT_TEXT (att_relation_owner_name, /*X.RDB$OWNER_NAME*/
 							   isc_120.isc_121);
-#line 3554 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3554 "backup.epp"
 			if (!/*X.RDB$EXTERNAL_FILE.NULL*/
 			     isc_120.isc_130)
-#line 3555 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3555 "backup.epp"
 				if (!tdgbl->gbl_sw_convert_ext_tables)
 				{
 					PUT_TEXT(att_relation_ext_file_name, /*X.RDB$EXTERNAL_FILE*/
 									     isc_120.isc_131); 
-#line 3558 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3558 "backup.epp"
 					flags |= REL_external;
 				}
 
@@ -9289,25 +9289,25 @@ void write_relations(void)
 			tdgbl->relations = relation;
 			relation->rel_id = /*X.RDB$RELATION_ID*/
 					   isc_120.isc_129;
-#line 3566 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3566 "backup.epp"
 			relation->rel_name_length = COPY(/*X.RDB$RELATION_NAME*/
 							 isc_120.isc_127, relation->rel_name);
-#line 3567 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3567 "backup.epp"
 			relation->rel_flags |= flags;
 			put_relation (relation);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3570 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3570 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3571 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3571 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3573 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3573 "backup.epp"
 	}
 	else
 	{
@@ -9324,16 +9324,16 @@ void write_relations(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 62, &isc_111, (short) 0);
 		   if (!isc_111.isc_116 || isc_status [1]) break;
-#line 3579 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3579 "backup.epp"
 
 			SSHORT flags = 0;
 			put(tdgbl, rec_relation);
 			const SSHORT l = PUT_TEXT(att_relation_name, /*X.RDB$RELATION_NAME*/
 								     isc_111.isc_115);
-#line 3583 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3583 "backup.epp"
 			MISC_terminate (/*X.RDB$RELATION_NAME*/
 					isc_111.isc_115, temp, l, sizeof(temp));
-#line 3584 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3584 "backup.epp"
 			BURP_verbose (153, temp);
 			/* msg 153 writing relation %.*s */
 			
@@ -9343,14 +9343,14 @@ void write_relations(void)
 
 			if (put_blr_blob (att_relation_view_blr, (ISC_QUAD *)&/*X.RDB$VIEW_BLR*/
 									      isc_111.isc_114))
-#line 3592 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3592 "backup.epp"
 				flags |= REL_view;
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_111.isc_118)
-#line 3594 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3594 "backup.epp"
 				put_numeric (att_relation_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								       isc_111.isc_118);
-#line 3595 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3595 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
 				/*FOR (REQUEST_HANDLE req_handle2)
@@ -9366,26 +9366,26 @@ void write_relations(void)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 6, &isc_106, (short) 0);
 				   if (!isc_106.isc_107 || isc_status [1]) break;
-#line 3599 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3599 "backup.epp"
 					if (!(/*R.RDB$FLAGS.NULL*/
 					      isc_106.isc_108))
-#line 3600 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3600 "backup.epp"
 						put_numeric (att_relation_flags, /*R.RDB$FLAGS*/
 										 isc_106.isc_109);
-#line 3601 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3601 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 3602 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3602 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3603 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3603 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3605 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3605 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_security)
 			{
@@ -9402,33 +9402,33 @@ void write_relations(void)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 36, &isc_99, (short) 0);
 				   if (!isc_99.isc_101 || isc_status [1]) break;
-#line 3610 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3610 "backup.epp"
 					if (!/*R.RDB$SECURITY_CLASS.NULL*/
 					     isc_99.isc_102)
-#line 3611 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3611 "backup.epp"
 						PUT_TEXT(att_relation_security_class, /*R.RDB$SECURITY_CLASS*/
 										      isc_99.isc_100);
-#line 3612 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3612 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 3613 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3613 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3614 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3614 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3616 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3616 "backup.epp"
 			}
 			put_source_blob (att_relation_description2, att_relation_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													   isc_111.isc_113);
-#line 3618 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3618 "backup.epp"
 			put_source_blob (att_relation_view_source2, att_relation_view_source, (ISC_QUAD *)&/*X.RDB$VIEW_SOURCE*/
 													   isc_111.isc_112);
-#line 3619 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3619 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
 				/*FOR (REQUEST_HANDLE req_handle4)
@@ -9444,38 +9444,38 @@ void write_relations(void)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 298, &isc_90, (short) 0);
 				   if (!isc_90.isc_93 || isc_status [1]) break;
-#line 3623 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3623 "backup.epp"
 					put_source_blob (att_relation_ext_description2, att_relation_ext_description, (ISC_QUAD *)&/*R.RDB$EXTERNAL_DESCRIPTION*/
 																   isc_90.isc_92);
-#line 3624 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3624 "backup.epp"
 					PUT_TEXT(att_relation_owner_name, /*R.RDB$OWNER_NAME*/
 									  isc_90.isc_91);
-#line 3625 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3625 "backup.epp"
 					if (!/*R.RDB$EXTERNAL_FILE.NULL*/
 					     isc_90.isc_94)
-#line 3626 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3626 "backup.epp"
 					{
 						if (!tdgbl->gbl_sw_convert_ext_tables)
 						{
 							PUT_TEXT(att_relation_ext_file_name, /*R.RDB$EXTERNAL_FILE*/
 											     isc_90.isc_95); 
-#line 3630 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3630 "backup.epp"
 							flags |= REL_external;
 						}
 					}
 				/*END_FOR;*/
 				   }
 				   };
-#line 3634 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3634 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3635 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3635 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3637 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3637 "backup.epp"
 			}
 			put(tdgbl, att_end);
 			BURP_REL relation = (BURP_REL) BURP_alloc_zero (sizeof(burp_rel));
@@ -9483,25 +9483,25 @@ void write_relations(void)
 			tdgbl->relations = relation;
 			relation->rel_id = /*X.RDB$RELATION_ID*/
 					   isc_111.isc_117;
-#line 3643 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3643 "backup.epp"
 			relation->rel_name_length = COPY(/*X.RDB$RELATION_NAME*/
 							 isc_111.isc_115, relation->rel_name);
-#line 3644 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3644 "backup.epp"
 			relation->rel_flags |= flags;
 			put_relation (relation);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3647 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3647 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3648 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3648 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3650 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3650 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);
@@ -9542,45 +9542,45 @@ void write_shadow_files(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 270, &isc_79, (short) 0);
 	   if (!isc_79.isc_82 || isc_status [1]) break;
-#line 3680 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3680 "backup.epp"
 		put(tdgbl, rec_files);
 		const SSHORT l = PUT_TEXT (att_file_filename, /*X.RDB$FILE_NAME*/
 							      isc_79.isc_86);
-#line 3682 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3682 "backup.epp"
 		MISC_terminate (/*X.RDB$FILE_NAME*/
 				isc_79.isc_86, temp, l, sizeof(temp));
-#line 3683 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3683 "backup.epp"
 		BURP_verbose (163, temp);
 		// msg 163 writing shadow file %s
 		put_numeric (att_file_sequence, /*X.RDB$FILE_SEQUENCE*/
 						isc_79.isc_85);
-#line 3686 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3686 "backup.epp"
 		put_numeric (att_file_start, /*X.RDB$FILE_START*/
 					     isc_79.isc_81);
-#line 3687 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3687 "backup.epp"
 		put_numeric (att_file_length, /*X.RDB$FILE_LENGTH*/
 					      isc_79.isc_80);
-#line 3688 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3688 "backup.epp"
 		put_numeric (att_file_flags, /*X.RDB$FILE_FLAGS*/
 					     isc_79.isc_84);
-#line 3689 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3689 "backup.epp"
 		put_numeric (att_shadow_number, /*X.RDB$SHADOW_NUMBER*/
 						isc_79.isc_83);
-#line 3690 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3690 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3692 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3692 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3693 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3693 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3695 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3695 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9615,35 +9615,35 @@ void write_sql_roles(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 66, &isc_74, (short) 0);
 	   if (!isc_74.isc_77 || isc_status [1]) break;
-#line 3719 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3719 "backup.epp"
 
 		put(tdgbl, rec_sql_roles);
 		const SSHORT l = PUT_TEXT(att_role_name, /*X.RDB$ROLE_NAME*/
 							 isc_74.isc_76);
-#line 3722 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3722 "backup.epp"
 		PUT_TEXT (att_role_owner_name, /*X.RDB$OWNER_NAME*/
 					       isc_74.isc_75);
-#line 3723 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3723 "backup.epp"
 		put(tdgbl, att_end);
 		MISC_terminate (/*X.RDB$ROLE_NAME*/
 				isc_74.isc_76, temp, l, sizeof(temp));
-#line 3725 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3725 "backup.epp"
 		BURP_verbose (249, temp);
 	// msg 249 writing SQL role: %s 
 		
 	/*END_FOR;*/
 	   }
 	   };
-#line 3729 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3729 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3730 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3730 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3732 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3732 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9687,65 +9687,65 @@ void write_triggers(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 102, &isc_60, (short) 0);
 		   if (!isc_60.isc_66 || isc_status [1]) break;
-#line 3765 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3765 "backup.epp"
 
 			put(tdgbl, rec_trigger);
 			const SSHORT l = PUT_TEXT (att_trig_name, /*X.RDB$TRIGGER_NAME*/
 								  isc_60.isc_65);
-#line 3768 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3768 "backup.epp"
 			MISC_terminate (/*X.RDB$TRIGGER_NAME*/
 					isc_60.isc_65, temp, l, sizeof(temp));
-#line 3769 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3769 "backup.epp"
 			BURP_verbose (156, temp);
 			// msg 156   writing trigger %s 
 		
 			PUT_TEXT (att_trig_relation_name, /*X.RDB$RELATION_NAME*/
 							  isc_60.isc_64);
-#line 3773 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3773 "backup.epp"
 			put_numeric (att_trig_sequence, /*X.RDB$TRIGGER_SEQUENCE*/
 							isc_60.isc_72);
-#line 3774 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3774 "backup.epp"
 			put_numeric (att_trig_type, /*X.RDB$TRIGGER_TYPE*/
 						    isc_60.isc_71);
-#line 3775 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3775 "backup.epp"
 			put_blr_blob (att_trig_blr, (ISC_QUAD *)&/*X.RDB$TRIGGER_BLR*/
 								 isc_60.isc_63);
-#line 3776 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3776 "backup.epp"
 			put_source_blob (att_trig_source2, att_trig_source, (ISC_QUAD *)&/*X.RDB$TRIGGER_SOURCE*/
 											 isc_60.isc_62);
-#line 3777 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3777 "backup.epp"
 			put_source_blob (att_trig_description2, att_trig_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												   isc_60.isc_61);
-#line 3778 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3778 "backup.epp"
 			put_numeric (att_trig_system_flag, /*X.RDB$SYSTEM_FLAG*/
 							   isc_60.isc_70);
-#line 3779 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3779 "backup.epp"
 			put_numeric (att_trig_inactive, /*X.RDB$TRIGGER_INACTIVE*/
 							isc_60.isc_69);
-#line 3780 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3780 "backup.epp"
 			
 			if (!(/*X.RDB$FLAGS.NULL*/
 			      isc_60.isc_67))
-#line 3782 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3782 "backup.epp"
 				put_numeric (att_trig_flags, /*X.RDB$FLAGS*/
 							     isc_60.isc_68);
-#line 3783 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3783 "backup.epp"
 			
 			put(tdgbl, att_end);
 
 		/*END_FOR;*/
 		   }
 		   };
-#line 3787 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3787 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3788 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3788 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3790 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3790 "backup.epp"
 	}
 	else
 	{
@@ -9763,42 +9763,42 @@ void write_triggers(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 98, &isc_48, (short) 0);
 		   if (!isc_48.isc_54 || isc_status [1]) break;
-#line 3797 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3797 "backup.epp"
 
 			put(tdgbl, rec_trigger);
 			const SSHORT l = PUT_TEXT (att_trig_name, /*X.RDB$TRIGGER_NAME*/
 								  isc_48.isc_53);
-#line 3800 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3800 "backup.epp"
 			MISC_terminate (/*X.RDB$TRIGGER_NAME*/
 					isc_48.isc_53, temp, l, sizeof(temp));
-#line 3801 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3801 "backup.epp"
 			BURP_verbose (156, temp);
 			// msg 156   writing trigger %s 
 			
 			PUT_TEXT (att_trig_relation_name, /*X.RDB$RELATION_NAME*/
 							  isc_48.isc_52);
-#line 3805 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3805 "backup.epp"
 			put_numeric (att_trig_sequence, /*X.RDB$TRIGGER_SEQUENCE*/
 							isc_48.isc_58);
-#line 3806 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3806 "backup.epp"
 			put_numeric (att_trig_type, /*X.RDB$TRIGGER_TYPE*/
 						    isc_48.isc_57);
-#line 3807 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3807 "backup.epp"
 			put_blr_blob (att_trig_blr, (ISC_QUAD *)&/*X.RDB$TRIGGER_BLR*/
 								 isc_48.isc_51);
-#line 3808 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3808 "backup.epp"
 			put_source_blob (att_trig_source2, att_trig_source, (ISC_QUAD *)&/*X.RDB$TRIGGER_SOURCE*/
 											 isc_48.isc_50);
-#line 3809 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3809 "backup.epp"
 			put_source_blob (att_trig_description2, att_trig_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												   isc_48.isc_49);
-#line 3810 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3810 "backup.epp"
 			put_numeric (att_trig_system_flag, /*X.RDB$SYSTEM_FLAG*/
 							   isc_48.isc_56);
-#line 3811 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3811 "backup.epp"
 			put_numeric (att_trig_inactive, /*X.RDB$TRIGGER_INACTIVE*/
 							isc_48.isc_55);
-#line 3812 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3812 "backup.epp"
 
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -9816,28 +9816,28 @@ void write_triggers(void)
 				   {
                                    isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 6, &isc_43, (short) 0);
 				   if (!isc_43.isc_44 || isc_status [1]) break;
-#line 3818 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3818 "backup.epp"
 
 					if (!(/*Y.RDB$FLAGS.NULL*/
 					      isc_43.isc_45))
-#line 3820 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3820 "backup.epp"
 						put_numeric (att_trig_flags, /*Y.RDB$FLAGS*/
 									     isc_43.isc_46);
-#line 3821 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3821 "backup.epp"
 
 				/*END_FOR;*/
 				   }
 				   };
-#line 3823 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3823 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3824 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3824 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3826 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3826 "backup.epp"
 			}
 
 			put(tdgbl, att_end);
@@ -9845,16 +9845,16 @@ void write_triggers(void)
 		/*END_FOR;*/
 		   }
 		   };
-#line 3831 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3831 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3832 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3832 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3834 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3834 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);
@@ -9894,37 +9894,37 @@ void write_trigger_messages(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 290, &isc_35, (short) 0);
 	   if (!isc_35.isc_37 || isc_status [1]) break;;
-#line 3863 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3863 "backup.epp"
 
 		put(tdgbl, rec_trigger_message);
 		const SSHORT l = PUT_TEXT (att_trigmsg_name, /*X.RDB$TRIGGER_NAME*/
 							     isc_35.isc_36);
-#line 3866 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3866 "backup.epp"
 		MISC_terminate (/*X.RDB$TRIGGER_NAME*/
 				isc_35.isc_36, temp, l, sizeof(temp));
-#line 3867 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3867 "backup.epp"
 		BURP_verbose (157, temp);
 		/* msg 157 writing trigger message for *s */
 		put_numeric (att_trigmsg_number, /*X.RDB$MESSAGE_NUMBER*/
 						 isc_35.isc_39);
-#line 3870 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3870 "backup.epp"
 		PUT_MESSAGE (att_trigmsg_text, /*X.RDB$MESSAGE*/
 					       isc_35.isc_38);
-#line 3871 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3871 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3873 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3873 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3874 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3874 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3876 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3876 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9959,45 +9959,45 @@ void write_types(void)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 78, &isc_27, (short) 0);
 	   if (!isc_27.isc_31 || isc_status [1]) break;
-#line 3900 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3900 "backup.epp"
 		put(tdgbl, rec_system_type);
 		PUT_TEXT (att_type_name, /*X.RDB$TYPE_NAME*/
 					 isc_27.isc_30);
-#line 3902 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3902 "backup.epp"
 		PUT_TEXT (att_type_field_name, /*X.RDB$FIELD_NAME*/
 					       isc_27.isc_29);
-#line 3903 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3903 "backup.epp"
 		BURP_verbose (160, /*X.RDB$TYPE_NAME*/
 				   isc_27.isc_30, /*X.RDB$FIELD_NAME*/
   isc_27.isc_29);
-#line 3904 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3904 "backup.epp"
 		// msg 160 writing type %s for field %s 
 		put_numeric (att_type_type, /*X.RDB$TYPE*/
 					    isc_27.isc_33);
-#line 3906 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3906 "backup.epp"
 		put_source_blob (att_type_description2, att_type_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 											   isc_27.isc_28);
-#line 3907 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3907 "backup.epp"
 		if (/*X.RDB$SYSTEM_FLAG*/
 		    isc_27.isc_32)
-#line 3908 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3908 "backup.epp"
 			put_numeric (att_type_system_flag, /*X.RDB$SYSTEM_FLAG*/
 							   isc_27.isc_32);
-#line 3909 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3909 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3911 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3911 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3912 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3912 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3914 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3914 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -10035,54 +10035,54 @@ void write_user_privileges(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 145, &isc_15, (short) 0);
 		   if (!isc_15.isc_20 || isc_status [1]) break;
-#line 3941 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3941 "backup.epp"
 			put(tdgbl, rec_user_privilege);
 			const SSHORT l = PUT_TEXT (att_priv_user, /*X.RDB$USER*/
 								  isc_15.isc_19);
-#line 3943 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3943 "backup.epp"
 			MISC_terminate (/*X.RDB$USER*/
 					isc_15.isc_19, temp, l, sizeof(temp));
-#line 3944 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3944 "backup.epp"
 			BURP_verbose (152, temp);
 			// msg 152 writing privilege for user %s
 			PUT_TEXT (att_priv_grantor, /*X.RDB$GRANTOR*/
 						    isc_15.isc_18);
-#line 3947 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3947 "backup.epp"
 			PUT_TEXT (att_priv_privilege, /*X.RDB$PRIVILEGE*/
 						      isc_15.isc_25);
-#line 3948 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3948 "backup.epp"
 			put_numeric (att_priv_grant_option, /*X.RDB$GRANT_OPTION*/
 							    isc_15.isc_24);
-#line 3949 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3949 "backup.epp"
 			PUT_TEXT (att_priv_object_name, /*X.RDB$RELATION_NAME*/
 							isc_15.isc_17);
-#line 3950 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3950 "backup.epp"
 			if (!/*X.RDB$FIELD_NAME.NULL*/
 			     isc_15.isc_23)
-#line 3951 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3951 "backup.epp"
 			   PUT_TEXT (att_priv_field_name, /*X.RDB$FIELD_NAME*/
 							  isc_15.isc_16);
-#line 3952 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3952 "backup.epp"
 			put_numeric (att_priv_user_type, /*X.RDB$USER_TYPE*/
 							 isc_15.isc_22);
-#line 3953 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3953 "backup.epp"
 			put_numeric (att_priv_obj_type, /*X.RDB$OBJECT_TYPE*/
 							isc_15.isc_21);
-#line 3954 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3954 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR*/
 		   }
 		   };
-#line 3956 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3956 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3957 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3957 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3959 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3959 "backup.epp"
 	}
 	else
 	{
@@ -10098,48 +10098,48 @@ void write_user_privileges(void)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 141, &isc_5, (short) 0);
 		   if (!isc_5.isc_10 || isc_status [1]) break;
-#line 3964 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3964 "backup.epp"
 			put(tdgbl, rec_user_privilege);
 			const SSHORT l = PUT_TEXT (att_priv_user, /*X.RDB$USER*/
 								  isc_5.isc_9);
-#line 3966 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3966 "backup.epp"
 			MISC_terminate (/*X.RDB$USER*/
 					isc_5.isc_9, temp, l, sizeof(temp));
-#line 3967 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3967 "backup.epp"
 			BURP_verbose (152, temp);
 			// msg 152 writing privilege for user %s
 			PUT_TEXT (att_priv_grantor, /*X.RDB$GRANTOR*/
 						    isc_5.isc_8);
-#line 3970 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3970 "backup.epp"
 			PUT_TEXT (att_priv_privilege, /*X.RDB$PRIVILEGE*/
 						      isc_5.isc_13);
-#line 3971 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3971 "backup.epp"
 			put_numeric (att_priv_grant_option, /*X.RDB$GRANT_OPTION*/
 							    isc_5.isc_12);
-#line 3972 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3972 "backup.epp"
 			PUT_TEXT (att_priv_object_name, /*X.RDB$RELATION_NAME*/
 							isc_5.isc_7);
-#line 3973 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3973 "backup.epp"
 			if (!/*X.RDB$FIELD_NAME.NULL*/
 			     isc_5.isc_11)
-#line 3974 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3974 "backup.epp"
 				PUT_TEXT (att_priv_field_name, /*X.RDB$FIELD_NAME*/
 							       isc_5.isc_6);
-#line 3975 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3975 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3977 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3977 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3978 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3978 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3980 "g:\\Firebird\\vulcan\\src\\burp\\backup.epp"
+#line 3980 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);

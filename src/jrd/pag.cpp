@@ -1210,8 +1210,8 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 		dbb->dbb_flags |= DBB_no_reserve;
 
 	if (header->hdr_flags & hdr_shutdown)
-		dbb->dbb_ast_flags |= DBB_shutdown;
-		//printf ("PAG_header: database marked for shutdown!\n");
+		//dbb->dbb_ast_flags |= DBB_shutdown;
+		printf ("PAG_header: database marked for shutdown!\n");
 }
 
 

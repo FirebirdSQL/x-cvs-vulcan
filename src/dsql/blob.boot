@@ -3,7 +3,8 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version WI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+#line 1 "../dsql/blob.epp"
 /*
  *	PROGRAM:	InterBase layered support library
  *	MODULE:		blob.epp
@@ -35,7 +36,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include <stdarg.h>
 #include "../jrd/ibase.h"
@@ -142,6 +143,7 @@ static const char
 
 /**** end of GPRE definitions ****/
 
+#line 41 "../dsql/blob.epp"
 
 static void copy_exact_name (const char*, char*, SSHORT);
 static ISC_STATUS copy_status(const ISC_STATUS*, ISC_STATUS*);
@@ -246,6 +248,7 @@ ISC_STATUS API_ROUTINE isc_blob_lookup_desc(ISC_STATUS* status,
           char  isc_3 [32];	/* RDB$FIELD_NAME */
           char  isc_4 [32];	/* RDB$RELATION_NAME */
    } isc_2;
+#line 134 "../dsql/blob.epp"
 /***********************************************
  *
  *	i s c _ b l o b _ l o o k u p _ d e s c
@@ -268,6 +271,7 @@ ISC_STATUS API_ROUTINE isc_blob_lookup_desc(ISC_STATUS* status,
 		   isc_release_request (isc_status, &isc_0);
 		isc_0 = 0;
 		}
+#line 151 "../dsql/blob.epp"
 
 	DB = *db_handle;
 	gds_trans = *trans_handle;
@@ -286,8 +290,8 @@ ISC_STATUS API_ROUTINE isc_blob_lookup_desc(ISC_STATUS* status,
 	{
         if (!isc_0)
            isc_compile_request2 (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &isc_0, (short) sizeof (isc_1), (char *) isc_1);
-	isc_vtov ((char*)desc->blob_desc_field_name, (char*)isc_2.isc_3, 32);
-	isc_vtov ((char*)desc->blob_desc_relation_name, (char*)isc_2.isc_4, 32);
+	isc_vtov ((const char*)desc->blob_desc_field_name, (char*)isc_2.isc_3, 32);
+	isc_vtov ((const char*)desc->blob_desc_relation_name, (char*)isc_2.isc_4, 32);
 	if (isc_0)
            isc_start_and_send (isc_status, (isc_req_handle*) &isc_0, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_2, (short) 0);
 	if (!isc_status [1]) {
@@ -295,31 +299,40 @@ ISC_STATUS API_ROUTINE isc_blob_lookup_desc(ISC_STATUS* status,
 	   {
            isc_receive (isc_status, (isc_req_handle*) &isc_0, (short) 1, (short) 40, &isc_5, (short) 0);
 	   if (!isc_5.isc_7 || isc_status [1]) break;
+#line 166 "../dsql/blob.epp"
 		flag = true;
 
 	    desc->blob_desc_subtype = /*Y.RDB$FIELD_SUB_TYPE*/
 				      isc_5.isc_10;
+#line 169 "../dsql/blob.epp"
         desc->blob_desc_charset = /*Y.RDB$CHARACTER_SET_ID*/
 				  isc_5.isc_9;
+#line 170 "../dsql/blob.epp"
         desc->blob_desc_segment_size = /*Y.RDB$SEGMENT_LENGTH*/
 				       isc_5.isc_8;
+#line 171 "../dsql/blob.epp"
 
         if (global) {
             copy_exact_name (/*Y.RDB$FIELD_NAME*/
 			     isc_5.isc_6, global,
+#line 174 "../dsql/blob.epp"
                              sizeof(/*Y.RDB$FIELD_NAME*/
 				    isc_5.isc_6));
+#line 175 "../dsql/blob.epp"
         }
 	/*END_FOR*/
 	   }
 	   }; 
+#line 177 "../dsql/blob.epp"
     /*ON_ERROR*/
     if (isc_status [1])
        { 
+#line 178 "../dsql/blob.epp"
       return copy_status(gds_status, status);
 	/*END_ERROR;*/
 	   }
 	}
+#line 180 "../dsql/blob.epp"
 
 	if (!flag)
 		return error(status, 5, isc_fldnotdef,

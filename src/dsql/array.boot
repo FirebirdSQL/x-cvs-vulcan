@@ -3,7 +3,8 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version WI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+#line 1 "../dsql/array.epp"
 /*
  *	PROGRAM:	Interbase layered support library
  *	MODULE:		array.epp
@@ -38,7 +39,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/common.h"
 #include <stdarg.h>
@@ -198,6 +199,7 @@ static const char
 
 /**** end of GPRE definitions ****/
 
+#line 44 "../dsql/array.epp"
 
 const int array_desc_column_major = 1;	// Set for FORTRAN
 
@@ -312,6 +314,7 @@ ISC_STATUS API_ROUTINE isc_array_lookup_bounds(ISC_STATUS* status,
    struct {
           char  isc_15 [32];	/* RDB$FIELD_NAME */
    } isc_14;
+#line 150 "../dsql/array.epp"
 /**************************************
  *
  *	i s c _ a r r a y _ l o o k u p _ b o u n d s
@@ -335,7 +338,7 @@ ISC_STATUS API_ROUTINE isc_array_lookup_bounds(ISC_STATUS* status,
 	{
         if (!isc_12)
            isc_compile_request2 (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &isc_12, (short) sizeof (isc_13), (char *) isc_13);
-	isc_vtov ((char*)global, (char*)isc_14.isc_15, 32);
+	isc_vtov ((const char*)global, (char*)isc_14.isc_15, 32);
 	if (isc_12)
            isc_start_and_send (isc_status, (isc_req_handle*) &isc_12, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_14, (short) 0);
 	if (!isc_status [1]) {
@@ -343,21 +346,27 @@ ISC_STATUS API_ROUTINE isc_array_lookup_bounds(ISC_STATUS* status,
 	   {
            isc_receive (isc_status, (isc_req_handle*) &isc_12, (short) 1, (short) 10, &isc_16, (short) 0);
 	   if (!isc_16.isc_19 || isc_status [1]) break;
+#line 170 "../dsql/array.epp"
         tail->array_bound_lower = (SSHORT)/*X.RDB$LOWER_BOUND*/
 					  isc_16.isc_18;
+#line 171 "../dsql/array.epp"
 	    tail->array_bound_upper = (SSHORT)/*X.RDB$UPPER_BOUND*/
 					      isc_16.isc_17;
+#line 172 "../dsql/array.epp"
         ++tail;
 	/*END_FOR*/
 	   }
 	   }; 
+#line 174 "../dsql/array.epp"
     /*ON_ERROR*/
     if (isc_status [1])
        { 
+#line 175 "../dsql/array.epp"
         return copy_status(gds_status, status);
 	/*END_ERROR;*/
 	   }
 	}
+#line 177 "../dsql/array.epp"
 
 	return status[1];
 }
@@ -719,6 +728,7 @@ static ISC_STATUS lookup_desc(ISC_STATUS* status,
           char  isc_3 [32];	/* RDB$FIELD_NAME */
           char  isc_4 [32];	/* RDB$RELATION_NAME */
    } isc_2;
+#line 526 "../dsql/array.epp"
 /**************************************
  *
  *	l o o k u p _ d e s c
@@ -738,6 +748,7 @@ static ISC_STATUS lookup_desc(ISC_STATUS* status,
 		   isc_release_request (isc_status, &isc_12);
 		isc_12 = 0;
 		}
+#line 537 "../dsql/array.epp"
 
 	DB = *db_handle;
 	gds_trans = *trans_handle;
@@ -759,8 +770,8 @@ static ISC_STATUS lookup_desc(ISC_STATUS* status,
 	{
         if (!isc_0)
            isc_compile_request2 (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &isc_0, (short) sizeof (isc_1), (char *) isc_1);
-	isc_vtov ((char*)desc->array_desc_field_name, (char*)isc_2.isc_3, 32);
-	isc_vtov ((char*)desc->array_desc_relation_name, (char*)isc_2.isc_4, 32);
+	isc_vtov ((const char*)desc->array_desc_field_name, (char*)isc_2.isc_3, 32);
+	isc_vtov ((const char*)desc->array_desc_relation_name, (char*)isc_2.isc_4, 32);
 	if (isc_0)
            isc_start_and_send (isc_status, (isc_req_handle*) &isc_0, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_2, (short) 0);
 	if (!isc_status [1]) {
@@ -768,32 +779,41 @@ static ISC_STATUS lookup_desc(ISC_STATUS* status,
 	   {
            isc_receive (isc_status, (isc_req_handle*) &isc_0, (short) 1, (short) 42, &isc_5, (short) 0);
 	   if (!isc_5.isc_7 || isc_status [1]) break;
+#line 555 "../dsql/array.epp"
 		flag = true;
 	    desc->array_desc_dtype = (UCHAR)/*Y.RDB$FIELD_TYPE*/
 					    isc_5.isc_11;
+#line 557 "../dsql/array.epp"
         desc->array_desc_scale = (SCHAR)/*Y.RDB$FIELD_SCALE*/
 					isc_5.isc_10;
+#line 558 "../dsql/array.epp"
         desc->array_desc_length = /*Y.RDB$FIELD_LENGTH*/
 				  isc_5.isc_9;
+#line 559 "../dsql/array.epp"
         adjust_length(desc);
         desc->array_desc_dimensions = /*Y.RDB$DIMENSIONS*/
 				      isc_5.isc_8;
+#line 561 "../dsql/array.epp"
         if (global) {
             copy_exact_name (/*Y.RDB$FIELD_NAME*/
 			     isc_5.isc_6, global, sizeof(/*Y.RDB$FIELD_NAME*/
 		 isc_5.isc_6));
+#line 563 "../dsql/array.epp"
         }
  
 	/*END_FOR*/
 	   }
 	   }; 
+#line 566 "../dsql/array.epp"
     /*ON_ERROR*/
     if (isc_status [1])
        { 
+#line 567 "../dsql/array.epp"
         return copy_status(gds_status, status);
 	/*END_ERROR;*/
 	   }
 	}
+#line 569 "../dsql/array.epp"
 
 	if (!flag)
 		return error(status, 5, (ISC_STATUS) isc_fldnotdef,

@@ -1,0 +1,18 @@
+cd burp
+touch *.epp
+make
+cp backup.cpp backup.boot
+cp restore.cpp restore.boot
+
+cd ../dsql
+touch *.epp
+cd ../why
+make
+cd ../dsql
+cp array.cpp array.boot
+cp blob.cpp blob.boot
+
+cd ../gpre
+touch *.epp
+make
+cp gpre_meta.cpp gpre_meta.boot
