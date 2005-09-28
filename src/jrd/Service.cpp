@@ -6,7 +6,7 @@
 #include "common.h"
 #include "Service.h"
 #include "../common/classes/alloc.h"
-#include "jrd_pwd.h"
+//#include "jrd_pwd.h"
 #include "enc_proto.h"
 #include "ConfObject.h"
 

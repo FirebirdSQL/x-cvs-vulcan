@@ -61,7 +61,6 @@
 #include "../jrd/req.h"
 #include "../jrd/tra.h"
 #include "../jrd/blb.h"
-//#include "../jrd/lck.h"
 #include "../jrd/scl.h"
 #include "../jrd/license.h"
 #include "../jrd/os/pio.h"
@@ -74,12 +73,13 @@
 #include "../jrd/log.h"
 #include "../jrd/fil.h"
 #include "../jrd/sbm.h"
-#include "../jrd/jrd_pwd.h"
+//#include "../jrd/jrd_pwd.h"
 #include "OSRIException.h"
 #include "PageCache.h"
 #include "DatabaseManager.h"
 #include "Sync.h"
 #include "Format.h"
+#include "Attachment.h"
 
 #ifdef SERVICES
 #include "../jrd/svc.h"
@@ -899,7 +899,11 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 	if (!internal && securityDatabase == translatedName)
 		ERR_post(isc_login, 0);
 
-	SCL_init(false,
+	if (!internal)
+		attachment->authenticateUser(threadData, dpb_length, dpb);
+	
+	SCL_init(false, attachment, securityDatabase, threadData, internal);
+			/***
 			options.dpb_sys_user_name,
 			options.dpb_user_name,
 			options.dpb_password,
@@ -908,10 +912,8 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 			securityDatabase,
 			threadData,
 			internal);
+			***/
 
-	if (!internal)
-		attachment->authenticateUser(threadData, dpb_length, dpb);
-	
 #ifdef SHARED_CACHE
 	if (sync.state == Exclusive)
 		sync.downGrade(Shared);
@@ -966,7 +968,7 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 		ERR_post(isc_shutinprog, isc_arg_string, (const char*) expandedName, 0);
 
 	if (dbb->dbb_ast_flags & DBB_shutdown &&
-		!(attachment->att_user->usr_flags & (USR_locksmith | USR_owner)))
+		!(attachment->userFlags & (USR_locksmith | USR_owner)))
 		ERR_post(isc_shutdown, isc_arg_string, (const char*) expandedName, 0);
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -1715,6 +1717,11 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		if (!internal && securityDatabase == translatedName)
 			ERR_post(isc_login, 0);
 			
+		if (securityDatabase != "self")
+			attachment->authenticateUser(threadData, dpb_length, dpb);
+			
+		SCL_init(true, attachment, securityDatabase, threadData, internal);
+		/***
 		SCL_init(true,
 				options.dpb_sys_user_name,
 				options.dpb_user_name,
@@ -1724,16 +1731,13 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 				securityDatabase,
 				threadData,
 				internal);
-
+		***/
+		
 		if (!verify_database_name(expandedName, user_status)) 
 			{
 			JRD_restore_context();
 			return user_status[1];
 			}
-
-		if (securityDatabase != "self")
-			attachment->authenticateUser(threadData, dpb_length, dpb);
-			
 		dbb->dbb_file = PIO_create(threadData, expandedName, expandedName.length(), options.dpb_overwrite, dbb->fileShared);
 		const File* first_dbb_file = dbb->dbb_file;
 		
@@ -1759,7 +1763,8 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		if (options.dpb_set_no_reserve)
 			PAG_set_no_reserve(threadData, dbb, options.dpb_no_reserve);
 
-		INI_format(threadData, attachment->att_user->usr_user_name, options.dpb_set_db_charset);
+		//INI_format(threadData, attachment->att_user->usr_user_name, options.dpb_set_db_charset);
+		INI_format(threadData, attachment->userData.userName, options.dpb_set_db_charset);
 
 		if (options.dpb_shutdown || options.dpb_online) 
 			{
@@ -2171,7 +2176,7 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 	
 	try
 		{
-		if (!(attachment->att_user->usr_flags & (USR_locksmith | USR_owner)))
+		if (!(attachment->userFlags & (USR_locksmith | USR_owner)))
 			ERR_post(isc_no_priv,
 					isc_arg_string, "drop",
 					isc_arg_string, "database",
@@ -4488,7 +4493,7 @@ static ISC_STATUS check_database(thread_db* tdbb, Attachment* attachment, ISC_ST
 
 	if (attachment->att_flags & ATT_shutdown ||
 		(dbb->dbb_ast_flags & DBB_shutdown &&
-		 !(attachment->att_user->usr_flags & (USR_locksmith | USR_owner))))
+		 !(attachment->userFlags & (USR_locksmith | USR_owner))))
 		{
 		ptr = user_status;
 		*ptr++ = isc_arg_gds;
@@ -5415,7 +5420,7 @@ static DBB init(thread_db* tdbb,
 #endif
 
 		INTL_init(tdbb);
-		SecurityDatabase::initialize();
+		//SecurityDatabase::initialize();
 		
 		if (attach_flag)
 			dbb->makeReady();
@@ -5709,7 +5714,7 @@ static void shutdown_database(thread_db* tdbb, const bool release_pools)
 		dbb->dbb_flags &= ~DBB_lck_init_done;
 		}
 
-	SecurityDatabase::shutdown();
+	//SecurityDatabase::shutdown();
 
 	if (release_pools) 
 		{
@@ -6217,12 +6222,12 @@ static bool verify_database_name(const TEXT* name, ISC_STATUS* status)
 	
 	if (!securityNameBuffer[0]) 
 		{
-		SecurityDatabase::getPath(securityNameBuffer);
+		//SecurityDatabase::getPath(securityNameBuffer);
 		//ISC_expand_filename(SecurityNameBuffer, 0, ExpandedSecurityNameBuffer);
-		expandedSecurityName = PathName::expandFilename (securityNameBuffer);
+		//expandedSecurityName = PathName::expandFilename (securityNameBuffer);
 		}
 	
-        sync.unlock();
+    sync.unlock();
         
 	//if (strcmp(securityNameBuffer, name) == 0)
 	if (PathName::pathsEquivalent (securityNameBuffer, name) ||

@@ -239,6 +239,8 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 		if (strcasecmp(accountName, "AUTHENTICATOR") != 0)
 			throw OSRIException(isc_login, 0);
 		
+		userData.authenticator = true;
+		
 		if (strcmp(userData.password, "none") != 0)
 			{
 			TEXT pw1 [ENCRYPT_SIZE];
@@ -279,5 +281,5 @@ void SecurityDb::attachDatabase(void)
 	ISC_STATUS statusVector [20];
 	
 	if (isc_attach_database(statusVector, 0, databaseName, &dbHandle, gen.getLength(), (char*) gen.buffer))
-			throw OSRIException(statusVector);
+		throw OSRIException(statusVector);
 }

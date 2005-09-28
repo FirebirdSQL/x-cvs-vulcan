@@ -45,6 +45,7 @@ public:
 	Events(isc_db_handle handle, int argc, ...);
 	virtual ~Events(void);
 
+	ISC_STATUS		statusVector[20];
 	isc_db_handle	dbHandle;	
 	UCHAR			*eventBlock;
 	UCHAR			*resultBlock;

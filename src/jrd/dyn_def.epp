@@ -81,6 +81,7 @@
 #include "PathName.h"
 #include "OSRIException.h"
 #include "Relation.h"
+#include "Attachment.h"
 
 
 #define FOR_KEY_UPD_CASCADE  0x01
@@ -3230,31 +3231,35 @@ void DYN_define_role(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 	DBB dbb = tdbb->tdbb_database;
 
 	if (private_getODS(dbb) < ODS_9_0)
-	{
+		{
 		DYN_error(tdbb, false, 196, NULL, NULL, NULL, NULL, NULL);
 		ERR_punt();
-	}
+		}
 
-	strcpy(owner_name, tdbb->tdbb_attachment->att_user->usr_user_name);
+	strcpy(owner_name, tdbb->tdbb_attachment->userData.userName);
 
-	{ // scope block
+	//{ // scope block
 	TEXT* p;
+	
 	for (p = owner_name; *p; p++)
 		*p = UPPER7(*p);
+		
 	*p = '\0';
-	} // end scope block
+	//} // end scope block
 
 	GET_STRING(ptr, role_name);
 
-	if (strcmp(role_name, owner_name) == 0) {
+	if (strcmp(role_name, owner_name) == 0) 
+		{
 		/************************************************
 		**
 		** user name could not be used for SQL role
 		**
 		*************************************************/
+		
 		DYN_error(tdbb, false, 193, owner_name, NULL, NULL, NULL, NULL);
 		ERR_punt();
-	}
+		}
 
 	if (strcmp(role_name, "NONE") == 0) {
 		/************************************************

@@ -42,6 +42,7 @@
 #include "../jrd/nbak.h"
 #include "OSRIException.h"
 #include "PageCache.h"
+#include "Attachment.h"
 
 /* Shutdown lock data */
 
@@ -131,7 +132,7 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
 	/* Only platform's user locksmith can shutdown or bring online
 	   a database. */
 
-	if (!(attachment->att_user->usr_flags & (USR_locksmith | USR_owner))) 
+	if (!(attachment->userFlags & (USR_locksmith | USR_owner))) 
 		return FALSE;
 
 	try 
@@ -305,68 +306,72 @@ static BOOLEAN shutdown_locks(thread_db* tdbb, DBB dbb)
 	Attachment* attachment;
 	Attachment* shut_attachment;
 
-/* Mark database and all active attachments as shutdown. */
+	/* Mark database and all active attachments as shutdown. */
 
 	dbb->dbb_ast_flags |= DBB_shutdown;
 
-	for (attachment = dbb->dbb_attachments; attachment;
-		 attachment = attachment->att_next)
-	{
+	for (attachment = dbb->dbb_attachments; attachment; attachment = attachment->att_next)
 		if (!(attachment->att_flags & ATT_shutdown_manager))
 			attachment->att_flags |= ATT_shutdown;
-	}
 
-	if (dbb->dbb_use_count) {
+	if (dbb->dbb_use_count) 
+		{
 		/* Let active database threads rundown */
 
 		THREAD_EXIT;
 		THREAD_SLEEP(1 * 1000);
 		THREAD_ENTER;
 		return FALSE;
-	}
+		}
 
-/* Since no attachment is actively running, release all
-   attachment-specfic locks while they're not looking. */
+	/* Since no attachment is actively running, release all
+	   attachment-specfic locks while they're not looking. */
 
 	shut_attachment = NULL;
 
-	for (attachment = dbb->dbb_attachments; attachment;
-		 attachment = attachment->att_next) {
-		if (attachment->att_flags & ATT_shutdown_manager) {
+	for (attachment = dbb->dbb_attachments; attachment; attachment = attachment->att_next) 
+		{
+		if (attachment->att_flags & ATT_shutdown_manager) 
+			{
 			shut_attachment = attachment;
 			continue;
-		}
+			}
 
 		if (attachment->att_id_lock)
 			LCK_release(attachment->att_id_lock);
 
 		RLCK_shutdown_attachment(tdbb, attachment);
 		TRA_shutdown_attachment(tdbb, attachment);
-	}
+		}
 
-/* Release database locks that are shared by all attachments.
-   These include relation and index existence locks, as well
-   as, relation interest and record locking locks for PC semantic
-   record locking. */
+	/* Release database locks that are shared by all attachments.
+	   These include relation and index existence locks, as well
+	   as, relation interest and record locking locks for PC semantic
+	   record locking. */
 
 	RLCK_shutdown_database(tdbb, dbb);
 	CMP_shutdown_database(tdbb);
 
-/* If shutdown manager is here, leave enough database lock context
-   to run as a normal attachment. Otherwise, get rid of the rest
-   of the database locks.*/
+	/* If shutdown manager is here, leave enough database lock context
+	   to run as a normal attachment. Otherwise, get rid of the rest
+	   of the database locks.*/
 
-	if (!shut_attachment) {
+	if (!shut_attachment) 
+		{
 		CCH_SHUTDOWN_DATABASE(tdbb, dbb);
+		
 		if (dbb->dbb_shadow_lock)
 			LCK_release(dbb->dbb_shadow_lock);
+			
 		if (dbb->dbb_retaining_lock)
 			LCK_release(dbb->dbb_retaining_lock);
+			
 		if (dbb->dbb_lock)
 			LCK_release(dbb->dbb_lock);
+			
 		dbb->backup_manager->shutdown_locks(tdbb);
 		dbb->dbb_ast_flags |= DBB_shutdown_locks;
-	}
+		}
 
 	return TRUE;
 }

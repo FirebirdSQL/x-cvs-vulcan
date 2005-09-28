@@ -72,6 +72,7 @@
 #include "PageCache.h"
 #include "Sync.h"
 #include "Format.h"
+#include "Attachment.h"
 
 #ifdef DEV_BUILD
 #include "../jrd/dbg_proto.h"

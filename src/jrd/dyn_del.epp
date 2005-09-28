@@ -39,7 +39,6 @@
 #include "../jrd/scl.h"
 #include "../jrd/drq.h"
 #include "../jrd/flags.h"
-//#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
 #include "../jrd/lls.h"
 #include "../jrd/all.h"
@@ -64,6 +63,7 @@
 #include "../jrd/vio_proto.h"
 #include "OSRIException.h"
 #include "Procedure.h"
+#include "Attachment.h"
 
 DATABASE DB = STATIC "ODS.RDB";
 
@@ -1310,7 +1310,7 @@ void DYN_delete_role(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		{
 		TEXT *ptr2 = user;
 		
-		for (const TEXT *cptr1 = tdbb->tdbb_attachment->att_user->usr_user_name; *cptr1; cptr1++)
+		for (const TEXT *cptr1 = tdbb->tdbb_attachment->userData.userName; *cptr1; cptr1++)
 			*ptr2++ = UPPER7(*cptr1);
 
 		*ptr2 = '\0';
@@ -1330,31 +1330,27 @@ void DYN_delete_role(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 			DYN_terminate(XX.RDB$OWNER_NAME, sizeof(XX.RDB$OWNER_NAME));
 			strcpy(role_owner, XX.RDB$OWNER_NAME);
 
-			if ((tdbb->tdbb_attachment->att_user->usr_flags & USR_locksmith) ||
-				(strcmp(role_owner, user) == 0))
-			{
+			if ((tdbb->tdbb_attachment->userFlags & USR_locksmith) || (strcmp(role_owner, user) == 0))
+				{
 				ERASE XX;
-			}
+				}
 			else
-			{
 				del_role_ok = false;
-			}
 
 		END_FOR;
 
-		if (!DYN_REQUEST(drq_drop_role)) {
+		if (!DYN_REQUEST(drq_drop_role)) 
 			DYN_REQUEST(drq_drop_role) = request;
-		}
 
 		if (del_role_ok)
-		{
-			request =
-				CMP_find_request(tdbb, drq_del_role_1, DYN_REQUESTS);
+			{
+			request = CMP_find_request(tdbb, drq_del_role_1, DYN_REQUESTS);
 			id = drq_del_role_1;
 
 
 			/* The first OR clause Finds all members of the role
 			   The 2nd OR clause  Finds all privileges granted to the role */
+			   
 			FOR(REQUEST_HANDLE request TRANSACTION_HANDLE gbl->gbl_transaction)
 				PRIV IN RDB$USER_PRIVILEGES WITH
 					(PRIV.RDB$RELATION_NAME EQ role_name AND
@@ -1362,38 +1358,37 @@ void DYN_delete_role(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 					OR(PRIV.RDB$USER EQ role_name AND
 					   PRIV.RDB$USER_TYPE = obj_sql_role)
 
-					if (!DYN_REQUEST(drq_del_role_1)) {
+					if (!DYN_REQUEST(drq_del_role_1)) 
 						DYN_REQUEST(drq_del_role_1) = request;
-					}
 
 				ERASE PRIV;
 
 			END_FOR;
 
-			if (!DYN_REQUEST(drq_del_role_1)) {
+			if (!DYN_REQUEST(drq_del_role_1)) 
 				DYN_REQUEST(drq_del_role_1) = request;
-			}
 
-		}
+			}
 		else
-		{
-	/****************************************************
-    **
-    **  only owner of SQL role or USR_locksmith could drop SQL role
-    **
-    *****************************************************/
+			{
+			/****************************************************
+			**
+			**  only owner of SQL role or USR_locksmith could drop SQL role
+			**
+			*****************************************************/
+			
 			DYN_error(tdbb, false, 191, user, role_name, NULL, NULL, NULL);
 			goto do_punt;
+			}
 		}
-
-	}	// try
-	catch (OSRIException &exception) {
+	catch (OSRIException &exception) 
+		{
 		DYN_rundown_request(tdbb, request, -1);
 		const USHORT number = (id == drq_drop_role ? 191 : 62);
 		// msg 191: "ERASE RDB$ROLES failed"
 		// msg  62: "ERASE RDB$USER_PRIVILEGES failed"
 		DYN_error_punt(tdbb, &exception, number, NULL, NULL, NULL, NULL, NULL);
-	}
+		}
 
 	return;
 

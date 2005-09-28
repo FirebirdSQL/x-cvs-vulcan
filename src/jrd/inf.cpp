@@ -64,6 +64,7 @@
 #include "PageCache.h"
 #include "Sync.h"
 #include "Format.h"
+#include "Attachment.h"
 
 using namespace NAMESPACE;
 
@@ -209,7 +210,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 	//SLONG wal_p_offset;
 	Attachment* err_att;
 	Attachment* att;
-	UserId* user;
+	//UserId* user;
 	SLONG err_val;
 	BOOLEAN	header_refreshed = FALSE;	
 
@@ -442,19 +443,21 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 			case isc_info_active_transactions:
 				if (!transaction)
 					transaction = TRA_start(tdbb, 0, NULL);
-				for (id = transaction->tra_oldest_active;
-					id < transaction->tra_number; id++)
-					if (TRA_snapshot_state(tdbb, transaction, id) == tra_active) {
-						length = INF_convert(id, buffer);
-						if (!
-							(info =
-							INF_put_item(item, length, buffer, info, end)))
+					
+				for (id = transaction->tra_oldest_active; id < transaction->tra_number; id++)
+					if (TRA_snapshot_state(tdbb, transaction, id) == tra_active) 
 						{
+						length = INF_convert(id, buffer);
+						
+						if (!(info =INF_put_item(item, length, buffer, info, end)))
+							{
 							if (transaction)
 								TRA_commit(tdbb, transaction, false);
+								
 							return FALSE;
+							}
 						}
-					}
+						
 				continue;
 
 			case isc_info_user_names:
@@ -468,11 +471,14 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 					if (att->att_flags & ATT_shutdown)
 						continue;
 	                
-					user = att->att_user;
-					if (user) 
+					//user = att->att_user;
+					//if (user) 
 						{
-						const char* user_name = (!user->usr_user_name.IsEmpty()) ?
-							(const char *)user->usr_user_name : "(SQL Server)";
+						//const char* user_name = (!user->usr_user_name.IsEmpty()) ? (const char *)user->usr_user_name : "(SQL Server)";
+						const char* user_name = att->userData.userName;
+						
+						if (!user_name[0])
+							user_name = "(SQL Server)";
 							
 						p = buffer;
 						*p++ = l = (SSHORT) strlen (user_name);
@@ -482,6 +488,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 							
 						length = p - buffer;
 						info = INF_put_item(item, length, buffer, info, end);
+						
 						if (!info) 
 							{
 							if (transaction)

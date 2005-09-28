@@ -90,7 +90,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include;../src/include/gen"
+				AdditionalIncludeDirectories="../include;../src/include/gen;../jrd"
 				PreprocessorDefinitions="_DEBUG;_WINDOWS;_USRDLL;WINDOWS_ONLY;SUPERCLIENT;WIN32;_X86_;INTL_COMPONENT_FB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

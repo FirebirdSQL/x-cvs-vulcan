@@ -40,6 +40,7 @@
 #include "../jrd/rlck_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/vio_proto.h"
+#include "Attachment.h"
 
 #ifdef PC_ENGINE
 static Lock* allocate_record_lock(Transaction*, RPB *);

@@ -36,6 +36,7 @@
 #include "InternalPreparedStatement.h"
 #include "InternalResultSet.h"
 #include "Value.h"
+#include "Attachment.h"
 #include "err_proto.h"
 #include "gen/iberror.h"
 #include "../jrd/evl_proto.h"

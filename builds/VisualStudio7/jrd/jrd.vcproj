@@ -1605,23 +1605,6 @@
 				RelativePath="..\..\..\src\jrd\PStatement.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\pwd.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\..\src\jrd\RecordSource.cpp">
 			</File>
 			<File
@@ -2847,9 +2830,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\jrd_proto.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\jrd_pwd.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\jrd_time.h">

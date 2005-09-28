@@ -95,6 +95,7 @@
 #include "../jrd/PageCache.h"
 #include "../jrd/TipCache.h"
 #include "Format.h"
+#include "Attachment.h"
 
 
 static void check_class(thread_db*, Transaction*, record_param *, record_param *, USHORT);
@@ -3101,20 +3102,19 @@ static bool check_user(thread_db* tdbb, const dsc* desc)
  *	Validate string against current user name.
  *
  **************************************/
-	SET_TDBB(tdbb);
+	//SET_TDBB(tdbb);
 
 	const TEXT* p = (TEXT *) desc->dsc_address;
 	const TEXT* const end = p + desc->dsc_length;
-	const TEXT* q = tdbb->tdbb_attachment->att_user->usr_user_name;
+	const TEXT* q = tdbb->tdbb_attachment->userData.userName;
 
-/* It is OK to not internationalize this function for v4.00 as
- * User names are limited to 7-bit ASCII for v4.00
- */
+	/* It is OK to not internationalize this function for v4.00 as
+	 * User names are limited to 7-bit ASCII for v4.00
+	 */
 
-	for (; p < end && *p != ' '; p++, q++) {
+	for (; p < end && *p != ' '; p++, q++) 
 		if (UPPER7(*p) != UPPER7(*q))
 			return false;
-	}
 
 	return (*q) ? false : true;
 }

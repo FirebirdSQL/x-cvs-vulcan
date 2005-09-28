@@ -35,6 +35,7 @@
 #include "RsbSort.h"
 #include "req.h"
 #include "ExecutionPathInfoGen.h"
+#include "Attachment.h"
 #include "../jrd/cmp_proto.h"
 #include "../jrd/dpm_proto.h"
 #include "../jrd/rlck_proto.h"

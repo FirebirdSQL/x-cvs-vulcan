@@ -48,11 +48,11 @@
  *
  */
 
+#include <string.h>
+#include <stdarg.h>
 #include "fbdev.h"
 #include "../jrd/ib_stdio.h"
-#include <string.h>
 #include "../jrd/common.h"
-#include <stdarg.h>
 #include "../jrd/ibase.h"
 #include "../jrd/jrd.h"
 #include "Relation.h"
@@ -112,6 +112,7 @@
 #include "ProcManager.h"
 #include "Format.h"
 #include "Resource.h"
+#include "Attachment.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

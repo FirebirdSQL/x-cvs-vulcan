@@ -34,7 +34,7 @@ struct IndexDescAlloc;
 struct index_desc;
 struct index_root_page;
 struct btree_page;
-
+struct SortContext;
 
 USHORT	BTR_all(thread_db*, Relation*, IndexDescAlloc**);
 void	BTR_create(thread_db*, Relation*, Transaction*, index_desc*, USHORT, SortContext*, SelectivityList&);

@@ -99,6 +99,7 @@
 #include "../jrd/isc_f_proto.h"
 #include "PageCache.h"
 #include "Bdb.h"
+#include "Attachment.h"
 
 #undef CLASS
 
@@ -1210,6 +1211,7 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 
 	if (header->hdr_flags & hdr_shutdown)
 		dbb->dbb_ast_flags |= DBB_shutdown;
+		//printf ("PAG_header: database marked for shutdown!\n");
 }
 
 

@@ -104,6 +104,7 @@
 #include "ExecutionPathInfoGen.h"
 #include "Format.h"
 #include "Resource.h"
+#include "Attachment.h"
 
 #ifdef DEV_BUILD
 #define OPT_DEBUG

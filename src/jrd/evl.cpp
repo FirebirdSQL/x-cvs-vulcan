@@ -116,6 +116,7 @@
 #include "../jrd/misc_func_ids.h"
 #include "RsbBoolean.h"
 #include "Format.h"
+#include "Attachment.h"
 //#include "../jrd/authenticate.h"
 //#include "../common/config/config.h"
 
@@ -1023,37 +1024,32 @@ dsc* EVL_expr(thread_db* tdbb, JRD_NOD node)
 			}
 
 		case nod_user_name:
+			{
 			impure->vlu_desc.dsc_dtype = dtype_text;
 			impure->vlu_desc.dsc_sub_type = 0;
 			impure->vlu_desc.dsc_scale = 0;
 			INTL_ASSIGN_TTYPE(&impure->vlu_desc, ttype_metadata);
-			
-			if (tdbb->tdbb_attachment->att_user)
-				impure->vlu_desc.dsc_address = (UCHAR *) (const char*) tdbb->tdbb_attachment->att_user->usr_user_name;
-			
-			if (impure->vlu_desc.dsc_address != NULL)
-				impure->vlu_desc.dsc_length = strlen(reinterpret_cast<const char*>(impure->vlu_desc.dsc_address));
-			else 
-				impure->vlu_desc.dsc_length = 0;
+			const char *userName = tdbb->tdbb_attachment->userData.userName;
+			impure->vlu_desc.dsc_address = (UCHAR *) userName;
+			impure->vlu_desc.dsc_length = strlen(userName);
 				
 			return &impure->vlu_desc;
+			}
 
 		// CVC: Current role will get a validated role; IE one that exists.
+		
 		case nod_current_role:
+			{
 			impure->vlu_desc.dsc_dtype = dtype_text;
 			impure->vlu_desc.dsc_sub_type = 0;
 			impure->vlu_desc.dsc_scale = 0;
 			INTL_ASSIGN_TTYPE(&impure->vlu_desc, ttype_metadata);
-			
-			if (tdbb->tdbb_attachment->att_user)
-				impure->vlu_desc.dsc_address = (UCHAR*) (const char*) tdbb->tdbb_attachment->att_user->usr_sql_role_name;
-
-			if (impure->vlu_desc.dsc_address != NULL)
-				impure->vlu_desc.dsc_length = strlen(reinterpret_cast<const char*>(impure->vlu_desc.dsc_address));
-			else 
-				impure->vlu_desc.dsc_length = 0;
+			const char *roleName = tdbb->tdbb_attachment->userData.roleName;
+			impure->vlu_desc.dsc_address = (UCHAR*) roleName;
+			impure->vlu_desc.dsc_length = strlen(roleName);
 				
 			return &impure->vlu_desc;
+			}
 
 		case nod_extract:
 			{

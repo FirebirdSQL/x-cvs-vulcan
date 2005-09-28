@@ -46,6 +46,8 @@ void UserData::init(void)
 	gid = 0;
 	uid = 0;
 	securityAttach = false;
+	authenticator = false;
+	authenticating = false;
 }
 
 UserData::~UserData(void)
@@ -244,7 +246,11 @@ void UserData::processDpbItem(int type, int length, const UCHAR* data)
 		
 		case isc_dpb_sec_attach:
 			securityAttach = getNumber(length, data) != 0;
-			break;				
+			break;
+		
+		case isc_dpb_sql_role_name:
+			roleName = getString(length, data);
+			break;
 		}	
 }
 

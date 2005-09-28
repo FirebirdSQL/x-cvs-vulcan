@@ -50,6 +50,7 @@
 #include "../jrd/sort_proto.h"
 #include "../jrd/all_proto.h"
 #include "../jrd/sch_proto.h"
+#include "Attachment.h"
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>

@@ -36,11 +36,10 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-//#include "../jrd/jrd_blks.h"
-//#include "../include/fb_blk.h"
 #include "../include/fb_vector.h"
 #include "JString.h"
 #include "SyncObject.h"
+#include "UserData.h"
 
 struct thread_db;
 
@@ -121,7 +120,7 @@ public:
 	Attachment*	att_next;				// Next attachment to database
 	Attachment*	att_blocking;			// Blocking attachment, if any
 	Cursor		*cursors;				// Active cursors
-	UserId*		att_user;				// User identification
+	//UserId*		att_user;				// User identification
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
 	Request*	att_requests;			// Requests belonging to attachment
@@ -134,21 +133,19 @@ public:
 	SecurityClass*		att_security_classes;	// security classes
 	vcl*		att_counts[DBB_max_count];
 	vec*		att_relation_locks;		// explicit persistent locks for relations
-	//Bookmark*		att_bookmarks;		// list of bookmarks taken out using this attachment
 	Lock*		att_record_locks;		// explicit or implicit record locks taken out during attachment
-	//vec*		att_bkm_quick_ref;		// correspondence table of bookmarks
-	//vec*		att_lck_quick_ref;		// correspondence table of locks
 	ULONG		att_flags;				// Flags describing the state of the attachment
 	SSHORT		att_charset;			// user's charset specified in dpb
 	str*		att_lc_messages;		// attachment's preference for message natural language
 	Lock*		att_long_locks;			// outstanding two phased locks
 	vec*		att_compatibility_table;	// hash table of compatible locks
 	vcl*		att_val_errors;
-	//str*		att_working_directory;	// Current working directory is cached
 	JString		att_working_directory;	// Current working directory is cached
 	JString		att_filename;			// alias used to attach the database
 	GDS_TIMESTAMP	att_timestamp;		// connection date and time
 
+	int					userFlags;
+	UserData			userData;
 	InternalConnection	*firstConnection;
 	InternalConnection	*lastConnection;
 	

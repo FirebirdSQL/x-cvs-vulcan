@@ -30,6 +30,7 @@
 #include "tdbb.h"
 //#include "Connection.h"
 #include "InternalConnection.h"
+#include "Attachment.h"
 
 InternalSecurityContext::InternalSecurityContext(thread_db* tdbb)
 {

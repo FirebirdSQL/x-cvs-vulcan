@@ -269,8 +269,6 @@ int Events::getCount(const UCHAR **event)
 
 bool Events::queEvents(void)
 {
-	ISC_STATUS	statusVector[20];
-	
 	if (isc_que_events (statusVector, &dbHandle, &eventId, 
 						eventBlockLength, (char*) eventBlock, (FPTR_EVENT_CALLBACK) eventCompleted, this))
 		return false;
@@ -280,8 +278,6 @@ bool Events::queEvents(void)
 
 void Events::cancelEvents(void)
 {
-	ISC_STATUS	statusVector[20];
-	
 	if (eventId)
 		{
 		isc_cancel_events(statusVector, &dbHandle, &eventId);

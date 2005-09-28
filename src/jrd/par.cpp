@@ -46,6 +46,7 @@
 #include "../jrd/lls.h"
 #include "../jrd/rse.h"	// for MAX_STREAMS
 #include "Format.h"
+#include "Attachment.h"
 
 #include "../jrd/Relation.h"
 #include "../jrd/Field.h"

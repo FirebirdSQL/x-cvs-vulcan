@@ -69,6 +69,7 @@
 #include "../jrd/thd_proto.h"
 #include "../jrd/vio_proto.h"
 #include "PageCache.h"
+#include "Attachment.h"
 
 
 

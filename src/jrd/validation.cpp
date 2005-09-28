@@ -577,6 +577,7 @@ VI. ADDITIONAL NOTES
 #include "OSRIException.h"
 #include "PageCache.h"
 #include "Format.h"
+#include "Attachment.h"
 
 #ifdef DEBUG_VAL_VERBOSE
 #include "../jrd/dmp_proto.h"

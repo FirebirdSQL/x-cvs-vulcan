@@ -59,6 +59,7 @@
 #include "CommitManager.h"
 #include "../jrd/os/pio.h"
 //#include "../jrd/sbm.h"
+#include "Attachment.h"
 
 #undef CACHE_WRITER
 

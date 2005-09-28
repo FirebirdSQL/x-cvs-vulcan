@@ -75,6 +75,7 @@ $Id$
 #include "PageCache.h"
 #include "Sync.h"
 #include "Format.h"
+#include "Attachment.h"
 
 #define MAX_BLOB_SEGMENT	65535
 #define STREAM				(blob->blb_flags & BLB_stream)

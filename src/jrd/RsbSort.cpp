@@ -35,6 +35,7 @@
 #include "req.h"
 #include "sort.h"
 #include "ExecutionPathInfoGen.h"
+#include "Attachment.h"
 #include "../jrd/mov_proto.h"
 #include "../jrd/sort_proto.h"
 #include "../jrd/evl_proto.h"

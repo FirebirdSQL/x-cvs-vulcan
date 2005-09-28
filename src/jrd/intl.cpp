@@ -102,6 +102,7 @@
 #include "../jrd/btr.h"
 #include "../intl/charsets.h"
 #include "../intl/country_codes.h"
+#include "Attachment.h"
 
 #ifdef INTL_BUILTIN
 #include "../intl/ld_proto.h"

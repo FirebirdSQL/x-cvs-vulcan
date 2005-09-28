@@ -91,6 +91,7 @@
 #include "../jrd/sbm.h"
 #include "Format.h"
 #include "Resource.h"
+#include "Attachment.h"
 
 /* Pick up relation ids */
 
@@ -355,8 +356,8 @@ JRD_REQ CMP_compile2(thread_db* tdbb, const UCHAR* blr, USHORT internal_flag)
 
 		for (access = request->req_access; access; access = access->acc_next)
 			{
-			SecurityClass* class_ = SCL_get_class(tdbb, access->acc_security_name);
-			SCL_check_access(tdbb, class_, access->acc_view_id, access->acc_trg_name,
+			SecurityClass* securityClass = SCL_get_class(tdbb, access->acc_security_name);
+			SCL_check_access(tdbb, securityClass, access->acc_view_id, access->acc_trg_name,
 							 access->acc_prc_name, access->acc_mask,
 							 access->acc_type, access->acc_name);
 			}

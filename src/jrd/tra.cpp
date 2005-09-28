@@ -44,7 +44,7 @@
 #include "../jrd/req.h"
 #include "../jrd/exe.h"
 #include "../jrd/rse.h"
-#include "../jrd/jrd_pwd.h"
+//#include "../jrd/jrd_pwd.h"
 #include "../jrd/blb.h"
 #include "../jrd/all_proto.h"
 #include "../jrd/blb_proto.h"
@@ -80,6 +80,7 @@
 #include "PBGen.h"
 #include "dyn.h"
 #include "Resource.h"
+#include "Attachment.h"
 
 #ifndef VMS
 //#include "../lock/lock_proto.h"

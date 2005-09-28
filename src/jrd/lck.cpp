@@ -33,11 +33,11 @@
 #include "../jrd/lck.h"
 #include "gen/iberror.h"
 #include "../jrd/iberr.h"
-//#include "../jrd/all_proto.h"
 #include "../jrd/err_proto.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/jrd_proto.h"
 #include "../jrd/lck_proto.h"
+#include "Attachment.h"
 
 #ifdef VMS
 #include "../jrd/vmslo_proto.h"
@@ -45,8 +45,6 @@
 #include "../lock/LockMgr.h"
 #endif
 
-//#include "../jrd/sch_proto.h"
-//#include "../jrd/thd_proto.h"
 #include "../jrd/gdsassert.h"
 
 #ifdef HAVE_SYS_TYPES_H

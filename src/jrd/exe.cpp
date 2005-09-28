@@ -104,6 +104,7 @@
 #include "../jrd/Procedure.h"
 #include "../jrd/Triggers.h"
 #include "Format.h"
+#include "Attachment.h"
 
 #include "../jrd/ExecStatement.h"
 #include "../jrd/rpb_chain.h"

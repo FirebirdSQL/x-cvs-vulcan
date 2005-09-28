@@ -62,6 +62,7 @@
 #include "Interlock.h"
 #include "TipCache.h"
 #include "CommitManager.h"
+#include "Attachment.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

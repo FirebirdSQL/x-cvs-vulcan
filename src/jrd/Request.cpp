@@ -44,6 +44,7 @@
 #include "../jrd/blb_proto.h"
 #include "ExecStatement.h"
 #include "Resource.h"
+#include "Attachment.h"
 
 Request::Request(JrdMemoryPool* pool, int rpbCount, int impureSize) : req_invariants(pool), req_fors(pool)
 {

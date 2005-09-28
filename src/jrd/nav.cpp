@@ -56,6 +56,7 @@
 #include "PageCache.h"
 #include "Bdb.h"
 #include "RsbNavigate.h"
+#include "Attachment.h"
 
 #define MOVE_BYTE(x_from, x_to)	*x_to++ = *x_from++;
 

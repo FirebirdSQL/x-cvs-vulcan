@@ -26,15 +26,16 @@
  *
  */
 
+#include <string.h>
+#include <stdarg.h>
 #include "fbdev.h"
 #include "../jrd/ib_stdio.h"
-#include <string.h>
 #include "../jrd/common.h"
-#include <stdarg.h>
 #include "gen/iberror.h"
 #include "../jrd/iberr.h"
 #include "OSRIException.h"
 #include "PageCache.h"
+#include "Attachment.h"
 
 #if ( !defined( REQUESTER) && !defined( SUPERCLIENT))
 #include "../jrd/jrd.h"

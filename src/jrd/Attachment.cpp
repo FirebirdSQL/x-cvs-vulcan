@@ -74,7 +74,7 @@ Attachment::Attachment(Database *database)
 	firstConnection = lastConnection = NULL;
 	att_next = NULL;
 	att_blocking = NULL;
-	att_user = NULL;
+	//att_user = NULL;
 	att_transactions = NULL;
 	att_dbkey_trans = NULL;
 	att_requests = NULL;
@@ -96,14 +96,15 @@ Attachment::Attachment(Database *database)
 	att_flags = 0;
 	att_charset = 0;
 	att_lock_owner_handle = 0;
+	userFlags = 0;
 }
 
 Attachment::~Attachment()
 {
+	/***
 	if (att_user) 
 		delete att_user;
 	
-	/***
 	for (Bookmark* bookmark; bookmark = att_bookmarks;) 
 		{
 		att_bookmarks = bookmark->bkm_next;
@@ -221,9 +222,32 @@ void Attachment::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* 
 void Attachment::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb)
 {
 	UCHAR buffer[256];
-	att_database->authenticateUser(tdbb,dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
-	UserData userData;
+	userData.authenticating = true;
+	
+	try
+		{
+		att_database->authenticateUser(tdbb, dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
+		}
+	catch (...)
+		{
+		userData.authenticating = false;
+		throw;
+		}
+		
 	userData.processUserInfo(buffer);
+	const UCHAR *p = dpb;
+	int version = *p++;
+	
+	for (const UCHAR *end = dpb + dpbLength; p < end;)
+		{
+		int type = *p++;
+		int length = *p++;
+		
+		if (type == isc_dpb_sql_role_name)
+			userData.roleName = JString((const char*) p, length);
+
+		p += length;
+		}
 }
 
 void Attachment::shutdown(thread_db* tdbb)
