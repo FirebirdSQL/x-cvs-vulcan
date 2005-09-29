@@ -3198,7 +3198,9 @@ static void define_update_action( CStatement* request,
 	}
 
 	if (and_arg <= 1)
-		and_node->nod_arg[and_arg] = select_expr->nod_arg[e_qry_where];
+		and_node->nod_arg[and_arg] = 
+			replace_field_names(request, select_expr->nod_arg[e_qry_where], 
+				items, NULL, false, TEMP_CONTEXT);
 	else {
 		dsql_nod* old_and = and_node;
 		and_node = MAKE_node(request->threadData, nod_and, (int) 2);
