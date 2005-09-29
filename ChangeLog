@@ -1,3 +1,49 @@
+2005-09-29 00:36  jimstarkey
+
+	* vulcan/src/: make_boot_files, rebuild_boot_files:
+	
+	Added command file to rebuild boot files
+
+2005-09-29 00:33  jimstarkey
+
+	* vulcan/src/: make_boot_files, burp/backup.boot,
+	burp/restore.boot, dsql/array.boot, dsql/blob.boot,
+	gpre/gpre_meta.boot, jrd/pag.cpp:
+	
+	Bring Vulcan back to life after security overhaul.
+
+2005-09-28 23:52  awharrison
+
+	* vulcan/src/jrd/Procedure.cpp:
+	
+	Fix bug caused by incomplete procedure paramter lists
+
+2005-09-28 23:46  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/jrd/jrd.vcproj, src/dsql/movd.cpp,
+	src/events/Events.cpp, src/events/Events.h, src/include/firebird.h,
+	src/intlcpp/intlcpp.vcproj, src/jrd/Attachment.cpp,
+	src/jrd/Attachment.h, src/jrd/Database.cpp,
+	src/jrd/ExecStatement.cpp, src/jrd/InternalSecurityContext.cpp,
+	src/jrd/PageCache.cpp, src/jrd/Request.cpp,
+	src/jrd/RsbSequential.cpp, src/jrd/RsbSort.cpp,
+	src/jrd/SecurityDb.cpp, src/jrd/Service.cpp, src/jrd/UserData.cpp,
+	src/jrd/UserData.h, src/jrd/alt.cpp, src/jrd/blb.cpp,
+	src/jrd/btr_proto.h, src/jrd/cmp.cpp, src/jrd/dfw.epp,
+	src/jrd/dpm.epp, src/jrd/dyn.epp, src/jrd/dyn_def.epp,
+	src/jrd/dyn_del.epp, src/jrd/err.cpp, src/jrd/evl.cpp,
+	src/jrd/exe.cpp, src/jrd/idx.cpp, src/jrd/inf.cpp,
+	src/jrd/intl.cpp, src/jrd/isc.cpp, src/jrd/isc_proto.h,
+	src/jrd/jrd.cpp, src/jrd/jrd.h, src/jrd/jrd.vcproj,
+	src/jrd/lck.cpp, src/jrd/nav.cpp, src/jrd/opt.cpp, src/jrd/pag.cpp,
+	src/jrd/par.cpp, src/jrd/rlck.cpp, src/jrd/scl.epp, src/jrd/scl.h,
+	src/jrd/scl_proto.h, src/jrd/shut.cpp, src/jrd/sort.cpp,
+	src/jrd/svc.cpp, src/jrd/tra.cpp, src/jrd/validation.cpp,
+	src/jrd/vio.cpp, src/msgs/msgs.vcproj:
+	
+	Tightened and finish, plus or minus bugs, the Vulcan security
+	architecture.
+
 2005-09-27 22:58  jimstarkey
 
 	* vulcan/src/: dependencies, IscDbc/makefile.in,
