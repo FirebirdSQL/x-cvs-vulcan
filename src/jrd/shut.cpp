@@ -143,7 +143,7 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
 		{
 		/* If shutdown flag is zero then bring database online */
 
-		if (!flag)
+		if (!(flag & isc_dpb_shut_mode_mask))
 			{
 			/* Clear shutdown flag on database header page */
 

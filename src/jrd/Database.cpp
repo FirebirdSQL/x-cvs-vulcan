@@ -479,12 +479,18 @@ InternalConnection* Database::getSystemConnection(void)
 void Database::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
 {
 	InternalSecurityContext securityContext (tdbb);
+	securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
+}
+
+void Database::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+{
+	InternalSecurityContext securityContext (tdbb);
 	Attachment *attachment = tdbb->tdbb_attachment;
 	attachment->userData.authenticating = true;
 	
 	try
 		{
-		securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
+		securityPlugin->authenticateUser(&securityContext, dpbLength, dpb, itemsLength, items, bufferLength, buffer);
 		}
 	catch (...)
 		{
@@ -493,12 +499,6 @@ void Database::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* ap
 		}
 		
 	attachment->userData.authenticating = false;
-}
-
-void Database::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
-{
-	InternalSecurityContext securityContext (tdbb);
-	securityPlugin->authenticateUser(&securityContext, dpbLength, dpb, itemsLength, items, bufferLength, buffer);
 }
 
 void Database::incrementUseCount(void)
