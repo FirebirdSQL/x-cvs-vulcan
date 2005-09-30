@@ -81,31 +81,35 @@ BOOLEAN SHUT_blocking_ast(thread_db* tdbb, DBB dbb)
 	flag = data.data_items.flag;
 	delay = data.data_items.delay;
 
-/* Database shutdown has been cancelled. */
+	/* Database shutdown has been cancelled. */
 
-	if (!flag) {
+	if (!flag) 
+		{
 		dbb->dbb_ast_flags &=
 			~(DBB_shut_attach | DBB_shut_tran | DBB_shut_force |
 			  DBB_shutdown);
 		dbb->dbb_shutdown_delay = 0;
-		for (attachment = dbb->dbb_attachments; attachment;
-			 attachment = attachment->att_next) attachment->att_flags &=
-				~ATT_shutdown_notify;
+		
+		for (attachment = dbb->dbb_attachments; attachment; attachment = attachment->att_next) 
+			 attachment->att_flags &= ~ATT_shutdown_notify;
 		return FALSE;
-	}
+		}
 
 	if (flag & isc_dpb_shut_force && !delay)
 		return shutdown_locks(tdbb, dbb);
-	else {
-		if (flag & isc_dpb_shut_attachment)
-			dbb->dbb_ast_flags |= DBB_shut_attach;
-		if (flag & isc_dpb_shut_force)
-			dbb->dbb_ast_flags |= DBB_shut_force;
-		if (flag & isc_dpb_shut_transaction)
-			dbb->dbb_ast_flags |= DBB_shut_tran;
-		dbb->dbb_shutdown_delay = delay;
-		return FALSE;
-	}
+		
+	if (flag & isc_dpb_shut_attachment)
+		dbb->dbb_ast_flags |= DBB_shut_attach;
+		
+	if (flag & isc_dpb_shut_force)
+		dbb->dbb_ast_flags |= DBB_shut_force;
+		
+	if (flag & isc_dpb_shut_transaction)
+		dbb->dbb_ast_flags |= DBB_shut_tran;
+		
+	dbb->dbb_shutdown_delay = delay;
+	
+	return FALSE;
 }
 
 
@@ -137,7 +141,6 @@ BOOLEAN SHUT_database(DBB dbb, SSHORT flag, SSHORT delay)
 
 	try 
 		{
-
 		/* If shutdown flag is zero then bring database online */
 
 		if (!flag)
@@ -272,19 +275,16 @@ static BOOLEAN notify_shutdown(DBB dbb, SSHORT flag, SSHORT delay)
 
 	LCK_write_data(dbb->dbb_lock, data.data_long);
 
-/* Send blocking ASTs to database users */
+	/* Send blocking ASTs to database users */
 
-	if (CCH_EXCLUSIVE(tdbb, LCK_PW, ((SSHORT) - SHUT_WAIT_TIME)) && flag) {
+	if (CCH_EXCLUSIVE(tdbb, LCK_PW, ((SSHORT) - SHUT_WAIT_TIME)) && flag)
 		return shutdown_locks(tdbb, dbb);
-	}
-	if ((flag & isc_dpb_shut_force) && !delay) {
+
+	if ((flag & isc_dpb_shut_force) && !delay)
 		return shutdown_locks(tdbb, dbb);
-	}
-	if ((flag & isc_dpb_shut_transaction) &&
-		!(TRA_active_transactions(tdbb, dbb)))
-	{
+
+	if ((flag & isc_dpb_shut_transaction) && !(TRA_active_transactions(tdbb, dbb)))
 		return TRUE;
-	}
 
 	return FALSE;
 }

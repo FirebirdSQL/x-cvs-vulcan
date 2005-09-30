@@ -378,7 +378,7 @@ ISC_STATUS ISC_EXPORT isc_attach_database(ISC_STATUS*,
 										  const char*,
 										  isc_db_handle*,
 										  short,
-										  const char*);
+										  const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_array_gen_sdl(ISC_STATUS*,
 										const ISC_ARRAY_DESC*,
@@ -397,20 +397,20 @@ ISC_STATUS ISC_EXPORT isc_array_get_slice(ISC_STATUS*,
 ISC_STATUS ISC_EXPORT isc_array_lookup_bounds(ISC_STATUS*,
 											  isc_db_handle*,
 											  isc_tr_handle*,
-											  const char*,
-											  const char*,
+											  const ISC_UCHAR*,
+											  const ISC_UCHAR*,
 											  ISC_ARRAY_DESC*);
 
 ISC_STATUS ISC_EXPORT isc_array_lookup_desc(ISC_STATUS*,
 											isc_db_handle*,
 											isc_tr_handle*,
-											const char*,
-											const char*,
+											const ISC_UCHAR*,
+											const ISC_UCHAR*,
 											ISC_ARRAY_DESC*);
 
 ISC_STATUS ISC_EXPORT isc_array_set_desc(ISC_STATUS*,
-										 const char*,
-										 const char*,
+										 const ISC_UCHAR*,
+										 const ISC_UCHAR*,
 										 const short*,
 										 const short*,
 										 const short*,
@@ -425,8 +425,8 @@ ISC_STATUS ISC_EXPORT isc_array_put_slice(ISC_STATUS*,
 										  ISC_LONG *);
 
 void ISC_EXPORT isc_blob_default_desc(ISC_BLOB_DESC*,
-									  const char*,
-									  const char*);
+									  const ISC_UCHAR*,
+									  const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_blob_gen_bpb(ISC_STATUS*,
 									   const ISC_BLOB_DESC*,
@@ -438,21 +438,21 @@ ISC_STATUS ISC_EXPORT isc_blob_gen_bpb(ISC_STATUS*,
 ISC_STATUS ISC_EXPORT isc_blob_info(ISC_STATUS*,
 									isc_blob_handle*,
 									short,
-									const char*,
+									const ISC_UCHAR*,
 									short,
 									char*);
 
 ISC_STATUS ISC_EXPORT isc_blob_lookup_desc(ISC_STATUS*,
 										   isc_db_handle*,
 										   isc_tr_handle*,
-										   const char*,
-										   const char*,
+										   const ISC_UCHAR*,
+										   const ISC_UCHAR*,
 										   ISC_BLOB_DESC*,
 										   char*);
 
 ISC_STATUS ISC_EXPORT isc_blob_set_desc(ISC_STATUS*,
-										const char*,
-										const char*,
+										const ISC_UCHAR*,
+										const ISC_UCHAR*,
 										short,
 										short,
 										short,
@@ -486,20 +486,20 @@ ISC_STATUS ISC_EXPORT isc_create_blob2(ISC_STATUS*,
 									   isc_blob_handle*,
 									   ISC_QUAD*,
 									   short,
-									   const char*);
+									   const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_create_database(ISC_STATUS*,
 										  short,
 										  const char*,
 										  isc_db_handle*,
 										  short,
-										  const char*,
+										  const ISC_UCHAR*,
 										  short);
 
 ISC_STATUS ISC_EXPORT isc_database_info(ISC_STATUS*,
 										isc_db_handle*,
 										short,
-										const char*,
+										const ISC_UCHAR*,
 										short,
 										char*);
 
@@ -543,7 +543,7 @@ ISC_STATUS ISC_EXPORT isc_dsql_exec_immed2(ISC_STATUS*,
 										   isc_db_handle*,
 										   isc_tr_handle*,
 										   unsigned short,
-										   const char*,
+										   const ISC_UCHAR*,
 										   unsigned short,
 										   XSQLDA*,
 										   XSQLDA*);
@@ -601,7 +601,7 @@ ISC_STATUS ISC_EXPORT isc_dsql_set_cursor_name(ISC_STATUS*,
 ISC_STATUS ISC_EXPORT isc_dsql_sql_info(ISC_STATUS*,
 										isc_stmt_handle*,
 										short,
-										const char*,
+										const ISC_UCHAR*,
 										short,
 										char*);
 
@@ -624,7 +624,7 @@ ISC_LONG ISC_EXPORT_VARARG isc_event_block(char * *,
 void ISC_EXPORT isc_event_counts(ISC_ULONG*,
 								 short,
 								 char*,
-								 const char *);
+								 const ISC_UCHAR *);
 
 /* 17 May 2001 - isc_expand_dpb is DEPRECATED */
 void ISC_EXPORT_VARARG isc_expand_dpb(UCHAR**,
@@ -633,7 +633,7 @@ void ISC_EXPORT_VARARG isc_expand_dpb(UCHAR**,
 int ISC_EXPORT isc_modify_dpb(char**,
 							  short*,
 							  unsigned short,
-							  const char*,
+							  const ISC_UCHAR*,
 							  short);
 
 ISC_LONG ISC_EXPORT isc_free(char *);
@@ -649,7 +649,7 @@ ISC_STATUS ISC_EXPORT isc_get_slice(ISC_STATUS*,
 									isc_tr_handle*,
 									ISC_QUAD*,
 									short,
-									const char*,
+									const ISC_UCHAR*,
 									short,
 									const ISC_LONG*,
 									ISC_LONG,
@@ -695,14 +695,14 @@ ISC_STATUS ISC_EXPORT isc_print_status(const ISC_STATUS*);
 ISC_STATUS ISC_EXPORT isc_put_segment(ISC_STATUS*,
 									  isc_blob_handle*,
 									  unsigned short,
-									  const char*);
+									  const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_put_slice(ISC_STATUS*,
 									isc_db_handle*,
 									isc_tr_handle*,
 									ISC_QUAD*,
 									short,
-									const char*,
+									const ISC_UCHAR*,
 									short,
 									const ISC_LONG*,
 									ISC_LONG,
@@ -712,7 +712,7 @@ ISC_STATUS ISC_EXPORT isc_que_events(ISC_STATUS*,
 									 isc_db_handle*,
 									 ISC_LONG*,
 									 short,
-									 const char*,
+									 const ISC_UCHAR*,
 									 FPTR_EVENT_CALLBACK,
 									 void*);
 
@@ -740,10 +740,11 @@ void ISC_EXPORT isc_sql_interprete(short,
 ISC_STATUS ISC_EXPORT isc_transaction_info(ISC_STATUS*,
 										   isc_tr_handle*,
 										   short,
-										   const char*,
+										   const ISC_UCHAR*,
 										   short,
 										   char*);
 
+/*** deprecated 9/29/2005 by James A. Starkey
 ISC_STATUS ISC_EXPORT isc_transact_request(ISC_STATUS*,
 										   isc_db_handle*,
 										   isc_tr_handle*,
@@ -753,8 +754,9 @@ ISC_STATUS ISC_EXPORT isc_transact_request(ISC_STATUS*,
 										   char*,
 										   unsigned short,
 										   char*);
+***/
 
-ISC_LONG ISC_EXPORT isc_vax_integer(const char*,
+ISC_LONG ISC_EXPORT isc_vax_integer(const ISC_UCHAR*,
 									short);
 
 ISC_INT64 ISC_EXPORT isc_portable_integer(const unsigned char*,
@@ -836,19 +838,19 @@ ISC_STATUS ISC_EXPORT isc_compile_request(ISC_STATUS*,
 										  isc_db_handle*,
 										  isc_req_handle*,
 										  short,
-										  const char*);
+										  const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_compile_request2(ISC_STATUS*,
 										   isc_db_handle*,
 										   isc_req_handle*,
 										   short,
-										   const char*);
+										   const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_ddl(ISC_STATUS*,
 							  isc_db_handle*,
 							  isc_tr_handle*,
 							  short,
-							  const char*);
+							  const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_prepare_transaction(ISC_STATUS*,
 											  isc_tr_handle*);
@@ -865,7 +867,7 @@ ISC_STATUS ISC_EXPORT isc_reconnect_transaction(ISC_STATUS*,
 												isc_db_handle*,
 												isc_tr_handle*,
 												short,
-												const char*);
+												const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_release_request(ISC_STATUS*,
 										  isc_req_handle*);
@@ -874,7 +876,7 @@ ISC_STATUS ISC_EXPORT isc_request_info(ISC_STATUS*,
 									   isc_req_handle*,
 									   short,
 									   short,
-									   const char*,
+									   const ISC_UCHAR*,
 									   short,
 									   char*);
 
@@ -911,7 +913,7 @@ ISC_STATUS ISC_EXPORT isc_unwind_request(ISC_STATUS *,
 ISC_STATUS ISC_EXPORT isc_wait_for_event(ISC_STATUS*,
 										 isc_db_handle*,
 										 short,
-										 const char*,
+										 const ISC_UCHAR*,
 										 char*);
 
 
@@ -943,7 +945,7 @@ ISC_STATUS ISC_EXPORT isc_execute_immediate(ISC_STATUS*,
 											isc_db_handle*,
 											isc_tr_handle*,
 											short*,
-											const char*);
+											const ISC_UCHAR*);
 
 ISC_STATUS ISC_EXPORT isc_fetch(ISC_STATUS*,
 								const char*,
@@ -959,7 +961,7 @@ ISC_STATUS ISC_EXPORT isc_prepare(ISC_STATUS*,
 								  isc_tr_handle*,
 								  const char*,
 								  short*,
-								  const char*,
+								  const ISC_UCHAR*,
 								  XSQLDA*);
 
 
@@ -971,7 +973,7 @@ ISC_STATUS ISC_EXPORT isc_dsql_execute_m(ISC_STATUS*,
 										 isc_tr_handle*,
 										 isc_stmt_handle*,
 										 unsigned short,
-										 const char*,
+										 const ISC_UCHAR*,
 										 unsigned short,
 										 unsigned short,
 										 char*);
@@ -980,10 +982,10 @@ ISC_STATUS ISC_EXPORT isc_dsql_execute2_m(ISC_STATUS*,
 										  isc_tr_handle*,
 										  isc_stmt_handle*,
 										  unsigned short,
-										  const char*,
+										  const ISC_UCHAR*,
 										  unsigned short,
 										  unsigned short,
-										  const char*,
+										  const ISC_UCHAR*,
 										  unsigned short,
 										  char*,
 										  unsigned short,
@@ -997,7 +999,7 @@ ISC_STATUS ISC_EXPORT isc_dsql_execute_immediate_m(ISC_STATUS*,
 												   const char*,
 												   unsigned short,
 												   unsigned short,
-												   const char*,
+												   const ISC_UCHAR*,
 												   unsigned short,
 												   unsigned short,
 												   char*);
@@ -1009,7 +1011,7 @@ ISC_STATUS ISC_EXPORT isc_dsql_exec_immed3_m(ISC_STATUS*,
 											 const char*,
 											 unsigned short,
 											 unsigned short,
-											 const char*,
+											 const ISC_UCHAR*,
 											 unsigned short,
 											 unsigned short,
 											 char*,
@@ -1841,6 +1843,7 @@ enum info_db_provider
 #define fb_info_user_first_name				10
 #define fb_info_user_middle_name			11
 #define fb_info_user_last_name				12
+#define fb_info_user_authenticator			13
 
 
 /******************************************************

@@ -340,6 +340,10 @@ void UserData::processUserInfoItem(int type, int length, const UCHAR* data)
 			gid = getNumber(length, data);
 			break;
 		
+		case fb_info_user_authenticator:
+			authenticator = getNumber(length, data) != 0;
+			break;
+			
 		case isc_infunk:
 			type = *data++;
 			break;
@@ -357,7 +361,8 @@ JString UserData::getOldPasswordHash(void)
 		ENC_crypt(pw2, sizeof(pw2), pw1 + 2, PASSWORD_SALT);
 		}
 	else
-		ENC_crypt(pw2, sizeof(pw2), (const char*) encryptedPassword + 2, PASSWORD_SALT);
+		//ENC_crypt(pw2, sizeof(pw2), (const char*) encryptedPassword + 2, PASSWORD_SALT);
+		ENC_crypt(pw2, sizeof(pw2), (const char*) encryptedPassword, PASSWORD_SALT);
 		
 	
 	return pw2 + 2;

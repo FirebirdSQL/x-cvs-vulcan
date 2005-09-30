@@ -912,12 +912,11 @@ void PAG_format_header(thread_db* tdbb)
  *	Create the header page for a new file.
  *
  **************************************/
-	DBB dbb;
 	header_page* header;
-	dbb = tdbb->tdbb_database;
+	Database *dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-/* Initialize header page */
+	/* Initialize header page */
 
 	WIN window(HEADER_PAGE);
 	header = (header_page*) CCH_FAKE(tdbb, &window, 1);
@@ -937,6 +936,7 @@ void PAG_format_header(thread_db* tdbb)
 	header->hdr_bumped_transaction = 1;
 	header->hdr_end = HDR_SIZE;
 	header->hdr_data[0] = HDR_end;
+	
 #ifdef SYNC_WRITE_DEFAULT
 	header->hdr_flags |= hdr_force_write;
 #endif
@@ -1628,14 +1628,16 @@ void PAG_set_force_write(thread_db* tdbb, DBB dbb, SSHORT flag)
 		flag = 0;
 #endif
 
-	if (flag) {
+	if (flag) 
+		{
 		header->hdr_flags |= hdr_force_write;
 		dbb->dbb_flags |= DBB_force_write;
-	}
-	else {
+		}
+	else 
+		{
 		header->hdr_flags &= ~hdr_force_write;
 		dbb->dbb_flags &= ~DBB_force_write;
-	}
+		}
 
 	/* If journalling is enabled, journal the change */
 
@@ -1670,14 +1672,16 @@ void PAG_set_no_reserve(thread_db* tdbb, DBB dbb, USHORT flag)
 	header = (header_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
 	CCH_MARK_MUST_WRITE(tdbb, &window);
 
-	if (flag) {
+	if (flag) 
+		{
 		header->hdr_flags |= hdr_no_reserve;
 		dbb->dbb_flags |= DBB_no_reserve;
-	}
-	else {
+		}
+	else 
+		{
 		header->hdr_flags &= ~hdr_no_reserve;
 		dbb->dbb_flags &= ~DBB_no_reserve;
-	}
+		}
 
 	CCH_RELEASE(tdbb, &window);
 }
@@ -1700,7 +1704,8 @@ void PAG_set_db_readonly(thread_db* tdbb, DBB dbb, SSHORT flag)
 	WIN window(HEADER_PAGE);
 	header = (header_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
 
-	if (!flag) {
+	if (!flag) 
+		{
 		/* If the database is transitioning from RO to RW, reset the
 		 * in-memory DBB flag which indicates that the database is RO.
 		 * This will allow the CCH subsystem to allow pages to be MARK'ed
@@ -1708,14 +1713,15 @@ void PAG_set_db_readonly(thread_db* tdbb, DBB dbb, SSHORT flag)
 		 */
 		header->hdr_flags &= ~hdr_read_only;
 		dbb->dbb_flags &= ~DBB_read_only;
-	}
+		}
 
 	CCH_MARK_MUST_WRITE(tdbb, &window);
 
-	if (flag) {
+	if (flag) 
+		{
 		header->hdr_flags |= hdr_read_only;
 		dbb->dbb_flags |= DBB_read_only;
-	}
+		}
 
 	CCH_RELEASE(tdbb, &window);
 }

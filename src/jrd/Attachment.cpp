@@ -58,7 +58,8 @@ static const UCHAR userInfoItems [] = {
 	fb_info_user_group,
 	fb_info_user_first_name,
 	fb_info_user_middle_name,
-	fb_info_user_last_name
+	fb_info_user_last_name,
+	fb_info_user_authenticator
 	};
 
 
@@ -222,18 +223,7 @@ void Attachment::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* 
 void Attachment::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb)
 {
 	UCHAR buffer[256];
-	userData.authenticating = true;
-	
-	try
-		{
-		att_database->authenticateUser(tdbb, dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
-		}
-	catch (...)
-		{
-		userData.authenticating = false;
-		throw;
-		}
-		
+	att_database->authenticateUser(tdbb, dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
 	userData.processUserInfo(buffer);
 	const UCHAR *p = dpb;
 	int version = *p++;

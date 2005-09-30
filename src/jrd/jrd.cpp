@@ -337,7 +337,7 @@ typedef struct dpb
 } DPB;
 
 static blb*		check_blob(thread_db*, ISC_STATUS*, blb**);
-static ISC_STATUS	check_database(thread_db*, Attachment*, ISC_STATUS*);
+static ISC_STATUS	check_database(thread_db*, Attachment*);
 static void		cleanup(void*);
 static ISC_STATUS	commit(ISC_STATUS*, Transaction**, const bool);
 static STR		copy_string(const TEXT*, int);
@@ -934,12 +934,12 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 			{
 			if (user_status[1] != FB_SUCCESS)
 				ERR_punt();
-			else
-				ERR_post(isc_no_priv,
-						 isc_arg_string, "shutdown or online",
-						 isc_arg_string, "database",
-						 isc_arg_string, (const char*) expandedName,
-                         0);
+
+			ERR_post(isc_no_priv,
+						isc_arg_string, "shutdown or online",
+						isc_arg_string, "database",
+						isc_arg_string, (const char*) expandedName,
+                        0);
 			}
 		
 #ifdef SHARED_CACHE
@@ -1242,20 +1242,19 @@ ISC_STATUS GDS_CANCEL_EVENTS(ISC_STATUS* user_status,
 	//struct tdbb* tdbb = set_thread_data(thd_context);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *handle, user_status)) {
+	if (check_database(threadData, *handle)) 
 		return user_status[1];
-	}
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 	LOG_call(log_cancel_events, *handle, *id);
 #endif
 
 	try
-	{
+		{
 		////tdbb->tdbb_status_vector = user_status;
 
 		EVENT_cancel(*id);
-	}
+		}
 	catch (OSRIException& exception)
 		{
 		return error(&exception, user_status);
@@ -1448,7 +1447,7 @@ ISC_STATUS GDS_COMPILE(ISC_STATUS* user_status,
 	NULL_CHECK(req_handle, isc_bad_req_handle);
 	Attachment* attachment = *db_handle;
 
-	if (check_database(threadData, attachment, user_status))
+	if (check_database(threadData, attachment))
 		return user_status[1];
 
 	lockAST(attachment->att_database);
@@ -1514,7 +1513,7 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
 
 	NULL_CHECK(blob_handle, isc_bad_segstr_handle);
 
-	if (check_database(threadData, *db_handle, user_status))
+	if (check_database(threadData, *db_handle))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -1897,7 +1896,7 @@ ISC_STATUS GDS_DATABASE_INFO(ISC_STATUS* user_status,
 	//struct tdbb* tdbb = set_thread_data(thd_context);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *handle, user_status))
+	if (check_database(threadData, *handle))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -1936,7 +1935,7 @@ ISC_STATUS GDS_DDL(ISC_STATUS* user_status,
 	ThreadData threadData (user_status);
 	Attachment* attachment = *db_handle;
 	
-	if (check_database(threadData, attachment, user_status))
+	if (check_database(threadData, attachment))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2377,7 +2376,7 @@ ISC_STATUS GDS_GET_SLICE(ISC_STATUS* user_status,
 	//struct tdbb* tdbb = set_thread_data(thd_context);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *db_handle, user_status))
+	if (check_database(threadData, *db_handle))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2441,7 +2440,7 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 
 	NULL_CHECK(blob_handle, isc_bad_segstr_handle);
 
-	if (check_database(threadData, *db_handle, user_status))
+	if (check_database(threadData, *db_handle))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2498,7 +2497,7 @@ ISC_STATUS GDS_PREPARE(ISC_STATUS * user_status,
 	CHECK_HANDLE((*tra_handle), type_tra, isc_bad_trans_handle);
 	Transaction* transaction = *tra_handle;
 
-	if (check_database(threadData, transaction->tra_attachment, user_status))
+	if (check_database(threadData, transaction->tra_attachment))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2591,7 +2590,7 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
 	//struct tdbb* tdbb = set_thread_data(thd_context);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *db_handle, user_status))
+	if (check_database(threadData, *db_handle))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2645,7 +2644,7 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 	//struct tdbb* tdbb = set_thread_data(thd_context);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *handle, user_status))
+	if (check_database(threadData, *handle))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2711,7 +2710,7 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 	CHECK_HANDLE((*req_handle), type_req, isc_bad_req_handle);
 	Request* request = *req_handle;
 
-	if (check_database(threadData, request->req_attachment, user_status))
+	if (check_database(threadData, request->req_attachment))
 		return user_status[1];
 
 	lockAST(request->req_attachment->att_database);
@@ -2780,7 +2779,7 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 	NULL_CHECK(tra_handle, isc_bad_trans_handle);
 	Attachment* attachment = *db_handle;
 
-	if (check_database(threadData, attachment, user_status))
+	if (check_database(threadData, attachment))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -2830,7 +2829,7 @@ ISC_STATUS GDS_RELEASE_REQUEST(ISC_STATUS * user_status, JRD_REQ * req_handle)
 	Request* request = *req_handle;
 	Attachment* attachment = request->req_attachment;
 
-	if (check_database(threadData, attachment, user_status))
+	if (check_database(threadData, attachment))
 		return user_status[1];
 
 	lockAST(attachment->att_database);
@@ -2883,7 +2882,7 @@ ISC_STATUS GDS_REQUEST_INFO(ISC_STATUS* user_status,
 	Request* request = *req_handle;
 	CHECK_HANDLE(request, type_req, isc_bad_req_handle);
 
-	if (check_database(threadData, request->req_attachment, user_status))
+	if (check_database(threadData, request->req_attachment))
 		return user_status[1];
 
 	lockAST(request->req_attachment->att_database);
@@ -2932,7 +2931,7 @@ ISC_STATUS GDS_ROLLBACK_RETAINING(ISC_STATUS* user_status,
 	Transaction* transaction = *tra_handle;
 	CHECK_HANDLE(transaction, type_tra, isc_bad_trans_handle);
 
-	if (check_database(threadData, transaction->tra_attachment, user_status))
+	if (check_database(threadData, transaction->tra_attachment))
 		return user_status[1];
 
 	lockAST(transaction->tra_attachment->att_database);
@@ -2972,7 +2971,7 @@ ISC_STATUS GDS_ROLLBACK(ISC_STATUS * user_status, Transaction* * tra_handle)
 	Transaction* transaction = *tra_handle;
 	CHECK_HANDLE(transaction, type_tra, isc_bad_trans_handle);
 
-	if (check_database(threadData, transaction->tra_attachment, user_status))
+	if (check_database(threadData, transaction->tra_attachment))
 		return user_status[1];
 
 	DBB dbb = transaction->tra_attachment->att_database;
@@ -3062,7 +3061,7 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 	CHECK_HANDLE((*req_handle), type_req, isc_bad_req_handle);
 	Request* request = *req_handle;
 
-	if (check_database(threadData, request->req_attachment, user_status))
+	if (check_database(threadData, request->req_attachment))
 		return user_status[1];
 
 	lockAST(request->req_attachment->att_database);
@@ -3334,7 +3333,7 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS* user_status,
 	Request* request = *req_handle;
 	CHECK_HANDLE(request, type_req, isc_bad_req_handle);
 
-	if (check_database(threadData, request->req_attachment, user_status))
+	if (check_database(threadData, request->req_attachment))
 		return user_status[1];
 
 	lockAST(request->req_attachment->att_database);
@@ -3400,7 +3399,7 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 	Request* request = *req_handle;
 	CHECK_HANDLE(request, type_req, isc_bad_req_handle);
 
-	if (check_database(threadData, request->req_attachment, user_status))
+	if (check_database(threadData, request->req_attachment))
 		return user_status[1];
 
 	lockAST(request->req_attachment->att_database);
@@ -3467,13 +3466,14 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 
 	for (v = vector; v < end; v++) 
 		{
-		if (check_database(threadData, *v->teb_database, user_status))
+		if (check_database(threadData, *v->teb_database))
 			return user_status[1];
+			
 		dbb = threadData.getDatabase(); //tdbb->tdbb_database;
 		dbb->decrementUseCount();
 		}
 
-	if (check_database(threadData, *vector->teb_database, user_status))
+	if (check_database(threadData, *vector->teb_database))
 		return user_status[1];
 
 	Transaction* prior = NULL;
@@ -3485,7 +3485,7 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 			{
 			Attachment* attachment = *v->teb_database;
 			
-			if (check_database(threadData, attachment, user_status)) 
+			if (check_database(threadData, attachment)) 
 				return user_status[1];
 
 			lockAST(attachment->att_database);
@@ -3598,7 +3598,7 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS*	user_status,
 	ThreadData threadData (user_status);
 
 	Attachment* attachment = *db_handle;
-	if (check_database(threadData, attachment, user_status))
+	if (check_database(threadData, attachment))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -3755,7 +3755,7 @@ ISC_STATUS GDS_TRANSACTION_INFO(ISC_STATUS* user_status,
 	Transaction* transaction = *tra_handle;
 	CHECK_HANDLE(transaction, type_tra, isc_bad_trans_handle);
 
-	if (check_database(threadData, transaction->tra_attachment, user_status))
+	if (check_database(threadData, transaction->tra_attachment))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -3885,7 +3885,7 @@ ISC_STATUS jrd8_update_account_info(ISC_STATUS* user_status, Attachment** handle
 	api_entry_point_init(user_status);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *handle, user_status))
+	if (check_database(threadData, *handle))
 		return user_status[1];
 
 	try
@@ -3919,7 +3919,7 @@ ISC_STATUS jrd8_user_info(ISC_STATUS* user_status, Attachment** handle,
 	api_entry_point_init(user_status);
 	ThreadData threadData (user_status);
 
-	if (check_database(threadData, *handle, user_status))
+	if (check_database(threadData, *handle))
 		return user_status[1];
 
 	try
@@ -4416,7 +4416,7 @@ static blb* check_blob(thread_db* tdbb, ISC_STATUS* user_status, blb** blob_hand
 
 	if (!blob ||
 		//(MemoryPool::blk_type(blob) != type_blb) ||
-		check_database(tdbb, blob->blb_attachment, user_status) ||
+		check_database(tdbb, blob->blb_attachment) ||
 		!(transaction = blob->blb_transaction))
 		//MemoryPool::blk_type(transaction) != type_tra)
 		{
@@ -4430,7 +4430,7 @@ static blb* check_blob(thread_db* tdbb, ISC_STATUS* user_status, blb** blob_hand
 }
 
 
-static ISC_STATUS check_database(thread_db* tdbb, Attachment* attachment, ISC_STATUS * user_status)
+static ISC_STATUS check_database(thread_db* tdbb, Attachment* attachment)
 {
 /**************************************
  *
@@ -4450,18 +4450,19 @@ static ISC_STATUS check_database(thread_db* tdbb, Attachment* attachment, ISC_ST
 	DBB dbb;
 	
 	if (!attachment || !(dbb = attachment->att_database))
-		return handle_error(user_status, isc_bad_db_handle, tdbb);
+		return handle_error(tdbb->tdbb_status_vector, isc_bad_db_handle, tdbb);
 
-/* Make sure this is a valid attachment */
+	/* Make sure this is a valid attachment */
 
 #ifndef SUPERSERVER
 	const Attachment* attach;
+	
 	for (attach = dbb->dbb_attachments; attach; attach = attach->att_next)
 		if (attach == attachment)
 			break;
 
 	if (!attach)
-		return handle_error(user_status, isc_bad_db_handle, tdbb);
+		return handle_error(tdbb->tdbb_status_vector, isc_bad_db_handle, tdbb);
 #endif
 
 	tdbb->tdbb_database = dbb;
@@ -4475,46 +4476,45 @@ static ISC_STATUS check_database(thread_db* tdbb, Attachment* attachment, ISC_ST
 	/* Count active threads in database */
 
 	dbb->incrementUseCount();
-
-    const TEXT* string;
-    ISC_STATUS* ptr;
     
 	if (dbb->dbb_flags & DBB_bugcheck) 
 		{
-		ptr = user_status;
+		ISC_STATUS* ptr = tdbb->tdbb_status_vector;
 		*ptr++ = isc_arg_gds;
 		*ptr++ = isc_bug_check;
 		*ptr++ = isc_arg_string;
-		string = "can't continue after bugcheck";
-		*ptr++ = (ISC_STATUS) string;
+		*ptr++ = (ISC_STATUS) "can't continue after bugcheck";
 		*ptr = isc_arg_end;
-		return error(NULL, user_status);
+		
+		return error(NULL, tdbb->tdbb_status_vector);
 		}
 
-	if (attachment->att_flags & ATT_shutdown ||
-		(dbb->dbb_ast_flags & DBB_shutdown &&
-		 !(attachment->userFlags & (USR_locksmith | USR_owner))))
+	if (attachment->att_flags & ATT_shutdown || 
+		 ((dbb->dbb_ast_flags & DBB_shutdown) && 
+		  !((attachment->userFlags & (USR_locksmith | USR_owner)) || attachment->userData.authenticating)))
 		{
-		ptr = user_status;
+		ISC_STATUS* ptr = tdbb->tdbb_status_vector;
 		*ptr++ = isc_arg_gds;
 		*ptr++ = isc_shutdown;
 		*ptr++ = isc_arg_string;
 		*ptr++ = (ISC_STATUS) (const char*) attachment->att_filename;
 		*ptr = isc_arg_end;
-		return error(NULL, user_status);
+		
+		return error(NULL, tdbb->tdbb_status_vector);
 		}
 
 #ifdef CANCEL_OPERATION
 	if ((attachment->att_flags & ATT_cancel_raise) &&
 		!(attachment->att_flags & ATT_cancel_disable))
-	{
+		{
 		attachment->att_flags &= ~ATT_cancel_raise;
-		ptr = user_status;
+		ISC_STATUS* ptr = tdbb->tdbb_status_vector;
 		*ptr++ = isc_arg_gds;
 		*ptr++ = isc_cancelled;
 		*ptr++ = isc_arg_end;
-		return error(NULL, user_status);
-	}
+		
+		return error(NULL, tdbb->tdbb_status_vector);
+		}
 #endif
 
 	return FB_SUCCESS;
@@ -4556,7 +4556,7 @@ static ISC_STATUS commit(ISC_STATUS* user_status, Transaction** tra_handle, cons
 	Transaction *transaction = *tra_handle;
 	Transaction *next = transaction;
 
-	if (check_database(threadData, transaction->tra_attachment, user_status))
+	if (check_database(threadData, transaction->tra_attachment))
 		return user_status[1];
 
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -4576,7 +4576,7 @@ static ISC_STATUS commit(ISC_STATUS* user_status, Transaction** tra_handle, cons
 		while (transaction = next) 
 			{
 			next = transaction->tra_sibling;
-			check_database(threadData, transaction->tra_attachment, user_status);
+			check_database(threadData, transaction->tra_attachment);
 			//tdbb->tdbb_status_vector = ptr;
 			threadData.setTransaction(transaction);
 			TRA_commit(threadData, transaction, retaining_flag);
@@ -5469,7 +5469,7 @@ static ISC_STATUS prepare(thread_db* tdbb,
 		{
 		for (; transaction; transaction = transaction->tra_sibling) 
 			{
-			check_database(tdbb, transaction->tra_attachment, status_vector);
+			check_database(tdbb, transaction->tra_attachment);
 			//tdbb->tdbb_status_vector = status_vector;
 			TRA_prepare(tdbb, transaction, length, msg);
 			DBB dbb = tdbb->tdbb_database;
@@ -5602,7 +5602,7 @@ static BOOLEAN rollback(thread_db* tdbb,
 	while (transaction = next)
 		{
 		next = transaction->tra_sibling;
-		check_database(tdbb, transaction->tra_attachment, status_vector);
+		check_database(tdbb, transaction->tra_attachment);
 
 		try 
 			{

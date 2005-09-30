@@ -536,9 +536,10 @@ void DFW_perform_work(thread_db* tdbb, Transaction* transaction)
 		catch (OSRIException& exception) 
 			{
 			/* Do any necessary cleanup */
-			pendingException = exception;
+
 			if (!phase)
 				throw;
+				
 			phase = 0;
 			more = true;
 			pendingException = exception;

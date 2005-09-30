@@ -226,6 +226,10 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 					info.putInt(item, resultSet->getInt("GID"));
 					break;
 				
+				case fb_info_user_authenticator:
+					info.putShort(item, false);
+					break;
+					
 				default:
 					info.putUnknown(item);
 				}
@@ -263,6 +267,10 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 					info.putString(item, userData.password);
 					break;
 
+				case fb_info_user_authenticator:
+					info.putShort(item, true);
+					break;
+					
 				default:
 					info.putUnknown(item);
 				}

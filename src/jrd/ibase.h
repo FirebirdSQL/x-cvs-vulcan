@@ -1840,6 +1840,7 @@ enum info_db_provider
 #define fb_info_user_first_name				10
 #define fb_info_user_middle_name			11
 #define fb_info_user_last_name				12
+#define fb_info_user_authenticator			13
 
 
 /******************************************************

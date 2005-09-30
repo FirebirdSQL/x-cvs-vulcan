@@ -479,7 +479,20 @@ InternalConnection* Database::getSystemConnection(void)
 void Database::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
 {
 	InternalSecurityContext securityContext (tdbb);
-	securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
+	Attachment *attachment = tdbb->tdbb_attachment;
+	attachment->userData.authenticating = true;
+	
+	try
+		{
+		securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
+		}
+	catch (...)
+		{
+		attachment->userData.authenticating = false;
+		throw;
+		}
+		
+	attachment->userData.authenticating = false;
 }
 
 void Database::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)

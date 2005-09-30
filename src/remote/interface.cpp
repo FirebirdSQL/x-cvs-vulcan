@@ -5854,9 +5854,9 @@ static bool get_new_dpb(const UCHAR*	dpb,
 		char temp[ENCRYPT_SIZE];
 		//ENC_crypt(pw_buffer, sizeof(pw_buffer) ,PASSWORD_SALT, temp);
 		ENC_crypt(temp, sizeof(temp), pw_buffer, PASSWORD_SALT);
-		*s++ = (UCHAR) strlen(temp);
+		*s++ = (UCHAR) strlen(temp + 2);
 		
-		for (p = (UCHAR*) temp; *p;)
+		for (p = (UCHAR*) temp + 2; *p;)
 			*s++ = *p++;
 		}
 #endif

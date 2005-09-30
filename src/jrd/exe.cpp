@@ -2386,11 +2386,11 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 					}
 				break;
 
-	#ifdef SCROLLABLE_CURSORS
+#ifdef SCROLLABLE_CURSORS
 			case nod_seek:
 				node = seek_rse(tdbb, request, node);
 				break;
-	#endif
+#endif
 
 
 			case nod_set_generator:
@@ -2427,7 +2427,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 //			ALL_check_memory();
 //		}
 //#endif
-	}	// try
+		}
 	catch (OSRIException& exception) 
 		{
 		// If we already have a handled error, and took another, simply pass the buck.

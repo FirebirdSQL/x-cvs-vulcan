@@ -71,6 +71,12 @@ CompilerScratch::~CompilerScratch(void)
 		rsbs = rsb->nextInRequest;
 		delete rsb;
 		}
+	
+	for (Resource *resource; resource = csb_resources;)
+		{
+		csb_resources = resource->next;
+		delete resource;
+		}
 }
 
 int CompilerScratch::nextStream(bool check)

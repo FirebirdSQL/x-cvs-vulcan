@@ -794,7 +794,7 @@ void SCL_init(bool create,
 				{
 				char temp[128];
 				temp[0] = strlen(p);
-				//strcpy(temp + 1, p);
+				strcpy(temp + 1, p);
 				
 				if (!check_string(temp, REL.RDB$OWNER_NAME))
 					attachment->userFlags |= USR_owner;

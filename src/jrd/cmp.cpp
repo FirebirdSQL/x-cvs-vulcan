@@ -1689,6 +1689,7 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 		***/
 		
 		request->req_resources = csb->csb_resources;
+		csb->csb_resources = NULL;
 		request->req_records_affected = 0;
 
 		if (csb->csb_g_flags & csb_blr_version4) 
