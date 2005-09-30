@@ -1,3 +1,9 @@
+2005-09-30 00:46  arnobrinkman
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	Fix another "with check option" issue
+
 2005-09-29 00:36  jimstarkey
 
 	* vulcan/src/: make_boot_files, rebuild_boot_files:
