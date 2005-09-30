@@ -3931,15 +3931,16 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
        Claudio Valderrama - 2001.1.29.
     */
 
-	if (select_list && !qualifier && name && name->str_data) {
+	if (select_list && !qualifier && name && name->str_data) 
+		{
 		// AB: Check first against the select list for matching column.
 		// When no matches at all are found we go on with our 
 		// normal way of field name lookup.
 		dsql_nod* node = pass1_lookup_alias(request, name, select_list);
-		if (node) {
+
+		if (node)
 			return node;
 		}
-	}
 
 	/* Try to resolve field against various contexts;
 	   if there is an alias, check only against the first matching */
@@ -3951,18 +3952,17 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 	// AB: Loop through the scope_levels starting by its own.
 	bool done = false;
 	USHORT current_scope_level = request->scopeLevel + 1;
-	for (; (current_scope_level > 0) && !done; current_scope_level--) {
 
+	for (; (current_scope_level > 0) && !done; current_scope_level--) 
+		{
 		// If we've found a node we're done.
-		if (node) {
+		if (node) 
 			break;
-		}
 
 		FOR_STACK (dsql_ctx*, context, &request->context)
 
-			if (context->ctx_scope_level != (current_scope_level - 1)) {
+			if (context->ctx_scope_level != (current_scope_level - 1)) 
 				continue;
-			}
 			
 			dsql_fld* field = resolve_context(request, qualifier, context, is_check_constraint);
 
@@ -3980,15 +3980,16 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					if (list) 
 						{
 						node = MAKE_node(request->threadData, nod_relation, e_rel_count);
-						//node->nod_arg[e_rel_context] = reinterpret_cast<dsql_nod*>(stack->lls_object);
 						node->nod_arg[e_rel_context] = (dsql_nod*) context;
 #ifdef SHARED_CACHE
-						context->ctx_relation->syncFields.unlock();
+						if (context->ctx_relation)
+							context->ctx_relation->syncFields.unlock();
 #endif
 						return node;
 						}
 #ifdef SHARED_CACHE
-					context->ctx_relation->syncFields.unlock();
+					if (context->ctx_relation)
+						context->ctx_relation->syncFields.unlock();
 #endif
 					break;
 					}
@@ -4007,7 +4008,8 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					// a matching field then we should stop searching.
 					// Column unknown error will be raised at bottom of function.
 #ifdef SHARED_CACHE
-					context->ctx_relation->syncFields.unlock();
+					if (context->ctx_relation)
+						context->ctx_relation->syncFields.unlock();
 #endif
 					done = true;
 					break;
@@ -4043,7 +4045,8 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					if (node)
 						{
 #ifdef SHARED_CACHE
-						context->ctx_relation->syncFields.unlock();
+						if (context->ctx_relation)
+							context->ctx_relation->syncFields.unlock();
 #endif
 						continue;
 						}
@@ -4052,7 +4055,8 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 						indices = PASS1_node(request, indices, false);
 					node = MAKE_field(request->threadData, context, field, indices);
 #ifdef SHARED_CACHE
-					context->ctx_relation->syncFields.unlock();
+					if (context->ctx_relation)
+						context->ctx_relation->syncFields.unlock();
 #endif
 					}
 				}
