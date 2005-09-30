@@ -230,6 +230,9 @@
 				RelativePath=".\PortInet.cpp">
 			</File>
 			<File
+				RelativePath=".\PortXNet.cpp">
+			</File>
+			<File
 				RelativePath=".\protocol.cpp">
 			</File>
 			<File
@@ -484,6 +487,9 @@
 				RelativePath=".\PortInet.h">
 			</File>
 			<File
+				RelativePath=".\PortXNet.h">
+			</File>
+			<File
 				RelativePath=".\propty_proto.h">
 			</File>
 			<File
@@ -616,10 +622,10 @@
 				RelativePath=".\window_proto.h">
 			</File>
 			<File
-				RelativePath=".\os\win32\wnet_proto.h">
+				RelativePath=".\wnet_proto.h">
 			</File>
 			<File
-				RelativePath=".\wnet_proto.h">
+				RelativePath=".\os\win32\wnet_proto.h">
 			</File>
 			<File
 				RelativePath=".\xdr.h">

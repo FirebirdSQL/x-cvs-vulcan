@@ -62,6 +62,7 @@
 #endif
 
 #include "../remote/proto_proto.h"	// xdr_protocol_overhead()
+#include ".\port.h"
 
 #define CHECK_HANDLE(blk,cast,type,id,err)							\
 	{																\
@@ -3329,4 +3330,53 @@ ISC_STATUS Port::authenticateUser(p_authenticate* data, Packet* send)
 	send->p_resp.p_resp_data.cstr_address = buffer;
 
 	return send_response(send, 0, bufferLength, status_vector);
+}
+
+caddr_t Port::inlinePointer(XDR* xdrs, u_int bytecount)
+{
+	if (bytecount > (u_int) xdrs->x_handy)
+		return FALSE;
+
+	return xdrs->x_base + bytecount;
+}
+
+XDR_INT Port::destroy(XDR* xdrs)
+{
+	return (XDR_INT)0;
+}
+
+bool_t Port::getLong(XDR* xdrs, SLONG* lp)
+{
+	SLONG l;
+
+	if (!(*xdrs->x_ops->x_getbytes) (xdrs, reinterpret_cast<char*>(&l), 4))
+		return FALSE;
+
+	*lp = ntohl(l);
+
+	return TRUE;
+}
+
+u_int Port::getPosition(XDR* xdrs)
+{
+	return (u_int) (xdrs->x_private - xdrs->x_base);
+}
+
+bool_t Port::putLong(XDR* xdrs, SLONG* lp)
+{
+	const SLONG l = htonl(*lp);
+	
+	return (*xdrs->x_ops->x_putbytes) (xdrs,
+									   reinterpret_cast<const char*>(AOF32L(l)),
+									   4);
+}
+
+bool_t Port::setPosition(XDR* xdrs, u_int bytecount)
+{
+	if (bytecount > (u_int) xdrs->x_handy)
+		return FALSE;
+
+	xdrs->x_private = xdrs->x_base + bytecount;
+
+	return TRUE;
 }

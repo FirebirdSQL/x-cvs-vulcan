@@ -73,6 +73,8 @@ public:
 	int parseHosts(char* file_name, char* host_name, char* user_name);
 	int parseLine(char* entry1, char* entry2, char* host_name, char* user_name);
 	static void alarmHandler(int x);
+	static bool_t getBytes(XDR* xdrs, SCHAR* buff, u_int count);
+	static bool_t putBytes(XDR* xdrs, const SCHAR* buff, u_int count);
 };
 #endif
 

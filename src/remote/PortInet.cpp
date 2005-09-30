@@ -234,12 +234,6 @@ extern int h_errno;
 #define inet_copy(from,to,size)	memcpy(to, from, size)
 #define inet_zero(to,size)		memset(to, 0, size)
 
-//static void		inet_copy(const SCHAR*, SCHAR*, int);
-static int		inet_destroy(XDR *);
-//static void		inet_gen_error(Port*, ISC_STATUS, ...);
-static bool_t	inet_getbytes(XDR *, SCHAR *, u_int);
-static bool_t	inet_getlong(XDR *, SLONG *);
-static u_int	inet_getpostn(XDR *);
 
 static void copy_p_cnct_repeat_array(	p_cnct::p_cnct_repeat*			pDest,
 										const p_cnct::p_cnct_repeat*	pSource,
@@ -255,20 +249,9 @@ static PortInet*	inet_try_connect(ConfObject *configuration,
 									const UCHAR* dpb,
 									SSHORT);
 
-/***
-Port* INET_connect(const TEXT* name,
-				  ConfObject *configuration, 
-				  PACKET* packet,
-				  ISC_STATUS* status_vector,
-				  USHORT flag, const UCHAR* dpb, SSHORT dpb_length);
-***/
-
 static caddr_t	inet_inline(XDR *, u_int);
-//static int		inet_error(Port*, const TEXT*, ISC_STATUS, int);
 static bool_t	inet_putlong(XDR*, SLONG*);
 static bool_t	inet_putbytes(XDR*, const SCHAR*, u_int);
-//static bool_t	inet_read(XDR *);
-static bool_t	inet_setpostn(XDR *, u_int);
 static bool_t	inet_write(XDR *, int);
 
 static in_addr get_bind_address(ConfObject *configuration);
@@ -276,14 +259,14 @@ static in_addr get_host_address(const TEXT* name);
 
 static XDR::xdr_ops inet_ops =
 {
-	inet_getlong,
-	inet_putlong,
-	inet_getbytes,
-	inet_putbytes,
-	inet_getpostn,
-	inet_setpostn,
-	inet_inline,
-	inet_destroy
+	Port::getLong,			// inet_getlong,
+	Port::putLong,			// inet_putlong,
+	PortInet::getBytes,		// inet_getbytes,
+	PortInet::putBytes,		// inet_putbytes,
+	Port::getPosition,		// inet_getpostn,
+	Port::setPosition,		// inet_setpostn,
+	Port::inlinePointer,	// inet_inline,
+	Port::destroy			// inet_destroy
 };
 
 static slct INET_select = { 0, 0, 0 };
@@ -1661,156 +1644,6 @@ int PortInet::xdrCreate(xdr_t* xdrs, UCHAR* buffer, int length, xdr_op x_op)
 	return TRUE;
 }
 
-static caddr_t inet_inline( XDR* xdrs, u_int bytecount)
-{
-/**************************************
- *
- *	i n e t _  i n l i n e
- *
- **************************************
- *
- * Functional description
- *	Return a pointer to somewhere in the buffer.
- *
- **************************************/
-
-	if (bytecount > (u_int) xdrs->x_handy)
-		return FALSE;
-
-	return xdrs->x_base + bytecount;
-}
-
-static XDR_INT inet_destroy( XDR* xdrs)
-{
-/**************************************
- *
- *	i n e t _ d e s t r o y
- *
- **************************************
- *
- * Functional description
- *	Destroy a stream.  A no-op.
- *
- **************************************/
-
-	return (XDR_INT)0;
-}
-static bool_t inet_getlong( XDR * xdrs, SLONG * lp)
-{
-/**************************************
- *
- *	i n e t _ g e t l o n g
- *
- **************************************
- *
- * Functional description
- *	Fetch a longword into a memory stream if it fits.
- *
- **************************************/
-
-	SLONG l;
-
-	if (!(*xdrs->x_ops->x_getbytes) (xdrs, reinterpret_cast<char*>(&l), 4))
-		return FALSE;
-
-	*lp = ntohl(l);
-
-	return TRUE;
-}
-
-static u_int inet_getpostn( XDR * xdrs)
-{
-/**************************************
- *
- *	i n e t _ g e t p o s t n
- *
- **************************************
- *
- * Functional description
- *	Get the current position (which is also current length) from stream.
- *
- **************************************/
-
-	return (u_int) (xdrs->x_private - xdrs->x_base);
-}
-static bool_t inet_putbytes( XDR* xdrs, const SCHAR* buff, u_int count)
-{
-/**************************************
- *
- *	i n e t _ p u t b y t e s
- *
- **************************************
- *
- * Functional description
- *	Put a bunch of bytes to a memory stream if it fits.
- *
- **************************************/
-	SLONG bytecount = count;
-
-/* Use memcpy to optimize bulk transfers. */
-
-	while (bytecount > (SLONG) sizeof(ISC_QUAD)) {
-		if (xdrs->x_handy >= bytecount) {
-			memcpy(xdrs->x_private, buff, bytecount);
-			xdrs->x_private += bytecount;
-			xdrs->x_handy -= bytecount;
-			return TRUE;
-		}
-		else {
-			if (xdrs->x_handy > 0) {
-				memcpy(xdrs->x_private, buff, xdrs->x_handy);
-				xdrs->x_private += xdrs->x_handy;
-				buff += xdrs->x_handy;
-				bytecount -= xdrs->x_handy;
-				xdrs->x_handy = 0;
-			}
-			if (!inet_write(xdrs, 0))
-				return FALSE;
-		}
-	}
-
-/* Scalar values and bulk transfer remainder fall thru
-   to be moved byte-by-byte to avoid memcpy setup costs. */
-
-	if (!bytecount)
-		return TRUE;
-
-	if (xdrs->x_handy >= bytecount) {
-		xdrs->x_handy -= bytecount;
-		do {
-			*xdrs->x_private++ = *buff++;
-		} while (--bytecount);
-		return TRUE;
-	}
-
-	while (--bytecount >= 0) {
-		if (xdrs->x_handy <= 0 && !inet_write(xdrs, 0))
-			return FALSE;
-		--xdrs->x_handy;
-		*xdrs->x_private++ = *buff++;
-	}
-
-	return TRUE;
-}
-
-// CVC: It could be const SLONG* lp, but it should fit into xdr_ops' signature.
-static bool_t inet_putlong( XDR* xdrs, SLONG* lp)
-{
-/**************************************
- *
- *	i n e t _ p u t l o n g
- *
- **************************************
- *
- * Functional description
- *	Fetch a longword into a memory stream if it fits.
- *
- **************************************/
-	const SLONG l = htonl(*lp);
-	return (*xdrs->x_ops->x_putbytes) (xdrs,
-									   reinterpret_cast<const char*>(AOF32L(l)),
-									   4);
-}
 
 static bool_t inet_read( XDR * xdrs)
 {
@@ -1876,26 +1709,6 @@ static bool_t inet_read( XDR * xdrs)
 	return TRUE;
 }
 
-static bool_t inet_setpostn( XDR * xdrs, u_int bytecount)
-{
-/**************************************
- *
- *	i n e t _ s e t p o s t n
- *
- **************************************
- *
- * Functional description
- *	Set the current position (which is also current length) from stream.
- *
- **************************************/
-
-	if (bytecount > (u_int) xdrs->x_handy)
-		return FALSE;
-
-	xdrs->x_private = xdrs->x_base + bytecount;
-
-	return TRUE;
-}
 
 static bool_t inet_write( XDR * xdrs, bool_t end_flag)
 {
@@ -3239,4 +3052,123 @@ int PortInet::parseLine(char* entry1, char* entry2, char* host_name, char* user_
 
 void PortInet::alarmHandler(int x)
 {
+}
+
+bool_t PortInet::getBytes(XDR* xdrs, SCHAR* buff, u_int count)
+{
+	SLONG bytecount = count;
+
+	/* Use memcpy to optimize bulk transfers. */
+
+	while (bytecount > (SLONG) sizeof(ISC_QUAD))
+		{
+		if (xdrs->x_handy >= bytecount) 
+			{
+			memcpy(buff, xdrs->x_private, bytecount);
+			xdrs->x_private += bytecount;
+			xdrs->x_handy -= bytecount;
+			
+			return TRUE;
+			}
+		else 
+			{
+			if (xdrs->x_handy > 0) 
+				{
+				memcpy(buff, xdrs->x_private, xdrs->x_handy);
+				xdrs->x_private += xdrs->x_handy;
+				buff += xdrs->x_handy;
+				bytecount -= xdrs->x_handy;
+				xdrs->x_handy = 0;
+				}
+				
+			if (!inet_read(xdrs))
+				return FALSE;
+			}
+		}
+
+	/* Scalar values and bulk transfer remainder fall thru
+	   to be moved byte-by-byte to avoid memcpy setup costs. */
+
+	if (!bytecount)
+		return TRUE;
+
+	if (xdrs->x_handy >= bytecount) 
+		{
+		xdrs->x_handy -= bytecount;
+		do
+			*buff++ = *xdrs->x_private++;
+		while (--bytecount);
+		return TRUE;
+		}
+
+	while (--bytecount >= 0) 
+		{
+		if (!xdrs->x_handy && !inet_read(xdrs))
+			return FALSE;
+		*buff++ = *xdrs->x_private++;
+		--xdrs->x_handy;
+		}
+
+	return TRUE;
+}
+
+bool_t PortInet::putBytes(XDR* xdrs, const SCHAR* buff, u_int count)
+{
+	SLONG bytecount = count;
+
+	/* Use memcpy to optimize bulk transfers. */
+
+	while (bytecount > (SLONG) sizeof(ISC_QUAD))
+		 {
+		if (xdrs->x_handy >= bytecount) 
+			{
+			memcpy(xdrs->x_private, buff, bytecount);
+			xdrs->x_private += bytecount;
+			xdrs->x_handy -= bytecount;
+			
+			return TRUE;
+			}
+		else 
+			{
+			if (xdrs->x_handy > 0) 
+				{
+				memcpy(xdrs->x_private, buff, xdrs->x_handy);
+				xdrs->x_private += xdrs->x_handy;
+				buff += xdrs->x_handy;
+				bytecount -= xdrs->x_handy;
+				xdrs->x_handy = 0;
+				}
+				
+			if (!inet_write(xdrs, 0))
+				return FALSE;
+			}
+		}
+
+	/* Scalar values and bulk transfer remainder fall thru
+	   to be moved byte-by-byte to avoid memcpy setup costs. */
+
+	if (!bytecount)
+		return TRUE;
+
+	if (xdrs->x_handy >= bytecount) 
+		{
+		xdrs->x_handy -= bytecount;
+		
+		do {
+			*xdrs->x_private++ = *buff++;
+		} while (--bytecount);
+		
+		return TRUE;
+		}
+
+	while (--bytecount >= 0) 
+		{
+		if (xdrs->x_handy <= 0 && !inet_write(xdrs, 0))
+			return FALSE;
+			
+		--xdrs->x_handy;
+		*xdrs->x_private++ = *buff++;
+		}
+
+	return TRUE;
 }

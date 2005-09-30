@@ -228,6 +228,13 @@ public:
 	void removeClient(Port* client);
 	virtual ISC_STATUS updateAccountInfo(p_update_account* data, Packet* packet);
 	virtual ISC_STATUS authenticateUser(p_authenticate* data, Packet* packet);
+	
+	static caddr_t inlinePointer(XDR* xdrs, u_int bytecount);
+	static XDR_INT destroy(XDR* xdrs);
+	static bool_t getLong(XDR* xdrs, SLONG* lp);
+	static u_int getPosition(XDR* xdrs);
+	static bool_t putLong(XDR* xdrs, SLONG* lp);
+	static bool_t setPosition(XDR* xdrs, u_int bytecount);
 };
 
 #endif
