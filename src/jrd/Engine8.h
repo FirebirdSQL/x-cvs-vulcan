@@ -149,7 +149,7 @@ public:
 	virtual ISC_STATUS serviceAttach(ISC_STATUS *, const TEXT *, SvcHandle *dbHandle, int, const UCHAR*,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration);
-	virtual ISC_STATUS transactRequest(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*,int, const UCHAR*, int, UCHAR*);
+	virtual ISC_STATUS transactRequest(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*, int, const UCHAR*, int, UCHAR*);
 	virtual ISC_STATUS executeDDL(ISC_STATUS*, DbHandle *dbHandle, TraHandle *traHandle, int, const UCHAR*);
 
 	virtual const TEXT* getDescription();

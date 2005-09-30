@@ -449,7 +449,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 						{
 						length = INF_convert(id, buffer);
 						
-						if (!(info =INF_put_item(item, length, buffer, info, end)))
+						if (!(info = INF_put_item(item, length, buffer, info, end)))
 							{
 							if (transaction)
 								TRA_commit(tdbb, transaction, false);
