@@ -1,3 +1,39 @@
+2005-10-01 00:05  jimstarkey
+
+	* vulcan/src/remote/: Port.cpp, Port.h, PortInet.cpp, PortInet.h,
+	PortXNet.cpp, PortXNet.h, remote.vcproj:
+	
+	Started work on XNet protocol
+
+2005-09-30 21:21  jimstarkey
+
+	* vulcan/src/jrd/: Database.cpp, pag.cpp, shut.cpp:
+	
+	Fixed, apparently, the shutdown mode problem from gbak.  Or, maybe,
+	just did and end run.
+
+2005-09-30 20:02  jimstarkey
+
+	* vulcan/src/: include/firebird.h, jrd/Attachment.cpp,
+	jrd/CompilerScratch.cpp, jrd/Database.cpp, jrd/SecurityDb.cpp,
+	jrd/UserData.cpp, jrd/cmp.cpp, jrd/dfw.epp, jrd/exe.cpp,
+	jrd/ibase.h, jrd/jrd.cpp, jrd/pag.cpp, jrd/scl.epp, jrd/shut.cpp,
+	remote/interface.cpp:
+	
+	Fixed interoperability problems w/ Firebird 1.5 and 2.0.
+
+2005-09-30 19:37  awharrison
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Check that there is a releation before unlocking it
+
+2005-09-30 08:49  robocop
+
+	* vulcan/src/jrd/: Engine8.h, inf.cpp:
+	
+	Totally misc.
+
 2005-09-30 00:46  arnobrinkman
 
 	* vulcan/src/dsql/ddl.cpp:
