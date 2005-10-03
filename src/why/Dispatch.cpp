@@ -605,7 +605,6 @@ ISC_STATUS Dispatch::compileRequest(ISC_STATUS* userStatus, DbHandle *dbHandle, 
 		{
 		YRequest *requestHandle = new YRequest (handle, tempHandle);
 		*((isc_req_handle*) reqHandle) = (isc_req_handle) requestHandles.allocateHandle (requestHandle);
-		//*reqHandle = (ReqHandle*) requestHandle;
 		}
 
 	return statusVector.getReturn();
@@ -777,10 +776,13 @@ ISC_STATUS Dispatch::releaseRequest(ISC_STATUS*userStatus, ReqHandle *reqHandle)
 	if (!request)
 		return statusVector.postAndReturn (isc_bad_req_handle);
 
+	isc_req_handle handleCopy = *(isc_req_handle*) reqHandle;
+	
 	if (!request->releaseRequest( statusVector))
 		{
 		*(isc_req_handle*) reqHandle = 0;
 		delete request;
+		requestHandles.releaseHandle(handleCopy);
 		}
 
 	return statusVector.getReturn();
@@ -1632,7 +1634,7 @@ ISC_STATUS Dispatch::dsqlExecute (ISC_STATUS* userStatus,
 		if (!shandle && statement)
 			{
 			delete statement;
-			releaseHandle (dsqlHandle);
+			releaseStatementHandle (dsqlHandle);
 			SET_HANDLE (isc_tr_handle, traHandle, 0);
 			}
 		}
@@ -1785,12 +1787,14 @@ ISC_STATUS Dispatch::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 
 	// call below zeroes what dsqlHandle pointed to
 	// hence we must release a copy of real handle
-	isc_stmt_handle copyHandle = *(isc_stmt_handle*)dsqlHandle;
+	
+	isc_stmt_handle handle = *(isc_stmt_handle*) dsqlHandle;
+	
 	if (!statement->releaseStatement(statusVector, option, false) && (option & DSQL_drop))
 		{
-		//releaseHandle(dsqlHandle);
-		releaseHandle((DsqlHandle*) &copyHandle); 
 		delete statement;
+		statementHandles.releaseHandle(handle);
+		*(isc_stmt_handle*) dsqlHandle = 0;
 		}
 
 	return statusVector.getReturn();
@@ -2333,7 +2337,7 @@ void Dispatch::releaseTransaction(TraHandle* traHandle)
 	*(isc_tr_handle*) traHandle = 0;
 }
 
-void Dispatch::releaseHandle(DsqlHandle* handle)
+void Dispatch::releaseStatementHandle(DsqlHandle* handle)
 {
 	int slot = getHandleSlot (handle);
 	statementHandles.releaseHandle (slot);

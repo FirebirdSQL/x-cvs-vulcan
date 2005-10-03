@@ -251,7 +251,7 @@ public:
 	YRequest* getRequest(ReqHandle* reqHandle);
 	int getHandleSlot(void* handle);
 	void releaseTransaction(TraHandle* traHandle);
-	void releaseHandle(DsqlHandle* handle);
+	void releaseStatementHandle(DsqlHandle* handle);
 	void releaseBlobHandle(BlbHandle* blbHandle);
 	virtual int shutdownConnections(int type, int milliseconds);
 	ISC_STATUS cancelOperation(ISC_STATUS* userStatus, DbHandle* dbHandle, int flags);
