@@ -73,18 +73,18 @@ public:
 	YSQLVAR		*sqlvars;
 	
 	void populateSqlda(const UCHAR *info, int length);
-	int getNumber(const UCHAR* ptr, int length);
+	static int getNumber(const UCHAR* ptr, int length);
 	void genBlr();
 	void allocateBuffer(int length);
 	void allocateMessage(void);
 	void allocateDescriptors(void);
 	void copyToMessage(void);
 	void copyFromMessage(void);
-	int getDtype(int sqlType);
-	int align(int dtype, int offset);
+	static int getDtype(int sqlType);
+	static int align(int dtype, int offset);
 	YSQLDA(void);
 	void setSqlda(int userDialect, XSQLDA* sqlda);
-	bool validateBlr(void);
+	bool validateBlr(void) const;
 	void init(void);
 };
 

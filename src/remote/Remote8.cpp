@@ -480,9 +480,9 @@ ISC_STATUS Remote8::dsqlExecuteImmediate2(ISC_STATUS* statusVector, DbHandle *db
 
 ISC_STATUS Remote8::dsqlExecuteImmediate3(ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr,
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg,
+										 int outBlrLength, const UCHAR *outBlr,
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (statusVector);
@@ -490,7 +490,7 @@ ISC_STATUS Remote8::dsqlExecuteImmediate3(ISC_STATUS* statusVector, DbHandle *db
 
 
 ISC_STATUS Remote8::dsqlExecuteImmediate (ISC_STATUS* statusVector, DbHandle *dbHandle, TraHandle *traHandle, 
-										 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+										 int sqlLength, const char* sql, int dialect, int blrLength, const UCHAR *blr,
 										 int msgType, int msgLength, UCHAR* msg)
 {
 	return entrypointUnavailable (statusVector);

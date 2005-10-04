@@ -112,9 +112,9 @@ public:
 											 int outMsgType, int outMsgLength, UCHAR *outMsg);
 	virtual ISC_STATUS dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 											 int sqlLength, const char* sql, int dialect, 
-											 int inBlrLength, UCHAR *inBlr, 
-											 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-											 int outBlrLength, UCHAR *outBlr, 
+											 int inBlrLength, const UCHAR *inBlr,
+											 int inMsgType, int inMsgLength, const UCHAR *inMsg,
+											 int outBlrLength, const UCHAR *outBlr,
 											 int outMsgType, int outMsgLength, UCHAR *outMsg);
 	virtual ISC_STATUS dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 											 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 

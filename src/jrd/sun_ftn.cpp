@@ -2286,7 +2286,7 @@ ISC_STATUS ISC_DDL(user_status, db_handle, tra_handle, length, ddl)
 	 ATT *db_handle;
 	 TRA *tra_handle;
 	 SLONG GDS_VAL(length);
-	 UCHAR *ddl;
+	 const UCHAR *ddl;
 {
 /**************************************
  *

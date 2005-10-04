@@ -1422,7 +1422,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 				int dpbLength = hack.genDPB(&dpb);
 
 				if (!createDatabase(statusVector, fileName, fileName, dbHandle, 
-							dpbLength, dpb.buffer,0, NULL, NULL))
+							dpbLength, dpb.buffer, 0, NULL, NULL))
 					if (element->children)
 						alterDatabase (statusVector, dbHandle, &hack);
 
@@ -1855,7 +1855,7 @@ ISC_STATUS Dispatch::serviceAttach(ISC_STATUS *userStatus,
 								  const TEXT *service, 
 								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb,
+								  const UCHAR *spb,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration)
 {

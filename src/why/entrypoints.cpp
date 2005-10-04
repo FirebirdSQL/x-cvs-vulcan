@@ -885,7 +885,7 @@ ISC_STATUS API_ROUTINE isc_ddl(ISC_STATUS* userStatus,
 							   DbHandle *dbHandle, 
 							   TraHandle *traHandle, 
 							   USHORT ddlLength, 
-							   UCHAR* ddl)
+							   const UCHAR* ddl)
 	{
 	if (!dispatch)
 		initialize();

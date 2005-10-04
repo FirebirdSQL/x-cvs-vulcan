@@ -328,8 +328,8 @@ void YSQLDA::genBlr()
 	
 	numberVariables = sqlda->sqld;
 	int parameters = sqlda->sqld * 2;
-	XSQLVAR *variable;
-	XSQLVAR *variableEnd = sqlda->sqlvar + sqlda->sqld;
+	const XSQLVAR *variable;
+	const XSQLVAR *variableEnd = sqlda->sqlvar + sqlda->sqld;
 	blrLength = 8;
 	sqlvars = (sqlda->sqld <= LOCAL_SQLVARS) ? localSqlvars : new YSQLVAR [sqlda->sqld];
 	YSQLVAR *sqlvar = sqlvars;
@@ -587,14 +587,14 @@ void YSQLDA::setSqlda(int dialect, XSQLDA* userSqlda)
 	allocateMessage();
 }
 
-bool YSQLDA::validateBlr(void)
+bool YSQLDA::validateBlr(void) const
 {
 	if (numberVariables != sqlda->sqld)
 		return false;
 
-	YSQLVAR *sqlvar = sqlvars;
+	const YSQLVAR *sqlvar = sqlvars;
 	
-	for (XSQLVAR *variable = sqlda->sqlvar, *end = variable + sqlda->sqld; variable < end; ++variable, ++sqlvar)
+	for (const XSQLVAR *variable = sqlda->sqlvar, *end = variable + sqlda->sqld; variable < end; ++variable, ++sqlvar)
 		if (sqlvar->sqltype != variable->sqltype ||
 			 sqlvar->sqlscale != variable->sqlscale ||
 			 sqlvar->sqlsubtype != variable->sqlsubtype ||

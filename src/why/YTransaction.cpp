@@ -203,7 +203,7 @@ ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, cons
 ISC_STATUS  YTransaction::transactionInfo(StatusVector& statusVector,int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	UCHAR *ptr = buffer;
-	UCHAR *end = buffer + bufferLength;
+	const UCHAR *end = buffer + bufferLength;
 	
 	for (int n = 0; n < numberDatabases; ++n)
 		{
