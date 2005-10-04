@@ -1,3 +1,9 @@
+2005-10-03 18:04  jimstarkey
+
+	* vulcan/src/why/: Dispatch.cpp, Dispatch.h:
+	
+	Fixed problem with isc_dsql_free_statement
+
 2005-10-01 00:05  jimstarkey
 
 	* vulcan/src/remote/: Port.cpp, Port.h, PortInet.cpp, PortInet.h,
