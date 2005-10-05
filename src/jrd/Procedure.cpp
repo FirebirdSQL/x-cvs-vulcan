@@ -4,6 +4,7 @@
 #include "../jrd/all.h"
 #include "../jrd/lck.h"
 #include "../jrd/lck_proto.h"
+#include "../dsql/dsql_rel.h"
 
 #include "Procedure.h"
 #include "ProcParam.h"
@@ -113,10 +114,15 @@ Procedure::~Procedure()
 void Procedure::setOutputParameter (ProcParam *parameter)
 {
 	ProcParam **ptr;
+	dsql_fld *field = NULL;
 
 	for (ptr = &procOutputParams; *ptr; ptr = &(*ptr)->paramNext)
-		;
-	
+		field = (*ptr)->getDsqlField();
+		
+
+	if (field)
+		field->fld_next = parameter->getDsqlField();
+
 	*ptr = parameter;	
 }
 
@@ -127,9 +133,13 @@ void Procedure::setOutputParameter (ProcParam *parameter)
 void Procedure::setInputParameter (ProcParam *parameter)
 {
 	ProcParam **ptr;
+	dsql_fld *field = NULL;
 	
 	for (ptr = &procInputParams; *ptr; ptr = &(*ptr)->paramNext)
-		;
+		field = (*ptr)->getDsqlField();
+		
+	if (field)
+		field->fld_next = parameter->getDsqlField();
 	
 	*ptr = parameter;	
 }
