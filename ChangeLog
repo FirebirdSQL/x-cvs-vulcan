@@ -1,3 +1,13 @@
+2005-10-04 10:04  robocop
+
+	* vulcan/src/: jrd/Subsystem.cpp, jrd/Subsystem.h, jrd/sun_ftn.cpp,
+	remote/Remote8.cpp, remote/Remote8.h, why/Dispatch.cpp,
+	why/Dispatch.h, why/YSQLDA.cpp, why/YSQLDA.h, why/YTransaction.cpp,
+	why/entrypoints.cpp:
+	
+	Trying to constify Vulcan from pure source code inspection. Now
+	Jim's turn to try to compile.
+
 2005-10-03 18:04  jimstarkey
 
 	* vulcan/src/why/: Dispatch.cpp, Dispatch.h:
