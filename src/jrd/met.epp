@@ -1894,21 +1894,6 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 	Format::fmt_desc_iterator desc;
 	Database* dbb = tdbb->tdbb_database;
 	Procedure* procedure = NULL;
-
-	/***
-	BLK request = CMP_find_request(tdbb, irq_l_procedure, IRQ_REQUESTS);
-	FOR(REQUEST_HANDLE request)
-		P IN RDB$PROCEDURES WITH P.RDB$PROCEDURE_NAME EQ name
-
-        if (!REQUEST(irq_l_procedure)) 
-            REQUEST(irq_l_procedure) = request;
-
-        procedure = MET_procedure(tdbb, P.RDB$PROCEDURE_ID, noscan, 0);
-	END_FOR;
-
-	if (!REQUEST(irq_l_procedure))
-		REQUEST(irq_l_procedure) = request;
-	***/
 	
 	try 
 		{
@@ -1925,7 +1910,6 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 			procedure = new Procedure (dbb, P.RDB$PROCEDURE_NAME, "", P.RDB$PROCEDURE_ID);
 			procedure->setFlags (PRC_being_scanned);
 			procedure->clearFlags (PRC_obsolete);
-			//procedure->getExistenceLock(tdbb);
 			
 			if (!P.RDB$SECURITY_CLASS.NULL)
 				{
@@ -1954,11 +1938,6 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 				parameter = new ProcParam (PA.RDB$PARAMETER_NUMBER);
 				parameter->setProcedure (procedure);
 
-				if (PA.RDB$PARAMETER_TYPE == 0)
-					procedure->setInputParameter (parameter);
-				else if (PA.RDB$PARAMETER_TYPE == 1)
-					procedure->setOutputParameter (parameter);
-					
 				PA.RDB$PARAMETER_NAME[name_length(PA.RDB$PARAMETER_NAME)] = 0;
 				parameter->fld_name = PA.RDB$PARAMETER_NAME;
 				DSC desc;
@@ -1967,6 +1946,10 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 									F.RDB$FIELD_SCALE, F.RDB$FIELD_LENGTH,
 									F.RDB$FIELD_SUB_TYPE, F.RDB$CHARACTER_SET_ID,
 									F.RDB$COLLATION_ID);
+									
+				if (! F.RDB$NULL_FLAG)
+					desc.dsc_flags |= DSC_nullable;
+
 				parameter->setDescriptor (desc);
 				
 				parameter->fld_dtype = desc.dsc_dtype;
@@ -1975,10 +1958,11 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 				parameter->fld_dimensions = F.RDB$DIMENSIONS;
 				parameter->fld_sub_type = desc.dsc_sub_type;
 
-				/* This is my attempt to set the NULLABLE flag similar to the */
-				/* way FB 1.5 does it in METD_get_procedure()                 */
-				if (! F.RDB$NULL_FLAG)
-					parameter->paramDescriptor.dsc_flags |= DSC_nullable;
+				if (PA.RDB$PARAMETER_TYPE == 0)
+					procedure->setInputParameter (parameter);
+				else if (PA.RDB$PARAMETER_TYPE == 1)
+					procedure->setOutputParameter (parameter);
+					
 
 			END_FOR;
 
