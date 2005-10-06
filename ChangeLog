@@ -1,3 +1,22 @@
+2005-10-05 22:31  awharrison
+
+	* vulcan/src/jrd/Procedure.cpp:
+	
+	The old pass1 in dsql needs to walk a list of dsql_fld blocks and
+	doesn't like the newer, nicer field class, of which procedure
+	parameter is a specialization.	So, the input and output parameters
+	have to be linked both in the parameter itself and in the
+	dsql_field block contained in the parameter.
+
+2005-10-05 22:28  awharrison
+
+	* vulcan/src/jrd/met.epp:
+	
+	for historic reasons, pass1 requires that the old dsql_fld
+	description of parameters be linked for input and output as well as
+	the parameters themselves.  So, wait until the parameter is
+	completely set up before putting it on the input or output list.
+
 2005-10-04 10:04  robocop
 
 	* vulcan/src/: jrd/Subsystem.cpp, jrd/Subsystem.h, jrd/sun_ftn.cpp,
