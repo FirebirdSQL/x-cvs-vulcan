@@ -117,7 +117,7 @@ public:
 											 int outBlrLength, const UCHAR *outBlr,
 											 int outMsgType, int outMsgLength, UCHAR *outMsg);
 	virtual ISC_STATUS dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-											 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+											 int sqlLength, const char* sql, int dialect, int blrLength, const UCHAR *blr, 
 											 int msgType, int msgLength, UCHAR* msg);
 	virtual ISC_STATUS dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int option);
 
