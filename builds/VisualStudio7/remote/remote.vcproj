@@ -240,9 +240,6 @@
 				RelativePath="..\..\..\src\remote\PortXNet.cpp">
 			</File>
 			<File
-				RelativePath=".\portxnet.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\remote\protocol.cpp">
 			</File>
 			<File
@@ -644,10 +641,10 @@
 				RelativePath="..\..\..\src\remote\window_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\wnet_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xdr.h">
