@@ -1,3 +1,10 @@
+2005-10-06 22:27  awharrison
+
+	* vulcan/src/remote/Remote8.h:
+	
+	Const correctness in one of the two dsqlExecuteImmediate calls -
+	the blr string should be a const pointer to match the code.
+
 2005-10-05 22:31  awharrison
 
 	* vulcan/src/jrd/Procedure.cpp:
