@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config;../../../src/why"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;DEV_BUILD;MULTI_THREAD;NAMESPACE=Remote;MEMMGR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;DEV_BUILD;MULTI_THREAD;NAMESPACE=Remote;MEMMGR;SUPERSERVER;SUPERCLIENT;XNET"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -237,6 +237,12 @@
 				RelativePath="..\..\..\src\remote\PortInet.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\remote\PortXNet.cpp">
+			</File>
+			<File
+				RelativePath=".\portxnet.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\remote\protocol.cpp">
 			</File>
 			<File
@@ -337,6 +343,15 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xdr.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\XNetChannel.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\XNetConnection.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\XNetMappedFile.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -494,6 +509,9 @@
 				RelativePath="..\..\..\src\remote\PortInet.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\remote\PortXNet.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\remote\propty_proto.h">
 			</File>
 			<File
@@ -626,10 +644,10 @@
 				RelativePath="..\..\..\src\remote\window_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\wnet_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xdr.h">
@@ -642,6 +660,15 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xnet_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\XNetChannel.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\XNetConnection.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\XNetMappedFile.h">
 			</File>
 		</Filter>
 		<Filter

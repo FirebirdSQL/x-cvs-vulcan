@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\include\gen;..\jrd;..\config;..\why"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;DEV_BUILD;MULTI_THREAD;NAMESPACE=Remote;MEMMGR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;DEV_BUILD;MULTI_THREAD;NAMESPACE=Remote;MEMMGR;XNET;SUPERSERVER;SUPERCLIENT"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -275,9 +275,6 @@
 				RelativePath=".\RRequest.cpp">
 			</File>
 			<File
-				RelativePath=".\RServer.cpp">
-			</File>
-			<File
 				RelativePath=".\RStatement.cpp">
 			</File>
 			<File
@@ -333,6 +330,15 @@
 			</File>
 			<File
 				RelativePath=".\xdr.cpp">
+			</File>
+			<File
+				RelativePath=".\XNetChannel.cpp">
+			</File>
+			<File
+				RelativePath=".\XNetConnection.cpp">
+			</File>
+			<File
+				RelativePath=".\XNetMappedFile.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -541,9 +547,6 @@
 				RelativePath=".\RRequest.h">
 			</File>
 			<File
-				RelativePath=".\RServer.h">
-			</File>
-			<File
 				RelativePath=".\RStatement.h">
 			</File>
 			<File
@@ -638,6 +641,15 @@
 			</File>
 			<File
 				RelativePath=".\xnet_proto.h">
+			</File>
+			<File
+				RelativePath=".\XNetChannel.h">
+			</File>
+			<File
+				RelativePath=".\XNetConnection.h">
+			</File>
+			<File
+				RelativePath=".\XNetMappedFile.h">
 			</File>
 		</Filter>
 		<Filter

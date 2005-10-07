@@ -819,8 +819,9 @@ int ISC_expand_filename(const TEXT* file_name,
 #ifdef SUPERSERVER
 
 	if (!fully_qualified_path)
-		length = JRD_getdir(expanded_name, MAXPATHLEN);
-	
+		//length = JRD_getdir(expanded_name, MAXPATHLEN);
+		length = GetCurrentDirectory(MAXPATHLEN, expanded_name);
+		
 	// Handle case where case where temp is of the form "c:foo.fdb" and expanded_name is "c:\x\y".
 
 	if (length && length < MAXPATHLEN) {

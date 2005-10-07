@@ -72,7 +72,7 @@ static bool_t xdr_cstring(XDR*, CSTRING*);
 static inline bool_t xdr_cstring_const(XDR*, CSTRING_CONST*);
 static bool_t xdr_datum(XDR *, DSC *, BLOB_PTR *);
 #ifdef DEBUG_XDR_MEMORY
-static bool_t xdr_debug_packet(XDR *, enum xdr_op, PACKET *);
+static bool_t xdr_debug_packet(XDR *, enum xdr_op, Packet *);
 #endif
 static bool_t xdr_longs(XDR *, CSTRING *);
 static bool_t xdr_message(XDR *, REM_MSG, FMT);
@@ -191,13 +191,13 @@ void xdr_debug_memory(
 
 	ULONG i;
 	for (i = 0; i < vector->vec_count; i++) {
-		PACKET* packet = (PACKET*) vector->vec_object[i];
+		Packet* packet = (Packet*) vector->vec_object[i];
 		if (packet) {
 			fb_assert(packet->p_operation > op_void
 				   && packet->p_operation < op_max);
 
 			if ((SCHAR *) xdrvar >= (SCHAR *) packet &&
-				(SCHAR *) xdrvar < (SCHAR *) packet + sizeof(PACKET)) {
+				(SCHAR *) xdrvar < (SCHAR *) packet + sizeof(Packet)) {
 				ULONG j;
 				for (j = 0; j < P_MALLOC_SIZE; j++) {
 					if (xop == XDR_FREE) {
@@ -235,7 +235,7 @@ void xdr_debug_memory(
 #endif
 
 
-bool_t xdr_protocol(XDR* xdrs, PACKET* p)
+bool_t xdr_protocol(XDR* xdrs, Packet* p)
 {
 /**************************************
  *
@@ -1060,7 +1060,7 @@ static bool_t xdr_datum( XDR* xdrs, DSC* desc, BLOB_PTR* buffer)
 
 
 #ifdef DEBUG_XDR_MEMORY
-static bool_t xdr_debug_packet( XDR* xdrs, enum xdr_op xop, PACKET* packet)
+static bool_t xdr_debug_packet( XDR* xdrs, enum xdr_op xop, Packet* packet)
 {
 /**************************************
  *
@@ -1889,7 +1889,7 @@ void Packet::zap(void)
 void Packet::zap(bool newPacket)
 {
 	if (newPacket)
-		memset(this, 0, sizeof(PACKET));
+		memset(this, 0, sizeof(Packet));
 	else
 #ifdef DEBUG_XDR_MEMORY
 		/* Don't trash debug xdr memory allocation table of recycled packets. */

@@ -73,11 +73,11 @@
 #include <unistd.h>
 #endif
 
-#if defined(WIN_NT)
-//#define XNET
+#ifdef XNET
+#include "PortXNet.h"
 #include "../jrd/isc_proto.h"
 #include "../remote/os/win32/wnet_proto.h"
-#include "../remote/xnet_proto.h"
+//#include "../remote/xnet_proto.h"
 #endif
 
 #ifdef VMS
@@ -111,7 +111,7 @@ static Port* analyze_service(ConfObject *configuration, TEXT*, USHORT*, ISC_STAT
 							const UCHAR*, SSHORT);
 static bool batch_gds_receive(Port*, struct rmtque *, ISC_STATUS *, USHORT);
 static bool batch_dsql_fetch(Port*, struct rmtque *, ISC_STATUS *, USHORT);
-static bool check_response(RDatabase*, PACKET *);
+static bool check_response(RDatabase*, Packet *);
 static bool clear_queue(Port*, ISC_STATUS *);
 static void disconnect(Port*);
 #ifdef SCROLLABLE_CURSORS
@@ -145,10 +145,10 @@ static bool init(ISC_STATUS *, Port*, P_OP, const TEXT *fileName, USHORT, UCHAR 
 static ISC_STATUS mov_dsql_message(const UCHAR*, const fmt*, UCHAR*, const fmt*);
 static void move_error(ISC_STATUS, ...);
 static void receive_after_start(RRQ, USHORT);
-static bool receive_packet(Port*, PACKET *, ISC_STATUS *);
-static bool receive_packet_noqueue(Port*, PACKET *, ISC_STATUS *);
+static bool receive_packet(Port*, Packet *, ISC_STATUS *);
+static bool receive_packet_noqueue(Port*, Packet *, ISC_STATUS *);
 static bool receive_queued_packet(Port*, ISC_STATUS *, USHORT);
-static bool receive_response(RDatabase*, PACKET *);
+static bool receive_response(RDatabase*, Packet *);
 //static void release_blob(RBL);
 //static void release_event(RVNT);
 static bool release_object(RDatabase*, P_OP, USHORT);
@@ -163,13 +163,13 @@ static RMessage *scroll_cache(ISC_STATUS *, struct trdb *, RRQ, Port*, rrq_repea
 						USHORT *, ULONG *);
 #endif
 
-static ISC_STATUS send_and_receive(RDatabase*, PACKET *, ISC_STATUS *);
+static ISC_STATUS send_and_receive(RDatabase*, Packet *, ISC_STATUS *);
 static ISC_STATUS send_blob(ISC_STATUS*, RBL, USHORT, const UCHAR*);
 static void send_cancel_event(RVNT);
-static bool send_packet(Port*, PACKET *, ISC_STATUS *);
+static bool send_packet(Port*, Packet *, ISC_STATUS *);
 
 #ifdef NOT_USED_OR_REPLACED
-static bool send_partial_packet(Port*, PACKET *, ISC_STATUS *);
+static bool send_partial_packet(Port*, Packet *, ISC_STATUS *);
 #endif
 
 #ifdef MULTI_THREAD
@@ -262,7 +262,7 @@ static Threads	*threads;// = new Threads;
 #define GDS_DSQL_SQL_INFO	REM_sql_info
 
 
-ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS*	user_status,
+ISC_STATUS REM_attach_database(ISC_STATUS*	user_status,
 						   const SCHAR*	file_name,
 						   RDatabase**			handle,
 						   SSHORT		dpb_length,
@@ -333,6 +333,7 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS*	user_status,
 		{
 		if (new_dpb_ptr != new_dpb) 
 			delete [] new_dpb_ptr;
+			
 		return error(user_status);
 		}
 
@@ -692,7 +693,7 @@ ISC_STATUS GDS_COMPILE(ISC_STATUS* user_status,
 
 		/* Make up a packet for the remote guy */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_compile;
 		P_CMPL* compile = &packet->p_cmpl;
 		compile->p_cmpl_database = rdb->rdb_id;
@@ -792,7 +793,7 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
 
 	try
 	{
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_create_blob;
 		P_BLOB* p_blob = &packet->p_blob;
 		p_blob->p_blob_transaction = transaction->rtr_id;
@@ -1071,7 +1072,7 @@ ISC_STATUS GDS_DDL(ISC_STATUS*	user_status,
 
 		/* Make up a packet for the remote guy */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_ddl;
 		P_DDL* ddl = &packet->p_ddl;
 		ddl->p_ddl_database = rdb->rdb_id;
@@ -1247,7 +1248,7 @@ ISC_STATUS GDS_DSQL_ALLOCATE(ISC_STATUS*	user_status,
 		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7)
 			return unsupported(user_status);
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_allocate_statement;
 		packet->p_rlse.p_rlse_object = rdb->rdb_id;
 
@@ -1418,7 +1419,7 @@ ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
 
 		/* set up the packet for the other guy... */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = (out_msg_length) ? op_execute2 : op_execute;
 		P_SQLDATA* sqldata = &packet->p_sqldata;
 		sqldata->p_sqldata_statement = statement->rsr_id;
@@ -1614,7 +1615,7 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
 
 		/* set up the packet for the other guy... */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = (in_msg_length || out_msg_length) ?
 			op_exec_immediate2 : op_exec_immediate;
 		P_SQLST* ex_now = &packet->p_sqlst;
@@ -1817,7 +1818,7 @@ ISC_STATUS GDS_DSQL_FETCH(ISC_STATUS* user_status,
 			{
 			/* set up the packet for the other guy... */
 
-			PACKET* packet = &rdb->rdb_packet;
+			Packet* packet = &rdb->rdb_packet;
 			packet->p_operation = op_fetch;
 			P_SQLDATA* sqldata = &packet->p_sqldata;
 			sqldata->p_sqldata_statement = statement->rsr_id;
@@ -1969,7 +1970,7 @@ ISC_STATUS GDS_DSQL_FREE(ISC_STATUS * user_status, RStatement* * stmt_handle, US
 		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7)
 			return unsupported(user_status);
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_free_statement;
 		P_SQLFREE* free_stmt = &packet->p_sqlfree;
 		free_stmt->p_sqlfree_statement = statement->rsr_id;
@@ -2074,7 +2075,7 @@ ISC_STATUS GDS_DSQL_INSERT(ISC_STATUS * user_status,
 
 		/* set up the packet for the other guy... */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_insert;
 		P_SQLDATA* sqldata = &packet->p_sqldata;
 		sqldata->p_sqldata_statement = statement->rsr_id;
@@ -2157,7 +2158,7 @@ ISC_STATUS GDS_DSQL_PREPARE(ISC_STATUS * user_status,
 
 		/* set up the packet for the other guy... */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_prepare_statement;
 		P_SQLST* prepare = &packet->p_sqlst;
 		prepare->p_sqlst_transaction = (transaction) ? transaction->rtr_id : 0;
@@ -2248,7 +2249,7 @@ ISC_STATUS GDS_DSQL_SET_CURSOR(ISC_STATUS* user_status,
 
 		/* set up the packet for the other guy... */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_set_cursor;
 		P_SQLCUR* sqlcur = &packet->p_sqlcur;
 		sqlcur->p_sqlcur_statement = statement->rsr_id;
@@ -2364,7 +2365,7 @@ ISC_STATUS GDS_GET_SEGMENT(ISC_STATUS * user_status,
 		{
 		/* Build the primary packet to get the operation started. */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		P_SGMT* segment = &packet->p_sgmt;
 		P_RESP* response = &packet->p_resp;
 		CSTRING temp = response->p_resp_data;
@@ -2626,7 +2627,7 @@ ISC_STATUS GDS_GET_SLICE(ISC_STATUS* user_status,
 		UCHAR sdl_buffer[128];
 		UCHAR* old_sdl = SDL_clone_sdl(sdl, sdl_length, sdl_buffer, sizeof(sdl_buffer));
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_get_slice;
 		P_SLC* data = &packet->p_slc;
 		data->p_slc_transaction = transaction->rtr_id;
@@ -2712,7 +2713,7 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 
 	try
 		{
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_open_blob;
 		P_BLOB* p_blob = &packet->p_blob;
 		p_blob->p_blob_transaction = transaction->rtr_id;
@@ -2797,7 +2798,7 @@ ISC_STATUS GDS_PREPARE(ISC_STATUS * user_status,
 			RETURN_SUCCESS;
 		}
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_prepare2;
 		packet->p_prep.p_prep_transaction = transaction->rtr_id;
 		packet->p_prep.p_prep_data.cstr_length = msg_length;
@@ -2965,7 +2966,7 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
 		UCHAR sdl_buffer[128];
 		UCHAR* old_sdl = SDL_clone_sdl(sdl, sdl_length, sdl_buffer, sizeof(sdl_buffer));
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_put_slice;
 		P_SLC* data = &packet->p_slc;
 		data->p_slc_transaction = transaction->rtr_id;
@@ -3034,7 +3035,7 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 	//trdb->trdb_status_vector = user_status;
 	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 
 	try
 		{
@@ -3215,7 +3216,7 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 
 			/* Format a request for data */
 
-			PACKET *packet = &rdb->rdb_packet;
+			Packet *packet = &rdb->rdb_packet;
 			packet->p_operation = op_receive;
 			P_DATA* data = &packet->p_data;
 			data->p_data_request = request->rrq_id;
@@ -3394,7 +3395,7 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 
 	try
 	{
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_reconnect;
 		P_STTR* trans = &packet->p_sttr;
 		trans->p_sttr_database = rdb->rdb_id;
@@ -3679,7 +3680,7 @@ ISC_STATUS GDS_SEEK_BLOB(ISC_STATUS * user_status,
 			return unsupported(user_status);
 		}
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_seek_blob;
 		P_SEEK* seek = &packet->p_seek;
 		seek->p_seek_blob = blob->rbl_id;
@@ -3742,7 +3743,7 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 		RMessage *message = request->rrq_rpt[msg_type].rrq_message;
 		message->msg_address = (UCHAR*) msg;
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_send;
 		P_DATA* data = &packet->p_data;
 		data->p_data_request = request->rrq_id;
@@ -4102,7 +4103,7 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS * user_status,
 		RMessage *message = request->rrq_rpt[msg_type].rrq_message;
 		message->msg_address = (UCHAR*) msg;
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = (rdb->rdb_port->port_protocol < PROTOCOL_VERSION8) ?
 			op_start_and_send : op_start_send_and_receive;
 		P_DATA* data = &packet->p_data;
@@ -4184,7 +4185,7 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 		}
 
 		REMOTE_reset_request(request, 0);
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = (rdb->rdb_port->port_protocol < PROTOCOL_VERSION8) ?
 			op_start : op_start_and_receive;
 		P_DATA* data = &packet->p_data;
@@ -4243,7 +4244,7 @@ ISC_STATUS GDS_START_TRANSACTION(ISC_STATUS * user_status,
 
 	try
 		{
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_transaction;
 		P_STTR* trans = &packet->p_sttr;
 		trans->p_sttr_database = rdb->rdb_id;
@@ -4354,7 +4355,7 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS* user_status,
 			error
 		*/
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_transact;
 		P_TRRQ* trrq = &packet->p_trrq;
 		trrq->p_trrq_database = rdb->rdb_id;
@@ -4467,7 +4468,7 @@ ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
 		{
 		/* Build the primary packet to get the operation started. */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_authenticate_user;
 		p_authenticate* stuff = &packet->p_authenticate_user;
 		stuff->p_auth_database = rdb->rdb_id;
@@ -4538,7 +4539,7 @@ ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
 		{
 		/* Build the primary packet to get the operation started. */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_update_account_info;
 		p_update_account* information = &packet->p_account_update;
 		information->p_account_database = rdb->rdb_id;
@@ -4749,6 +4750,7 @@ static Port* analyze(ConfObject *configuration,
  *	NOTE: The file name must have been expanded prior to this call.
  *
  **************************************/
+ 
 #if (defined SUPERCLIENT || defined WIN_NT)
 	TEXT expanded_name[MAXPATHLEN];
 #endif
@@ -4816,18 +4818,12 @@ static Port* analyze(ConfObject *configuration,
 
 #if defined(XNET) && !defined(IPSERV)
 
-/* all remote attempts have failed, so access locally through the
-   interprocess server */
+	/* all remote attempts have failed, so access locally through the
+	   interprocess server */
 
 	if (!port)
-	{
-		return XNET_analyze(file_name,
-							file_length,
-							status_vector,
-							node_name,
-							user_string,
-							uv_flag);
-	}
+		//return XNET_analyze(file_name,
+		return PortXNet::analyze(file_name, file_length, status_vector, node_name, user_string, uv_flag);
 
 #endif /* XNET */
 
@@ -4938,14 +4934,15 @@ static Port* analyze_service(ConfObject *configuration,
 								node_name, user_string, uv_flag, dpb, dpb_length);
 		}
 
-#if defined(XNET) && !defined(IPSERV)
+#ifdef XNET
 
-/* all remote attempts have failed, so access locally through the
-   interprocess server */
+	/* all remote attempts have failed, so access locally through the
+	   interprocess server */
 
 	if (!port)
-		port = XNET_analyze(service_name, service_length, status_vector,
-							node_name, user_string, uv_flag);
+		//port = XNET_analyze(service_name, service_length, status_vector,
+		port = PortXNet::analyze(service_name, service_length, status_vector,
+								 node_name, user_string, uv_flag);
 #endif
 
 #ifdef SUPERCLIENT
@@ -5013,7 +5010,7 @@ static bool batch_dsql_fetch(Port*	port,
 
 	RDatabase*     rdb       = que->rmtque_rdb;
 	RStatement*     statement = (RStatement*) que->rmtque_parm;
-	PACKET* packet    = &rdb->rdb_packet;
+	Packet* packet    = &rdb->rdb_packet;
 
 	fb_assert(port == rdb->rdb_port);
 
@@ -5174,7 +5171,7 @@ static bool batch_gds_receive(Port*		port,
 	RRQ request = reinterpret_cast<RRQ>(que->rmtque_parm);
 	rrq_repeat* tail =
 		reinterpret_cast<rrq_repeat*>(que->rmtque_message);
-	PACKET *packet = &rdb->rdb_packet;
+	Packet *packet = &rdb->rdb_packet;
 
 	fb_assert(port == rdb->rdb_port);
 	
@@ -5318,7 +5315,7 @@ static bool batch_gds_receive(Port*		port,
 
 
 static bool check_response(RDatabase* rdb,
-						   PACKET * packet)
+						   Packet * packet)
 {
 /**************************************
  *
@@ -5439,7 +5436,7 @@ static void disconnect( Port* port)
 		   RaviKumar Jan 3, 98
 		 */
 
-		PACKET* packet = &rdb->rdb_packet;
+		Packet* packet = &rdb->rdb_packet;
 		if (port->port_type != port_pipe) {
 			packet->p_operation = op_disconnect;
 			port->sendPacket(packet);
@@ -5531,7 +5528,7 @@ static void event_handler( Port* port)
  *
  **************************************/
 /* zero packet */
-	PACKET packet;
+	Packet packet;
 	packet.zap();
 
 /* Read what should be an event message. If it's not, return. */
@@ -5575,7 +5572,7 @@ static void event_thread(void *arg)
  *
  **************************************/
 	Port *port = (Port*) arg;
-	PACKET packet;
+	Packet packet;
 
 	for (;;) 
 		{
@@ -5642,7 +5639,7 @@ static ISC_STATUS fetch_blob(
 	RDatabase* rdb = statement->rsr_rdb;
 
 	Port* port = rdb->rdb_port;
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 	packet->p_operation = op_fetch;
 	P_SQLDATA* sqldata = &packet->p_sqldata;
 	sqldata->p_sqldata_statement = statement->rsr_id;
@@ -5962,7 +5959,7 @@ static ISC_STATUS info(
 
 	/* Build the primary packet to get the operation started. */
 
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 	packet->p_operation = operation;
 	P_INFO* information = &packet->p_info;
 	information->p_info_object = object;
@@ -6027,7 +6024,7 @@ static bool init(ISC_STATUS* user_status,
  *
  **************************************/
 	RDatabase* rdb = port->port_context;
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 
 /* Make attach packet */
 
@@ -6237,7 +6234,7 @@ static void receive_after_start( RRQ request, USHORT msg_type)
 
 	RDatabase* rdb = request->rrq_rdb;
 	Port* port = rdb->rdb_port;
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 	rrq_repeat* tail = &request->rrq_rpt[msg_type];
 	
 	// CVC: I commented this line because it's overwritten immediately in the loop.
@@ -6308,7 +6305,7 @@ static void receive_after_start( RRQ request, USHORT msg_type)
 
 
 static bool receive_packet(Port* port,
-						   PACKET * packet,
+						   Packet * packet,
 						   ISC_STATUS * user_status)
 {
 /**************************************
@@ -6339,7 +6336,7 @@ static bool receive_packet(Port* port,
 
 
 static bool receive_packet_noqueue(Port* port,
-								   PACKET * packet,
+								   Packet * packet,
 								   ISC_STATUS * user_status)
 {
 /**************************************
@@ -6487,7 +6484,7 @@ static void dequeue_receive( Port* port)
 
 
 static bool receive_response(RDatabase* rdb,
-							 PACKET * packet)
+							 Packet * packet)
 {
 /**************************************
  *
@@ -6526,7 +6523,7 @@ static bool release_object(RDatabase* rdb,
  *
  **************************************/
  
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 	packet->p_operation = op;
 	packet->p_rlse.p_rlse_object = id;
 
@@ -6760,7 +6757,7 @@ static RMessage *scroll_cache(
 #endif
 
 
-static ISC_STATUS send_and_receive(RDatabase* rdb, PACKET* packet, ISC_STATUS* user_status)
+static ISC_STATUS send_and_receive(RDatabase* rdb, Packet* packet, ISC_STATUS* user_status)
 {
 /**************************************
  *
@@ -6803,7 +6800,7 @@ static ISC_STATUS send_blob(ISC_STATUS*	user_status,
  *
  **************************************/
 	RDatabase* rdb = blob->rbl_rdb;
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 	packet->p_operation = op_put_segment;
 
 /* If we aren't passed a buffer address, this is a batch send.  Pick up the
@@ -6861,7 +6858,7 @@ static void send_cancel_event(RVNT event)
 /* Look up the event's database, port and packet */
 
 	RDatabase*		rdb = event->rvnt_rdb;
-	PACKET*	packet = &rdb->rdb_packet;
+	Packet*	packet = &rdb->rdb_packet;
 
 /* 
  Set the various parameters for the packet:
@@ -6896,7 +6893,7 @@ static void send_cancel_event(RVNT event)
 
 
 static bool send_packet(Port* port,
-						PACKET* packet,
+						Packet* packet,
 						ISC_STATUS* user_status)
 {
 /**************************************
@@ -6929,7 +6926,7 @@ static bool send_packet(Port* port,
 
 #ifdef NOT_USED_OR_REPLACED
 static bool send_partial_packet(Port*		port,
-								PACKET*	packet,
+								Packet*	packet,
 								ISC_STATUS*	user_status)
 {
 /**************************************
@@ -7039,7 +7036,7 @@ static ISC_STATUS svcstart(ISC_STATUS*	user_status,
 
 	/* Build the primary packet to get the operation started. */
 
-	PACKET* packet = &rdb->rdb_packet;
+	Packet* packet = &rdb->rdb_packet;
 	packet->p_operation = operation;
 	P_INFO* information = &packet->p_info;
 	information->p_info_object = object;

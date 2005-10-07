@@ -4064,43 +4064,6 @@ USHORT JRD_getdir(TEXT* buf, USHORT len)
 }
 #endif /* SUPERSERVER */
 
-#ifdef OBSOLETE
-void JRD_mutex_lock(MUTX mutex)
-{
-/**************************************
- *
- *	J R D _ m u t e x _ l o c k
- *
- **************************************
- *
- * Functional description
- *	Lock a mutex and note this fact
- *	in the thread context block.
- *
- **************************************/
-	thread_db* tdbb) = get_thread_data();
-	INUSE_insert(&tdbb->tdbb_mutexes, (void *) mutex, TRUE);
-	THD_MUTEX_LOCK(mutex);
-}
-
-void JRD_mutex_unlock(MUTX mutex)
-{
-/**************************************
- *
- *	J R D _ m u t e x _ u n l o c k
- *
- **************************************
- *
- * Functional description
- *	Unlock a mutex and note this fact
- *	in the thread context block.
- *
- **************************************/
-	thread_db* tdbb) = get_thread_data();
-	INUSE_remove(&tdbb->tdbb_mutexes, (void *) mutex, FALSE);
-	THD_MUTEX_UNLOCK(mutex);
-}
-#endif // OBSOLETE
 
 
 #ifdef SUPERSERVER

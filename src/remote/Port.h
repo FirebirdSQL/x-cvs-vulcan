@@ -87,7 +87,6 @@ struct Server;
 class Port : public RefObject
 {
 public:
-	//struct blk		port_header;
 	enum rem_port_t	port_type;			/* type of port */
 	enum state_t	port_state;			/* state of port */
 	P_ARCH			port_client_arch;	/* so we can tell arch of client */
@@ -104,41 +103,26 @@ public:
 	SLONG			port_dummy_packet_interval; /* keep alive dummy packet interval */
 	SLONG			port_dummy_timeout;	/* time remaining until keepalive packet */
 	ISC_STATUS*		port_status_vector;
-	//HANDLE			port_handle;		/* handle for connection (from by OS) */
 	int				port_channel;		/* handle for connection (from by OS) */
 	int				port_misc1;
 	SLONG			port_semaphore;
-	//struct linger	port_linger;		/* linger value as defined by SO_LINGER */
 	ConfObj			configuration;
 	
 	/* port function pointers (C "emulation" of virtual functions) */
 
 	virtual int			accept(struct p_cnct*) = 0;
 	virtual void		disconnect() = 0;
-	virtual Port*		receive(PACKET*) = 0;
-	virtual XDR_INT		sendPacket(PACKET*) = 0;
-	virtual XDR_INT		sendPartial(PACKET*) = 0;
-	virtual Port*		connect(PACKET*, void(*)(Port*)) = 0;	// Establish secondary connection 
-	virtual Port*		request(PACKET*) = 0;			// Request to establish secondary connection
-	
-	/***
-	int				(*port_accept)(Port*, struct p_cnct*);
-	void			(*port_disconnect)(Port*);
-	Port*			(*port_receive_packet)(Port*, PACKET*);
-	XDR_INT			(*port_send_packet)(Port*, PACKET*);
-	XDR_INT			(*port_send_partial)(Port*, PACKET*);
-	Port*			(*port_connect)(Port*, PACKET*, void(*)());	// Establish secondary connection 
-	Port*			(*port_request)(Port*, PACKET*);			// Request to establish secondary connection
-	***/
+	virtual Port*		receive(Packet*) = 0;
+	virtual XDR_INT		sendPacket(Packet*) = 0;
+	virtual XDR_INT		sendPartial(Packet*) = 0;
+	virtual Port*		connect(Packet*, void(*)(Port*)) = 0;	// Establish secondary connection 
+	virtual Port*		auxRequest(Packet*) = 0;			// Request to establish secondary connection
 	
 	RDatabase*		port_context;
 	void			(*port_ast)(Port*);		/* AST for events */
 	XDR				port_receive;
 	XDR				port_send;
 	
-	//vec				*port_packet_vector;	/* Vector of send/receive packets */
-	//VEC				port_object_vector;
-	//BLK*			port_objects;
 	JString			port_version;
 	JString			port_host;			/* Our name */
 	JString			port_connection;	/* Name of connection */
@@ -151,63 +135,52 @@ public:
 #ifdef VMS
 	USHORT			port_iosb[4];
 #endif
-	void*			port_xcc;              /* interprocess structure */
-	//UCHAR			port_buffer[1];
 	UCHAR			*port_buffer;
 	SyncObject		syncRequest;
 	SyncObject		syncObject;
 	
-	/***	
-	int		accept(p_cnct* cnct);
-	void	disconnect();
-	Port*	receive(PACKET* pckt);
-	XDR_INT	sendPacket(PACKET* pckt);
-	XDR_INT	send_partial(PACKET* pckt);
-	Port*	connect(PACKET* pckt, void(*ast)());
-	Port*	request(PACKET* pckt);
-	***/
 	
 	/* TMN: The following member functions are conceptually private
 	 *      to server.cpp and should be _made_ private in due time!
 	 *      That is, if we don't factor these method out.
 	 */
-	ISC_STATUS	compile(P_CMPL*, PACKET*);
-	ISC_STATUS	ddl(P_DDL*, PACKET*);
-	void	disconnect(PACKET*, PACKET*);
-	void	drop_database(P_RLSE*, PACKET*);
+	ISC_STATUS	compile(P_CMPL*, Packet*);
+	ISC_STATUS	ddl(P_DDL*, Packet*);
+	void	disconnect(Packet*, Packet*);
+	void	drop_database(P_RLSE*, Packet*);
 
-	ISC_STATUS	end_blob(P_OP, P_RLSE*, PACKET*);
-	ISC_STATUS	end_database(P_RLSE*, PACKET*);
-	ISC_STATUS	end_request(P_RLSE*, PACKET*);
-	ISC_STATUS	end_statement(P_SQLFREE*, PACKET*);
-	ISC_STATUS	end_transaction(P_OP, P_RLSE*, PACKET*);
-	ISC_STATUS	execute_immediate(P_OP, P_SQLST*, PACKET*);
-	ISC_STATUS	execute_statement(P_OP, P_SQLDATA*, PACKET*);
-	ISC_STATUS	fetch(P_SQLDATA*, PACKET*);
-	ISC_STATUS	fetch_blob(P_SQLDATA*, PACKET*);
-	ISC_STATUS	get_segment(P_SGMT*, PACKET*);
-	ISC_STATUS	get_slice(P_SLC*, PACKET*);
-	ISC_STATUS	info(P_OP, P_INFO*, PACKET*);
-	ISC_STATUS	insert(P_SQLDATA*, PACKET*);
-	ISC_STATUS	open_blob(P_OP, P_BLOB*, PACKET*);
-	ISC_STATUS	prepare(P_PREP*, PACKET*);
-	ISC_STATUS	prepare_statement(P_SQLST*, PACKET*);
-	ISC_STATUS	put_segment(P_OP, P_SGMT*, PACKET*);
-	ISC_STATUS	put_slice(P_SLC*, PACKET*);
-	ISC_STATUS	que_events(P_EVENT*, PACKET*);
-	ISC_STATUS	receive_after_start(P_DATA*, PACKET*, ISC_STATUS*);
-	ISC_STATUS	receive_msg(P_DATA*, PACKET*);
-	ISC_STATUS	seek_blob(P_SEEK*, PACKET*);
-	ISC_STATUS	send_msg(P_DATA*, PACKET*);
-	ISC_STATUS	send_response(PACKET*, OBJCT, USHORT, ISC_STATUS*);
-	ISC_STATUS	service_attach(P_ATCH*, PACKET*);
-	ISC_STATUS	service_end(P_RLSE*, PACKET*);
-	ISC_STATUS	service_start(P_INFO*, PACKET*);
-	ISC_STATUS	set_cursor(P_SQLCUR*, PACKET*);
-	ISC_STATUS	start(P_OP, P_DATA*, PACKET*);
-	ISC_STATUS	start_and_send(P_OP, P_DATA*, PACKET*);
-	ISC_STATUS	start_transaction(P_OP, P_STTR*, PACKET*);
-	ISC_STATUS	transact_request(P_TRRQ *, PACKET*);
+	ISC_STATUS	end_blob(P_OP, P_RLSE*, Packet*);
+	ISC_STATUS	end_database(P_RLSE*, Packet*);
+	ISC_STATUS	end_request(P_RLSE*, Packet*);
+	ISC_STATUS	end_statement(P_SQLFREE*, Packet*);
+	ISC_STATUS	end_transaction(P_OP, P_RLSE*, Packet*);
+	ISC_STATUS	execute_immediate(P_OP, P_SQLST*, Packet*);
+	ISC_STATUS	execute_statement(P_OP, P_SQLDATA*, Packet*);
+	ISC_STATUS	fetch(P_SQLDATA*, Packet*);
+	ISC_STATUS	fetch_blob(P_SQLDATA*, Packet*);
+	ISC_STATUS	get_segment(P_SGMT*, Packet*);
+	ISC_STATUS	get_slice(P_SLC*, Packet*);
+	ISC_STATUS	info(P_OP, P_INFO*, Packet*);
+	ISC_STATUS	insert(P_SQLDATA*, Packet*);
+	ISC_STATUS	open_blob(P_OP, P_BLOB*, Packet*);
+	ISC_STATUS	prepare(P_PREP*, Packet*);
+	ISC_STATUS	prepare_statement(P_SQLST*, Packet*);
+	ISC_STATUS	put_segment(P_OP, P_SGMT*, Packet*);
+	ISC_STATUS	put_slice(P_SLC*, Packet*);
+	ISC_STATUS	que_events(P_EVENT*, Packet*);
+	ISC_STATUS	receive_after_start(P_DATA*, Packet*, ISC_STATUS*);
+	ISC_STATUS	receive_msg(P_DATA*, Packet*);
+	ISC_STATUS	seek_blob(P_SEEK*, Packet*);
+	ISC_STATUS	send_msg(P_DATA*, Packet*);
+	ISC_STATUS	send_response(Packet*, OBJCT, USHORT, ISC_STATUS*);
+	ISC_STATUS	service_attach(P_ATCH*, Packet*);
+	ISC_STATUS	service_end(P_RLSE*, Packet*);
+	ISC_STATUS	service_start(P_INFO*, Packet*);
+	ISC_STATUS	set_cursor(P_SQLCUR*, Packet*);
+	ISC_STATUS	start(P_OP, P_DATA*, Packet*);
+	ISC_STATUS	start_and_send(P_OP, P_DATA*, Packet*);
+	ISC_STATUS	start_transaction(P_OP, P_STTR*, Packet*);
+	ISC_STATUS	transact_request(P_TRRQ *, Packet*);
 	
 	HandleManager	portObjects;
 	

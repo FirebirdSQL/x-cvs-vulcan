@@ -286,7 +286,7 @@ RRQ REMOTE_find_request(RRQ request, USHORT level)
 }
 
 
-void REMOTE_free_packet( Port* port, PACKET * packet)
+void REMOTE_free_packet( Port* port, Packet * packet)
 {
 /**************************************
  *
@@ -303,7 +303,7 @@ void REMOTE_free_packet( Port* port, PACKET * packet)
 
 	if (packet) {
 		xdrmem_create(&xdr, reinterpret_cast < char *>(packet),
-					  sizeof(PACKET), XDR_FREE);
+					  sizeof(Packet), XDR_FREE);
 		xdr.x_public = (caddr_t) port;
 
 		for (n = (USHORT) op_connect; n < (USHORT) op_max; n++) {
@@ -782,27 +782,27 @@ void Port::disconnect()
 	(*this->port_disconnect)(this);
 }
 
-Port* Port::receive(PACKET* pckt)
+Port* Port::receive(Packet* pckt)
 {
 	return (*this->port_receive_packet)(this, pckt);
 }
 
-XDR_INT Port::send(PACKET* pckt)
+XDR_INT Port::send(Packet* pckt)
 {
 	return (*this->port_send_packet)(this, pckt);
 }
 
-XDR_INT Port::send_partial(PACKET* pckt)
+XDR_INT Port::send_partial(Packet* pckt)
 {
 	return (*this->port_send_partial)(this, pckt);
 }
 
-Port* Port::connect(PACKET* pckt, void(*ast)())
+Port* Port::connect(Packet* pckt, void(*ast)())
 {
 	return (*this->port_connect)(this, pckt, ast);
 }
 
-Port* Port::request(PACKET* pckt)
+Port* Port::request(Packet* pckt)
 {
 	return (*this->port_request)(this, pckt);
 }

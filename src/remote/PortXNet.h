@@ -28,14 +28,51 @@
 
 #include "Port.h"
 
-class PortXNet :
-	public Port
+class XNetConnection;
+class XNetMappedFile;
+
+class PortXNet : public Port
 {
 public:
 	PortXNet(int size);
 	virtual ~PortXNet(void);
 	static bool_t getBytes(XDR* xdrs, SCHAR* buff, u_int count);
 	static bool_t putBytes(XDR* xdrs, const SCHAR* buff, u_int count);
+	static PortXNet* analyze(TEXT* file_name, USHORT* file_length, ISC_STATUS *status_vector, const TEXT* node_name, const TEXT* user_string, bool uv_flag);
+	static PortXNet* connect(const TEXT* name, Packet* packet, ISC_STATUS *status_vector, int flag);
+	PortXNet(PortXNet* parent, UCHAR* send_buffer, int send_length, UCHAR* receive_buffer, int receive_length);
+	virtual void disconnect(void);
+
+	int xdrCreate(XDR* xdrs, UCHAR* buffer, int length, enum xdr_op x_op);
+	static void exitHandler(void* arg);
+	static void cleanupComm(XNetConnection* xcc);
+	static void releaseAll(void);
+	static void connectFini(void);
+	virtual int accept(p_cnct* cnct);
+	virtual Port* receive(Packet* packet);
+	virtual XDR_INT sendPacket(Packet* packet);
+	virtual XDR_INT sendPartial(Packet* packet);
+	virtual Port* connect(Packet* packet, void(* secondaryConnection)(Port*));
+	virtual Port* auxRequest(Packet* packet);
+	int error(TEXT* function, ISC_STATUS operation, int status, int source_line_num);
+	static bool_t write(XDR* xdrs);
+	static void logError(int source_line_num, const TEXT* err_msg, int error_code=0);
+	void genError(ISC_STATUS status, ...);
+	static PortXNet* reconnect(int client_pid, ISC_STATUS *status_vector);
+	static PortXNet* getServerPort(PortXNet *parent, int client_pid, XNetMappedFile *xpm, ULONG map_num, ULONG slot_num, time_t timestamp, ISC_STATUS *status_vector);
+	static bool serverInit(void);
+	static XNetMappedFile* getFreeSlot(ULONG* map_num, ULONG* slot_num, time_t* timestamp);
+	static bool connectInit(void);
+	static PortXNet* connect(int server_flag, ISC_STATUS *status_vector);
+	static void error(const char* operation);
+	static bool_t read(XDR* xdrs);
+
+	HANDLE			port_handle;		/* handle for connection (from by OS) */
+	XNetConnection	*port_xcc;              /* interprocess structure */
+	int				waitCount;
+	HANDLE			*waitVector;
+	PortXNet		**portVector;
+	void init(void);
 };
 
 #endif

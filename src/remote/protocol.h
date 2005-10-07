@@ -630,7 +630,7 @@ struct Packet {
 	void zap(bool newPacket);
 };
 
-typedef Packet PACKET;
+//typedef Packet PACKET;
 
 #endif /* REMOTE_PROTOCOL_H */
 

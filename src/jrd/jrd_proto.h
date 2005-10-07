@@ -170,7 +170,7 @@ void	JRD_unblock(struct BlockingThread**);
 
 #ifdef SUPERSERVER
 void	JRD_print_all_counters(const TEXT*);
-USHORT	JRD_getdir(TEXT*, USHORT);
+//USHORT	JRD_getdir(TEXT*, USHORT);
 #endif
 
 #ifdef DEBUG_PROCS

@@ -47,11 +47,11 @@ public:
 	
 	virtual int			accept(struct p_cnct*);
 	virtual void		disconnect();
-	virtual Port*		receive(PACKET*);
-	virtual XDR_INT		sendPacket(PACKET*);
-	virtual XDR_INT		sendPartial(PACKET*);
-	virtual Port*		connect(PACKET*, void(*)(Port*));	// Establish secondary connection 
-	virtual Port*		request(PACKET*);			// Request to establish secondary connection
+	virtual Port*		receive(Packet*);
+	virtual XDR_INT		sendPacket(Packet*);
+	virtual XDR_INT		sendPartial(Packet*);
+	virtual Port*		connect(Packet*, void(*)(Port*));	// Establish secondary connection 
+	virtual Port*		auxRequest(Packet*);			// Request to establish secondary connection
 	//void unhookPort(Port* parent);
 	static void exitHandler(void* arg);
 	PortInet* selectPort(slct* selct);
@@ -61,7 +61,7 @@ public:
 	int error(const char* function, ISC_STATUS operation, int status);
 	void genError(ISC_STATUS status, ...);
 	int xdrCreate(xdr_t* xdrs, UCHAR* buffer, int length, xdr_op x_op);
-	PortInet* auxConnect(PACKET* packet, void (*ast)(Port*));
+	PortInet* auxConnect(Packet* packet, void (*ast)(Port*));
 
 	int receive(UCHAR* buffer, int buffer_length, short* length);
 	bool send(const SCHAR* buffer, int buffer_length);

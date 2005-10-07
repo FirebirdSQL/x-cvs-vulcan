@@ -308,7 +308,7 @@ Port* INET_analyze(	ConfObject *configuration,
 
 	RDatabase *rdb = new RDatabase (NULL);
 	rdb->rdb_status_vector = status_vector;
-	PACKET*	packet	= &rdb->rdb_packet;
+	Packet*	packet	= &rdb->rdb_packet;
 	P_CNCT*	cnct = &packet->p_cnct;
 	
 	/* Pick up some user identification information */
@@ -370,10 +370,6 @@ Port* INET_analyze(	ConfObject *configuration,
 		REMOTE_PROTOCOL(PROTOCOL_VERSION8, ptype_rpc, MAX_PTYPE, 1),
 		REMOTE_PROTOCOL(PROTOCOL_VERSION10, ptype_rpc, MAX_PTYPE, 2),
 		REMOTE_PROTOCOL(PROTOCOL_VERSION11, ptype_rpc, MAX_PTYPE, 4)
-#ifdef SCROLLABLE_CURSORS
-		,
-		REMOTE_PROTOCOL(PROTOCOL_SCROLLABLE_CURSORS, ptype_rpc, MAX_PTYPE, 3)
-#endif
 		};
 
 	cnct->p_cnct_count = FB_NELEM(protocols_to_try1);
@@ -811,9 +807,9 @@ Port* PortInet::receive(Packet* packet)
 			if (!xdr_protocol(&port_receive, packet))
 				return NULL;
 #ifdef DEBUG
-			{
 			static ULONG op_rec_count = 0;
 			op_rec_count++;
+			
 			if (INET_trace & TRACE_operations) 
 				{
 				ib_fprintf(ib_stdout, "%04lu: OP Recd %5lu opcode %d\n",
@@ -821,7 +817,6 @@ Port* PortInet::receive(Packet* packet)
 							op_rec_count, packet->p_operation);
 				ib_fflush(ib_stdout);
 				}
-			}
 #endif
 			}
 			
@@ -868,18 +863,18 @@ Port* PortInet::receive(Packet* packet)
 
 			if (!xdr_protocol(&port->port_receive, packet))
 				packet->p_operation = op_exit;
+				
 #ifdef DEBUG
+			static ULONG op_rec_count = 0;
+			op_rec_count++;
+			
+			if (INET_trace & TRACE_operations) 
 				{
-				static ULONG op_rec_count = 0;
-				op_rec_count++;
-				if (INET_trace & TRACE_operations) 
-					{
-					ib_fprintf(ib_stdout, "%05lu: OP Recd %5lu opcode %d\n",
-							   inet_debug_timer(),
-							   op_rec_count, packet->p_operation);
-					ib_fflush(ib_stdout);
-					}
-				};
+				ib_fprintf(ib_stdout, "%05lu: OP Recd %5lu opcode %d\n",
+							inet_debug_timer(),
+							op_rec_count, packet->p_operation);
+				ib_fflush(ib_stdout);
+				}
 #endif
 
 			/*  Make sure that there are no more messages in this port before blocking
@@ -909,7 +904,7 @@ Port* PortInet::receive(Packet* packet)
 
 // was send_full
 
-XDR_INT PortInet::sendPacket(PACKET* packet)
+XDR_INT PortInet::sendPacket(Packet* packet)
 {
 	if (!xdr_protocol(&port_send, packet))
 		return FALSE;
@@ -930,7 +925,7 @@ XDR_INT PortInet::sendPacket(PACKET* packet)
 	return xdrEndOfRecord(&port_send, TRUE);
 }
 
-XDR_INT PortInet::sendPartial(PACKET* packet)
+XDR_INT PortInet::sendPartial(Packet* packet)
 {
 #ifdef DEBUG
 	{
@@ -948,7 +943,7 @@ XDR_INT PortInet::sendPartial(PACKET* packet)
 	return xdr_protocol(&port_send, packet);
 }
 
-Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
+Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 {
 	SOCKET n;
 	struct sockaddr_in address;
@@ -1031,7 +1026,7 @@ Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
 	return new_port;
 }
 
-Port* PortInet::request(PACKET* packet)
+Port* PortInet::auxRequest(Packet* packet)
 {
 	SOCKET n;
 	struct sockaddr_in address;
@@ -1433,7 +1428,7 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 		}
 #endif
 		
-	//Port* port = (Port*) ALLOCV(type_port, INET_remote_buffer * 2);
+
 	PortInet *port = new PortInet (INET_remote_buffer * 2);
 	port->port_type = port_inet;
 	port->port_state = state_pending;
@@ -1444,10 +1439,9 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 		port->configuration = parent->configuration;
 		
 	gethostname(buffer, sizeof(buffer));
-	port->port_host = buffer; //REMOTE_make_string(buffer);
-	port->port_connection =  buffer; //REMOTE_make_string(buffer);
+	port->port_host = buffer; 
+	port->port_connection =  buffer;
 	port->port_version.Format("tcp (%s)", (const char*) port->port_host);
-	//port->port_version = REMOTE_make_string(buffer);
 
 	//START_PORT_CRITICAL;
 	
@@ -1467,7 +1461,7 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 	port->port_receive_packet = receive;
 	port->port_send_packet = send_full;
 	port->port_send_partial = send_partial;
-	port->port_connect = reinterpret_cast<PORT(*)(PORT, PACKET*, void (*)())>(aux_connect);
+	port->port_connect = reinterpret_cast<PORT(*)(PORT, Packet*, void (*)())>(aux_connect);
 	port->port_request = aux_request;
 	***/
 	
@@ -1481,7 +1475,7 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 	return port;
 }
 
-PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
+PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 {
 /**************************************
  *
@@ -1837,7 +1831,7 @@ int PortInet::receive(UCHAR* buffer, int buffer_length, short* length)
 
 	int ph = (int) port_handle;
 	// Unsed to send a dummy packet, but too big to be defined in the loop.
-	PACKET packet;
+	Packet packet;
 #endif
 
 #ifdef VMS
@@ -2100,6 +2094,7 @@ int PortInet::sendFull(Packet* packet)
 	{
 		static ULONG op_sent_count = 0;
 		op_sent_count++;
+		
 		if (INET_trace & TRACE_operations) 
 			{
 			ib_fprintf(ib_stdout, "%05lu: OP Sent %5lu opcode %d\n",
@@ -2279,7 +2274,7 @@ static PortInet* inet_try_connect(ConfObject *configuration,
 
 Port* INET_connect(const TEXT* name,
 				  ConfObject *configuration, 
-				  PACKET* packet,
+				  Packet* packet,
 				  ISC_STATUS* status_vector,
 				  USHORT flag, 
 				  const UCHAR* dpb, 

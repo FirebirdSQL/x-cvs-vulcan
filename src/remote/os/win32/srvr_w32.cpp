@@ -125,6 +125,7 @@ static void THREAD_ROUTINE wnet_connect_wait_thread(void*);
 #endif
 
 #ifdef XNET
+#include "../remote/PortXNet.h"
 static void THREAD_ROUTINE xnet_connect_wait_thread(void*);
 #endif
 
@@ -149,7 +150,7 @@ static const SERVICE_TABLE_ENTRY service_table[] =
 static const int SIGSHUT = 666;
 static int shutdown_pid = 0;
 
-const char* const FBCLIENTDLL = "fbclient.dll";
+//const char* const FBCLIENTDLL = "fbclient.dll";
 
 extern "C"
 {
@@ -183,6 +184,7 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 #endif
 
 #ifdef SUPERSERVER
+
 	if (ISC_is_WinNT()) 
 		{
 		/* CVC: This operating system call doesn't exist for W9x. */
@@ -241,9 +243,8 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 	int priority = Config::getProcessPriorityLevel();
 
 	// override it, if necessary
-	if (server_flag & SRVR_high_priority) {
+	if (server_flag & SRVR_high_priority) 
 		priority = 1;
-	}
 
 	// set priority class
 	if (priority > 0) {
@@ -254,19 +255,19 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 	}
 #endif
 
-/* Initialize the service and
-   Setup sig_mutex for the process
-*/
+	/* Initialize the service and Setup sig_mutex for the process */
+	
 	ISC_signal_init();
-#ifdef SUPERSERVER
-	ISC_enter();
-#endif
-
-	if (!ISC_is_WinNT()) {
+	
+	/***
+	if (!ISC_is_WinNT())
+	 {
 		LoadLibrary(FBCLIENTDLL);
 	}
-
-	if (connection_handle != INVALID_HANDLE_VALUE) {
+	***/
+	
+	if (connection_handle != INVALID_HANDLE_VALUE) 
+		{
 		if (server_flag & SRVR_inet)
 			port = INET_reconnect(connection_handle, configuration, status_vector);
 #ifdef WNET
@@ -275,38 +276,44 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 #endif
 #ifdef XNET
 		else if (server_flag & SRVR_xnet)
-			port = XNET_reconnect((ULONG) connection_handle, status_vector);
+			//port = XNET_reconnect((ULONG) connection_handle, status_vector);
+			port = PortXNet::reconnect((ULONG) connection_handle, status_vector);
 #endif
 
 		if (port)
 			service_connection(port);
-	}
-	else if (!(server_flag & SRVR_non_service)) {
-		CNTL_init((FPTR_VOID) start_connections_thread, REMOTE_SERVICE);
-//
-// BRS There is a error in MinGW (3.1.0) headers 
-// the parameter of StartServiceCtrlDispatcher is declared const in msvc headers
-//
-#if defined(MINGW)
-		if (!StartServiceCtrlDispatcher(const_cast<SERVICE_TABLE_ENTRY*>(service_table))) {
-#else
-		if (!StartServiceCtrlDispatcher(service_table)) {
-#endif
-			if (GetLastError() != ERROR_CALL_NOT_IMPLEMENTED) {
-				CNTL_shutdown_service("StartServiceCtrlDispatcher failed");
-			}
-			server_flag |= SRVR_non_service;
 		}
-	}
+	else if (!(server_flag & SRVR_non_service)) 
+		{
+		CNTL_init((FPTR_VOID) start_connections_thread, REMOTE_SERVICE);
+		
+		//
+		// BRS There is a error in MinGW (3.1.0) headers 
+		// the parameter of StartServiceCtrlDispatcher is declared const in msvc headers
+		//
+		
+#if defined(MINGW)
+		if (!StartServiceCtrlDispatcher(const_cast<SERVICE_TABLE_ENTRY*>(service_table)))
+#else
+		if (!StartServiceCtrlDispatcher(service_table))
+#endif
+			{
+			if (GetLastError() != ERROR_CALL_NOT_IMPLEMENTED) 
+				CNTL_shutdown_service("StartServiceCtrlDispatcher failed");
+			server_flag |= SRVR_non_service;
+			}
+		}
 	else 
 		{
 		if (server_flag & SRVR_inet) 
 			THD_start_thread(inet_connect_wait_thread, 0, THREAD_medium, 0, 0);
+			
 #ifdef WNET
 		if (server_flag & SRVR_wnet)
 			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
 							  (wnet_connect_wait_thread), 0, THREAD_medium, 0, 0);
 #endif
+
 #ifdef XNET
 		if (server_flag & SRVR_xnet)
 			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
@@ -318,32 +325,35 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 		
 		//if (Config::getCreateInternalWindow()) 
 		if (configuration->getValue (CreateInternalWindow, CreateInternalWindowValue))
-			{
 			nReturnValue = WINDOW_main(hThisInst, nWndMode, server_flag);
-			}
-		else {
-			HANDLE hEvent =
-				ISC_make_signal(TRUE, TRUE, GetCurrentProcessId(), SIGSHUT);
+		else 
+			{
+			HANDLE hEvent = ISC_make_signal(TRUE, TRUE, GetCurrentProcessId(), SIGSHUT);
 			WaitForSingleObject(hEvent, INFINITE);
 			THREAD_ENTER;
+			
 			if (fb_shutdown_connections (fb_shutdown_immediate, 500))
 				fb_shutdown_connections (fb_shutdown_panic, 2000);
+			}
 		}
-	}
 
 #ifdef DEBUG_GDS_ALLOC_XXX
-/* In Debug mode - this will report all server-side memory leaks
- * due to remote access
- */
+
+	/* In Debug mode - this will report all server-side memory leaks
+	 * due to remote access
+	 */
+	 
 	//gds_alloc_report(0, __FILE__, __LINE__);
 	char name[MAXPATHLEN];
 	gds__prefix(name, "memdebug.log");
 	FILE* file = fopen(name, "w+b");
-	if (file) {
-	  fprintf(file,"Global memory pool allocated objects\n");
-	  getDefaultMemoryPool()->print_contents(file);
-	  fclose(file);
-	}
+	
+	if (file) 
+		{
+		fprintf(file,"Global memory pool allocated objects\n");
+		getDefaultMemoryPool()->print_contents(file);
+		fclose(file);
+		}
 #endif
 
 	return nReturnValue;
@@ -488,11 +498,21 @@ static void THREAD_ROUTINE xnet_connect_wait_thread(void *dummy)
  *
  **************************************/
 	void *thread;
+	ISC_STATUS_ARRAY status_vector;
 
 	if (!(server_flag & SRVR_non_service))
 		thread = CNTL_insert_thread();
 
-	XNET_srv(server_flag);
+	//XNET_srv(server_flag);
+	PortXNet *port = PortXNet::connect(server_flag, status_vector);
+	
+	if (port)
+		{
+		RServer server;
+		server.runMultiThreaded(port, server_flag);
+		}
+	else	
+		gds__log_status(0, status_vector);
 
 	if (!(server_flag & SRVR_non_service))
 		CNTL_remove_thread(thread);

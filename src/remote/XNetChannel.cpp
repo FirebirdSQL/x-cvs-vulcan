@@ -1,7 +1,7 @@
 /*
- *	PROGRAM:	JRD Remote server  
- *	MODULE:		serve_proto.h
- *	DESCRIPTION:	Prototype Header file for server.cpp
+ *	PROGRAM:	JRD Remote Interface/Server
+ *      MODULE:         xnet.cpp
+ *      DESCRIPTION:    Interprocess Server Communications module.
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -19,25 +19,23 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
+ *
+ * 2003.05.01 Victor Seryodkin, Dmitry Yemanov: Completed XNET implementation
  */
 
-#ifndef REMOTE_SERVE_PROTO_H
-#define REMOTE_SERVE_PROTO_H
+#include <time.h>
+#include "fbdev.h"
+#include "common.h"
+#include "XNetChannel.h"
 
-class Port;
+XNetChannel::XNetChannel(void)
+{
+}
 
-#ifdef WINDOWS_ROUTER
-void SRVR_WinMain(Port *, USHORT, HINSTANCE, HINSTANCE, int);
-#else	/* WINDOWS_ROUTER */
-void SRVR_main(Port *, USHORT);
-#endif	/* WINDOWS_ROUTER */
+XNetChannel::~XNetChannel(void)
+{
+}
 
-
-void SRVR_multi_thread(Port *, USHORT);
-bool process_packet(Port*, Packet *, Packet *, Port* *);
-void set_server(Port*, USHORT);
-void THREAD_ROUTINE process_connection_thread(Port*);
-
-
-#endif	// REMOTE_SERVE_PROTO_H
-
+void XNetChannel::close(void)
+{
+}

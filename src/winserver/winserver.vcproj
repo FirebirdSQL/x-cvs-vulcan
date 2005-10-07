@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\include\gen;..\jrd;..\config;..\why"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;DEV_BUILD;NAMESPACE=winserver;MEMMGR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;DEV_BUILD;NAMESPACE=winserver;MEMMGR;XNET"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -218,6 +218,9 @@
 				RelativePath="..\remote\PortInet.cpp">
 			</File>
 			<File
+				RelativePath="..\remote\PortXNet.cpp">
+			</File>
+			<File
 				RelativePath="..\remote\os\win32\property.cpp">
 			</File>
 			<File
@@ -312,6 +315,15 @@
 			</File>
 			<File
 				RelativePath="..\remote\xdr.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\XNetChannel.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\XNetConnection.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\XNetMappedFile.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -439,6 +451,9 @@
 				RelativePath="..\remote\PortInet.h">
 			</File>
 			<File
+				RelativePath="..\remote\PortXNet.h">
+			</File>
+			<File
 				RelativePath="..\remote\os\win32\propty_proto.h">
 			</File>
 			<File
@@ -554,6 +569,15 @@
 			</File>
 			<File
 				RelativePath="..\remote\xnet_proto.h">
+			</File>
+			<File
+				RelativePath="..\remote\XNetChannel.h">
+			</File>
+			<File
+				RelativePath="..\remote\XNetConnection.h">
+			</File>
+			<File
+				RelativePath="..\remote\XNetMappedFile.h">
 			</File>
 		</Filter>
 		<Filter

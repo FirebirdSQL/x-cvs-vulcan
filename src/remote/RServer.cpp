@@ -175,7 +175,7 @@ void RServer::runMultiThreaded(Port* main_port, int flags)
 
 void RServer::processPackets(Port* mainPort, int flags)
 {
-	PACKET send, receive;
+	Packet send, receive;
 	receive.zap (true);
 	send.zap (true);
 	setServer(mainPort, flags);
@@ -502,9 +502,6 @@ bool RServer::acceptConnection(Port* port, P_CNCT* connect, Packet* send)
 			case PROTOCOL_VERSION9:
 			case PROTOCOL_VERSION10:
 			case PROTOCOL_VERSION11:
-#ifdef SCROLLABLE_CURSORS
-			case PROTOCOL_SCROLLABLE_CURSORS:
-#endif
 				if ((protocol->p_cnct_architecture == arch_generic ||
 				      protocol->p_cnct_architecture == ARCHITECTURE) &&
 				     protocol->p_cnct_weight >= weight)
@@ -658,7 +655,7 @@ void RServer::auxRequest(Port* port, P_REQ* request, Packet* send)
 	UCHAR buffer[12];
 	CSTRING save_cstring = send->p_resp.p_resp_data;
 	send->p_resp.p_resp_data.cstr_address = buffer;
-	Port *aux_port = port->request(send);
+	Port *aux_port = port->auxRequest(send);
 	RDatabase *rdb = port->port_context;
 	port->send_response(send, rdb->rdb_id,
 				  send->p_resp.p_resp_data.cstr_length, status_vector);
@@ -1041,7 +1038,7 @@ void RServer::cancelOperation(Port* port)
 void RServer::agent(ServerRequest* request)
 {
 	Port *parent_port = request->req_port->port_server->srvr_parent_port;
-	Port *port;
+	Port *port = NULL;
 	
 	if (parent_port == request->req_port)
 		processPacket(parent_port, &request->req_send, &request->req_receive, &port);
