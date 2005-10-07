@@ -28,6 +28,12 @@
 
 #include "Port.h"
 
+#ifndef _WIN32
+#ifndef HANDLE
+#define HANDLE	int
+#endif
+#endif
+
 class XNetConnection;
 class XNetMappedFile;
 

@@ -168,10 +168,10 @@ isc_file.o: ../jrd/isc_file.cpp ../include/fbdev.h \
   ../jrd/LinkedList.h ../jrd/DVector.h ../jrd/SVector.h \
   ../jrd/OSRIBugcheck.h ../jrd/OSRIException.h ../jrd/SIVector.h \
   ../lock/LockMgr.h ../jrd/file_params.h ../jrd/Thread.h \
-  ../jrd/Synchronize.h ../jrd/DatabaseManager.h ../jrd/Attachment.h \
-  ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h ../jrd/Symb.h \
-  ../jrd/tdbb.h ../jrd/gds_proto.h ../jrd/isc_proto.h \
-  ../jrd/isc_f_proto.h ../jrd/jrd_proto.h
+  ../jrd/Synchronize.h ../jrd/DatabaseManager.h ../jrd/Trigger.h \
+  ../jrd/old_vector.h ../jrd/que.h ../jrd/Symb.h ../jrd/tdbb.h \
+  ../jrd/gds_proto.h ../jrd/isc_proto.h ../jrd/isc_f_proto.h \
+  ../jrd/jrd_proto.h
 isc_ipc.o: ../jrd/os/posix/isc_ipc.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \
@@ -342,6 +342,24 @@ PortInet.o: PortInet.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/ib_stdio.h ../jrd/os/isc_i_proto.h ../jrd/sch_proto.h \
   ../jrd/isc.h ../jrd/AsyncEvent.h ../jrd/thd.h ../config/ConfObject.h \
   ../config/Parameters.h
+PortXNet.o: PortXNet.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/ibase.h \
+  ../jrd/blr.h ../include/gen/iberror.h PortXNet.h Port.h \
+  ../jrd/HandleManager.h ../jrd/SyncObject.h \
+  ../jrd/SynchronizationObject.h ../jrd/Mutex.h protocol.h \
+  ../config/ConfObj.h xdr.h ../jrd/RefObject.h ../jrd/JString.h \
+  ../remote/remote.h ../remote/remote_def.h ../remote/protocol.h \
+  ../remote/RDatabase.h ../remote/RTransaction.h ../remote/RBlob.h \
+  ../remote/REvent.h ../remote/RFormat.h ../jrd/dsc.h \
+  ../remote/RMessage.h ../remote/RFmt.h ../remote/RProcedure.h \
+  ../remote/RRequest.h ../remote/RStatement.h ../remote/xdr.h \
+  ../remote/Port.h ../jrd/iberr.h ../jrd/status.h ../remote/xnet.h \
+  ../remote/XNetChannel.h ../remote/proto_proto.h ../remote/remot_proto.h \
+  ../remote/serve_proto.h ../jrd/gds_proto.h ../jrd/isc_proto.h \
+  ../jrd/Sync.h XNetConnection.h XNetChannel.h XNetMappedFile.h
 protocol.o: protocol.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
@@ -479,21 +497,6 @@ RRequest.o: RRequest.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/RefObject.h ../jrd/dsc.h RMessage.h RProcedure.h RStatement.h \
   ../remote/xdr.h Port.h ../jrd/HandleManager.h xdr.h ../jrd/JString.h \
   ../jrd/Sync.h
-RServer.o: RServer.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
-  ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
-  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/ibase.h \
-  ../jrd/blr.h ../include/gen/iberror.h RServer.h ../jrd/SyncObject.h \
-  ../jrd/SynchronizationObject.h ../jrd/Mutex.h Port.h \
-  ../jrd/HandleManager.h protocol.h ../config/ConfObj.h xdr.h \
-  ../jrd/RefObject.h ../jrd/JString.h remote.h ../remote/remote_def.h \
-  ../remote/protocol.h RDatabase.h RTransaction.h RBlob.h REvent.h \
-  RFormat.h ../jrd/dsc.h RMessage.h RFmt.h RProcedure.h RRequest.h \
-  RStatement.h ../remote/xdr.h ../jrd/Sync.h ../jrd/OSRIException.h \
-  ../remote/remot_proto.h ../jrd/why_proto.h ../jrd/thd.h \
-  ../jrd/thd_proto.h ../jrd/isc.h ../jrd/AsyncEvent.h ../jrd/Threads.h \
-  ../jrd/Synchronize.h ../jrd/Thread.h
 RStatement.o: RStatement.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \
@@ -645,3 +648,23 @@ xdr.o: xdr.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h \
   ../remote/protocol.h ../remote/xdr.h ../remote/proto_proto.h \
   ../remote/xdr_proto.h
+XNetChannel.o: XNetChannel.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h XNetChannel.h
+XNetConnection.o: XNetConnection.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h XNetConnection.h \
+  ../jrd/isc_proto.h XNetMappedFile.h
+XNetMappedFile.o: XNetMappedFile.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h XNetMappedFile.h \
+  ../jrd/isc_proto.h

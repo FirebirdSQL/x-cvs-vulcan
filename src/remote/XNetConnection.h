@@ -26,6 +26,12 @@
 #ifndef XNET_CONNECTION_H
 #define XNET_CONNECTION_H
 
+#ifndef _WIN32
+#ifndef HANDLE
+#define HANDLE		int
+#endif
+#endif
+
 class XNetChannel;
 class XNetMappedFile;
 struct xpm;
@@ -41,7 +47,6 @@ public:
     ULONG			xcc_map_num;            /* this thread's mapped file number */
     ULONG			xcc_slot;               /* this thread's slot number */
     
-#ifdef WIN_NT
     HANDLE			xcc_map_handle;         /* mapped file's handle */
     HANDLE			xcc_proc_h;             /* for server client's process handle
 		                                       for client server's process handle */
@@ -50,7 +55,6 @@ public:
     HANDLE			xcc_event_send_channel_empted; /* xcc_send_channel ready for writting */
     HANDLE			xcc_event_recv_channel_filled; /* xcc_receive_channel ready for reading */
     HANDLE			xcc_event_recv_channel_empted; /* xcc_receive_channel ready for writing */
-#endif
 
     XNetChannel		*xcc_recv_channel;				/* receive channel structure */
     XNetChannel		*xcc_send_channel;       /* send channel structure */

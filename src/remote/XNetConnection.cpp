@@ -83,7 +83,7 @@ void XNetConnection::init(void)
 	xcc_next = NULL;
 	xcc_mapped_addr = NULL;
 	xcc_xpm = NULL;
-	xcc_slot = -1;
+	xcc_slot = 0;
 }
 
 XNetConnection::~XNetConnection(void)
@@ -120,13 +120,16 @@ void XNetConnection::closeEvent(HANDLE* handlePtr)
 {
 	if (*handlePtr) 
 		{
+#ifdef WIN_NT
 		CloseHandle(*handlePtr);
+#endif
 		*handlePtr = 0;
 		}
 }
 
 HANDLE XNetConnection::openEvent(bool eventChannel, time_t timestamp, const char *pattern)
 {
+#ifdef WIN_NT
 	TEXT name_buffer[128];
 	const char *type = (eventChannel) ? "EVNT" : "DATA";
 	sprintf(name_buffer, pattern, XNET_PREFIX, type, xcc_map_num, xcc_slot, (ULONG) timestamp);
@@ -136,10 +139,16 @@ HANDLE XNetConnection::openEvent(bool eventChannel, time_t timestamp, const char
 		error("OpenEvent");
 	
 	return handle;
+#else
+
+	return 0;
+
+#endif // WIN_NT
 }
 
 HANDLE XNetConnection::createEvent(bool eventChannel, time_t timestamp, const char* pattern)
 {
+#ifdef WIN_NT
 	TEXT name_buffer[128];
 	const char *type = (eventChannel) ? "EVNT" : "DATA";
 	sprintf(name_buffer, pattern, XNET_PREFIX, type, xcc_map_num, xcc_slot, (ULONG) timestamp);
@@ -149,10 +158,16 @@ HANDLE XNetConnection::createEvent(bool eventChannel, time_t timestamp, const ch
 		error("CreateEvent");
 	
 	return handle;
+#else
+
+	return 0;
+
+#endif
 }
 
 HANDLE XNetConnection::createEvent(const char* pattern)
 {
+#ifdef WIN_NT
 	char name_buffer[128];
 	sprintf(name_buffer, pattern, XNET_PREFIX);
 	HANDLE handle = CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
@@ -161,10 +176,16 @@ HANDLE XNetConnection::createEvent(const char* pattern)
 		error("CreateEvent");
 
 	return handle;
+#else
+
+	return 0;
+
+#endif
 }
 
 HANDLE XNetConnection::openEvent(const char* pattern)
 {
+#ifdef WIN_NT
 	char name_buffer[128];
 	sprintf(name_buffer, pattern, XNET_PREFIX);
 	HANDLE handle = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
@@ -173,10 +194,16 @@ HANDLE XNetConnection::openEvent(const char* pattern)
 		error("openEvent");
 		
 	return handle;
+#else
+
+	return 0;
+
+#endif
 }
 
 HANDLE XNetConnection::openMutex(const char* pattern)
 {
+#ifdef WIN_NT
 	char name_buffer[128];
 	sprintf(name_buffer, pattern, XNET_PREFIX);
 	HANDLE handle = OpenMutex(MUTEX_ALL_ACCESS, TRUE, name_buffer);
@@ -185,10 +212,16 @@ HANDLE XNetConnection::openMutex(const char* pattern)
 		error("OpenMutex");
 		
 	return handle;
+#else
+
+	return 0;
+
+#endif
 }
 
 HANDLE XNetConnection::createMutex(const char* pattern)
 {
+#ifdef WIN_NT
 	char name_buffer[128];
 	sprintf(name_buffer, pattern, XNET_PREFIX);
 	HANDLE handle = CreateMutex(ISC_get_security_desc(), FALSE, name_buffer);
@@ -197,13 +230,20 @@ HANDLE XNetConnection::createMutex(const char* pattern)
 		error("CreateMutex");
 
 	return handle;
+#else
+	
+	return 0;
+
+#endif
 }
 
 void XNetConnection::closeMutex(HANDLE* handlePtr)
 {
 	if (*handlePtr) 
 		{
+#ifdef WIN_NT
 		CloseHandle(*handlePtr);
+#endif // WIN_NT
 		*handlePtr = 0;
 		}
 }

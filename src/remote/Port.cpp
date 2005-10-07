@@ -62,7 +62,6 @@
 #endif
 
 #include "../remote/proto_proto.h"	// xdr_protocol_overhead()
-#include ".\port.h"
 
 #define CHECK_HANDLE(blk,cast,type,id,err)							\
 	{																\

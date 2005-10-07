@@ -76,6 +76,7 @@ void XNetMappedFile::close(void)
 
 bool XNetMappedFile::mapFile(bool createFlag)
 {
+#ifdef WIN_NT
 	TEXT name_buffer[128];
 	sprintf(name_buffer, XNET_MAPPED_FILE_NAME, XNET_PREFIX, xpm_number, (ULONG) xpm_timestamp);
 	
@@ -97,15 +98,19 @@ bool XNetMappedFile::mapFile(bool createFlag)
 								 
 	if (!xpm_address)
 		close();
-	
+
+#endif // WIN_NT
+
 	return true;
 }
 
-void XNetMappedFile::unmapFile(HANDLE* handlePtr)
+void XNetMappedFile::unmapFile(void** handlePtr)
 {
 	if (*handlePtr)
 		{
+#ifdef WIN_NT
 		UnmapViewOfFile(*handlePtr);
+#endif
 		*handlePtr = NULL;
 		}
 }
@@ -114,7 +119,9 @@ void XNetMappedFile::closeFile(HANDLE* handlePtr)
 {
 	if (*handlePtr)
 		{
+#ifdef WIN_NT
 		CloseHandle(*handlePtr);
+#endif
 		*handlePtr = 0;
 		}
 }

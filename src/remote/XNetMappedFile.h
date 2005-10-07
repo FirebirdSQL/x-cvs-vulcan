@@ -26,7 +26,11 @@
 #ifndef XNET_MAPPED_FILE_H
 #define XNET_MAPPED_FILE_H
 
-//#define CADDR_T	caddr_t
+#ifndef _WIN32
+#ifndef HANDLE
+#define HANDLE		int
+#endif
+#endif
 
 /* mapped structure flags */
 
@@ -71,7 +75,7 @@ public:
     
 	bool mapFile(bool createFlag);
 	void close(void);
-	static void unmapFile(HANDLE* handlePtr);
+	static void unmapFile(void** handlePtr);
 	static void closeFile(HANDLE* handlePtr);
 };
 

@@ -25,6 +25,7 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
@@ -48,6 +49,10 @@
 #ifdef WIN_NT
 #include <windows.h>
 #define getpid	GetCurrentProcessId
+#else
+#include <errno.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif /* WIN_NT */
 
 #ifdef WIN_NT
@@ -96,18 +101,15 @@ static ULONG pages_per_slot = XPS_DEF_PAGES_PER_CLI;
 static ULONG slots_per_map = XPS_DEF_NUM_CLI;
 static XNetMappedFile *client_maps = NULL;
 
-#ifdef WIN_NT
-
 static HANDLE xnet_connect_mutex = 0;
 static HANDLE xnet_connect_map_h = 0;
-static CADDR_T xnet_connect_map = 0;
+static void  *xnet_connect_map = 0;
 
 static HANDLE xnet_connect_event = 0;
 static HANDLE xnet_response_event = 0;
-static DWORD currentProcessId;
 
-#endif  /* WIN_NT */
 
+static int currentProcessId;
 static bool_t xnet_initialized = FALSE;
 static bool_t xnet_shutdown = FALSE;
 static bool_t xnet_mutex_ready = FALSE;
@@ -228,6 +230,7 @@ bool_t PortXNet::getBytes(XDR* xdrs, SCHAR* buff, u_int count)
 
 bool_t PortXNet::putBytes(XDR* xdrs, const SCHAR* buff, u_int count)
 {
+#ifdef WIN_NT
 	SLONG bytecount = count;
 	SLONG to_copy;
 	DWORD wait_result;
@@ -312,6 +315,7 @@ bool_t PortXNet::putBytes(XDR* xdrs, const SCHAR* buff, u_int count)
 
 	if (xnet_shutdown)
 		return FALSE;
+#endif // WIN_NT
 
 	return TRUE;
 }
@@ -587,16 +591,15 @@ PortXNet* PortXNet::connect(const TEXT* name, Packet* packet, ISC_STATUS *status
 		gds__register_cleanup(exitHandler, NULL);
 		}
 
-	//XNET_LOCK;
 	Sync sync(&xnet_mutex, "PortXNet::connect");
 	sync.lock(Exclusive);
 	
-	//if (!xnet_connect_init()) 
 	if (!connectInit()) 
 		return NULL;
 
 	// waiting for xnet connect lock to release
 	
+#ifdef WIN_NT
 	if (WaitForSingleObject(xnet_connect_mutex, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
 		{
 		//xnet_connect_fini();
@@ -792,6 +795,8 @@ PortXNet* PortXNet::connect(const TEXT* name, Packet* packet, ISC_STATUS *status
 	port->port_xcc = xcc;
 	gds__register_cleanup(exitHandler, port);
 	port->sendPacket(packet);
+
+#endif // WIN_NT
 		
 	return port;
 }
@@ -967,6 +972,7 @@ Port* PortXNet::receive(Packet* packet)
 	currentProcessId = getpid();
 	XNetResponse *presponse = (XNetResponse*)xnet_connect_map;
 	
+#ifdef WIN_NT
 	while (!xnet_shutdown)
 		{
 		Port *child;
@@ -1049,6 +1055,7 @@ Port* PortXNet::receive(Packet* packet)
 		
 		return port;
 		}
+#endif
 
 	return NULL;
 }
@@ -1339,6 +1346,7 @@ bool_t PortXNet::write(XDR* xdrs)
 	XNetChannel *xch = xcc->xcc_send_channel;
 	xch->xch_length = xdrs->x_private - xdrs->x_base;
 	
+#ifdef WIN_NT
 	if (SetEvent(xcc->xcc_event_send_channel_filled)) 
 		{
 		port->port_misc1 = (port->port_misc1 + 1) % MAX_SEQUENCE;
@@ -1347,6 +1355,7 @@ bool_t PortXNet::write(XDR* xdrs)
 
 		return TRUE;
 		}
+#endif //WIN_NT
 
 	return FALSE;
 }
@@ -1388,8 +1397,6 @@ PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 {
 	PortXNet *port = NULL;
 	XNetMappedFile *xpm = NULL;
-	//TEXT name_buffer[128];
-
 	slots_per_map = 1;
 	pages_per_slot = XPS_MAX_PAGES_PER_CLI;
 	xnet_response_event = 0;
@@ -1397,7 +1404,9 @@ PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 	// currentProcessId used as map number
 	
 	currentProcessId = getpid();
-	
+
+#ifdef WIN_NT
+
 	try 
 		{
 		xnet_response_event = XNetConnection::openEvent(XNET_E_RESPONSE_EVENT);
@@ -1437,6 +1446,8 @@ PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 			}
 		}
 
+#endif
+
 	return port;
 }
 
@@ -1451,6 +1462,8 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 	XNetConnection *xcc = new XNetConnection;
 	xcc->create(false, timestamp);
 	
+#ifdef WIN_NT
+
 	try 
 		{
 		UCHAR *p = (UCHAR *) xpm->xpm_address + XPS_SLOT_OFFSET(pages_per_slot, slot_num);
@@ -1475,8 +1488,6 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 
 		xps->xps_server_protocol = XPI_SERVER_PROTOCOL_VERSION;
 		xps->xps_client_protocol = 0L;
-
-#ifdef WIN_NT
 
 		xcc->create(false, timestamp);
 		/***
@@ -1512,12 +1523,6 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 		if (!xcc->xcc_event_send_channel_empted)
 			error("xxx");
 		***/
-
-#else
-		// STUB : add create events here
-#endif
-
-		// set up the channel structures
 
 		p += sizeof(struct xps);
 
@@ -1566,6 +1571,8 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 		return NULL;
 		}
 
+#endif // WIN_NT
+
 	return port;
 }
 
@@ -1585,6 +1592,7 @@ bool PortXNet::serverInit(void)
 	xnet_connect_event = 0;
 	xnet_response_event = 0;
 
+#ifdef WIN_NT
 	try 
 		{
 		xnet_connect_mutex = XNetConnection::createMutex(XNET_MU_CONNECT_MUTEX);
@@ -1613,9 +1621,10 @@ bool PortXNet::serverInit(void)
 		{
 		//xnet_connect_fini();
 		connectFini();
-		return FALSE;
 		}
-	
+#endif // WIN_NT
+
+	return false;
 }
 
 XNetMappedFile* PortXNet::getFreeSlot(ULONG* map_num, ULONG* slot_num, time_t* timestamp)
@@ -1680,6 +1689,8 @@ bool PortXNet::connectInit(void)
 	xnet_connect_event = 0;
 	xnet_response_event = 0;
 
+#ifdef WIN_NT
+
 	try 
 		{
 		//sprintf(name_buffer, XNET_MU_CONNECT_MUTEX, XNET_PREFIX);
@@ -1707,9 +1718,10 @@ bool PortXNet::connectInit(void)
 		{
 		//xnet_connect_fini();
 		connectFini();
-		
-		return FALSE;
 		}
+#endif // WIN_NT
+
+	return FALSE;
 }
 
 PortXNet* PortXNet::connect(int server_flags, ISC_STATUS *statusVector)
@@ -1747,7 +1759,7 @@ void PortXNet::error(const char* operation)
 
 bool_t PortXNet::read(XDR* xdrs)
 {
-	DWORD wait_result;
+#ifdef WIN_NT
 	PortXNet *port = (PortXNet*)xdrs->x_public;
 	XNetConnection *xcc = port->port_xcc;
 	XNetChannel *xch = xcc->xcc_recv_channel;
@@ -1774,7 +1786,7 @@ bool_t PortXNet::read(XDR* xdrs)
 				}
 			}
 
-		wait_result = WaitForSingleObject(xcc->xcc_event_recv_channel_filled,
+		DWORD wait_result = WaitForSingleObject(xcc->xcc_event_recv_channel_filled,
 		                                  XNET_RECV_WAIT_TIMEOUT);
 		                                  
 		if (wait_result == WAIT_OBJECT_0) 
@@ -1805,6 +1817,7 @@ bool_t PortXNet::read(XDR* xdrs)
 		
 		return FALSE; /* a non-timeout result is an error */
 		}
+#endif // WIN_NT
 
 	return FALSE;
 }
