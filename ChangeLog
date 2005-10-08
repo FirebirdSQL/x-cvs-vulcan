@@ -1,3 +1,38 @@
+2005-10-07 23:15  jimstarkey
+
+	* vulcan/builds/VisualStudio7/remote/remote.vcproj:
+	
+	Removed accidentally created file
+
+2005-10-07 22:50  jimstarkey
+
+	* vulcan/src/: jrd/isc_file.cpp, remote/Port.cpp,
+	remote/PortXNet.cpp, remote/PortXNet.h, remote/XNetConnection.cpp,
+	remote/XNetConnection.h, remote/XNetMappedFile.cpp,
+	remote/XNetMappedFile.h, remote/makefile.in:
+	
+	Got XNet stuff to compile (not run) on Linux
+
+2005-10-07 22:07  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/remote/remote.vcproj,
+	builds/VisualStudio7/winserver/winserver.vcproj,
+	src/jrd/isc_file.cpp, src/jrd/jrd.cpp, src/jrd/jrd_proto.h,
+	src/remote/Port.cpp, src/remote/Port.h, src/remote/PortInet.cpp,
+	src/remote/PortInet.h, src/remote/PortXNet.cpp,
+	src/remote/PortXNet.h, src/remote/RServer.cpp,
+	src/remote/XNetChannel.cpp, src/remote/XNetChannel.h,
+	src/remote/XNetConnection.cpp, src/remote/XNetConnection.h,
+	src/remote/XNetMappedFile.cpp, src/remote/XNetMappedFile.h,
+	src/remote/interface.cpp, src/remote/protocol.cpp,
+	src/remote/protocol.h, src/remote/remote.cpp,
+	src/remote/remote.vcproj, src/remote/serve_proto.h,
+	src/remote/xnet.h, src/remote/os/win32/srvr_w32.cpp,
+	src/winserver/winserver.vcproj:
+	
+	Major overhaul of xnet protocol module.  Isn't work yet,
+	unfortunately.
+
 2005-10-06 22:27  awharrison
 
 	* vulcan/src/remote/Remote8.h:
