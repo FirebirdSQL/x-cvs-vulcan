@@ -102,6 +102,8 @@ void XNetConnection::close(void)
 
 void XNetConnection::open(bool eventChannel, time_t timestamp)
 {
+	//xcc_recv_channel.open(eventChannel, true, xcc_map_num, xcc_slot, timestamp);
+	//xcc_send_channel.open(eventChannel, false, xcc_map_num, xcc_slot, timestamp);
 	xcc_event_send_channel_filled = openEvent(eventChannel, timestamp, XNET_E_C2S_FILLED);
 	xcc_event_send_channel_empted = openEvent(eventChannel, timestamp, XNET_E_C2S_EMPTED);
 	xcc_event_recv_channel_filled = openEvent(eventChannel, timestamp, XNET_E_S2C_FILLED);
