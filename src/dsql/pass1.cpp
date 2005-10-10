@@ -236,6 +236,7 @@ static dsql_nod* pass1_not(CStatement*, const dsql_nod*, bool, bool);
 static void	pass1_put_args_on_stack(CStatement*, dsql_nod*, Stack*, bool);
 static dsql_nod* pass1_relation(CStatement*, dsql_nod*);
 static dsql_nod* pass1_rse(CStatement*, dsql_nod*, dsql_nod*, dsql_nod*, dsql_nod*, USHORT);
+static dsql_nod* pass1_savepoint(const CStatement*, dsql_nod*);
 static dsql_nod* pass1_searched_case(CStatement*, dsql_nod*, bool);
 static dsql_nod* pass1_sel_list(CStatement*, dsql_nod*);
 static dsql_nod* pass1_simple_case(CStatement*, dsql_nod*, bool);
@@ -248,6 +249,9 @@ static void pass1_union_auto_cast(CStatement* request, dsql_nod*, const dsc&, SS
 	bool in_select_list = false);
 static dsql_nod* pass1_update(CStatement*, dsql_nod*);
 static dsql_nod* pass1_variable(CStatement*, dsql_nod*);
+static bool check_field_type (const CStatement* , const dsql_fld*);
+static dsql_fld* match_procedure_field (Procedure*, dsql_str*);
+static dsql_fld* match_relation_field (dsql_rel*, dsql_str*);
 static dsql_nod* post_map(CStatement* request, dsql_nod*, dsql_ctx*);
 static dsql_nod* remap_field(CStatement*, dsql_nod*, dsql_ctx*, USHORT);
 static dsql_nod* remap_fields(CStatement*, dsql_nod*, dsql_ctx*);
@@ -258,7 +262,6 @@ static bool set_parameter_type(CStatement* request, dsql_nod*, dsql_nod*, bool);
 static void set_parameters_name(dsql_nod*, const dsql_nod*);
 static void set_parameter_name(dsql_nod*, const dsql_nod*, dsql_rel*);
 static TEXT* pass_exact_name(TEXT*);
-static dsql_nod* pass1_savepoint(const CStatement*, dsql_nod*);
 
 // CVC: more global variables???
 static dsql_str* global_temp_collation_name = NULL;
@@ -3832,6 +3835,7 @@ static void pass1_expand_select_node(CStatement* request, dsql_nod* node, Stack&
  	If list is true, then this function can detect and
  	return a relation node if there is no name.   This
  	is used for cases of "SELECT <table_name>. ...".
+
    CVC: The function attempts to detect
    if an unqualified field appears in more than one context
    and hence it returns the number of occurrences. This was
@@ -3945,9 +3949,8 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 	/* Try to resolve field against various contexts;
 	   if there is an alias, check only against the first matching */
 
-	//Stack ambiguous_ctx_stack = NULL;
 	Stack ambiguous_ctx_stack;
-	dsql_nod* node = 0; // This var must be initialized.
+	dsql_nod* node = 0; 
 	
 	// AB: Loop through the scope_levels starting by its own.
 	bool done = false;
@@ -3963,7 +3966,7 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 
 			if (context->ctx_scope_level != (current_scope_level - 1)) 
 				continue;
-			
+		
 			dsql_fld* field = resolve_context(request, qualifier, context, is_check_constraint);
 
 			// AB: When there's no relation and no procedure then we have a derived table.
@@ -3981,83 +3984,52 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 						{
 						node = MAKE_node(request->threadData, nod_relation, e_rel_count);
 						node->nod_arg[e_rel_context] = (dsql_nod*) context;
-#ifdef SHARED_CACHE
-						if (context->ctx_relation)
-							context->ctx_relation->syncFields.unlock();
-#endif
 						return node;
 						}
-#ifdef SHARED_CACHE
-					if (context->ctx_relation)
-						context->ctx_relation->syncFields.unlock();
-#endif
 					break;
 					}
 
-				for (; field; field = field->fld_next) 
-					if (!strcmp(name->str_data, field->fld_name)) 
-						{
-						if (!is_check_constraint && !qualifier) 
-							ambiguous_ctx_stack.push (context);
-						break;
-						}
+
+				// at this point the context could be a table, a procedure, or 
+				// a derived table.  Find a matching field and quit there.
+
+				if (context->ctx_relation)
+					field = match_relation_field (context->ctx_relation, name);
+				else if (context->ctx_procedure)	
+					field = match_procedure_field (context->ctx_procedure, name);
+				else 
+					for (; field; field = field->fld_next) 
+						if (!strcmp(name->str_data, field->fld_name)) 
+							break;
+
+				// If a qualifier was present and we don't have found
+				// a matching field then we should stop searching.
+				// Column unknown error will be raised at bottom of function.
 
 				if (qualifier && !field) 
 					{
-					// If a qualifier was present and we don't have found
-					// a matching field then we should stop searching.
-					// Column unknown error will be raised at bottom of function.
-#ifdef SHARED_CACHE
-					if (context->ctx_relation)
-						context->ctx_relation->syncFields.unlock();
-#endif
 					done = true;
 					break;
 					}
 
 				if (field) 
 					{
-					// Intercept any reference to a field with datatype that
-					// did not exist prior to V6 and post an error
+					if (!is_check_constraint && !qualifier) 
+						ambiguous_ctx_stack.push (context);
 
-					if (request->req_client_dialect <= SQL_DIALECT_V5 &&
-						(field->fld_dtype == dtype_sql_date ||
-						field->fld_dtype == dtype_sql_time ||
-						field->fld_dtype == dtype_int64))
-						{
-							ERRD_post(isc_sqlerr, isc_arg_number,  -206,
-									isc_arg_gds, isc_dsql_field_err,
-									isc_arg_gds, isc_random,
-									isc_arg_string, 
-									(const char*) field->fld_name,
-									isc_arg_gds,
-									isc_sql_dialect_datatype_unsupport,
-									isc_arg_number, request->req_client_dialect,
-									isc_arg_string,
-									DSC_dtype_tostring(field->fld_dtype), 0);
-							return NULL;
-						}
+					if (!check_field_type (request, field))
+						return NULL;
 
 					// CVC: Stop here if this is our second or third iteration.
 					// Anyway, we can't report more than one ambiguity to the status vector.
 					// AB: But only if we're on different scope level, because a
 					// node inside the same context should have priority.
 					if (node)
-						{
-#ifdef SHARED_CACHE
-						if (context->ctx_relation)
-							context->ctx_relation->syncFields.unlock();
-#endif
 						continue;
-						}
 
 					if (indices) 
 						indices = PASS1_node(request, indices, false);
 					node = MAKE_field(request->threadData, context, field, indices);
-#ifdef SHARED_CACHE
-					if (context->ctx_relation)
-						context->ctx_relation->syncFields.unlock();
-#endif
 					}
 				}
 			else if (is_derived_table) 
@@ -4065,17 +4037,12 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 				// if an qualifier is present check if we have the same derived 
 				// table else continue;
 				
-				if (qualifier) 
-					{
-					if (context->ctx_alias) 
-						{
-						if (strcmp(reinterpret_cast<const char*>(qualifier->str_data),
-								reinterpret_cast<const char*>(context->ctx_alias))) 
-							continue;
-						}
-					else 
-						continue;
-					}
+				if (!qualifier) 
+					continue;
+				else if (!context->ctx_alias)
+					continue;
+				else if (strcmp(qualifier->str_data, context->ctx_alias)) 
+					continue;
 
 				// If there's no name then we have most probable a asterisk that
 				// needs to be exploded. This should be handled by the caller and
@@ -4109,12 +4076,14 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					if (node_select_item->nod_type == nod_derived_field) 
 						{
 						dsql_str* string = (dsql_str*) node_select_item->nod_arg[e_derived_field_name];
+
+						// If this matches,  add the context to the ambiguous list, but
+						// only once. Stop if this is our second iteration.
+
 						if (!strcmp(name->str_data, string->str_data))
 							{
-							// This is a matching item so add the context to the ambiguous list.
 							ambiguous_ctx_stack.push (context);
 
-							// Stop here if this is our second or more iteration.
 							if (node)
 								break;
 
@@ -4133,18 +4102,18 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 						}
 					}
 
+				// If a qualifier was present and we don't have found
+				// a matching field then we should stop searching.
+				// Column unknown error will be raised at bottom of function.
 				if (!node && qualifier) 
 					{
-					// If a qualifier was present and we don't have found
-					// a matching field then we should stop searching.
-					// Column unknown error will be raised at bottom of function.
 					done = true;
 					break;
 					}
 				}
 				
 		END_FOR
-	}
+		}
 
 	// CVC: We can't return blindly if this is a check constraint, because there's
 	// the possibility of an invalid field that wasn't found. The multiple places that
@@ -6390,11 +6359,13 @@ static dsql_nod* pass1_simple_case( CStatement* request, dsql_nod* input, bool p
 			int i = 0;
 			node1->nod_arg[i++] = node->nod_arg[e_simple_case_case_operand];
 			dsql_nod** ptr = list->nod_arg;
+
 			for (const dsql_nod* const* const end = ptr + list->nod_count;
 				ptr < end; ++ptr, ++i)
 			{
 				node1->nod_arg[i] = *ptr;
 			}
+
 			MAKE_desc_from_list(request->threadData, &node1->nod_desc, node1, NULL, "CASE");
 			// Set parameter describe information
 			set_parameter_type(request, node->nod_arg[e_simple_case_case_operand], node1, false);
@@ -6458,9 +6429,10 @@ static dsql_nod* pass1_sort( CStatement* request, dsql_nod* input, dsql_nod* sel
 	dsql_nod** ptr2 = node->nod_arg;
 
 	dsql_nod** ptr = input->nod_arg;
+
 	for (const dsql_nod* const* const end = ptr + input->nod_count;
 		ptr < end; ptr++)
-	{
+		{
 		DEV_BLKCHK(*ptr, dsql_type_nod);
 		dsql_nod* node1 = *ptr;
 		if (node1->nod_type != nod_order) {
@@ -6477,44 +6449,44 @@ static dsql_nod* pass1_sort( CStatement* request, dsql_nod* input, dsql_nod* sel
 		// get node of value to be ordered by
 		node1 = node1->nod_arg[e_order_field];
 
-		if (node1->nod_type == nod_collate) {
+		if (node1->nod_type == nod_collate) 
+			{
 			collate = (dsql_str*) node1->nod_arg[e_coll_target];
 			// substitute nod_collate with its argument (real value)
 			node1 = node1->nod_arg[e_coll_source];
-		}
+			}
 
-		if (node1->nod_type == nod_field_name) {
-			// check for alias or field node
-			node1 = pass1_field(request, node1, false, selectList);
-		} 
+		// check for alias or field node
+		if (node1->nod_type == nod_field_name) 
+			node1 = pass1_field(request, node1, false, selectList); 
 		else if (node1->nod_type == nod_constant && 
 			node1->nod_desc.dsc_dtype == dtype_long) 
-		{
+			{
 			const ULONG position = *((ULONG*) &(node1->nod_arg[0]));
 			if ((position < 1) || !selectList || 
 				(position > (ULONG) selectList->nod_count))
-			{
+				{
 				ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 104,
 					isc_arg_gds, isc_dsql_column_pos_err,
 					isc_arg_string, "ORDER BY", 0);
 				// Invalid column position used in the ORDER BY clause
-			}
+				}
 			// substitute ordinal with appropriate field
 			node1 = PASS1_node(request, selectList->nod_arg[position - 1], false);
-        }
-		else {
+			}
+		else 
 			node1 = PASS1_node(request, node1, false);
-		}
+		
 
-		if (collate) {
-			// finally apply collation order, if necessary
+		// finally apply collation order, if necessary
+		if (collate) 
 			node1 = pass1_collate(request, node1, collate);
-		}
+		
 
 		// store actual value to be ordered by
 		node2->nod_arg[e_order_field] = node1;
 		*ptr2++ = node2;
-	}
+		}
 
 	return node;
 }
@@ -7086,6 +7058,36 @@ static dsql_nod* pass1_update( CStatement* request, dsql_nod* input)
 }
 
 
+
+/**
+   check_field_type
+**/
+
+static bool check_field_type (const CStatement* request, const dsql_fld* field)
+{
+	// Intercept any reference to a field with datatype that
+	// did not exist prior to V6 and post an error
+
+	if (request->req_client_dialect <= SQL_DIALECT_V5 &&
+		(field->fld_dtype == dtype_sql_date ||
+		field->fld_dtype == dtype_sql_time ||
+		field->fld_dtype == dtype_int64))
+		{
+			ERRD_post(isc_sqlerr, isc_arg_number,  -206,
+					isc_arg_gds, isc_dsql_field_err,
+					isc_arg_gds, isc_random,
+					isc_arg_string, 
+					field->fld_name,
+					isc_arg_gds,
+					isc_sql_dialect_datatype_unsupport,
+					isc_arg_number, request->req_client_dialect,
+					isc_arg_string,
+					DSC_dtype_tostring(field->fld_dtype), 0);
+			return false;
+		}
+	return true;
+}
+
 /**
 	resolve_variable_name
 
@@ -7642,48 +7644,43 @@ static dsql_fld* resolve_context( CStatement* request, dsql_str* qualifier,
 	if (!relation && !procedure) 
 		return NULL;
 
-// if there is no qualifier, then we cannot match against
+// if there is no qualifier, we can match against
 // a context of a different scoping level
-// AB: Yes we can, but the scope level where the field is has priority.
-//	if (!qualifier && context->ctx_scope_level != request->req_scope_level) {
-//		return NULL;
-//	}
+//  but the scope level where the field is has priority.
 
 	const TEXT* table_name = NULL;
-	if (context->ctx_internal_alias) {
+	if (context->ctx_internal_alias) 
 		table_name = context->ctx_internal_alias;
-	}
+	
 
 // AB: For a check constraint we should ignore the alias if the alias
 //     contains the "NEW" alias. This is because it is possible
 //     to reference a field by the complete table-name as alias 
 //     (see EMPLOYEE table in examples for a example).
+
 	if (isCheckConstraint && table_name) 
-	{
-		// If a qualifier is present and it's equal to the alias then we've already the right table-name
-		if (!(qualifier && !strcmp(reinterpret_cast<const char*>(qualifier->str_data), table_name))) 
 		{
+		// If a qualifier is present and it's equal to the alias then we've already the right table-name
+		// Only use the OLD context if it is explicit used. That means the 
+		// qualifer should hold the "OLD" alias.
+		if (!(qualifier && !strcmp(reinterpret_cast<const char*>(qualifier->str_data), table_name))) 
+			{
 			if (!strcmp(table_name, NEW_CONTEXT)) 
-			{
 				table_name = NULL;
-			}
 			else if (!strcmp(table_name, OLD_CONTEXT))
-			{
-				// Only use the OLD context if it is explicit used. That means the 
-				// qualifer should hold the "OLD" alias.
 				return NULL;
 			}
 		}
-	}
+	
 
-	if (table_name == NULL) {
-		if (relation) {
+	if (table_name == NULL) 
+		{
+		if (relation) 
 			table_name = (const char*)relation->rel_name;
+		else 
+			table_name = (const TEXT*)procedure->findName();		
 		}
-		else {
-			table_name = (const TEXT*)procedure->findName();
-		}
-	}
+
 	//pass_exact_name(table_name);
 
 	/* If a context qualifier is present, make sure this is the
@@ -7693,12 +7690,7 @@ static dsql_fld* resolve_context( CStatement* request, dsql_str* qualifier,
 		return NULL;
 
 	if (relation)
-	{
-#ifdef SHARED_CACHE
-		relation->syncFields.lock(NULL, Shared);
-#endif
 		return relation->rel_fields;
-	}
 	
 	return (procedure->findOutputParameters())->getDsqlField();
 }
@@ -7963,6 +7955,39 @@ static dsql_nod* pass1_savepoint(const CStatement* request, dsql_nod* node) {
 }
 
 
+static dsql_fld* match_procedure_field (Procedure* procedure, 
+							  dsql_str *name)
+{
+#ifdef SHARED_CACHE
+	Sync sync (&(procedure->syncOutputs), "match_procedure_field");
+	sync.lock (Shared);
+#endif
+
+	for (ProcParam* parameter = procedure->findOutputParameters(); 
+			parameter; parameter =  parameter->findNext()) 
+		if (parameter->isNamed (name->str_data)) 
+			return parameter->getDsqlField();
+
+	return NULL;
+}
+
+
+static dsql_fld* match_relation_field (dsql_rel *relation, 
+							  dsql_str *name)
+{
+	dsql_fld* field;
+
+#ifdef SHARED_CACHE
+	Sync sync (&(relation->syncFields), "match_relation_field");
+	sync.lock (Shared);
+#endif
+
+	for (field = relation->rel_fields; field; field = field->fld_next) 
+		if (!strcmp(name->str_data, field->fld_name)) 
+			return field;
+
+	return NULL;
+}
 bool dsql_str::isEqual(const char* string)
 {
 	return strcmp (str_data, string) == 0;
