@@ -147,7 +147,6 @@ PortXNet::PortXNet(PortXNet* parent, XNetConnection *connection) : Port(0)
 	port_buff_size = connection->sendChannel.getMsgSize();
 	port_status_vector = NULL;
 
-	//xdrCreate(&port_send, send_buffer, send_length, XDR_ENCODE);
 	xdrCreate(&port_send, connection->sendChannel.data,  port_buff_size, XDR_ENCODE);
 	xdrCreate(&port_receive, connection->recvChannel.data, 0, XDR_DECODE);
 }
@@ -183,7 +182,6 @@ bool_t PortXNet::getBytes(XDR* xdrs, SCHAR* buff, u_int count)
 
 	PortXNet *port = (PortXNet*) xdrs->x_public;
 	XNetConnection *xcc = port->port_xcc;
-	//XNetChannel *xch = xcc->xcc_recv_channel;
 	XNetMappedFile *xpm = xcc->xcc_xpm;
 
 	while (bytecount && !xnet_shutdown) 
@@ -235,11 +233,8 @@ bool_t PortXNet::putBytes(XDR* xdrs, const SCHAR* buff, u_int count)
 {
 	SLONG bytecount = count;
 	SLONG to_copy;
-	//DWORD wait_result;
-
 	PortXNet *port = (PortXNet*)xdrs->x_public;
 	XNetConnection *xcc = port->port_xcc;
-	//XNetChannel *xch = xcc->xcc_send_channel;
 	XNetMappedFile *xpm = xcc->xcc_xpm;
 
 	while (bytecount && !xnet_shutdown) 
@@ -414,7 +409,6 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 	/* If we can't talk to a server, punt.  Let somebody else generate
 	   an error. */
 
-	//PortXNet *port = XNET_connect(node_name, packet, status_vector, FALSE);
 	PortXNet *port = connect(configuration, node_name, packet, status_vector, FALSE);
 	
 	if (!port)
@@ -431,7 +425,6 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 
 	if (packet->p_operation == op_reject && !uv_flag) 
 		{
-		//disconnect(port);
 		port->disconnect();
 		packet->p_operation = op_connect;
 		cnct->p_cnct_operation = op_attach;
@@ -456,7 +449,6 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 		for (size_t i = 0; i < cnct->p_cnct_count; i++) 
 			cnct->p_cnct_versions[i] = protocols_to_try2[i];
 
-		//if (!(port = XNET_connect(node_name, packet, status_vector, FALSE))) 
 		if (!(port = connect(configuration, node_name, packet, status_vector, FALSE))) 
 			{
 			delete rdb;
@@ -472,7 +464,6 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 
 	if (packet->p_operation == op_reject && !uv_flag) 
 		{
-		//disconnect(port);
 		port->disconnect();
 		packet->p_operation = op_connect;
 		cnct->p_cnct_operation = op_attach;
@@ -496,7 +487,6 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 		for (size_t i = 0; i < cnct->p_cnct_count; i++) 
 			cnct->p_cnct_versions[i] = protocols_to_try3[i];
 
-		//if (!(port = XNET_connect(node_name, packet, status_vector, FALSE))) 
 		if (!(port = connect(configuration, node_name, packet, status_vector, FALSE))) 
 			{
 			delete rdb;
@@ -515,7 +505,6 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 		*status_vector++ = isc_arg_gds;
 		*status_vector++ = isc_connect_reject;
 		*status_vector++ = isc_arg_end;
-		//disconnect(port);
 		port->disconnect();
 		
 		return NULL;
@@ -566,23 +555,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 	status_vector[1] = isc_unavailable;
 	status_vector[2] = isc_arg_end;
 
-	/*
-	LONG test_xnet_initialized;
-
-	InterlockedExchange((LPLONG) &test_xnet_initialized, xnet_initialized);
-	if (!test_xnet_initialized) {
-		InterlockedExchange((LPLONG) &xnet_initialized, TRUE);
-		THD_mutex_init(&xnet_mutex);
-		currentProcessId = GetCurrentProcessId();
-		gds__register_cleanup((FPTR_VOID_PTR) exit_handler, NULL);
-		InterlockedExchange((LPLONG) &xnet_mutex_ready, (LONG) TRUE);
-	}
-	else {
-		while (!xnet_mutex_ready)
-			Sleep(10);
-	}
-	*/
-	
 	PortXNet *port = NULL;
 	XNetConnection *xcc = NULL;
 	XNetMappedFile *xpm = NULL;
@@ -609,7 +581,8 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 	// waiting for xnet connect lock to release
 	
 #ifdef WIN_NT
-	if (WaitForSingleObject(xnet_connect_mutex, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
+	//if (WaitForSingleObject(xnet_connect_mutex, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
+	if (!XNetChannel::wait(xnet_connect_mutex, XNET_CONNECT_TIMEOUT))
 		{
 		//xnet_connect_fini();
 		connectFini();
@@ -623,11 +596,13 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 	
 	((XNetResponse*) xnet_connect_map)->map_num = XNET_INVALID_MAP_NUM;
 	((XNetResponse*) xnet_connect_map)->proc_id = currentProcessId; 
-	SetEvent(xnet_connect_event);
+	//SetEvent(xnet_connect_event);
+	XNetChannel::postEvent(xnet_connect_event);
 
 	// waiting for server response
 	
-	if (WaitForSingleObject(xnet_response_event, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
+	//if (WaitForSingleObject(xnet_response_event, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
+	if (!XNetChannel::wait(xnet_response_event, XNET_CONNECT_TIMEOUT))
 		{
 		ReleaseMutex(xnet_connect_mutex);
 		//xnet_connect_fini();
@@ -696,14 +671,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 			xpm->mapFile(false);
 			xpm->xpm_next = client_maps;
 			client_maps = xpm;
-			/***
-			xpm->xpm_count = 0;
-			xpm->xpm_number = map_num;
-			xpm->xpm_handle = file_handle;
-			xpm->xpm_address = mapped_address;
-			xpm->xpm_timestamp = timestamp;
-			xpm->xpm_flags = 0;
-			***/
 			}
 
 		//XNET_UNLOCK;
@@ -711,11 +678,7 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 		xcc = new XNetConnection(map_num, slot_num);
 		xcc->xcc_map_handle = xpm->xpm_handle;
 		xcc->xcc_mapped_addr =(UCHAR *) xpm->xpm_address + XPS_SLOT_OFFSET(pages_per_slot, slot_num);
-		//xcc->xcc_map_num = map_num;
-		//xcc->xcc_slot = slot_num;
 		xcc->xcc_xpm = xpm;
-		//xcc->xcc_flags = 0;
-		//xcc->xcc_proc_h = 0;
 		xps = (XPS) xcc->xcc_mapped_addr;
 
 		// only speak if server has correct protocol
@@ -732,7 +695,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 		if (!xcc->xcc_proc_h) 
 			error("OpenProcess");
 
-		//xpm->xpm_count++;
 		xpm->addRef();
 		xcc->open(false, timestamp);
 
@@ -799,13 +761,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 		}
 
 	port = new PortXNet(0, xcc);
-						/***
-						xcc->xcc_send_channel->xch_client_ptr,
-						xcc->xcc_send_channel->xch_size,
-						xcc->xcc_recv_channel->xch_client_ptr,
-						xcc->xcc_recv_channel->xch_size);
-						***/
-						   
 	status_vector[1] = FB_SUCCESS;
 	port->port_status_vector = status_vector;
 	port->port_xcc = xcc;
@@ -825,7 +780,6 @@ void PortXNet::disconnect(void)
 		{
 		if (port_async) 
 			{
-			//disconnect(port_async);
 			port_async->disconnect();
 			port_async = NULL;
 			}
@@ -844,7 +798,6 @@ void PortXNet::disconnect(void)
 #if (defined (MULTI_THREAD) && !defined (SUPERSERVER))
 		port_async->port_flags |= PORT_disconnect;
 #else
-		//disconnect(port->port_async);
 		port_async->disconnect();
 		port_async = NULL;
 #endif
@@ -873,16 +826,13 @@ void PortXNet::exitHandler(void* arg)
 	PortXNet *mainPort = (PortXNet*) arg;
 	
 	if (mainPort) 
-		//disconnect(main_port);
 		mainPort->disconnect();
 	else 
-		//xnet_release_all();
 		releaseAll();
 }
 
 void PortXNet::cleanupComm(XNetConnection* xcc)
 {
-	//XNetMappedFile * pxpm;
 	XNetMappedFile *xpm = xcc->xcc_xpm;
 	delete xcc;
 	xcc = NULL;
@@ -918,7 +868,6 @@ void PortXNet::releaseAll(void)
 		return;
 
 #ifndef SUPERCLIENT
-	//xnet_connect_fini();
 	connectFini();
 #endif
 
@@ -930,8 +879,6 @@ void PortXNet::releaseAll(void)
 	for (XNetMappedFile *xpm; xpm = client_maps;)
 		{
 		client_maps = xpm->xpm_next;
-		//UnmapViewOfFile(xpm->xpm_address);
-		//CloseHandle(xpm->xpm_handle);
 		delete xpm;
 		}
 
@@ -980,7 +927,6 @@ Port* PortXNet::receive(Packet* packet)
 	currentProcessId = getpid();
 	XNetResponse *presponse = (XNetResponse*)xnet_connect_map;
 	
-#ifdef WIN_NT
 	while (!xnet_shutdown)
 		{
 		Port *child;
@@ -1010,9 +956,12 @@ Port* PortXNet::receive(Packet* packet)
 			waitVector[count++] = port->port_xcc->recvChannel.channelFilled;
 			}
 			
+#ifdef WIN_NT
 		//DWORD wait_res = WaitForSingleObject(xnet_connect_event,INFINITE);
 		DWORD wait_res = WaitForMultipleObjects(count, waitVector, false, INFINITE);
 		int index = wait_res - WAIT_OBJECT_0;
+#endif
+
 		PortXNet *port = portVector[index];
 		
 		if (xnet_shutdown)
@@ -1056,7 +1005,8 @@ Port* PortXNet::receive(Packet* packet)
 			if (!xpm || !newPort) 
 				XNET_LOG_ERROR("failed to allocate server port for communication");
 
-			SetEvent(xnet_response_event);
+			//SetEvent(xnet_response_event);
+			XNetChannel::postEvent(xnet_response_event);
 			port = newPort;
 			}
 		else
@@ -1076,7 +1026,6 @@ Port* PortXNet::receive(Packet* packet)
 		
 		return port;
 		}
-#endif
 
 	return NULL;
 }
@@ -1086,7 +1035,6 @@ XDR_INT PortXNet::sendPacket(Packet* packet)
 	if (!xdr_protocol(&port_send, packet))
 		return FALSE;
 
-	//if (xnet_write(&port_send))
 	if (write(&port_send))
 		return TRUE;
 		
@@ -1245,7 +1193,6 @@ Port* PortXNet::auxRequest(Packet* packet)
  	PortXNet* new_port = NULL;
 	XNetConnection *parent_xcc = NULL;
 	XNetConnection *xcc = NULL;
-	//TEXT name_buffer[128];
 	XPS xps = NULL;
 	XNetMappedFile *xpm = NULL;
 
@@ -1254,8 +1201,6 @@ Port* PortXNet::auxRequest(Packet* packet)
 		// make a new xcc
 		parent_xcc = port_xcc;
 		xps = (XPS) parent_xcc->xcc_mapped_addr;
-
-		//xcc = (XCC) ALLR_alloc(sizeof(struct xcc));
 		xcc = new XNetConnection(parent_xcc);
 		xpm = parent_xcc->xcc_xpm;
 		/***
@@ -1268,7 +1213,6 @@ Port* PortXNet::auxRequest(Packet* packet)
 		xcc->xcc_mapped_addr = parent_xcc->xcc_mapped_addr;
 		xcc->xcc_xpm->xpm_count++;
 		***/
-#ifdef WIN_NT
 
 		xcc->create(true, xpm->xpm_timestamp);
 		/***
@@ -1313,9 +1257,6 @@ Port* PortXNet::auxRequest(Packet* packet)
 			error("xxx");
 		***/
 
-#else
-	// STUB : This should be event_init() calls ?
-#endif
 
 		// send events channel
 		
@@ -1337,15 +1278,8 @@ Port* PortXNet::auxRequest(Packet* packet)
 		// alloc new port and link xcc to it
 		
 		new_port = new PortXNet(NULL, xcc);
-								/***
-								xcc->xcc_send_channel->xch_client_ptr,
-								xcc->xcc_send_channel->xch_size,
-								xcc->xcc_recv_channel->xch_client_ptr,
-								xcc->xcc_recv_channel->xch_size);
-								***/
 								
 		port_async = new_port;
-		//new_port->port_xcc = xcc;
 		new_port->port_flags = port_flags & PORT_no_oob;
 		new_port->port_server_flags = port_server_flags;
 
@@ -1433,16 +1367,10 @@ PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 	
 	currentProcessId = getpid();
 
-#ifdef WIN_NT
-
 	try 
 		{
 		xnet_response_event = XNetChannel::openEvent(XNET_E_RESPONSE_EVENT);
-
-		//xpm = xnet_make_xpm(currentProcessId, time_t(0));
 		xpm = new XNetMappedFile(currentProcessId, time_t(0), slots_per_map, pages_per_slot);
-
-		//port = xnet_get_srv_port(client_pid, xpm, currentProcessId, 0, 0, status_vector);
 		port = getServerPort(NULL, client_pid, xpm, currentProcessId, 0, 0, status_vector);
 		
 		if (!port) 
@@ -1450,10 +1378,12 @@ PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 
 		//make signal for client
 		
-		SetEvent(xnet_response_event);
+		//SetEvent(xnet_response_event);
+		XNetChannel::postEvent(xnet_response_event);
 		
 		if (xnet_response_event) 
-			CloseHandle(xnet_response_event);
+			//CloseHandle(xnet_response_event);
+			XNetChannel::closeEvent(&xnet_response_event);
 		}
 	catch (...) 
 		{
@@ -1462,19 +1392,18 @@ PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 
 		if (port) 
 			{
-			//xnet_cleanup_port(port);
 			delete port;
 			port = NULL;
 			}
 
 		if (xnet_response_event) 
 			{
-			SetEvent(xnet_response_event); // To prevent client blocking
-			CloseHandle(xnet_response_event);
+			//SetEvent(xnet_response_event); // To prevent client blocking
+			XNetChannel::postEvent(xnet_response_event);
+			//CloseHandle(xnet_response_event);
+			XNetChannel::closeEvent(&xnet_response_event);
 			}
 		}
-
-#endif
 
 	return port;
 }
@@ -1488,12 +1417,8 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 	// allocate a communications control structure and fill it in
 	
 	XNetConnection *xcc = new XNetConnection(slot_num, map_num);
-	//xcc->xcc_slot = slot_num;
-	//xcc->xcc_map_num = map_num;
 	xcc->create(false, timestamp);
 	
-#ifdef WIN_NT
-
 	try 
 		{
 		UCHAR *p = (UCHAR *) xpm->xpm_address + XPS_SLOT_OFFSET(pages_per_slot, slot_num);
@@ -1580,14 +1505,6 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 		/* finally, allocate and set the port structure for this client */
 		
 		port = new PortXNet(parent, xcc);
-							/***
-			                xcc->xcc_send_channel->xch_buffer,
-			                xcc->xcc_send_channel->xch_size,
-			                xcc->xcc_recv_channel->xch_buffer,
-			                xcc->xcc_recv_channel->xch_size);
-			                ***/
-			                
-		//port->port_xcc = xcc;
 		port->port_server_flags |= SRVR_server;
 
 		status_vector[0] = isc_arg_gds;
@@ -1602,8 +1519,6 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 			
 		return NULL;
 		}
-
-#endif // WIN_NT
 
 	return port;
 }
@@ -1624,7 +1539,6 @@ bool PortXNet::serverInit(void)
 	xnet_connect_event = 0;
 	xnet_response_event = 0;
 
-#ifdef WIN_NT
 	try 
 		{
 		xnet_connect_mutex = XNetConnection::createMutex(XNET_MU_CONNECT_MUTEX);
@@ -1651,10 +1565,8 @@ bool PortXNet::serverInit(void)
 		}
 	catch (...) 
 		{
-		//xnet_connect_fini();
 		connectFini();
 		}
-#endif // WIN_NT
 
 	return false;
 }
@@ -1691,7 +1603,6 @@ XNetMappedFile* PortXNet::getFreeSlot(ULONG* map_num, ULONG* slot_num, time_t* t
 		{
 		/* allocate new map file and first slot */
 
-		//xpm = xnet_make_xpm(map, *timestamp);
 		xpm = new XNetMappedFile (map, *timestamp, slots_per_map, pages_per_slot);
 		xpm->mapFile(true);
 
@@ -1792,7 +1703,6 @@ bool_t PortXNet::read(XDR* xdrs)
 {
 	PortXNet *port = (PortXNet*)xdrs->x_public;
 	XNetConnection *xcc = port->port_xcc;
-	//XNetChannel *xch = xcc->xcc_recv_channel;
 	XNetMappedFile *xpm = xcc->xcc_xpm;
 
 	if (xnet_shutdown)

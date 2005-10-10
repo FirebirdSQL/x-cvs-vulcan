@@ -188,7 +188,6 @@ void RServer::processPackets(Port* mainPort, int flags)
 bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** result)
 {
 	P_OP op;
-	//STR string;
 	TEXT msg[128];
 	Server *server;
 	Sync sync (&port->syncRequest, "RServer::processPacket");
@@ -214,7 +213,7 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 					else 
 						{
 						gds__log ("SERVER/processPacket: connect reject, server exiting", 0);
-						//THD_restore_specific(THDD_TYPE_SRVR);
+
 						return false;
 						}
 					}
@@ -252,7 +251,7 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 					gds__log("SERVER/processPacket: Multi-client server shutdown", 0);
 				sync.unlock();
 				port->disconnect(send, receive);
-				//THD_restore_specific(THDD_TYPE_SRVR);
+
 				return false;
 
 			case op_receive:
@@ -432,22 +431,23 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 			if (!port->port_parent) 
 				{
 				gds__log("SERVER/processPacket: broken port, server exiting", 0);
+				
 				if (port->port_type == port_inet)
 					port->disconnect();
 				else
 					port->disconnect(send, receive);
-				//THD_restore_specific(THDD_TYPE_SRVR);
+					
 				return false;
 				}
-			port->disconnect(send, receive);
+				
 			sync.unlock();
+			port->disconnect(send, receive);
 			port = NULL;
 			}
 
 		if (result)
 			*result = port;
 
-		//THD_restore_specific(THDD_TYPE_SRVR);
 		}
 	catch (OSRIException &exception) 
 		{
@@ -456,10 +456,11 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 		gds__log("SERVER/processPacket: out of memory", 0);
 
 		/*  It would be nice to log an error to the user, instead of just terminating them!  */
+		
 		port->send_response(send, 0, 0, exception.statusVector);
 		sync.unlock();
 		port->disconnect(send, receive);	/*  Well, how about this...  */
-		//THD_restore_specific(THDD_TYPE_SRVR);
+
 		return false;
 		}
 

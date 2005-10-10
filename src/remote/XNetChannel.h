@@ -59,6 +59,8 @@ public:
 	void postReceive(void);
 	int getMsgLength(void);
 	int getMsgSize(void);
+	static bool wait(HANDLE handle, int timeout);
+	static void postEvent(HANDLE handle);
 };
 
 #endif
