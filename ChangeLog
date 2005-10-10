@@ -1,3 +1,10 @@
+2005-10-09 17:54  jimstarkey
+
+	* vulcan/src/remote/: XNetChannel.cpp, XNetChannel.h,
+	XNetConnection.cpp:
+	
+	Work in progress on XNet
+
 2005-10-07 23:15  jimstarkey
 
 	* vulcan/builds/VisualStudio7/remote/remote.vcproj:
