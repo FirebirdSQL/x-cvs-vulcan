@@ -32,8 +32,7 @@
 #endif
 #endif
 
-/* xch comm channel structure - four per connection (client to server data,
-   server to client data, client to server events, server to client events) */
+struct ChannelControl;
 
 class XNetChannel
 {
@@ -41,23 +40,25 @@ public:
 	XNetChannel(void);
 	~XNetChannel(void);
 
-    ULONG		xch_length;      /* message length */
-    ULONG		xch_size;        /* channel data size */
-    USHORT      xch_flags;       /* flags */
-    UCHAR       *xch_buffer;     /* message */
-    UCHAR 	    *xch_client_ptr; /* client pointer to xch buffers */
-    HANDLE		channelFilled;
-    HANDLE		channelEmptied;
+    ChannelControl	*channelControl;
+    UCHAR			*data;
+    HANDLE			channelFilled;
+    HANDLE			channelEmptied;
     
 	void close(void);
-	HANDLE openEvent(bool eventChannel, int mapNum, int slot, time_t timestamp, const char *pattern);
-	HANDLE createEvent(bool eventChannel, int mapNum, int slot, time_t timestamp, const char* pattern);
 	static HANDLE createEvent(const char* pattern);
 	static HANDLE openEvent(const char* pattern);
 	static void closeEvent(HANDLE* handlePtr);
 	static void error(const char* operation);
 	void open(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp);
-	static void genName(bool eventChannel, bool toServer, bool filledEvent, int slot, int mapNum, time_t timestamp, char* buffer);
+	void create(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp);
+	static const char* genName(bool eventChannel, bool toServer, bool filledEvent, int mapNum, int slot, time_t timestamp, char* buffer);
+	void* preSend(int timeout);
+	void send(int length);
+	void* receive(int timeout);
+	void postReceive(void);
+	int getMsgLength(void);
+	int getMsgSize(void);
 };
 
 #endif

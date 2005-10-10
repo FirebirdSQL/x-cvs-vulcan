@@ -3258,7 +3258,8 @@ void Port::addClient(Port* port)
 	sync.lock(Exclusive);
 	port->port_parent = this;
 	port->port_next = port_clients;
-	port_clients = port_next = port;
+	//port_clients = port_next = port;
+	port_clients = port;
 	port->addRef();
 }
 

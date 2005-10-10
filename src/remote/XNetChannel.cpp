@@ -33,12 +33,12 @@
 #include "common.h"
 #include "XNetChannel.h"
 #include "isc_proto.h"
-#include ".\xnetchannel.h"
+#include "xnet.h"
 
 #define XNET_PREFIX				"FirebirdXNET"
 
 #define XNET_E_C2S_DATA_CHAN_FILLED	"%s_E_C2S_DATA_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_CHAN	"%s_E_C2S_DATA_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
+#define XNET_E_CHAN	"%s_E_%s_%s_%s_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
 
 
 XNetChannel::XNetChannel(void)
@@ -49,6 +49,7 @@ XNetChannel::XNetChannel(void)
 
 XNetChannel::~XNetChannel(void)
 {
+	close();
 }
 
 void XNetChannel::close(void)
@@ -68,50 +69,10 @@ void XNetChannel::closeEvent(HANDLE* handlePtr)
 		}
 }
 
-HANDLE XNetChannel::openEvent(bool eventChannel, int mapNum, int slot, time_t timestamp, const char *pattern)
+HANDLE XNetChannel::createEvent(const char* name)
 {
 #ifdef WIN_NT
-	TEXT name_buffer[128];
-	const char *type = (eventChannel) ? "EVNT" : "DATA";
-	sprintf(name_buffer, pattern, XNET_PREFIX, type, mapNum, slot, (ULONG) timestamp);
-	HANDLE handle = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-
-	if (!handle)
-		error("OpenEvent");
-	
-	return handle;
-#else
-
-	return 0;
-
-#endif // WIN_NT
-}
-
-HANDLE XNetChannel::createEvent(bool eventChannel, int mapNum, int slot, time_t timestamp, const char* pattern)
-{
-#ifdef WIN_NT
-	TEXT name_buffer[128];
-	const char *type = (eventChannel) ? "EVNT" : "DATA";
-	sprintf(name_buffer, pattern, XNET_PREFIX, type, mapNum, slot, (ULONG) timestamp);
-	HANDLE handle = CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
-
-	if (!handle)
-		error("CreateEvent");
-	
-	return handle;
-#else
-
-	return 0;
-
-#endif
-}
-
-HANDLE XNetChannel::createEvent(const char* pattern)
-{
-#ifdef WIN_NT
-	char name_buffer[128];
-	sprintf(name_buffer, pattern, XNET_PREFIX);
-	HANDLE handle = CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
+	HANDLE handle = CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name);
 	
 	if (!handle || GetLastError() == ERROR_ALREADY_EXISTS)
 		error("CreateEvent");
@@ -124,12 +85,10 @@ HANDLE XNetChannel::createEvent(const char* pattern)
 #endif
 }
 
-HANDLE XNetChannel::openEvent(const char* pattern)
+HANDLE XNetChannel::openEvent(const char* name)
 {
 #ifdef WIN_NT
-	char name_buffer[128];
-	sprintf(name_buffer, pattern, XNET_PREFIX);
-	HANDLE handle = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
+	HANDLE handle = OpenEvent(EVENT_ALL_ACCESS, FALSE, name);
 	
 	if (!handle) 
 		error("openEvent");
@@ -148,11 +107,79 @@ void XNetChannel::error(const char* operation)
 	throw -1;
 }
 
-void XNetChannel::open(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp)
+void XNetChannel::open(bool eventChannel, bool toServer, int mapNum, int slot, time_t timestamp)
 {
-	
+	char name[128];
+	channelFilled = openEvent(genName(eventChannel, toServer, true, slot, mapNum, timestamp, name));
+	channelEmptied = openEvent(genName(eventChannel, toServer, false, slot, mapNum, timestamp, name));
 }
 
-void XNetChannel::genName(bool eventChannel, bool toServer, bool filledEvent, int slot, int mapNum, time_t timestamp, char* buffer)
+void XNetChannel::create(bool eventChannel, bool toServer, int mapNum, int slot, time_t timestamp)
 {
+	char name[128];
+	channelFilled = createEvent(genName(eventChannel, toServer, true, slot, mapNum, timestamp, name));
+	channelEmptied = createEvent(genName(eventChannel, toServer, false, slot, mapNum, timestamp, name));
+}
+
+const char* XNetChannel::genName(bool eventChannel, bool toServer, bool filledEvent, int mapNum, int slot, time_t timestamp, char* buffer)
+{
+	//	"%s_E_C2S_DATA_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
+	sprintf(buffer, XNET_E_CHAN,
+			XNET_PREFIX,
+			(toServer) ? "C2S" : "S2C",
+			(eventChannel) ? "EVENT" : "DATA",
+			(filledEvent) ? "FILLED" : "EMPTIED",
+			slot, mapNum, timestamp);
+			
+	return buffer;	
+}
+
+void* XNetChannel::preSend(int timeout)
+{
+	DWORD ret = WaitForSingleObject(channelEmptied, timeout);
+	
+	if (ret == WAIT_OBJECT_0)
+		return data;
+		
+	if (ret != WAIT_TIMEOUT)
+		error ("WaitForSingleObject");
+
+	return NULL;
+}
+
+void XNetChannel::send(int length)
+{
+	channelControl->xch_length = length;
+	
+	if (!SetEvent(channelFilled))
+		error ("SetEvent(channelFilled)");
+}
+
+void* XNetChannel::receive(int timeout)
+{
+	DWORD ret = WaitForSingleObject(channelFilled, timeout);
+	
+	if (ret == WAIT_OBJECT_0)
+		return data;
+		
+	if (ret != WAIT_TIMEOUT)
+		error ("WaitForSingleObject(channelFilled)");
+
+	return NULL;
+}
+
+void XNetChannel::postReceive(void)
+{
+	if (!SetEvent(channelEmptied))
+		error ("SetEvent(channelEmptied)");
+}
+
+int XNetChannel::getMsgLength(void)
+{
+	return channelControl->xch_length;
+}
+
+int XNetChannel::getMsgSize(void)
+{
+	return channelControl->xch_size;
 }

@@ -26,20 +26,16 @@
 #ifndef XNET_CONNECTION_H
 #define XNET_CONNECTION_H
 
-#ifndef _WIN32
-#ifndef HANDLE
-#define HANDLE		int
-#endif
-#endif
+#include "XNetChannel.h"
 
-class XNetChannel;
 class XNetMappedFile;
 struct xpm;
 
 class XNetConnection
 {
 public:
-	XNetConnection(void);
+	XNetConnection(XNetConnection* parent);
+	XNetConnection(int mapNum, int slot);
 	~XNetConnection(void);
 
     XNetConnection  *xcc_next;              /* pointer to next thread */
@@ -50,30 +46,35 @@ public:
     HANDLE			xcc_map_handle;         /* mapped file's handle */
     HANDLE			xcc_proc_h;             /* for server client's process handle
 		                                       for client server's process handle */
-
-    HANDLE			xcc_event_send_channel_filled; /* xcc_send_channel ready for reading */
-    HANDLE			xcc_event_send_channel_empted; /* xcc_send_channel ready for writting */
-    HANDLE			xcc_event_recv_channel_filled; /* xcc_receive_channel ready for reading */
-    HANDLE			xcc_event_recv_channel_empted; /* xcc_receive_channel ready for writing */
-
-    XNetChannel		*xcc_recv_channel;				/* receive channel structure */
-    XNetChannel		*xcc_send_channel;       /* send channel structure */
+	/***
+    HANDLE			xcc_event_send_channel_filled; // xcc_send_channel ready for reading 
+    HANDLE			xcc_event_send_channel_empted; // xcc_send_channel ready for writting 
+    HANDLE			xcc_event_recv_channel_filled; // xcc_receive_channel ready for reading 
+    HANDLE			xcc_event_recv_channel_empted; // xcc_receive_channel ready for writing 
+	***/
+	
+    XNetChannel		recvChannel;			/* receive channel structure */
+    XNetChannel		sendChannel;			/* send channel structure */
     ULONG			xcc_flags;              /* status bits */
     UCHAR			*xcc_mapped_addr;       /* where the thread's mapped to */
 	void close(void);
 	void open(bool eventChannel, time_t timestamp);
 	void create(bool eventChannel, time_t timestamp);
-	HANDLE openEvent(bool eventChannel, time_t timestamp, const char *pattern);
-	HANDLE createEvent(bool eventChannel, time_t timestamp, const char* pattern);
-	static HANDLE createEvent(const char* pattern);
-	static HANDLE openEvent(const char* pattern);
+	//HANDLE openEvent(bool eventChannel, time_t timestamp, const char *pattern);
+	//HANDLE createEvent(bool eventChannel, time_t timestamp, const char* pattern);
+	//static HANDLE createEvent(const char* pattern);
+	//static HANDLE openEvent(const char* pattern);
 	static HANDLE openMutex(const char* pattern);
 	static HANDLE createMutex(const char* pattern);
 	static void closeMutex(HANDLE* handlePtr);
 	static void closeEvent(HANDLE* handlePtr);
 	static void error(const char* operation);
-	XNetConnection(XNetConnection* parent);
 	void init(void);
+	void* preSend(int timeout);
+	void send(int length);
+	void* receive(int timeout);
+	void postReceive(void);
+	bool stillAlive(void);
 };
 
 #endif

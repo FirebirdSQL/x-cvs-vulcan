@@ -317,7 +317,7 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 #ifdef XNET
 		if (server_flag & SRVR_xnet)
 			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>
-							  (xnet_connect_wait_thread), 0, THREAD_medium, 0, 0);
+							  (xnet_connect_wait_thread), configuration, THREAD_medium, 0, 0);
 #endif
 		/* No need to waste a thread if we are running as a window.  Just start
 		 * the IPC communication
@@ -499,12 +499,13 @@ static void THREAD_ROUTINE xnet_connect_wait_thread(void *dummy)
  **************************************/
 	void *thread;
 	ISC_STATUS_ARRAY status_vector;
-
+	
 	if (!(server_flag & SRVR_non_service))
 		thread = CNTL_insert_thread();
 
 	//XNET_srv(server_flag);
 	PortXNet *port = PortXNet::connect(server_flag, status_vector);
+	port->configuration = (ConfObject*) dummy;
 	
 	if (port)
 		{

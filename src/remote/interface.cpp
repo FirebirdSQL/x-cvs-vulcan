@@ -4823,7 +4823,7 @@ static Port* analyze(ConfObject *configuration,
 
 	if (!port)
 		//return XNET_analyze(file_name,
-		return PortXNet::analyze(file_name, file_length, status_vector, node_name, user_string, uv_flag);
+		return PortXNet::analyze(configuration, file_name, file_length, status_vector, node_name, user_string, uv_flag);
 
 #endif /* XNET */
 
@@ -4941,7 +4941,7 @@ static Port* analyze_service(ConfObject *configuration,
 
 	if (!port)
 		//port = XNET_analyze(service_name, service_length, status_vector,
-		port = PortXNet::analyze(service_name, service_length, status_vector,
+		port = PortXNet::analyze(configuration, service_name, service_length, status_vector,
 								 node_name, user_string, uv_flag);
 #endif
 
@@ -6026,7 +6026,7 @@ static bool init(ISC_STATUS* user_status,
 	RDatabase* rdb = port->port_context;
 	Packet* packet = &rdb->rdb_packet;
 
-/* Make attach packet */
+	/* Make attach packet */
 
 	P_ATCH* attach = &packet->p_atch;
 	packet->p_operation = op;
@@ -6035,10 +6035,11 @@ static bool init(ISC_STATUS* user_status,
 	attach->p_atch_dpb.cstr_length = dpb_length;
 	attach->p_atch_dpb.cstr_address = dpb;
 
-	if (!send_packet(rdb->rdb_port, packet, user_status)) {
+	if (!send_packet(rdb->rdb_port, packet, user_status)) 
+		{
 		disconnect(port);
 		return false;
-	}
+		}
 
 	/* Get response */
 

@@ -72,11 +72,13 @@ public:
     time_t			xpm_timestamp;          /* timestamp to avoid map name confilcts */
     int				slotsPerMap;
     int				pagesPerSlot;
+    int				mappedSize;
     
 	bool mapFile(bool createFlag);
 	void close(void);
 	static void unmapFile(void** handlePtr);
 	static void closeFile(HANDLE* handlePtr);
+	void addRef(void);
 };
 
 #endif

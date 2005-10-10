@@ -79,13 +79,14 @@ bool XNetMappedFile::mapFile(bool createFlag)
 #ifdef WIN_NT
 	TEXT name_buffer[128];
 	sprintf(name_buffer, XNET_MAPPED_FILE_NAME, XNET_PREFIX, xpm_number, (ULONG) xpm_timestamp);
+	mappedSize = XPS_MAPPED_SIZE(slotsPerMap, pagesPerSlot);
 	
 	if (createFlag)
 		xpm_handle = CreateFileMapping(INVALID_HANDLE_VALUE,
 										ISC_get_security_desc(),
 										PAGE_READWRITE,
 										0L,
-										XPS_MAPPED_SIZE(slotsPerMap, pagesPerSlot),
+										mappedSize,
 										name_buffer);
 	else
 		xpm_handle = OpenFileMapping(FILE_MAP_WRITE, FALSE, name_buffer);
@@ -93,8 +94,7 @@ bool XNetMappedFile::mapFile(bool createFlag)
 	if (!xpm_handle || GetLastError() == ERROR_ALREADY_EXISTS)
 		return FALSE;
 
-	xpm_address = MapViewOfFile(xpm_handle, FILE_MAP_WRITE, 0, 0,
-								 XPS_MAPPED_SIZE(slotsPerMap, pagesPerSlot));
+	xpm_address = MapViewOfFile(xpm_handle, FILE_MAP_WRITE, 0, 0, mappedSize);
 								 
 	if (!xpm_address)
 		close();
@@ -124,4 +124,8 @@ void XNetMappedFile::closeFile(HANDLE* handlePtr)
 #endif
 		*handlePtr = 0;
 		}
+}
+
+void XNetMappedFile::addRef(void)
+{	++xpm_count;
 }

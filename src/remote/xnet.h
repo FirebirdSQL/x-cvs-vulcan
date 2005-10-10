@@ -34,10 +34,11 @@
 #define CADDR_T	LPVOID
 #endif
 
-#define XNET_CONNECT_TIMEOUT 10000 /* client connect timeout (ms) */
+#define XNET_CONNECT_TIMEOUT 10000						/* client connect timeout (ms) */
 
-#define XNET_RECV_WAIT_TIMEOUT 10000                  /* Receive wait timeout (ms) */
-#define XNET_SEND_WAIT_TIMEOUT XNET_RECV_WAIT_TIMEOUT /* Send wait timeout (ms) */
+//#define XNET_RECV_WAIT_TIMEOUT 10000					/* Receive wait timeout (ms) */
+#define XNET_RECV_WAIT_TIMEOUT 1000000					/* Receive wait timeout (ms) */
+#define XNET_SEND_WAIT_TIMEOUT XNET_RECV_WAIT_TIMEOUT	/* Send wait timeout (ms) */
 
 
 #define XNET_INVALID_MAP_NUM 0xFFFFFFFF
@@ -53,7 +54,17 @@ class XNetChannel;
 /* xcc structure flags */
 #define XCCF_SERVER_SHUTDOWN    2       /* server has shutdown detected */
 
-#include "XNetChannel.h"
+// Comm channel structure - four per connection (client to server data,
+// server to client data, client to server events, server to client events)
+
+struct ChannelControl
+{
+    ULONG		xch_length;					// message length
+    ULONG		xch_size;					// channel data size
+    USHORT      xch_flags;					// flags
+    UCHAR       *xch_buffer;				// message
+    UCHAR 	    *xch_client_ptr;			// client pointer to xch buffers
+};
 
 /* This structure (xps) is mapped to the start of the allocated
     communications area between the client and server. */
@@ -65,7 +76,7 @@ typedef struct xps
     PID_T       xps_server_proc_id;     /* server's process id */
     PID_T       xps_client_proc_id;     /* client's process id */
     USHORT      xps_flags;              /* flags word */
-    XNetChannel	xps_channels[4];        /* comm channels */
+    ChannelControl	xps_channels[4];        /* comm channels */
     ULONG       xps_data[1];            /* start of data area */
 } *XPS;
 

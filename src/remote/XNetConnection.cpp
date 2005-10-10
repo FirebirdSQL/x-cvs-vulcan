@@ -54,9 +54,11 @@
 #define XNET_E_S2C_EVNT_CHAN_EMPTED	"%s_E_S2C_EVNT_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
 ***/
 
-XNetConnection::XNetConnection(void)
+XNetConnection::XNetConnection(int mapNum, int slot)
 {
 	init();
+	xcc_map_num = mapNum;
+	xcc_slot = slot;
 }
 
 
@@ -72,12 +74,14 @@ XNetConnection::XNetConnection(XNetConnection* parent)
 	xcc_xpm->xpm_count++;
 }
 
-void XNetConnection::init(void)
+void XNetConnection::init()
 {
+	/***
 	xcc_event_send_channel_filled = 0;
 	xcc_event_send_channel_empted = 0;
 	xcc_event_recv_channel_filled = 0;
 	xcc_event_recv_channel_empted = 0;
+	***/
 	xcc_proc_h = 0;
 	xcc_flags = 0;
 	xcc_next = NULL;
@@ -93,29 +97,39 @@ XNetConnection::~XNetConnection(void)
 
 void XNetConnection::close(void)
 {
+	sendChannel.close();
+	recvChannel.close();
+	/***
 	closeEvent(&xcc_event_send_channel_filled);
 	closeEvent(&xcc_event_send_channel_empted);
 	closeEvent(&xcc_event_recv_channel_filled);
 	closeEvent(&xcc_event_recv_channel_empted);
+	***/
 	closeEvent(&xcc_proc_h);
 }
 
 void XNetConnection::open(bool eventChannel, time_t timestamp)
 {
-	//xcc_recv_channel.open(eventChannel, true, xcc_map_num, xcc_slot, timestamp);
-	//xcc_send_channel.open(eventChannel, false, xcc_map_num, xcc_slot, timestamp);
+	sendChannel.open(eventChannel, true, xcc_map_num, xcc_slot, timestamp);
+	recvChannel.open(eventChannel, false, xcc_map_num, xcc_slot, timestamp);
+	/***
 	xcc_event_send_channel_filled = openEvent(eventChannel, timestamp, XNET_E_C2S_FILLED);
 	xcc_event_send_channel_empted = openEvent(eventChannel, timestamp, XNET_E_C2S_EMPTED);
 	xcc_event_recv_channel_filled = openEvent(eventChannel, timestamp, XNET_E_S2C_FILLED);
 	xcc_event_recv_channel_empted = openEvent(eventChannel, timestamp, XNET_E_S2C_EMPTED);
+	***/
 }
 
 void XNetConnection::create(bool eventChannel, time_t timestamp)
 {
+	sendChannel.create(eventChannel, false, xcc_map_num, xcc_slot, timestamp);
+	recvChannel.create(eventChannel, true, xcc_map_num, xcc_slot, timestamp);
+	/***
 	xcc_event_send_channel_filled = createEvent(eventChannel, timestamp, XNET_E_S2C_FILLED);
 	xcc_event_send_channel_empted = createEvent(eventChannel, timestamp, XNET_E_S2C_EMPTED);
 	xcc_event_recv_channel_filled = createEvent(eventChannel, timestamp, XNET_E_C2S_FILLED);
 	xcc_event_recv_channel_empted = createEvent(eventChannel, timestamp, XNET_E_C2S_EMPTED);
+	***/
 }
 
 void XNetConnection::closeEvent(HANDLE* handlePtr)
@@ -129,79 +143,6 @@ void XNetConnection::closeEvent(HANDLE* handlePtr)
 		}
 }
 
-HANDLE XNetConnection::openEvent(bool eventChannel, time_t timestamp, const char *pattern)
-{
-#ifdef WIN_NT
-	TEXT name_buffer[128];
-	const char *type = (eventChannel) ? "EVNT" : "DATA";
-	sprintf(name_buffer, pattern, XNET_PREFIX, type, xcc_map_num, xcc_slot, (ULONG) timestamp);
-	HANDLE handle = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-
-	if (!handle)
-		error("OpenEvent");
-	
-	return handle;
-#else
-
-	return 0;
-
-#endif // WIN_NT
-}
-
-HANDLE XNetConnection::createEvent(bool eventChannel, time_t timestamp, const char* pattern)
-{
-#ifdef WIN_NT
-	TEXT name_buffer[128];
-	const char *type = (eventChannel) ? "EVNT" : "DATA";
-	sprintf(name_buffer, pattern, XNET_PREFIX, type, xcc_map_num, xcc_slot, (ULONG) timestamp);
-	HANDLE handle = CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
-
-	if (!handle)
-		error("CreateEvent");
-	
-	return handle;
-#else
-
-	return 0;
-
-#endif
-}
-
-HANDLE XNetConnection::createEvent(const char* pattern)
-{
-#ifdef WIN_NT
-	char name_buffer[128];
-	sprintf(name_buffer, pattern, XNET_PREFIX);
-	HANDLE handle = CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
-	
-	if (!handle || GetLastError() == ERROR_ALREADY_EXISTS)
-		error("CreateEvent");
-
-	return handle;
-#else
-
-	return 0;
-
-#endif
-}
-
-HANDLE XNetConnection::openEvent(const char* pattern)
-{
-#ifdef WIN_NT
-	char name_buffer[128];
-	sprintf(name_buffer, pattern, XNET_PREFIX);
-	HANDLE handle = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-	
-	if (!handle) 
-		error("openEvent");
-		
-	return handle;
-#else
-
-	return 0;
-
-#endif
-}
 
 HANDLE XNetConnection::openMutex(const char* pattern)
 {
@@ -253,4 +194,29 @@ void XNetConnection::closeMutex(HANDLE* handlePtr)
 void XNetConnection::error(const char* operation)
 {
 	throw -1;
+}
+
+void* XNetConnection::preSend(int timeout)
+{
+	return sendChannel.preSend(timeout);
+}
+
+void XNetConnection::send(int length)
+{
+	sendChannel.send(length);
+}
+
+void* XNetConnection::receive(int timeout)
+{
+	return recvChannel.receive(timeout);
+}
+
+void XNetConnection::postReceive(void)
+{
+	return recvChannel.postReceive();
+}
+
+bool XNetConnection::stillAlive(void)
+{
+	return WaitForSingleObject(xcc_proc_h, 1) == WAIT_TIMEOUT;			
 }

@@ -64,12 +64,12 @@ ISC_STATUS Remote8::attachDatabase(ISC_STATUS* statusVector,
 									  ConfObject* providerConfiguration)
 {
 	//THD_init();
-	TEXT expandedName [MAXPATHLEN];
-	ISC_expand_filename(translatedName, strlen (translatedName), expandedName);
+	//TEXT expandedName [MAXPATHLEN];
+	//ISC_expand_filename(translatedName, strlen (translatedName), expandedName);
 	
-	return REM_attach_database (statusVector, orgName, 
-											 (RDatabase**) dbHandle, dpbLength, dpb, 
-											 expandedName, databaseConfiguration, providerConfiguration);
+	return REM_attach_database (statusVector, orgName, (RDatabase**) dbHandle, 
+								dpbLength, dpb, 
+								translatedName, databaseConfiguration, providerConfiguration);
 }
 
 

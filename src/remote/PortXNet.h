@@ -36,6 +36,7 @@
 
 class XNetConnection;
 class XNetMappedFile;
+//class ConfObject;
 
 class PortXNet : public Port
 {
@@ -44,9 +45,9 @@ public:
 	virtual ~PortXNet(void);
 	static bool_t getBytes(XDR* xdrs, SCHAR* buff, u_int count);
 	static bool_t putBytes(XDR* xdrs, const SCHAR* buff, u_int count);
-	static PortXNet* analyze(TEXT* file_name, USHORT* file_length, ISC_STATUS *status_vector, const TEXT* node_name, const TEXT* user_string, bool uv_flag);
-	static PortXNet* connect(const TEXT* name, Packet* packet, ISC_STATUS *status_vector, int flag);
-	PortXNet(PortXNet* parent, UCHAR* send_buffer, int send_length, UCHAR* receive_buffer, int receive_length);
+	static PortXNet* analyze(ConfObject *configuration, TEXT* file_name, USHORT* file_length, ISC_STATUS *status_vector, const TEXT* node_name, const TEXT* user_string, bool uv_flag);
+	static PortXNet* connect(ConfObject *configuration, const TEXT* name, Packet* packet, ISC_STATUS *status_vector, int flag);
+	PortXNet(PortXNet* parent, XNetConnection *connection);
 	virtual void disconnect(void);
 
 	int xdrCreate(XDR* xdrs, UCHAR* buffer, int length, enum xdr_op x_op);
