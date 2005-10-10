@@ -956,10 +956,12 @@ Port* PortXNet::receive(Packet* packet)
 			waitVector[count++] = port->port_xcc->recvChannel.channelFilled;
 			}
 			
+		int index;
+
 #ifdef WIN_NT
 		//DWORD wait_res = WaitForSingleObject(xnet_connect_event,INFINITE);
 		DWORD wait_res = WaitForMultipleObjects(count, waitVector, false, INFINITE);
-		int index = wait_res - WAIT_OBJECT_0;
+		index = wait_res - WAIT_OBJECT_0;
 #endif
 
 		PortXNet *port = portVector[index];
@@ -1428,10 +1430,12 @@ PortXNet* PortXNet::getServerPort(PortXNet *parent, int client_pid, XNetMappedFi
 
 		// Open client process handle to watch clients health during communication session
 		
+#ifdef WIN_NT
 		xcc->xcc_proc_h = OpenProcess(SYNCHRONIZE, 0, client_pid);
 		
 		if (!xcc->xcc_proc_h) 
 			error("OpenProcess");
+#endif
 
 		xps = (XPS) xcc->xcc_mapped_addr;
 		xps->xps_client_proc_id = client_pid;
@@ -1546,6 +1550,7 @@ bool PortXNet::serverInit(void)
 		xnet_response_event = XNetChannel::createEvent(XNET_E_RESPONSE_EVENT);
 
 		sprintf(name_buffer, XNET_MA_CONNECT_MAP, XNET_PREFIX);
+#ifdef WIN_NT
 		xnet_connect_map_h = CreateFileMapping(INVALID_HANDLE_VALUE,
 												ISC_get_security_desc(),
 												PAGE_READWRITE,
@@ -1558,6 +1563,9 @@ bool PortXNet::serverInit(void)
 
 		xnet_connect_map = MapViewOfFile(xnet_connect_map_h, FILE_MAP_WRITE, 0L, 0L,
 										 sizeof(XNetResponse));
+
+#endif //WIN_NT
+
 		if (!xnet_connect_map)
 			error("MapViewOfFile");
 	
