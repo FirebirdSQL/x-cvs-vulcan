@@ -218,5 +218,7 @@ void XNetConnection::postReceive(void)
 
 bool XNetConnection::stillAlive(void)
 {
+#ifdef WIN_NT
 	return WaitForSingleObject(xcc_proc_h, 1) == WAIT_TIMEOUT;			
+#endif
 }

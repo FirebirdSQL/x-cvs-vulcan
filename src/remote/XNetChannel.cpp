@@ -136,6 +136,7 @@ const char* XNetChannel::genName(bool eventChannel, bool toServer, bool filledEv
 
 void* XNetChannel::preSend(int timeout)
 {
+#ifdef WIN_NT
 	DWORD ret = WaitForSingleObject(channelEmptied, timeout);
 	
 	if (ret == WAIT_OBJECT_0)
@@ -143,6 +144,7 @@ void* XNetChannel::preSend(int timeout)
 		
 	if (ret != WAIT_TIMEOUT)
 		error ("WaitForSingleObject");
+#endif
 
 	return NULL;
 }
@@ -151,12 +153,15 @@ void XNetChannel::send(int length)
 {
 	channelControl->xch_length = length;
 	
+#ifdef WIN_NT
 	if (!SetEvent(channelFilled))
 		error ("SetEvent(channelFilled)");
+#endif
 }
 
 void* XNetChannel::receive(int timeout)
 {
+#ifdef WIN_NT
 	DWORD ret = WaitForSingleObject(channelFilled, timeout);
 	
 	if (ret == WAIT_OBJECT_0)
@@ -164,14 +169,17 @@ void* XNetChannel::receive(int timeout)
 		
 	if (ret != WAIT_TIMEOUT)
 		error ("WaitForSingleObject(channelFilled)");
+#endif
 
 	return NULL;
 }
 
 void XNetChannel::postReceive(void)
 {
+#ifdef WIN_NT
 	if (!SetEvent(channelEmptied))
 		error ("SetEvent(channelEmptied)");
+#endif
 }
 
 int XNetChannel::getMsgLength(void)
