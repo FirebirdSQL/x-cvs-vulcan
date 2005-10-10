@@ -266,6 +266,10 @@ public:
 	void setRequest(Request* request);
 	bool parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, CompilerScratch* csb);
 	void setBlrBlobId(const void* blobId);
+#ifdef SHARED_CACHE
+	SyncObject	syncOutputs;
+#endif
+
 };
 #endif
 
