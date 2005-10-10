@@ -24,7 +24,6 @@ ProcParam::ProcParam (dsql_fld *field)
 	fld_scale = field->fld_scale;				/* used by DSQL */
 	fld_sub_type = field->fld_sub_type;
 	fld_precision = field->fld_precision;
-//	UCHAR		fld_length;			/* Field name length */
 	dsqlField = field;
 }
 
