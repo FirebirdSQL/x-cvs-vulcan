@@ -3910,7 +3910,8 @@ static bool make_version(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 							ERR_post(isc_no_meta_update,
 									isc_arg_gds, isc_random,
 									isc_arg_string, ERR_cstring(work->dfw_name),
-									status[0], status[1], status[2], status[3],
+									isc_arg_gds, isc_text_subtype, isc_arg_number, 
+									(ISC_STATUS) tempField->tfb_desc.dsc_sub_type,
 									0);
 							}
 
