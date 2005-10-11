@@ -64,6 +64,7 @@ public:
 	static HANDLE	openMutex(const char* pattern);
 	static HANDLE	createMutex(const char* pattern);
 	static void		closeMutex(HANDLE* handlePtr);
+	static void		releaseMutex(HANDLE handle);
 };
 
 #endif

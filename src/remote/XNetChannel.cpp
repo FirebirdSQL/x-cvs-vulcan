@@ -104,6 +104,10 @@ HANDLE XNetChannel::openEvent(const char* name)
 
 void XNetChannel::error(const char* operation)
 {
+#ifdef WIN_NT
+	int error = GetLastError();
+#endif
+
 	throw -1;
 }
 
@@ -240,4 +244,11 @@ void XNetChannel::closeMutex(HANDLE* handlePtr)
 #endif // WIN_NT
 		*handlePtr = 0;
 		}
+}
+
+void XNetChannel::releaseMutex(HANDLE handle)
+{
+#ifdef WIN_NT
+		ReleaseMutex(handle);
+#endif // WIN_NT
 }

@@ -146,8 +146,8 @@ public:
 	 */
 	ISC_STATUS	compile(P_CMPL*, Packet*);
 	ISC_STATUS	ddl(P_DDL*, Packet*);
-	void	disconnect(Packet*, Packet*);
-	void	drop_database(P_RLSE*, Packet*);
+	virtual void	disconnect(Packet*, Packet*);
+	virtual void	drop_database(P_RLSE*, Packet*);
 
 	ISC_STATUS	end_blob(P_OP, P_RLSE*, Packet*);
 	ISC_STATUS	end_database(P_RLSE*, Packet*);

@@ -345,10 +345,10 @@
 				RelativePath="..\..\..\src\remote\XNetChannel.cpp">
 			</File>
 			<File
-				RelativePath=".\xnetconnection.cpp">
+				RelativePath="..\..\..\src\remote\XNetConnection.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\XNetConnection.cpp">
+				RelativePath=".\xnetconnection.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\XNetMappedFile.cpp">
@@ -644,10 +644,10 @@
 				RelativePath="..\..\..\src\remote\window_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\wnet_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xdr.h">

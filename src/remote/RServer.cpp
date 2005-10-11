@@ -193,6 +193,9 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 	Sync sync (&port->syncRequest, "RServer::processPacket");
 	sync.lock(Exclusive);
 	
+	if (result)
+		*result = port;
+	
 	try 
 		{
 		switch (op = receive->p_operation)
@@ -240,6 +243,7 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 			case op_exit:
 				if (!(server = port->port_server))
 					break;
+					
 				if ((server->srvr_flags & SRVR_multi_client) && port != server->srvr_parent_port) 
 					{
 					sync.unlock();
@@ -247,8 +251,10 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 					port = NULL;
 					break;
 					}
+					
 				if ((server->srvr_flags & SRVR_multi_client) && port == server->srvr_parent_port)
 					gds__log("SERVER/processPacket: Multi-client server shutdown", 0);
+					
 				sync.unlock();
 				port->disconnect(send, receive);
 
@@ -447,10 +453,6 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 			port->disconnect(send, receive);
 			port = NULL;
 			}
-
-		if (result)
-			*result = port;
-
 		}
 	catch (OSRIException &exception) 
 		{

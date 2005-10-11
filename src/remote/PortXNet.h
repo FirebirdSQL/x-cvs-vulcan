@@ -67,9 +67,7 @@ public:
 	void genError(ISC_STATUS status, ...);
 	static PortXNet* reconnect(int client_pid, ISC_STATUS *status_vector);
 	static PortXNet* getServerPort(PortXNet *parent, int client_pid, XNetMappedFile *xpm, ULONG map_num, ULONG slot_num, time_t timestamp, ISC_STATUS *status_vector);
-	static bool serverInit(void);
 	static XNetMappedFile* getFreeSlot(ULONG* map_num, ULONG* slot_num, time_t* timestamp);
-	static bool connectInit(void);
 	static PortXNet* connect(int server_flag, ISC_STATUS *status_vector);
 	static void error(const char* operation);
 	static bool_t read(XDR* xdrs);
@@ -80,6 +78,8 @@ public:
 	HANDLE			*waitVector;
 	PortXNet		**portVector;
 	void init(void);
+	virtual void addRef(void);
+	virtual void release(void);
 };
 
 #endif
