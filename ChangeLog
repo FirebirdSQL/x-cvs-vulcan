@@ -1,3 +1,73 @@
+2005-10-10 23:24  jimstarkey
+
+	* vulcan/src/remote/PortXNet.cpp:
+	
+	Finished second pass cleanup
+
+2005-10-10 23:20  jimstarkey
+
+	* vulcan/src/remote/: PortXNet.cpp, RServer.cpp, XNetChannel.cpp,
+	XNetChannel.h, xnet.h:
+	
+	Second pass cleanup of unnecesssary conditionals.
+
+2005-10-10 22:59  awharrison
+
+	* vulcan/src/jrd/dfw.epp:
+	
+	Produce the full error message when a text subtype validation fails
+
+2005-10-10 22:50  jimstarkey
+
+	* vulcan/src/remote/: XNetChannel.cpp, XNetConnection.cpp:
+	
+	Cleaned up XNet to compile on Linux
+
+2005-10-10 22:45  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/remote/remote.vcproj,
+	builds/VisualStudio7/winserver/winserver.vcproj,
+	src/jrd/isc_file.cpp, src/remote/Port.cpp, src/remote/PortXNet.cpp,
+	src/remote/PortXNet.h, src/remote/Remote8.cpp,
+	src/remote/XNetChannel.cpp, src/remote/XNetChannel.h,
+	src/remote/XNetConnection.cpp, src/remote/XNetConnection.h,
+	src/remote/XNetMappedFile.cpp, src/remote/XNetMappedFile.h,
+	src/remote/interface.cpp, src/remote/xdr.cpp, src/remote/xnet.h,
+	src/remote/os/win32/srvr_w32.cpp, src/winserver/winserver.vcproj:
+	
+	Got XNet working.  Finally.
+
+2005-10-10 18:57  awharrison
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Rationalized the locking of field lists while walking them from
+	pass1_field by putting the iteration in a subroutine and locking
+	the list for the duration of the subroutine.
+
+2005-10-10 18:54  awharrison
+
+	* vulcan/src/jrd/ProcParam.cpp:
+	
+	Remove commented out code
+
+2005-10-10 18:52  awharrison
+
+	* vulcan/src/jrd/Procedure.h:
+	
+	Add a syncFields object to the procedure to protect the output
+	parameter list while it's being walked
+
+2005-10-10 18:51  awharrison
+
+	* vulcan/src/jrd/Procedure.cpp:
+	
+	Take out the code that linked the dsql_fld blocks.  Pass1 now walks
+	ProcParams rather than dsql_flds when looking for an output
+	parameter from a procedure.  This is part of the greater goal of
+	getting rid of dsql_fld blocks in procedure parameters as
+	redundant.
+
 2005-10-09 17:54  jimstarkey
 
 	* vulcan/src/remote/: XNetChannel.cpp, XNetChannel.h,
