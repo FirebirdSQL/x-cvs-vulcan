@@ -669,7 +669,9 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 
 		// open server process handle to watch server health during communication session
 		
+#ifdef WIN_NT
 		xcc->xcc_proc_h = OpenProcess(SYNCHRONIZE, 0, xps->xps_server_proc_id);
+#endif
 		
 		if (!xcc->xcc_proc_h) 
 			error("OpenProcess");
