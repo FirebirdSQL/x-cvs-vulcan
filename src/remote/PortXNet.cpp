@@ -44,7 +44,6 @@
 #include "XNetConnection.h"
 #include "XNetChannel.h"
 #include "XNetMappedFile.h"
-#include ".\portxnet.h"
 
 #ifdef WIN_NT
 //#include <windows.h>
