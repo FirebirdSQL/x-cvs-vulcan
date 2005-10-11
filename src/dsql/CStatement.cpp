@@ -137,6 +137,7 @@ CStatement::CStatement(Attachment *attach)
 	oldParameterOrdering = database->configuration->getValue (OldParameterOrdering,OldParameterOrderingValue);
 	transaction = NULL;
 	execBlockNode = NULL;
+	tempCollationName = NULL;
 }
 
 CStatement::~CStatement()

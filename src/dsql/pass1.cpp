@@ -263,9 +263,6 @@ static void set_parameters_name(dsql_nod*, const dsql_nod*);
 static void set_parameter_name(dsql_nod*, const dsql_nod*, dsql_rel*);
 static TEXT* pass_exact_name(TEXT*);
 
-// CVC: more global variables???
-static dsql_str* global_temp_collation_name = NULL;
-
 const char* DB_KEY_STRING	= "DB_KEY"; // NTX: pseudo field name
 const int MAX_MEMBER_LIST	= 1500;	// Maximum members in "IN" list.
 									// For eg. SELECT * FROM T WHERE
@@ -572,9 +569,9 @@ dsql_nod* PASS1_node(CStatement* request, dsql_nod* input, bool proc_flag)
 			return node;
 
 		case nod_collate:
-			global_temp_collation_name = (dsql_str*) input->nod_arg[e_coll_target];
+			request->tempCollationName = (dsql_str*) input->nod_arg[e_coll_target];
 			sub1 = PASS1_node(request, input->nod_arg[e_coll_source], proc_flag);
-			global_temp_collation_name = NULL;
+			request->tempCollationName = NULL;
 			node =
 				pass1_collate(request, sub1, (dsql_str*) input->nod_arg[e_coll_target]);
 			return node;
@@ -3086,10 +3083,10 @@ static dsql_nod* pass1_constant( CStatement* request, dsql_nod* constant)
 				  0);
 		}
 
-	if (global_temp_collation_name)
+	if (request->tempCollationName)
 		{
-		const CharSetContainer* resolved_collation = request->findCollation (*global_temp_collation_name);
-			//METD_get_collation(request, global_temp_collation_name);
+		const CharSetContainer* resolved_collation = request->findCollation (*(request->tempCollationName));
+
 		if (!resolved_collation)
 			{
 			/* 
@@ -3098,7 +3095,7 @@ static dsql_nod* pass1_constant( CStatement* request, dsql_nod* constant)
 			ERRD_post(isc_sqlerr, isc_arg_number, -204, isc_arg_gds,
 					  isc_dsql_datatype_err, isc_arg_gds,
 					  isc_collation_not_found, isc_arg_string,
-					  global_temp_collation_name->str_data, 0);
+					  request->tempCollationName->str_data, 0);
 			}
 		resolved = resolved_collation;
 		}

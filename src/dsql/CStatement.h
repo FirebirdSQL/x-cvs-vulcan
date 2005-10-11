@@ -181,6 +181,7 @@ public:
 	dsql_nod	*execBlockNode;
 	dsql_nod	*syntaxTree;
 	dsql_blb	*blob;
+	dsql_str	*tempCollationName;
 	int			req_in_where_clause;	//!< processing "where clause"
 	int			req_in_group_by_clause;	//!< processing "group by clause"
 	int			req_in_having_clause;	//!< processing "having clause"
