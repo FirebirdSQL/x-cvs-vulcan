@@ -197,6 +197,9 @@
 				RelativePath="..\..\..\src\common\classes\locks.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\remote\merge.cpp">
 			</File>
 			<File
@@ -427,6 +430,12 @@
 				RelativePath="..\..\..\src\common\classes\locks.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemoryManager.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\remote\merge_proto.h">
 			</File>
 			<File
@@ -590,6 +599,15 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\..\..\src\remote\os\win32\caution.ico">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\os\win32\server.ico">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\os\win32\window.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

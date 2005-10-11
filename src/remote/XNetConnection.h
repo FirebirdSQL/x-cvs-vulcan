@@ -37,6 +37,16 @@ public:
 	XNetConnection(XNetConnection* parent);
 	XNetConnection(int mapNum, int slot);
 	~XNetConnection(void);
+	void			close(void);
+	void			open(bool eventChannel, time_t timestamp);
+	void			create(bool eventChannel, time_t timestamp);
+	static void		error(const char* operation);
+	void			init(void);
+	void*			preSend(int timeout);
+	void			send(int length);
+	void*			receive(int timeout);
+	void			postReceive(void);
+	bool			stillAlive(void);
 
     XNetConnection  *xcc_next;              /* pointer to next thread */
     XNetMappedFile	*xcc_xpm;               /* pointer back to xpm */
@@ -57,24 +67,6 @@ public:
     XNetChannel		sendChannel;			/* send channel structure */
     ULONG			xcc_flags;              /* status bits */
     UCHAR			*xcc_mapped_addr;       /* where the thread's mapped to */
-	void close(void);
-	void open(bool eventChannel, time_t timestamp);
-	void create(bool eventChannel, time_t timestamp);
-	//HANDLE openEvent(bool eventChannel, time_t timestamp, const char *pattern);
-	//HANDLE createEvent(bool eventChannel, time_t timestamp, const char* pattern);
-	//static HANDLE createEvent(const char* pattern);
-	//static HANDLE openEvent(const char* pattern);
-	static HANDLE openMutex(const char* pattern);
-	static HANDLE createMutex(const char* pattern);
-	static void closeMutex(HANDLE* handlePtr);
-	static void closeEvent(HANDLE* handlePtr);
-	static void error(const char* operation);
-	void init(void);
-	void* preSend(int timeout);
-	void send(int length);
-	void* receive(int timeout);
-	void postReceive(void);
-	bool stillAlive(void);
 };
 
 #endif

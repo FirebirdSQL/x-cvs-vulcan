@@ -30,11 +30,11 @@
 
 #include <stdio.h>
 #include <time.h>
-//#include <errno.h>
 #include "fbdev.h"
 #include "common.h"
 #include "XNetMappedFile.h"
 #include "isc_proto.h"
+#include "XNetChannel.h"
 
 #define XNET_MAPPED_FILE_NAME	"%s_MAP_%"ULONGFORMAT"_%"ULONGFORMAT
 #define XNET_PREFIX				"FirebirdXNET"
@@ -63,6 +63,19 @@ XNetMappedFile::XNetMappedFile(ULONG map_number, time_t timestamp, int slots_per
 	//client_maps = xpm;
 }
 
+
+XNetMappedFile::XNetMappedFile(void)
+{
+	xpm_address = NULL;
+	xpm_handle = 0;
+	xpm_number = 0;
+	xpm_count = 0;
+	xpm_timestamp = 0;
+	slotsPerMap = 0;
+	pagesPerSlot = 0;
+	xpm_flags = 0;
+}
+
 XNetMappedFile::~XNetMappedFile(void)
 {
 	close();
@@ -74,34 +87,12 @@ void XNetMappedFile::close(void)
 	closeFile(&xpm_handle);
 }
 
-bool XNetMappedFile::mapFile(bool createFlag)
+void* XNetMappedFile::mapFile(bool createFlag)
 {
-#ifdef WIN_NT
 	TEXT name_buffer[128];
 	sprintf(name_buffer, XNET_MAPPED_FILE_NAME, XNET_PREFIX, xpm_number, (ULONG) xpm_timestamp);
 	mappedSize = XPS_MAPPED_SIZE(slotsPerMap, pagesPerSlot);
-	
-	if (createFlag)
-		xpm_handle = CreateFileMapping(INVALID_HANDLE_VALUE,
-										ISC_get_security_desc(),
-										PAGE_READWRITE,
-										0L,
-										mappedSize,
-										name_buffer);
-	else
-		xpm_handle = OpenFileMapping(FILE_MAP_WRITE, FALSE, name_buffer);
-		                              
-	if (!xpm_handle || GetLastError() == ERROR_ALREADY_EXISTS)
-		return FALSE;
-
-	xpm_address = MapViewOfFile(xpm_handle, FILE_MAP_WRITE, 0, 0, mappedSize);
-								 
-	if (!xpm_address)
-		close();
-
-#endif // WIN_NT
-
-	return true;
+	return mapFile(name_buffer, mappedSize, createFlag);
 }
 
 void XNetMappedFile::unmapFile(void** handlePtr)
@@ -128,4 +119,36 @@ void XNetMappedFile::closeFile(HANDLE* handlePtr)
 
 void XNetMappedFile::addRef(void)
 {	++xpm_count;
+}
+
+void* XNetMappedFile::mapFile(const char* fileName, int mappedSize, bool createFlag)
+{
+#ifdef WIN_NT
+	
+	if (createFlag)
+		{
+		xpm_handle = CreateFileMapping(INVALID_HANDLE_VALUE,
+										ISC_get_security_desc(),
+										PAGE_READWRITE,
+										0L,
+										mappedSize,
+										fileName);
+		if (!xpm_handle || GetLastError() == ERROR_ALREADY_EXISTS)
+			XNetChannel::error("CreateFileMapping");
+		}
+	else
+		if (!(xpm_handle = OpenFileMapping(FILE_MAP_WRITE, FALSE, fileName)))
+			XNetChannel::error("CreateFileMapping");
+		                              
+	xpm_address = MapViewOfFile(xpm_handle, FILE_MAP_WRITE, 0, 0, mappedSize);
+								 
+	if (!xpm_address)
+		{
+		close();
+		XNetChannel::error("MapViewOfFile");
+		}
+
+#endif // WIN_NT
+
+	return xpm_address;
 }

@@ -45,22 +45,25 @@ public:
     HANDLE			channelFilled;
     HANDLE			channelEmptied;
     
-	void close(void);
-	static HANDLE createEvent(const char* pattern);
-	static HANDLE openEvent(const char* pattern);
-	static void closeEvent(HANDLE* handlePtr);
-	static void error(const char* operation);
-	void open(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp);
-	void create(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp);
+	void			close(void);
+	static HANDLE	createEvent(const char* pattern);
+	static HANDLE	openEvent(const char* pattern);
+	static void		closeEvent(HANDLE* handlePtr);
+	static void		error(const char* operation);
+	void			open(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp);
+	void			create(bool eventChannel, bool sendChannel, int mapNum, int slot, time_t timestamp);
 	static const char* genName(bool eventChannel, bool toServer, bool filledEvent, int mapNum, int slot, time_t timestamp, char* buffer);
-	void* preSend(int timeout);
-	void send(int length);
-	void* receive(int timeout);
-	void postReceive(void);
-	int getMsgLength(void);
-	int getMsgSize(void);
-	static bool wait(HANDLE handle, int timeout);
-	static void postEvent(HANDLE handle);
+	void*			preSend(int timeout);
+	void			send(int length);
+	void*			receive(int timeout);
+	void			postReceive(void);
+	int				getMsgLength(void);
+	int				getMsgSize(void);
+	static bool		wait(HANDLE handle, int timeout);
+	static void		postEvent(HANDLE handle);
+	static HANDLE	openMutex(const char* pattern);
+	static HANDLE	createMutex(const char* pattern);
+	static void		closeMutex(HANDLE* handlePtr);
 };
 
 #endif

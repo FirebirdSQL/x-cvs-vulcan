@@ -193,3 +193,51 @@ void XNetChannel::postEvent(HANDLE handle)
 		error ("SetEvent");
 #endif
 }
+
+
+HANDLE XNetChannel::createMutex(const char* pattern)
+{
+#ifdef WIN_NT
+	char name_buffer[128];
+	sprintf(name_buffer, pattern, XNET_PREFIX);
+	HANDLE handle = CreateMutex(ISC_get_security_desc(), FALSE, name_buffer);
+	
+	if (!handle || GetLastError() == ERROR_ALREADY_EXISTS)
+		error("CreateMutex");
+
+	return handle;
+#else
+	
+	return 0;
+
+#endif
+}
+
+HANDLE XNetChannel::openMutex(const char* pattern)
+{
+#ifdef WIN_NT
+	char name_buffer[128];
+	sprintf(name_buffer, pattern, XNET_PREFIX);
+	HANDLE handle = OpenMutex(MUTEX_ALL_ACCESS, TRUE, name_buffer);
+	
+	if (!handle) 
+		error("OpenMutex");
+		
+	return handle;
+#else
+
+	return 0;
+
+#endif
+}
+
+void XNetChannel::closeMutex(HANDLE* handlePtr)
+{
+	if (*handlePtr) 
+		{
+#ifdef WIN_NT
+		CloseHandle(*handlePtr);
+#endif // WIN_NT
+		*handlePtr = 0;
+		}
+}

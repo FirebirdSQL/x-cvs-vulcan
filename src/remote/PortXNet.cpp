@@ -36,11 +36,9 @@
 #include "../remote/proto_proto.h"
 #include "../remote/remot_proto.h"
 #include "../remote/serve_proto.h"
-//#include "../remote/os/win32/window.h"
 #include "../jrd/gds_proto.h"
 #include "../jrd/isc_proto.h"
 #include "../jrd/isc_f_proto.h"
-//#include "../jrd/thd_proto.h"
 #include "Mutex.h"
 #include "Sync.h"
 #include "XNetConnection.h"
@@ -48,7 +46,7 @@
 #include "XNetMappedFile.h"
 
 #ifdef WIN_NT
-#include <windows.h>
+//#include <windows.h>
 #define getpid	GetCurrentProcessId
 #else
 #include <errno.h>
@@ -105,8 +103,9 @@ static ULONG slots_per_map = XPS_DEF_NUM_CLI;
 static XNetMappedFile *client_maps = NULL;
 
 static HANDLE xnet_connect_mutex = 0;
-static HANDLE xnet_connect_map_h = 0;
+//static HANDLE xnet_connect_map_h = 0;
 static void  *xnet_connect_map = 0;
+static XNetMappedFile	connectFile;
 
 static HANDLE xnet_connect_event = 0;
 static HANDLE xnet_response_event = 0;
@@ -141,7 +140,7 @@ PortXNet::PortXNet(PortXNet* parent, XNetConnection *connection) : Port(0)
 		port_server = parent->port_server;
 		port_server_flags = parent->port_server_flags;
 		port_connection = parent->port_connection;
-		configuration = parent->configuration;
+		configuration = (ConfObject*) parent->configuration;
 		}
 
 	port_buff_size = connection->sendChannel.getMsgSize();
@@ -580,7 +579,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 
 	// waiting for xnet connect lock to release
 	
-#ifdef WIN_NT
 	//if (WaitForSingleObject(xnet_connect_mutex, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
 	if (!XNetChannel::wait(xnet_connect_mutex, XNET_CONNECT_TIMEOUT))
 		{
@@ -604,7 +602,8 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 	//if (WaitForSingleObject(xnet_response_event, XNET_CONNECT_TIMEOUT) != WAIT_OBJECT_0) 
 	if (!XNetChannel::wait(xnet_response_event, XNET_CONNECT_TIMEOUT))
 		{
-		ReleaseMutex(xnet_connect_mutex);
+		//ReleaseMutex(xnet_connect_mutex);
+		XNetChannel::closeMutex(&xnet_connect_mutex);
 		//xnet_connect_fini();
 		connectFini();
 				
@@ -612,7 +611,8 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 		}
 
 	memcpy(&response, xnet_connect_map, sizeof(XNetResponse));
-	ReleaseMutex(xnet_connect_mutex);
+	//ReleaseMutex(xnet_connect_mutex);
+	XNetChannel::closeMutex(&xnet_connect_mutex);
 	//xnet_connect_fini();
 	connectFini();
 
@@ -648,32 +648,11 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 			{
 			// Area hasn't been mapped. Open new file mapping.
 			
-			/***
-			sprintf(name_buffer, XNET_MAPPED_FILE_NAME, XNET_PREFIX, map_num, (ULONG) timestamp);
-			file_handle = OpenFileMapping(FILE_MAP_WRITE, FALSE, name_buffer);
-			
-			if (!file_handle) 
-				{
-				//XNET_UNLOCK;
-				error("OpenFileMapping");
-				}
-
-			mapped_address = MapViewOfFile(file_handle, FILE_MAP_WRITE, 0L, 0L,
-										   XPS_MAPPED_SIZE(slots_per_map, pages_per_slot));
-			if (!mapped_address) 
-				{
-				//XNET_UNLOCK;
-				error("MapViewOfFile");
-				}
-			***/
-			
 			xpm = new XNetMappedFile(map_num, timestamp, slots_per_map, pages_per_slot);
 			xpm->mapFile(false);
 			xpm->xpm_next = client_maps;
 			client_maps = xpm;
 			}
-
-		//XNET_UNLOCK;
 
 		xcc = new XNetConnection(map_num, slot_num);
 		xcc->xcc_map_handle = xpm->xpm_handle;
@@ -697,36 +676,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 
 		xpm->addRef();
 		xcc->open(false, timestamp);
-
-		/***
-		sprintf(name_buffer, XNET_E_C2S_DATA_CHAN_FILLED,
-				XNET_PREFIX, map_num, slot_num, (ULONG) timestamp);
-		xcc->xcc_event_send_channel_filled = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_send_channel_filled) 
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_C2S_DATA_CHAN_EMPTED,
-				XNET_PREFIX, map_num, slot_num, (ULONG) timestamp);
-		xcc->xcc_event_send_channel_empted = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_send_channel_empted)
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_S2C_DATA_CHAN_FILLED,
-				XNET_PREFIX, map_num, slot_num, (ULONG) timestamp);
-		xcc->xcc_event_recv_channel_filled = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-				
-		if (!xcc->xcc_event_recv_channel_filled)
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_S2C_DATA_CHAN_EMPTED,
-				XNET_PREFIX, map_num, slot_num, (ULONG) timestamp);
-		xcc->xcc_event_recv_channel_empted = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-				
-		if (!xcc->xcc_event_recv_channel_empted) 
-			error("xxx");
-		***/
 
 		/* added this here from the server side as this part is called by the client 
 		   and the server address need not be valid for the client -smistry 10/29/98 */
@@ -767,8 +716,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 	gds__register_cleanup(exitHandler, port);
 	port->sendPacket(packet);
 
-#endif // WIN_NT
-		
 	return port;
 }
 
@@ -899,11 +846,12 @@ void PortXNet::releaseAll(void)
 
 void PortXNet::connectFini(void)
 {
-	XNetConnection::closeMutex(&xnet_connect_mutex);
-	XNetConnection::closeEvent(&xnet_connect_event);
-	XNetConnection::closeEvent(&xnet_response_event);
-	XNetMappedFile::unmapFile(&xnet_connect_map);
-	XNetMappedFile::closeFile(&xnet_connect_map_h);
+	XNetChannel::closeMutex(&xnet_connect_mutex);
+	XNetChannel::closeEvent(&xnet_connect_event);
+	XNetChannel::closeEvent(&xnet_response_event);
+	connectFile.close();
+	//XNetMappedFile::unmapFile(&xnet_connect_map);
+	//XNetMappedFile::closeFile(&xnet_connect_map_h);
 }
 
 int PortXNet::accept(p_cnct* cnct)
@@ -1087,16 +1035,6 @@ Port* PortXNet::connect(Packet* packet, void(* secondaryConnection)(Port*))
 		xps = (XPS) parent_xcc->xcc_mapped_addr;
 
 		xcc = new XNetConnection(parent_xcc);
-		/***
-		xpm = xcc->xcc_xpm = parent_xcc->xcc_xpm;
-		xcc->xcc_map_num = parent_xcc->xcc_map_num;
-		xcc->xcc_slot = parent_xcc->xcc_slot;
-		xcc->xcc_proc_h = parent_xcc->xcc_proc_h;
-		xcc->xcc_flags = 0;
-		xcc->xcc_map_handle = parent_xcc->xcc_map_handle;
-		xcc->xcc_mapped_addr = parent_xcc->xcc_mapped_addr;
-		xcc->xcc_xpm->xpm_count++;
-		***/
 		xcc->open(true, xpm->xpm_timestamp);
 		/***
 		sprintf(name_buffer, XNET_E_C2S_EVNT_CHAN_FILLED,
@@ -1152,17 +1090,9 @@ Port* PortXNet::connect(Packet* packet, void(* secondaryConnection)(Port*))
 		// alloc new port and link xcc to it
 		
 		new_port = new PortXNet(NULL, xcc);
-								/***
-								xcc->xcc_send_channel->xch_client_ptr,
-								xcc->xcc_send_channel->xch_size,
-								xcc->xcc_recv_channel->xch_client_ptr,
-								xcc->xcc_recv_channel->xch_size);
-								***/
-								
 		port_async = new_port;
 		new_port->port_flags = port_flags & PORT_no_oob;
 		new_port->port_flags |= PORT_async;
-		//new_port->port_xcc = xcc;
 		gds__register_cleanup(exitHandler, new_port);
 
 		return new_port;
@@ -1536,38 +1466,14 @@ bool PortXNet::serverInit(void)
 	slots_per_map = XPS_MAX_NUM_CLI;
 	pages_per_slot = XPS_MAX_PAGES_PER_CLI;
 
-	xnet_connect_mutex = 0;
-	xnet_connect_map_h = 0;
-	xnet_connect_map = 0;
-
-	xnet_connect_event = 0;
-	xnet_response_event = 0;
-
 	try 
 		{
-		xnet_connect_mutex = XNetConnection::createMutex(XNET_MU_CONNECT_MUTEX);
+		xnet_connect_mutex = XNetChannel::createMutex(XNET_MU_CONNECT_MUTEX);
 		xnet_connect_event = XNetChannel::createEvent(XNET_E_CONNECT_EVENT);
 		xnet_response_event = XNetChannel::createEvent(XNET_E_RESPONSE_EVENT);
 
 		sprintf(name_buffer, XNET_MA_CONNECT_MAP, XNET_PREFIX);
-#ifdef WIN_NT
-		xnet_connect_map_h = CreateFileMapping(INVALID_HANDLE_VALUE,
-												ISC_get_security_desc(),
-												PAGE_READWRITE,
-												0,
-												sizeof(XNetResponse),
-												name_buffer);
-												
-		if (!xnet_connect_map_h || (xnet_connect_map_h && ERRNO == ERROR_ALREADY_EXISTS)) 
-			error("CreateFileMapping");
-
-		xnet_connect_map = MapViewOfFile(xnet_connect_map_h, FILE_MAP_WRITE, 0L, 0L,
-										 sizeof(XNetResponse));
-
-#endif //WIN_NT
-
-		if (!xnet_connect_map)
-			error("MapViewOfFile");
+		xnet_connect_map = connectFile.mapFile(name_buffer, sizeof(XNetResponse), true);
 	
 		return TRUE;
 		}
@@ -1633,34 +1539,16 @@ bool PortXNet::connectInit(void)
 {
 	TEXT name_buffer[128];
 
-	xnet_connect_mutex = 0;
-	xnet_connect_map_h = 0;
-	xnet_connect_map = 0;
-
-	xnet_connect_event = 0;
-	xnet_response_event = 0;
-
-#ifdef WIN_NT
-
 	try 
 		{
+		sprintf(name_buffer, XNET_MA_CONNECT_MAP, XNET_PREFIX);
+		xnet_connect_map = connectFile.mapFile(name_buffer, sizeof(XNetResponse), false);
 		//sprintf(name_buffer, XNET_MU_CONNECT_MUTEX, XNET_PREFIX);
 		//xnet_connect_mutex = OpenMutex(MUTEX_ALL_ACCESS, TRUE, name_buffer);
 		
-		xnet_connect_mutex = XNetConnection::openMutex(XNET_MU_CONNECT_MUTEX);
+		xnet_connect_mutex = XNetChannel::openMutex(XNET_MU_CONNECT_MUTEX);
 		xnet_connect_event = XNetChannel::openEvent(XNET_E_CONNECT_EVENT);
 		xnet_response_event = XNetChannel::openEvent(XNET_E_RESPONSE_EVENT);
-
-		sprintf(name_buffer, XNET_MA_CONNECT_MAP, XNET_PREFIX);
-		xnet_connect_map_h = OpenFileMapping(FILE_MAP_WRITE, TRUE, name_buffer);
-		
-		if (!xnet_connect_map_h) 
-			error("OpenFileMapping");
-
-		xnet_connect_map = MapViewOfFile(xnet_connect_map_h, FILE_MAP_WRITE, 0, 0, sizeof(XNetResponse));
-						  
-		if (!xnet_connect_map)
-			error("MapViewOfFile");
 
 		return TRUE;
 		}
@@ -1669,7 +1557,6 @@ bool PortXNet::connectInit(void)
 		//xnet_connect_fini();
 		connectFini();
 		}
-#endif // WIN_NT
 
 	return FALSE;
 }

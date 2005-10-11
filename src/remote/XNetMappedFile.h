@@ -59,6 +59,7 @@
 class XNetMappedFile
 {
 public:
+	XNetMappedFile(void);
 	XNetMappedFile(ULONG map_number, time_t timestamp, int slots_per_map, int pages_per_slot);
 	~XNetMappedFile(void);
 
@@ -74,11 +75,12 @@ public:
     int				pagesPerSlot;
     int				mappedSize;
     
-	bool mapFile(bool createFlag);
+	void* mapFile(bool createFlag);
 	void close(void);
 	static void unmapFile(void** handlePtr);
 	static void closeFile(HANDLE* handlePtr);
 	void addRef(void);
+	void* mapFile(const char* fileName, int mappedSize, bool createFlag);
 };
 
 #endif
