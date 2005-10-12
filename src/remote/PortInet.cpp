@@ -2249,8 +2249,7 @@ static PortInet* inet_try_connect(ConfObject *configuration,
 
 	if (!port) 
 		{
-		//ALLR_release((BLK) rdb);
-		delete rdb;
+		rdb->release();
 		return NULL;
 		}
 
@@ -2263,8 +2262,7 @@ static PortInet* inet_try_connect(ConfObject *configuration,
 		{
 		port->error("receive in try_connect", isc_net_connect_err, ERRNO);
 		port->disconnect();
-		//ALLR_release((BLK) rdb);
-		delete rdb;
+		rdb->release();
 		return NULL;
 		}
 
