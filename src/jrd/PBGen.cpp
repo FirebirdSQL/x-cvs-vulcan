@@ -67,6 +67,13 @@ void PBGen::putParameter(UCHAR parameter, int length, const TEXT* string)
 	appendCharacters(length, string);
 }
 
+void PBGen::putParameter(UCHAR parameter, int length, const UCHAR* string)
+{
+	appendUCHAR(parameter);
+	appendUCHAR(length);
+	appendData(length, string);
+}
+
 void PBGen::putParameter(UCHAR parameter)
 {
 	appendUCHAR(parameter);

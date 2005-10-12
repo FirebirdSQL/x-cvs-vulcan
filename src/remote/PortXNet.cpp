@@ -172,6 +172,7 @@ void PortXNet::init(void)
 	port_type = port_xnet;
 	port_state = state_pending;
 	port_xcc = NULL;
+	port_flags |= PORT_cwd_reqd;
 }
 
 bool_t PortXNet::getBytes(XDR* xdrs, SCHAR* buff, u_int count)
@@ -334,7 +335,8 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 
 	const TEXT *truncatedName = fileName + sizeof(REMOTE_PREFIX) - 1;	
 	TEXT expandedName [MAXPATHLEN];
-	ISC_expand_filename(truncatedName, strlen (truncatedName), expandedName);
+	//ISC_expand_filename(truncatedName, strlen (truncatedName), expandedName);
+	strcpy(expandedName, truncatedName);
 	strcpy(fileName, expandedName);
 	*file_length = strlen(expandedName);
 	

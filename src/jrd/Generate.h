@@ -45,6 +45,7 @@ public:
 	UCHAR	*buffer;
 	UCHAR	*bufferYellow;
 	UCHAR	*ptr;
+	UCHAR	fixedBuffer[512];
 	int		bufferSize;
 
 	void appendInt (int value);

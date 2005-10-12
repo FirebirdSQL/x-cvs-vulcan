@@ -68,6 +68,7 @@
 #include "ConfObj.h"
 #include "OSRIException.h"
 #include "Threads.h"
+#include "PBGen.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -77,7 +78,6 @@
 #include "PortXNet.h"
 #include "../jrd/isc_proto.h"
 #include "../remote/os/win32/wnet_proto.h"
-//#include "../remote/xnet_proto.h"
 #endif
 
 #ifdef VMS
@@ -97,7 +97,7 @@ static USHORT ostype = 0;
 #endif
 #endif // WIN_NT
 
-#define ISC_USER		"ISC_USER"
+#define ISC_USER			"ISC_USER"
 #define ISC_PASSWORD		"ISC_PASSWORD"
 #define MAX_USER_LENGTH		33
 #define MAX_OTHER_PARAMS	(1 + 1 + sizeof(port->port_dummy_packet_interval))
@@ -134,9 +134,13 @@ static ISC_STATUS fetch_blob(ISC_STATUS*, RStatement*, USHORT, const UCHAR*, USH
 						USHORT, UCHAR*);
 static RVNT find_event(Port*, SLONG);
 static bool get_new_dpb(const UCHAR*, SSHORT, bool, UCHAR*, USHORT*, TEXT*);
+static bool rewriteDpb(int dpbLength, const UCHAR *dpb, PBGen *dpbGen, TEXT *userName);
+static void extendDpb(Port *port, PBGen *dpbGen);
+
 #ifdef UNIX
 static bool get_single_user(USHORT, const UCHAR*);
 #endif
+
 static ISC_STATUS handle_error(ISC_STATUS *, ISC_STATUS);
 static ISC_STATUS info(ISC_STATUS*, RDatabase*, P_OP, USHORT, USHORT, USHORT,
 					const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
@@ -263,13 +267,13 @@ static Threads	*threads;// = new Threads;
 
 
 ISC_STATUS REM_attach_database(ISC_STATUS*	user_status,
-						   const SCHAR*	file_name,
-						   RDatabase**			handle,
-						   SSHORT		dpb_length,
-						   const UCHAR*	dpb,
-						   const TEXT*	expanded_filename,
-						   ConfObject* databaseConfiguration,
-						   ConfObject* providerConfiguration)
+								const TEXT*	file_name,
+								RDatabase**	handle,
+								SSHORT		dpb_length,
+								const UCHAR*	dpb,
+								const TEXT*	expanded_filename,
+								ConfObject* databaseConfiguration,
+								ConfObject* providerConfiguration)
 {
 /**************************************
  *
@@ -303,10 +307,10 @@ ISC_STATUS REM_attach_database(ISC_STATUS*	user_status,
 	strcpy(expanded_name, expanded_filename);
 	USHORT length = (USHORT) strlen(expanded_name);
 
+	/***
 	UCHAR new_dpb[MAXPATHLEN];
 	UCHAR *new_dpb_ptr = new_dpb;
-	Port* port = 0; // MAX_OTHER_PARAMS uses port_dummy_packet_interval
-
+	
 	if ((dpb_length + MAX_USER_LENGTH + MAX_PASSWORD_ENC_LENGTH + MAX_OTHER_PARAMS) > sizeof(new_dpb))
 		{
 		new_dpb_ptr = new UCHAR [dpb_length + MAX_USER_LENGTH + MAX_PASSWORD_ENC_LENGTH + MAX_OTHER_PARAMS];
@@ -316,26 +320,24 @@ ISC_STATUS REM_attach_database(ISC_STATUS*	user_status,
 			return error(user_status);
 			}
 		}
-
-	TEXT user_string[256];
+	
 	USHORT new_dpb_length;
 	const bool user_verification = get_new_dpb(dpb, dpb_length, true, new_dpb_ptr,
 												&new_dpb_length, user_string);
+	***/
 
-	const TEXT* us = (user_string[0]) ? user_string : 0;
+	PBGen newDpb(isc_dpb_version1);
+	TEXT user_string[256];
+	bool user_verification = rewriteDpb(dpb_length, dpb, &newDpb, user_string);
+	const TEXT* us = (user_string[0]) ? user_string : NULL;
 	TEXT node_name[MAXPATHLEN];
 	memset(node_name, 0, sizeof (node_name));
 
-	port = analyze(configuration, expanded_name, &length, user_status, us,
-					user_verification, dpb, dpb_length, node_name);
+	Port* port = analyze(configuration, expanded_name, &length, user_status, us,
+						 user_verification, dpb, dpb_length, node_name);
 					
 	if (!port)
-		{
-		if (new_dpb_ptr != new_dpb) 
-			delete [] new_dpb_ptr;
-			
 		return error(user_status);
-		}
 
 	RDatabase* rdb = port->port_context;
 	rdb->rdb_status_vector = user_status;
@@ -346,14 +348,13 @@ ISC_STATUS REM_attach_database(ISC_STATUS*	user_status,
 		   the DPB so the server can pay attention to it.  Note: allocation code must
 		   ensure sufficient space has been added. */
 
-		add_other_params(port, new_dpb_ptr, &new_dpb_length);
-		add_working_directory(new_dpb_ptr, &new_dpb_length, node_name);
+		extendDpb(port, &newDpb);
+		//add_other_params(port, new_dpb_ptr, &new_dpb_length);
+		//add_working_directory(new_dpb_ptr, &new_dpb_length, node_name);
 
 		const bool result = init(user_status, port, op_attach, expanded_name, length,
-								 new_dpb_ptr, new_dpb_length);
+								 newDpb.buffer, newDpb.getLength());
 
-		if (new_dpb_ptr != new_dpb) 
-			delete [] new_dpb_ptr;
 		if (!result)
 			return error(user_status);
 
@@ -4669,16 +4670,18 @@ static void add_other_params( Port* port, UCHAR* dpb_or_spb, USHORT* length)
 	fb_assert(isc_dpb_dummy_packet_interval == isc_spb_dummy_packet_interval);
 	fb_assert(isc_dpb_version1 == isc_spb_version1);
 
-	if (port->port_flags & PORT_dummy_pckt_set) {
+	if (port->port_flags & PORT_dummy_pckt_set) 
+		{
 		if (*length == 0)
 			dpb_or_spb[(*length)++] = isc_dpb_version1;
+			
 		dpb_or_spb[(*length)++] = isc_dpb_dummy_packet_interval;
 		dpb_or_spb[(*length)++] = sizeof(port->port_dummy_packet_interval);
 		stuff_vax_integer(&dpb_or_spb[*length],
 						  port->port_dummy_packet_interval,
 						  sizeof(port->port_dummy_packet_interval));
 		*length += sizeof(port->port_dummy_packet_interval);
-	}
+		}
 }
 
 
@@ -4700,22 +4703,22 @@ static void add_working_directory(UCHAR*	dpb_or_spb,
 	char cwd[MAXPATHLEN];
 
 	if (node_name && !strcmp(node_name, "localhost"))
-	{
+		{
 #ifdef HAVE_GETCWD
 		getcwd(cwd, sizeof(cwd));
 #else
 		getwd(cwd);
 #endif
-	}
+		}
 	else
-	{
 		/** Remote database. Pass Null **/
 		cwd[0] = 0;
-	}
+
 	const USHORT len = strlen(cwd);
-	if (*length == 0) {
+	
+	if (*length == 0) 
 		dpb_or_spb[(*length)++] = isc_dpb_version1;
-	}
+
 	dpb_or_spb[(*length)++] = isc_dpb_working_directory;
 	dpb_or_spb[(*length)++] = len;
 	memcpy(&(dpb_or_spb[(*length)]), cwd, len);
@@ -5864,6 +5867,98 @@ static bool get_new_dpb(const UCHAR*	dpb,
 		*new_dpb_length = 0;
 
 	return result;
+}
+
+static bool rewriteDpb(int dpbLength, const UCHAR *dpb, PBGen *dpbGen, TEXT *userName)
+{
+/******************************************
+ *
+ *		r e w r i t e D p b
+ *
+ ******************************************
+ *
+ * Functional description
+ *		Expand the dpb with useful stuff, screwing up the password, if possible.
+ *
+ ******************************************/
+	const UCHAR	*end = dpb + dpbLength;
+	*userName = 0;
+	
+	if (dpb < end && *dpb++ != isc_dpb_version1)
+		{
+		dpbGen->appendData(dpbLength - 1, dpb);
+		return false;
+		}
+	
+	const UCHAR *password = NULL;
+	int passwordLength;
+	bool hit = false;
+	
+	for (int length; dpb < end; dpb += length)
+		{
+		UCHAR type = *dpb++;
+		length = *dpb++;
+		
+		switch (type)
+			{
+			case isc_dpb_sys_user_name:
+				memcpy(userName, dpb, length);
+				userName[length] = 0;
+				break;
+			
+			case isc_dpb_password:
+				passwordLength = length;
+				password = dpb;
+				break;
+
+			case isc_dpb_user_name:
+				hit = true;
+			default:
+				dpbGen->putParameter(type, length, dpb);
+			}
+		}
+	
+	if (password)
+		{
+		TEXT pw_buffer[ENCRYPT_SIZE];
+		int l = MIN(passwordLength, MAX_PASSWORD_ENC_LENGTH);
+		memcpy(pw_buffer, password, l);
+		pw_buffer[l] = 0;
+		TEXT temp[ENCRYPT_SIZE];
+		ENC_crypt(temp, sizeof(temp), pw_buffer, PASSWORD_SALT);
+		dpbGen->putParameter(isc_dpb_password_enc, temp + 2);
+		}
+	
+	return hit;
+}
+
+static void extendDpb(Port *port, PBGen *dpbGen)
+{
+/******************************************
+ *
+ *		e x t e n d D p b
+ *
+ ******************************************
+ *
+ * Functional description
+ *		Extend dpb with even more crap
+ *
+ ******************************************/
+
+	if (port->port_flags & PORT_dummy_pckt_set)
+		dpbGen->putParameter(isc_dpb_dummy_packet_interval, port->port_dummy_packet_interval);
+
+	if (port->port_flags & PORT_cwd_reqd)
+		{
+		char cwd[MAXPATHLEN];
+#ifdef HAVE_GETCWD
+		getcwd(cwd, sizeof(cwd));
+#else
+		getwd(cwd);
+#endif
+
+		dpbGen->putParameter(isc_dpb_working_directory, cwd);
+		}
 }
 
 #ifdef UNIX

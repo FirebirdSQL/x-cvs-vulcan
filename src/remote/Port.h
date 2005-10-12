@@ -37,17 +37,18 @@
 #include "RefObject.h"
 #include "JString.h"
 
-#define PORT_symmetric		1	/* Server/client archiectures are symmetic */
-#define PORT_rpc			2	/* Protocol is remote procedure call */
-#define PORT_pend_ack		4	/* An ACK is pending on the port */
-#define PORT_broken			8	/* Connect is broken */
-#define PORT_async			16	/* Port is asynchronous channel for events */
-#define PORT_no_oob			32	/* Don't send out of band data */
-#define PORT_disconnect		64	/* Disconnect is in progress */
-#define PORT_pend_rec		128	/* A record is pending on the port */
-#define PORT_not_trusted	256	/* Connection is from an untrusted node */
-#define PORT_impersonate	512	/* A remote user is being impersonated */
+#define PORT_symmetric		1		/* Server/client archiectures are symmetic */
+#define PORT_rpc			2		/* Protocol is remote procedure call */
+#define PORT_pend_ack		4		/* An ACK is pending on the port */
+#define PORT_broken			8		/* Connect is broken */
+#define PORT_async			16		/* Port is asynchronous channel for events */
+#define PORT_no_oob			32		/* Don't send out of band data */
+#define PORT_disconnect		64		/* Disconnect is in progress */
+#define PORT_pend_rec		128		/* A record is pending on the port */
+#define PORT_not_trusted	256		/* Connection is from an untrusted node */
+#define PORT_impersonate	512		/* A remote user is being impersonated */
 #define PORT_dummy_pckt_set	1024	/* A dummy packet interval is set  */
+#define PORT_cwd_reqd		2048	/* A current working directory is expected/required */
 
 enum rem_port_t
 {

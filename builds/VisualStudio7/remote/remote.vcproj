@@ -159,6 +159,9 @@
 				RelativePath="..\..\..\src\jrd\gds.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\Generate.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\GenericMove.cpp">
 			</File>
 			<File
@@ -229,6 +232,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\PathName.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PBGen.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\Port.cpp">
@@ -348,9 +354,6 @@
 				RelativePath="..\..\..\src\remote\XNetConnection.cpp">
 			</File>
 			<File
-				RelativePath=".\xnetconnection.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\remote\XNetMappedFile.cpp">
 			</File>
 		</Filter>
@@ -411,6 +414,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\gds.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Generate.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\GenericMove.h">
@@ -501,6 +507,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\PathName.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\Port.h">
@@ -644,10 +653,10 @@
 				RelativePath="..\..\..\src\remote\window_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\wnet_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\wnet_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xdr.h">

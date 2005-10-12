@@ -36,14 +36,15 @@
 
 Generate::Generate(void)
 {
-	bufferSize = ALLOCATION_DELTA;
-	ptr = buffer = new UCHAR [ALLOCATION_DELTA];
+	bufferSize = sizeof(fixedBuffer);	//ALLOCATION_DELTA;
+	ptr = buffer = fixedBuffer;			//new UCHAR [ALLOCATION_DELTA];
 	bufferYellow = buffer + bufferSize - 1;
 }
 
 Generate::~Generate(void)
 {
-	delete [] buffer;
+	if (buffer != fixedBuffer)
+		delete [] buffer;
 }
 
 void Generate::appendUCHAR(UCHAR value)
@@ -76,7 +77,9 @@ void Generate::expandBuffer()
 	ptr = buffer + offset;
 	bufferSize = newSize;
 	bufferYellow = buffer + bufferSize;
-	delete [] oldBuffer;
+
+	if (buffer != fixedBuffer)
+		delete [] oldBuffer;
 }
 
 int Generate::getLength()

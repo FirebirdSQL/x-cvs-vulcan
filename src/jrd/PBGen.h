@@ -47,6 +47,7 @@ public:
 	void putParameter(UCHAR parameter, int length, const TEXT* string);
 	void putParameter(UCHAR parameter);
 	PBGen(UCHAR version);
+	void putParameter(UCHAR parameter, int length, const UCHAR* data);
 };
 
 #endif

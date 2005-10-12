@@ -564,15 +564,6 @@ static const char* ENCRYPT = "encrypt";
 static const char* DECRYPT = "decrypt";
 
 
-/***
-ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS*	user_status,
-								SSHORT	file_length,
-								const TEXT*	file_name,
-								Attachment** handle,
-								SSHORT	dpb_length,
-								const UCHAR*	dpb,
-								const char *providerName)
-***/
 ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status, 
 								const TEXT* orgName, 
 								const TEXT* translatedName, 

@@ -155,6 +155,9 @@
 				RelativePath="..\jrd\gds.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\Generate.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\GenericMove.cpp">
 			</File>
 			<File
@@ -222,6 +225,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\PathName.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
 				RelativePath=".\Port.cpp">
@@ -400,6 +406,9 @@
 				RelativePath="..\jrd\gds.h">
 			</File>
 			<File
+				RelativePath="..\jrd\Generate.h">
+			</File>
+			<File
 				RelativePath="..\jrd\GenericMove.h">
 			</File>
 			<File
@@ -485,6 +494,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\PathName.h">
+			</File>
+			<File
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath=".\Port.h">
@@ -625,10 +637,10 @@
 				RelativePath=".\window_proto.h">
 			</File>
 			<File
-				RelativePath=".\wnet_proto.h">
+				RelativePath=".\os\win32\wnet_proto.h">
 			</File>
 			<File
-				RelativePath=".\os\win32\wnet_proto.h">
+				RelativePath=".\wnet_proto.h">
 			</File>
 			<File
 				RelativePath=".\xdr.h">
