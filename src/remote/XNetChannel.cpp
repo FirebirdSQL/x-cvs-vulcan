@@ -35,7 +35,6 @@
 #include "isc_proto.h"
 #include "xnet.h"
 
-#define XNET_PREFIX				"FirebirdXNET"
 
 #define XNET_E_C2S_DATA_CHAN_FILLED	"%s_E_C2S_DATA_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
 #define XNET_E_CHAN	"%s_E_%s_%s_%s_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT

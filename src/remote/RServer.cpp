@@ -609,9 +609,7 @@ ISC_STATUS RServer::attachDatabase(Port* port, P_OP operation, P_ATCH* attach, P
 
 	if (!status_vector[1])
 		{
-		//port->port_context = rdb = (RDB) ALLOC(type_rdb);
 		port->port_context = rdb = new RDatabase (port);
-		
 		rdb->rdb_port = port;
 		rdb->rdb_handle = handle;
 		}
@@ -679,6 +677,7 @@ void RServer::auxRequest(Port* port, P_REQ* request, Packet* send)
 		{
 		aux_port->connect(send, 0);
 		aux_port->port_context = rdb;
+		rdb->addRef();
 		}
 
 	/* restore the port status vector */
@@ -1031,8 +1030,7 @@ void RServer::cancelOperation(Port* port)
 	RDatabase *rdb;
 	ISC_STATUS_ARRAY status_vector;
 
-	if ((port->port_flags & (PORT_async | PORT_disconnect)) ||
-		!(rdb = port->port_context))
+	if ((port->port_flags & (PORT_async | PORT_disconnect)) || !(rdb = port->port_context))
 		return;
 
 	if (rdb->rdb_handle)

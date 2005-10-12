@@ -35,25 +35,6 @@
 #include "isc_proto.h"
 #include "XNetMappedFile.h"
 
-#define XNET_PREFIX				"FirebirdXNET"
-
-#define XNET_E_C2S_FILLED	"%s_E_C2S_%s_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_C2S_EMPTED	"%s_E_C2S_%s_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_S2C_FILLED	"%s_E_S2C_%s_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_S2C_EMPTED	"%s_E_S2C_%s_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-
-/***
-#define XNET_E_C2S_DATA_CHAN_FILLED	"%s_E_C2S_DATA_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_C2S_DATA_CHAN_EMPTED	"%s_E_C2S_DATA_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_S2C_DATA_CHAN_FILLED	"%s_E_S2C_DATA_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_S2C_DATA_CHAN_EMPTED	"%s_E_S2C_DATA_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-
-#define XNET_E_C2S_EVNT_CHAN_FILLED	"%s_E_C2S_EVNT_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_C2S_EVNT_CHAN_EMPTED	"%s_E_C2S_EVNT_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_S2C_EVNT_CHAN_FILLED	"%s_E_S2C_EVNT_FILLED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_E_S2C_EVNT_CHAN_EMPTED	"%s_E_S2C_EVNT_EMPTED_%"ULONGFORMAT"_%"ULONGFORMAT"_%"ULONGFORMAT
-***/
-
 XNetConnection::XNetConnection(int mapNum, int slot)
 {
 	init();
@@ -71,6 +52,7 @@ XNetConnection::XNetConnection(XNetConnection* parent)
 	xcc_proc_h = parent->xcc_proc_h;
 	xcc_map_handle = parent->xcc_map_handle;
 	xcc_mapped_addr = parent->xcc_mapped_addr;
+	clone = true;
 	xcc_xpm->xpm_count++;
 }
 
@@ -82,6 +64,7 @@ void XNetConnection::init()
 	xcc_mapped_addr = NULL;
 	xcc_xpm = NULL;
 	xcc_slot = 0;
+	clone = false;
 }
 
 XNetConnection::~XNetConnection(void)
@@ -93,7 +76,9 @@ void XNetConnection::close(void)
 {
 	sendChannel.close();
 	recvChannel.close();
-	XNetChannel::closeEvent(&xcc_proc_h);
+	
+	if (!clone)
+		XNetChannel::closeEvent(&xcc_proc_h);
 }
 
 void XNetConnection::open(bool eventChannel, time_t timestamp)

@@ -3074,6 +3074,7 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 				return error(user_status);
 #endif
 			port->port_async->port_context = rdb;
+			rdb->addRef();
 			}
 
 		/* Add event block to port's list of active remote events */
@@ -5452,7 +5453,7 @@ static void disconnect( Port* port)
 
 	if (rdb)
 		{
-		delete rdb;
+		rdb->release();
 		port->port_context = NULL;
 		}
 		
@@ -5574,7 +5575,9 @@ static void event_thread(void *arg)
  *	Wait on auxilary mailbox for event notification.
  *
  **************************************/
+ 
 	Port *port = (Port*) arg;
+	port->addRef();
 	Packet packet;
 
 	for (;;) 
@@ -5589,7 +5592,7 @@ static void event_thread(void *arg)
 			   Clean up and leave. */
 
 			REMOTE_free_packet(port, &packet);
-			server_death(port);
+			//server_death(port);
 			break;
 			}
 
@@ -5615,7 +5618,9 @@ static void event_thread(void *arg)
 			}
 
 		REMOTE_free_packet(port, &packet);
-		}							/* end of infinite for loop */
+		}
+	
+	port->release();
 }
 #endif /* MULTI_THREAD  */
 
@@ -7075,16 +7080,12 @@ static void server_death(Port* port)
 	RDatabase* rdb = port->port_context;
 
 	if (!(port->port_flags & PORT_disconnect))
-	{
 		for (RVNT event = rdb->rdb_events; event; event = event->rvnt_next)
-		{
 			if (event->rvnt_id)
-			{
+				{
 				(*event->rvnt_ast) (event->rvnt_arg, (USHORT) 0, NULL);
 				event->rvnt_id = 0;
-			}
-		}
-	}
+				}
 
 	port->disconnect();
 }

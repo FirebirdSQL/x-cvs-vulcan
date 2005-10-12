@@ -198,15 +198,22 @@ Port::Port(int size)
 
 Port::~Port(void)
 {
+	if (port_async)
+		{
+		port_async->disconnect();
+		port_async = NULL;
+		}
+		
 	delete [] port_buffer;
 
 	if (port_context)
+		{
 		port_context->clearPort();
+		port_context->release();
+		}
 
 	if (port_parent)
 		port_parent->removeClient(this);
-		
-	delete port_context;
 }
 
 
@@ -2766,9 +2773,7 @@ ISC_STATUS Port::service_attach(P_ATCH* attach, Packet* send)
 
 	if (!status_vector[1]) 
 		{
-		//port_context = rdb = (RDB) ALLOC(type_rdb);
 		port_context = rdb = new RDatabase (this);
-		//rdb->rdb_port = this;
 		rdb->rdb_handle = handle;
 		rdb->rdb_flags |= RDB_service;
 		}

@@ -37,7 +37,7 @@
 #include "XNetChannel.h"
 
 #define XNET_MAPPED_FILE_NAME	"%s_MAP_%"ULONGFORMAT"_%"ULONGFORMAT
-#define XNET_PREFIX				"FirebirdXNET"
+//#define XNET_PREFIX				"FirebirdXNET"
 
 XNetMappedFile::XNetMappedFile(ULONG map_number, time_t timestamp, int slots_per_map, int pages_per_slot)
 {

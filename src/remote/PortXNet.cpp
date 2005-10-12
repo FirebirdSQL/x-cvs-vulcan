@@ -414,7 +414,7 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 	
 	if (!port)
 		{
-		delete rdb;
+		rdb->release();
 		return NULL;
 		}
 
@@ -452,7 +452,7 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 
 		if (!(port = connect(configuration, node_name, packet, status_vector, FALSE))) 
 			{
-			delete rdb;
+			rdb->release();
 			return NULL;
 			}
 
@@ -490,7 +490,7 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 
 		if (!(port = connect(configuration, node_name, packet, status_vector, FALSE))) 
 			{
-			delete rdb;
+			rdb->release();
 			return NULL;
 			}
 
@@ -568,7 +568,6 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 	if (!xnet_initialized) 
 		{
 		xnet_initialized = TRUE;
-		//THD_mutex_init(&xnet_mutex);
 		currentProcessId = getpid();
 		gds__register_cleanup(exitHandler, NULL);
 		}
@@ -688,9 +687,7 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 		/* added this here from the server side as this part is called by the client 
 		   and the server address need not be valid for the client -smistry 10/29/98 */
 		   
-		//xcc->xcc_recv_channel = &xps->xps_channels[XPS_CHANNEL_S2C_DATA];
 		xcc->recvChannel.channelControl = &xps->xps_channels[XPS_CHANNEL_S2C_DATA];
-		//xcc->xcc_send_channel = &xps->xps_channels[XPS_CHANNEL_C2S_DATA];
 		xcc->sendChannel.channelControl = &xps->xps_channels[XPS_CHANNEL_C2S_DATA];
 
 		/* we also need to add client side flags or channel pointer as they 
@@ -701,12 +698,10 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 
 		/* send channel */
 		
-		//xps->xps_channels[XPS_CHANNEL_C2S_DATA].xch_client_ptr = start_ptr;
 		xcc->sendChannel.data = start_ptr;
 		
 		/* receive channel */
 		
-		//xps->xps_channels[XPS_CHANNEL_S2C_DATA].xch_client_ptr = (start_ptr + avail);
 		xcc->recvChannel.data = start_ptr + avail;
 		}
 	catch (...) 
@@ -729,33 +724,22 @@ PortXNet* PortXNet::connect(ConfObject *configuration,
 
 void PortXNet::disconnect(void)
 {
+	/* If we have a asynchronous port for events, check out with it */
+	
+	if (port_async) 
+		{
+		//port_async->port_flags |= PORT_disconnect;	???
+		port_async->disconnect();
+		port_async = NULL;
+		}
+
+	
 	/* If this is a sub-port, unlink it from it's parent */
 
 	if (port_parent) 
 		{
-		if (port_async) 
-			{
-			port_async->disconnect();
-			port_async = NULL;
-			}
-
 		port_parent->removeClient(this);
 		port_parent = NULL;
-		}
-	else if (port_async) 
-		{
-		/* If we're MULTI_THREAD then we cannot free the port because another
-		 * thread might be using it.  If we're SUPERSERVER we must free the
-		 * port to avoid a memory leak.  What we really need to know is if we
-		 * have multi-threaded events, but this is transport specific.
-		 * -smistry 10/29/98 */
-		 
-#if (defined (MULTI_THREAD) && !defined (SUPERSERVER))
-		port_async->port_flags |= PORT_disconnect;
-#else
-		port_async->disconnect();
-		port_async = NULL;
-#endif
 		}
 
 	gds__unregister_cleanup(exitHandler, this);
@@ -790,7 +774,6 @@ void PortXNet::cleanupComm(XNetConnection* xcc)
 {
 	XNetMappedFile *xpm = xcc->xcc_xpm;
 	delete xcc;
-	xcc = NULL;
 
 	// if this was the last area for this map, unmap it
 	
@@ -800,9 +783,6 @@ void PortXNet::cleanupComm(XNetConnection* xcc)
 
 		if (!xpm->xpm_count && client_maps)
 			{
-			//UnmapViewOfFile(xpm->xpm_address);
-			//CloseHandle(xpm->xpm_handle);
-
 			// find xpm in chain and release
 			
 			for (XNetMappedFile **pxpm = &client_maps; *pxpm; pxpm = &(*pxpm)->xpm_next) 
@@ -1027,81 +1007,37 @@ Port* PortXNet::connect(Packet* packet, void(* secondaryConnection)(Port*))
 		return this;
 		}
 
- 	PortXNet *new_port = NULL;
-	XNetConnection *parent_xcc = NULL;
 	XNetConnection *xcc = NULL;
-	XPS xps = NULL;
-	XNetMappedFile *xpm = NULL;
 
 	try 
 		{
 		// make a new xcc
 		
-		parent_xcc = port_xcc;
-		xps = (XPS) parent_xcc->xcc_mapped_addr;
+		XNetConnection *parent_xcc = port_xcc;
+		XNetMappedFile *xpm = parent_xcc->xcc_xpm;
+		XPS xps = (XPS) parent_xcc->xcc_mapped_addr;
 
 		xcc = new XNetConnection(parent_xcc);
 		xcc->open(true, xpm->xpm_timestamp);
-		/***
-		sprintf(name_buffer, XNET_E_C2S_EVNT_CHAN_FILLED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_send_channel_filled = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_send_channel_filled) 
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_C2S_EVNT_CHAN_EMPTED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_send_channel_empted = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_send_channel_empted) 
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_S2C_EVNT_CHAN_FILLED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_recv_channel_filled = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_recv_channel_filled)
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_S2C_EVNT_CHAN_EMPTED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_recv_channel_empted = OpenEvent(EVENT_ALL_ACCESS, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_recv_channel_empted) 
-			error("xxx");
-		***/
 		
 		// send events channel
 		
-		//xps->xps_channels[XPS_CHANNEL_C2S_EVENTS].xch_client_ptr =
-		port_xcc->sendChannel.data =
-			((UCHAR *) xpm->xpm_address + sizeof(struct xps));
+		xcc->sendChannel.data = ((UCHAR *) xpm->xpm_address + sizeof(struct xps));
 
 		// receive events channel
 		
-		//xps->xps_channels[XPS_CHANNEL_S2C_EVENTS].xch_client_ptr =
-		port_xcc->recvChannel.data =
-			((UCHAR *) xpm->xpm_address + sizeof(struct xps) + (XNET_EVENT_SPACE));
-
-		//xcc->xcc_send_channel = &xps->xps_channels[XPS_CHANNEL_C2S_EVENTS];		
+		xcc->recvChannel.data = ((UCHAR *) xpm->xpm_address + sizeof(struct xps) + (XNET_EVENT_SPACE));
 		xcc->sendChannel.channelControl = &xps->xps_channels[XPS_CHANNEL_C2S_EVENTS];		
-		//xcc->xcc_recv_channel = &xps->xps_channels[XPS_CHANNEL_S2C_EVENTS];
 		xcc->recvChannel.channelControl = &xps->xps_channels[XPS_CHANNEL_S2C_EVENTS];
 
 		// alloc new port and link xcc to it
 		
-		new_port = new PortXNet(NULL, xcc);
-		port_async = new_port;
-		new_port->port_flags = port_flags & PORT_no_oob;
-		new_port->port_flags |= PORT_async;
-		gds__register_cleanup(exitHandler, new_port);
+		port_async = new PortXNet(NULL, xcc);
+		port_async->port_flags = port_flags & PORT_no_oob;
+		port_async->port_flags |= PORT_async;
+		gds__register_cleanup(exitHandler, port_async);
 
-		return new_port;
+		return port_async;
 		}
 	catch (...) 
 		{
@@ -1129,99 +1065,34 @@ Port* PortXNet::connect(Packet* packet, void(* secondaryConnection)(Port*))
 Port* PortXNet::auxRequest(Packet* packet)
 {
  	PortXNet* new_port = NULL;
-	XNetConnection *parent_xcc = NULL;
 	XNetConnection *xcc = NULL;
-	XPS xps = NULL;
-	XNetMappedFile *xpm = NULL;
 
 	try 
 		{
 		// make a new xcc
-		parent_xcc = port_xcc;
-		xps = (XPS) parent_xcc->xcc_mapped_addr;
+		XNetConnection *parent_xcc = port_xcc;
+		XPS xps = (XPS) parent_xcc->xcc_mapped_addr;
 		xcc = new XNetConnection(parent_xcc);
-		xpm = parent_xcc->xcc_xpm;
-		/***
-		xpm = xcc->xcc_xpm = parent_xcc->xcc_xpm;
-		xcc->xcc_map_num = parent_xcc->xcc_map_num;
-		xcc->xcc_slot = parent_xcc->xcc_slot;
-		xcc->xcc_proc_h = parent_xcc->xcc_proc_h;
-		xcc->xcc_flags = 0;
-		xcc->xcc_map_handle = parent_xcc->xcc_map_handle;
-		xcc->xcc_mapped_addr = parent_xcc->xcc_mapped_addr;
-		xcc->xcc_xpm->xpm_count++;
-		***/
-
+		XNetMappedFile *xpm = parent_xcc->xcc_xpm;
 		xcc->create(true, xpm->xpm_timestamp);
-		/***
-		sprintf(name_buffer, XNET_E_C2S_EVNT_CHAN_FILLED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_recv_channel_filled =
-			CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_recv_channel_filled ||
-			(xcc->xcc_event_recv_channel_filled && ERRNO == ERROR_ALREADY_EXISTS))
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_C2S_EVNT_CHAN_EMPTED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_recv_channel_empted =
-			CreateEvent(ISC_get_security_desc(), TRUE, TRUE, name_buffer);
-			
-		if (!xcc->xcc_event_recv_channel_empted ||
-			(xcc->xcc_event_recv_channel_empted && ERRNO == ERROR_ALREADY_EXISTS))
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_S2C_EVNT_CHAN_FILLED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_send_channel_filled =
-			CreateEvent(ISC_get_security_desc(), FALSE, FALSE, name_buffer);
-			
-		if (!xcc->xcc_event_send_channel_filled ||
-			(xcc->xcc_event_send_channel_filled && ERRNO == ERROR_ALREADY_EXISTS)) 
-			error("xxx");
-
-		sprintf(name_buffer, XNET_E_S2C_EVNT_CHAN_EMPTED,
-				XNET_PREFIX, xcc->xcc_map_num, xcc->xcc_slot,
-				(ULONG) xpm->xpm_timestamp);
-		xcc->xcc_event_send_channel_empted =
-			CreateEvent(ISC_get_security_desc(), TRUE, TRUE, name_buffer);
-			
-		if (!xcc->xcc_event_send_channel_empted ||
-			(xcc->xcc_event_send_channel_empted && ERRNO == ERROR_ALREADY_EXISTS)) 
-			error("xxx");
-		***/
-
 
 		// send events channel
 		
-		//xps->xps_channels[XPS_CHANNEL_S2C_EVENTS].xch_client_ptr =
-		xcc->sendChannel.data =
-			((UCHAR *) xpm->xpm_address + sizeof(struct xps) + (XNET_EVENT_SPACE));
+		xcc->sendChannel.data = ((UCHAR *) xpm->xpm_address + sizeof(struct xps) + (XNET_EVENT_SPACE));
 
 		// receive events channel
 		
-		//xps->xps_channels[XPS_CHANNEL_C2S_EVENTS].xch_client_ptr =
-		xcc->recvChannel.data = 
-			((UCHAR *) xpm->xpm_address + sizeof(struct xps));
-
-		//xcc->xcc_send_channel = &xps->xps_channels[XPS_CHANNEL_S2C_EVENTS];		
+		xcc->recvChannel.data =  ((UCHAR *) xpm->xpm_address + sizeof(struct xps));
 		xcc->sendChannel.channelControl = &xps->xps_channels[XPS_CHANNEL_S2C_EVENTS];		
-		//xcc->xcc_recv_channel = &xps->xps_channels[XPS_CHANNEL_C2S_EVENTS];
 		xcc->recvChannel.channelControl = &xps->xps_channels[XPS_CHANNEL_C2S_EVENTS];
 
 		// alloc new port and link xcc to it
 		
-		new_port = new PortXNet(NULL, xcc);
-								
-		port_async = new_port;
-		new_port->port_flags = port_flags & PORT_no_oob;
-		new_port->port_server_flags = port_server_flags;
+		port_async = new PortXNet(NULL, xcc);
+		port_async->port_flags = port_flags & PORT_no_oob;
+		port_async->port_server_flags = port_server_flags;
 
-		return new_port;
+		return port_async;
 		}
 	catch (...) 
 		{

@@ -56,17 +56,11 @@ public:
     HANDLE			xcc_map_handle;         /* mapped file's handle */
     HANDLE			xcc_proc_h;             /* for server client's process handle
 		                                       for client server's process handle */
-	/***
-    HANDLE			xcc_event_send_channel_filled; // xcc_send_channel ready for reading 
-    HANDLE			xcc_event_send_channel_empted; // xcc_send_channel ready for writting 
-    HANDLE			xcc_event_recv_channel_filled; // xcc_receive_channel ready for reading 
-    HANDLE			xcc_event_recv_channel_empted; // xcc_receive_channel ready for writing 
-	***/
-	
     XNetChannel		recvChannel;			/* receive channel structure */
     XNetChannel		sendChannel;			/* send channel structure */
     ULONG			xcc_flags;              /* status bits */
     UCHAR			*xcc_mapped_addr;       /* where the thread's mapped to */
+    bool			clone;					/* this is clone; don't close process handle */
 };
 
 #endif

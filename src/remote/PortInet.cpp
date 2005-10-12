@@ -744,14 +744,15 @@ void PortInet::disconnect()
 
 	Port* parent = port_parent;
 	
+	if (port_async) 
+		{
+		//port_async->port_flags |= PORT_disconnect;
+		disconnect();
+		port_async = NULL;
+		}
+			
 	if (parent != NULL) 
 		{
-		if (port_async) 
-			{
-			disconnect();
-			port_async = NULL;
-			}
-			
 #ifdef	DEFER_PORT_CLEANUP
 		defer_cleanup = true;
 #else
@@ -759,8 +760,6 @@ void PortInet::disconnect()
 		parent->removeClient(this);
 #endif
 		}
-	else if (port_async) 
-		port_async->port_flags |= PORT_disconnect;
 
 	if (port_handle) 
 		SOCLOSE((SOCKET) port_handle);

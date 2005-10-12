@@ -24,6 +24,7 @@
 
 #include "protocol.h"
 #include "SyncObject.h"
+#include "RefObject.h"
 
 class Port;
 class RTransaction;
@@ -32,11 +33,13 @@ class RStatement;
 class RTransaction;
 class REvent;
 
-class RDatabase
+class RDatabase : public RefObject
 {
+protected:
+	virtual ~RDatabase(void);
+
 public:
 	RDatabase(Port *port);
-	virtual ~RDatabase(void);
 
 	//struct blk		rdb_header;
 	USHORT			rdb_id;

@@ -36,8 +36,8 @@
 
 #define XNET_CONNECT_TIMEOUT 10000						/* client connect timeout (ms) */
 
-#define XNET_RECV_WAIT_TIMEOUT 10000					/* Receive wait timeout (ms) */
-//#define XNET_RECV_WAIT_TIMEOUT 1000000					/* Receive wait timeout (ms) */
+//#define XNET_RECV_WAIT_TIMEOUT 10000					/* Receive wait timeout (ms) */
+#define XNET_RECV_WAIT_TIMEOUT 1000000					/* Receive wait timeout (ms) */
 #define XNET_SEND_WAIT_TIMEOUT XNET_RECV_WAIT_TIMEOUT	/* Send wait timeout (ms) */
 
 

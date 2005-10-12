@@ -653,12 +653,6 @@
 				RelativePath="..\..\..\src\remote\window_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\wnet_proto.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\remote\os\win32\wnet_proto.h">
-			</File>
-			<File
 				RelativePath="..\..\..\src\remote\xdr.h">
 			</File>
 			<File
@@ -666,9 +660,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\xnet.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\remote\xnet_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\XNetChannel.h">

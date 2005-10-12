@@ -32,6 +32,8 @@
 #endif
 #endif
 
+#define XNET_PREFIX				"FirebirdXNET"
+
 struct ChannelControl;
 
 class XNetChannel
