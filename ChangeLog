@@ -1,3 +1,43 @@
+2005-10-12 00:37  jimstarkey
+
+	* vulcan/src/remote/PortXNet.cpp:
+	
+	Deleted extraneous include
+
+2005-10-12 00:31  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/remote/remote.vcproj,
+	src/remote/Port.h, src/remote/PortXNet.cpp, src/remote/PortXNet.h,
+	src/remote/RServer.cpp, src/remote/XNetChannel.cpp,
+	src/remote/XNetChannel.h:
+	
+	Minor cleanups and memory accounting
+
+2005-10-11 21:41  jimstarkey
+
+	* vulcan/src/remote/PortXNet.cpp:
+	
+	Minor portability problem.
+
+2005-10-11 21:33  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/winserver/winserver.vcproj,
+	src/remote/PortXNet.cpp, src/remote/RServer.cpp,
+	src/remote/XNetChannel.cpp, src/remote/XNetChannel.h,
+	src/remote/XNetConnection.cpp, src/remote/XNetConnection.h,
+	src/remote/XNetMappedFile.cpp, src/remote/XNetMappedFile.h,
+	src/winserver/winserver.vcproj:
+	
+	Third round of cleanup
+
+2005-10-11 17:42  awharrison
+
+	* vulcan/src/dsql/: CStatement.cpp, CStatement.h, pass1.cpp:
+	
+	Lovely pass1 included a global that held a tempoary collation - not
+	good for a multi-threaded environment.	It's now part of CStatement
+	- thank you Claudio.
+
 2005-10-10 23:24  jimstarkey
 
 	* vulcan/src/remote/PortXNet.cpp:
