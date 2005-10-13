@@ -1,3 +1,32 @@
+2005-10-13 00:15  jimstarkey
+
+	* vulcan/src/remote/PortInet.cpp:
+	
+	Replaces a couple of "delete rdb" with "rdb->release()"
+
+2005-10-13 00:11  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/remote/remote.vcproj,
+	install/client.conf, src/events/vulcan.conf, src/remote/Port.cpp,
+	src/remote/PortInet.cpp, src/remote/PortXNet.cpp,
+	src/remote/RDatabase.h, src/remote/RServer.cpp,
+	src/remote/XNetChannel.cpp, src/remote/XNetChannel.h,
+	src/remote/XNetConnection.cpp, src/remote/XNetConnection.h,
+	src/remote/XNetMappedFile.cpp, src/remote/interface.cpp,
+	src/remote/xnet.h:
+	
+	Got XNet events working
+
+2005-10-12 19:54  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/remote/remote.vcproj,
+	src/jrd/Generate.cpp, src/jrd/Generate.h, src/jrd/PBGen.cpp,
+	src/jrd/PBGen.h, src/jrd/PathName.cpp, src/jrd/jrd.cpp,
+	src/remote/Port.h, src/remote/PortXNet.cpp,
+	src/remote/interface.cpp, src/remote/remote.vcproj:
+	
+	Changed locus of XNet file name expansion
+
 2005-10-12 00:37  jimstarkey
 
 	* vulcan/src/remote/PortXNet.cpp:
