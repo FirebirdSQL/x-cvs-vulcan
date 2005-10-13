@@ -351,11 +351,14 @@ int CLIB_ROUTINE main( int argc, char** argv)
 				}
 		}
 
-	//Configuration::setConfigFile (configFile);
+	/***
 	char variable [256];
 	strcpy (variable, "VULCAN_CONF=");
 	strcat (variable, configFile);
 	putenv(variable);
+	***/
+	ISC_STATUS statusVector[20];
+	fb_config_file(statusVector, configFile);
 	configuration = Configuration::findObject ("server", configServer);
 		
 #if (defined SUPERSERVER && defined UNIX )

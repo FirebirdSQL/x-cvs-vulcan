@@ -214,11 +214,8 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 	protocol_wnet[0] = 0;
 
 	connection_handle = parse_args(lpszArgs, &server_flag);
-	//Configuration::setConfigFile (configFile);
-	char variable [256];
-	strcpy (variable, "VULCAN_CONF=");
-	strcat (variable, configFile);
-	putenv(variable);
+	ISC_STATUS statusVector[20];
+	fb_config_file(statusVector, configFile);
 	configuration = Configuration::findObject ("server", configServer);
 
 	if (shutdown_pid) 

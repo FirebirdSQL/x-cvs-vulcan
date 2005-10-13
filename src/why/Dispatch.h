@@ -259,6 +259,8 @@ public:
 	void printTrace(const char* method, ...);
 	void initialize(void);
 	YService* getService(SvcHandle* svcHandle);
+	ISC_STATUS setConfigFilename(ISC_STATUS *userStatus, const char* configFilename);
+	ISC_STATUS setConfigText(ISC_STATUS *userStatus, const char* configText);
 };
 
 #endif // !defined(AFX_DISPATCH_H__88AC22C7_23C9_4AA4_9965_E610D3E4BC13__INCLUDED_)

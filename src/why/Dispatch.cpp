@@ -29,12 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-//#include <dlfcn.h>
-#endif
-
 #include "fbdev.h"
 #include "ibase.h"
 #include "common.h"
@@ -2457,4 +2451,36 @@ YService* Dispatch::getService(SvcHandle* svcHandle)
 	int slot = getHandleSlot (svcHandle);
 	
 	return (YService*) serviceHandles.getObject(slot);
+}
+
+ISC_STATUS Dispatch::setConfigFilename(ISC_STATUS *userStatus, const char* configFilename)
+{
+	StatusVector statusVector (userStatus, traceFlags);
+
+	try
+		{
+		Configuration::setConfigFile(configFilename);
+		}
+	catch (AdminException& exception)
+		{
+		exception;
+		}
+
+	return statusVector.getReturn();
+}
+
+ISC_STATUS Dispatch::setConfigText(ISC_STATUS *userStatus, const char* configText)
+{
+	StatusVector statusVector (userStatus, traceFlags);
+
+	try
+		{
+		Configuration::setConfigText(configText);
+		}
+	catch (AdminException& exception)
+		{
+		exception;
+		}
+
+	return statusVector.getReturn();
 }

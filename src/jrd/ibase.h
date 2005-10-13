@@ -781,6 +781,12 @@ static const int fb_shutdown_verbs = 4;			// block new verbs (calls), optional w
 static const int fb_shutdown_immediate = 5;		// stop requests immediately, optional wait
 static const int fb_shutdown_panic = 6;			// just do it
 
+ISC_STATUS ISC_EXPORT fb_config_text (ISC_STATUS* userStatus,
+									  const char *configText);
+									  
+ISC_STATUS ISC_EXPORT fb_config_file (ISC_STATUS* userStatus,
+									  const char *configFilename);
+									  
 void ISC_EXPORT gds__log(const TEXT*, ...);
 void ISC_EXPORT gds__log_status(const TEXT*, const ISC_STATUS*);
 SSHORT ISC_EXPORT isc_msg_lookup(void*, USHORT, USHORT, USHORT,TEXT*, USHORT*);

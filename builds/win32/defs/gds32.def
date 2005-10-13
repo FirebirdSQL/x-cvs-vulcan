@@ -273,4 +273,7 @@ EXPORTS
     isc_cancel_operation=isc_cancel_operation @271
     fb_authenticate_user=fb_authenticate_user @272
     fb_interpret=fb_interpret
+    fb_config_text=fb_config_text
+    fb_config_file=fb_config_file
+
     

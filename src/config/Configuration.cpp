@@ -86,3 +86,10 @@ ConfObject* Configuration::getObject(const char* objectType, const char* objectN
 	
 	return object;
 }
+
+
+void Configuration::setConfigText(const char* configText)
+{
+	if (!configFile)
+		configFile = new ConfigFile (0, configText);
+}

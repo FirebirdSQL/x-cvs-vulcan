@@ -84,6 +84,15 @@ ConfigFile::ConfigFile(const char* configFile, int configFlags) : Lex ("/<>=", c
 	parse();
 }
 
+
+ConfigFile::ConfigFile(int configFlags, const char* configText) : Lex ("/<>=", configFlags)
+{
+	init (configFlags);
+	InputStream *input = new InputStream(configText);
+	pushStream (input);
+	parse();
+}
+
 void ConfigFile::init(int configFlags)
 {
 	flags = configFlags;

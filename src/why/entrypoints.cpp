@@ -1830,4 +1830,22 @@ ISC_STATUS API_ROUTINE fb_authenticate_user (ISC_STATUS* userStatus,
 									   bufferLength, buffer);
 	}
 
+ISC_STATUS ISC_EXPORT fb_config_text (ISC_STATUS* userStatus,
+									  const char *configText)
+{
+	if (!dispatch)
+		initialize();
+	
+	return dispatch->setConfigText(userStatus, configText);
+}
+									  
+ISC_STATUS ISC_EXPORT fb_config_file (ISC_STATUS* userStatus,
+									  const char *configFilename)
+{
+	if (!dispatch)
+		initialize();
+	
+	return dispatch->setConfigFilename(userStatus, configFilename);
+}
+
 } /* extern "C" */
