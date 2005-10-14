@@ -124,7 +124,8 @@ bool ConfObject::match(int position, const char* pattern, const char* string)
 			{
 			if (!*p)
 				{
-				putString (position, string, (int) strlen (string));
+				//putString(position, string, (int) strlen (string));
+				putString(position, s, (int) strlen(s));
 				return true;
 				}
 			for (; *s; ++s)

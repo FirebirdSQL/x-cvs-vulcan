@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib mpr.lib version.lib"
-				OutputFile="..\..\install\bin\engine8.dll"
+				OutputFile="..\..\install\bin\engine11.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
@@ -2267,10 +2267,10 @@
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2318,10 +2318,10 @@
 				RelativePath="blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\dsql\blk.h">
+				RelativePath="blk.h">
 			</File>
 			<File
-				RelativePath="blk.h">
+				RelativePath="..\dsql\blk.h">
 			</File>
 			<File
 				RelativePath="..\common\Blob.h">
@@ -3431,10 +3431,10 @@
 				RelativePath=".\Triggers.h">
 			</File>
 			<File
-				RelativePath="types.h">
+				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
 			</File>
 			<File
-				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
+				RelativePath="types.h">
 			</File>
 			<File
 				RelativePath=".\UserData.h">
