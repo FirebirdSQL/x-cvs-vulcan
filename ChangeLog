@@ -1,3 +1,13 @@
+2005-10-13 23:37  jimstarkey
+
+	* vulcan/: builds/win32/defs/gds32.def, src/config/ConfigFile.cpp,
+	src/config/ConfigFile.h, src/config/Configuration.cpp,
+	src/config/Configuration.h, src/jrd/ibase.h,
+	src/remote/inet_server.cpp, src/remote/os/win32/srvr_w32.cpp,
+	src/why/Dispatch.cpp, src/why/Dispatch.h, src/why/entrypoints.cpp:
+	
+	Added fb_config_filename and fb_context_text
+
 2005-10-13 00:15  jimstarkey
 
 	* vulcan/src/remote/PortInet.cpp:
