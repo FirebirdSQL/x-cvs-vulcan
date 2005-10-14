@@ -7928,6 +7928,7 @@ static TEXT* pass_exact_name (TEXT* str)
 	return str;
 }
 
+
 /**
 
  pass1_savepoint
@@ -7972,19 +7973,19 @@ static dsql_fld* match_procedure_field (Procedure* procedure,
 static dsql_fld* match_relation_field (dsql_rel *relation, 
 							  dsql_str *name)
 {
-	dsql_fld* field;
-
 #ifdef SHARED_CACHE
 	Sync sync (&(relation->syncFields), "match_relation_field");
 	sync.lock (Shared);
 #endif
 
-	for (field = relation->rel_fields; field; field = field->fld_next) 
-		if (!strcmp(name->str_data, field->fld_name)) 
+	for (dsql_fld* field = relation->rel_fields; field; field = field->fld_next) 
+		if (name->isEqual(field->fld_name)) 
 			return field;
 
 	return NULL;
 }
+
+
 bool dsql_str::isEqual(const char* string)
 {
 	return strcmp (str_data, string) == 0;
