@@ -66,32 +66,32 @@ public:
 
 	// Procedure Name
 	inline JString findName()
-		{return procName;};
+		{return procName;}
 	inline void setName (JString name)
-		{procName = name;};
+		{procName = name;}
 	inline bool hasName()
-		{ return procName.IsEmpty(); };
+		{ return procName.IsEmpty(); }
 		
 	inline bool isNamed (const TEXT * name)
-		{ return procName == name; };
+		{ return procName == name; }
 
 	//Input & Output Parameters
 	inline int	findInputCount()
-		{return procInputCount;};
+		{return procInputCount;}
 	inline void setInputCount (int count)
-		{procInputCount = count;};
+		{procInputCount = count;}
 	inline ProcParam * findInputParameters()
-		{return procInputParams;};
+		{return procInputParams;}
 	inline int findOutputCount()
-		{return procOutputCount;};
+		{return procOutputCount;}
 	inline void setOutputCount (int count)
-		{procOutputCount = count;};
+		{procOutputCount = count;}
 	inline ProcParam * findOutputParameters()
-		{return procOutputParams;};
+		{return procOutputParams;}
 	inline bool hasOutputParameters()
-		{return procOutputParams != NULL;};
+		{return procOutputParams != NULL;}
 	inline bool hasInputParameters()
-		{return procInputParams != NULL;};
+		{return procInputParams != NULL;}
 
 	void setInputParameter (ProcParam *parameter);
 	void setOutputParameter (ProcParam * parameter);
@@ -105,54 +105,54 @@ public:
 
 	//Owner
 	inline JString findOwner()
-		{return procOwner;};
+		{return procOwner;}
 	inline void setOwner (JString owner)
-		{procOwner = owner;};
+		{procOwner = owner;}
 	
 	//Id
 	inline int findId()
-		{return procId;};
+		{return procId;}
 	inline void setId (int id)
-		{procId = id;};
+		{procId = id;}
 
 	//flag stuff
 	inline int findFlags ()
-		{return procFlags;};
+		{return procFlags;}
 	inline void setFlags (int flags)
-		{procFlags = flags;};
+		{procFlags = flags;}
 	inline void addFlags(int flag)
-		{procFlags |= flag;};
+		{procFlags |= flag;}
 	inline void clearFlags (int flag)
-		{procFlags &= ~flag;};
+		{procFlags &= ~flag;}
 	inline bool checkFlags (int flag)
-		{return procFlags & flag;};
+		{return procFlags & flag;}
 		
 	inline bool checkActive (bool noscan)
 		{ return (!(procFlags & PRC_obsolete) && 
 				 ((procFlags & PRC_scanned) || noscan) && 
 				 !(procFlags & PRC_being_scanned) && 
-				 !(procFlags & PRC_being_altered));  };
+				 !(procFlags & PRC_being_altered));  }
 
 	//Next
 	inline void setNext (Procedure *procedure)
-		{procNext = procedure;};
+		{procNext = procedure;}
 	inline Procedure *findNext ()
-		{return procNext;};
+		{return procNext;}
 
 	//Format
 	inline struct Format* findInputFormat ()
-		{return procInputFormat;};
+		{return procInputFormat;}
 		
 	inline void setInputFormat (struct Format* format)
-		{procInputFormat = format;};
+		{procInputFormat = format;}
 
 	inline struct Format* findOutputFormat ()
-		{return procOutputFormat;};
+		{return procOutputFormat;}
 	inline void setOutputFormat (struct Format* format)
-		{procOutputFormat = format;};
+		{procOutputFormat = format;}
 
 	inline struct Format* findFormat()
-		{return procFormat;};
+		{return procFormat;}
 	
 	inline Database *getDatabase()
 		{
@@ -162,64 +162,64 @@ public:
 	inline void setFormat (struct Format* format)
 		{
 		procFormat = format;
-		};
+		}
 
 	//Locking
 	void lockExistence (thread_db* tdbb);
 	void releaseExistence (thread_db* tdbb);
 	inline Lock * findExistenceLock()
-		{return procExistenceLock;};
+		{return procExistenceLock;}
 	inline void setExistenceLock (Lock * existence_lock)
-		{procExistenceLock = existence_lock;};
+		{procExistenceLock = existence_lock;}
 	inline bool hasExistenceLock()
-		{return procExistenceLock != NULL;};
+		{return procExistenceLock != NULL;}
 
 	// counts
 	inline int findInternalUseCount()
-		{return procUseCountInternal;};
+		{return procUseCountInternal;}
 	inline void setInternalUseCount (int count)
-		{procUseCountInternal = count;};
+		{procUseCountInternal = count;}
 	inline void incrementInternalUseCount()
-		{procUseCountInternal++;};
+		{procUseCountInternal++;}
 	inline void decrementInternalUseCount()
-		{procUseCountInternal--;};
+		{procUseCountInternal--;}
 	inline int findUseCount()
-		{return procUseCount;};
+		{return procUseCount;}
 	inline void setUseCount(int count)
-		{procUseCount = count;};
+		{procUseCount = count;}
 	inline void incrementUseCount ()
-		{procUseCount++;};
+		{procUseCount++;}
 	inline void decrementUseCount ()
-		{procUseCount--;};
+		{procUseCount--;}
 	inline void setAlterCount (int counter)
-		{procAlterCount = counter;};
+		{procAlterCount = counter;}
 	inline void incremetnAlterCount ()
-		{procAlterCount++;};
+		{procAlterCount++;}
 	inline int findAlterCount ()
-		{return procAlterCount;};
+		{return procAlterCount;}
 
 	//Request
 	inline Request  *findRequest ()
-		{return procRequest;};
+		{return procRequest;}
 	
 	inline bool hasRequest ()
-		{return (procRequest != NULL);};
+		{return (procRequest != NULL);}
 
 	//messages
 	inline 	struct	jrd_nod	*findInputMsg()
-		{return procInputMsg;};
+		{return procInputMsg;}
 	inline void setInputMsg (struct jrd_nod * msg)
-		{procInputMsg = msg;};
+		{procInputMsg = msg;}
 
 	inline 	struct	jrd_nod	*findOutputMsg()
-		{return procOutputMsg;};
+		{return procOutputMsg;}
 	inline void setOutputMsg (struct jrd_nod * msg)
-		{procOutputMsg = msg;};
+		{procOutputMsg = msg;}
 
 	inline const TEXT * findSecurityClassName()
-		{return (const TEXT *)procSecurityClassName;};
+		{return (const TEXT *)procSecurityClassName;}
 	inline void setSecurityClassName (const TEXT *name)
-		{procSecurityClassName = name;};
+		{procSecurityClassName = name;}
 
 	bool operator != (Procedure *proc);
 	void setDependencies();
