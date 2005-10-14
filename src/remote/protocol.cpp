@@ -899,50 +899,40 @@ static bool_t xdr_cstring( XDR* xdrs, CSTRING* cstring)
 	SCHAR trash[4];
 	static const SCHAR filler[4] = { 0, 0, 0, 0 };
 
-	if (!xdr_short
-		(xdrs,
-		 reinterpret_cast < SSHORT * >(&cstring->cstr_length))) 
-	{
+	if (!xdr_short(xdrs, reinterpret_cast < SSHORT * >(&cstring->cstr_length))) 
 		return FALSE;
-	}
 
-	switch (xdrs->x_op) {
-	case XDR_ENCODE:
-		if (cstring->cstr_length &&
-			!(*xdrs->x_ops->x_putbytes) (xdrs,
-										 reinterpret_cast <
-										 const SCHAR* >(cstring->cstr_address),
-										 cstring->cstr_length)) 
+	switch (xdrs->x_op) 
 		{
-			return FALSE;
-		}
-		l = (4 - cstring->cstr_length) & 3;
-		if (l)
-			return (*xdrs->x_ops->x_putbytes) (xdrs,
-											   filler,
-											   l);
-		{
+		case XDR_ENCODE:
+			if (cstring->cstr_length &&
+				!(*xdrs->x_ops->x_putbytes)(xdrs,
+											reinterpret_cast <const SCHAR* >(cstring->cstr_address),
+											cstring->cstr_length)) 
+				return FALSE;
+
+			if (l = (4 - cstring->cstr_length) & 3)
+				return (*xdrs->x_ops->x_putbytes) (xdrs, filler, l);
+
+			return TRUE;
+
+		case XDR_DECODE:
+			if (!alloc_cstring(xdrs, cstring))
+				return FALSE;
+				
+			if (!(*xdrs->x_ops->x_getbytes)(xdrs, reinterpret_cast < SCHAR * >(cstring->cstr_address),
+											cstring->cstr_length)) 
+				return FALSE;
+
+			if (l = (4 - cstring->cstr_length) & 3)
+				return (*xdrs->x_ops->x_getbytes) (xdrs, trash, l);
+				
+			return TRUE;
+
+		case XDR_FREE:
+			free_cstring(xdrs, cstring);
 			return TRUE;
 		}
-
-	case XDR_DECODE:
-		if (!alloc_cstring(xdrs, cstring))
-			return FALSE;
-		if (!(*xdrs->x_ops->x_getbytes)
-			(xdrs, reinterpret_cast < SCHAR * >(cstring->cstr_address),
-			 cstring->cstr_length)) 
-		{
-			return FALSE;
-		}
-		l = (4 - cstring->cstr_length) & 3;
-		if (l)
-			return (*xdrs->x_ops->x_getbytes) (xdrs, trash, l);
-		return TRUE;
-
-	case XDR_FREE:
-		free_cstring(xdrs, cstring);
-		return TRUE;
-	}
 
 	return FALSE;
 }

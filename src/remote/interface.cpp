@@ -197,19 +197,7 @@ static Threads	*threads;// = new Threads;
 
 #define NULL_CHECK(ptr,code)	if (*ptr) return handle_error (user_status, (ISC_STATUS) code)
 
-//#define SET_OBJECT(rdb,object,id) REMOTE_set_object (rdb->rdb_port, (struct blk *) object, id)
 #define SET_OBJECT(rdb,object,id) rdb->rdb_port->setObject (object, id)
-
-/***
-#define //SET_THREAD_DATA		trdb = &thd_context;\
-				trdb->trdb_status_vector = NULL;\
-				THD_put_specific ((THDD) trdb, THDD_TYPE_TRDB);\
-				trdb->trdb_thd_data.thdd_type = THDD_TYPE_TRDB
-#define RESTORE_THREAD_DATA	THD_restore_specific(THDD_TYPE_TRDB)
-
-#define SET_THREAD_DATA		trdb = &thd_context;
-#define RESTORE_THREAD_DATA
-***/
 
 #define GDS_ATTACH_DATABASE	REM_attach_database
 #define GDS_BLOB_INFO		REM_blob_info
@@ -388,9 +376,6 @@ ISC_STATUS GDS_BLOB_INFO(ISC_STATUS*	user_status,
  *	Provide information on blob object.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RBL blob = *blob_handle;
 	CHECK_HANDLE(blob, type_rbl, isc_bad_segstr_handle);
@@ -398,20 +383,18 @@ ISC_STATUS GDS_BLOB_INFO(ISC_STATUS*	user_status,
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	ISC_STATUS status;
+	
 	try
-	{
+		{
 		status = info(user_status, rdb, op_info_blob, blob->rbl_id, 0,
 					  item_length, items, 0, 0, buffer_length, buffer);
-		//RESTORE_THREAD_DATA;
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	return status;
 }
@@ -429,27 +412,26 @@ ISC_STATUS GDS_CANCEL_BLOB(ISC_STATUS * user_status, RBL * blob_handle)
  *	Abort a partially completed blob.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
 	RBL blob = *blob_handle;
-	if (!blob) {
-		if (user_status) {
+	
+	if (!blob) 
+		{
+		if (user_status) 
+			{
 			*user_status++ = isc_arg_gds;
 			*user_status++ = FB_SUCCESS;
 			*user_status = isc_arg_end;
-		}
+			}
+			
 		return FB_SUCCESS;
-	}
-
-	//SET_THREAD_DATA;
+		}
 
 	CHECK_HANDLE(blob, type_rbl, isc_bad_segstr_handle);
 	RDatabase* rdb = blob->rbl_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	
 	try
 		{
@@ -480,38 +462,32 @@ ISC_STATUS GDS_CANCEL_EVENTS(ISC_STATUS * user_status, RDatabase* * handle, SLON
  *	Cancel an outstanding event.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RDatabase* rdb = *handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 
 	try
-	{
+		{
 		/* Make sure protocol supports action */
 
-		if (port->port_protocol < PROTOCOL_VERSION6) {
+		if (port->port_protocol < PROTOCOL_VERSION6)
 			return unsupported(user_status);
-		}
 
 		/* If the event exists, tell the remote server to cancel it,
 	   		and delete it from the list */
 
 		RVNT event = find_event(port, *id);
-		if (event) {
+		
+		if (event) 
 			send_cancel_event(event);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -529,17 +505,11 @@ ISC_STATUS GDS_CLOSE_BLOB(ISC_STATUS * user_status, RBL * blob_handle)
  *	Close a completed blob.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RBL blob = *blob_handle;
 	CHECK_HANDLE(blob, type_rbl, isc_bad_segstr_handle);
 	RDatabase* rdb = blob->rbl_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 
 	try
@@ -579,9 +549,6 @@ ISC_STATUS GDS_COMMIT(ISC_STATUS * user_status, RTransaction* * rtr_handle)
  *	Commit a transaction.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RTransaction* transaction = *rtr_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
@@ -589,8 +556,6 @@ ISC_STATUS GDS_COMMIT(ISC_STATUS * user_status, RTransaction* * rtr_handle)
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -620,9 +585,6 @@ ISC_STATUS GDS_COMMIT_RETAINING(ISC_STATUS * user_status, RTransaction* * rtr_ha
  * Functional description
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RTransaction* transaction = *rtr_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
@@ -630,25 +592,21 @@ ISC_STATUS GDS_COMMIT_RETAINING(ISC_STATUS * user_status, RTransaction* * rtr_ha
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* Make sure protocol support action */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4) 
 			return unsupported(user_status);
-		}
 
-		if (!release_object(rdb, op_commit_retaining, transaction->rtr_id)) {
+		if (!release_object(rdb, op_commit_retaining, transaction->rtr_id))
 			return error(user_status);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -667,19 +625,14 @@ ISC_STATUS GDS_COMPILE(ISC_STATUS* user_status,
  * Functional description
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	NULL_CHECK(req_handle, isc_bad_req_handle);
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -778,9 +731,6 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
  *	Open an existing blob.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	NULL_CHECK(blob_handle, isc_bad_segstr_handle);
 	RDatabase* rdb = *db_handle;
@@ -789,27 +739,28 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
 	RTransaction* transaction = *rtr_handle;
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_create_blob;
 		P_BLOB* p_blob = &packet->p_blob;
 		p_blob->p_blob_transaction = transaction->rtr_id;
 
-		if (rdb->rdb_port->port_protocol >= PROTOCOL_VERSION4) {
+		if (rdb->rdb_port->port_protocol >= PROTOCOL_VERSION4) 
+			{
 			packet->p_operation = op_create_blob2;
 			p_blob->p_blob_bpb.cstr_length = bpb_length;
 			fb_assert(!p_blob->p_blob_bpb.cstr_allocated ||
 				p_blob->p_blob_bpb.cstr_allocated < p_blob->p_blob_bpb.cstr_length);
+				
 			// CVC: Should we ensure here that cstr_allocated < bpb_length???
 			// Otherwise, xdr_cstring() calling alloc_string() to decode would
 			// cause memory problems on the client side for SS, as the client
 			// would try to write to the application's provided R/O buffer.
+			
 			p_blob->p_blob_bpb.cstr_address = bpb;
-		}
+			}
 
 		send_and_receive(rdb, packet, user_status);
 		p_blob->p_blob_bpb.cstr_length = 0;
@@ -818,24 +769,18 @@ ISC_STATUS GDS_CREATE_BLOB2(ISC_STATUS* user_status,
 		if (user_status[1])
 			return error(user_status);
 
-		//RBL blob = (RBL) ALLOCV(type_rbl, BLOB_LENGTH);
 		RBlob *blob = transaction->createBlob (BLOB_LENGTH);
 		*blob_handle = blob;
 		*blob_id = packet->p_resp.p_resp_blob_id;
-		//blob->rbl_buffer_length = BLOB_LENGTH;
-		//blob->rbl_rdb = rdb;
-		//blob->rbl_rtr = transaction;
 		blob->rbl_id = packet->p_resp.p_resp_object;
 		blob->rbl_ptr = blob->rbl_buffer = blob->rbl_data;
 		blob->rbl_flags |= RBL_create;
 		SET_OBJECT(rdb, blob, blob->rbl_id);
-		//blob->rbl_next = transaction->rtr_blobs;
-		//transaction->rtr_blobs = blob;
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -884,10 +829,7 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS* user_status,
 		return isc_unavailable;
 #endif
 
-	//SET_THREAD_DATA;
-
 	NULL_CHECK(handle, isc_bad_db_handle);
-
 	strcpy(expanded_name, translatedName);
 	USHORT length = (USHORT) strlen(expanded_name);
 
@@ -897,7 +839,7 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS* user_status,
 
 	if ((dpb_length + MAX_USER_LENGTH + MAX_PASSWORD_ENC_LENGTH +
 		 MAX_OTHER_PARAMS) > sizeof(new_dpb))
-	{
+		{
 		new_dpb_ptr =
 			(UCHAR*)gds__alloc(dpb_length + MAX_USER_LENGTH +
 							   MAX_PASSWORD_ENC_LENGTH + MAX_OTHER_PARAMS);
@@ -930,14 +872,12 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS* user_status,
 
 	RDatabase* rdb = port->port_context;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
-	/* The client may have set a parameter for dummy_packet_interval.  Add that to the
-	   the DPB so the server can pay attention to it.  Note: allocation code must
-	   ensure sufficient space has been added. */
+		{
+		/* The client may have set a parameter for dummy_packet_interval.  Add that to the
+		   the DPB so the server can pay attention to it.  Note: allocation code must
+		   ensure sufficient space has been added. */
 
 		add_other_params(port, new_dpb_ptr, &new_dpb_length);
 		add_working_directory(new_dpb_ptr, &new_dpb_length, node_name);
@@ -945,19 +885,19 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS* user_status,
 		const bool result = 
 			init(user_status, port, op_create, expanded_name, length,
 					  new_dpb_ptr, new_dpb_length);
-		if (new_dpb_ptr != new_dpb) {
+					  
+		if (new_dpb_ptr != new_dpb)
 			gds__free(new_dpb_ptr);
-		}
-		if (!result) {
+
+		if (!result) 
 			return error(user_status);
-		}
 
 		*handle = rdb;
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -982,16 +922,9 @@ ISC_STATUS GDS_DATABASE_INFO(ISC_STATUS*	user_status,
  **************************************/
 	ISC_STATUS	status;
 	UCHAR	temp[1024];
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RDatabase* rdb = *handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
-
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -1009,9 +942,9 @@ ISC_STATUS GDS_DATABASE_INFO(ISC_STATUS*	user_status,
 			Port* port = rdb->rdb_port;
 
 			/* two bytes too much allocated, better safe than sorry */
+			
 			const int nLen = (int) (strlen(GDS_VERSION) + port->port_version.length() + 4);
 			char* version = new char [nLen];
-
 			sprintf(version, "%s/%s", GDS_VERSION, (const char*) port->port_version);
 
 			MERGE_database_info(temp_buffer, (UCHAR *) buffer, buffer_length,
@@ -1023,7 +956,6 @@ ISC_STATUS GDS_DATABASE_INFO(ISC_STATUS*	user_status,
 		if (temp_buffer != temp) 
 			delete [] temp_buffer;
 
-		//RESTORE_THREAD_DATA;
 		}
 	catch (const firebird::status_exception& /*e*/)
 		{
@@ -1050,11 +982,8 @@ ISC_STATUS GDS_DDL(ISC_STATUS*	user_status,
  *
  **************************************/
 	ISC_STATUS status;
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
@@ -1062,14 +991,11 @@ ISC_STATUS GDS_DDL(ISC_STATUS*	user_status,
 	RTransaction* transaction = *rtr_handle;
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4) {
+		{
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4)
 			return unsupported(user_status);
-		}
 
 		/* Make up a packet for the remote guy */
 
@@ -1082,13 +1008,12 @@ ISC_STATUS GDS_DDL(ISC_STATUS*	user_status,
 		ddl->p_ddl_blr.cstr_address = blr;
 
 		status = send_and_receive(rdb, packet, user_status);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
-	//RESTORE_THREAD_DATA;
 
 	return status;
 }
@@ -1106,17 +1031,12 @@ ISC_STATUS GDS_DETACH(ISC_STATUS* user_status, RDatabase** handle)
  *	Close down a database.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RDatabase* rdb = *handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	Port* port = rdb->rdb_port;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -1152,8 +1072,6 @@ ISC_STATUS GDS_DETACH(ISC_STATUS* user_status, RDatabase** handle)
 		return error(user_status);
 		}
 
-	//RESTORE_THREAD_DATA;
-
 	*user_status++ = isc_arg_gds;
 	*user_status++ = FB_SUCCESS;
 	*user_status = isc_arg_end;
@@ -1175,10 +1093,6 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS* user_status, RDatabase** handle)
  *
  **************************************/
 	ISC_STATUS_ARRAY local_status;
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RDatabase* rdb = *handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
@@ -1210,8 +1124,6 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS* user_status, RDatabase** handle)
 		return error(user_status);
 		}
 
-	//RESTORE_THREAD_DATA;
-
 	return user_status[1];
 }
 
@@ -1230,20 +1142,15 @@ ISC_STATUS GDS_DSQL_ALLOCATE(ISC_STATUS*	user_status,
  *	Allocate a statement handle.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	NULL_CHECK(stmt_handle, isc_bad_req_handle);
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* Make sure protocol support action */
 
 		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7)
@@ -1258,22 +1165,18 @@ ISC_STATUS GDS_DSQL_ALLOCATE(ISC_STATUS*	user_status,
 
 		/* Allocate SQL request block */
 
-		//RStatement* statement = (RStatement*) ALLOC(type_rsr);
 		RStatement* statement = rdb->createStatement();
 		*stmt_handle = statement;
-		//statement->rsr_rdb = rdb;
 		statement->rsr_id = packet->p_resp.p_resp_object;
-		//statement->rsr_next = rdb->rdb_sql_requests;
-		//rdb->rdb_sql_requests = statement;
 
 		/* register the object */
 
 		SET_OBJECT(rdb, statement, statement->rsr_id);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -1329,24 +1232,21 @@ ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
  *	Execute a non-SELECT dynamic SQL statement.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	RStatement* statement = *stmt_handle;
 	CHECK_HANDLE(statement, type_rsr, isc_bad_req_handle);
 	RDatabase* rdb = statement->rsr_rdb;
 	RTransaction* transaction = *rtr_handle;
-	if (transaction) {
+	
+	if (transaction) 
+		{
 		CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
-	}
+		}
 
 	Port* port = rdb->rdb_port;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -1362,6 +1262,7 @@ ISC_STATUS GDS_DSQL_EXECUTE2(ISC_STATUS*	user_status,
 			{
 			statement->rsr_bind_format = NULL;
 			RMessage *message = PARSE_messages(in_blr, in_blr_length);
+			
 			if (message != (REM_MSG) - 1) 
 				{
 				statement->rsr_bind_format = message->msg_format;
@@ -1531,11 +1432,8 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
  *	Prepare and execute a statement.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
@@ -1546,8 +1444,6 @@ ISC_STATUS GDS_DSQL_EXECUTE_IMMED2(ISC_STATUS* user_status,
 
 	Port* port = rdb->rdb_port;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -1697,19 +1593,14 @@ ISC_STATUS GDS_DSQL_FETCH(ISC_STATUS* user_status,
  *
  **************************************/
 	ISC_STATUS status;
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	RStatement* statement = *stmt_handle;
 	CHECK_HANDLE(statement, type_rsr, isc_bad_req_handle);
 	RDatabase* rdb = statement->rsr_rdb;
 	Port* port = rdb->rdb_port;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -1768,7 +1659,6 @@ ISC_STATUS GDS_DSQL_FETCH(ISC_STATUS* user_status,
 			{
 			status = fetch_blob(user_status, statement, blr_length, blr,
 								msg_type, msg_length, msg);
-			//RESTORE_THREAD_DATA;
 			return status;
 			}
 
@@ -1951,8 +1841,6 @@ ISC_STATUS GDS_DSQL_FREE(ISC_STATUS * user_status, RStatement* * stmt_handle, US
  *	Release request for a Dynamic SQL statement
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-	//SET_THREAD_DATA;
 
 	/* Check and validate handles, etc. */
 
@@ -1961,8 +1849,6 @@ ISC_STATUS GDS_DSQL_FREE(ISC_STATUS * user_status, RStatement* * stmt_handle, US
 	RDatabase* rdb = statement->rsr_rdb;
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -2023,9 +1909,6 @@ ISC_STATUS GDS_DSQL_INSERT(ISC_STATUS * user_status,
  *	Insert next record into a dynamic SQL cursor.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	/* Check and validate handles, etc. */
 
@@ -2033,8 +1916,6 @@ ISC_STATUS GDS_DSQL_INSERT(ISC_STATUS * user_status,
 	CHECK_HANDLE(statement, type_rsr, isc_bad_req_handle);
 	RDatabase* rdb = statement->rsr_rdb;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -2123,26 +2004,22 @@ ISC_STATUS GDS_DSQL_PREPARE(ISC_STATUS * user_status,
  *	Prepare a dynamic SQL statement for execution.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	RStatement* statement = *stmt_handle;
 	CHECK_HANDLE(statement, type_rsr, isc_bad_req_handle);
 	RDatabase* rdb = statement->rsr_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	RTransaction* transaction = *rtr_handle;
-	if (transaction) {
+	
+	if (transaction) 
 		CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
-	}
+
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* reset current statement */
 
 		if (!clear_queue(rdb->rdb_port, user_status))
@@ -2151,11 +2028,10 @@ ISC_STATUS GDS_DSQL_PREPARE(ISC_STATUS * user_status,
 		REMOTE_reset_statement(statement);
 
 		/* if we're less than protocol 7, the remote server doesn't support 
-	 	* DSQL, so we're done... */
+	 	 * DSQL, so we're done... */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7)
 			return unsupported(user_status);
-		}
 
 		/* set up the packet for the other guy... */
 
@@ -2165,8 +2041,7 @@ ISC_STATUS GDS_DSQL_PREPARE(ISC_STATUS * user_status,
 		prepare->p_sqlst_transaction = (transaction) ? transaction->rtr_id : 0;
 		prepare->p_sqlst_statement = statement->rsr_id;
 		prepare->p_sqlst_SQL_dialect = dialect;
-		prepare->p_sqlst_SQL_str.cstr_length =
-			length ? length : strlen((char *) string);
+		prepare->p_sqlst_SQL_str.cstr_length = length ? length : strlen((char *) string);
 		prepare->p_sqlst_SQL_str.cstr_address = (UCHAR *) string;
 		prepare->p_sqlst_items.cstr_length = item_length;
 		prepare->p_sqlst_items.cstr_address = (UCHAR *) items;
@@ -2188,15 +2063,16 @@ ISC_STATUS GDS_DSQL_PREPARE(ISC_STATUS * user_status,
 
 		if (response->p_resp_object)
 			statement->rsr_flags |= RSR_blob;
+			
 		response->p_resp_data = temp;
-		if (!status) {
+		
+		if (!status)
 			return error(user_status);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -2227,9 +2103,6 @@ ISC_STATUS GDS_DSQL_SET_CURSOR(ISC_STATUS* user_status,
  *	parameter.
  *
  *****************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	/* Check and validate handles, etc. */
 
@@ -2237,16 +2110,13 @@ ISC_STATUS GDS_DSQL_SET_CURSOR(ISC_STATUS* user_status,
 	CHECK_HANDLE(statement, type_rsr, isc_bad_req_handle);
 	RDatabase* rdb = statement->rsr_rdb;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* make sure the protocol supports it */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7)
 			return unsupported(user_status);
-		}
 
 		/* set up the packet for the other guy... */
 
@@ -2256,25 +2126,24 @@ ISC_STATUS GDS_DSQL_SET_CURSOR(ISC_STATUS* user_status,
 		sqlcur->p_sqlcur_statement = statement->rsr_id;
 
 		if (!cursor)
-		{
+			{
 			/** Return CURSOR unknown error **/
 			user_status[1] = isc_dsql_cursor_err;
 			return error(user_status);
-		}
+			}
 
 		const USHORT name_l = strlen(cursor);
 		sqlcur->p_sqlcur_cursor_name.cstr_length = name_l + 1;
 		sqlcur->p_sqlcur_cursor_name.cstr_address = (UCHAR *) cursor; // const cast
 		sqlcur->p_sqlcur_type = type;
 
-		if (send_and_receive(rdb, packet, user_status)) {
+		if (send_and_receive(rdb, packet, user_status))
 			return error(user_status);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -2297,36 +2166,28 @@ ISC_STATUS GDS_DSQL_SQL_INFO(ISC_STATUS* user_status,
  *
  **************************************/
 	ISC_STATUS status;
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check and validate handles, etc. */
+	/* Check and validate handles, etc. */
 
 	RStatement* statement = *stmt_handle;
 	CHECK_HANDLE(statement, type_rsr, isc_bad_req_handle);
 	RDatabase* rdb = statement->rsr_rdb;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* make sure the protocol supports it */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION7)
 			return unsupported(user_status);
-		}
 
 		status = info(user_status, rdb, op_info_sql, statement->rsr_id, 0,
 					  item_length, items, 0, 0, buffer_length, buffer);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
-
-	//RESTORE_THREAD_DATA;
+		}
 
 	return status;
 }
@@ -2347,19 +2208,14 @@ ISC_STATUS GDS_GET_SEGMENT(ISC_STATUS * user_status,
  *	them one by one to the caller.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Sniff out handles, etc, and find the various blocks. */
+	/* Sniff out handles, etc, and find the various blocks. */
 
 	CHECK_HANDLE((*blob_handle), type_rbl, isc_bad_segstr_handle);
 	RBL blob = *blob_handle;
 	RDatabase* rdb = blob->rbl_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 
 	try
@@ -2395,7 +2251,6 @@ ISC_STATUS GDS_GET_SEGMENT(ISC_STATUS * user_status,
 
 			*length = response->p_resp_data.cstr_length;
 			response->p_resp_data = temp;
-			//RESTORE_THREAD_DATA;
 			return user_status[1];
 			}
 
@@ -2418,7 +2273,6 @@ ISC_STATUS GDS_GET_SEGMENT(ISC_STATUS * user_status,
 		if (blob->rbl_flags & RBL_eof) 
 			{
 			*v++ = isc_segstr_eof;
-			//RESTORE_THREAD_DATA;
 			return user_status[1];
 			}
 
@@ -2568,8 +2422,6 @@ ISC_STATUS GDS_GET_SEGMENT(ISC_STATUS * user_status,
 		return error(user_status);
 	}
 
-	//RESTORE_THREAD_DATA;
-
 	return user_status[1];
 }
 
@@ -2594,23 +2446,17 @@ ISC_STATUS GDS_GET_SLICE(ISC_STATUS* user_status,
  *	Snatch a slice of an array.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	CHECK_HANDLE((*tra_handle), type_rtr, isc_bad_trans_handle);
 	RTransaction* transaction = *tra_handle;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4) {
+		{
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4) 
 			return unsupported(user_status);
-		}
+
 		/* Parse the sdl in case blr_d_float must be converted to blr_double */
 
 		const UCHAR* new_sdl;
@@ -2652,11 +2498,14 @@ ISC_STATUS GDS_GET_SLICE(ISC_STATUS* user_status,
 		
 		if (!send_packet(rdb->rdb_port, packet, user_status))
 			err_flag = true;
-		else {
+		else 
+			{
 			packet->p_resp.p_resp_status_vector = rdb->rdb_status_vector;
+			
 			if (!receive_packet(rdb->rdb_port, packet, user_status))
 				err_flag = true;
-		}
+			}
+			
 		if (new_sdl != sdl) 
 			SDL_free(new_sdl);
 
@@ -2666,18 +2515,19 @@ ISC_STATUS GDS_GET_SLICE(ISC_STATUS* user_status,
 		if (err_flag)
 			return error(user_status);
 
-		if (packet->p_operation != op_slice) {
+		if (packet->p_operation != op_slice) 
+			{
 			check_response(rdb, packet);
 			return error(user_status);
-		}
+			}
 
 		if (return_length)
 			*return_length = response->p_slr_length;
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -2699,9 +2549,6 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
  *	Open an existing blob.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	NULL_CHECK(blob_handle, isc_bad_segstr_handle);
 	RDatabase* rdb = *db_handle;
@@ -2709,8 +2556,6 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 	CHECK_HANDLE((*rtr_handle), type_rtr, isc_bad_trans_handle);
 	RTransaction* transaction = *rtr_handle;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -2742,13 +2587,10 @@ ISC_STATUS GDS_OPEN_BLOB2(ISC_STATUS* user_status,
 		//p_blob->p_blob_bpb.cstr_length = 0;
 		//p_blob->p_blob_bpb.cstr_address = NULL;
 
-		//RBL blob = (RBL) ALLOCV(type_rbl, BLOB_LENGTH);
 		RBL blob = transaction->createBlob (BLOB_LENGTH);
 		*blob_handle = blob;
 		blob->rbl_id = packet->p_resp.p_resp_object;
-		//blob->rbl_buffer_length = BLOB_LENGTH;
 		SET_OBJECT(rdb, blob, blob->rbl_id);
-		//blob->rbl_ptr = blob->rbl_buffer = blob->rbl_data;
 		}
 	catch (const firebird::status_exception& /*e*/)
 		{
@@ -2773,31 +2615,27 @@ ISC_STATUS GDS_PREPARE(ISC_STATUS * user_status,
  *	phase commit.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RTransaction* transaction = *rtr_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
 	RDatabase* rdb = (*rtr_handle)->rtr_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* Handle historical version */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4) {
-			if (msg_length) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION4)
+			 {
+			if (msg_length) 
 				return unsupported(user_status);
-			}
-			if (!release_object(rdb, op_prepare, transaction->rtr_id)) {
+
+			if (!release_object(rdb, op_prepare, transaction->rtr_id))
 				return error(user_status);
-			}
+				
 			RETURN_SUCCESS;
-		}
+			}
 
 		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_prepare2;
@@ -2805,16 +2643,13 @@ ISC_STATUS GDS_PREPARE(ISC_STATUS * user_status,
 		packet->p_prep.p_prep_data.cstr_length = msg_length;
 		packet->p_prep.p_prep_data.cstr_address = msg;
 
-		if (!send_packet(rdb->rdb_port, packet, user_status) ||
-			!receive_response(rdb, packet))
-		{
+		if (!send_packet(rdb->rdb_port, packet, user_status) || !receive_response(rdb, packet))
 			return error(user_status);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -2836,9 +2671,6 @@ ISC_STATUS GDS_PUT_SEGMENT(ISC_STATUS* user_status,
  *	batch put.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	/* Sniff out handles, etc, and find the various blocks. */
 
@@ -2847,8 +2679,6 @@ ISC_STATUS GDS_PUT_SEGMENT(ISC_STATUS* user_status,
 	RDatabase* rdb = blob->rbl_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 
 	try
@@ -2860,7 +2690,6 @@ ISC_STATUS GDS_PUT_SEGMENT(ISC_STATUS* user_status,
 		if ((port->port_flags & PORT_rpc) || !(blob->rbl_flags & RBL_create))
 			{
 			send_blob(user_status, blob, segment_length, segment);
-			//RESTORE_THREAD_DATA;
 			return user_status[1];
 			}
 
@@ -2875,15 +2704,11 @@ ISC_STATUS GDS_PUT_SEGMENT(ISC_STATUS* user_status,
 			{
 			if (blob->rbl_ptr > blob->rbl_buffer) 
 				if (send_blob(user_status, blob, 0, NULL)) 
-					{
-					//RESTORE_THREAD_DATA;
 					return user_status[1];
-					}
 
 			if ((ULONG) segment_length + 2 > blob->rbl_buffer_length) 
 				{
 				send_blob(user_status, blob, segment_length, segment);
-				//RESTORE_THREAD_DATA;
 				return user_status[1];
 				}
 				
@@ -2933,17 +2758,12 @@ ISC_STATUS GDS_PUT_SLICE(ISC_STATUS* user_status,
  *	Store a slice of an array.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	CHECK_HANDLE((*tra_handle), type_rtr, isc_bad_trans_handle);
 	RTransaction* transaction = *tra_handle;
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -3026,15 +2846,10 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
  *	Queue a request for event notification.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RDatabase* rdb = *handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 	Packet* packet = &rdb->rdb_packet;
 
@@ -3097,19 +2912,11 @@ ISC_STATUS GDS_QUE_EVENTS(ISC_STATUS* user_status,
 		packet = &rdb->rdb_packet;
 		packet->p_operation = op_que_events;
 
-#pragma FB_COMPILER_MESSAGE("Remote event arguments are broken")
-
-		/***
-		if (true)
-			return unsupported(user_status);
-		***/
 		
 		P_EVENT* event = &packet->p_event;
 		event->p_event_database = rdb->rdb_id;
 		event->p_event_items.cstr_length = length;
 		event->p_event_items.cstr_address = const_cast<UCHAR*>(items);
-		////event->p_event_ast = ast;
-		////event->p_event_arg = (SLONG) arg;
 		event->p_event_rid = rem_event->rvnt_id;
 
 		if (!send_packet(port, packet, user_status) || !receive_response(rdb, packet))
@@ -3144,11 +2951,8 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
  *	Remote server to send it to us if necessary.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
-
-/* Check handles and environment, then set up error handling */
+	/* Check handles and environment, then set up error handling */
 
 	CHECK_HANDLE((*req_handle), type_rrq, isc_bad_req_handle);
 	RRQ request = REMOTE_find_request(*req_handle, level);
@@ -3159,26 +2963,11 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		Port* port = rdb->rdb_port;
 		rrq_repeat* tail = &request->rrq_rpt[msg_type];
 
 		RMessage *message = tail->rrq_message;
-#ifdef SCROLLABLE_CURSORS
-		if (port->port_protocol >= PROTOCOL_SCROLLABLE_CURSORS)
-		{
-			message = scroll_cache(user_status,
-									trdb,
-									request,
-									port,
-									tail,
-									&direction,
-									&offset);
-			if (!message) {
-				return error(user_status);
-			}
-		}
-#endif
 			
 
 #ifdef DEBUG
@@ -3325,7 +3114,8 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 			if (!receive_queued_packet(port, user_status, request->rrq_id))
 				return error(user_status);
 
-		if (!message->msg_address && request->rrq_status_vector[1]) {
+		if (!message->msg_address && request->rrq_status_vector[1]) 
+			{
 			/* The previous batch of receives ended with an error status.
 			   We're all done returning data in the local queue.
 			   Return that error status vector to the user. */
@@ -3337,13 +3127,13 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 			memset(request->rrq_status_vector, 0,
 				   sizeof(request->rrq_status_vector));
 
-			//RESTORE_THREAD_DATA;
 			return user_status[1];
-		};
+			}
 
 		/* Copy data from the message buffer to the client buffer */
 
 		message = tail->rrq_message;
+		
 		if ((U_IPTR) msg & (ALIGNMENT - 1))
 			memcpy(msg, message->msg_address, msg_length);
 		else
@@ -3384,19 +3174,14 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
  * Functional description
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	NULL_CHECK(rtr_handle, isc_bad_trans_handle);
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_reconnect;
 		P_STTR* trans = &packet->p_sttr;
@@ -3404,16 +3189,15 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 		trans->p_sttr_tpb.cstr_length = length;
 		trans->p_sttr_tpb.cstr_address = const_cast<UCHAR*>(id);
 
-		if (send_and_receive(rdb, packet, user_status)) {
+		if (send_and_receive(rdb, packet, user_status)) 
 			return error(user_status);
-		}
 
 		*rtr_handle = rdb->createTransactionId (packet->p_resp.p_resp_object);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -3431,17 +3215,12 @@ ISC_STATUS GDS_RELEASE_REQUEST(ISC_STATUS * user_status, RRQ * req_handle)
  *	Release a request.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RRQ request = *req_handle;
 	CHECK_HANDLE(request, type_rrq, isc_bad_req_handle);
 	RDatabase* rdb = request->rrq_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -3476,18 +3255,13 @@ ISC_STATUS GDS_REQUEST_INFO(ISC_STATUS* user_status,
  *	Provide information on request object.
  *
  **************************************/
+ 
 	ISC_STATUS status;
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RRQ request = REMOTE_find_request(*req_handle, level);
 	CHECK_HANDLE(request, type_rrq, isc_bad_req_handle);
 	RDatabase* rdb = request->rrq_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -3558,8 +3332,6 @@ punt:
 		status = error(user_status);
 		}
 
-	//RESTORE_THREAD_DATA;
-
 	return status;
 }
 
@@ -3576,34 +3348,27 @@ ISC_STATUS GDS_ROLLBACK_RETAINING(ISC_STATUS * user_status, RTransaction* * rtr_
  *	Abort a transaction but keep its environment valid
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
+ 
 	RTransaction* transaction = *rtr_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
 	RDatabase* rdb = (*rtr_handle)->rtr_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* Make sure protocol support action */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION10) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION10)
 			return unsupported(user_status);
-		}
 
-		if (!release_object(rdb, op_rollback_retaining, transaction->rtr_id)) {
+		if (!release_object(rdb, op_rollback_retaining, transaction->rtr_id))
 			return error(user_status);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -3621,17 +3386,12 @@ ISC_STATUS GDS_ROLLBACK(ISC_STATUS * user_status, RTransaction* * rtr_handle)
  *	Abort a transaction.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RTransaction* transaction = *rtr_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
 	RDatabase* rdb = (*rtr_handle)->rtr_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -3664,23 +3424,16 @@ ISC_STATUS GDS_SEEK_BLOB(ISC_STATUS * user_status,
  *	Seek into a blob.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RBL blob = *blob_handle;
 	CHECK_HANDLE(blob, type_rbl, isc_bad_segstr_handle);
 	RDatabase* rdb = blob->rbl_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION6) {
+		{
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION6)
 			return unsupported(user_status);
-		}
 
 		Packet* packet = &rdb->rdb_packet;
 		packet->p_operation = op_seek_blob;
@@ -3689,24 +3442,24 @@ ISC_STATUS GDS_SEEK_BLOB(ISC_STATUS * user_status,
 		seek->p_seek_mode = mode;
 		seek->p_seek_offset = offset;
 
-		if (mode == 1) {
+		if (mode == 1) 
+			{
 			seek->p_seek_mode = 0;
 			seek->p_seek_offset = blob->rbl_offset + offset;
-		}
+			}
 
-		if (send_and_receive(rdb, packet, user_status)) {
+		if (send_and_receive(rdb, packet, user_status)) 
 			return error(user_status);
-		}
 
 		blob->rbl_offset = *result = packet->p_resp.p_resp_blob_id.bid_number;
 		blob->rbl_length = 0;
 		blob->rbl_fragment_length = 0;
 		blob->rbl_flags &= ~(RBL_eof | RBL_eof_pending | RBL_segment);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -3726,22 +3479,19 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
  *	Send a message to the server.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
 
-	//SET_THREAD_DATA;
 	CHECK_HANDLE((*req_handle), type_rrq, isc_bad_req_handle);
 	RRQ request = REMOTE_find_request(*req_handle, level);
 	RDatabase* rdb = request->rrq_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
+	
 	if (msg_type > request->rrq_max_msg)
 		return handle_error(user_status, isc_badmsgnum);
 
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		RMessage *message = request->rrq_rpt[msg_type].rrq_message;
 		message->msg_address = (UCHAR*) msg;
 
@@ -3752,9 +3502,8 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 		data->p_data_message_number = msg_type;
 		data->p_data_incarnation = level;
 
-		if (!send_packet(rdb->rdb_port, packet, user_status)) {
+		if (!send_packet(rdb->rdb_port, packet, user_status))
 			return error(user_status);
-		}
 
 		/* Bump up the message pointer to resync with rrq_xdr (rrq_xdr 
 		   was incremented by xdr_request in the SEND call).  */
@@ -3762,14 +3511,13 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 		message->msg_address = NULL;
 		request->rrq_rpt[msg_type].rrq_message = message->msg_next;
 
-		if (!receive_response(rdb, packet)) {
+		if (!receive_response(rdb, packet))
 			return error(user_status);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -3790,9 +3538,6 @@ ISC_STATUS GDS_SERVICE_ATTACH(ISC_STATUS* user_status,
  *
  **************************************/
 	char expanded_name[MAXPATHLEN];
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 	ConfObj configuration = Configuration::findObject ("provider", "remote8");
 	NULL_CHECK(handle, isc_bad_svc_handle);
 	strcpy((char *) expanded_name, (char *) service_name);
@@ -3896,42 +3641,33 @@ ISC_STATUS GDS_SERVICE_DETACH(ISC_STATUS * user_status, RDatabase* * handle)
  *	Close down a connection to an Interbase service.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	/* Check and validate handles, etc. */
 
 	RDatabase* rdb = *handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_svc_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 
 	try
-	{
+		{
 		/* make sure the protocol supports it */
 
-		if (port->port_protocol < PROTOCOL_VERSION8) {
+		if (port->port_protocol < PROTOCOL_VERSION8)
 			return unsupported(user_status);
-		}
 
-		if (!release_object(rdb, op_service_detach, rdb->rdb_id)) {
+		if (!release_object(rdb, op_service_detach, rdb->rdb_id)) 
 			return error(user_status);
-		}
 
 		disconnect(port);
 		*handle = NULL;
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	/* Note: Can't RETURN_SUCCESS here as we've torn down memory already */
-
-	//RESTORE_THREAD_DATA;
 
 	*user_status++ = isc_arg_gds;
 	*user_status++ = FB_SUCCESS;
@@ -3966,36 +3702,28 @@ ISC_STATUS GDS_SERVICE_QUERY(ISC_STATUS* user_status,
  *	a later date.
  **************************************/
 	ISC_STATUS status;
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	/* Check and validate handles, etc. */
 
 	RDatabase* rdb = *svc_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_svc_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* make sure the protocol supports it */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION8) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION8)
 			return unsupported(user_status);
-		}
 
 		status = info(user_status, rdb, op_service_info, rdb->rdb_id, 0,
 					  item_length, items, recv_item_length, recv_items,
 					  buffer_length, buffer);
-	}
+		}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		status = error(user_status);
-	}
-
-	//RESTORE_THREAD_DATA;
+		}
 
 	return status;
 }
@@ -4021,36 +3749,27 @@ ISC_STATUS GDS_SERVICE_START(ISC_STATUS * user_status,
  *	a later date.
  **************************************/
 	ISC_STATUS status;
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	/* Check and validate handles, etc. */
 
 	RDatabase* rdb = *svc_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_svc_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		/* make sure the protocol supports it */
 
-		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION8) {
+		if (rdb->rdb_port->port_protocol < PROTOCOL_VERSION8)
 			return unsupported(user_status);
+
+		status = svcstart(user_status, rdb, op_service_start, rdb->rdb_id, 0, item_length, items);
+		}
+	catch (const firebird::status_exception& /*e*/)
+		{
+		status = error(user_status);
 		}
 
-		status =
-			svcstart(user_status, rdb, op_service_start, rdb->rdb_id, 0,
-					 item_length, items);
-	}
-	catch (const firebird::status_exception& /*e*/)
-	{
-		status = error(user_status);
-	}
-
-	//RESTORE_THREAD_DATA;
 
 	return status;
 }
@@ -4072,9 +3791,6 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS * user_status,
  *	Get a record from the host program.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	CHECK_HANDLE((*req_handle), type_rrq, isc_bad_req_handle);
 	CHECK_HANDLE((*rtr_handle), type_rtr, isc_bad_trans_handle);
@@ -4082,24 +3798,24 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS * user_status,
 	RTransaction* transaction = *rtr_handle;
 	RDatabase* rdb = request->rrq_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
+	
 	if (msg_type > request->rrq_max_msg)
 		return handle_error(user_status, isc_badmsgnum);
+		
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
-		if ((*rtr_handle)->rtr_rdb != rdb) {
+		{
+		if ((*rtr_handle)->rtr_rdb != rdb) 
+			{
 			user_status[0] = isc_arg_gds;
 			user_status[1] = isc_trareqmis;
 			user_status[2] = isc_arg_end;
 			return error(user_status);
-		}
+			}
 
-		if (!clear_queue(rdb->rdb_port, user_status)) {
+		if (!clear_queue(rdb->rdb_port, user_status)) 
 			return error(user_status);
-		}
 
 		REMOTE_reset_request(request, 0);
 		RMessage *message = request->rrq_rpt[msg_type].rrq_message;
@@ -4131,15 +3847,13 @@ ISC_STATUS GDS_START_AND_SEND(ISC_STATUS * user_status,
 		request->rrq_rtr = transaction;
 
 		if (rdb->rdb_port->port_protocol >= PROTOCOL_VERSION8 &&
-			packet->p_operation == op_response_piggyback)
-		{
+			 packet->p_operation == op_response_piggyback)
 			receive_after_start(request, packet->p_resp.p_resp_object);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -4159,9 +3873,6 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
  *	Get a record from the host program.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	CHECK_HANDLE((*req_handle), type_rrq, isc_bad_req_handle);
 	CHECK_HANDLE((*rtr_handle), type_rtr, isc_bad_trans_handle);
@@ -4174,17 +3885,17 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 	//trdb->trdb_database = rdb;
 
 	try
-	{
-		if ((*rtr_handle)->rtr_rdb != rdb) {
+		{
+		if ((*rtr_handle)->rtr_rdb != rdb) 
+			{
 			user_status[0] = isc_arg_gds;
 			user_status[1] = isc_trareqmis;
 			user_status[2] = isc_arg_end;
 			return error(user_status);
-		}
+			}
 
-		if (!clear_queue(rdb->rdb_port, user_status)) {
+		if (!clear_queue(rdb->rdb_port, user_status)) 
 			return error(user_status);
-		}
 
 		REMOTE_reset_request(request, 0);
 		Packet* packet = &rdb->rdb_packet;
@@ -4204,15 +3915,13 @@ ISC_STATUS GDS_START(ISC_STATUS * user_status,
 		request->rrq_rtr = transaction;
 
 		if (rdb->rdb_port->port_protocol >= PROTOCOL_VERSION8 &&
-			packet->p_operation == op_response_piggyback)
-		{
+			 packet->p_operation == op_response_piggyback)
 			receive_after_start(request, packet->p_resp.p_resp_object);
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -4233,16 +3942,11 @@ ISC_STATUS GDS_START_TRANSACTION(ISC_STATUS * user_status,
  *	Start a transaction.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	NULL_CHECK(rtr_handle, isc_bad_trans_handle);
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
 		{
@@ -4286,21 +3990,15 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS* user_status,
  *	Execute a procedure on remote host.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
-
 	RDatabase* rdb = *db_handle;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	RTransaction* transaction = *rtr_handle;
 	CHECK_HANDLE(transaction, type_rtr, isc_bad_trans_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 	Port* port = rdb->rdb_port;
 
 	try
-	{
+		{
 		/* bag it if the protocol doesn't support it... */
 	
 		if (port->port_protocol < PROTOCOL_VERSION8) 
@@ -4377,20 +4075,18 @@ ISC_STATUS GDS_TRANSACT_REQUEST(ISC_STATUS* user_status,
 		 */
 
 		packet->p_resp.p_resp_status_vector = rdb->rdb_status_vector;
-		if (!receive_packet(port, packet, user_status)) {
+		
+		if (!receive_packet(port, packet, user_status))
 			return error(user_status);
-		}
 
-		if (packet->p_operation != op_transact_response) {
-			if (!check_response(rdb, packet)) {
+		if (packet->p_operation != op_transact_response) 
+			if (!check_response(rdb, packet)) 
 				return error(user_status);
-			}
 		}
-	}
 	catch (const firebird::status_exception& /*e*/)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -4596,26 +4292,21 @@ ISC_STATUS GDS_UNWIND(ISC_STATUS * user_status, RRQ * req_handle, USHORT level)
  *	Unwind a running request.
  *
  **************************************/
-	//struct trdb thd_context, *trdb;
-
-	//SET_THREAD_DATA;
 
 	RRQ request = REMOTE_find_request(*req_handle, level);
 	CHECK_HANDLE(request, type_rrq, isc_bad_req_handle);
 	RDatabase* rdb = request->rrq_rdb;
 	CHECK_HANDLE(rdb, type_rdb, isc_bad_db_handle);
 	rdb->rdb_status_vector = user_status;
-	//trdb->trdb_status_vector = user_status;
-	//trdb->trdb_database = rdb;
 
 	try
-	{
+		{
 		// EXE_unwind (*req_handle);
-	}
+		}
 	catch(const std::exception&)
-	{
+		{
 		return error(user_status);
-	}
+		}
 
 	RETURN_SUCCESS;
 }
@@ -5510,8 +5201,6 @@ static ISC_STATUS error( ISC_STATUS * user_status)
  *
  **************************************/
 
-	//RESTORE_THREAD_DATA;
-
 	return user_status[1];
 }
 
@@ -6022,8 +5711,6 @@ static ISC_STATUS handle_error( ISC_STATUS * user_status, ISC_STATUS code)
  *	"error" and abort.
  *
  **************************************/
-
-	//RESTORE_THREAD_DATA;
 
 	*user_status++ = isc_arg_gds;
 	*user_status++ = code;
@@ -6647,22 +6334,21 @@ static ISC_STATUS return_success( RDatabase* rdb)
  *	Set up status vector to reflect successful execution.
  *
  **************************************/
-	//RESTORE_THREAD_DATA;
 
 	ISC_STATUS* p = rdb->rdb_status_vector;
 
-/* If the status vector has not been initialized, then 
-   initilalize the status vector to indicate success.  
-   Else pass the status vector along at it stands.  */
+	/* If the status vector has not been initialized, then 
+	   initilalize the status vector to indicate success.  
+	   Else pass the status vector along at it stands.  */
 
 	if (p[0] != isc_arg_gds || p[1] != FB_SUCCESS
 		|| (p[2] != isc_arg_end && p[2] != isc_arg_gds
 			&& p[2] != isc_arg_warning)) 
-	{
+		{
 		*p++ = isc_arg_gds;
 		*p++ = FB_SUCCESS;
 		*p = isc_arg_end;
-	}
+		}
 
 	return FB_SUCCESS;
 }
@@ -7181,8 +6867,6 @@ static ISC_STATUS unsupported(ISC_STATUS* user_status)
  *	No_entrypoint is called if there is not entrypoint for a given routine.
  *
  **************************************/
-
-	//RESTORE_THREAD_DATA;
 
 	*user_status++ = isc_arg_gds;
 	*user_status++ = isc_wish_list;

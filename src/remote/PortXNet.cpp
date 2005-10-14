@@ -886,14 +886,12 @@ Port* PortXNet::receive(Packet* packet)
 			{
 			PortXNet *port = (PortXNet*) child;
 			portVector[count] = port;
-			//waitVector[count++] = port->port_xcc->xcc_event_recv_channel_filled;
 			waitVector[count++] = port->port_xcc->recvChannel.channelFilled;
 			}
 			
 		int index;
 
 #ifdef WIN_NT
-		//DWORD wait_res = WaitForSingleObject(xnet_connect_event,INFINITE);
 		DWORD wait_res = WaitForMultipleObjects(count, waitVector, false, INFINITE);
 		index = wait_res - WAIT_OBJECT_0;
 #endif
