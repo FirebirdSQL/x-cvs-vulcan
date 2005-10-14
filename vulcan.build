@@ -933,8 +933,8 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 <template name="Production">
-<BuildLibr libr="engine8.so"/>
-<Install file="engine8.so"/>
+<BuildLibr libr="engine11.so"/>
+<Install file="engine11.so"/>
 </template>
 
 <template name="Includes">-I$(SRCDIR)/include \
@@ -998,8 +998,8 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 <template name="Production">
-<BuildLibr libr="engine8.so"/>
-<Install file="engine8.so"/>
+<BuildLibr libr="engine11.so"/>
+<Install file="engine11.so"/>
 </template>
 
 <template name="Includes">-I$(SRCDIR)/include \
@@ -1063,8 +1063,8 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 <template name="Production">
-<BuildLibr libr="engine8.so"/>
-<Install file="engine8.so"/>
+<BuildLibr libr="engine11.so"/>
+<Install file="engine11.so"/>
 </template>
 
 <template name="Includes">-I$(SRCDIR)/include \
@@ -1358,9 +1358,9 @@ CPPFLAGS = \
 
 
 <template name="Production">
-engine8.so:	$(MODULES) 
-	CC $(CPPFLAGS) -ldl -G $(MODULES) -o engine8.so
-<Install file="engine8.so"/>
+engine11.so:	$(MODULES) 
+	CC $(CPPFLAGS) -ldl -G $(MODULES) -o engine11.so
+<Install file="engine11.so"/>
 </template>
 
 </component>
