@@ -1,3 +1,47 @@
+2005-10-14 23:57  jimstarkey
+
+	* vulcan/src/: config/ConfObject.cpp, jrd/jrd.vcproj:
+	
+	Continue switch from engine8 to engine11
+
+2005-10-14 23:33  jimstarkey
+
+	* vulcan/install/client.conf:
+	
+	Switched from engine8 to engine11
+
+2005-10-14 23:19  jimstarkey
+
+	* vulcan/: vulcan.build, builds/VisualStudio7/jrd/jrd.vcproj,
+	install/databases.conf, install/master.conf, src/build.conf:
+	
+	Switched primary engine from engine8 to engine11
+
+2005-10-14 21:53  jimstarkey
+
+	* vulcan/src/jrd/: fields.h, names.h, relations.h:
+	
+	Bring Vulcan system tables into rev with Firebird 2.0
+
+2005-10-14 20:46  jimstarkey
+
+	* vulcan/src/remote/: PortXNet.cpp, RBlob.cpp, interface.cpp,
+	protocol.cpp:
+	
+	Fix problem with remote blobs
+
+2005-10-14 09:30  robocop
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Misc.
+
+2005-10-14 09:29  robocop
+
+	* vulcan/src/jrd/Procedure.h:
+	
+	Get rid of useless semicolons.
+
 2005-10-13 23:37  jimstarkey
 
 	* vulcan/: builds/win32/defs/gds32.def, src/config/ConfigFile.cpp,
