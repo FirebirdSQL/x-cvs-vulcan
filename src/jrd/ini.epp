@@ -1453,6 +1453,7 @@ static void store_intlnames(thread_db* tdbb, Database* dbb)
 			PAD(collptr->init_collation_name, X.RDB$COLLATION_NAME);
 			X.RDB$CHARACTER_SET_ID = collptr->init_collation_charset;
 			X.RDB$COLLATION_ID = collptr->init_collation_id;
+			X.RDB$COLLATION_ATTRIBUTES = 1;	// PAD_SPACE
 			X.RDB$SYSTEM_FLAG = RDB_system;
 		END_STORE;
 	}

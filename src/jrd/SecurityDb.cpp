@@ -49,6 +49,32 @@
 #endif
 #endif
 
+static const char *creationDDL [] = 
+	{
+	"create domain rdb$user_name varchar(128) CHARACTER SET ASCII;",
+	"create domain rdb$uid integer;",
+	"create domain rdb$gid integer;",
+	"create domain rdb$password varchar(64);",
+	"create domain rdb$user_privilege integer;",
+	"create domain rdb$comment BLOB sub_type TEXT segment size 80 CHARACTER SET UNICODE_FSS;",
+	"create domain rdb$name_part varchar(128) CHARACTER SET UNICODE_FSS;",
+
+	"create table rdb$users(\n"
+		"rdb$user_name		rdb$user_name not null primary key,\n"
+		"rdb$sys_user_name	rdb$user_name,\n"
+		"rdb$group_name		rdb$user_name,\n"
+		"rdb$uid			rdb$uid,\n"
+		"rdb$gid			rdb$gid,\n"
+		"rdb$password		rdb$password,\n"
+		"rdb$privilege		rdb$user_privilege,\n"
+		"rdb$comment		rdb$comment,\n"
+		"rdb$first_name		rdb$name_part,\n"
+		"rdb$middle_name	rdb$name_part,\n"
+		"rdb$last_name		rdb$name_part);",
+		
+	NULL
+	};
+
 SecurityDb::SecurityDb(SecurityPlugin *securityChain) : SecurityPlugin(securityChain)
 {
 	databaseName = configuration->getValue(SecurityDatabase, SecurityDatabaseValue);
