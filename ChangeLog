@@ -1,3 +1,16 @@
+2005-10-15 19:10  jimstarkey
+
+	* vulcan/src/: burp/backup.boot, burp/restore.boot,
+	gpre/gpre_meta.boot:
+	
+	Updated boot build files.
+
+2005-10-15 19:06  jimstarkey
+
+	* vulcan/src/jrd/: SecurityDb.cpp, ini.epp:
+	
+	Initialize RDB$COLLATIONS re Firebird 2
+
 2005-10-14 23:57  jimstarkey
 
 	* vulcan/src/: config/ConfObject.cpp, jrd/jrd.vcproj:
