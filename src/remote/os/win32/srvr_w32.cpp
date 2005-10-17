@@ -115,6 +115,7 @@
 #include "ConfObj.h"
 #include "Parameters.h"
 #include "../remote/RServer.h"
+#include "../remote/PortXNet.h"
 
 static int inet_connect_wait_thread(void*);
 static void THREAD_ROUTINE ipc_connect_wait_thread(void*);

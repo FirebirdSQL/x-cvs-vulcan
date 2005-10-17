@@ -26,6 +26,7 @@
 
 class ExternalFile;
 class Transaction;
+class OptimizerBlk;
 struct thread_db;
 
 void	EXT_close(thread_db* tdbb, RecordSource*);
@@ -40,6 +41,7 @@ int	EXT_open(thread_db* tdbb, RecordSource*);
 #else
 void	EXT_open(thread_db* tdbb, RecordSource*);
 #endif
+
 RecordSource*	EXT_optimize(thread_db* tdbb, OptimizerBlk*, SSHORT, jrd_nod**);
 void	EXT_ready(Relation*);
 void	EXT_store(DBB dbb, record_param*, int*);

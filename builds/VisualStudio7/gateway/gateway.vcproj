@@ -79,7 +79,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\deploy\bin\gateway.dll"
+				OutputFile="..\..\..\install\bin\gateway.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="..\..\..\src\gateway\gateway.def"
 				GenerateDebugInformation="TRUE"

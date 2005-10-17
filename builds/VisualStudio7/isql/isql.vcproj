@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\deploy\bin\isql.exe"
+				OutputFile="..\..\..\install\bin\isql.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				GenerateDebugInformation="TRUE"

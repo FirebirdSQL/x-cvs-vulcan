@@ -107,13 +107,13 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\deploy\bin\firebird.dll"
+				OutputFile="..\..\..\install\bin\firebird.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile="..\..\win32\defs\gds32.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Release/why.pdb"
-				ImportLibrary="..\..\..\deploy\lib\firebird.lib"
+				ImportLibrary="..\..\..\install\lib\firebird.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"

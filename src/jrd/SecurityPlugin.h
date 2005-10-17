@@ -58,7 +58,8 @@ public:
 	virtual ConfObject* getConfiguration(void);
 	virtual void		authenticateUser(SecurityContext *context, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	virtual void		updateAccountInfo(SecurityContext *context, int apbLength, const UCHAR* apb);
-
+	virtual void		close();
+	
 protected:
 	ConfObj			configuration;
 	SecurityPlugin	*chain;

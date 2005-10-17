@@ -5616,66 +5616,15 @@ static void shutdown_database(thread_db* tdbb, const bool release_pools)
  *
  **************************************/
 
-	/* Shutdown file and/or remote connection */
-
-#ifdef SUPERSERVER_V2
-	TRA_header_write(tdbb, dbb, 0L);	/* Update transaction info on header page. */
-#endif
-
-#ifdef GARBAGE_THREAD
-	VIO_fini(tdbb);
-#endif
-
-	CMP_fini(tdbb);
 	Database *dbb = tdbb->tdbb_database;
-	dbb->pageCache->fini(tdbb);
-
-	if (dbb->backup_manager)
-		dbb->backup_manager->shutdown (tdbb);
-
-	FUN_fini(tdbb);
-
-	if (dbb->dbb_shadow_lock)
-		LCK_release(dbb->dbb_shadow_lock);
-
-	if (dbb->dbb_retaining_lock)
-		LCK_release(dbb->dbb_retaining_lock);
-
-	if (dbb->dbb_lock)
-		LCK_release(dbb->dbb_lock);
-
-	
-#ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
-	if (dbb->dbb_log)
-		LOG_fini();
-#endif
-
-	/* Shut down any extern relations */
-
-	for (int n = 0; n < dbb->dbb_relations.size(); ++n)
-		{
-		Relation *relation = dbb->dbb_relations[n];
-		if (relation && relation->rel_file)
-			EXT_fini(tdbb, relation);
-		}
-
 	databaseManager.remove (dbb);
-	dbb->pageCache->shutdownDatabase(tdbb);
-
-	if (dbb->dbb_flags & DBB_lck_init_done) 
-		{
-		LCK_fini(tdbb, LCK_OWNER_database);	/* For the database */
-		dbb->dbb_flags &= ~DBB_lck_init_done;
-		}
-
-	//SecurityDatabase::shutdown();
+	dbb->shutdown(tdbb);
 
 	if (release_pools) 
 		{
 		delete dbb;
 		tdbb->tdbb_database = NULL;
 		}
-
 }
 
 

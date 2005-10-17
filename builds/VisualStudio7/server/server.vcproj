@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
-				OutputFile="..\..\..\deploy\bin\inetserver.exe"
+				OutputFile="..\..\..\install\bin\inetserver.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				GenerateDebugInformation="TRUE"

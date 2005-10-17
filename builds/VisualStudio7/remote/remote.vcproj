@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib mpr.lib firebird.lib "
-				OutputFile="..\..\..\deploy\bin\remote.dll"
+				OutputFile="..\..\..\install\bin\remote.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\deploy\lib"
 				ModuleDefinitionFile="..\..\..\src\remote\Remote.def"

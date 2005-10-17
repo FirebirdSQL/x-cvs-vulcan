@@ -55,6 +55,7 @@ public:
 	
 	void attachDatabase(void);
 	bool checkUsersTable(Connection* connection);
+	void close(void);
 };
 
 #endif

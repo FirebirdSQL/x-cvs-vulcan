@@ -216,13 +216,15 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	// We've got some work to do.
 	
 	Connection *connection = context->getConnection();
+	PStatement statement = connection->prepareStatement( "select * from users where user_name=?");
 	
+	/***
 	if (!authenticate)
-		authenticate = connection->prepareStatement(
-			"select * from users where user_name=?");
-
-	authenticate->setString(1, accountName);
-	RSet resultSet = authenticate->executeQuery();
+		authenticate = connection->prepareStatement( "select * from users where user_name=?");
+	***/
+	
+	statement->setString(1, accountName);
+	RSet resultSet = statement->executeQuery();
 	JString oldHash = userData.getOldPasswordHash();
 	int hit = false;
 	
@@ -344,4 +346,13 @@ bool SecurityDb::checkUsersTable(Connection* connection)
 	RSet resultSet = statement->executeQuery();
 	
 	return resultSet->next();
+}
+
+void SecurityDb::close(void)
+{
+	if (authenticate)
+		{
+		authenticate->close();
+		authenticate = NULL;
+		}
 }

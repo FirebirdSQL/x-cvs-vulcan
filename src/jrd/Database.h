@@ -350,6 +350,7 @@ public:
 	void decrementUseCount(void);
 	Relation* findRelation(int relationId);
 	Relation* findRelation(thread_db* tdbb, int relationId);
+	void shutdown(thread_db* tdbb);
 };
 
 #endif // !defined(AFX_DATABASE_H__BE654FF4_17AA_4D04_B13D_B8569CF885F2__INCLUDED_)

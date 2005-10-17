@@ -63,6 +63,10 @@
 #include "TipCache.h"
 #include "CommitManager.h"
 #include "Attachment.h"
+#include "cmp_proto.h"
+#include "../jrd/nbak.h"
+#include "../jrd/fun_proto.h"
+#include "../jrd/ext_proto.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -522,4 +526,63 @@ Relation* Database::findRelation(int relationId)
 Relation* Database::findRelation(thread_db* tdbb, int relationId)
 {
 	return NULL;
+}
+
+void Database::shutdown(thread_db* tdbb)
+{
+	if (securityPlugin)
+		{
+		securityPlugin->close();
+		securityPlugin = NULL;
+		}
+		
+#ifdef SUPERSERVER_V2
+	TRA_header_write(tdbb, this, 0L);	/* Update transaction info on header page. */
+#endif
+
+#ifdef GARBAGE_THREAD
+	VIO_fini(tdbb);
+#endif
+
+	CMP_fini(tdbb);
+	pageCache->fini(tdbb);
+
+	if (backup_manager)
+		backup_manager->shutdown (tdbb);
+
+	FUN_fini(tdbb);
+
+	if (dbb_shadow_lock)
+		LCK_release(dbb_shadow_lock);
+
+	if (dbb_retaining_lock)
+		LCK_release(dbb_retaining_lock);
+
+	if (dbb_lock)
+		LCK_release(dbb_lock);
+
+	
+#ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
+	if (dbb_log)
+		LOG_fini();
+#endif
+
+	/* Shut down any extern relations */
+
+	for (int n = 0; n < dbb_relations.size(); ++n)
+		{
+		Relation *relation = dbb_relations[n];
+		
+		if (relation && relation->rel_file)
+			EXT_fini(tdbb, relation);
+		}
+
+	//databaseManager.remove (this);
+	pageCache->shutdownDatabase(tdbb);
+
+	if (dbb_flags & DBB_lck_init_done) 
+		{
+		LCK_fini(tdbb, LCK_OWNER_database);	/* For the database */
+		dbb_flags &= ~DBB_lck_init_done;
+		}
 }

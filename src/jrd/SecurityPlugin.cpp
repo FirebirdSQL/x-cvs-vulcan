@@ -62,3 +62,8 @@ int SecurityPlugin::getAPIVersion(void)
 	
 	return (version < CurrentSecurityPlugVersion) ? version : CurrentSecurityPlugVersion;
 }
+
+void SecurityPlugin::close(void)
+{
+	close();
+}
