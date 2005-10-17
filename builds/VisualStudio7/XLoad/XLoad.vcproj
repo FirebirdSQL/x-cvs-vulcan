@@ -82,6 +82,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/XLoad.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

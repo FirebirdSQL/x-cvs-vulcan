@@ -116,7 +116,7 @@
 				OutputFile="..\..\..\install\bin\engine8.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\deploy\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Release/jrd.pdb"

@@ -82,9 +82,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\istall\bin\qli.exe"
+				OutputFile="..\..\..\install\bin\qli.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\deploy\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

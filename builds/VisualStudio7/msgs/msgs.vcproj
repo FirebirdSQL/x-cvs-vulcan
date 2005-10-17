@@ -88,7 +88,7 @@ move firebird.msg ..\..\..\install\
 				AdditionalDependencies="firebird.lib"
 				OutputFile="$(OutDir)/msgs.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\deploy\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

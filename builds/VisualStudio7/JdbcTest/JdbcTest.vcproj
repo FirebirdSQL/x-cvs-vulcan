@@ -43,7 +43,7 @@
 				OutputFile="..\..\..\src\JdbcTest\Release\JdbcTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\deploy\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ProgramDatabaseFile=".\Release/JdbcTest.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>

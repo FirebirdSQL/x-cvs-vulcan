@@ -84,7 +84,7 @@
 				AdditionalDependencies="firebird.lib"
 				OutputFile="..\..\..\install\bin\isql.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\deploy\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

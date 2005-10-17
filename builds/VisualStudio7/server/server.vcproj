@@ -85,7 +85,7 @@
 				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
 				OutputFile="..\..\..\install\bin\inetserver.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\deploy\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

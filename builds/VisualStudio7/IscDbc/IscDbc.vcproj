@@ -46,7 +46,7 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
 				ProgramDatabaseFile=".\Release/IscDbc.pdb"
-				ImportLibrary="..\..\..\deploy\lib\IscDbc.lib"
+				ImportLibrary="..\..\..\install\lib\IscDbc.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
