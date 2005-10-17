@@ -615,6 +615,7 @@ dsql_str* CStatement::getDefaultCharset()
 		}
 
 	Connect connection = attachment->getUserConnection(transaction);
+	//Connect connection = database->getSystemConnection();
 	PStatement statement = connection->prepareStatement (
 		"SELECT dbb.RDB$CHARACTER_SET_NAME "		
 		"	FROM RDB$DATABASE dbb ");

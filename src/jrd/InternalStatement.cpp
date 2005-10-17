@@ -239,6 +239,14 @@ bool InternalStatement::execute()
 {
 	ISC_STATUS statusVector [20];
 	
+	if (statement->req_type == REQ_DDL)
+		{
+		if (jrd8_ddl (statusVector, &connection->attachment, &connection->transaction, statement->blrGen->getLength(), statement->blrGen->buffer))
+			throw OSRIException(statusVector);
+		
+		return false;
+		}
+		
 	dsql_msg *message = statement->sendMessage;
 	
 	if (message)

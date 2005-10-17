@@ -81,10 +81,15 @@ SecurityDb::SecurityDb(SecurityPlugin *securityChain) : SecurityPlugin(securityC
 	self = databaseName.equalsNoCase("SELF");
 	none = databaseName.equalsNoCase("NONE") || databaseName.IsEmpty();
 	dbHandle = 0;
+	authenticate = NULL;
+	haveTable = false;
 }
 
 SecurityDb::~SecurityDb(void)
 {
+	if (authenticate)
+		authenticate->close();
+		
 	if (dbHandle)
 		{
 		ISC_STATUS statusVector [20];
@@ -115,6 +120,17 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 	userData.parseApb(apbLength, apb);
 	Connection *connection = context->getConnection();
 	PStatement statement;
+	
+	if (!haveTable && !(haveTable = checkUsersTable(connection)))
+		{
+		
+		for (const char **ddl = creationDDL; ddl; ++ddl)
+			{
+			statement = connection->prepareStatement(*ddl);
+			statement->execute();
+			}
+		}
+		
 	JString encryptedPassword = userData.getOldPasswordHash();
 	int n = 1;
 	
@@ -200,10 +216,13 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	// We've got some work to do.
 	
 	Connection *connection = context->getConnection();
-	PStatement statement = connection->prepareStatement(
-		"select * from users where user_name=?");
-	statement->setString(1, accountName);
-	RSet resultSet = statement->executeQuery();
+	
+	if (!authenticate)
+		authenticate = connection->prepareStatement(
+			"select * from users where user_name=?");
+
+	authenticate->setString(1, accountName);
+	RSet resultSet = authenticate->executeQuery();
 	JString oldHash = userData.getOldPasswordHash();
 	int hit = false;
 	
@@ -316,4 +335,13 @@ void SecurityDb::attachDatabase(void)
 	
 	if (isc_attach_database(statusVector, 0, databaseName, &dbHandle, gen.getLength(), (char*) gen.buffer))
 		throw OSRIException(statusVector);
+}
+
+bool SecurityDb::checkUsersTable(Connection* connection)
+{
+	PStatement statement = connection->prepareStatement(
+		"select rdb$relation_id from rdb$relations where rdb$relation_name='RDB$USERS'");
+	RSet resultSet = statement->executeQuery();
+	
+	return resultSet->next();
 }
