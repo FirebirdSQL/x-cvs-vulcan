@@ -44,7 +44,7 @@ struct thread_db
 	JrdMemoryPool*	tdbb_default;
 	DsqlMemoryPool*	tsql_default;
 	ISC_STATUS*		tdbb_status_vector;
-	void*			tdbb_setjmp;
+	//void*			tdbb_setjmp;
 	USHORT			tdbb_inhibit;		/* Inhibit context switch if non-zero */
 	USHORT			tdbb_flags;
 	iuo				tdbb_pages;

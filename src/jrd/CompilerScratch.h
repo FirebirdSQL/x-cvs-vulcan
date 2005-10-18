@@ -33,7 +33,7 @@
 
 #include "sbm.h"
 #include "lls.h"
-//#include "rse.h"
+#include "SVector.h"
 
 const int csb_internal			= 1;	/* "csb_g_flag" switch */
 const int csb_get_dependencies	= 2;

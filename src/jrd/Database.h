@@ -141,26 +141,21 @@ class CommitManager;
 
 class File;		/* files for I/O operations */
 class Shadow;		/* shadow control block */
-//struct bcb;		/* Buffer control block */
 struct plc;		/* connection block */
 struct PageControl;	/* page control */
 struct BlobFilter;		/* known blob filters */
 struct lls;
 struct jrn;		/* journal block */
-//struct tpc;		/* cache of latest known state of all transactions in system */
 struct thread_db;
 
 class Database : public RefObject //public pool_alloc<type_dbb>
 {
 public:
-	//Database();
 	virtual ~Database();
-
-public:
-	Relation* findRelation (thread_db* tdbb, const char *relationName);
-	ISC_STATUS executeDDL (ISC_STATUS *statusVector, Transaction *transaction, int length, const UCHAR *ddl);
-	void init();
-	int getSqlDialect();
+	Relation*	findRelation (thread_db* tdbb, const char *relationName);
+	ISC_STATUS	executeDDL (ISC_STATUS *statusVector, Transaction *transaction, int length, const UCHAR *ddl);
+	void		init();
+	int			getSqlDialect();
 	typedef int (*crypt_routine) (char*, void*, int, void*);
 
 	Database			*dbb_next;				/* Next database block in system */
@@ -175,6 +170,8 @@ public:
 	Lock				*dbb_retaining_lock;	/* lock for preserving commit retaining snapshot */
 	plc					*dbb_connection;		/* connection block */
 	PageControl			*dbb_pcontrol;			/* page control */
+	JString				securityDatabase;
+	
 #ifdef SHARED_CACHE
 	SIVector<SLONG>		dbb_t_pages;			/* pages number for transactions */
 	SIVector<SLONG>		dbb_gen_id_pages;		/* known pages for gen_id */
@@ -182,6 +179,7 @@ public:
 	SVector<SLONG>		dbb_t_pages;			/* pages number for transactions */
 	SVector<SLONG>		dbb_gen_id_pages;		/* known pages for gen_id */
 #endif
+
 	BlobFilter			*dbb_blob_filters;		/* known blob filters */
 	struct lls			*dbb_modules;			/* external function/filter modules */
 	SLONG				dbb_sort_size;			/* Size of sort space per sort */
@@ -224,6 +222,7 @@ public:
 
 	LinkedList			dbb_pools;
     USHORT				dbb_next_pool_id;
+    
 #ifdef SHARED_CACHE
 	SIVector<Request*>	dbb_internal;			/* internal requests */
 	SIVector<Request*>	dbb_dyn_req;			/* internal dyn requests */
@@ -309,48 +308,41 @@ public:
 	
 	InternalConnection	*systemConnection;
 			
-	//tpc					*dbb_tip_cache;				/* cache of latest known state of all transactions in system */
 	TipCache			*tipCache;
 	INTERLOCK_TYPE		sweeperCount;
 	BackupManager		*backup_manager;			/* physical backup manager */
 	Symbol				*dbb_hash_table[HASH_SIZE];	/* keep this at the end */
 
-	Database (const char *expandedFilename, ConfObject *configObject);
-	
-	// The delete operators are no-oped because the dbb memory is allocated from the
-	// dbb's own permanent pool.  That pool has already been released by the dbb
-	// destructor, so the memory has already been released.  Hence the operator
-	// delete no-op.
-	
-	//void operator delete(void *mem) {}
-	//void operator delete[](void *mem) {}
-
 	Database(const Database&);	// no impl.
+	Database (const char *expandedFilename, ConfObject *configObject);
 	const Database& operator =(const Database&) { return *this; }
-	bool isFilename(const char* filename);
-	CharSetContainer* findCharset(thread_db* tdbb, int ttype);
-	CharSetContainer* findCharset(thread_db* tdbb, const char* name);
-	CharSetContainer* findCollation(thread_db* tdbb, const char* name);
-	void addPool(JrdMemoryPool* pool);
-	void removePool(JrdMemoryPool* pool);
-	Attachment* createAttachment(void);
-	void deleteAttachment(Attachment* attachment);
-	void makeReady(void);
-	bool isReady(bool waitFlag);
-	//bool isInitialized(void);
-	Relation* lookupRelation(thread_db* tdbb, const char* relationName);
-	Relation* getRelation(thread_db* tdbb, int id);
-	void validate(void);
-	Procedure* findProcedure(thread_db* tdbb, int id);
-	Procedure* findProcedure(thread_db* tdbb, const TEXT* name, bool noscan);
+	
+	bool				isFilename(const char* filename);
+	CharSetContainer*	findCharset(thread_db* tdbb, int ttype);
+	CharSetContainer*	findCharset(thread_db* tdbb, const char* name);
+	CharSetContainer*	findCollation(thread_db* tdbb, const char* name);
+	void				addPool(JrdMemoryPool* pool);
+	void				removePool(JrdMemoryPool* pool);
+	Attachment*			createAttachment(void);
+	void				deleteAttachment(Attachment* attachment);
+	void				makeReady(void);
+	bool				isReady(bool waitFlag);
+	
+	Relation*			lookupRelation(thread_db* tdbb, const char* relationName);
+	Relation*			getRelation(thread_db* tdbb, int id);
+	Relation*			findRelation(int relationId);
+	Relation*			findRelation(thread_db* tdbb, int relationId);
+	
+	void				validate(void);
+	Procedure*			findProcedure(thread_db* tdbb, int id);
+	Procedure*			findProcedure(thread_db* tdbb, const TEXT* name, bool noscan);
 	InternalConnection* getSystemConnection(void);
-	void updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb);
-	void authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
-	void incrementUseCount(void);
-	void decrementUseCount(void);
-	Relation* findRelation(int relationId);
-	Relation* findRelation(thread_db* tdbb, int relationId);
-	void shutdown(thread_db* tdbb);
+	void				updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb);
+	void				authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	void				incrementUseCount(void);
+	void				decrementUseCount(void);
+	void				shutdown(thread_db* tdbb);
+	InternalConnection* getNewConnection(thread_db *tdbb);
 };
 
 #endif // !defined(AFX_DATABASE_H__BE654FF4_17AA_4D04_B13D_B8569CF885F2__INCLUDED_)

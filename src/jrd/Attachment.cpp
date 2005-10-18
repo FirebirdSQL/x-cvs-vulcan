@@ -44,6 +44,9 @@
 #include "lck_proto.h"
 #include "event_proto.h"
 #include "../jrd/met_proto.h"
+#include "CompilerScratch.h"
+#include "../jrd/cmp_proto.h"
+#include "../jrd/scl_proto.h"
 #include "Relation.h"
 #include "scl.h"
 #include "jrd.h"
@@ -144,16 +147,6 @@ InternalConnection* Attachment::getUserConnection(Transaction* transaction)
 	Sync sync (&syncObject, "Attachment::getUserConnection");
 	sync.lock (Exclusive);
 #endif
-	
-	connection->prior = lastConnection;
-	
-	if (firstConnection)
-		lastConnection->next = connection;
-	else
-		firstConnection = connection;
-
-	lastConnection = connection;
-	connection->next = NULL;
 	
 	return connection;
 }
@@ -283,8 +276,7 @@ void Attachment::shutdown(thread_db* tdbb)
 
     Lock* record_lock;
     
-	for (record_lock = att_record_locks; record_lock;
-		 record_lock = record_lock->lck_att_next)
+	for (record_lock = att_record_locks; record_lock; record_lock = record_lock->lck_att_next)
 		LCK_release(record_lock);
 
 	/* bug #7781, need to null out the attachment pointer of all locks which
@@ -304,6 +296,12 @@ void Attachment::shutdown(thread_db* tdbb)
 
 	if (att_compatibility_table)
 		delete att_compatibility_table;
+
+	for (Request* request; request = att_requests;) 
+		CMP_release(tdbb, request);
+	
+	for (SecurityClass* sec_class; sec_class = att_security_classes;)
+		SCL_release(tdbb, sec_class);
 }
 
 void Attachment::addLongLock(Lock* lock)
@@ -414,4 +412,23 @@ Relation* Attachment::getRelation(thread_db* tdbb, const char* relationName)
 		throw OSRIException(isc_relnotdef, isc_arg_string, relationName, 0);
 	
 	return relation;
+}
+
+void Attachment::addTransaction(Transaction* transaction)
+{
+	transaction->tra_next = att_transactions;
+	att_transactions = transaction;
+}
+
+void Attachment::addConnection(InternalConnection* connection)
+{
+	connection->prior = lastConnection;
+	
+	if (firstConnection)
+		lastConnection->next = connection;
+	else
+		firstConnection = connection;
+
+	lastConnection = connection;
+	connection->next = NULL;
 }

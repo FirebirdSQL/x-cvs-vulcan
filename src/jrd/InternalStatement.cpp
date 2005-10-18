@@ -215,6 +215,7 @@ void InternalStatement::prepareStatement(const char * sqlString)
 	reset();
 	ISC_STATUS statusVector [20];
 	ThreadData thread (statusVector, connection->attachment);
+	thread.setTransaction(connection->transaction);
 	clearResults();
 	statement = new CStatement (connection->attachment);
 	thread.setDsqlPool (statement->pool);
@@ -237,6 +238,7 @@ void InternalStatement::prepareStatement(const char * sqlString)
 
 bool InternalStatement::execute()
 {
+	connection->startTransaction();
 	ISC_STATUS statusVector [20];
 	
 	if (statement->req_type == REQ_DDL)

@@ -25,8 +25,6 @@
 #define JRD_CMP_PROTO_H
 
 #include "CompilerScratch.h"
-//#include "req.h"
-//#include "Resource.h"
 
 // Note: Due to bad planning, the enum "rsc_s" is defined in req.h, which must be include
 // before this file.
@@ -39,7 +37,6 @@ class Relation;
 class Resource;
 class Format;
 class IndexLock;
-//class Resource;
 
 struct thread_db;
 
@@ -47,7 +44,9 @@ bool		CMP_clone_is_active(const Request*);
 jrd_nod*	CMP_clone_node(thread_db*, CompilerScratch*, jrd_nod*);
 Request*	CMP_clone_request(thread_db*, Request*, USHORT, bool);
 Request*	CMP_compile2(thread_db*, const UCHAR*, USHORT);
+
 CompilerScratch::csb_repeat* CMP_csb_element(CompilerScratch*, USHORT);
+
 void		CMP_expunge_transaction(Transaction*);
 void		CMP_decrement_prc_use_count(thread_db*, Procedure*);
 Request*	CMP_find_request(thread_db*, USHORT, USHORT);
@@ -60,8 +59,6 @@ Request*	CMP_make_request(thread_db*, CompilerScratch*);
 void		CMP_post_access(thread_db*, CompilerScratch*, const TEXT*, SLONG,
 					 const TEXT*, const TEXT*, USHORT, const TEXT*,
 					 const TEXT*);
-//void		CMP_post_resource(thread_db*, Resource**, blk*, enum Resource::rsc_s, USHORT);
-//void		CMP_release_resource(Resource**, enum Resource::rsc_s, USHORT);
 void		CMP_release(thread_db*, Request*);
 void		CMP_shutdown_database(thread_db*);
 

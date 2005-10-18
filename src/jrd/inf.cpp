@@ -206,11 +206,8 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 	SCHAR site[256];
 	SSHORT length, l;
 	SLONG id;
-	//SCHAR wal_name[256];
-	//SLONG wal_p_offset;
 	Attachment* err_att;
 	Attachment* att;
-	//UserId* user;
 	SLONG err_val;
 	BOOLEAN	header_refreshed = FALSE;	
 
@@ -411,18 +408,20 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 
 			case isc_info_forced_writes:
 				if (!header_refreshed)
-				{
+					{
 					file = dbb->dbb_file;
 					PAG_header(tdbb, file->fil_string);
 					header_refreshed = TRUE;
-				}
+					}
+					
 				*p++ = (dbb->dbb_flags & DBB_force_write) ? 1 : 0;
 				length = p - buffer;
 				break;
 
 			case isc_info_limbo:
 				if (!transaction)
-					transaction = TRA_start(tdbb, 0, NULL);
+					transaction = TRA_start(tdbb, tdbb->tdbb_attachment, 0, NULL);
+					
 				for (id = transaction->tra_oldest;
 					id < transaction->tra_number; id++)
 					if (TRA_snapshot_state(tdbb, transaction, id) == tra_limbo &&
@@ -442,7 +441,7 @@ int INF_database_info(thread_db* tdbb, const UCHAR* items,
 
 			case isc_info_active_transactions:
 				if (!transaction)
-					transaction = TRA_start(tdbb, 0, NULL);
+					transaction = TRA_start(tdbb, tdbb->tdbb_attachment, 0, NULL);
 					
 				for (id = transaction->tra_oldest_active; id < transaction->tra_number; id++)
 					if (TRA_snapshot_state(tdbb, transaction, id) == tra_active) 

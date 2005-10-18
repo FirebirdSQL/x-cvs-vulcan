@@ -2267,10 +2267,10 @@
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2318,10 +2318,10 @@
 				RelativePath="blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\dsql\blk.h">
+				RelativePath="blk.h">
 			</File>
 			<File
-				RelativePath="blk.h">
+				RelativePath="..\dsql\blk.h">
 			</File>
 			<File
 				RelativePath="..\common\Blob.h">
@@ -3398,10 +3398,10 @@
 				RelativePath="ThreadData.h">
 			</File>
 			<File
-				RelativePath="Threads.h">
+				RelativePath=".\ThreadDataState.h">
 			</File>
 			<File
-				RelativePath=".\ThreadStatus.h">
+				RelativePath="Threads.h">
 			</File>
 			<File
 				RelativePath=".\TimeStamp.h">
@@ -3434,10 +3434,10 @@
 				RelativePath=".\Triggers.h">
 			</File>
 			<File
-				RelativePath="types.h">
+				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
 			</File>
 			<File
-				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
+				RelativePath="types.h">
 			</File>
 			<File
 				RelativePath=".\UserData.h">

@@ -715,7 +715,7 @@ void TRA_header_write(thread_db* tdbb, DBB dbb, SLONG number)
 #endif
 
 
-void TRA_init(thread_db* tdbb)
+void TRA_init(thread_db* tdbb, Attachment *attachment)
 {
 /**************************************
  *
@@ -727,14 +727,9 @@ void TRA_init(thread_db* tdbb)
  *	"Start" the system transaction.
  *
  **************************************/
-	DBB dbb;
-	Transaction *trans;
-
-	SET_TDBB(tdbb);
-	dbb = tdbb->tdbb_database;
-	CHECK_DBB(dbb);
-
-	dbb->dbb_sys_trans = trans = FB_NEW_RPT(*dbb->dbb_permanent, 0) Transaction();
+ 
+	Database *dbb = tdbb->tdbb_database;
+	Transaction *trans = dbb->dbb_sys_trans = FB_NEW_RPT(*dbb->dbb_permanent, 0) Transaction(attachment);
 	trans->tra_flags |= TRA_system | TRA_ignore_limbo;
 	trans->tra_pool = dbb->dbb_permanent;
 }
@@ -770,7 +765,7 @@ void TRA_invalidate(DBB database, ULONG mask)
 		}
 }
 
-
+#ifdef OBSOLETE
 void TRA_link_transaction(thread_db* tdbb, Transaction* transaction)
 {
 /**************************************
@@ -783,15 +778,12 @@ void TRA_link_transaction(thread_db* tdbb, Transaction* transaction)
  *	Link transaction block into database attachment.
  *
  **************************************/
-	Attachment* attachment;
 
-	SET_TDBB(tdbb);
-
-	transaction->tra_attachment = attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = transaction->tra_attachment = tdbb->tdbb_attachment;
 	transaction->tra_next = attachment->att_transactions;
 	attachment->att_transactions = transaction;
 }
-
+#endif // OBSOLETE
 
 void TRA_post_resources(thread_db* tdbb, Transaction* transaction, Resource* resources)
 {
@@ -1016,7 +1008,7 @@ void TRA_prepare(thread_db* tdbb, Transaction* transaction, USHORT length,
 }
 
 
-Transaction* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
+Transaction* TRA_reconnect(thread_db* tdbb, Attachment *attachment, const UCHAR* id, USHORT length)
 {
 /**************************************
  *
@@ -1028,39 +1020,45 @@ Transaction* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
  *	Reconnect to a transaction in limbo.
  *
  **************************************/
-	SET_TDBB(tdbb);
-	DBB dbb = tdbb->tdbb_database;
-	CHECK_DBB(dbb);
 
-/* Cannot work on limbo transactions for ReadOnly database */
+	DBB dbb = tdbb->tdbb_database;
+
+	/* Cannot work on limbo transactions for ReadOnly database */
+	
 	if (dbb->dbb_flags & DBB_read_only)
 		ERR_post(isc_read_only_database, 0);
 
 
 	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	Transaction* trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction();
+	Transaction* trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction(attachment);
 	trans->tra_pool = tdbb->tdbb_default;
 	trans->tra_number = gds__vax_integer(id, length);
 	trans->tra_flags |= TRA_prepared | TRA_reconnected | TRA_write;
 
 	const UCHAR state = limbo_transaction(tdbb, trans->tra_number);
-	if (state != tra_limbo) {
+	
+	if (state != tra_limbo) 
+		{
 		USHORT message;
 		
-		switch (state) {
-		case tra_active:
-			message = 262;		/* ACTIVE */
-			break;
-		case tra_dead:
-			message = 264;		/* ROLLED BACK */
-			break;
-		case tra_committed:
-			message = 263;		/* COMMITTED */
-			break;
-		default:
-			message = 265;		/* ILL DEFINED */
-			break;
-		}
+		switch (state) 
+			{
+			case tra_active:
+				message = 262;		/* ACTIVE */
+				break;
+				
+			case tra_dead:
+				message = 264;		/* ROLLED BACK */
+				break;
+				
+			case tra_committed:
+				message = 263;		/* COMMITTED */
+				break;
+				
+			default:
+				message = 265;		/* ILL DEFINED */
+				break;
+			}
 
 		const SLONG number = trans->tra_number;
 		JrdMemoryPool *tra_pool = trans->tra_pool;
@@ -1076,9 +1074,9 @@ Transaction* TRA_reconnect(thread_db* tdbb, const UCHAR* id, USHORT length)
 				 isc_arg_gds, isc_tra_state,
 				 isc_arg_number, number,
 				 isc_arg_string, ERR_cstring(text), 0);
-	}
+		}
 
-	TRA_link_transaction(tdbb, trans);
+	//TRA_link_transaction(tdbb, trans);
 
 	return trans;
 }
@@ -1490,7 +1488,7 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 }
 
 
-Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
+Transaction* TRA_start(thread_db* tdbb, Attachment *attachment, int tpb_length, const UCHAR* tpb)
 {
 /**************************************
  *
@@ -1503,15 +1501,13 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
  *
  **************************************/
 	header_page* header;
-	Transaction *trans;
 	Lock temp_lock;
 	USHORT shift, oldest_state, cleanup;
 	ULONG byte, oldest, number, base, active, oldest_active, oldest_snapshot;
 	SLONG data;
 
-	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
-	Attachment* attachment = tdbb->tdbb_attachment;
+	//Attachment* attachment = tdbb->tdbb_attachment;
 	WIN window(-1);
 
 	if (dbb->dbb_ast_flags & DBB_shut_tran)
@@ -1524,7 +1520,7 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	   make up the real transaction block. */
 
 	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	Transaction *temp = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction;
+	Transaction *temp = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction(attachment);
 	temp->tra_pool = tdbb->tdbb_default;
 	transaction_options(tdbb, temp, tpb, tpb_length);
 	Lock* lock = TRA_transaction_lock(tdbb, reinterpret_cast < blk * >(temp));
@@ -1561,11 +1557,8 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	   of four, which puts the transaction on a byte boundary. */
 
 	base = oldest & ~TRA_MASK;
-
-	if (temp->tra_flags & TRA_read_committed)
-		trans = FB_NEW_RPT(*tdbb->tdbb_default, 0) Transaction;
-	else 
-		trans = FB_NEW_RPT(*tdbb->tdbb_default, (number - base + TRA_MASK) / 4) Transaction;
+	int count = (temp->tra_flags & TRA_read_committed) ? 0 : (number - base + TRA_MASK) / 4;
+	Transaction *trans = FB_NEW_RPT(*tdbb->tdbb_default, count) Transaction (attachment);
 
 	trans->tra_pool = temp->tra_pool;
 	trans->tra_relation_locks = temp->tra_relation_locks;
@@ -1596,7 +1589,7 @@ Transaction* TRA_start(thread_db* tdbb, int tpb_length, const UCHAR* tpb)
 	/* Link the transaction to the attachment block before releasing
 	   header page for handling signals. */
 
-	TRA_link_transaction(tdbb, trans);
+	//TRA_link_transaction(tdbb, trans);
 
 	if (!(dbb->dbb_flags & DBB_read_only))
 		CCH_RELEASE(tdbb, &window);
@@ -1884,7 +1877,7 @@ int TRA_sweep(thread_db* tdbb, Transaction* trans)
 		   below to advance the OIT we must save it before it changes. */
 
 		if (!(transaction = trans))
-			transaction = TRA_start(tdbb, sizeof(sweep_tpb), sweep_tpb);
+			transaction = TRA_start(tdbb, tdbb->tdbb_attachment, sizeof(sweep_tpb), sweep_tpb);
 
 		SLONG transaction_oldest_active = transaction->tra_oldest_active;
 
@@ -3032,6 +3025,9 @@ Transaction::~Transaction(void)
 	Lock* lock;
 	int i;
 	
+	if (tra_attachment)
+		tra_attachment->endTransaction(this);
+
 	for (Relation* relation; relation = pendingRelations;)
 		{
 		pendingRelations = relation->rel_next;
@@ -3040,17 +3036,23 @@ Transaction::~Transaction(void)
 	if (tra_lock) delete tra_lock;
 	
 	vector = tra_relation_locks;
+	
 	if (vector)
-	for (i = 0; i < vector->count(); i++)
-	{
-		lock = (Lock*)((*vector)[i]);
-		if (lock) delete lock;
-	}
+		for (i = 0; i < vector->count(); i++)
+			{
+			lock = (Lock*)((*vector)[i]);
+			
+			if (lock) 
+				delete lock;
+			}
 }
 
-Transaction::Transaction(void)
+Transaction::Transaction(Attachment *attachment)
 {
 	pendingRelations = NULL;
+	
+	if (tra_attachment = attachment)
+		attachment->addTransaction(this);
 }
 
 void Transaction::addPendingRelation(Relation* relation)

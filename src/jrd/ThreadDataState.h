@@ -18,44 +18,47 @@
  *
  *  The Original Code was created by James A. Starkey for IBPhoenix.
  *
- *  Copyright (c) 2004 James A. Starkey
+ *  Copyright (c) 2005 James A. Starkey
  *  All Rights Reserved.
  */
 
-// BlrGen.h: interface for the BlrGen class.
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef _INTERNAL_SECURITY_CONTEXT_H
-#define _INTERNAL_SECURITY_CONTEXT_H
+#ifndef _THREAD_DATA_STATE_H
+#define _THREAD_DATA_STATE_H
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "SecurityPlugin.h"
-#include "ibase.h"
+#include "tdbb.h"
+#include "Tra.h"
 
-class InternalConnection;
 class Transaction;
-class thread_db;
+class Attachment;
 
-class InternalSecurityContext : public SecurityContext
+class ThreadDataState
 {
 public:
-	InternalSecurityContext(thread_db* tdbb);
-	virtual ~InternalSecurityContext(void);
-	virtual Connection*		getUserConnection(void);
-	virtual Connection*		getNewConnection(void);
-	virtual void			commit(void);
-	virtual void			rollback(void);
-	virtual const char*		getDatabaseFilename(void);
+	inline ThreadDataState (thread_db *tdbb, Transaction *transaction)
+		{
+		threadStuff = tdbb;
+		priorTransaction = tdbb->tdbb_transaction;
+		priorAttachment = tdbb->tdbb_attachment;
+		tdbb->tdbb_transaction = transaction;
+		tdbb->tdbb_attachment = transaction->tra_attachment;
+		}
 	
-	Transaction			*transaction;
-	InternalConnection	*connection;
-	thread_db			*threadData;
-	isc_db_handle		dbHandle;
+	inline ~ThreadDataState ()
+		{
+		threadStuff->tdbb_transaction = priorTransaction;
+		threadStuff->tdbb_attachment = priorAttachment;
+		}
+		
+	thread_db	*threadStuff;
+	Transaction	*priorTransaction;
+	Attachment	*priorAttachment;
 };
 
 #endif
-

@@ -386,7 +386,6 @@ static ULONG num_attached = 0;
 #if !defined(REQUESTER)
 
 int		debug;
-IHNDL	internal_db_handles = 0;
 
 #endif	// !REQUESTER
 
@@ -874,26 +873,12 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 			}
 
 	options.dpb_sql_dialect = 0;
-
-	// Don't run internal handles thru the security gauntlet.
-
-	JString securityDatabase = databaseConfiguration->getValue (SecurityDatabase,SecurityDatabaseValue);
-	bool internal = false;
-
-	for (IHNDL ihandle = internal_db_handles; ihandle; ihandle = ihandle->ihndl_next)
-		if (ihandle->ihndl_object == (isc_db_handle *) handle)
-			{
-			internal = true;
-			break;
-			}
-
-	if (!internal && securityDatabase == translatedName)
+	
+	if (dbb->securityDatabase == translatedName)
 		ERR_post(isc_login, 0);
 
-	if (!internal)
-		attachment->authenticateUser(threadData, dpb_length, dpb);
-	
-	SCL_init(false, attachment, securityDatabase, threadData, internal);
+	attachment->authenticateUser(threadData, dpb_length, dpb);
+	SCL_init(false, attachment, dbb->securityDatabase, threadData);
 			/***
 			options.dpb_sys_user_name,
 			options.dpb_user_name,
@@ -1070,7 +1055,7 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 			}
 
 		if (options.dpb_dbkey_scope) 
-			attachment->att_dbkey_trans = TRA_start(threadData, 0, 0);
+			attachment->att_dbkey_trans = TRA_start(threadData, attachment, 0, 0);
 		
 		// Recover database after crash during backup difference file merge
 		
@@ -1692,42 +1677,20 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		FUN_init();
 		PAG_init(threadData);
 		
-		// Don't run internal handles thru the security gauntlet.
-
-		JString securityDatabase = databaseConfiguration->getValue (SecurityDatabase,SecurityDatabaseValue);
-		bool internal = false;
-
-		for (IHNDL ihandle = internal_db_handles; ihandle; ihandle = ihandle->ihndl_next)
-			if (ihandle->ihndl_object == (isc_db_handle *) handle)
-				{
-				internal = true;
-				break;
-				}
-
-		if (!internal && securityDatabase == translatedName)
+		if (dbb->securityDatabase == translatedName)
 			ERR_post(isc_login, 0);
 			
-		if (securityDatabase != "self")
+		if (dbb->securityDatabase != "self")
 			attachment->authenticateUser(threadData, dpb_length, dpb);
 			
-		SCL_init(true, attachment, securityDatabase, threadData, internal);
-		/***
-		SCL_init(true,
-				options.dpb_sys_user_name,
-				options.dpb_user_name,
-				options.dpb_password,
-				options.dpb_password_enc,
-				options.dpb_role_name,
-				securityDatabase,
-				threadData,
-				internal);
-		***/
+		SCL_init(true, attachment, dbb->securityDatabase, threadData);
 		
 		if (!verify_database_name(expandedName, user_status)) 
 			{
 			JRD_restore_context();
 			return user_status[1];
 			}
+			
 		dbb->dbb_file = PIO_create(threadData, expandedName, expandedName.length(), options.dpb_overwrite, dbb->fileShared);
 		const File* first_dbb_file = dbb->dbb_file;
 		
@@ -1753,7 +1716,6 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		if (options.dpb_set_no_reserve)
 			PAG_set_no_reserve(threadData, dbb, options.dpb_no_reserve);
 
-		//INI_format(threadData, attachment->att_user->usr_user_name, options.dpb_set_db_charset);
 		INI_format(threadData, attachment->userData.userName, options.dpb_set_db_charset);
 
 		if (options.dpb_shutdown || options.dpb_online) 
@@ -1829,8 +1791,22 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		*handle = attachment;
 		CCH_FLUSH(threadData.threadData, (USHORT) FLUSH_FINI, 0);
 		dbb->makeReady();
-		
 		unlockAST(dbb);
+
+		/***
+		if (dbb->securityDatabase == "self")
+			{
+			PBGen apb(fb_apb_version1);
+			apb.putParameter(fb_apb_operation, fb_apb_create_account);
+			apb.putParameter(fb_apb_account, options.dpb_user_name);
+			
+			if (options.dpb_password[0])
+				apb.putParameter(fb_apb_password, options.dpb_password);
+			
+			dbb->updateAccountInfo(threadData, apb.getLength(), apb.buffer);
+			}
+		***/
+		
 		return return_success(threadData);
 		}
 	catch (OSRIException& exception)
@@ -2037,6 +2013,7 @@ ISC_STATUS GDS_DETACH(ISC_STATUS * user_status, Attachment* * handle)
 	Sync sync (&dbb->syncAttachments, "jrd8_detach_database");
 	sync.lock(Exclusive);
 #endif
+
 	Attachment* attach;
 	
 	for (attach = dbb->dbb_attachments; attach; attach = attach->att_next)
@@ -2782,7 +2759,7 @@ ISC_STATUS GDS_RECONNECT(ISC_STATUS* user_status,
 	//tdbb->tdbb_status_vector = user_status;
 	try
 		{
-		Transaction* transaction = TRA_reconnect(threadData, id, length);
+		Transaction* transaction = TRA_reconnect(threadData, attachment, id, length);
 		*tra_handle = transaction;
 	
 #ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
@@ -3480,11 +3457,12 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 				return user_status[1];
 
 			lockAST(attachment->att_database);
+			
 	#ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
 			LOG_call(log_start_multiple, *tra_handle, count, vector);
 	#endif
-			//tdbb->tdbb_status_vector = user_status;
-			transaction = TRA_start(threadData, v->teb_tpb_length, v->teb_tpb);
+
+			transaction = TRA_start(threadData, attachment, v->teb_tpb_length, v->teb_tpb);
 			transaction->tra_sibling = prior;
 			prior = transaction;
 			dbb = threadData.getDatabase(); //tdbb->tdbb_database;
@@ -3513,19 +3491,6 @@ ISC_STATUS GDS_START_MULTIPLE(ISC_STATUS * user_status,
 	LOG_call(log_handle_returned, *tra_handle);
 #endif
 
-	// Play, just play
-
-	/***
-	Attachment *attachment = threadData.getAttachment();
-	Connect connection = attachment->getUserConnection (transaction);
-	PStatement statement = connection->prepareStatement (
-		"select rdb$relation_name, rdb$relation_id from rdb$relations");
-	RSet resultSet = statement->executeQuery();
-	
-	while (resultSet->next())
-		ib_printf ("%s %d\n", resultSet->getString (1), resultSet->getInt (2));
-	***/
-	
 	return return_success(threadData);
 }
 
@@ -5356,7 +5321,7 @@ static DBB init(thread_db* tdbb,
 
 		/* Initialize a number of subsystems */
 
-		TRA_init(tdbb);
+		TRA_init(tdbb, NULL);
 
 		/* Lookup some external "hooks" */
 
@@ -6000,6 +5965,7 @@ static void purge_attachment(thread_db* tdbb,
  *	mutex databases_mutex will be locked.
  *
  **************************************/
+ 
 	DBB dbb = attachment->att_database;
 
 	if (!(dbb->dbb_flags & DBB_bugcheck)) 
@@ -6009,10 +5975,10 @@ static void purge_attachment(thread_db* tdbb,
 		int count = 0;
 		Transaction* next;
 		
-		for (Transaction* transaction = attachment->att_transactions;
-			 transaction; transaction = next)
+		for (Transaction* transaction = attachment->att_transactions; transaction; transaction = next)
 			{
 			next = transaction->tra_next;
+			
 			if (transaction != attachment->att_dbkey_trans)
 				{
 				if (transaction->tra_flags & TRA_prepared ||
@@ -6036,6 +6002,7 @@ static void purge_attachment(thread_db* tdbb,
 		if (trans_dbk)
 			{
 			attachment->att_dbkey_trans = NULL;
+			
 			if (dbb->dbb_ast_flags & DBB_shutdown || attachment->att_flags & ATT_shutdown)
 				TRA_release_transaction(tdbb, trans_dbk);
 			else
@@ -6048,9 +6015,6 @@ static void purge_attachment(thread_db* tdbb,
 	/* Unlink attachment from database */
 
 	release_attachment(tdbb, attachment);
-
-	/* At this point, mutex dbb->dbb_mutexes [DBB_MUTX_init_fini] has been
-	  unlocked and mutex databases_mutex has been locked. */
 
 	/* If there are still attachments, do a partial shutdown */
 

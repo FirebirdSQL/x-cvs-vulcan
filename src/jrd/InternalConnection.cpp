@@ -35,6 +35,8 @@
 #include "InternalPreparedStatement.h"
 #include "Parameters.h"
 #include "Attachment.h"
+#include "ThreadData.h"
+#include "tra_proto.h"
 
 InternalConnection::InternalConnection(Attachment *attach, Transaction *transact)
 {
@@ -44,7 +46,7 @@ InternalConnection::InternalConnection(Attachment *attach, Transaction *transact
 
 InternalConnection::InternalConnection(InternalConnection * source)
 {
-	init(source->attachment, source->transaction);
+	init(source->attachment, NULL);
 }
 
 void InternalConnection::init(Attachment *attach, Transaction *transact)
@@ -53,8 +55,12 @@ void InternalConnection::init(Attachment *attach, Transaction *transact)
 	metaData = NULL;
 	transactionIsolation = 0;
 	autoCommit = true;
-	attachment = attach;
 	transaction = transact;
+
+	if (attachment = attach)
+		attachment->addConnection(this);
+	else
+		prior = next = NULL;
 }
 
 InternalConnection::~InternalConnection()
@@ -83,6 +89,10 @@ void InternalConnection::close()
 
 PreparedStatement* InternalConnection::prepareStatement(const char * sqlString)
 {
+	ISC_STATUS statusVector [20];
+	ThreadData threadData (statusVector, attachment);
+	startTransaction();
+	threadData.setTransaction(transaction);
 	InternalPreparedStatement *statement = NULL;
 
 	try
@@ -102,16 +112,11 @@ PreparedStatement* InternalConnection::prepareStatement(const char * sqlString)
 
 void InternalConnection::commit()
 {
-	/***
-	if (transactionHandle)
-		{
-		ISC_STATUS statusVector [20];
-		isc_commit_transaction (statusVector, &transactionHandle);
-
-		if (statusVector [1])
-			throw SQLEXCEPTION (statusVector [1], getInternalStatusText (statusVector));
-		}
-	***/
+	ISC_STATUS statusVector [20];
+	ThreadData threadData (statusVector, attachment);
+	threadData.setTransaction(transaction);
+	TRA_commit(threadData, transaction, 0);
+	transaction = NULL;
 }
 
 void InternalConnection::rollback()
@@ -134,19 +139,14 @@ void InternalConnection::prepareTransaction()
 
 void* InternalConnection::startTransaction()
 {
-	/***
-	if (transactionHandle)
-		return transactionHandle;
-
-	ISC_STATUS statusVector [20];
-	isc_start_transaction (statusVector, &transactionHandle, 1, &attachment->databaseHandle, 0, NULL);
-
-	if (statusVector [1])
-		throw SQLEXCEPTION (statusVector [1], getInternalStatusText (statusVector));
-
-	return transactionHandle;
-	***/
-	return NULL;
+	if (!transaction)
+		{
+		ISC_STATUS statusVector [20];
+		ThreadData threadData (statusVector, attachment);
+		transaction = TRA_start(threadData, attachment, 0, NULL);
+		}
+	
+	return transaction;
 }
 
 Statement* InternalConnection::createStatement()
@@ -157,13 +157,6 @@ Statement* InternalConnection::createStatement()
 	return statement;
 }
 
-
-/***
-void InternalConnection::freeHTML(const char * html)
-{
-	delete [] (char*) html;
-}
-***/
 
 DatabaseMetaData* InternalConnection::getMetaData()
 {
@@ -215,8 +208,7 @@ int InternalConnection::objectVersion()
 
 Connection* InternalConnection::clone()
 {
-	//return new InternalConnection (this);
-	return NULL;
+	return new InternalConnection (this);
 }
 
 void InternalConnection::setAutoCommit(bool setting)

@@ -397,11 +397,11 @@ CompilerScratch::csb_repeat* CMP_csb_element(CompilerScratch* csb, USHORT elemen
  *
  **************************************/
 
-	DEV_BLKCHK(csb, type_csb);
 	CompilerScratch::csb_repeat empty_item;
-	while (element >= csb->csb_rpt.getCount()) {
+	
+	while (element >= csb->csb_rpt.getCount()) 
 		csb->csb_rpt.add(empty_item);
-	}
+
 	return &csb->csb_rpt[element];
 }
 

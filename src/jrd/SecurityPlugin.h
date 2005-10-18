@@ -41,7 +41,8 @@ class Connection;
 class SecurityContext
 {
 public:
-	virtual Connection*	getConnection() = 0;
+	virtual Connection*	getUserConnection() = 0;
+	virtual Connection*	getNewConnection() = 0;
 	virtual const char*	getDatabaseFilename() = 0;
 };
 

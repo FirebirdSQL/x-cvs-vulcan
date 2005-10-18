@@ -53,11 +53,6 @@ InternalPreparedStatement::~InternalPreparedStatement()
 
 ResultSet* InternalPreparedStatement::executeQuery()
 {
-	/***
-	if (outputSqlda.sqlda->sqld < 1)
-		throw SQLEXCEPTION (RUNTIME_ERROR, "statement is not a Select");
-	***/
-	
 	execute();
 	getMoreResults();
 
@@ -111,7 +106,6 @@ bool InternalPreparedStatement::execute()
 
 int InternalPreparedStatement::executeUpdate()
 {
-	connection->startTransaction();
 	return InternalStatement::execute();
 }
 

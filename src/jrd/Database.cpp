@@ -67,6 +67,7 @@
 #include "../jrd/nbak.h"
 #include "../jrd/fun_proto.h"
 #include "../jrd/ext_proto.h"
+#include "../jrd/tra_proto.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -91,9 +92,11 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 	charSetManager = new CharSetManager (this);
 	tipCache = new TipCache(this);
 	sweeperCount = 0;
+	
 #ifdef SHARED_CACHE
 	syncReady.lock (NULL, Exclusive);
 #endif
+
 	int cur_perm = 0, max_perm = 0;
 	dbb_permanent = JrdMemoryPool::createPool(this, &cur_perm, &max_perm);
 	dbb_internal.resize(irq_MAX);
@@ -105,12 +108,14 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 
 	procManager = new ProcManager(this);
 	commitManager = new CommitManager(this);
+	
 #ifdef SHARED_CACHE
 	fileShared = configuration->getValue (DatabaseFileShared,DatabaseFileSharedValue);
 #else
 	fileShared = true; 
 #endif
 	
+	securityDatabase = configuration->getValue (SecurityDatabase,SecurityDatabaseValue);
 	securityPlugin = new SecurityRoot(this);
 	const char *policyName = configuration->getValue(SecurityManager, SecurityManagerValue);
 	
@@ -209,8 +214,6 @@ void Database::init()
 	dbb_pcontrol = NULL;	/* page control */
 	dbb_blob_filters = NULL;	/* known blob filters */
 	dbb_modules = NULL;	/* external function/filter modules */
-	//dbb_mutexes = NULL;		/* DBB block mutexes */
-	//dbb_rw_locks = NULL;		/* DBB block read/write locks */
 	dbb_sort_size = 0;		/* Size of sort space per sort */
 
 	maxUnflushedWrites = 0;
@@ -278,8 +281,6 @@ void Database::init()
 	dbb_log = NULL;						/* log file for REPLAY */
 	
 	pageCache = NULL;
-	//dbb_tip_cache = NULL;				/* cache of latest known state of all transactions in system */
-	//dbb_pc_transactions = NULL;		/* active precommitted transactions */
 	backup_manager = NULL;				/* physical backup manager */
 	defaultCharSet = NULL;
 	systemConnection = NULL;
@@ -585,4 +586,14 @@ void Database::shutdown(thread_db* tdbb)
 		LCK_fini(tdbb, LCK_OWNER_database);	/* For the database */
 		dbb_flags &= ~DBB_lck_init_done;
 		}
+}
+
+InternalConnection* Database::getNewConnection(thread_db *tdbb)
+{
+	Attachment *attachment = createAttachment();
+	attachment->att_flags |= ATT_internal;
+	Transaction *transaction = TRA_start(tdbb, attachment, 0, NULL);
+	InternalConnection *connection = new InternalConnection(attachment, transaction);
+	
+	return connection;
 }

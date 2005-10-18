@@ -37,6 +37,7 @@
 #include "ibase.h"
 
 class PreparedStatement;
+class Connection;
 
 class SecurityDb : public SecurityPlugin
 {
@@ -51,6 +52,7 @@ public:
 	bool			none;
 	bool			haveTable;
 	isc_db_handle	dbHandle;
+	Connection		*connection;
 	PreparedStatement	*authenticate;
 	
 	void attachDatabase(void);

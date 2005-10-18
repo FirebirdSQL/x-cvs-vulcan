@@ -31,6 +31,7 @@
 //#include "Connection.h"
 #include "InternalConnection.h"
 #include "Attachment.h"
+#include ".\internalsecuritycontext.h"
 
 InternalSecurityContext::InternalSecurityContext(thread_db* tdbb)
 {
@@ -48,13 +49,13 @@ InternalSecurityContext::~InternalSecurityContext(void)
 		connection->release();
 }
 
-Connection* InternalSecurityContext::getConnection(void)
+Connection* InternalSecurityContext::getUserConnection(void)
 {
 	if (connection)
 		return connection;
 	
 	if (!transaction)
-		transaction = TRA_start(threadData, 0, NULL);
+		transaction = TRA_start(threadData, threadData->tdbb_attachment, 0, NULL);
 	
 	connection = threadData->tdbb_attachment->getUserConnection(transaction);
 	connection->addRef();
@@ -75,4 +76,9 @@ void InternalSecurityContext::rollback(void)
 const char* InternalSecurityContext::getDatabaseFilename(void)
 {
 	return threadData->tdbb_database->dbb_filename;
+}
+
+Connection* InternalSecurityContext::getNewConnection(void)
+{
+	return threadData->tdbb_database->getNewConnection(threadData);
 }

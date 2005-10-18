@@ -89,7 +89,7 @@ public:
 	UCHAR			tra_transactions[1];
 	
 	~Transaction(void);
-	Transaction(void);
+	Transaction(Attachment *attachment);
 	
 	blb*		allocateBlob(thread_db* tdbb);
 	void		deleteBlob(blb* blob);

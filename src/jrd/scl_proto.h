@@ -36,7 +36,7 @@ void SCL_check_relation(thread_db* tdbb, struct dsc*, USHORT);
 SecurityClass* SCL_get_class(thread_db* tdbb, const TEXT*);
 int SCL_get_mask(thread_db* tdbb, const TEXT*, const TEXT*);
 //void SCL_init(bool, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*, const TEXT* securityDatabase, thread_db*, bool);
-void SCL_init(bool create, Attachment *attachment, const TEXT *securityDatabase, thread_db* threadData, bool internal);
+void SCL_init(bool create, Attachment *attachment, const TEXT *securityDatabase, thread_db* threadData);
 void SCL_move_priv(Generate *acl, USHORT);
 SecurityClass* SCL_recompute_class(thread_db*, TEXT*);
 void SCL_release(thread_db* tdbb, struct SecurityClass*);

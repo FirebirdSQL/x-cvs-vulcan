@@ -37,19 +37,19 @@ int		TRA_get_state(thread_db*, SLONG);
 #ifdef SUPERSERVER_V2
 void	TRA_header_write(thread_db*, Database *, SLONG);
 #endif
-void	TRA_init(thread_db*);
+void	TRA_init(thread_db*, Attachment *attachment);
 void	TRA_invalidate(Database *, ULONG);
-void	TRA_link_transaction(thread_db*, Transaction *);
+//void	TRA_link_transaction(thread_db*, Transaction *);
 void	TRA_post_resources(thread_db*, Transaction *, class Resource*);
 BOOLEAN TRA_precommited(thread_db*, SLONG, SLONG);
 void	TRA_prepare(thread_db*, Transaction*, USHORT, const UCHAR*);
-Transaction* TRA_reconnect(thread_db*, const UCHAR*, USHORT);
+Transaction* TRA_reconnect(thread_db*, Attachment *attachment, const UCHAR*, USHORT);
 void	TRA_release_transaction(thread_db*, Transaction *);
 void	TRA_rollback(thread_db*, Transaction*, const bool);
 void	TRA_set_state(thread_db*, Transaction *, SLONG, SSHORT);
 void	TRA_shutdown_attachment(thread_db*, Attachment *);
 int		TRA_snapshot_state(thread_db*, Transaction *, SLONG);
-Transaction* TRA_start(thread_db*, int, const UCHAR*);
+Transaction* TRA_start(thread_db*, Attachment *attachment, int, const UCHAR*);
 int		TRA_state(UCHAR *, ULONG, ULONG);
 int		TRA_sweep(thread_db*, Transaction *);
 Lock*	TRA_transaction_lock(thread_db*, struct blk *);

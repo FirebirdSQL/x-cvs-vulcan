@@ -55,16 +55,17 @@ const ULONG ATT_attach_pending		= 64;	// Indicate attachment is only pending
 const ULONG ATT_exclusive_pending	= 128;	// Indicate exclusive attachment pending
 const ULONG ATT_gbak_attachment		= 256;	// Indicate GBAK attachment
 const ULONG ATT_security_db			= 512;	// Indicates an implicit attachment to the security db
+
 #ifdef GARBAGE_THREAD
 const ULONG ATT_notify_gc			= 1024;	// Notify garbage collector to expunge, purge ..
 const ULONG ATT_disable_notify_gc	= 2048;	// Temporarily perform own garbage collection
 const ULONG ATT_garbage_collector	= 4096;	// I'm a garbage collector
-
-
 #define ATT_NO_CLEANUP	(ATT_no_cleanup | ATT_notify_gc)
 #else
 #define ATT_NO_CLEANUP	ATT_no_cleanup
 #endif
+
+const ULONG ATT_internal			= 8192;	// Internal connection
 
 #ifdef CANCEL_OPERATION
 const ULONG ATT_cancel_raise		= 8192;		// Cancel currently running operation
@@ -169,6 +170,8 @@ public:
 	Relation* getRelation(thread_db* tdbb, int relationId);
 	Relation* findRelation(thread_db* tdbb, const char* relationName, int csbFlags=0);
 	Relation* getRelation(thread_db* tdbb, const char* relationName);
+	void addTransaction(Transaction* transaction);
+	void addConnection(InternalConnection* connection);
 };
 
 #endif // !defined(AFX_ATTACHMENT_H__79215D0A_E447_411D_A318_BD185E131E4F__INCLUDED_)

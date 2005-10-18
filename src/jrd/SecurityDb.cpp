@@ -41,6 +41,7 @@
 #include "InfoGen.h"
 #include "PBGen.h"
 #include "enc_proto.h"
+#include "Connect.h"
 
 #ifdef _WIN32
 #ifndef strcasecmp
@@ -51,10 +52,10 @@
 
 static const char *creationDDL [] = 
 	{
-	"create domain rdb$user_name varchar(128) CHARACTER SET ASCII;",
+	"create domain rdb$user_name varchar(128) CHARACTER SET UNICODE_FSS;",
 	"create domain rdb$uid integer;",
 	"create domain rdb$gid integer;",
-	"create domain rdb$password varchar(64);",
+	"create domain rdb$password varchar(64) CHARACTER SET ASCII;",
 	"create domain rdb$user_privilege integer;",
 	"create domain rdb$comment BLOB sub_type TEXT segment size 80 CHARACTER SET UNICODE_FSS;",
 	"create domain rdb$name_part varchar(128) CHARACTER SET UNICODE_FSS;",
@@ -71,7 +72,8 @@ static const char *creationDDL [] =
 		"rdb$first_name		rdb$name_part,\n"
 		"rdb$middle_name	rdb$name_part,\n"
 		"rdb$last_name		rdb$name_part);",
-		
+	
+	"grant all on rdb$users to sysdba with grant option",	
 	NULL
 	};
 
@@ -82,6 +84,7 @@ SecurityDb::SecurityDb(SecurityPlugin *securityChain) : SecurityPlugin(securityC
 	none = databaseName.equalsNoCase("NONE") || databaseName.IsEmpty();
 	dbHandle = 0;
 	authenticate = NULL;
+	connection = NULL;
 	haveTable = false;
 }
 
@@ -118,17 +121,19 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 		
 	UserData userData;
 	userData.parseApb(apbLength, apb);
-	Connection *connection = context->getConnection();
+	Connect connection = (InternalConnection*) context->getUserConnection()->clone();
+		
 	PStatement statement;
 	
 	if (!haveTable && !(haveTable = checkUsersTable(connection)))
 		{
-		
-		for (const char **ddl = creationDDL; ddl; ++ddl)
+		for (const char **ddl = creationDDL; *ddl; ++ddl)
 			{
 			statement = connection->prepareStatement(*ddl);
 			statement->execute();
 			}
+		
+		connection->commit();
 		}
 		
 	JString encryptedPassword = userData.getOldPasswordHash();
@@ -140,7 +145,7 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 		case fb_apb_upgrade_account:
 		case fb_apb_create_account:
 			statement = connection->prepareStatement(
-				"insert into users (user_name, passwd, uid, gid)values(?,?,?,?)");
+				"insert into rdb$users (rdb$user_name, rdb$password, rdb$uid, rdb$gid) values (?,?,?,?)");
 			statement->setString(n++, JString::upcase(userData.userName));
 			statement->setString(n++, encryptedPassword);
 			statement->setInt(n++, userData.uid);
@@ -190,10 +195,13 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 		
 	InfoGen info(buffer, bufferLength);
 	JString accountName = JString::upcase(userData.userName);
-	
+
+	if (!none)
+		connection = context->getUserConnection();
+		
 	// If none, just give back the user name and forget about it
 	
-	if (none)
+	if (none || (!haveTable && !checkUsersTable(connection)))
 		{
 		for (int n = 0; n < itemsLength; ++n)
 			{
@@ -215,8 +223,8 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	
 	// We've got some work to do.
 	
-	Connection *connection = context->getConnection();
-	PStatement statement = connection->prepareStatement( "select * from users where user_name=?");
+
+	PStatement statement = connection->prepareStatement( "select * from rdb$users where rdb$user_name=?");
 	
 	/***
 	if (!authenticate)
@@ -231,7 +239,7 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	if (resultSet->next())
 		{
 		hit = true;
-		const char *password = resultSet->getString("PASSWD");
+		const char *password = resultSet->getString("RDB$PASSWORD");
 
 		if (oldHash != password)		
 			throw OSRIException(isc_login, 0);
@@ -250,27 +258,27 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 					break;
 
 				case fb_info_user_group:
-					info.putString(item, resultSet->getString("GROUP_NAME"));
+					info.putString(item, resultSet->getString("RDB$GROUP_NAME"));
 					break;
 
 				case fb_info_user_first_name:
-					info.putString(item, resultSet->getString("FIRST_NAME"));
+					info.putString(item, resultSet->getString("RDB$FIRST_NAME"));
 					break;
 
 				case fb_info_user_middle_name:
-					info.putString(item, resultSet->getString("MIDDLE_NAME"));
+					info.putString(item, resultSet->getString("RDB$MIDDLE_NAME"));
 					break;
 
 				case fb_info_user_last_name:
-					info.putString(item, resultSet->getString("LAST_NAME"));
+					info.putString(item, resultSet->getString("RDB$LAST_NAME"));
 					break;
 
 				case fb_info_user_uid:
-					info.putInt(item, resultSet->getInt("UID"));
+					info.putInt(item, resultSet->getInt("RDB$UID"));
 					break;
 				
 				case fb_info_user_gid:
-					info.putInt(item, resultSet->getInt("GID"));
+					info.putInt(item, resultSet->getInt("RDB$GID"));
 					break;
 				
 				case fb_info_user_authenticator:
