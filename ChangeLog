@@ -1,3 +1,47 @@
+2005-10-17 20:41  jimstarkey
+
+	* vulcan/builds/VisualStudio7/: IscDbc/IscDbc.vcproj,
+	JdbcTest/JdbcTest.vcproj, XLoad/XLoad.vcproj, burp/burp.vcproj,
+	isql/isql.vcproj, jrd/jrd.vcproj, msgs/msgs.vcproj, qli/qli.vcproj,
+	remote/remote.vcproj, server/server.vcproj:
+	
+	More cleanup on Release build for Visual Studio 7.
+
+2005-10-17 20:25  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/IscDbc/IscDbc.vcproj,
+	builds/VisualStudio7/JdbcTest/JdbcTest.vcproj,
+	builds/VisualStudio7/alice/alice.vcproj,
+	builds/VisualStudio7/burp/burp.vcproj,
+	builds/VisualStudio7/config/config.vcproj,
+	builds/VisualStudio7/gateway/gateway.vcproj,
+	builds/VisualStudio7/gpre/gpre.vcproj,
+	builds/VisualStudio7/gsec/gsec.vcproj,
+	builds/VisualStudio7/gstat/gstat.vcproj,
+	builds/VisualStudio7/intlcpp/intlcpp.vcproj,
+	builds/VisualStudio7/isql/isql.vcproj,
+	builds/VisualStudio7/jrd/jrd.vcproj,
+	builds/VisualStudio7/lock/lock.vcproj,
+	builds/VisualStudio7/qli/qli.vcproj,
+	builds/VisualStudio7/remote/remote.vcproj,
+	builds/VisualStudio7/server/server.vcproj,
+	builds/VisualStudio7/services/services.vcproj,
+	builds/VisualStudio7/why/why.vcproj,
+	builds/VisualStudio7/winserver/winserver.vcproj,
+	src/jrd/Database.cpp, src/jrd/Database.h, src/jrd/SecurityDb.cpp,
+	src/jrd/SecurityDb.h, src/jrd/SecurityPlugin.cpp,
+	src/jrd/SecurityPlugin.h, src/jrd/ext_proto.h, src/jrd/jrd.cpp,
+	src/remote/os/win32/srvr_w32.cpp:
+	
+	Cleaned up Release build for Visual Studio 7.
+
+2005-10-17 17:35  jimstarkey
+
+	* vulcan/src/: dsql/CStatement.cpp, jrd/InternalStatement.cpp,
+	jrd/SecurityDb.cpp, jrd/SecurityDb.h, jrd/vulcan.conf:
+	
+	Work on auto-creation of RDB$USERS
+
 2005-10-15 19:10  jimstarkey
 
 	* vulcan/src/: burp/backup.boot, burp/restore.boot,
