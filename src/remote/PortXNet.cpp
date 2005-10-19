@@ -1135,10 +1135,10 @@ void PortXNet::logError(int source_line_num, const TEXT* err_msg, int error_code
 
 	if (error_code)
 		sprintf(err_msg_buff, "XNET error (xnet:%d)  %s  Win32 error = %"ULONGFORMAT"\n",
-			source_line_num,err_msg,error_code);
+			source_line_num, err_msg, error_code);
 	else
 		sprintf(err_msg_buff, "XNET error (xnet:%d)  %s\n",
-			source_line_num,err_msg);
+			source_line_num, err_msg);
 
 	gds__log(err_msg_buff);
 }

@@ -129,7 +129,7 @@ bool ConfObject::match(int position, const char* pattern, const char* string)
 				return true;
 				}
 			for (; *s; ++s)
-				if (match (position + 1,  pattern+1, s))
+				if (match (position + 1,  pattern + 1, s))
 					{
 					putString (position, string, (int) (s - string));
 					return true;
