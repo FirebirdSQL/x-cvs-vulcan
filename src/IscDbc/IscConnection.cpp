@@ -284,10 +284,10 @@ void IscConnection::deleteStatement(IscStatement * statement)
 JString IscConnection::getIscStatusText(ISC_STATUS * statusVector)
 {
 	char text [4096], *p = text;
-	ISC_STATUS *status = statusVector;
+	const ISC_STATUS *status = statusVector;
 	bool first = true;
 
-	while (isc_interprete (p, &status))
+	while (fb_interpret (p, text + sizeof(text) - p, &status))
 		{
 		while (*p)
 			++p;

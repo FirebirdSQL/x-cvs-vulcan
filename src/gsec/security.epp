@@ -185,65 +185,65 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 			/* this checks the "entered" flags for each parameter (except the name)
 			   and makes all non-entered parameters null valued */
 
-			STORE U IN USERS USING
-				strcpy(U.USER_NAME, io_user_data->user_name);
+			STORE U IN RDB$USERS USING
+				strcpy(U.RDB$USER_NAME, io_user_data->user_name);
 				
 				if (io_user_data->uid_entered) 
 					{
-					U.UID = io_user_data->uid;
-					U.UID.NULL = ISC_FALSE;
+					U.RDB$UID = io_user_data->uid;
+					U.RDB$UID.NULL = ISC_FALSE;
 					}
 				else
-					U.UID.NULL = ISC_TRUE;
+					U.RDB$UID.NULL = ISC_TRUE;
 					
 				if (io_user_data->gid_entered) 
 					{
-					U.GID = io_user_data->gid;
-					U.GID.NULL = ISC_FALSE;
+					U.RDB$GID = io_user_data->gid;
+					U.RDB$GID.NULL = ISC_FALSE;
 					}
 				else
-					U.GID.NULL = ISC_TRUE;
+					U.RDB$GID.NULL = ISC_TRUE;
 					
 				if (io_user_data->group_name_entered) 
 					{
-					strcpy(U.GROUP_NAME, io_user_data->group_name);
-					U.GROUP_NAME.NULL = ISC_FALSE;
+					strcpy(U.RDB$GROUP_NAME, io_user_data->group_name);
+					U.RDB$GROUP_NAME.NULL = ISC_FALSE;
 					}
 				else
-					U.GROUP_NAME.NULL = ISC_TRUE;
+					U.RDB$GROUP_NAME.NULL = ISC_TRUE;
 					
 				if (io_user_data->password_entered) 
 					{
 					ENC_crypt(encrypted1, sizeof encrypted1, io_user_data->password, PASSWORD_SALT);
 					SecurityDatabase::hash(encrypted2, io_user_data->user_name, &encrypted1[2]);
-					strcpy(U.PASSWD, encrypted2.c_str());
-					U.PASSWD.NULL = ISC_FALSE;
+					strcpy(U.RDB$PASSWORD, encrypted2.c_str());
+					U.RDB$PASSWORD.NULL = ISC_FALSE;
 					}
 				else
-					U.PASSWD.NULL = ISC_TRUE;
+					U.RDB$PASSWORD.RDB$NULL = ISC_TRUE;
 					
 				if (io_user_data->first_name_entered) 
 					{
-					strcpy(U.FIRST_NAME, io_user_data->first_name);
-					U.FIRST_NAME.NULL = ISC_FALSE;
+					strcpy(U.RDB$FIRST_NAME, io_user_data->first_name);
+					U.RDB$FIRST_NAME.NULL = ISC_FALSE;
 					}
 				else
-					U.FIRST_NAME.NULL = ISC_TRUE;
+					U.RDB$FIRST_NAME.NULL = ISC_TRUE;
 					
 				if (io_user_data->middle_name_entered) {
-					strcpy(U.MIDDLE_NAME, io_user_data->middle_name);
-					U.MIDDLE_NAME.NULL = ISC_FALSE;
+					strcpy(U.RDB$MIDDLE_NAME, io_user_data->middle_name);
+					U.RDB$MIDDLE_NAME.NULL = ISC_FALSE;
 					}
 				else
-					U.MIDDLE_NAME.NULL = ISC_TRUE;
+					U.RDB$MIDDLE_NAME.NULL = ISC_TRUE;
 					
 				if (io_user_data->last_name_entered) 
 					{
-					strcpy(U.LAST_NAME, io_user_data->last_name);
-					U.LAST_NAME.NULL = ISC_FALSE;
+					strcpy(U.RDB$LAST_NAME, io_user_data->last_name);
+					U.RDB$LAST_NAME.NULL = ISC_FALSE;
 					}
 				else
-					U.LAST_NAME.NULL = ISC_TRUE;
+					U.RDB$LAST_NAME.NULL = ISC_TRUE;
 					
 			END_STORE
 				ON_ERROR
@@ -258,66 +258,66 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 
 			found = false;
 			
-			FOR U IN USERS WITH U.USER_NAME EQ io_user_data->user_name
+			FOR U IN RDB$USERS WITH U.RDB$USER_NAME EQ io_user_data->user_name
 				found = true;
 				MODIFY U USING
 					if (io_user_data->uid_entered) 
 						{
-						U.UID = io_user_data->uid;
-						U.UID.NULL = ISC_FALSE;
+						U.RDB$UID = io_user_data->uid;
+						U.RDB$UID.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->uid_specified)
-						U.UID.NULL = ISC_TRUE;
+						U.RDB$UID.NULL = ISC_TRUE;
 						
 					if (io_user_data->gid_entered) 
 						{
-						U.GID = io_user_data->gid;
-						U.GID.NULL = ISC_FALSE;
+						U.RDB$GID = io_user_data->gid;
+						U.RDB$GID.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->gid_specified)
-						U.GID.NULL = ISC_TRUE;
+						U.RDB$GID.NULL = ISC_TRUE;
 						
 					if (io_user_data->group_name_entered) 
 						{
-						strcpy(U.GROUP_NAME, io_user_data->group_name);
-						U.GROUP_NAME.NULL = ISC_FALSE;
+						strcpy(U.RDB$GROUP_NAME, io_user_data->group_name);
+						U.RDB$GROUP_NAME.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->group_name_specified)
-						U.GROUP_NAME.NULL = ISC_TRUE;
+						U.RDB$GROUP_NAME.NULL = ISC_TRUE;
 						
 					if (io_user_data->password_entered) 
 						{
 						ENC_crypt(encrypted1, sizeof encrypted1, io_user_data->password, PASSWORD_SALT);
 						SecurityDatabase::hash(encrypted2, io_user_data->user_name, &encrypted1[2]);
-						strcpy(U.PASSWD, encrypted2.c_str());
-						U.PASSWD.NULL = ISC_FALSE;
+						strcpy(U.RDB$PASSWORD, encrypted2.c_str());
+						U.RDB$PASSWORD.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->password_specified)
-						U.PASSWD.NULL = ISC_TRUE;
+						U.RDB$PASSWORD.NULL = ISC_TRUE;
 						
 					if (io_user_data->first_name_entered) 
 						{
-						strcpy(U.FIRST_NAME, io_user_data->first_name);
-						U.FIRST_NAME.NULL = ISC_FALSE;
+						strcpy(U.RDB$FIRST_NAME, io_user_data->first_name);
+						U.RDB$FIRST_NAME.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->first_name_specified)
-						U.FIRST_NAME.NULL = ISC_TRUE;
+						U.RDB$FIRST_NAME.NULL = ISC_TRUE;
 						
 					if (io_user_data->middle_name_entered) 
 						{
-						strcpy(U.MIDDLE_NAME, io_user_data->middle_name);
-						U.MIDDLE_NAME.NULL = ISC_FALSE;
+						strcpy(U.RDB$MIDDLE_NAME, io_user_data->middle_name);
+						U.RDB$MIDDLE_NAME.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->middle_name_specified)
-						U.MIDDLE_NAME.NULL = ISC_TRUE;
+						U.RDB$MIDDLE_NAME.NULL = ISC_TRUE;
 						
 					if (io_user_data->last_name_entered) 
 						{
-						strcpy(U.LAST_NAME, io_user_data->last_name);
-						U.LAST_NAME.NULL = ISC_FALSE;
+						strcpy(U.RDB$LAST_NAME, io_user_data->last_name);
+						U.RDB$LAST_NAME.NULL = ISC_FALSE;
 						}
 					else if (io_user_data->last_name_specified)
-						U.LAST_NAME.NULL = ISC_TRUE;
+						U.RDB$LAST_NAME.NULL = ISC_TRUE;
 						
 				END_MODIFY
 					ON_ERROR
@@ -343,7 +343,7 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 				ret = GsecMsg23;
 			else 
 				{
-				FOR U IN USERS WITH U.USER_NAME EQ io_user_data->user_name
+				FOR U IN RDB$USERS WITH U.RDB$USER_NAME EQ io_user_data->user_name
 					found = true;
 					ERASE U
 						ON_ERROR
@@ -372,16 +372,16 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 			
 			if (!io_user_data->user_name_entered) 
 				{
-				FOR U IN USERS
-					io_user_data->uid = U.UID;
-					io_user_data->gid = U.GID;
+				FOR U IN RDB$USERS
+					io_user_data->uid = U.RDB$UID;
+					io_user_data->gid = U.RDB$GID;
 					*(io_user_data->sys_user_name) = '\0';
-					strcpy(io_user_data->user_name, U.USER_NAME);
-					strcpy(io_user_data->group_name, U.GROUP_NAME);
-					strcpy(io_user_data->password, U.PASSWD);
-					strcpy(io_user_data->first_name, U.FIRST_NAME);
-					strcpy(io_user_data->middle_name, U.MIDDLE_NAME);
-					strcpy(io_user_data->last_name, U.LAST_NAME);
+					strcpy(io_user_data->user_name, U.RDB$USER_NAME);
+					strcpy(io_user_data->group_name, U.RDB$GROUP_NAME);
+					strcpy(io_user_data->password, U.RDB$PASSWORD);
+					strcpy(io_user_data->first_name, U.RDB$FIRST_NAME);
+					strcpy(io_user_data->middle_name, U.RDB$MIDDLE_NAME);
+					strcpy(io_user_data->last_name, U.RDB$LAST_NAME);
 					display_func(tdsec, callback_arg, io_user_data, !found);
 
 					found = true;
@@ -392,16 +392,16 @@ SSHORT SECURITY_exec_line(tsec* tdsec,
 				}
 			else 
 				{
-				FOR U IN USERS WITH U.USER_NAME EQ io_user_data->user_name
-					io_user_data->uid = U.UID;
-					io_user_data->gid = U.GID;
+				FOR U IN RDB$USERS WITH U.RDB$USER_NAME EQ io_user_data->user_name
+					io_user_data->uid = U.RDB$UID;
+					io_user_data->gid = U.RDB$GID;
 					*(io_user_data->sys_user_name) = '\0';
-					strcpy(io_user_data->user_name, U.USER_NAME);
-					strcpy(io_user_data->group_name, U.GROUP_NAME);
-					strcpy(io_user_data->password, U.PASSWD);
-					strcpy(io_user_data->first_name, U.FIRST_NAME);
-					strcpy(io_user_data->middle_name, U.MIDDLE_NAME);
-					strcpy(io_user_data->last_name, U.LAST_NAME);
+					strcpy(io_user_data->user_name, U.RDB$USER_NAME);
+					strcpy(io_user_data->group_name, U.RDB$GROUP_NAME);
+					strcpy(io_user_data->password, U.RDB$PASSWORD);
+					strcpy(io_user_data->first_name, U.RDB$FIRST_NAME);
+					strcpy(io_user_data->middle_name, U.RDB$MIDDLE_NAME);
+					strcpy(io_user_data->last_name, U.RDB$LAST_NAME);
 					display_func(tdsec, callback_arg, io_user_data, !found);
 
 					found = true;

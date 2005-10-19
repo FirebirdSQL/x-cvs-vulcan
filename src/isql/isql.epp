@@ -794,7 +794,7 @@ void ISQL_copy_SQL_id( const TEXT * in_str, TEXT * output_str, TEXT escape_char)
 }
 
 
-void ISQL_errmsg( ISC_STATUS * status)
+void ISQL_errmsg( ISC_STATUS * status, const char *sqlString)
 {
 /**************************************
  *
@@ -806,40 +806,92 @@ void ISQL_errmsg( ISC_STATUS * status)
  *	Report error conditions
  *	Simulate isc_print_status exactly, to control stderr 
  **************************************/
-	TEXT errbuf[MSG_LENGTH];
-	ISC_STATUS *vec;
+	
 #if defined (WIN95)
 #define TRANSLATE_CP if (!fAnsiCP) AnsiToOem(errbuf, errbuf)
 #else
 #define TRANSLATE_CP
 #endif
 
-	vec = status;
+	ISC_STATUS *vec = status;
+	TEXT errbuf[MSG_LENGTH];
+	
 	if (Quiet)
 		Exit_value = FINI_ERROR;
-	else {
+	else 
+		{
 		if (vec[0] != isc_arg_gds ||
 			(vec[0] == isc_arg_gds && vec[1] == 0
 			 && vec[2] != isc_arg_warning) || (vec[0] == isc_arg_gds
 											   && vec[1] == 0
 											   && vec[2] == isc_arg_warning
-											   && !Warnings)) return;
+											   && !Warnings)) 
+			return;
+			
 		gds__msg_format(NULL_PTR, ISQL_MSG_FAC, 0, sizeof(errbuf), errbuf,
 						(TEXT*) (long) isc_sqlcode(status), (TEXT*) NULL_PTR, (TEXT*) NULL_PTR,
 						(TEXT*) NULL_PTR, (TEXT*) NULL_PTR);
 		TRANSLATE_CP;
 		STDERROUT(errbuf, 1);
-		isc_interprete(errbuf, &vec);
-		TRANSLATE_CP;
-		STDERROUT(errbuf, 1);
 
 		/* Continuation of error */
-		errbuf[0] = '-';
-		while (isc_interprete(errbuf + 1, &vec)) {
+		
+		int line = -1;
+		int offset = -1;
+		
+		for (int hack = 0;; hack = 1)		
+			{
+			if (vec[0] == isc_arg_gds && 
+			    vec[1] == isc_dsql_token_unk_err &&
+				vec[2] == isc_arg_number &&
+				vec[4] == isc_arg_number)
+				{
+				line = vec[3];
+				offset = vec[5];
+				break;
+				}
+			
+			errbuf[0] = '-';
+			
+			if (!isc_interprete(errbuf + hack, &vec))
+				break;
+				
 			TRANSLATE_CP;
 			STDERROUT(errbuf, 1);
+			}
+		
+		if (sqlString && line >= 0 && offset >= 0)
+			{
+			const char *p = sqlString;
+			
+			for (int n = 1; n < line; ++n)
+				{
+				const char *start = p;
+				
+				while (*p && *p++ != '\n')
+					;
+				
+				fprintf (Errfp, "%.*s\n", p - start - 1, start);
+				}
+			
+			const char *last = p;
+			char buffer[1024];
+			char *s = buffer;
+			char *end = buffer + sizeof(buffer) - 2;
+			
+			for (int n = 1; *p && *p != '\n' && s < end; ++n, ++p)
+				if (n == offset)
+					{
+					*s++ = '^';
+					*s++ = 0;
+					}
+				else
+				*s++ = (*p == '\t') ? '\t' : ' ';
+			
+			*s = 0;
+			fprintf(Errfp, "%.*s\n%s unknown token\n", p - last, last, buffer);
+			}
 		}
-	}
 }
 
 
@@ -6269,21 +6321,25 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
 	else
 		prepare_trans = M__trans;
 
-	if (isc_dsql_prepare(isc_status, &prepare_trans, &Stmt, 0, string,
-						 SQL_dialect, sqlda)) {
-		if (SQL_dialect == SQL_DIALECT_V6_TRANSITION && Input_file) {
+	if (isc_dsql_prepare(isc_status, &prepare_trans, &Stmt, 0, string, SQL_dialect, sqlda)) 
+		{
+		if (SQL_dialect == SQL_DIALECT_V6_TRANSITION && Input_file) 
+			{
 			ISQL_printf(Out, (TEXT*) NEWLINE);
 			ISQL_printf(Out, (TEXT*) "**** Error preparing statement:");
 			ISQL_printf(Out, (TEXT*) NEWLINE);
 			ISQL_printf(Out, (TEXT*) NEWLINE);
 			ISQL_printf(Out, string);
 			ISQL_printf(Out, (TEXT*) NEWLINE);
-		}
-		ISQL_errmsg(isc_status);
+			}
+			
+		ISQL_errmsg(isc_status, string);
+		
 		return ERR;
-	}
+		}
 
-/* check for warnings */
+	/* check for warnings */
+	
 	if (isc_status[2] == isc_arg_warning)
 		ISQL_warning(isc_status);
 
