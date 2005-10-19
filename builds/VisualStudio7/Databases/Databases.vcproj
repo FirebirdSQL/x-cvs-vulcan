@@ -88,7 +88,7 @@
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="..\..\..\install\bin\gbak -r  $(InputPath) help.fdb
+					CommandLine="..\..\..\install\bin\gbak -replace  $(InputPath) help.fdb
 "
 					AdditionalDependencies=""
 					Outputs="$(vulcan)\help\help.fdb"/>
