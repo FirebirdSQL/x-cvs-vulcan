@@ -1,3 +1,29 @@
+2005-10-18 21:23  jimstarkey
+
+	* vulcan/src/jrd/InternalSecurityContext.cpp:
+	
+	Fix bad include from Visual Studio
+
+2005-10-18 21:20  jimstarkey
+
+	* vulcan/src/: jrd/Attachment.cpp, jrd/Attachment.h,
+	jrd/CompilerScratch.h, jrd/Database.cpp, jrd/Database.h,
+	jrd/InternalConnection.cpp, jrd/InternalPreparedStatement.cpp,
+	jrd/InternalSecurityContext.cpp, jrd/InternalSecurityContext.h,
+	jrd/InternalStatement.cpp, jrd/SecurityDb.cpp, jrd/SecurityDb.h,
+	jrd/SecurityPlugin.h, jrd/ThreadDataState.h, jrd/cmp.cpp,
+	jrd/cmp_proto.h, jrd/inf.cpp, jrd/jrd.cpp, jrd/jrd.vcproj,
+	jrd/scl.epp, jrd/scl_proto.h, jrd/shrinit.cpp, jrd/tdbb.h,
+	jrd/tra.cpp, jrd/tra.h, jrd/tra_proto.h, misc/security.gbak:
+	
+	Reworked SecurityDb to create RDB$USERS on demand.
+
+2005-10-18 15:47  jimstarkey
+
+	* vulcan/src/jrd/: ThreadStatus.h, jrd.vcproj:
+	
+	Track/reset thread db state
+
 2005-10-17 20:41  jimstarkey
 
 	* vulcan/builds/VisualStudio7/: IscDbc/IscDbc.vcproj,
