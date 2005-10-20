@@ -1,3 +1,99 @@
+2005-10-20 00:49  jimstarkey
+
+	* vulcan/src/MsgMgr/: AddMsgDialog.cpp, AddMsgDialog.h,
+	ChildFrm.cpp, ChildFrm.h, ConnectDialog.cpp, ConnectDialog.h,
+	Database.cpp, Database.h, MainFrm.cpp, MainFrm.h, MsgMgr.aps,
+	MsgMgr.cpp, MsgMgr.h, MsgMgr.rc, MsgMgr.vcproj, MsgMgrDoc.cpp,
+	MsgMgrDoc.h, MsgMgrView.cpp, MsgMgrView.h, ReadMe.txt,
+	RecentStringList.cpp, RecentStringList.h, ResultWindow.cpp,
+	ResultWindow.h, resource.h, stdafx.cpp, stdafx.h, vulcan.conf,
+	res/MsgMgr.ico, res/MsgMgr.manifest, res/MsgMgr.rc2,
+	res/MsgMgrDoc.ico, res/Toolbar.bmp:
+	
+	Work in progress
+
+2005-10-20 00:16  awharrison
+
+	* vulcan/src/SecurityDatabase/vulcan.conf:
+	
+	add engine11
+
+2005-10-20 00:15  awharrison
+
+	* vulcan/builds/VisualStudio7/build.conf:
+	
+	drop some debugging debris.  add security2.fdb and engine11
+
+2005-10-20 00:12  awharrison
+
+	* vulcan/src/test/fb.conf:
+	
+	Add engine11
+
+2005-10-20 00:06  awharrison
+
+	* vulcan/src/Databases/vulcan.conf:
+	
+	add engine11
+
+2005-10-20 00:06  awharrison
+
+	* vulcan/src/build.conf:
+	
+	use $(install) instead of trying to count the steps backward
+	../../../?
+
+2005-10-20 00:04  awharrison
+
+	* vulcan/builds/VisualStudio8/ThreadTest/vulcan.conf:
+	
+	Add engine11
+
+2005-10-20 00:03  awharrison
+
+	* vulcan/builds/VisualStudio7/Vulcan/Vulcan.sln.template:
+	
+	Added new projects, debugging info, better build order
+
+2005-10-20 00:00  awharrison
+
+	* vulcan/builds/VisualStudio7/: SecurityDatabase/vulcan.conf,
+	ThreadTest/vulcan.conf:
+	
+	add engine11
+
+2005-10-19 23:59  awharrison
+
+	* vulcan/builds/VisualStudio7/Databases/vulcan.conf:
+	
+	Add engine11
+
+2005-10-19 23:57  awharrison
+
+	* vulcan/Vulcan.sln.template:
+	
+	general changes including debugging info.  This file is no longer
+	used, I think...
+
+2005-10-19 23:57  awharrison
+
+	* vulcan/builds/VisualStudio7/Databases/Databases.vcproj:
+	
+	change -r to -replace for sanity
+
+2005-10-19 23:28  jimstarkey
+
+	* vulcan/src/: IscDbc/IscConnection.cpp, gsec/security.epp,
+	isql/isql.epp, isql/isql.vcproj, isql/isql_proto.h:
+	
+	Untangle gsec from the old USERS table
+
+2005-10-19 09:07  robocop
+
+	* vulcan/src/: config/ConfObject.cpp, remote/PortXNet.cpp:
+	
+	Misc.
+
 2005-10-18 21:23  jimstarkey
 
 	* vulcan/src/jrd/InternalSecurityContext.cpp:
