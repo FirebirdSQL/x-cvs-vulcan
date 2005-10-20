@@ -91,7 +91,7 @@ public:
 	enum rem_port_t	port_type;			/* type of port */
 	enum state_t	port_state;			/* state of port */
 	P_ARCH			port_client_arch;	/* so we can tell arch of client */
-	Port*			port_clients;		/* client ports */
+	//Port*			port_clients;		/* client ports */
 	Port*			port_next;			/* next client port */
 	Port*			port_parent;		/* parent port (for client ports) */
 	Port*			port_async;			/* asynchronous sibling port */

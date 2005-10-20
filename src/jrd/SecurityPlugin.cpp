@@ -65,5 +65,4 @@ int SecurityPlugin::getAPIVersion(void)
 
 void SecurityPlugin::close(void)
 {
-	close();
 }

@@ -866,7 +866,7 @@ Port* PortXNet::receive(Packet* packet)
 		Port *child;
 		int count = 1;
 		
-		for (child = port_clients; child; child = child->port_next)
+		for (child = port_next; child; child = child->port_next)
 			++count;
 		
 		if (count > waitCount)
@@ -882,7 +882,7 @@ Port* PortXNet::receive(Packet* packet)
 		portVector[count] = this;
 		waitVector[count++] = xnet_connect_event;
 		
-		for (child = port_clients; child; child = child->port_next)
+		for (child = port_next; child; child = child->port_next)
 			{
 			PortXNet *port = (PortXNet*) child;
 			portVector[count] = port;

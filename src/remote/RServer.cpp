@@ -927,7 +927,7 @@ int RServer::thread(int flags)
 				if (parent_port == request->req_port)
 					processPacket(parent_port, &request->req_send, &request->req_receive, &port);
 				else
-					for (port = parent_port->port_clients; port; port = port->port_next)
+					for (port = parent_port->port_next; port; port = port->port_next)
 						if (port == request->req_port && port->port_state != state_disconnected) 
 							{
 							processPacket(port, &request->req_send, &request->req_receive, &port);
@@ -1047,7 +1047,7 @@ void RServer::agent(ServerRequest* request)
 	if (parent_port == request->req_port)
 		processPacket(parent_port, &request->req_send, &request->req_receive, &port);
 	else
-		for (port = parent_port->port_clients; port; port = port->port_next)
+		for (port = parent_port->port_next; port; port = port->port_next)
 			if (port == request->req_port && port->port_state != state_disconnected) 
 				{
 				processPacket(port, &request->req_send, &request->req_receive, &port);

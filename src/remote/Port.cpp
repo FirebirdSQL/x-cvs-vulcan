@@ -179,7 +179,7 @@ Port::Port(int size)
 	port_buffer = new UCHAR [size];
 	port_rpr = NULL;
 	port_receive_rmtque = NULL;
-	port_clients = NULL;
+	//port_clients = NULL;
 	port_next = NULL;
 	port_parent = NULL;
 	port_async = NULL;
@@ -3262,9 +3262,8 @@ void Port::addClient(Port* port)
 	Sync sync(&syncObject, "Port::addClient");
 	sync.lock(Exclusive);
 	port->port_parent = this;
-	port->port_next = port_clients;
-	//port_clients = port_next = port;
-	port_clients = port;
+	port->port_next = port_next; //port_clients;
+	port_next = port;
 	port->addRef();
 }
 
@@ -3273,14 +3272,10 @@ void Port::removeClient(Port* port)
 	Sync sync(&syncObject, "Port::removeClient");
 	sync.lock(Exclusive);
 	
-	for (Port** ptr = &port_clients; *ptr; ptr = &(*ptr)->port_next) 
+	for (Port** ptr = &port_next; *ptr; ptr = &(*ptr)->port_next) 
 		if (*ptr == port) 
 			{
 			*ptr = port->port_next;
-			
-			if (ptr == &port_clients)
-				port_next = *ptr;
-				
 			port->release();
 			break;
 			}
