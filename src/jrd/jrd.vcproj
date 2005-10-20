@@ -3434,9 +3434,6 @@
 				RelativePath=".\Triggers.h">
 			</File>
 			<File
-				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
-			</File>
-			<File
 				RelativePath="types.h">
 			</File>
 			<File

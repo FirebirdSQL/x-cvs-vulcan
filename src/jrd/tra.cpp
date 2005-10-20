@@ -3021,10 +3021,6 @@ void Transaction::deleteBlob(blb* blob)
 
 Transaction::~Transaction(void)
 {
-	VEC vector;
-	Lock* lock;
-	int i;
-	
 	if (tra_attachment)
 		tra_attachment->endTransaction(this);
 
@@ -3033,14 +3029,16 @@ Transaction::~Transaction(void)
 		pendingRelations = relation->rel_next;
 		delete relation;
 		}
-	if (tra_lock) delete tra_lock;
+
+	if (tra_lock)
+		delete tra_lock;
 	
-	vector = tra_relation_locks;
+	VEC vector = tra_relation_locks;
 	
 	if (vector)
-		for (i = 0; i < vector->count(); i++)
+		for (int i = 0; i < vector->count(); i++)
 			{
-			lock = (Lock*)((*vector)[i]);
+			Lock* lock = (Lock*)((*vector)[i]);
 			
 			if (lock) 
 				delete lock;

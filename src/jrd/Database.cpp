@@ -110,12 +110,12 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 	commitManager = new CommitManager(this);
 	
 #ifdef SHARED_CACHE
-	fileShared = configuration->getValue (DatabaseFileShared,DatabaseFileSharedValue);
+	fileShared = configuration->getValue (DatabaseFileShared, DatabaseFileSharedValue);
 #else
 	fileShared = true; 
 #endif
 	
-	securityDatabase = configuration->getValue (SecurityDatabase,SecurityDatabaseValue);
+	securityDatabase = configuration->getValue (SecurityDatabase, SecurityDatabaseValue);
 	securityPlugin = new SecurityRoot(this);
 	const char *policyName = configuration->getValue(SecurityManager, SecurityManagerValue);
 	

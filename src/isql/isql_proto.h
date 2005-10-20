@@ -36,7 +36,7 @@ extern int ISQL_create_database(TEXT *,
 								SCHAR *, FILE *, FILE *, FILE *);
 extern BOOLEAN ISQL_dbcheck(void);
 extern void ISQL_disconnect_database(int);
-extern void ISQL_errmsg(ISC_STATUS *, const char *sqlString=NULL);
+extern void ISQL_errmsg(ISC_STATUS *, const char *sqlString = NULL);
 extern void ISQL_warning(ISC_STATUS *);
 extern void ISQL_exit_db(void);
 extern int ISQL_extract(TEXT *, int, FILE *, FILE *, FILE *);
