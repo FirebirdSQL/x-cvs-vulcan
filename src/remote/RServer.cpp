@@ -298,7 +298,7 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 			case op_detach:
 				port->addRef();
 				port->end_database(&receive->p_rlse, send);
-				sync.unlock();
+				//sync.unlock();
 				port->release();
 				break;
 
@@ -468,6 +468,9 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 
 		return false;
 		}
+
+	if (result)
+		*result = port;
 
 	return true;
 }

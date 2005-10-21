@@ -5109,11 +5109,13 @@ static void disconnect( Port* port)
  *
  **************************************/
 
-/* Send a disconnect to the server so that it
-   gracefully terminates. */
+	/* Send a disconnect to the server so that it
+	   gracefully terminates. */
 
 	RDatabase* rdb = port->port_context;
-	if (rdb) {
+	
+	if (rdb) 
+		{
 		/* BAND-AID:
 		   It seems as if we are disconnecting the port
 		   on both the server and client side.  For now
@@ -5132,12 +5134,15 @@ static void disconnect( Port* port)
 		 */
 
 		Packet* packet = &rdb->rdb_packet;
-		if (port->port_type != port_pipe) {
+		
+		if (port->port_type != port_pipe) 
+			{
 			packet->p_operation = op_disconnect;
 			port->sendPacket(packet);
-		}
+			}
+			
 		REMOTE_free_packet(port, packet);
-	}
+		}
 
 	/* Perform physical network disconnect and release
 	   memory for remote database context. */

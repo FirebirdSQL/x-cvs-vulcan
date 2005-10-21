@@ -27,6 +27,10 @@
 
 #include "Port.h"
 
+#ifndef WIN_NT
+#define SOCKET		int
+#endif
+
 struct slct
 {
 	int		slct_width;
@@ -42,7 +46,7 @@ public:
 	PortInet(int size);
 	virtual ~PortInet(void);
 
-	HANDLE			port_handle;		/* handle for connection (from by OS) */
+	SOCKET			port_handle;		/* handle for connection (from by OS) */
 	struct linger	port_linger;		/* linger value as defined by SO_LINGER */
 	
 	virtual int			accept(struct p_cnct*);
@@ -75,6 +79,7 @@ public:
 	static void alarmHandler(int x);
 	static bool_t getBytes(XDR* xdrs, SCHAR* buff, u_int count);
 	static bool_t putBytes(XDR* xdrs, const SCHAR* buff, u_int count);
+	static int closeSocket(SOCKET socket);
 };
 #endif
 

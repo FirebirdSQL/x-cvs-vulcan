@@ -278,6 +278,9 @@
 				RelativePath="..\..\..\src\remote\RTransaction.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\SafeRefObject.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\config\ScanDir.cpp">
 			</File>
 			<File
@@ -515,6 +518,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\RTransaction.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SafeRefObject.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\config\ScanDir.h">

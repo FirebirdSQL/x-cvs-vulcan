@@ -194,6 +194,9 @@
 				RelativePath="..\common\classes\locks.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\MemMgr.cpp">
+			</File>
+			<File
 				RelativePath="..\remote\merge.cpp">
 			</File>
 			<File
@@ -270,6 +273,9 @@
 			</File>
 			<File
 				RelativePath="..\remote\RTransaction.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\SafeRefObject.cpp">
 			</File>
 			<File
 				RelativePath="..\config\ScanDir.cpp">
@@ -355,6 +361,9 @@
 				RelativePath="..\remote\os\win32\cntl_proto.h">
 			</File>
 			<File
+				RelativePath="..\jrd\common.h">
+			</File>
+			<File
 				RelativePath="..\config\Config.h">
 			</File>
 			<File
@@ -377,6 +386,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\Error.h">
+			</File>
+			<File
+				RelativePath="..\include\fbdev.h">
 			</File>
 			<File
 				RelativePath="..\config\FileName.h">
@@ -422,6 +434,12 @@
 			</File>
 			<File
 				RelativePath="..\common\classes\locks.h">
+			</File>
+			<File
+				RelativePath="..\jrd\MemMgr.h">
+			</File>
+			<File
+				RelativePath="..\jrd\MemoryManager.h">
 			</File>
 			<File
 				RelativePath="..\remote\merge_proto.h">
@@ -503,6 +521,9 @@
 			</File>
 			<File
 				RelativePath="..\remote\RTransaction.h">
+			</File>
+			<File
+				RelativePath="..\jrd\SafeRefObject.h">
 			</File>
 			<File
 				RelativePath="..\config\ScanDir.h">

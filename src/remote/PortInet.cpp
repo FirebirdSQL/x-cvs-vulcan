@@ -129,7 +129,7 @@ extern int h_errno;
 
 #define ERRNO		WSAGetLastError()
 #define H_ERRNO		WSAGetLastError()
-#define SOCLOSE		closesocket
+//#define SOCLOSE		closesocket
 #define SYS_ERR		isc_arg_win32
 #define INET_RETRY_ERRNO	WSAEINPROGRESS
 #define INET_ADDR_IN_USE	WSAEADDRINUSE
@@ -179,7 +179,7 @@ extern int h_errno;
 #endif
 
 #ifndef SOCLOSE
-#define SOCLOSE	close
+//#define SOCLOSE	close
 #endif
 
 #ifndef ERRNO
@@ -228,6 +228,12 @@ extern int h_errno;
 
 #ifndef MAX_PTYPE
 #define MAX_PTYPE       ptype_batch_send
+#endif
+
+#ifdef WIN_NT
+#define BAD_SOCKET		WSAENOTSOCK
+#else
+#define BAD_SOCKET		EBADF
 #endif
 
 #define	SELECT_TIMEOUT	60		/* Dispatch thread select timeout (sec) */
@@ -762,7 +768,7 @@ void PortInet::disconnect()
 		}
 
 	if (port_handle) 
-		SOCLOSE((SOCKET) port_handle);
+		closeSocket((SOCKET) port_handle);
 
 	gds__unregister_cleanup(exitHandler, this);
 
@@ -836,10 +842,7 @@ Port* PortInet::receive(Packet* packet)
 			port->release();
 			
 			if (port = selectAccept())
-				{
-				port->addRef();
 				return port;
-				}
 				
 			continue;
 			}
@@ -956,11 +959,11 @@ Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 		if (n == INVALID_SOCKET) 
 			{
 			error("accept", isc_net_event_connect_err, ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 			}
-		SOCLOSE(port_channel);
-		port_handle = (HANDLE) n;
+		closeSocket(port_channel);
+		port_handle = n;
 		port_flags |= PORT_async;
 		return this;
 		}
@@ -973,7 +976,7 @@ Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 	new_port->port_flags |= PORT_async;
 	P_RESP* response = &packet->p_resp;
 
-/* Set up new socket */
+	/* Set up new socket */
 
 	if ((n = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) 
 		{
@@ -994,7 +997,7 @@ Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 	if (status < 0) 
 		{
 		error("connect", isc_net_event_connect_err, ERRNO);
-		SOCLOSE(n);
+		closeSocket(n);
 		return NULL;
 		}
 
@@ -1010,7 +1013,7 @@ Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 		if (ioctl(n, SIOCSPGRP, &arg) < 0) 
 			{
 			error("ioctl/SIOCSPGRP", isc_net_event_connect_err, ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 			}
 
@@ -1019,7 +1022,7 @@ Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 		}
 #endif /* SIOCSPGRP */
 
-	new_port->port_handle = (HANDLE) n;
+	new_port->port_handle = n;
 	new_port->port_flags |= port_flags & PORT_no_oob;
 
 	return new_port;
@@ -1134,7 +1137,7 @@ void PortInet::exitHandler(void* arg)
 	for (PortInet *port = main_port; port; port = (PortInet*) port->port_next) 
 		{
 		shutdown((int) port->port_handle, 2);
-		SOCLOSE((SOCKET) port->port_handle);
+		closeSocket((SOCKET) port->port_handle);
 		}
 #endif
 }
@@ -1217,8 +1220,7 @@ PortInet* PortInet::selectAccept(void)
 	PortInet *port = allocPort(configuration, this);
 	socklen_t l = sizeof(address);
 
-	port->port_handle = (HANDLE) ::accept((SOCKET) port_handle,
-										(struct sockaddr *) &address, &l);
+	port->port_handle = ::accept(port_handle, (struct sockaddr *) &address, &l);
 										
 	if ((SOCKET) port->port_handle == INVALID_SOCKET) 
 		{
@@ -1241,7 +1243,7 @@ PortInet* PortInet::selectAccept(void)
 	if (n >= INET_max_clients) 
 		{
 		port_state = state_closed;
-		SOCLOSE((int) port_handle);
+		closeSocket((int) port_handle);
 		TEXT msg[64];
 		sprintf(msg,
 				"INET/select_accept: exec new server at client limit: %d", n);
@@ -1297,9 +1299,7 @@ int PortInet::selectWait(slct* selct)
 #endif
 
 		for (PortInet *port = this; port; port = (PortInet*) port->port_next)
-			{
-			if ((port->port_state == state_active) ||
-				(port->port_state == state_pending))
+			if ((port->port_state == state_active) || (port->port_state == state_pending))
 				{
 				/* Adjust down the port's keepalive timer. */
 
@@ -1314,7 +1314,6 @@ int PortInet::selectWait(slct* selct)
 #endif
 				found = true;
 				}
-			}
 			
 		//STOP_PORT_CRITICAL;
 
@@ -1348,38 +1347,24 @@ int PortInet::selectWait(slct* selct)
 				   they can be used in select_port() */
 				   
 				if (selct->slct_count == 0)
-					{
 					for (PortInet* port = this; port; port = (PortInet*) port->port_next)
-						{
-#ifdef WIN_NT
-						FD_CLR((SOCKET)port->port_handle, &selct->slct_fdset);
-#else
 						FD_CLR(port->port_handle, &selct->slct_fdset);
-#endif
-						}
-					}
+
 				return TRUE;
 				}
 			else if (INTERRUPT_ERROR(ERRNO))
 				continue;
-#ifndef WIN_NT
-			else if (ERRNO == EBADF)
+			else if (ERRNO == BAD_SOCKET)
 				break;
-#else
-			else if (ERRNO == WSAENOTSOCK)
-				break;
-#endif
 			else 
 				{
 				//THREAD_ENTER;
-				sprintf(msg, "INET/select_wait: select failed, errno = %d",
-						ERRNO);
+				sprintf(msg, "INET/select_wait: select failed, errno = %d", ERRNO);
 				gds__log(msg, 0);
+				
 				return FALSE;
 				}
-			}	// for (;;)
-
-		//THREAD_ENTER;
+			}
 		}
 }
 
@@ -1442,8 +1427,6 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 	port->port_connection =  buffer;
 	port->port_version.Format("tcp (%s)", (const char*) port->port_host);
 
-	//START_PORT_CRITICAL;
-	
 	if (parent && !(parent->port_server_flags & SRVR_thread_per_port)) 
 		{
 		parent->addClient (port);
@@ -1452,18 +1435,6 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 		port->port_server_flags = parent->port_server_flags;
 		}
 		
-	//STOP_PORT_CRITICAL;
-
-	/***
-	port->port_accept = accept_connection;
-	port->port_disconnect = disconnect;
-	port->port_receive_packet = receive;
-	port->port_send_packet = send_full;
-	port->port_send_partial = send_partial;
-	port->port_connect = reinterpret_cast<PORT(*)(PORT, Packet*, void (*)())>(aux_connect);
-	port->port_request = aux_request;
-	***/
-	
 	port->port_buff_size = (USHORT) INET_remote_buffer;
 
 	port->xdrCreate(&port->port_send, &port->port_buffer[INET_remote_buffer],
@@ -1500,12 +1471,12 @@ PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 		if (n == INVALID_SOCKET) 
 			{
 			error("accept", isc_net_event_connect_err, ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 			}
 			
-		SOCLOSE(port_channel);
-		port_handle = (HANDLE) n;
+		closeSocket(port_channel);
+		port_handle = n;
 		port_flags |= PORT_async;
 		return this;
 		}
@@ -1540,7 +1511,7 @@ PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 	if (status < 0) 
 		{
 		error("connect", isc_net_event_connect_err, ERRNO);
-		SOCLOSE(n);
+		closeSocket(n);
 		return NULL;
 		}
 
@@ -1556,7 +1527,7 @@ PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 		if (ioctl(n, SIOCSPGRP, &arg) < 0) {
 			error("ioctl/SIOCSPGRP", isc_net_event_connect_err,
 					   ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 		}
 
@@ -1565,7 +1536,7 @@ PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 	}
 #endif /* SIOCSPGRP */
 
-	new_port->port_handle = (HANDLE) n;
+	new_port->port_handle = n;
 	new_port->port_flags |= port_flags & PORT_no_oob;
 
 	return new_port;
@@ -1574,6 +1545,10 @@ PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 int PortInet::error(const char* function, ISC_STATUS operation, int status)
 {
 	TEXT msg[64];
+
+#ifdef WIN_NT
+	int code = WSAGetLastError();
+#endif
 
 	if (status) 
 		{
@@ -1608,6 +1583,8 @@ int PortInet::error(const char* function, ISC_STATUS operation, int status)
 
 void PortInet::genError(ISC_STATUS status, ...)
 {
+	Sync sync (&syncRequest, "PortInet::genError");
+	sync.lock(Exclusive);
 	port_flags |= PORT_broken;
 	port_state = state_broken;
 
@@ -1873,11 +1850,9 @@ int PortInet::receive(UCHAR* buffer, int buffer_length, short* length)
 			for (;;) 
 				{
 #if (defined WIN_NT)
-				slct_count = select(FD_SETSIZE, &slct_fdset,
-									NULL, NULL, time_ptr);
+				slct_count = select(FD_SETSIZE, &slct_fdset, NULL, NULL, time_ptr);
 #else
-				slct_count = select((SOCKET) port_handle + 1, &slct_fdset,
-						   NULL, NULL, time_ptr);
+				slct_count = select((SOCKET) port_handle + 1, &slct_fdset, NULL, NULL, time_ptr);
 #endif
 
 				// restore original timeout value FSG 3 MAY 2001
@@ -2487,7 +2462,7 @@ Port* INET_connect(const TEXT* name,
 
 /* Allocate a port block and initialize a socket for communications */
 
-	port->port_handle = (HANDLE) socket(AF_INET, SOCK_STREAM, 0);
+	port->port_handle = socket(AF_INET, SOCK_STREAM, 0);
 
 	if ((SOCKET) port->port_handle == INVALID_SOCKET)
 		{
@@ -2638,13 +2613,13 @@ Port* INET_connect(const TEXT* name,
 #endif
 			{
 			THREAD_ENTER;
-			SOCLOSE((SOCKET) port->port_handle);
+			closeSocket((SOCKET) port->port_handle);
 			port->port_handle = (HANDLE) s;
 			port->port_server_flags |= SRVR_server;
 			return port;
 			}
 ***/
-		SOCLOSE(s);
+		PortInet::closeSocket(s);
 		}
 }
 
@@ -2710,7 +2685,7 @@ Port* INET_server(ConfObject *configuration, int sock)
 
 	PortInet *port = PortInet::allocPort(configuration, 0);
 	port->port_server_flags |= SRVR_server;
-	port->port_handle = (HANDLE) sock;
+	port->port_handle = sock;
 	port->configuration = configuration;
 
 	int optval = 1;
@@ -2757,7 +2732,7 @@ Port* INET_reconnect(HANDLE handle, ConfObject *configuration, ISC_STATUS* statu
 	status_vector[1] = 0;
 	status_vector[2] = isc_arg_end;
 
-	port->port_handle = handle;
+	port->port_handle = (SOCKET) handle;
 	port->port_server_flags |= SRVR_server;
 
 	return port;
@@ -3163,4 +3138,13 @@ bool_t PortInet::putBytes(XDR* xdrs, const SCHAR* buff, u_int count)
 		}
 
 	return TRUE;
+}
+
+int PortInet::closeSocket(SOCKET socket)
+{
+#ifdef WIN_NT
+	return closesocket(socket);
+#else
+	return close(socket);
+#endif
 }

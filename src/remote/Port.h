@@ -34,7 +34,7 @@
 #include "ConfObj.h"
 #include "xdr.h"
 #include "SyncObject.h"
-#include "RefObject.h"
+#include "SafeRefObject.h"
 #include "JString.h"
 
 #define PORT_symmetric		1		/* Server/client archiectures are symmetic */
@@ -85,7 +85,7 @@ struct vec;
 struct str;
 struct Server;
 
-class Port : public RefObject
+class Port : public SafeRefObject
 {
 public:
 	enum rem_port_t	port_type;			/* type of port */
