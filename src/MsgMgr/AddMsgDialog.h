@@ -27,4 +27,10 @@ public:
 	
 	Database	*database;
 	virtual BOOL OnInitDialog(void);
+	CString symbol;
+	CString module;
+	CString routine;
+	CString text;
+	CString explanation;
+	CString translationNotes;
 };

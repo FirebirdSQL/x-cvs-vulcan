@@ -15,6 +15,12 @@ IMPLEMENT_DYNAMIC(AddMsgDialog, CDialog)
 AddMsgDialog::AddMsgDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(AddMsgDialog::IDD, pParent)
 	, facility(_T(""))
+	, symbol(_T(""))
+	, module(_T(""))
+	, routine(_T(""))
+	, text(_T(""))
+	, explanation(_T(""))
+	, translationNotes(_T(""))
 {
 	database = NULL;
 }
@@ -28,6 +34,12 @@ void AddMsgDialog::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_FACILITY, facilities);
 	DDX_CBString(pDX, IDC_FACILITY, facility);
+	DDX_Text(pDX, IDC_SYMBOL, symbol);
+	DDX_Text(pDX, IDC_MODULE, module);
+	DDX_Text(pDX, IDC_ROUTINE, routine);
+	DDX_Text(pDX, IDC_TEXT, text);
+	DDX_Text(pDX, IDC_EXPANATION, explanation);
+	DDX_Text(pDX, IDC_NOTES, translationNotes);
 }
 
 

@@ -7,6 +7,9 @@
 #include "MsgMgrDoc.h"
 #include "MsgMgrView.h"
 #include "AddMsgDialog.h"
+#include "PStatement.h"
+#include "RSet.h"
+#include "Database.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -108,6 +111,48 @@ void CMsgMgrView::OnNewMessage()
 		
 	while (dialog.DoModal() == IDOK)
 		{
+		int msgNumber;
+		int facCode;
+		
+		Connection *connection = database->connection;
+		PStatement statement = connection->prepareStatement(
+			"select fac_code, max_number from facilities where facility=?");
+		statement->setString(1, dialog.facility);
+		RSet resultSet = statement->executeQuery();
+		
+		if (resultSet->next())
+			{
+			facCode = resultSet->getInt(1);
+			msgNumber = resultSet->getInt(2);
+			}
+		else
+			{
+			AfxMessageBox("Can't find facility code");
+			continue;
+			}
+		
+		statement = connection->prepareStatement(
+			"insert into messages (symbol,number,fac_code,module,routine,text,explanation,trans_notes) "
+			"  values(?,?,?,?,?,?,?,?}");
+		int n = 0;
+		statement->setString(n++, dialog.symbol);
+		statement->setInt(n++, msgNumber);
+		statement->setInt(n++, facCode);
+		statement->setString(n++, dialog.module);
+		statement->setString(n++, dialog.routine);
+		statement->setString(n++, dialog.text);
+		statement->setString(n++, dialog.explanation);
+		statement->setString(n++, dialog.translationNotes);
+		statement->executeUpdate();
+		
+		statement = connection->prepareStatement(
+			"update facilities set max_number=? where fac_code=?");
+		statement->setInt(1, msgNumber + 1);
+		statement->setInt(2, facCode);
+		statement->executeUpdate();
+		
+		connection->commit();
+
 		return;
 		}
 }
