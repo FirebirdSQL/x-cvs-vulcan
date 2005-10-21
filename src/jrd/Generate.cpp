@@ -78,7 +78,7 @@ void Generate::expandBuffer()
 	bufferSize = newSize;
 	bufferYellow = buffer + bufferSize;
 
-	if (buffer != fixedBuffer)
+	if (oldBuffer != fixedBuffer)
 		delete [] oldBuffer;
 }
 
