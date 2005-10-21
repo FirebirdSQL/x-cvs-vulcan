@@ -1,3 +1,23 @@
+2005-10-20 18:59  awharrison
+
+	* vulcan/install/server.conf:
+	
+	Add engine11
+
+2005-10-20 18:26  jimstarkey
+
+	* vulcan/src/: jrd/SecurityPlugin.cpp, remote/Port.cpp,
+	remote/Port.h, remote/PortXNet.cpp, remote/RServer.cpp:
+	
+	Bring inetserver back on line
+
+2005-10-20 08:51  robocop
+
+	* vulcan/src/: isql/isql_proto.h, jrd/Database.cpp,
+	jrd/ThreadStatus.h, jrd/jrd.vcproj, jrd/tra.cpp:
+	
+	Misc.
+
 2005-10-20 00:49  jimstarkey
 
 	* vulcan/src/MsgMgr/: AddMsgDialog.cpp, AddMsgDialog.h,
