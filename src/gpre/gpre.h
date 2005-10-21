@@ -342,7 +342,7 @@ typedef struct act {
    an array has been declared in a subroutine. */
 
 typedef struct adl {
-	USHORT adl_gds_ident;		/* Identifier of array for which Gpre has
+	ULONG adl_gds_ident;		/* Identifier of array for which Gpre has
 								   generated a declaration in main or a
 								   subroutine */
 	struct adl *adl_next;		/* Next declared array identifier */
