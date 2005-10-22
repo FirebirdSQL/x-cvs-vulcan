@@ -1,3 +1,37 @@
+2005-10-22 00:04  jimstarkey
+
+	* vulcan/src/MsgMgr/: AddMsgDialog.cpp, AddMsgDialog.h, MsgMgr.aps,
+	MsgMgr.rc, MsgMgr.vcproj, MsgMgrView.cpp, resource.h:
+	
+	Work in progress on message file manager
+
+2005-10-21 23:09  jimstarkey
+
+	* vulcan/src/jrd/Generate.cpp:
+	
+	[no log message]
+
+2005-10-21 22:09  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/remote/remote.vcproj,
+	builds/VisualStudio7/server/server.vcproj,
+	builds/VisualStudio7/winserver/winserver.vcproj,
+	src/jrd/SafeRefObject.cpp, src/jrd/SafeRefObject.h,
+	src/jrd/jrd.vcproj, src/remote/Port.h, src/remote/PortInet.cpp,
+	src/remote/PortInet.h, src/remote/RServer.cpp,
+	src/remote/interface.cpp, src/remote/remote.vcproj,
+	src/server/server.vcproj, src/winserver/winserver.vcproj:
+	
+	Fixed race condition inside Inet server.
+
+2005-10-21 16:41  awharrison
+
+	* vulcan/src/gpre/: c_cxx.cpp, cmp.cpp, cmp_proto.h, form.h,
+	gpre.cpp, gpre.h, pat.cpp:
+	
+	change the numeric part of identifiers from signed short to long
+	allowing more than 32767 items to be created.
+
 2005-10-20 18:59  awharrison
 
 	* vulcan/install/server.conf:
