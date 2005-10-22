@@ -15,6 +15,7 @@ protected: // create from serialization only
 // Attributes
 public:
 	CMsgMgrDoc* GetDocument() const;
+	CString		defaultFacility;
 
 // Operations
 public:
@@ -48,6 +49,7 @@ public:
 	afx_msg void OnMessagesSummary();
 	afx_msg void OnMessagesListmessages();
 	afx_msg void OnFacilitiesNewfacility();
+	afx_msg void OnMessagesUpdatemessage();
 };
 
 #ifndef _DEBUG  // debug version in MsgMgrView.cpp

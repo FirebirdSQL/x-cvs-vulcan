@@ -1745,89 +1745,83 @@ static void define_domain(CStatement* request)
 
 	request->appendDynString(isc_dyn_def_global_fld, field->fld_name);
 
-	DDL_resolve_intl_type(request, field,
-						  (dsql_str*) element->nod_arg[e_dom_collate]);
+	DDL_resolve_intl_type(request, field, (dsql_str*) element->nod_arg[e_dom_collate]);
 	put_field(request, field, false);
 
 	// check for a default value
 
 	dsql_nod* node = element->nod_arg[e_dom_default];
+	
 	if (node)
-	{
+		{
 		node = PASS1_node(request, node, false);
 		request->blrBegin(isc_dyn_fld_default_value);
 		GEN_expr(request, node);
 		request->blrEnd();
-
 		dsql_str* string = (dsql_str*) element->nod_arg[e_dom_default_source];
+		
 		if (string)
-		{
+			{
 			fb_assert(string->str_length <= MAX_USHORT);
 			fix_default_source(string);
-			request->appendDynString(	isc_dyn_fld_default_source,
-									string->str_data,
-									string->str_length);
+			request->appendDynString(isc_dyn_fld_default_source, string->str_data, string->str_length);
+			}
 		}
-	}
 
 	if (field->fld_ranges)
-	{
 		define_dimensions(request, field);
-	}
 
 	bool	null_flag = false;
 	bool	check_flag = false;
 
 	// check for constraints
-	node = element->nod_arg[e_dom_constraint];
-	if (node)
-	{
+	
+	if (node = element->nod_arg[e_dom_constraint])
+		{
 		dsql_nod** ptr = node->nod_arg;
 		const dsql_nod* const* const end_ptr = ptr + node->nod_count;
+		
 		for (; ptr < end_ptr; ++ptr)
-		{
-			if ((*ptr)->nod_type == nod_rel_constraint)
 			{
-				dsql_nod* node1 = (*ptr)->nod_arg[e_rct_type];
-				if (node1->nod_type == nod_null)
+			if ((*ptr)->nod_type == nod_rel_constraint)
 				{
-					if (!null_flag)
+				dsql_nod* node1 = (*ptr)->nod_arg[e_rct_type];
+				
+				if (node1->nod_type == nod_null)
 					{
+					if (!null_flag)
+						{
 						request->appendUCHAR(isc_dyn_fld_not_null);
 						null_flag = true;
-					}
+						}
 					else
-					{
 						ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) -637,
 								  isc_arg_gds, isc_dsql_duplicate_spec,
 								  isc_arg_string, "NOT NULL", 0);
 					}
-				}
 				else if (node1->nod_type == nod_def_constraint)
-				{
-					if (check_flag)
 					{
+					if (check_flag)
 						ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) -637,
 								  isc_arg_gds, isc_dsql_duplicate_spec,
 								  isc_arg_string, "DOMAIN CHECK CONSTRAINT",
 								  0);
-					}
-					check_flag = true;
 
+					check_flag = true;
 					const dsql_str* string = (dsql_str*) node1->nod_arg[e_cnstr_source];
+					
 					if (string)
 						{
 						fb_assert(string->str_length <= MAX_USHORT);
-						request->appendDynString(	isc_dyn_fld_validation_source,
-												string->str_data,
-												string->str_length);
+						request->appendDynString(isc_dyn_fld_validation_source, string->str_data, string->str_length);
 						}
+						
 					request->blrBegin(isc_dyn_fld_validation_blr);
 
 					// Set any VALUE nodes to the type of the domain being defined. 
+					
 					if (node1->nod_arg[e_cnstr_condition])
-						set_nod_value_attributes(node1->nod_arg[e_cnstr_condition],
-												 field);
+						set_nod_value_attributes(node1->nod_arg[e_cnstr_condition], field);
 	
 
 					/* Increment the context level for this request, so
@@ -1841,17 +1835,13 @@ static void define_domain(CStatement* request)
 					   -- chrisj 1999-08-20 */
 
 					request->contextNumber++;
-
-					GEN_expr(request,
-							 PASS1_node(request,
-										node1->nod_arg[e_cnstr_condition],
-										false));
+					GEN_expr(request, PASS1_node(request, node1->nod_arg[e_cnstr_condition], false));
 
 					request->blrEnd();
+					}
 				}
 			}
 		}
-	}
 
 	request->appendUCHAR(isc_dyn_end);
 }

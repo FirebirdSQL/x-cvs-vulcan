@@ -13,6 +13,7 @@ public:
 	~Database(void);
 	
 	CString		name;
+	int getFacCode(const char* facility);
 };
 
 #endif

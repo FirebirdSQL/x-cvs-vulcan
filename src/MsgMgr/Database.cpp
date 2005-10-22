@@ -3,6 +3,8 @@
 #include "Database.h"
 #include "Connection.h"
 #include "SQLException.h"
+#include "PStatement.h"
+#include "RSet.h"
 
 
 Database::Database(const char* connectString, Connection* connect)
@@ -51,3 +53,16 @@ Database* Database::connect(const char* connectString, const char *account, cons
 		}
 }
 
+
+int Database::getFacCode(const char* facility)
+{
+	PStatement statement = connection->prepareStatement(
+		"select fac_code from facilities where facility=?");
+	statement->setString(1, facility);
+	RSet resultSet = statement->executeQuery();
+	
+	if (resultSet->next())
+		return resultSet->getInt(1);
+	
+	return 0;
+}

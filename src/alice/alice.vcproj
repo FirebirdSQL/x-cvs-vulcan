@@ -69,18 +69,19 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=".;..\include;..\include\gen;..\jrd;..\config"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;NAMESPACE=Alice;MEMMGR"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="firebird.lib"
 				OutputFile="$(OutDir)/alice.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

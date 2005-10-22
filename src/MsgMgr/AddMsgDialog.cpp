@@ -61,7 +61,7 @@ BOOL AddMsgDialog::OnInitDialog(void)
 		"select facility from facilities order by facility");
 	ResultSet *resultSet = statement->executeQuery();
 	
-	for (bool first = true; resultSet->next(); first = false)
+	while (resultSet->next())
 		{
 		char temp[256];
 		strcpy(temp, resultSet->getString(1));
@@ -72,7 +72,7 @@ BOOL AddMsgDialog::OnInitDialog(void)
 			
 		facilities.AddString(temp);
 		
-		if (first)
+		if (facility.IsEmpty())
 			facility = temp;
 		}
 	

@@ -69,6 +69,8 @@ public:
 	void setValue (DateTime value);
 	DateTime getDate();
 	QUAD convertToQuad (double& divisor);
+	int convert(QUAD value, int scale, char *string);
+	
 	inline void clear()
 		{
 		if (type == String && copyFlag && data.string.string)

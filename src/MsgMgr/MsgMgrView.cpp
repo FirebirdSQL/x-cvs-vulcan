@@ -13,6 +13,7 @@
 #include "ResultWindow.h"
 #include "ListMsgsDialog.h"
 #include "AddFacilityDialog.h"
+#include "UpdateMsgDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -33,6 +34,7 @@ BEGIN_MESSAGE_MAP(CMsgMgrView, CView)
 	ON_COMMAND(ID_MESSAGES_SUMMARY, OnMessagesSummary)
 	ON_COMMAND(ID_MESSAGES_LISTMESSAGES, OnMessagesListmessages)
 	ON_COMMAND(ID_FACILITIES_NEWFACILITY, OnFacilitiesNewfacility)
+	ON_COMMAND(ID_MESSAGES_UPDATEMESSAGE, OnMessagesUpdatemessage)
 END_MESSAGE_MAP()
 
 // CMsgMgrView construction/destruction
@@ -116,12 +118,14 @@ void CMsgMgrView::OnNewMessage()
 	Connection *connection = database->connection;
 	AddMsgDialog dialog;
 	dialog.populate(database);
+	dialog.facility = defaultFacility;
 		
 	while (dialog.DoModal() == IDOK)
 		{
 		int msgNumber;
 		int facCode;
 		
+		defaultFacility = dialog.facility;
 		PStatement statement = connection->prepareStatement(
 			"select fac_code, max_number from facilities where facility=?");
 		statement->setString(1, dialog.facility);
@@ -140,8 +144,8 @@ void CMsgMgrView::OnNewMessage()
 		
 		statement = connection->prepareStatement(
 			"insert into messages (symbol,number,fac_code,module,routine,text,explanation,trans_notes) "
-			"  values(?,?,?,?,?,?,?,?}");
-		int n = 0;
+			"  values(?,?,?,?,?,?,?,?)");
+		int n = 1;
 		statement->setString(n++, dialog.symbol);
 		statement->setInt(n++, msgNumber);
 		statement->setInt(n++, facCode);
@@ -210,9 +214,11 @@ void CMsgMgrView::OnMessagesListmessages()
 	Connection *connection = database->connection;
 	ListMsgsDialog dialog;
 	dialog.populate(database);
+	dialog.facility = defaultFacility;
 	
 	if (dialog.DoModal() == IDOK)
 		{
+		defaultFacility = dialog.facility;
 		CString sql = "select number,symbol,text from messages m, facilities f "
 					  "  where m.fac_code=f.fac_code and facility=? ";
 		
@@ -237,7 +243,7 @@ void CMsgMgrView::OnMessagesListmessages()
 			PStatement statement = connection->prepareStatement(sql);
 			statement->setString(1, dialog.facility);
 			RSet resultSet = statement->executeQuery();
-			displayResults("Messages", resultSet);
+			displayResults(dialog.facility + " Messages", resultSet);
 			}
 		catch (SQLException& exception)
 			{
@@ -276,4 +282,39 @@ void CMsgMgrView::OnFacilitiesNewfacility()
 			}
 		}
 		
+}
+
+void CMsgMgrView::OnMessagesUpdatemessage()
+{
+	Database *database = ((CMsgMgrDoc*)m_pDocument)->database;
+	Connection *connection = database->connection;
+	UpdateMsgDialog dialog;
+	dialog.database = database;
+	dialog.facility = defaultFacility;
+	
+	if (dialog.DoModal() == IDOK)
+		{
+		defaultFacility = dialog.facility;
+		
+		try
+			{
+			int facCode = database->getFacCode(dialog.facility);
+			PStatement statement = connection->prepareStatement(
+				"update messages set symbol=?,text=?,explanation=?,trans_notes=?"
+				"  where fac_code=? and number=?");
+			int n = 1; 
+			statement->setString(n++, dialog.symbol);
+			statement->setString(n++, dialog.text);
+			statement->setString(n++, dialog.explanation);
+			statement->setString(n++, dialog.notes);
+			statement->setInt(n++, facCode);
+			statement->setString(n++, dialog.number);
+			statement->executeUpdate();
+			connection->commit();
+			}
+		catch (SQLException& exception)
+			{
+			AfxMessageBox(exception.getText());
+			}
+		}
 }

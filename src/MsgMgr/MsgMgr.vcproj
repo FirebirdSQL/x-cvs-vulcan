@@ -75,13 +75,14 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\include;..\IscDbc;..\jrd"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="FALSE"
 				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -196,6 +197,9 @@
 			<File
 				RelativePath="..\IscDbc\Stream.cpp">
 			</File>
+			<File
+				RelativePath=".\UpdateMsgDialog.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -266,6 +270,9 @@
 			</File>
 			<File
 				RelativePath="..\IscDbc\Stream.h">
+			</File>
+			<File
+				RelativePath=".\UpdateMsgDialog.h">
 			</File>
 		</Filter>
 		<Filter

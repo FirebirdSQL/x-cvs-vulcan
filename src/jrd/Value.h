@@ -113,6 +113,8 @@ public:
 	void setValue (DateTime value);
 	DateTime getDate();
 	INT64 convertToQuad (double& divisor);
+	int convert(INT64 value, int scale, char *string);
+
 	inline void clear()
 		{
 		if (type == String && copyFlag && data.string.string)

@@ -428,6 +428,10 @@ char* Value::getString(char **tempPtr)
 			sprintf (temp, "%d", data.integer);
 			break;
 
+		case Quad:
+			convert (data.quad, scale, temp);
+			break;
+
 		case Double:
 			sprintf (temp, "%f", data.dbl);
 			break;
@@ -892,4 +896,59 @@ void Value::setValue(Clob * blob)
 	type = ClobPtr;
 	data.clob = blob;
 	data.clob->addRef();
+}
+
+int Value::convert(QUAD value, int scale, char *string)
+{
+	QUAD number = value;
+
+	if (number == 0)
+		{
+		strcpy (string, "0");
+		return 1;
+		}
+
+	if (scale < -18)
+		{
+		strcpy (string, "***");
+		return sizeof ("***");
+		}
+
+	bool negative = false;
+
+	if (number < 0)
+		{
+		number = -number;
+		negative = true;
+		}
+
+	char temp [100], *p = temp;
+	int n;
+	int digits = 0;
+
+	for (n = 0; number; number /= 10, --n)
+		{
+		if (scale && scale == digits++)
+			*p++ = '.';
+		*p++ = '0' + (char) (number % 10);
+		}
+
+	if (scale && digits <= scale)
+		{
+		for (; digits < scale; ++digits)
+			*p++ = '0';
+		*p++ = '.';
+		}
+
+	char *q = string;
+
+	if (negative)
+		*q++ = '-';
+
+	while (p > temp)
+		*q++ = *--p;
+
+	*q = 0;
+
+	return q - string;
 }
