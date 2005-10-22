@@ -4,6 +4,7 @@
 
 #pragma once
 
+class ResultSet;
 
 class CMsgMgrView : public CView
 {
@@ -42,6 +43,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnNewMessage();
+	afx_msg void OnFacilitiesListfacilities();
+	void displayResults(CString label, ResultSet* resultSet);
+	afx_msg void OnMessagesSummary();
+	afx_msg void OnMessagesListmessages();
+	afx_msg void OnFacilitiesNewfacility();
 };
 
 #ifndef _DEBUG  // debug version in MsgMgrView.cpp

@@ -128,6 +128,9 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\AddFacilityDialog.cpp">
+			</File>
+			<File
 				RelativePath=".\AddMsgDialog.cpp">
 			</File>
 			<File
@@ -144,6 +147,9 @@
 			</File>
 			<File
 				RelativePath="..\IscDbc\LinkedList.cpp">
+			</File>
+			<File
+				RelativePath=".\ListMsgsDialog.cpp">
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp">
@@ -196,6 +202,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\AddFacilityDialog.h">
+			</File>
+			<File
 				RelativePath=".\AddMsgDialog.h">
 			</File>
 			<File
@@ -215,6 +224,9 @@
 			</File>
 			<File
 				RelativePath="..\IscDbc\LinkedList.h">
+			</File>
+			<File
+				RelativePath=".\ListMsgsDialog.h">
 			</File>
 			<File
 				RelativePath=".\MainFrm.h">
@@ -277,15 +289,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\AddMsgDialog.htm"
-			DeploymentContent="TRUE">
-		</File>
-		<File
 			RelativePath=".\res\MsgMgr.manifest">
-		</File>
-		<File
-			RelativePath=".\onnectDialog.htm"
-			DeploymentContent="TRUE">
 		</File>
 		<File
 			RelativePath=".\ReadMe.txt">

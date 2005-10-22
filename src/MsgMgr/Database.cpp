@@ -14,7 +14,10 @@ Database::Database(const char* connectString, Connection* connect)
 Database::~Database(void)
 {
 	if (connection)
+		{
+		connection->rollback();
 		connection->close();
+		}
 }
 
 Database* Database::connect(const char* connectString, const char *account, const char *password)

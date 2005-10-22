@@ -10,6 +10,9 @@
 #include "PStatement.h"
 #include "RSet.h"
 #include "Database.h"
+#include "ResultWindow.h"
+#include "ListMsgsDialog.h"
+#include "AddFacilityDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -26,6 +29,10 @@ BEGIN_MESSAGE_MAP(CMsgMgrView, CView)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, CView::OnFilePrintPreview)
 	ON_COMMAND(ID_NEW_MESSAGE, OnNewMessage)
+	ON_COMMAND(ID_FACILITIES_LISTFACILITIES, OnFacilitiesListfacilities)
+	ON_COMMAND(ID_MESSAGES_SUMMARY, OnMessagesSummary)
+	ON_COMMAND(ID_MESSAGES_LISTMESSAGES, OnMessagesListmessages)
+	ON_COMMAND(ID_FACILITIES_NEWFACILITY, OnFacilitiesNewfacility)
 END_MESSAGE_MAP()
 
 // CMsgMgrView construction/destruction
@@ -106,6 +113,7 @@ CMsgMgrDoc* CMsgMgrView::GetDocument() const // non-debug version is inline
 void CMsgMgrView::OnNewMessage()
 {
 	Database *database = ((CMsgMgrDoc*)m_pDocument)->database;
+	Connection *connection = database->connection;
 	AddMsgDialog dialog;
 	dialog.populate(database);
 		
@@ -114,7 +122,6 @@ void CMsgMgrView::OnNewMessage()
 		int msgNumber;
 		int facCode;
 		
-		Connection *connection = database->connection;
 		PStatement statement = connection->prepareStatement(
 			"select fac_code, max_number from facilities where facility=?");
 		statement->setString(1, dialog.facility);
@@ -155,4 +162,118 @@ void CMsgMgrView::OnNewMessage()
 
 		return;
 		}
+}
+
+void CMsgMgrView::OnFacilitiesListfacilities()
+{
+	Database *database = ((CMsgMgrDoc*)m_pDocument)->database;
+	Connection *connection = database->connection;
+	PStatement statement = connection->prepareStatement(
+		"select facility,fac_code,max_number,last_change from facilities order by fac_code");
+	RSet resultSet = statement->executeQuery();
+	displayResults("Facilites", resultSet);
+}
+
+void CMsgMgrView::displayResults(CString label, ResultSet* resultSet)
+{
+	CRuntimeClass* pRuntimeClass = RUNTIME_CLASS( ResultWindow );
+	ResultWindow *window = (ResultWindow*) pRuntimeClass->CreateObject();
+	window->LoadFrame (IDR_EDITWINDOW, WS_OVERLAPPEDWINDOW, NULL );
+	window->populate (label, resultSet);
+	window->ShowWindow (SW_SHOW);
+	window->BringWindowToTop();
+}
+
+void CMsgMgrView::OnMessagesSummary()
+{
+	try
+		{
+		Database *database = ((CMsgMgrDoc*)m_pDocument)->database;
+		Connection *connection = database->connection;
+		PStatement statement = connection->prepareStatement(
+			"select facility, max(number), count(*), max(max_number) as last_assigned " 
+			" from messages m, facilities f "
+			" where m.fac_code=f.fac_code "
+			" group by f.facility");
+		RSet resultSet = statement->executeQuery();
+		displayResults("Message Summary", resultSet);
+		}
+	catch (SQLException& exception)
+		{
+		AfxMessageBox(exception.getText());
+		}
+}
+
+void CMsgMgrView::OnMessagesListmessages()
+{
+	Database *database = ((CMsgMgrDoc*)m_pDocument)->database;
+	Connection *connection = database->connection;
+	ListMsgsDialog dialog;
+	dialog.populate(database);
+	
+	if (dialog.DoModal() == IDOK)
+		{
+		CString sql = "select number,symbol,text from messages m, facilities f "
+					  "  where m.fac_code=f.fac_code and facility=? ";
+		
+		switch (dialog.order)
+			{
+			case number:
+				sql += "order by number";
+				break;
+				
+			case symbol:
+				sql += "order by symbol";
+				break;
+				
+			case text:
+				sql += "order by text";
+				break;
+				
+			}
+		
+		try
+			{
+			PStatement statement = connection->prepareStatement(sql);
+			statement->setString(1, dialog.facility);
+			RSet resultSet = statement->executeQuery();
+			displayResults("Messages", resultSet);
+			}
+		catch (SQLException& exception)
+			{
+			AfxMessageBox(exception.getText());
+			}
+		}
+}
+
+void CMsgMgrView::OnFacilitiesNewfacility()
+{
+	Database *database = ((CMsgMgrDoc*)m_pDocument)->database;
+	Connection *connection = database->connection;
+	AddFacilityDialog dialog;
+	PStatement statement = connection->prepareStatement(
+		"select max(fac_code+1) from facilities");
+	RSet resultSet = statement->executeQuery();
+	resultSet->next();
+	dialog.facCode = resultSet->getString(1);
+	//resultSet->close();
+	
+	if (dialog.DoModal() == IDOK)
+		{
+		try
+			{
+			statement = connection->prepareStatement(
+				"insert into facilities(facility,fac_code,max_number) values (?,?,1)");
+			int n = 1;
+			statement->setString(n++, dialog.facility);
+			statement->setString(n++, dialog.facCode);
+			statement->executeUpdate();
+			connection->commit();
+			}
+		catch (SQLException& exception)
+			{
+			AfxMessageBox(exception.getText());
+			}
+		}
+		
 }

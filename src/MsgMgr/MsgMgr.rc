@@ -155,6 +155,13 @@ BEGIN
     POPUP "Messages"
     BEGIN
         MENUITEM "New Message",                 ID_NEW_MESSAGE
+        MENUITEM "Summary",                     ID_MESSAGES_SUMMARY
+        MENUITEM "List Messages",               ID_MESSAGES_LISTMESSAGES
+    END
+    POPUP "Facilities"
+    BEGIN
+        MENUITEM "List Facilities",             ID_FACILITIES_LISTFACILITIES
+        MENUITEM "New Facility",                ID_FACILITIES_NEWFACILITY
     END
     POPUP "&View"
     BEGIN
@@ -259,6 +266,40 @@ BEGIN
     LTEXT           "Translation Notes",IDC_STATIC,7,156,57,8
 END
 
+IDD_LIST_MESSAGES DIALOGEX 0, 0, 186, 90
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "List Messages"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    COMBOBOX        IDC_FACILITY,7,18,113,98,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Facility",IDC_STATIC,7,7,23,8
+    LTEXT           "Sort by",IDC_STATIC,7,34,24,8
+    CONTROL         "Number",IDC_ORDER_NUMBER,"Button",BS_AUTORADIOBUTTON,17,
+                    44,36,10
+    CONTROL         "Symbol",IDC_ORDER_SYMBOL,"Button",BS_AUTORADIOBUTTON,55,
+                    44,39,10
+    CONTROL         "Text",IDC_ORDER_TEXT,"Button",BS_AUTORADIOBUTTON,95,44,
+                    31,10
+END
+
+IDD_ADD_FACILITY DIALOGEX 0, 0, 167, 73
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Add Facility"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_FACILITY,7,17,100,14,ES_UPPERCASE | ES_AUTOHSCROLL
+    EDITTEXT        IDC_FAC_CODE,7,44,40,14,ES_AUTOHSCROLL,WS_EX_RIGHT
+    DEFPUSHBUTTON   "OK",IDOK,110,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,110,24,50,14
+    LTEXT           "Facility Name",IDC_STATIC,7,7,43,8
+    LTEXT           "Facility Code",IDC_STATIC,7,34,42,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -329,6 +370,22 @@ BEGIN
         RIGHTMARGIN, 305
         TOPMARGIN, 7
         BOTTOMMARGIN, 223
+    END
+
+    IDD_LIST_MESSAGES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_ADD_FACILITY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 160
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
     END
 END
 #endif    // APSTUDIO_INVOKED

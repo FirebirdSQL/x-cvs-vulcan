@@ -85,3 +85,4 @@ void CMsgMgrDoc::setDatabase(Database *db)
 	database = db;
 	SetTitle(db->name);
 }
+
