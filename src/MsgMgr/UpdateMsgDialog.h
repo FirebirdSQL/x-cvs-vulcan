@@ -21,15 +21,28 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CComboBox facilities;
+	Database	*database;
+	afx_msg void OnBnClickedFind();
+	afx_msg void OnEnChangeNumber();
+	virtual BOOL OnInitDialog(void);
+	void messageActive(bool active);
+	
 	CString facility;
 	CString number;
 	CString text;
 	CString symbol;
 	CString explanation;
 	CString notes;
+	bool	msgActive;
 	
-	Database	*database;
-	afx_msg void OnBnClickedFind();
-	virtual BOOL OnInitDialog(void);
+	CComboBox facilities;
+	CEdit symbolCtrl;
+	CEdit textCtrl;
+	CEdit explanationCtrl;
+	CEdit notesCtrl;
+	CButton okCtrl;
+	
+	afx_msg void OnCbnSelchangeFacility();
+	afx_msg void OnCbnEditchangeFacility();
+	afx_msg void OnCbnEditupdateFacility();
 };

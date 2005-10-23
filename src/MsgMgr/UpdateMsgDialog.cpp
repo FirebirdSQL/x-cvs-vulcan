@@ -7,6 +7,7 @@
 #include "PStatement.h"
 #include "RSet.h"
 #include "Database.h"
+#include ".\updatemsgdialog.h"
 
 
 // UpdateMsgDialog dialog
@@ -21,6 +22,7 @@ UpdateMsgDialog::UpdateMsgDialog(CWnd* pParent /*=NULL*/)
 	, explanation(_T(""))
 	, notes(_T(""))
 {
+	msgActive = true;
 }
 
 UpdateMsgDialog::~UpdateMsgDialog()
@@ -37,11 +39,20 @@ void UpdateMsgDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_SYMBOL, symbol);
 	DDX_Text(pDX, IDC_EXPANATION, explanation);
 	DDX_Text(pDX, IDC_NOTES, notes);
+	DDX_Control(pDX, IDC_SYMBOL, symbolCtrl);
+	DDX_Control(pDX, IDC_TEXT, textCtrl);
+	DDX_Control(pDX, IDC_EXPANATION, explanationCtrl);
+	DDX_Control(pDX, IDC_NOTES, notesCtrl);
+	DDX_Control(pDX, IDOK, okCtrl);
 }
 
 
 BEGIN_MESSAGE_MAP(UpdateMsgDialog, CDialog)
 	ON_BN_CLICKED(IDC_FIND, OnBnClickedFind)
+	ON_EN_CHANGE(IDC_EDIT1, OnEnChangeNumber)
+	ON_CBN_SELCHANGE(IDC_FACILITY, OnCbnSelchangeFacility)
+	ON_CBN_EDITCHANGE(IDC_FACILITY, OnCbnEditchangeFacility)
+	ON_CBN_EDITUPDATE(IDC_FACILITY, OnCbnEditupdateFacility)
 END_MESSAGE_MAP()
 
 
@@ -50,6 +61,7 @@ END_MESSAGE_MAP()
 void UpdateMsgDialog::OnBnClickedFind()
 {
 	UpdateData (true);
+	messageActive(true);
 	
 	try
 		{
@@ -98,8 +110,61 @@ BOOL UpdateMsgDialog::OnInitDialog(void)
 		if (facility.IsEmpty())
 			facility = temp;
 		}
-	
+
+	messageActive(false);	
 	UpdateData (false);
 	
 	return true;
+}
+
+void UpdateMsgDialog::OnEnChangeNumber()
+{
+	// TODO:  If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDialog::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+
+	UpdateData (true);
+	messageActive(false);
+}
+
+void UpdateMsgDialog::messageActive(bool active)
+{
+	if (msgActive == active)
+		return;
+	
+	msgActive = active;
+	okCtrl.EnableWindow(active);
+	symbolCtrl.EnableWindow(active);
+	textCtrl.EnableWindow(active);
+	explanationCtrl.EnableWindow(active);
+	notesCtrl.EnableWindow(active);
+	
+	if (!active)
+		{
+		symbol = "";
+		text = "";
+		explanation = "";
+		notes = "";
+		UpdateData (false);
+		}
+		
+}
+
+void UpdateMsgDialog::OnCbnSelchangeFacility()
+{
+	int n = facilities.GetCurSel();
+	char string[128];
+	int ret = facilities.GetLBText(n, string);
+	UpdateData (true);
+	facility = string;
+	messageActive(false);
+}
+
+void UpdateMsgDialog::OnCbnEditchangeFacility()
+{
+}
+
+void UpdateMsgDialog::OnCbnEditupdateFacility()
+{
 }
