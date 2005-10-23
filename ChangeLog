@@ -1,3 +1,26 @@
+2005-10-23 00:31  jimstarkey
+
+	* vulcan/src/: IscDbc/IscDbc.vcproj, IscDbc/Sqlda.cpp,
+	IscDbc/Value.cpp, IscDbc/Value.h, MsgMgr/AddMsgDialog.cpp,
+	MsgMgr/Database.cpp, MsgMgr/Database.h, MsgMgr/ListMsgsDialog.cpp,
+	MsgMgr/MsgMgr.aps, MsgMgr/MsgMgr.rc, MsgMgr/MsgMgr.vcproj,
+	MsgMgr/MsgMgrDoc.h, MsgMgr/MsgMgrView.cpp, MsgMgr/MsgMgrView.h,
+	MsgMgr/UpdateMsgDialog.cpp, MsgMgr/UpdateMsgDialog.h,
+	MsgMgr/resource.h, alice/alice.vcproj, dsql/ddl.cpp, jrd/Value.cpp,
+	jrd/Value.h:
+	
+	A few blob handling fixed to IscDbc and the first usage base level
+	of MsgMgr
+
+2005-10-22 21:11  jimstarkey
+
+	* vulcan/src/MsgMgr/: AddFacilityDialog.cpp, AddFacilityDialog.h,
+	Database.cpp, ListMsgsDialog.cpp, ListMsgsDialog.h, MsgMgr.aps,
+	MsgMgr.rc, MsgMgr.vcproj, MsgMgrDoc.cpp, MsgMgrView.cpp,
+	MsgMgrView.h, resource.h:
+	
+	Work in progress on message manager
+
 2005-10-22 00:04  jimstarkey
 
 	* vulcan/src/MsgMgr/: AddMsgDialog.cpp, AddMsgDialog.h, MsgMgr.aps,
