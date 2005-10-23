@@ -154,7 +154,7 @@ BEGIN
     END
     POPUP "Messages"
     BEGIN
-        MENUITEM "New Message",                 ID_NEW_MESSAGE
+        MENUITEM "Add Message",                 ID_NEW_MESSAGE
         MENUITEM "Summary",                     ID_MESSAGES_SUMMARY
         MENUITEM "List Messages",               ID_MESSAGES_LISTMESSAGES
         MENUITEM "Update Message",              ID_MESSAGES_UPDATEMESSAGE
@@ -162,7 +162,7 @@ BEGIN
     POPUP "Facilities"
     BEGIN
         MENUITEM "List Facilities",             ID_FACILITIES_LISTFACILITIES
-        MENUITEM "New Facility",                ID_FACILITIES_NEWFACILITY
+        MENUITEM "Add Facility",                ID_FACILITIES_NEWFACILITY
     END
     POPUP "&View"
     BEGIN

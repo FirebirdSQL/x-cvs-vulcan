@@ -2,6 +2,7 @@
 #define _DATABASE_H
 
 class Connection;
+class ResultSet;
 
 class Database
 {
@@ -13,7 +14,16 @@ public:
 	~Database(void);
 	
 	CString		name;
+	CString		defaultFacility;
+	
 	int getFacCode(const char* facility);
+	void listMessages(void);
+	void genSummary(void);
+	void addFacility(void);
+	void listFacilities(void);
+	void addMessage(void);
+	void updateMessage(void);
+	void displayResults(CString label, ResultSet* resultSet);
 };
 
 #endif

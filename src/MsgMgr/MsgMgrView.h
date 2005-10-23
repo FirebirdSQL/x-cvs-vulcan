@@ -15,7 +15,7 @@ protected: // create from serialization only
 // Attributes
 public:
 	CMsgMgrDoc* GetDocument() const;
-	CString		defaultFacility;
+	//CString		defaultFacility;
 
 // Operations
 public:
@@ -45,7 +45,6 @@ protected:
 public:
 	afx_msg void OnNewMessage();
 	afx_msg void OnFacilitiesListfacilities();
-	void displayResults(CString label, ResultSet* resultSet);
 	afx_msg void OnMessagesSummary();
 	afx_msg void OnMessagesListmessages();
 	afx_msg void OnFacilitiesNewfacility();
