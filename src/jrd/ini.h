@@ -79,7 +79,7 @@ typedef struct gfld
 	UCHAR gfld_type;
 	UCHAR gfld_name;
 	UCHAR gfld_dtype;
-	UCHAR gfld_length;
+	USHORT gfld_length;
 	UCHAR gfld_sub_type;
 	UCHAR gfld_minor;
 	const UCHAR *gfld_dflt_blr;
