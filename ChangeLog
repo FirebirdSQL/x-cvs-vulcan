@@ -1,3 +1,9 @@
+2005-10-24 20:46  jimstarkey
+
+	* vulcan/src/jrd/ini.h:
+	
+	Fix rdb$trigger_messages problem
+
 2005-10-23 20:57  jimstarkey
 
 	* vulcan/src/MsgMgr/: Database.cpp, Database.h, MsgMgr.aps,
