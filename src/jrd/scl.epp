@@ -743,7 +743,7 @@ void SCL_init(bool create,
     else 
         preODS9 = true;
 
-	if (sql_role) 
+	if (sql_role && sql_role[0]) 
 		{
         if (!preODS9 && strcmp (role_name, "NONE")) 
             strcpy(role_name, sql_role);

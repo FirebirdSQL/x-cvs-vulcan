@@ -108,12 +108,26 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 	
 	if (!self)
 		{
-		if (!dbHandle)
-			attachDatabase();
+		isc_db_handle handle = 0;
+		PBGen gen(isc_dpb_version1);
+		gen.putParameter(isc_dpb_user_name, context->getAccount());
+		const char *password = context->getEncryptedPassword();
 		
+		if (password && password[0])
+			gen.putParameter(isc_dpb_password_enc, password);
+		else if ((password = context->getPassword()) && password[0])
+			gen.putParameter(isc_dpb_password, password);
+			
 		ISC_STATUS statusVector [20];
+		ISC_STATUS statusVector2 [20];
+
+		if (isc_attach_database(statusVector, 0, databaseName, &handle, gen.getLength(), (char*) gen.buffer))
+			throw OSRIException(statusVector);
+
+		fb_update_account_info(statusVector, &handle, apbLength, apb);
+		isc_detach_database(statusVector2, &handle);
 		
-		if (fb_update_account_info(statusVector, &dbHandle, apbLength, apb))
+		if (statusVector[1])
 			throw OSRIException(statusVector);
 		
 		return;
@@ -122,45 +136,56 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 	UserData userData;
 	userData.parseApb(apbLength, apb);
 	Connect connection = (InternalConnection*) context->getUserConnection()->clone();
-		
-	PStatement statement;
 	
-	if (!haveTable && !(haveTable = checkUsersTable(connection)))
-		{
-		for (const char **ddl = creationDDL; *ddl; ++ddl)
+	try
+		{	
+		PStatement statement;
+		
+		if (!haveTable && !(haveTable = checkUsersTable(connection)))
 			{
-			statement = connection->prepareStatement(*ddl);
-			statement->execute();
+			for (const char **ddl = creationDDL; *ddl; ++ddl)
+				{
+				statement = connection->prepareStatement(*ddl);
+				statement->execute();
+				}
+			
+			connection->commit();
+			}
+			
+		JString encryptedPassword = userData.getOldPasswordHash();
+		int n = 1;
+		
+		switch (userData.operation)
+			{
+			case fb_apb_update_account:
+			case fb_apb_upgrade_account:
+			case fb_apb_create_account:
+				statement = connection->prepareStatement(
+					"insert into rdb$users (rdb$user_name, rdb$password, rdb$uid, rdb$gid) values (?,?,?,?)");
+				statement->setString(n++, JString::upcase(userData.userName));
+				statement->setString(n++, encryptedPassword);
+				statement->setInt(n++, userData.uid);
+				statement->setInt(n++, userData.gid);
+				break;
+				
+			case fb_apb_delete_account:
+				statement = connection->prepareStatement(
+					"delete from users where user_name=?");
+				statement->setString(n++, userData.userName);
+				break;
+				
 			}
 		
+		statement->executeUpdate();	
 		connection->commit();
+		connection->close();
 		}
-		
-	JString encryptedPassword = userData.getOldPasswordHash();
-	int n = 1;
-	
-	switch (userData.operation)
+	catch (...)
 		{
-		case fb_apb_update_account:
-		case fb_apb_upgrade_account:
-		case fb_apb_create_account:
-			statement = connection->prepareStatement(
-				"insert into rdb$users (rdb$user_name, rdb$password, rdb$uid, rdb$gid) values (?,?,?,?)");
-			statement->setString(n++, JString::upcase(userData.userName));
-			statement->setString(n++, encryptedPassword);
-			statement->setInt(n++, userData.uid);
-			statement->setInt(n++, userData.gid);
-			break;
-			
-		case fb_apb_delete_account:
-			statement = connection->prepareStatement(
-				"delete from users where user_name=?");
-			statement->setString(n++, userData.userName);
-			break;
-			
+		connection->rollback();
+		connection->close();
+		throw;
 		}
-	
-	statement->executeUpdate();	
 }
 
 void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)

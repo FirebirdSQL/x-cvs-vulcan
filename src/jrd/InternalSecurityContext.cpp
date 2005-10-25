@@ -28,15 +28,16 @@
 #include "jrd.h"
 #include "tra_proto.h"
 #include "tdbb.h"
-//#include "Connection.h"
 #include "InternalConnection.h"
 #include "Attachment.h"
 
-InternalSecurityContext::InternalSecurityContext(thread_db* tdbb)
+InternalSecurityContext::InternalSecurityContext(thread_db* tdbb, Attachment *att)
 {
 	threadData = tdbb;
 	transaction = NULL;
 	connection = NULL;
+	attachment = att;
+	internalTransaction = false;
 }
 
 InternalSecurityContext::~InternalSecurityContext(void)
@@ -54,8 +55,11 @@ Connection* InternalSecurityContext::getUserConnection(void)
 		return connection;
 	
 	if (!transaction)
+		{
 		transaction = TRA_start(threadData, threadData->tdbb_attachment, 0, NULL);
-	
+		internalTransaction = true;
+		}
+		
 	connection = threadData->tdbb_attachment->getUserConnection(transaction);
 	connection->addRef();
 	
@@ -80,4 +84,28 @@ const char* InternalSecurityContext::getDatabaseFilename(void)
 Connection* InternalSecurityContext::getNewConnection(void)
 {
 	return threadData->tdbb_database->getNewConnection(threadData);
+}
+
+const char* InternalSecurityContext::getAccount(void)
+{
+	if (attachment)
+		return attachment->userData.userName;
+	
+	return NULL;
+}
+
+const char* InternalSecurityContext::getEncryptedPassword(void)
+{
+	if (attachment)
+		return attachment->userData.encryptedPassword;
+	
+	return NULL;
+}
+
+const char* InternalSecurityContext::getPassword(void)
+{
+	if (attachment)
+		return attachment->userData.password;
+	
+	return NULL;
 }

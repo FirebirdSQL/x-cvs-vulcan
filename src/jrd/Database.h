@@ -337,7 +337,7 @@ public:
 	Procedure*			findProcedure(thread_db* tdbb, int id);
 	Procedure*			findProcedure(thread_db* tdbb, const TEXT* name, bool noscan);
 	InternalConnection* getSystemConnection(void);
-	void				updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb);
+	void				updateAccountInfo(thread_db* tdbb, Attachment *attachment, int apbLength, const UCHAR* apb);
 	void				authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	void				incrementUseCount(void);
 	void				decrementUseCount(void);

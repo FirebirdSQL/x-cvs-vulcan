@@ -44,6 +44,9 @@ public:
 	virtual Connection*	getUserConnection() = 0;
 	virtual Connection*	getNewConnection() = 0;
 	virtual const char*	getDatabaseFilename() = 0;
+	virtual const char* getAccount(void) = 0;
+	virtual const char* getEncryptedPassword(void) = 0;
+	virtual const char* getPassword(void) = 0;
 };
 
 static const int SecurityPluginVersion1 =		1;

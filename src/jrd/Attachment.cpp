@@ -210,7 +210,7 @@ void Attachment::endTransaction(Transaction* transaction)
 
 void Attachment::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
 {
-	att_database->updateAccountInfo(tdbb, apbLength, apb);
+	att_database->updateAccountInfo(tdbb, this, apbLength, apb);
 }
 
 void Attachment::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb)

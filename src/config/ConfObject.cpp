@@ -140,7 +140,7 @@ bool ConfObject::match(int position, const char* pattern, const char* string)
 			return false;
 		else if (c != '%' && c != *s)
 			{
-#ifdef _WIN32
+#ifdef _WIN32xxx
 			if (UPPER (c) == UPPER (*s))
 				continue;
 			if ((c == '/' || c == '\\') && (*s == '/' || *s == '\\'))

@@ -9,7 +9,7 @@ class Database
 public:
 	Connection	*connection;
 
-	static Database* connect(const char* connectString, const char *account, const char *passwd);
+	static Database* connect(const char* connectString, const char *account, const char *passwd, const char *role);
 	Database(const char* connectString, Connection* connect);
 	~Database(void);
 	

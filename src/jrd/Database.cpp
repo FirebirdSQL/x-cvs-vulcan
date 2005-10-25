@@ -481,16 +481,16 @@ InternalConnection* Database::getSystemConnection(void)
 	return systemConnection;
 }
 
-void Database::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
+void Database::updateAccountInfo(thread_db* tdbb, Attachment *attachment, int apbLength, const UCHAR* apb)
 {
-	InternalSecurityContext securityContext (tdbb);
+	InternalSecurityContext securityContext (tdbb, attachment);
 	securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
 }
 
 void Database::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
-	InternalSecurityContext securityContext (tdbb);
 	Attachment *attachment = tdbb->tdbb_attachment;
+	InternalSecurityContext securityContext (tdbb, attachment);
 	attachment->userData.authenticating = true;
 	
 	try

@@ -49,8 +49,9 @@ BOOL ConnectDialog::OnInitDialog(void)
 {
 	CDialog::OnInitDialog();
 
-	roles.AddString("Reader");
-	roles.AddString("Writer");
+	roles.AddString("READER");
+	roles.AddString("WRITER");
+	roles.AddString("Nothing");
 	role = "Reader";
 	hostnames->readList();
 	int count = hostnames->getSize();

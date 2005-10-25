@@ -27,7 +27,7 @@ Database::~Database(void)
 		}
 }
 
-Database* Database::connect(const char* connectString, const char *account, const char *password)
+Database* Database::connect(const char* connectString, const char *account, const char *password, const char *role)
 {
 	Connection *connection = NULL;
 	
@@ -41,6 +41,9 @@ Database* Database::connect(const char* connectString, const char *account, cons
 		
 		if (password[0])
 			properties->putValue ("password", password);
+			
+		if (role[0])
+			properties->putValue ("role", role);
 			
 		connection->openDatabase(connectString, properties);
 		delete properties;
@@ -74,43 +77,50 @@ int Database::getFacCode(const char* facility)
 
 void Database::listMessages(void)
 {
-	ListMsgsDialog dialog;
-	dialog.populate(this);
-	dialog.facility = defaultFacility;
-	
-	if (dialog.DoModal() == IDOK)
+	try
 		{
-		defaultFacility = dialog.facility;
-		CString sql = "select number,symbol,text from messages m, facilities f "
-					  "  where m.fac_code=f.fac_code and facility=? ";
+		ListMsgsDialog dialog;
+		dialog.populate(this);
+		dialog.facility = defaultFacility;
 		
-		switch (dialog.order)
+		if (dialog.DoModal() == IDOK)
 			{
-			case number:
-				sql += "order by number";
-				break;
-				
-			case symbol:
-				sql += "order by symbol";
-				break;
-				
-			case text:
-				sql += "order by text";
-				break;
-				
+			defaultFacility = dialog.facility;
+			CString sql = "select number,symbol,text from messages m, facilities f "
+						"  where m.fac_code=f.fac_code and facility=? ";
+			
+			switch (dialog.order)
+				{
+				case number:
+					sql += "order by number";
+					break;
+					
+				case symbol:
+					sql += "order by symbol";
+					break;
+					
+				case text:
+					sql += "order by text";
+					break;
+					
+				}
+			
+			try
+				{
+				PStatement statement = connection->prepareStatement(sql);
+				statement->setString(1, dialog.facility);
+				RSet resultSet = statement->executeQuery();
+				displayResults(dialog.facility + " Messages", resultSet);
+				}
+			catch (SQLException& exception)
+				{
+				AfxMessageBox(exception.getText());
+				}
 			}
-		
-		try
-			{
-			PStatement statement = connection->prepareStatement(sql);
-			statement->setString(1, dialog.facility);
-			RSet resultSet = statement->executeQuery();
-			displayResults(dialog.facility + " Messages", resultSet);
-			}
-		catch (SQLException& exception)
-			{
-			AfxMessageBox(exception.getText());
-			}
+		}
+	catch (SQLException& exception)
+		{
+		AfxMessageBox(exception.getText());
 		}
 }
 
@@ -134,90 +144,111 @@ void Database::genSummary(void)
 
 void Database::addFacility(void)
 {
-	AddFacilityDialog dialog;
-	PStatement statement = connection->prepareStatement(
-		"select max(fac_code+1) from facilities");
-	RSet resultSet = statement->executeQuery();
-	resultSet->next();
-	dialog.facCode = resultSet->getString(1);
-	
-	if (dialog.DoModal() == IDOK)
+	try
 		{
-		try
+		AddFacilityDialog dialog;
+		PStatement statement = connection->prepareStatement(
+			"select max(fac_code+1) from facilities");
+		RSet resultSet = statement->executeQuery();
+		resultSet->next();
+		dialog.facCode = resultSet->getString(1);
+		
+		if (dialog.DoModal() == IDOK)
 			{
-			statement = connection->prepareStatement(
-				"insert into facilities(facility,fac_code,max_number) values (?,?,1)");
-			int n = 1;
-			statement->setString(n++, dialog.facility);
-			statement->setString(n++, dialog.facCode);
-			statement->executeUpdate();
-			connection->commit();
+			try
+				{
+				statement = connection->prepareStatement(
+					"insert into facilities(facility,fac_code,max_number) values (?,?,1)");
+				int n = 1;
+				statement->setString(n++, dialog.facility);
+				statement->setString(n++, dialog.facCode);
+				statement->executeUpdate();
+				connection->commit();
+				}
+			catch (SQLException& exception)
+				{
+				AfxMessageBox(exception.getText());
+				}
 			}
-		catch (SQLException& exception)
-			{
-			AfxMessageBox(exception.getText());
-			}
+		}
+	catch (SQLException& exception)
+		{
+		AfxMessageBox(exception.getText());
 		}
 }
 
 void Database::listFacilities(void)
 {
-	PStatement statement = connection->prepareStatement(
-		"select facility,fac_code,max_number,last_change from facilities order by fac_code");
-	RSet resultSet = statement->executeQuery();
-	displayResults("Facilites", resultSet);
+	try
+		{
+		PStatement statement = connection->prepareStatement(
+			"select facility,fac_code,max_number,last_change from facilities order by fac_code");
+		RSet resultSet = statement->executeQuery();
+		displayResults("Facilites", resultSet);
+		}
+	catch (SQLException& exception)
+		{
+		AfxMessageBox(exception.getText());
+		}
 }
 
 void Database::addMessage(void)
 {
-	AddMsgDialog dialog;
-	dialog.populate(this);
-	dialog.facility = defaultFacility;
-		
-	while (dialog.DoModal() == IDOK)
+	try
 		{
-		int msgNumber;
-		int facCode;
-		
-		defaultFacility = dialog.facility;
-		PStatement statement = connection->prepareStatement(
-			"select fac_code, max_number from facilities where facility=?");
-		statement->setString(1, dialog.facility);
-		RSet resultSet = statement->executeQuery();
-		
-		if (resultSet->next())
+		AddMsgDialog dialog;
+		dialog.populate(this);
+		dialog.facility = defaultFacility;
+			
+		while (dialog.DoModal() == IDOK)
 			{
-			facCode = resultSet->getInt(1);
-			msgNumber = resultSet->getInt(2);
+			int msgNumber;
+			int facCode;
+			
+			defaultFacility = dialog.facility;
+			PStatement statement = connection->prepareStatement(
+				"select fac_code, max_number from facilities where facility=?");
+			statement->setString(1, dialog.facility);
+			RSet resultSet = statement->executeQuery();
+			
+			if (resultSet->next())
+				{
+				facCode = resultSet->getInt(1);
+				msgNumber = resultSet->getInt(2);
+				}
+			else
+				{
+				AfxMessageBox("Can't find facility code");
+				continue;
+				}
+			
+			statement = connection->prepareStatement(
+				"insert into messages (symbol,number,fac_code,module,routine,text,explanation,trans_notes) "
+				"  values(?,?,?,?,?,?,?,?)");
+			int n = 1;
+			statement->setString(n++, dialog.symbol);
+			statement->setInt(n++, msgNumber);
+			statement->setInt(n++, facCode);
+			statement->setString(n++, dialog.module);
+			statement->setString(n++, dialog.routine);
+			statement->setString(n++, dialog.text);
+			statement->setString(n++, dialog.explanation);
+			statement->setString(n++, dialog.translationNotes);
+			statement->executeUpdate();
+			
+			statement = connection->prepareStatement(
+				"update facilities set max_number=? where fac_code=?");
+			statement->setInt(1, msgNumber + 1);
+			statement->setInt(2, facCode);
+			statement->executeUpdate();
+			
+			connection->commit();
+			return;
 			}
-		else
-			{
-			AfxMessageBox("Can't find facility code");
-			continue;
-			}
-		
-		statement = connection->prepareStatement(
-			"insert into messages (symbol,number,fac_code,module,routine,text,explanation,trans_notes) "
-			"  values(?,?,?,?,?,?,?,?)");
-		int n = 1;
-		statement->setString(n++, dialog.symbol);
-		statement->setInt(n++, msgNumber);
-		statement->setInt(n++, facCode);
-		statement->setString(n++, dialog.module);
-		statement->setString(n++, dialog.routine);
-		statement->setString(n++, dialog.text);
-		statement->setString(n++, dialog.explanation);
-		statement->setString(n++, dialog.translationNotes);
-		statement->executeUpdate();
-		
-		statement = connection->prepareStatement(
-			"update facilities set max_number=? where fac_code=?");
-		statement->setInt(1, msgNumber + 1);
-		statement->setInt(2, facCode);
-		statement->executeUpdate();
-		
-		connection->commit();
-		return;
+		}
+	catch (SQLException& exception)
+		{
+		AfxMessageBox(exception.getText());
 		}
 }
 

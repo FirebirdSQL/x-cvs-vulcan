@@ -153,7 +153,7 @@ void CMsgMgrApp::OnFileOpen(void)
 	
 	while (dialog.DoModal() == IDOK)
 		{
-		Database *database = Database::connect(dialog.connectString,  dialog.account, dialog.password);
+		Database *database = Database::connect(dialog.connectString,  dialog.account, dialog.password, dialog.role);
 		
 		if (database)
 			{

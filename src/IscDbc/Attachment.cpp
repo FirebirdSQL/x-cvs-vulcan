@@ -38,51 +38,23 @@ Attachment::~Attachment()
 void Attachment::openDatabase(const char *dbName, Properties *properties)
 {
 	databaseName = dbName;
-	//char dpb [256], *p = dpb;
-	//*p++ = isc_dpb_version1;
 	PBGen dpb(isc_dpb_version1);
 
 	const char *user = properties->findValue ("user", NULL);
 
 	if (user)
 		dpb.putParameter(isc_dpb_user_name, user);
-		/***
-		{
-		userName = user;
-		*p++ = isc_dpb_user_name,
-		*p++ = strlen (user);
-		for (const char *q = user; *q;)
-			*p++ = *q++;
-		}
-		***/
 
 	const char *password = properties->findValue ("password", NULL);
 
 	if (password)
 		dpb.putParameter(isc_dpb_password, password);
-		/***
-		{
-		*p++ = isc_dpb_password,
-		*p++ = strlen (password);
-		for (const char *q = password; *q;)
-			*p++ = *q++;
-		}
-		***/
 
 	const char *role = properties->findValue ("role", NULL);
 
 	if (role)
 		dpb.putParameter(isc_dpb_sql_role_name, role);
-		/***
-		{
-		*p++ = isc_dpb_role,
-		*p++ = strlen (role);
-		for (const char *q = role; *q;)
-			*p++ = *q++;
-		}
-		***/
 		
-	//int dpbLength = p - dpb;
 	ISC_STATUS statusVector [20];
 
 	if (isc_attach_database (statusVector, strlen (dbName), (char*) dbName, &databaseHandle, 

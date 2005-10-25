@@ -39,11 +39,12 @@
 class InternalConnection;
 class Transaction;
 class thread_db;
+class Attachment;
 
 class InternalSecurityContext : public SecurityContext
 {
 public:
-	InternalSecurityContext(thread_db* tdbb);
+	InternalSecurityContext(thread_db* tdbb, Attachment *attachment);
 	virtual ~InternalSecurityContext(void);
 	virtual Connection*		getUserConnection(void);
 	virtual Connection*		getNewConnection(void);
@@ -52,9 +53,15 @@ public:
 	virtual const char*		getDatabaseFilename(void);
 	
 	Transaction			*transaction;
+	Attachment			*attachment;
 	InternalConnection	*connection;
 	thread_db			*threadData;
 	isc_db_handle		dbHandle;
+	bool				internalTransaction;
+	
+	virtual const char* getAccount(void);
+	virtual const char* getEncryptedPassword(void);
+	virtual const char* getPassword(void);
 };
 
 #endif
