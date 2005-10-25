@@ -13,8 +13,8 @@
 #define NOT_YET_IMPLEMENTED	throw SQLEXCEPTION (FEATURE_NOT_YET_IMPLEMENTED, "not yet implemented")
 #define THROW_ISC_EXCEPTION(statusVector)			throw SQLEXCEPTION (statusVector [1], IscConnection::getIscStatusText (statusVector))
 //#define ROUNDUP(a,b)		((a + b - 1) / b * b)
-#define MIN(a,b)			(((a) < (b)) ? (a) : (b))
-#define MAX(a,b)			(((a) > (b)) ? (a) : (b))
+//#define MIN(a,b)			(((a) < (b)) ? (a) : (b))
+//#define MAX(a,b)			(((a) > (b)) ? (a) : (b))
 
 #ifdef _WIN32
 

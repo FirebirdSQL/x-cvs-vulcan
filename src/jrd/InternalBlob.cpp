@@ -13,7 +13,6 @@
 #include "ThreadData.h"
 #include "blb_proto.h"
 #include "blb.h"
-#include ".\internalblob.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
