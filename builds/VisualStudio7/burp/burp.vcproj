@@ -401,6 +401,13 @@
 				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="Resources"
+			Filter="">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

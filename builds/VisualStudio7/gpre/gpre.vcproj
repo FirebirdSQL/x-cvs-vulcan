@@ -226,6 +226,21 @@
 			<File
 				RelativePath="..\..\..\src\utilities\TempFile.cpp">
 			</File>
+			<Filter
+				Name="Preprocessed Files"
+				Filter="">
+				<File
+					RelativePath="..\..\..\src\gpre\gpre_meta.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -368,25 +383,10 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-		</Filter>
-		<Filter
-			Name="Preprocessed Files"
-			Filter="">
 			<File
-				RelativePath="..\..\..\src\gpre\gpre_meta.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\install\bin\gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\..\..\src\gpre\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

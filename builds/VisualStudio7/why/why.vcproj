@@ -892,6 +892,32 @@
 						Optimization="2"/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="Preprocessed Files"
+				Filter="">
+				<File
+					RelativePath="..\..\..\src\dsql\array.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\blob.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1075,34 +1101,11 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Preprocessed Files"
-			Filter="">
-			<File
-				RelativePath="..\..\..\src\dsql\array.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\install\bin\gpre  -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\..\src\dsql\blob.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\install\bin\gpre  -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

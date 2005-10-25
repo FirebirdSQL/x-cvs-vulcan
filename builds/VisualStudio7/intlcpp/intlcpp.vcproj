@@ -568,6 +568,9 @@
 		<Filter
 			Name="Resource files"
 			Filter="">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
