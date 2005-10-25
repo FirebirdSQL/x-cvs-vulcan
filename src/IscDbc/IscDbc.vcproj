@@ -89,7 +89,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\jrd;..\include;..\include\gen"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS;NAMESPACE=IscDbc"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -170,6 +170,9 @@
 				RelativePath=".\Error.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\Generate.cpp">
+			</File>
+			<File
 				RelativePath=".\IscBlob.cpp">
 			</File>
 			<File
@@ -245,6 +248,9 @@
 				RelativePath=".\Parameters.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\PBGen.cpp">
+			</File>
+			<File
 				RelativePath=".\Sqlda.cpp">
 			</File>
 			<File
@@ -292,6 +298,12 @@
 			</File>
 			<File
 				RelativePath=".\Error.h">
+			</File>
+			<File
+				RelativePath="..\jrd\Generate.h">
+			</File>
+			<File
+				RelativePath="..\jrd\ibase.h">
 			</File>
 			<File
 				RelativePath=".\IscArray.h">
@@ -382,6 +394,9 @@
 			</File>
 			<File
 				RelativePath=".\Parameters.h">
+			</File>
+			<File
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath=".\Properties.h">

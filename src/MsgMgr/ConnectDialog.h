@@ -29,4 +29,6 @@ public:
 	virtual BOOL OnInitDialog(void);
 	virtual int DoModal(void);
 	CComboBox connectStrings;
+	CComboBox roles;
+	CString role;
 };

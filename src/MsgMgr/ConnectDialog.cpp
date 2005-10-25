@@ -17,6 +17,7 @@ ConnectDialog::ConnectDialog(CWnd* pParent /*=NULL*/)
 	, connectString(_T(""))
 	, account(_T(""))
 	, password(_T(""))
+	, role(_T(""))
 {
 	hostnames = new RecentStringList (SECTION, ENTRY_FORMAT, 10);
 }
@@ -29,10 +30,12 @@ ConnectDialog::~ConnectDialog()
 void ConnectDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_CONNECT_STRING, connectString);
+	DDX_CBString(pDX, IDC_CONNECT_STRING, connectString);
 	DDX_Text(pDX, IDC_ACCOUNT, account);
 	DDX_Text(pDX, IDC_PASSWORD, password);
 	DDX_Control(pDX, IDC_CONNECT_STRING, connectStrings);
+	DDX_Control(pDX, IDC_ROLE, roles);
+	DDX_CBString(pDX, IDC_ROLE, role);
 }
 
 
@@ -46,17 +49,42 @@ BOOL ConnectDialog::OnInitDialog(void)
 {
 	CDialog::OnInitDialog();
 
+	roles.AddString("Reader");
+	roles.AddString("Writer");
+	role = "Reader";
 	hostnames->readList();
 	int count = hostnames->getSize();
 
 	for (int n = 0; n < count; ++n)
 		{
-		CString host = (*hostnames) [n];
+		CString host = (*hostnames)[n];
+		CString accountName;
+		CString roleName;
+		int i = host.Find(';');
+		
+		if (i >= 0)
+			{
+			accountName = host.Mid(i + 1);
+			host = host.Left(i);
+			i = accountName.Find(';');
+			
+			if (i >= 0)
+				{
+				roleName = accountName.Mid(i + 1);
+				accountName = accountName.Left(i);
+				}
+			}
+		
 		if (host != "")
 			{
 			connectStrings.AddString (host);
-			if (n == 0 && connectString == "")
+			
+			if (connectString.IsEmpty())
+				{
 				connectString = host;
+				role = roleName;
+				account = accountName;
+				}
 			}
 		}
 
@@ -71,7 +99,8 @@ int ConnectDialog::DoModal(void)
 
 	if (ret == IDOK)
 		{
-		hostnames->add (connectString);
+		CString string = connectString + ';' + account + ';' + role;
+		hostnames->add (string);
 		hostnames->writeList();
 		}
 

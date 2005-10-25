@@ -30,6 +30,8 @@
 #define IDC_FAC_CODE                    1015
 #define IDC_EDIT1                       1016
 #define IDC_FIND                        1017
+#define IDC_COMBO1                      1019
+#define IDC_ROLE                        1019
 #define ID_MESSAGES_NEWMESSAGE          32771
 #define ID_EDIT_NEW                     32772
 #define ID_NEW_MESSAGE                  32773
@@ -45,7 +47,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32780
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           107
 #endif
 #endif
