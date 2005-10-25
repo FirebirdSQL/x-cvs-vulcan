@@ -34,38 +34,40 @@
 InternalSecurityContext::InternalSecurityContext(thread_db* tdbb, Attachment *att)
 {
 	threadData = tdbb;
-	transaction = NULL;
-	connection = NULL;
+	//transaction = NULL;
+	//connection = NULL;
 	attachment = att;
-	internalTransaction = false;
+	//internalTransaction = false;
 }
 
 InternalSecurityContext::~InternalSecurityContext(void)
 {
-	if (transaction)
-		commit();
-
+	/***
 	if (connection)
 		connection->release();
+	***/
 }
 
 Connection* InternalSecurityContext::getUserConnection(void)
 {
+	/***
 	if (connection)
 		return connection;
-	
+
 	if (!transaction)
 		{
 		transaction = TRA_start(threadData, threadData->tdbb_attachment, 0, NULL);
 		internalTransaction = true;
 		}
-		
-	connection = threadData->tdbb_attachment->getUserConnection(transaction);
-	connection->addRef();
+	***/
+	
+	InternalConnection *connection = threadData->tdbb_attachment->getUserConnection(NULL);
+	//connection->addRef();
 	
 	return connection;
 }
 
+/***
 void InternalSecurityContext::commit(void)
 {
 	TRA_commit(threadData, transaction, false);
@@ -75,6 +77,7 @@ void InternalSecurityContext::rollback(void)
 {
 	TRA_rollback(threadData, transaction, false);
 }
+***/
 
 const char* InternalSecurityContext::getDatabaseFilename(void)
 {

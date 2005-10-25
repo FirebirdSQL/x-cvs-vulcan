@@ -592,6 +592,14 @@ InternalConnection* Database::getNewConnection(thread_db *tdbb)
 {
 	Attachment *attachment = createAttachment();
 	attachment->att_flags |= ATT_internal;
+	Attachment *source = tdbb->tdbb_attachment;
+
+	if (source)
+		{
+		attachment->userData.authenticating = source->userData.authenticating;
+		attachment->userData.authenticator = source->userData.authenticator;
+		}
+		
 	Transaction *transaction = TRA_start(tdbb, attachment, 0, NULL);
 	InternalConnection *connection = new InternalConnection(attachment, transaction);
 	

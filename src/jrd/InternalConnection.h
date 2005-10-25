@@ -73,8 +73,6 @@ public:
 	virtual void createDatabase (const char *host, const char * dbName, Properties *properties);
 	virtual void ping();
 	virtual int hasRole (const char *schemaName, const char *roleName);
-	//virtual void freeHTML (const char *html);
-	//virtual Clob* genHTML (Properties *context, long genHeaders);
 	virtual bool isConnected();
 	virtual Statement* createStatement();
 	virtual void prepareTransaction();
@@ -87,7 +85,6 @@ public:
 	Attachment	*attachment;
 	Transaction	*transaction;
 	void		*databaseHandle;
-	//void		*transactionHandle;
 	LinkedList	statements;
 	InternalDatabaseMetaData	*metaData;
 	int			transactionIsolation;
@@ -95,6 +92,8 @@ public:
 	int			useCount;
 	InternalConnection	*prior;
 	InternalConnection	*next;
+	InternalConnection	*nextInTransaction;
+	void transactionCompleted(Transaction* transaction);
 };
 
 #endif

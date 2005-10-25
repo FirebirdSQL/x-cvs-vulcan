@@ -65,8 +65,6 @@ const ULONG ATT_garbage_collector	= 4096;	// I'm a garbage collector
 #define ATT_NO_CLEANUP	ATT_no_cleanup
 #endif
 
-const ULONG ATT_internal			= 8192;	// Internal connection
-
 #ifdef CANCEL_OPERATION
 const ULONG ATT_cancel_raise		= 8192;		// Cancel currently running operation
 const ULONG ATT_cancel_disable		= 16384;	// Disable cancel operations
@@ -74,6 +72,7 @@ const ULONG ATT_cancel_disable		= 16384;	// Disable cancel operations
 
 const ULONG ATT_gfix_attachment		= 32768;	// Indicate a GFIX attachment
 const ULONG ATT_gstat_attachment	= 65536;	// Indicate a GSTAT attachment
+const ULONG ATT_internal			= (1 << 17);	// Internal connection
 
 //
 // Database attachments

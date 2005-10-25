@@ -48,16 +48,16 @@ public:
 	virtual ~InternalSecurityContext(void);
 	virtual Connection*		getUserConnection(void);
 	virtual Connection*		getNewConnection(void);
-	virtual void			commit(void);
-	virtual void			rollback(void);
+	//virtual void			commit(void);
+	//virtual void			rollback(void);
 	virtual const char*		getDatabaseFilename(void);
 	
-	Transaction			*transaction;
+	//Transaction		*transaction;
 	Attachment			*attachment;
-	InternalConnection	*connection;
+	//InternalConnection *connection;
 	thread_db			*threadData;
 	isc_db_handle		dbHandle;
-	bool				internalTransaction;
+	//bool				internalTransaction;
 	
 	virtual const char* getAccount(void);
 	virtual const char* getEncryptedPassword(void);

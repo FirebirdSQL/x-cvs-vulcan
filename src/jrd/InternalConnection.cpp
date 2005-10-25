@@ -37,6 +37,7 @@
 #include "Attachment.h"
 #include "ThreadData.h"
 #include "tra_proto.h"
+#include "tra.h"
 
 InternalConnection::InternalConnection(Attachment *attach, Transaction *transact)
 {
@@ -54,8 +55,10 @@ void InternalConnection::init(Attachment *attach, Transaction *transact)
 	useCount = 1;
 	metaData = NULL;
 	transactionIsolation = 0;
-	autoCommit = true;
-	transaction = transact;
+	autoCommit = false;
+	
+	if (transaction = transact)
+		transaction->registerConnection(this);
 
 	if (attachment = attach)
 		attachment->addConnection(this);
@@ -65,6 +68,9 @@ void InternalConnection::init(Attachment *attach, Transaction *transact)
 
 InternalConnection::~InternalConnection()
 {
+	if (transaction)
+		transaction->unregisterConnection(this);
+		
 	if (attachment)
 		attachment->closeConnection(this);
 		
@@ -121,16 +127,11 @@ void InternalConnection::commit()
 
 void InternalConnection::rollback()
 {
-	/***
-	if (transactionHandle)
-		{
-		ISC_STATUS statusVector [20];
-		isc_rollback_transaction (statusVector, &transactionHandle);
-
-		if (statusVector [1])
-			throw SQLEXCEPTION (statusVector [1], getInternalStatusText (statusVector));
-		}
-	***/
+	ISC_STATUS statusVector [20];
+	ThreadData threadData (statusVector, attachment);
+	threadData.setTransaction(transaction);
+	TRA_rollback(threadData, transaction, 0);
+	transaction = NULL;
 }
 
 void InternalConnection::prepareTransaction()
@@ -144,6 +145,7 @@ void* InternalConnection::startTransaction()
 		ISC_STATUS statusVector [20];
 		ThreadData threadData (statusVector, attachment);
 		transaction = TRA_start(threadData, attachment, 0, NULL);
+		transaction->registerConnection(this);
 		}
 	
 	return transaction;
@@ -274,4 +276,9 @@ void InternalConnection::commitAuto()
 void InternalConnection::rollbackAuto()
 {
 	rollback();
+}
+
+void InternalConnection::transactionCompleted(Transaction* transaction)
+{
+	transaction = NULL;
 }

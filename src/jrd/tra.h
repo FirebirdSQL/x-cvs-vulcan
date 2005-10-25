@@ -46,6 +46,7 @@ class Resource;
 class traRpbList;
 class ArrayField;
 class Lock;
+class InternalConnection;
 
 struct vec;
 struct thread_db;
@@ -86,6 +87,7 @@ public:
 	SyncObject		syncInUse;
 #endif
 
+	InternalConnection	*connections;
 	UCHAR			tra_transactions[1];
 	
 	~Transaction(void);
@@ -97,6 +99,9 @@ public:
 	Relation*	findRelation(thread_db* tdbb, const char* relationName);
 	InternalConnection* getConnection(void);
 	void postResource(Resource* resource);
+	void registerConnection(InternalConnection* connection);
+	void unregisterConnection(InternalConnection* connection);
+	void connectionsCheckout(void);
 };
 
 const ULONG TRA_system			= 1L;		/* system transaction */

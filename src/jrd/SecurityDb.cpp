@@ -135,7 +135,8 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 		
 	UserData userData;
 	userData.parseApb(apbLength, apb);
-	Connect connection = (InternalConnection*) context->getUserConnection()->clone();
+	Connect userConnection = (InternalConnection*) context->getUserConnection();
+	Connect connection = (InternalConnection*) userConnection->clone();
 	
 	try
 		{	
@@ -154,11 +155,24 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 			
 		JString encryptedPassword = userData.getOldPasswordHash();
 		int n = 1;
+		int count = 0;
 		
 		switch (userData.operation)
 			{
 			case fb_apb_update_account:
 			case fb_apb_upgrade_account:
+				statement = connection->prepareStatement(
+					"update rdb$users set rdb$password=?, rdb$uid=? rdb$gid=?"
+					"  where rdb$user_name=?");
+				statement->setString(n++, encryptedPassword);
+				statement->setInt(n++, userData.uid);
+				statement->setInt(n++, userData.gid);
+				statement->setString(n++, JString::upcase(userData.userName));
+				count = statement->executeUpdate();	
+				
+				if (count || userData.operation == fb_apb_update_account)
+					break;
+				
 			case fb_apb_create_account:
 				statement = connection->prepareStatement(
 					"insert into rdb$users (rdb$user_name, rdb$password, rdb$uid, rdb$gid) values (?,?,?,?)");
@@ -166,24 +180,23 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 				statement->setString(n++, encryptedPassword);
 				statement->setInt(n++, userData.uid);
 				statement->setInt(n++, userData.gid);
-				break;
+				count = statement->executeUpdate();	
+			break;
 				
 			case fb_apb_delete_account:
 				statement = connection->prepareStatement(
-					"delete from users where user_name=?");
+					"delete from rdb$users where rdb$user_name=?");
 				statement->setString(n++, userData.userName);
+				count = statement->executeUpdate();	
 				break;
 				
 			}
 		
-		statement->executeUpdate();	
 		connection->commit();
-		connection->close();
 		}
 	catch (...)
 		{
 		connection->rollback();
-		connection->close();
 		throw;
 		}
 }
@@ -221,8 +234,9 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	InfoGen info(buffer, bufferLength);
 	JString accountName = JString::upcase(userData.userName);
 
-	if (!none)
-		connection = context->getUserConnection();
+	if (!none && !connection)
+		//connection = context->getUserConnection();
+		connection = context->getNewConnection();
 		
 	// If none, just give back the user name and forget about it
 	
@@ -248,7 +262,6 @@ void SecurityDb::authenticateUser(SecurityContext *context, int dpbLength, const
 	
 	// We've got some work to do.
 	
-
 	PStatement statement = connection->prepareStatement( "select * from rdb$users where rdb$user_name=?");
 	
 	/***
@@ -387,5 +400,11 @@ void SecurityDb::close(void)
 		{
 		authenticate->close();
 		authenticate = NULL;
+		}
+	
+	if (connection)
+		{
+		connection->close();
+		connection = NULL;
 		}
 }

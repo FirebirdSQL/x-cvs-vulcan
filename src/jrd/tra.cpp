@@ -1099,8 +1099,9 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 	VEC vector;
 	vec::iterator lock;
 	USHORT i;
-	//SET_TDBB(tdbb);
 
+	transaction->connectionsCheckout();
+	
 	while (transaction->tra_blobs)
 		BLB_cancel(tdbb, transaction->tra_blobs);
 
@@ -3021,6 +3022,8 @@ void Transaction::deleteBlob(blb* blob)
 
 Transaction::~Transaction(void)
 {
+	connectionsCheckout();
+	
 	if (tra_attachment)
 		tra_attachment->endTransaction(this);
 
@@ -3048,6 +3051,7 @@ Transaction::~Transaction(void)
 Transaction::Transaction(Attachment *attachment)
 {
 	pendingRelations = NULL;
+	connections = NULL;
 	
 	if (tra_attachment = attachment)
 		attachment->addTransaction(this);
@@ -3107,4 +3111,29 @@ void Transaction::postResource(Resource* resource)
 {
 	resource->next = tra_resources;
 	tra_resources = resource;
+}
+
+void Transaction::registerConnection(InternalConnection* connection)
+{
+	connection->nextInTransaction = connections;
+	connections = connection;
+}
+
+void Transaction::unregisterConnection(InternalConnection* connection)
+{
+	for (InternalConnection **ptr = &connections; *ptr; ptr = &(*ptr)->nextInTransaction)
+		if (*ptr == connection)
+			{
+			*ptr = connection->nextInTransaction;
+			break;
+			}
+}
+
+void Transaction::connectionsCheckout(void)
+{
+	for (InternalConnection *connection; connection = connections;)
+		{
+		connections = connection->nextInTransaction;
+		connection->transactionCompleted(this);
+		}
 }
