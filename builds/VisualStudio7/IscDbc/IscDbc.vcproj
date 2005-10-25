@@ -170,6 +170,9 @@
 				RelativePath="..\..\..\src\IscDbc\Error.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\Generate.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\IscDbc\IscBlob.cpp">
 			</File>
 			<File
@@ -242,6 +245,9 @@
 				RelativePath="..\..\..\src\IscDbc\Parameters.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\PBGen.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\IscDbc\Sqlda.cpp">
 			</File>
 			<File
@@ -289,6 +295,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\IscDbc\Error.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Generate.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\IscDbc\IscArray.h">
@@ -378,10 +387,16 @@
 				RelativePath="..\..\..\src\IscDbc\Parameters.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\PBGen.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\IscDbc\Properties.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\IscDbc\resource.h">
+			</File>
+			<File
+				RelativePath=".\resource.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\IscDbc\SetupAttributes.h">
@@ -420,6 +435,12 @@
 		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
+			<File
+				RelativePath=".\IscDbc.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
