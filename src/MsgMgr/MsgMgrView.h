@@ -49,6 +49,8 @@ public:
 	afx_msg void OnMessagesListmessages();
 	afx_msg void OnFacilitiesNewfacility();
 	afx_msg void OnMessagesUpdatemessage();
+	afx_msg void OnMessagesHistory();
+	afx_msg void OnMiscSqlquery();
 };
 
 #ifndef _DEBUG  // debug version in MsgMgrView.cpp

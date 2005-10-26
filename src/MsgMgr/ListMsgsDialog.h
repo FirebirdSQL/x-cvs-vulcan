@@ -37,4 +37,5 @@ public:
 	afx_msg void OnBnClickedOrderNumber();
 	afx_msg void OnBnClickedOrderSymbol();
 	afx_msg void OnBnClickedOrderText();
+	CString containing;
 };

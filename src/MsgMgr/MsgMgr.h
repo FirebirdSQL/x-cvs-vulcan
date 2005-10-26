@@ -8,6 +8,7 @@
 
 #include "resource.h"       // main symbols
 
+#define ALL		"All"
 
 // CMsgMgrApp:
 // See MsgMgr.cpp for the implementation of this class

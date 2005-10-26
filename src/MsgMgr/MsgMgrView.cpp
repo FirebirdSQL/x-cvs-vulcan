@@ -35,6 +35,8 @@ BEGIN_MESSAGE_MAP(CMsgMgrView, CView)
 	ON_COMMAND(ID_MESSAGES_LISTMESSAGES, OnMessagesListmessages)
 	ON_COMMAND(ID_FACILITIES_NEWFACILITY, OnFacilitiesNewfacility)
 	ON_COMMAND(ID_MESSAGES_UPDATEMESSAGE, OnMessagesUpdatemessage)
+	ON_COMMAND(ID_MESSAGES_HISTORY, OnMessagesHistory)
+	ON_COMMAND(ID_MISC_SQLQUERY, OnMiscSqlquery)
 END_MESSAGE_MAP()
 
 // CMsgMgrView construction/destruction
@@ -140,4 +142,14 @@ void CMsgMgrView::OnFacilitiesNewfacility()
 void CMsgMgrView::OnMessagesUpdatemessage()
 {
 	GetDocument()->database->updateMessage();
+}
+
+void CMsgMgrView::OnMessagesHistory()
+{
+	GetDocument()->database->listHistory();
+}
+
+void CMsgMgrView::OnMiscSqlquery()
+{
+	GetDocument()->database->sqlQuery();
 }

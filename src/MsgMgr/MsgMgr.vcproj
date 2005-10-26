@@ -83,13 +83,13 @@
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"/>
+				DebugInformationFormat="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -150,6 +150,9 @@
 				RelativePath="..\IscDbc\LinkedList.cpp">
 			</File>
 			<File
+				RelativePath=".\ListHistoryDialog.cpp">
+			</File>
+			<File
 				RelativePath=".\ListMsgsDialog.cpp">
 			</File>
 			<File
@@ -166,6 +169,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\PStatement.cpp">
+			</File>
+			<File
+				RelativePath=".\QueryDialog.cpp">
 			</File>
 			<File
 				RelativePath=".\RecentStringList.cpp">
@@ -230,6 +236,9 @@
 				RelativePath="..\IscDbc\LinkedList.h">
 			</File>
 			<File
+				RelativePath=".\ListHistoryDialog.h">
+			</File>
+			<File
 				RelativePath=".\ListMsgsDialog.h">
 			</File>
 			<File
@@ -246,6 +255,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\PStatement.h">
+			</File>
+			<File
+				RelativePath=".\QueryDialog.h">
 			</File>
 			<File
 				RelativePath=".\RecentStringList.h">

@@ -15,6 +15,7 @@ public:
 	
 	CString		name;
 	CString		defaultFacility;
+	CString		developer;
 	
 	int getFacCode(const char* facility);
 	void listMessages(void);
@@ -24,6 +25,8 @@ public:
 	void addMessage(void);
 	void updateMessage(void);
 	void displayResults(CString label, ResultSet* resultSet);
+	void listHistory(void);
+	void sqlQuery(void);
 };
 
 #endif

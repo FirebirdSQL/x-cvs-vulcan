@@ -10,6 +10,8 @@
 #include "AddFacilityDialog.h"
 #include "UpdateMsgDialog.h"
 #include "AddMsgDialog.h"
+#include "QueryDialog.h"
+#include "ListHistoryDialog.h"
 
 
 Database::Database(const char* connectString, Connection* connect)
@@ -86,29 +88,44 @@ void Database::listMessages(void)
 		if (dialog.DoModal() == IDOK)
 			{
 			defaultFacility = dialog.facility;
-			CString sql = "select number,symbol,text from messages m, facilities f "
-						"  where m.fac_code=f.fac_code and facility=? ";
+			CString sql = "select facility,number,symbol,text from messages m, facilities f "
+						"  where m.fac_code=f.fac_code";
 			
+			if (dialog.facility != ALL)
+				sql += " and facility=?";
+				
+			if (!dialog.containing.IsEmpty())
+				sql += " and text containing ?";
+				
 			switch (dialog.order)
 				{
 				case number:
-					sql += "order by number";
+					sql += " order by number,facility";
 					break;
 					
 				case symbol:
-					sql += "order by symbol";
+					sql += " order by symbol";
 					break;
 					
 				case text:
-					sql += "order by text";
+					sql += " order by text";
 					break;
-					
+				
+				default:
+					sql += " order by facility, number";
 				}
 			
 			try
 				{
 				PStatement statement = connection->prepareStatement(sql);
-				statement->setString(1, dialog.facility);
+				int n = 1;
+				
+				if (dialog.facility != ALL)
+					statement->setString(n++, dialog.facility);
+					
+				if (!dialog.containing.IsEmpty())
+					statement->setString(n++, dialog.containing);
+					
 				RSet resultSet = statement->executeQuery();
 				displayResults(dialog.facility + " Messages", resultSet);
 				}
@@ -293,4 +310,93 @@ void Database::displayResults(CString label, ResultSet* resultSet)
 	window->populate (label, resultSet);
 	window->ShowWindow (SW_SHOW);
 	window->BringWindowToTop();
+}
+
+void Database::listHistory(void)
+{
+	try
+		{
+		ListHistoryDialog dialog;
+		dialog.database = this;
+		dialog.facility = defaultFacility;
+		dialog.developer = developer;
+		
+		if (dialog.DoModal() == IDOK)
+			{
+			defaultFacility = dialog.facility;
+			developer = dialog.developer;
+			CString sql = "select change_number,change_who,facility,number,change_date,old_text"
+						"  from history h, facilities f "
+						"  where h.fac_code=f.fac_code";
+			
+			if (dialog.facility != "All")
+				sql += " and h.fac_code=?";
+				
+			if (!dialog.number.IsEmpty())
+				sql += " and h.number=?";
+				
+			if (dialog.developer != "All")
+				sql += " and change_who=?";
+				
+			switch (dialog.order)
+				{
+				case hisNumber:
+					sql += " order by change_number";
+					break;
+					
+				case hisDate:
+					sql += " order by change_date";
+					break;
+					
+				case hisFacility:
+					sql += " order by facility";
+					break;
+				}
+			
+			try
+				{
+				PStatement statement = connection->prepareStatement(sql);
+				int n = 1;
+				
+				if (dialog.facility != "All")
+					statement->setInt(n++, getFacCode(dialog.facility));
+					
+				if (!dialog.number.IsEmpty())
+					statement->setString(n++, dialog.number);
+					
+				if (dialog.developer!= "All")
+					statement->setString(n++, dialog.developer);
+					
+				RSet resultSet = statement->executeQuery();
+				displayResults(dialog.facility + " History", resultSet);
+				}
+			catch (SQLException& exception)
+				{
+				AfxMessageBox(exception.getText());
+				}
+			}
+		}
+	catch (SQLException& exception)
+		{
+		AfxMessageBox(exception.getText());
+		}
+}
+
+void Database::sqlQuery(void)
+{
+	QueryDialog dialog;
+	
+	while (dialog.DoModal() == IDOK)
+		try
+			{
+			PStatement statement = connection->prepareStatement(dialog.query);
+			RSet resultSet = statement->executeQuery();
+			displayResults ("Result Set", resultSet);
+			return;
+			}
+		catch(SQLException& exception)
+			{
+			AfxMessageBox(exception.getText());
+			}
+		
 }

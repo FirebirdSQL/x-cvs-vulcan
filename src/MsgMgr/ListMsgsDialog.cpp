@@ -15,6 +15,7 @@ IMPLEMENT_DYNAMIC(ListMsgsDialog, CDialog)
 ListMsgsDialog::ListMsgsDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(ListMsgsDialog::IDD, pParent)
 	, facility(_T(""))
+	, containing(_T(""))
 {
 	database = NULL;
 }
@@ -28,6 +29,7 @@ void ListMsgsDialog::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_FACILITY, facilities);
 	DDX_CBString(pDX, IDC_FACILITY, facility);
+	DDX_Text(pDX, IDC_CONTAINING, containing);
 }
 
 
@@ -47,6 +49,11 @@ BOOL ListMsgsDialog::OnInitDialog(void)
 		"select facility from facilities order by facility");
 	RSet resultSet = statement->executeQuery();
 	
+	facilities.AddString(ALL);
+		
+	if (facility.IsEmpty())
+		facility = ALL;
+		
 	while (resultSet->next())
 		{
 		char temp[256];
@@ -57,9 +64,6 @@ BOOL ListMsgsDialog::OnInitDialog(void)
 			*p = 0;
 			
 		facilities.AddString(temp);
-		
-		if (facility.IsEmpty())
-			facility = temp;
 		}
 	
 	order = none;
