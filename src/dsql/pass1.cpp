@@ -7641,14 +7641,26 @@ static dsql_fld* resolve_context( CStatement* request, dsql_str* qualifier,
 	if (!relation && !procedure) 
 		return NULL;
 
-// if there is no qualifier, we can match against
+// if there is no qualifier, then we cannot match against
 // a context of a different scoping level
-//  but the scope level where the field is has priority.
+// AB: Yes we can, but the scope level where the field is has priority.
+//	if (!qualifier && context->ctx_scope_level != request->req_scope_level) {
+//		return NULL;
+//	}
+
+	// AB: If this context is a system generated context as in NEW/OLD inside 
+	// triggers, the qualifier by the field is mandatory. While we can't 
+	// fall back from a higher scope-level to the NEW/OLD contexts without 
+	// the qualifier present.
+	// An exception is a check-constraint that is allowed to reference fields
+	// without the qualifier.
+	if (!isCheckConstraint && (context->ctx_flags & CTX_system) && (!qualifier)) {
+		return NULL;
+	}
 
 	const TEXT* table_name = NULL;
 	if (context->ctx_internal_alias) 
 		table_name = context->ctx_internal_alias;
-	
 
 // AB: For a check constraint we should ignore the alias if the alias
 //     contains the "NEW" alias. This is because it is possible
