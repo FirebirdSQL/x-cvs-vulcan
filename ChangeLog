@@ -1,3 +1,107 @@
+2005-10-25 23:40  jimstarkey
+
+	* vulcan/src/: IscDbc/IscDbc.h, jrd/InternalBlob.cpp:
+	
+	Fix a few recent portability problems
+
+2005-10-25 23:37  awharrison
+
+	* vulcan/src/jrd/isc_version.rc:
+	
+	Mark this as Vulcan
+
+2005-10-25 23:34  jimstarkey
+
+	* vulcan/src/jrd/: Attachment.h, Database.cpp,
+	InternalConnection.cpp, InternalConnection.h,
+	InternalSecurityContext.cpp, InternalSecurityContext.h,
+	SecurityDb.cpp, scl.epp, tra.cpp, tra.h:
+	
+	Fix object lifetime problems w/ create/drop user for external
+	security databases
+
+2005-10-25 23:16  awharrison
+
+	* vulcan/src/IscDbc/IscDbc.rc:
+	
+	Appears to be referenced, so it ought to be in CVS
+
+2005-10-25 23:00  awharrison
+
+	* vulcan/src/remote/window.rc:
+	
+	change include from version.rc to isc_version.rc to avoid conflict.
+	 As far as I know, this file is reference only in the winserver
+	project.  Also change shotdown to shutdown, eliminating a charming
+	image.
+
+2005-10-25 21:03  awharrison
+
+	* vulcan/builds/VisualStudio7/: server/server.vcproj,
+	services/services.vcproj, why/why.vcproj:
+	
+	Added isc_version.rc to the resources
+
+2005-10-25 21:00  awharrison
+
+	* vulcan/builds/VisualStudio7/: isql/isql.vcproj, jrd/jrd.vcproj,
+	lock/lock.vcproj, msgs/msgs.vcproj, qli/qli.vcproj,
+	remote/remote.vcproj:
+	
+	Added isc_version.rc to the resources
+
+2005-10-25 20:59  awharrison
+
+	* vulcan/builds/VisualStudio7/IscDbc/IscDbc.vcproj:
+	
+	Added isc_version.rc to the resources, also PBGen and Generate -
+	cpp and h
+
+2005-10-25 20:55  awharrison
+
+	* vulcan/builds/VisualStudio7/: gsec/gsec.vcproj,
+	gstat/gstat.vcproj, intl/intl.vcproj, intlcpp/intlcpp.vcproj:
+	
+	Added isc_version.rc to the resources
+
+2005-10-25 20:52  awharrison
+
+	* vulcan/builds/VisualStudio7/: burp/burp.vcproj,
+	config/config.vcproj, gateway/gateway.vcproj, gpre/gpre.vcproj:
+	
+	Added isc_version.rc to the resources
+
+2005-10-25 20:51  awharrison
+
+	* vulcan/builds/VisualStudio7/alice/alice.vcproj:
+	
+	Add isc_version.rc to the resources
+
+2005-10-25 20:28  jimstarkey
+
+	* vulcan/: install/client.conf, src/IscDbc/Attachment.cpp,
+	src/MsgMgr/ConnectDialog.cpp, src/MsgMgr/Database.cpp,
+	src/MsgMgr/Database.h, src/MsgMgr/MsgMgr.cpp,
+	src/config/ConfObject.cpp, src/jrd/Attachment.cpp,
+	src/jrd/Database.cpp, src/jrd/Database.h, src/jrd/InternalBlob.cpp,
+	src/jrd/InternalSecurityContext.cpp,
+	src/jrd/InternalSecurityContext.h, src/jrd/SecurityDb.cpp,
+	src/jrd/SecurityPlugin.h, src/jrd/scl.epp:
+	
+	Work in progress on restoring create user for external security
+	database
+
+2005-10-25 16:26  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/gsec/gsec.vcproj,
+	install/client.conf, src/IscDbc/Attachment.cpp,
+	src/IscDbc/IscDbc.h, src/IscDbc/IscDbc.vcproj,
+	src/MsgMgr/ConnectDialog.cpp, src/MsgMgr/ConnectDialog.h,
+	src/MsgMgr/MsgMgr.aps, src/MsgMgr/MsgMgr.rc, src/MsgMgr/resource.h:
+	
+	Tweaks to MsgMgr; added login role to IscDbc; fix gsec target name
+	in builds
+
 2005-10-24 20:46  jimstarkey
 
 	* vulcan/src/jrd/ini.h:
