@@ -16,6 +16,7 @@ public:
 	CString		name;
 	CString		defaultFacility;
 	CString		developer;
+	CString		query;
 	
 	int getFacCode(const char* facility);
 	void listMessages(void);

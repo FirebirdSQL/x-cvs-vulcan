@@ -385,6 +385,7 @@ void Database::listHistory(void)
 void Database::sqlQuery(void)
 {
 	QueryDialog dialog;
+	dialog.query = query;
 	
 	while (dialog.DoModal() == IDOK)
 		try
@@ -392,6 +393,7 @@ void Database::sqlQuery(void)
 			PStatement statement = connection->prepareStatement(dialog.query);
 			RSet resultSet = statement->executeQuery();
 			displayResults ("Result Set", resultSet);
+			query = dialog.query;
 			return;
 			}
 		catch(SQLException& exception)
