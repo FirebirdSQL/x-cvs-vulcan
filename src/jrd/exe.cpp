@@ -2557,9 +2557,7 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 		SLONG tid_fetch = org_rpb->rpb_transaction;
 		
 		if ((!DPM_get(tdbb, org_rpb, LCK_read)) ||
-			(!VIO_chase_record_version(tdbb,
-									   org_rpb,
-									   transaction, tdbb->tdbb_default, FALSE)))
+			(!VIO_chase_record_version(tdbb, org_rpb, transaction, tdbb->tdbb_default, FALSE)))
 			ERR_post(isc_deadlock, isc_arg_gds, isc_update_conflict, 0);
 
 		VIO_data(tdbb, org_rpb, tdbb->tdbb_request->req_pool);
@@ -2593,66 +2591,67 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 				}
 
 			/* CVC: This call made here to clear the record in each NULL field and
-					varchar field whose tail may contain garbage. */
+			   varchar field whose tail may contain garbage. */
+			   
 			cleanup_rpb(tdbb, new_rpb);
 
+			if (transaction != dbb->dbb_sys_trans)
+				++transaction->tra_save_point->sav_verb_count;
 
-				if (transaction != dbb->dbb_sys_trans)
-					++transaction->tra_save_point->sav_verb_count;
+			PreModifyEraseTriggers(tdbb, relation, &relation->rel_pre_modify,
+									which_trig, org_rpb, new_rpb->rpb_record, 
+									req_trigger_update);
 
-				PreModifyEraseTriggers(tdbb, relation, &relation->rel_pre_modify,
-										which_trig, org_rpb, new_rpb->rpb_record, 
-										req_trigger_update);
+			if (node->nod_arg[e_mod_validate]) 
+				validate(tdbb, node->nod_arg[e_mod_validate]);
 
-				if (node->nod_arg[e_mod_validate]) 
-					validate(tdbb, node->nod_arg[e_mod_validate]);
-
-				if (relation->rel_file)
-					EXT_modify(tdbb, org_rpb, new_rpb, reinterpret_cast<int*>(transaction));
-				else if (!relation->rel_view_rse)
+			if (relation->rel_file)
+				EXT_modify(tdbb, org_rpb, new_rpb, reinterpret_cast<int*>(transaction));
+			else if (!relation->rel_view_rse)
+				{
+				USHORT bad_index;
+				Relation* bad_relation;
+				VIO_modify(tdbb, org_rpb, new_rpb, transaction);
+				IDX_E error_code = IDX_modify(tdbb, org_rpb, new_rpb, transaction, &bad_relation, &bad_index);
+				
+				if (error_code) 
 					{
-					USHORT bad_index;
-					Relation* bad_relation;
-					VIO_modify(tdbb, org_rpb, new_rpb, transaction);
-					IDX_E error_code = IDX_modify(tdbb, org_rpb, new_rpb, transaction, &bad_relation, &bad_index);
-					
-					if (error_code) 
-						{
-						VIO_bump_count(tdbb, DBB_update_count, bad_relation, true);
-						ERR_duplicate_error(error_code, bad_relation, bad_index);
-						}
+					VIO_bump_count(tdbb, DBB_update_count, bad_relation, true);
+					ERR_duplicate_error(error_code, bad_relation, bad_index);
 					}
+				}
 
-				Request* trigger;
-				if (relation->rel_post_modify && which_trig != PRE_TRIG &&
-					(trigger = execute_triggers(tdbb, relation, &relation->rel_post_modify,
-												org_rpb->rpb_record,
-												new_rpb->rpb_record,
-												req_trigger_update)))
+			Request* trigger;
+			
+			if (relation->rel_post_modify && which_trig != PRE_TRIG &&
+				(trigger = execute_triggers(tdbb, relation, &relation->rel_post_modify,
+											org_rpb->rpb_record,
+											new_rpb->rpb_record,
+											req_trigger_update)))
+				{
+				VIO_bump_count(tdbb, DBB_update_count, relation, true);
+				trigger_failure(tdbb, trigger);
+				}
+
+			/* now call IDX_modify_check_constrints after all post modify triggers 
+				have fired.  This is required for cascading referential integrity, 
+				which can be implemented as post_erase triggers */
+
+			if (!relation->rel_file && !relation->rel_view_rse)
+				{
+				USHORT bad_index;
+				Relation* bad_relation;
+				IDX_E error_code = IDX_modify_check_constraints(tdbb, org_rpb, new_rpb, transaction, &bad_relation, &bad_index);
+
+				if (error_code) 
 					{
 					VIO_bump_count(tdbb, DBB_update_count, relation, true);
-					trigger_failure(tdbb, trigger);
+					ERR_duplicate_error(error_code, bad_relation, bad_index);
 					}
+				}
 
-				/* now call IDX_modify_check_constrints after all post modify triggers 
-				   have fired.  This is required for cascading referential integrity, 
-				   which can be implemented as post_erase triggers */
-
-				if (!relation->rel_file && !relation->rel_view_rse)
-					{
-					USHORT bad_index;
-					Relation* bad_relation;
-					IDX_E error_code = IDX_modify_check_constraints(tdbb, org_rpb, new_rpb, transaction, &bad_relation, &bad_index);
-
-					if (error_code) 
-						{
-						VIO_bump_count(tdbb, DBB_update_count, relation, true);
-						ERR_duplicate_error(error_code, bad_relation, bad_index);
-						}
-					}
-
-				if (transaction != dbb->dbb_sys_trans) 
-					--transaction->tra_save_point->sav_verb_count;
+			if (transaction != dbb->dbb_sys_trans) 
+				--transaction->tra_save_point->sav_verb_count;
 
 
 			/* CVC: Increment the counter only if we called VIO/EXT_modify() and
@@ -2707,6 +2706,7 @@ static JRD_NOD modify(thread_db* tdbb, JRD_NOD node, SSHORT which_trig)
 
 	Format* org_format;
 	Record* org_record = org_rpb->rpb_record;
+	
 	if (!org_record) 
 		{
 		org_record = VIO_record(tdbb, org_rpb, new_format, tdbb->tdbb_default);

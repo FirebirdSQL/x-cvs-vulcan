@@ -1272,7 +1272,7 @@ bool EVL_field(Relation* relation, Record* record, USHORT id, dsc* desc)
  *
  **************************************/
 
-	DEV_BLKCHK(record, type_rec);
+	//DEV_BLKCHK(record, type_rec);
 
 	if (!record) 
 		{
@@ -1338,6 +1338,7 @@ bool EVL_field(Relation* relation, Record* record, USHORT id, dsc* desc)
 						INTL_ASSIGN_TTYPE(desc, ttype_metadata);
 						desc->dsc_address = (UCHAR *) (const char*) relation->rel_owner_name;
 						desc->dsc_length = strlen(reinterpret_cast<const char*>(desc->dsc_address));
+						
 						return true;
 						}
 
@@ -1353,54 +1354,55 @@ bool EVL_field(Relation* relation, Record* record, USHORT id, dsc* desc)
 							reinterpret_cast<UCHAR*>(
 								const_cast<ISC_TIMESTAMP*>(&temp_timestamp));
 						desc->dsc_length = sizeof(temp_timestamp);
+						
 						return true;
 						}
-					else
-						{
-						const Literal* default_literal =
-							reinterpret_cast<Literal*>(temp_field->fld_default_value);
+					const Literal* default_literal =
+						reinterpret_cast<Literal*>(temp_field->fld_default_value);
 
-						if (default_literal->nod_type == nod_null)
-							ERR_post(isc_not_valid,
-									 isc_arg_string, 
-									 (const char*) temp_field->fld_name,
-									 isc_arg_string, "*** null ***", 0);
+					if (default_literal->nod_type == nod_null)
+						ERR_post(isc_not_valid,
+									isc_arg_string, 
+									(const char*) temp_field->fld_name,
+									isc_arg_string, "*** null ***", 0);
 
-						fb_assert(default_literal->nod_type == nod_literal);
+					fb_assert(default_literal->nod_type == nod_literal);
 
-						const dsc* default_desc = &default_literal->lit_desc;
-						// CVC: This could be a bitwise copy in one line
-						desc->dsc_dtype    = default_desc->dsc_dtype;
-						desc->dsc_scale    = default_desc->dsc_scale;
-						desc->dsc_length   = default_desc->dsc_length;
-						desc->dsc_sub_type = default_desc->dsc_sub_type;
-						desc->dsc_flags    = default_desc->dsc_flags;
-						desc->dsc_address  = default_desc->dsc_address;
-						return true;
-						}
+					const dsc* default_desc = &default_literal->lit_desc;
+					
+					// CVC: This could be a bitwise copy in one line
+					
+					desc->dsc_dtype    = default_desc->dsc_dtype;
+					desc->dsc_scale    = default_desc->dsc_scale;
+					desc->dsc_length   = default_desc->dsc_length;
+					desc->dsc_sub_type = default_desc->dsc_sub_type;
+					desc->dsc_flags    = default_desc->dsc_flags;
+					desc->dsc_address  = default_desc->dsc_address;
+					
+					return true;
 					}
-				else
-					{
-					desc->dsc_dtype = dtype_text;
-					desc->dsc_length = 1;
-					desc->dsc_sub_type = 0;
-					desc->dsc_scale = 0;
-					desc->dsc_ttype = ttype_ascii;
-					desc->dsc_address = (UCHAR *) " ";
-					return false;
-					}
+
+				/***
+				desc->dsc_dtype = dtype_text;
+				desc->dsc_length = 1;
+				desc->dsc_sub_type = 0;
+				desc->dsc_scale = 0;
+				desc->dsc_ttype = ttype_ascii;
+				desc->dsc_address = (UCHAR *) " ";
+				
+				return false;
+				***/
 				}
 			}
-		else
-			{
-			desc->dsc_dtype = dtype_text;
-			desc->dsc_length = 1;
-			desc->dsc_sub_type = 0;
-			desc->dsc_scale = 0;
-			desc->dsc_ttype = ttype_ascii;
-			desc->dsc_address = (UCHAR *) " ";
-			return false;
-			}
+
+		desc->dsc_dtype = dtype_text;
+		desc->dsc_length = 1;
+		desc->dsc_sub_type = 0;
+		desc->dsc_scale = 0;
+		desc->dsc_ttype = ttype_ascii;
+		desc->dsc_address = (UCHAR *) " ";
+		
+		return false;
 		}
 
 	/* If the offset of the field is 0, the field can't possible exist */

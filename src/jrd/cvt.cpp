@@ -1332,10 +1332,11 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 	SLONG l;
 	UCHAR *ptr;
 	USHORT strtype;
+	UCHAR fill_char;
+
 #if !defined(REQUESTER) && !defined(SUPERCLIENT)
 	CHARSET_ID charset1, charset2;
 #endif
-	UCHAR fill_char;
 
 	SLONG length = from->dsc_length;
 	UCHAR* p = to->dsc_address;
@@ -1358,50 +1359,46 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 	    and some will drop out for additional handling. */
 
 	switch (to->dsc_dtype) 
-	{
-	case dtype_timestamp:
-		switch (from->dsc_dtype) {
-		case dtype_varying:
-		case dtype_cstring:
-		case dtype_text:
-			{
+		{
+		case dtype_timestamp:
+			switch (from->dsc_dtype) {
+			case dtype_varying:
+			case dtype_cstring:
+			case dtype_text:
+				{
 				GDS_TIMESTAMP date;
 				tm times;
-
 				string_to_datetime(from, &date, expect_timestamp, err);
-
 				isc_decode_timestamp(&date, &times);
-				if ((times.tm_year + 1900) < MIN_YEAR
-					|| (times.tm_year) + 1900 > MAX_YEAR)
-				{
+				
+				if ((times.tm_year + 1900) < MIN_YEAR || (times.tm_year) + 1900 > MAX_YEAR)
 					(*err) (isc_date_range_exceeded, 0);
-				}
 
 				((GDS_TIMESTAMP *) to->dsc_address)->timestamp_date = date.timestamp_date;
 				((GDS_TIMESTAMP *) to->dsc_address)->timestamp_time = date.timestamp_time;
-			}
-			return;
+				}
+				return;
 
-		case dtype_sql_date:
-			((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_date =
-				*(GDS_DATE *) (from->dsc_address);
-			((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_time = 0;
-			return;
+			case dtype_sql_date:
+				((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_date =
+					*(GDS_DATE *) (from->dsc_address);
+				((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_time = 0;
+				return;
 
-		case dtype_sql_time:
-			((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_date = 0;
-			((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_time =
-				*(GDS_TIME *) (from->dsc_address);
+			case dtype_sql_time:
+				((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_date = 0;
+				((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_time =
+					*(GDS_TIME *) (from->dsc_address);
 
-			/* Per SQL Specs, we need to set the DATE
-			   portion to the current date */
-			{
+				/* Per SQL Specs, we need to set the DATE
+				   portion to the current date */
+				{
 				thread_db* tdbb = NULL;
 				time_t clock;
 
-		/** Cannot call GET_THREAD_DATA because that macro calls 
-		    BUGCHECK i.e. ERR_bugcheck() which is not part of 
-		    client library **/
+				/** Cannot call GET_THREAD_DATA because that macro calls 
+					BUGCHECK i.e. ERR_bugcheck() which is not part of 
+					client library **/
 				tdbb = PLATFORM_GET_THREAD_DATA;
 
 				/* If we're in the engine, then the THDD type must
@@ -1412,370 +1409,385 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 				   date portion of the timestamp */
 
 				if ((tdbb) &&
-					(((THDD) tdbb)->thdd_type == THDD_TYPE_TDBB) &&
-					tdbb->tdbb_request) {
+					(((THDD) tdbb)->thdd_type == THDD_TYPE_TDBB) && tdbb->tdbb_request) 
+					{
 					if (tdbb->tdbb_request->req_timestamp)
 						clock = tdbb->tdbb_request->req_timestamp;
-					else {
+					else 
+						{
 						/* All requests should have a timestamp */
 						fb_assert(FALSE);
 						clock = time(0);
+						}
 					}
-				}
 				else
 					clock = time(0);
+					
 				const tm times = *localtime(&clock);
 				GDS_TIMESTAMP enc_times;
 				isc_encode_timestamp(&times, &enc_times);
+				
 				((GDS_TIMESTAMP *) (to->dsc_address))->timestamp_date =
 					enc_times.timestamp_date;
-			}
-			return;
-
-		default:
-			fb_assert(FALSE);		/* Fall into ... */
-		case dtype_short:
-		case dtype_long:
-		case dtype_int64:
-		case dtype_quad:
-		case dtype_real:
-		case dtype_double:
-#ifdef VMS
-		case dtype_d_float:
-#endif
-			conversion_error(from, err);
-			break;
-		}
-		break;
-
-	case dtype_sql_date:
-		switch (from->dsc_dtype) {
-		case dtype_varying:
-		case dtype_cstring:
-		case dtype_text:
-			{
-				GDS_TIMESTAMP date;
-				tm times;
-
-				string_to_datetime(from, &date, expect_sql_date, err);
-				isc_decode_timestamp(&date, &times);
-				if ((times.tm_year + 1900) < MIN_YEAR
-					|| (times.tm_year) + 1900 > MAX_YEAR)
-				{
-					(*err) (isc_date_range_exceeded, 0);
 				}
+				return;
 
-				*((GDS_DATE *) to->dsc_address) = date.timestamp_date;
-			}
-			return;
-
-		case dtype_timestamp:
-			{
-				GDS_TIMESTAMP new_date;
-				tm times;
-
-				new_date.timestamp_date =
-					((GDS_TIMESTAMP *) from->dsc_address)->timestamp_date;
-				new_date.timestamp_time = 0;
-
-				isc_decode_timestamp(&new_date, &times);
-				if ((times.tm_year + 1900) < MIN_YEAR
-					|| (times.tm_year) + 1900 > MAX_YEAR)
-				{
-					(*err) (isc_date_range_exceeded, 0);
-				}
-
-				*((GDS_DATE *) to->dsc_address) =
-					((GDS_TIMESTAMP *) from->dsc_address)->timestamp_date;
-			}
-			return;
-
-		default:
-			fb_assert(FALSE);		/* Fall into ... */
-		case dtype_sql_time:
-		case dtype_short:
-		case dtype_long:
-		case dtype_int64:
-		case dtype_quad:
-		case dtype_real:
-		case dtype_double:
+			default:
+				fb_assert(FALSE);		/* Fall into ... */
+			case dtype_short:
+			case dtype_long:
+			case dtype_int64:
+			case dtype_quad:
+			case dtype_real:
+			case dtype_double:
 #ifdef VMS
-		case dtype_d_float:
+			case dtype_d_float:
 #endif
-			conversion_error(from, err);
-			break;
-		}
-		break;
-
-	case dtype_sql_time:
-		switch (from->dsc_dtype) {
-		case dtype_varying:
-		case dtype_cstring:
-		case dtype_text:
-			{
-				GDS_TIMESTAMP date;
-				string_to_datetime(from, &date, expect_sql_time, err);
-				*(GDS_TIME *) to->dsc_address = date.timestamp_time;
+				conversion_error(from, err);
+				break;
 			}
-			return;
+			break;
 
-		case dtype_timestamp:
-			*((GDS_TIME *) to->dsc_address) =
-				((GDS_TIMESTAMP *) from->dsc_address)->timestamp_time;
-			return;
-
-		default:
-			fb_assert(FALSE);		/* Fall into ... */
 		case dtype_sql_date:
-		case dtype_short:
-		case dtype_long:
-		case dtype_int64:
-		case dtype_quad:
-		case dtype_real:
-		case dtype_double:
-#ifdef VMS
-		case dtype_d_float:
-#endif
-			conversion_error(from, err);
-			break;
-		}
-		break;
+			switch (from->dsc_dtype) 
+				{
+				case dtype_varying:
+				case dtype_cstring:
+				case dtype_text:
+					{
+					GDS_TIMESTAMP date;
+					tm times;
+					string_to_datetime(from, &date, expect_sql_date, err);
+					isc_decode_timestamp(&date, &times);
+					
+					if ((times.tm_year + 1900) < MIN_YEAR || (times.tm_year) + 1900 > MAX_YEAR)
+						(*err) (isc_date_range_exceeded, 0);
 
-	case dtype_text:
-	case dtype_cstring:
-	case dtype_varying:
-		switch (from->dsc_dtype) {
-		case dtype_varying:
-		case dtype_cstring:
+					*((GDS_DATE *) to->dsc_address) = date.timestamp_date;
+					}
+					return;
+
+				case dtype_timestamp:
+					{
+					GDS_TIMESTAMP new_date;
+					tm times;
+					new_date.timestamp_date = ((GDS_TIMESTAMP *) from->dsc_address)->timestamp_date;
+					new_date.timestamp_time = 0;
+					isc_decode_timestamp(&new_date, &times);
+					
+					if ((times.tm_year + 1900) < MIN_YEAR || (times.tm_year) + 1900 > MAX_YEAR)
+						(*err) (isc_date_range_exceeded, 0);
+					*((GDS_DATE *) to->dsc_address) =
+						((GDS_TIMESTAMP *) from->dsc_address)->timestamp_date;
+					}
+					return;
+
+				default:
+					fb_assert(FALSE);		/* Fall into ... */
+				case dtype_sql_time:
+				case dtype_short:
+				case dtype_long:
+				case dtype_int64:
+				case dtype_quad:
+				case dtype_real:
+				case dtype_double:
+		#ifdef VMS
+				case dtype_d_float:
+		#endif
+					conversion_error(from, err);
+					break;
+				}
+				break;
+
+			case dtype_sql_time:
+				switch (from->dsc_dtype) 
+					{
+					case dtype_varying:
+					case dtype_cstring:
+					case dtype_text:
+						{
+						GDS_TIMESTAMP date;
+						string_to_datetime(from, &date, expect_sql_time, err);
+						*(GDS_TIME *) to->dsc_address = date.timestamp_time;
+						}
+						return;
+
+					case dtype_timestamp:
+						*((GDS_TIME *) to->dsc_address) =
+							((GDS_TIMESTAMP *) from->dsc_address)->timestamp_time;
+						return;
+
+					default:
+						fb_assert(FALSE);		/* Fall into ... */
+					case dtype_sql_date:
+					case dtype_short:
+					case dtype_long:
+					case dtype_int64:
+					case dtype_quad:
+					case dtype_real:
+					case dtype_double:
+#ifdef VMS
+					case dtype_d_float:
+#endif
+						conversion_error(from, err);
+						break;
+					}
+			break;
+
 		case dtype_text:
-			/* If we are within the engine, INTL_convert_string 
-			 * will convert the string between character sets
-			 * (or die trying).
-			 * This module, however, can be called from outside
-			 * the engine (for instance, moving values around for
-			 * DSQL).
-			 * In that event, we'll move the values if we think
-			 * they are compatible text types, otherwise fail.
-			 * eg: Simple cases can be handled here (no
-			 * character set conversion).
-			 *
-			 * a charset type binary is compatible with all other types.
-			 * if a charset involved is ttype_dynamic, we must look up
-			 *    the charset of the attachment (only if we are in the 
-			 *    engine). If we are outside the engine, the
-			 *    assume that the engine has converted the values
-			 *    previously in the request.
-			 *
-			 * Even within the engine, not calling INTL_convert_string
-			 * unless really required is a good optimization.
-			 */
+		case dtype_cstring:
+		case dtype_varying:
+			switch (from->dsc_dtype) 
+				{
+				case dtype_varying:
+				case dtype_cstring:
+				case dtype_text:
+					/* If we are within the engine, INTL_convert_string 
+					* will convert the string between character sets
+					* (or die trying).
+					* This module, however, can be called from outside
+					* the engine (for instance, moving values around for
+					* DSQL).
+					* In that event, we'll move the values if we think
+					* they are compatible text types, otherwise fail.
+					* eg: Simple cases can be handled here (no
+					* character set conversion).
+					*
+					* a charset type binary is compatible with all other types.
+					* if a charset involved is ttype_dynamic, we must look up
+					*    the charset of the attachment (only if we are in the 
+					*    engine). If we are outside the engine, the
+					*    assume that the engine has converted the values
+					*    previously in the request.
+					*
+					* Even within the engine, not calling INTL_convert_string
+					* unless really required is a good optimization.
+					*/
 
 #ifndef REQUESTER
 #ifndef SUPERCLIENT
-			if ((INTL_TTYPE(from) == ttype_dynamic) &&
-				(err == ERR_post))
-					charset1 = INTL_charset(NULL, INTL_TTYPE(from), err);
-			else
-				charset1 = INTL_TTYPE(from);
+					if ((INTL_TTYPE(from) == ttype_dynamic) && (err == ERR_post))
+						charset1 = INTL_charset(NULL, INTL_TTYPE(from), err);
+					else
+						charset1 = INTL_TTYPE(from);
 
-			if ((INTL_TTYPE(to) == ttype_dynamic) &&
-				(err == ERR_post))
-					charset2 = INTL_charset(NULL, INTL_TTYPE(to), err);
-			else
-				charset2 = INTL_TTYPE(to);
+					if ((INTL_TTYPE(to) == ttype_dynamic) && (err == ERR_post))
+						charset2 = INTL_charset(NULL, INTL_TTYPE(to), err);
+					else
+						charset2 = INTL_TTYPE(to);
 
-			/* The charset[12] can be ttype_dynamic only if we are
-			   outside the engine. Within the engine INTL_charset
-			   would have set it to the ttype of the attachment */
+					/* The charset[12] can be ttype_dynamic only if we are
+					   outside the engine. Within the engine INTL_charset
+					   would have set it to the ttype of the attachment */
 
-			if ((charset1 != charset2) &&
-				(charset2 != ttype_none) &&
-				(charset1 != ttype_binary) &&
-				(charset2 != ttype_binary) &&
-				(charset1 != ttype_dynamic) && (charset2 != ttype_dynamic)) {
-				if (err == ERR_post) {
-					INTL_convert_string(to, from, err);
+					if ((charset1 != charset2) &&
+						(charset2 != ttype_none) &&
+						(charset1 != ttype_binary) &&
+						(charset2 != ttype_binary) &&
+						(charset1 != ttype_dynamic) && (charset2 != ttype_dynamic)) 
+						{
+						if (err == ERR_post) 
+							{
+							INTL_convert_string(to, from, err);
+							return;
+							}
+						else
+#endif
+#endif
+							(*err) (isc_arith_except, 0);
+#ifndef REQUESTER
+#ifndef SUPERCLIENT
+						}
+#endif
+#endif
+
+					length = l = CVT_get_string_ptr(from, &strtype, &ptr, NULL, 0, err);
+					q = ptr;
+					
+					switch (to->dsc_dtype) 
+						{
+						case dtype_text:
+							length = MIN(length, to->dsc_length);
+							l -= length;
+							
+							/* TMN: Here we should really have the following fb_assert */
+							/* fb_assert((to->dsc_length - length) <= MAX_SSHORT); */
+							
+							fill = (SSHORT) (to->dsc_length - length);
+							CVT_COPY_BUFF(q, p, length);
+							
+							if (fill > 0) 
+								{
+#ifndef REQUESTER
+#ifndef SUPERCLIENT
+								if (charset2 == ttype_binary)
+									fill_char = 0x00;
+								else
+#endif
+#endif
+									fill_char = ASCII_SPACE;
+									
+								do {
+									*p++ = fill_char;
+								} while (--fill);
+								
+								/* Note: above is correct only for narrow 
+								   and multi-byte character sets which 
+								   use ASCII for the SPACE character.  */
+								}
+							break;
+
+						case dtype_cstring:
+							/* Note: Following is only correct for narrow and
+							   multibyte character sets which use a zero
+							   byte to represent end-of-string */
+
+							length = MIN(length, to->dsc_length - 1);
+							l -= length;
+							CVT_COPY_BUFF(q, p, length);
+							*p = 0;
+							break;
+
+						case dtype_varying:
+							length = MIN(length, (SLONG) (to->dsc_length - sizeof(USHORT)));
+							l -= length;
+							
+							/* TMN: Here we should really have the following fb_assert */
+							/* fb_assert(length <= MAX_USHORT); */
+							
+							((VARY *) p)->vary_length = (USHORT) length;
+							p = reinterpret_cast<UCHAR*>(((VARY *) p)->vary_string);
+							CVT_COPY_BUFF(q, p, length);
+							break;
+						}
+
+					if (l) 
+						{
+						/* scan the truncated string to ensure only spaces lost */
+						/* Note: it  is correct only for narrow and multi-byte
+						character sets which use ASCII for the SPACE
+						character. */
+
+						do {
+							if (*q++ != ASCII_SPACE)
+								(*err) (isc_arith_except, 0);
+						} while (--l);
+						}
+						
+					return;
+
+				case dtype_short:
+				case dtype_long:
+				case dtype_int64:
+				case dtype_quad:
+					integer_to_text(from, to, err);
+					return;
+
+				case dtype_real:
+				case dtype_double:
+#ifdef VMS
+				case dtype_d_float:
+#endif
+					float_to_text(from, to, err);
+					return;
+
+				case dtype_sql_date:
+				case dtype_sql_time:
+				case dtype_timestamp:
+					datetime_to_text(from, to, err);
+					return;
+
+				default:
+					fb_assert(FALSE);		/* Fall into ... */
+				case dtype_blob:
+					conversion_error(from, err);
 					return;
 				}
-				else
-#endif
-#endif
-					(*err) (isc_arith_except, 0);
-#ifndef REQUESTER
-#ifndef SUPERCLIENT
-			}
-#endif
-#endif
+			break;
 
-			length = l =
-				CVT_get_string_ptr(from, &strtype, &ptr, NULL, 0, err);
-			q = ptr;
-			switch (to->dsc_dtype) {
-			case dtype_text:
-				length = MIN(length, to->dsc_length);
-				l -= length;
-				/* TMN: Here we should really have the following fb_assert */
-				/* fb_assert((to->dsc_length - length) <= MAX_SSHORT); */
-				fill = (SSHORT) (to->dsc_length - length);
-
-				CVT_COPY_BUFF(q, p, length);
-				if (fill > 0) {
-#ifndef REQUESTER
-#ifndef SUPERCLIENT
-					if (charset2 == ttype_binary)
-						fill_char = 0x00;
-					else
-#endif
-#endif
-						fill_char = ASCII_SPACE;
-					do {
-						*p++ = fill_char;
-					} while (--fill);
-					/* Note: above is correct only for narrow 
-					   and multi-byte character sets which 
-					   use ASCII for the SPACE character.  */
+		case dtype_blob:
+		case dtype_array:
+			if (from->dsc_dtype == dtype_quad)
+				 {
+				((SLONG *) p)[0] = ((SLONG *) q)[0];
+				((SLONG *) p)[1] = ((SLONG *) q)[1];
+				
+				return;
 				}
-				break;
 
-			case dtype_cstring:
-				/* Note: Following is only correct for narrow and
-				   multibyte character sets which use a zero
-				   byte to represent end-of-string */
+			if (to->dsc_dtype != from->dsc_dtype)
+				(*err) (isc_wish_list, isc_arg_gds, isc_blobnotsup,
+						isc_arg_string, "move", 0);
 
-				length = MIN(length, to->dsc_length - 1);
-				l -= length;
-				CVT_COPY_BUFF(q, p, length);
-				*p = 0;
-				break;
+			/* Note: DSC_EQUIV failed above as the blob sub_types were different,
+			* or their character sets were different.  In V4 we aren't trying
+			* to provide blob type integrity, so we just assign the blob id
+			*/
 
-			case dtype_varying:
-				length =
-					MIN(length, (SLONG) (to->dsc_length - sizeof(USHORT)));
-				l -= length;
-				/* TMN: Here we should really have the following fb_assert */
-				/* fb_assert(length <= MAX_USHORT); */
-				((VARY *) p)->vary_length = (USHORT) length;
-				p = reinterpret_cast<UCHAR*>(((VARY *) p)->vary_string);
-				CVT_COPY_BUFF(q, p, length);
-				break;
-			}
-
-			if (l) {
-				/* scan the truncated string to ensure only spaces lost */
-				/* Note: it  is correct only for narrow and multi-byte
-				   character sets which use ASCII for the SPACE
-				   character. */
-
-				do {
-					if (*q++ != ASCII_SPACE)
-						(*err) (isc_arith_except, 0);
-				} while (--l);
-			}
+			/* Move blob_id byte-by-byte as that's the way it was done before */
+			CVT_COPY_BUFF(q, p, length);
 			return;
 
 		case dtype_short:
+			l = CVT_get_long(from, (SSHORT) to->dsc_scale, err);
+			
+			/* TMN: Here we should really have the following fb_assert */
+			/* fb_assert(l <= MAX_SSHORT); */
+			
+			*(SSHORT *) p = (SSHORT) l;
+			
+			if (*(SSHORT *) p != l)
+				(*err) (isc_arith_except, 0);
+				
+			return;
+
 		case dtype_long:
+			*(SLONG *) p = CVT_get_long(from, (SSHORT) to->dsc_scale, err);
+			return;
+
 		case dtype_int64:
+			*(SINT64 *) p = CVT_get_int64(from, (SSHORT) to->dsc_scale, err);
+			return;
+
 		case dtype_quad:
-			integer_to_text(from, to, err);
+			if (from->dsc_dtype == dtype_blob || from->dsc_dtype == dtype_array) 
+				{
+				((SLONG *) p)[0] = ((SLONG *) q)[0];
+				((SLONG *) p)[1] = ((SLONG *) q)[1];
+				
+				return;
+				}
+				
+			*(SQUAD *) p = CVT_get_quad(from, (SSHORT) to->dsc_scale, err);
 			return;
 
 		case dtype_real:
-		case dtype_double:
-#ifdef VMS
-		case dtype_d_float:
-#endif
-			float_to_text(from, to, err);
-			return;
-
-		case dtype_sql_date:
-		case dtype_sql_time:
-		case dtype_timestamp:
-			datetime_to_text(from, to, err);
-			return;
-
-		default:
-			fb_assert(FALSE);		/* Fall into ... */
-		case dtype_blob:
-			conversion_error(from, err);
-			return;
-		}
-		break;
-
-	case dtype_blob:
-	case dtype_array:
-		if (from->dsc_dtype == dtype_quad) {
-			((SLONG *) p)[0] = ((SLONG *) q)[0];
-			((SLONG *) p)[1] = ((SLONG *) q)[1];
-			return;
-		}
-
-		if (to->dsc_dtype != from->dsc_dtype)
-			(*err) (isc_wish_list, isc_arg_gds, isc_blobnotsup,
-					isc_arg_string, "move", 0);
-
-		/* Note: DSC_EQUIV failed above as the blob sub_types were different,
-		 * or their character sets were different.  In V4 we aren't trying
-		 * to provide blob type integrity, so we just assign the blob id
-		 */
-
-		/* Move blob_id byte-by-byte as that's the way it was done before */
-		CVT_COPY_BUFF(q, p, length);
-		return;
-
-	case dtype_short:
-		l = CVT_get_long(from, (SSHORT) to->dsc_scale, err);
-		/* TMN: Here we should really have the following fb_assert */
-		/* fb_assert(l <= MAX_SSHORT); */
-		*(SSHORT *) p = (SSHORT) l;
-		if (*(SSHORT *) p != l)
-			(*err) (isc_arith_except, 0);
-		return;
-
-	case dtype_long:
-		*(SLONG *) p = CVT_get_long(from, (SSHORT) to->dsc_scale, err);
-		return;
-
-	case dtype_int64:
-		*(SINT64 *) p = CVT_get_int64(from, (SSHORT) to->dsc_scale, err);
-		return;
-
-	case dtype_quad:
-		if (from->dsc_dtype == dtype_blob || from->dsc_dtype == dtype_array) {
-			((SLONG *) p)[0] = ((SLONG *) q)[0];
-			((SLONG *) p)[1] = ((SLONG *) q)[1];
-			return;
-		}
-		*(SQUAD *) p = CVT_get_quad(from, (SSHORT) to->dsc_scale, err);
-		return;
-
-	case dtype_real:
-		{
+			{
 			double d_value;
 			d_value = CVT_get_double(from, err);
+			
 			if (ABSOLUT(d_value) > FLOAT_MAX)
 				(*err) (isc_arith_except, 0);
+				
 			*(float*) p = (float) d_value;
-		}
-		return;
+			}
+			return;
 
-	case DEFAULT_DOUBLE:
-		*(double*) p = CVT_get_double(from, err);
-		return;
+		case DEFAULT_DOUBLE:
+			*(double*) p = CVT_get_double(from, err);
+			return;
 
 #ifdef VMS
-	case SPECIAL_DOUBLE:
-		*(double*) p = CVT_get_double(from, err);
-		*(double*) p = CNVT_FROM_DFLT((double*) p);
-		return;
+		case SPECIAL_DOUBLE:
+			*(double*) p = CVT_get_double(from, err);
+			*(double*) p = CNVT_FROM_DFLT((double*) p);
+			return;
 #endif
-	}
+		}
 
 	if (from->dsc_dtype == dtype_array || from->dsc_dtype == dtype_blob)
-	{
 		(*err) (isc_wish_list, isc_arg_gds, isc_blobnotsup,
 		        isc_arg_string, "move", 0);
-	}
 
 	(*err) (isc_badblk, 0);	/* internal error */
 }
