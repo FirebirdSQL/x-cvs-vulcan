@@ -1,3 +1,28 @@
+2005-10-26 22:33  awharrison
+
+	* vulcan/builds/VisualStudio7/IscDbc/IscDbc.vcproj:
+	
+	Drop IscDbc.rc ...
+
+2005-10-26 21:21  jimstarkey
+
+	* vulcan/src/: MsgMgr/Database.cpp, MsgMgr/Database.h,
+	MsgMgr/ListHistoryDialog.cpp, MsgMgr/ListHistoryDialog.h,
+	MsgMgr/ListMsgsDialog.cpp, MsgMgr/ListMsgsDialog.h,
+	MsgMgr/MsgMgr.aps, MsgMgr/MsgMgr.h, MsgMgr/MsgMgr.rc,
+	MsgMgr/MsgMgr.vcproj, MsgMgr/MsgMgrView.cpp, MsgMgr/MsgMgrView.h,
+	MsgMgr/QueryDialog.cpp, MsgMgr/resource.h, MsgMgr/QueryDialog.h,
+	jrd/jrd.vcproj:
+	
+	Added facilites to list history, do random queries, and search
+	messages for substring.
+
+2005-10-26 17:11  arnobrinkman
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Backport FB2 fix with NEW/OLD context in triggers
+
 2005-10-25 23:40  jimstarkey
 
 	* vulcan/src/: IscDbc/IscDbc.h, jrd/InternalBlob.cpp:
