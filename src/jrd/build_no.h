@@ -6,13 +6,13 @@
   FORMAL BUILD NUMBER:4027 
 */
 
-#define PRODUCT_VER_STRING "2.0.0.4027"
-#define FILE_VER_STRING "WI-V2.0.0.4027"
-#define LICENSE_VER_STRING "WI-V2.0.0.4027"
-#define FILE_VER_NUMBER 2, 0, 0, 4027
-#define FB_MAJOR_VER "2"
-#define FB_MINOR_VER "0"
+#define PRODUCT_VER_STRING "1.9.0.0742"
+#define FILE_VER_STRING "WI-V1.9.0.0742"
+#define LICENSE_VER_STRING "WI-V1.9.0.0742"
+#define FILE_VER_NUMBER 1, 9, 0, 0742
+#define FB_MAJOR_VER "1"
+#define FB_MINOR_VER "9"
 #define FB_REV_NO "0"
-#define FB_BUILD_NO "4027"
-#define FB_BUILD_TYPE "V"
-#define FB_BUILD_SUFFIX "Vulcan 1.0 Development"
+#define FB_BUILD_NO "0742"
+#define FB_BUILD_TYPE "T"
+#define FB_BUILD_SUFFIX "Vulcan 1.0 Test"
