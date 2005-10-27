@@ -6,6 +6,7 @@ for x in config why gpre remote jrd intlcpp burp isql qli server lock IscDbc ali
 	echo
 	echo Cleaning $x
 	echo
+	./gen $*
 	gmake clean
 	)
 done

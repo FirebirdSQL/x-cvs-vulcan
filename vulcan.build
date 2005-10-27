@@ -102,8 +102,7 @@ MODULES = \
 
 <template name="Clean">
 clean: 
-	-rm $(MODULES) $(LIBRARY) $(LIB) 
-	-rm <target/>
+	-rm $(MODULES) $(LIBRARY) $(LIB) <target/> $(INSTALLDIR)/<bin/>/<target/>
 </template>
 
 <template name="BuildDependencies">
@@ -663,7 +662,7 @@ DIRS = $(SRCDIR)/common/classes  \
 
 <template name="Install">
 install: <value name="file"/>
-	cp <value name="file"/> $(INSTALLDIR)/<intl/>
+	cp <target/> $(INSTALLDIR)/<intl/>
 </template>
 
 <template name="Libraries">
@@ -697,11 +696,6 @@ DIRS = $(SRCDIR)/common/classes  \
 
 <template name="memmgr">
 -DMEMMGR</template>
-
-<template name="Install">
-install: <value name="file"/>
-	cp <value name="file"/> $(INSTALLDIR)/<bin/>
-</template>
 
 
 </component>
@@ -886,6 +880,67 @@ CPPFLAGS = <buildopt/> -I. \
 </component>
 
 
+<!--	Generic / services		-->
+
+<component name="Services">
+<template name="target">services.so</template>
+<template name="namespace"> -DNAMESPACE=SERVICES </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/burp \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	-DSERVICE_THREAD \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/alice \
+	-I$(SRCDIR)/burp \
+	-I$(SRCDIR)/gsec \
+	-I$(SRCDIR)/gstat \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+
+
+</component>
 
 <!--	Generic / modules			-->
 
@@ -1134,3 +1189,4 @@ nothing:
 
 </configuration>
 </configurations>
+

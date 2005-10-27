@@ -16,6 +16,7 @@ for x in config gpre why jrd remote intlcpp burp msgs qli isql server lock IscDb
 	ln -s gen.$1 gen
 	if [ ! -e makefile.in ] ; then cp /dev/null makefile.in ; fi
 	if [ -e boot ] ; then chmod +x boot ; fi
+	if [ -e clean ] ; then chmod +x clean ; fi
 	)
 done
 rm setup.sed
