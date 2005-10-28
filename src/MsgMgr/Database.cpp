@@ -165,7 +165,7 @@ void Database::addFacility(void)
 		{
 		AddFacilityDialog dialog;
 		PStatement statement = connection->prepareStatement(
-			"select max(fac_code+1) from facilities");
+			"select max(fac_code + 1) from facilities");
 		RSet resultSet = statement->executeQuery();
 		resultSet->next();
 		dialog.facCode = resultSet->getString(1);
