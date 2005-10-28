@@ -1,3 +1,49 @@
+2005-10-27 23:26  jimstarkey
+
+	* vulcan/: vulcan.build, src/boot_build, src/clean,
+	src/set_platform:
+	
+	Reworked vulcan.build to have a single "target" template per
+	component.
+
+2005-10-27 22:28  jimstarkey
+
+	* vulcan/vulcan.build:
+	
+	General build target in vulcan.build
+
+2005-10-27 19:37  dchri
+
+	* vulcan/src/misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-10-27 19:37  dchri
+
+	* vulcan/test.txt:
+	
+	testing the build number proccess.
+
+2005-10-27 19:15  jimstarkey
+
+	* vulcan/src/jrd/: cvt.cpp, evl.cpp, exe.cpp:
+	
+	EVL_field was a little confused on nested ifs, leading to taking
+	the wrong branch
+
+2005-10-27 18:57  awharrison
+
+	* vulcan/src/jrd/build_no.h:
+	
+	Set to the agreed upon T1.9 etc.
+
+2005-10-27 16:01  jimstarkey
+
+	* vulcan/src/MsgMgr/: Database.cpp, Database.h, MsgMgr.aps,
+	MsgMgr.rc:
+	
+	Tracked query string; make query string multi-line
+
 2005-10-26 22:33  awharrison
 
 	* vulcan/builds/VisualStudio7/IscDbc/IscDbc.vcproj:
