@@ -288,6 +288,9 @@ void TipCache::updateCache(thread_db* tdbb, tx_inv_page* tip_page, int sequence)
  *	is marked as still alive we must do some 
  *	further checking to see if it really is.
  *
+ *  This routine is used by the system transaction and
+ *  read committed transactions.
+ *
  **************************************/
 
 int TipCache::snapshotState(thread_db* tdbb, int number)

@@ -1462,16 +1462,26 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 
 	/* If the transaction is the system transaction, it is considered committed. */
 
-	if (number == 0 || (trans->tra_flags & TRA_system))
+	if (number == TRA_system_transaction) 
 		return tra_committed;
 
-	/* If the transaction is a commited sub-transction - do the easy lookup.
-	   Since this is not the most common case, and looking up the
-	   transaction cache for read committed transactions is equally
-	   fast, just to that instead. */
+/*	   Look in the transaction cache for read committed transactions
+	   fast, and the system transaction.  The system transaction can read
+	   data from active transactions */
 
 	if (trans->tra_flags & TRA_read_committed)
 		return tdbb->tdbb_database->tipCache->snapshotState(tdbb, number);
+
+	if (trans->tra_flags & TRA_system)
+		{
+		int state = tdbb->tdbb_database->tipCache->snapshotState(tdbb, number);
+		if (state == tra_active)
+			return tra_committed;
+		else
+			return state;
+		}
+
+	/* If the transaction is a commited sub-transction - do the easy lookup. */
 
 	if (trans->tra_commit_sub_trans &&
 		UInt32Bitmap::test(trans->tra_commit_sub_trans, number))
@@ -1479,8 +1489,8 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 		return tra_committed;
 	}
 
-	/* If the transaction is younger than we are, it must be considered
-	   active. */
+	/* If the transaction is younger than we are and we are not read committed
+	   or the system transaction, the transacton must be considered active */
 
 	if (number > trans->tra_top)
 		return tra_active;

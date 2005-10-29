@@ -104,6 +104,12 @@ public:
 	void connectionsCheckout(void);
 };
 
+//  System tranasction is always tranaction zero
+
+#define TRA_system_transaction 0
+
+// Flag definitions
+
 const ULONG TRA_system			= 1L;		/* system transaction */
 const ULONG TRA_update			= 2L;		/* update is permitted */
 const ULONG TRA_prepared		= 4L;		/* transaction is in limbo */
