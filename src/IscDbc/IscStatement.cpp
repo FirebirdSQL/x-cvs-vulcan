@@ -298,13 +298,13 @@ void IscStatement::setValue(Value *value, XSQLVAR *var)
 				{
 				int length = *((short*) var->sqldata);
 				char *data = var->sqldata + 2;
-				if (length < var->sqllen)
+				if (length < var->sqllen - 2)
 					{
 					data [length] = 0;
-					value->setString (data, false);
+					value->setString (length, data, false);
 					}
 				else
-					value->setString (length, data, false);
+					value->setString (length, data, true);
 				//printf ("%d '%*s'\n", n, length, data);
 				}
 				break;

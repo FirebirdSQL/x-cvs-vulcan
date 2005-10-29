@@ -89,13 +89,6 @@ MsgExtract::~MsgExtract(void)
 
 void MsgExtract::genAll(void)
 {
-	PStatement s = connection->prepareStatement(
-		"select symbol, routine from messages where symbol='exception_datatype_missalignment'");
-	RSet r = s->executeQuery();
-	
-	while (r->next())
-		printf ("%s\n", r->getString(2));
-		
 	bool numericType [128];
 	
 	for (const Table *table = tables; table->name; ++table)
