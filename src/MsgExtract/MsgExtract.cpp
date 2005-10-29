@@ -14,6 +14,7 @@
 //INSERT INTO FACILITIES (LAST_CHANGE, FACILITY, FAC_CODE, MAX_NUMBER) VALUES ('2005-10-20 00:13:44', 'JRD', 0, 540);
 //INSERT INTO HISTORY (CHANGE_NUMBER, CHANGE_WHO, CHANGE_DATE, FAC_CODE, NUMBER, OLD_TEXT, OLD_ACTION, OLD_EXPLANATION, LOCALE) VALUES (1, 'sriram', '1993-06-14 10:51:23', 16, 5, 'enter file size or <Ctrl-D> to end input', NULL, NULL, 'c_pg');
 //INSERT INTO MESSAGES (SYMBOL, ROUTINE, MODULE, TRANS_NOTES, FAC_CODE, NUMBER, FLAGS, TEXT, "ACTION", EXPLANATION) VALUES ('', 'process_statement', 'dtr.c', NULL, 1, 351, NULL, 'Do you want to roll back your updates?', NULL, NULL);
+//INSERT INTO HISTORY (CHANGE_NUMBER, CHANGE_WHO, CHANGE_DATE, FAC_CODE, NUMBER, OLD_TEXT, OLD_ACTION, OLD_EXPLANATION, LOCALE) VALUES (1, 'sriram', '1993-06-14 10:51:23', 16, 5, 'enter file size or <Ctrl-D> to end input', NULL, NULL, 'c_pg');
 
 struct Table {
 	const char	*name;
@@ -25,12 +26,16 @@ struct Table {
 static const char *localeFields[] = { "LOCALE", "DESCRIPTION", NULL };
 static const char *facilitiesFields[] = { "LAST_CHANGE", "FACILITY", "FAC_CODE", "MAX_NUMBER", NULL };
 static const char *msgsFields[] = { "SYMBOL", "ROUTINE", "MODULE", "TRANS_NOTES", "FAC_CODE", "NUMBER", "FLAGS", "TEXT", "\"ACTION\"", "EXPLANATION", NULL };
-
+static const char *historyFields[] =
+	{ "CHANGE_NUMBER", "CHANGE_WHO", "CHANGE_DATE", "FAC_CODE", "NUMBER", "OLD_TEXT", 
+	  "OLD_ACTION", "OLD_EXPLANATION", "LOCALE", NULL };
+	
 static const Table tables [] = {
 	"LOCALES", NULL, localeFields, "locales.sql",
 	"FACILITIES", "FAC_CODE", facilitiesFields, "facilities.sql",
 	//"MESSAGES", "FAC_CODE, NUMBER", msgsFields, "messages.sql",
 	"MESSAGES", NULL, msgsFields, "messages.sql",
+	"HISTORY", NULL, historyFields, "history.sql",
 	NULL
 	};
 
@@ -154,9 +159,6 @@ void MsgExtract::genAll(void)
 				char *start = p;
 				const char *string = resultSet->getString(n + 1);
 
-				if (strcmp(string, "exception_datatype_missalignment") == 0)
-					printf ("%s\n", string);
-									
 				if (resultSet->wasNull())
 					concat("NULL", &p);
 				else if (numericType[n])
