@@ -1,3 +1,16 @@
+2005-10-28 23:38  jimstarkey
+
+	* vulcan/src/MsgExtract/: MsgExtract.cpp, MsgExtract.h,
+	MsgExtract.vcproj, extract.cpp, vulcan.conf:
+	
+	Added message extract utility
+
+2005-10-28 06:17  robocop
+
+	* vulcan/src/MsgMgr/Database.cpp:
+	
+	Misc.
+
 2005-10-27 23:26  jimstarkey
 
 	* vulcan/: vulcan.build, src/boot_build, src/clean,
