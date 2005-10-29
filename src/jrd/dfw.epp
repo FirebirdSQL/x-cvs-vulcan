@@ -1937,7 +1937,10 @@ static bool create_procedure(	thread_db* tdbb,
 			{
 			Procedure* procedure = tdbb->tdbb_database->findProcedure(tdbb, work->dfw_name, FALSE);
 			if (procedure && procedure->checkFlags (PRC_create))
+				{
+				tdbb->tdbb_database->procManager->remove (procedure);
 				delete procedure;
+				}
 			break;
 			}
 
@@ -1960,7 +1963,10 @@ static bool create_procedure(	thread_db* tdbb,
 			{
 			Procedure* procedure = tdbb->tdbb_database->findProcedure(tdbb, work->dfw_name, FALSE);
 			if (procedure && procedure->checkFlags (PRC_create))
+				{
+				tdbb->tdbb_database->procManager->remove (procedure);
 				delete procedure;
+				}
 			}
 		}
 

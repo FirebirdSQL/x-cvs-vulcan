@@ -40,13 +40,12 @@ Procedure::Procedure(Database *dbb, int id)
 // Constructor when name and owner are known.
 //
 
-Procedure::Procedure(Database *dbb, const TEXT *name, const TEXT *owner, int id)
+Procedure::Procedure(Database *dbb, const TEXT *name, const TEXT *owner)
 {
 	init();
 	procDatabase = dbb;
 	procName = name;
 	procOwner = owner;
-	procId = id;
 }
 
 //
@@ -119,6 +118,7 @@ void Procedure::setOutputParameter (ProcParam *parameter)
 		;
 
 	*ptr = parameter;	
+	procOutputCount++;
 }
 
 //
@@ -132,7 +132,8 @@ void Procedure::setInputParameter (ProcParam *parameter)
 	for (ptr = &procInputParams; *ptr; ptr = &(*ptr)->paramNext)
 		;
 			
-	*ptr = parameter;	
+	*ptr = parameter;
+	procInputCount++;
 }
 
 //

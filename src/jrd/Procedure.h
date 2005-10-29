@@ -61,7 +61,7 @@ class Procedure
 {
 public:
 	// constructors & destructor
-	Procedure(Database *dbb, const TEXT *name, const TEXT *owner, int id);
+	Procedure(Database *dbb, const TEXT *name, const TEXT *owner);
 	virtual ~Procedure(void);
 
 	// Procedure Name

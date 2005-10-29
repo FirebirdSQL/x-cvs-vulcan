@@ -1907,7 +1907,8 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 				REQUEST(irq_l_procedure) = request;
 
 			P.RDB$PROCEDURE_NAME [name_length(P.RDB$PROCEDURE_NAME)] = 0;
-			procedure = new Procedure (dbb, P.RDB$PROCEDURE_NAME, "", P.RDB$PROCEDURE_ID);
+			procedure = new Procedure (dbb, P.RDB$PROCEDURE_NAME, "");
+			procedure->setId (P.RDB$PROCEDURE_ID);
 			procedure->setFlags (PRC_being_scanned);
 			procedure->clearFlags (PRC_obsolete);
 			
@@ -1922,9 +1923,6 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 			else
 				procedure->setFlags (PRC_system);
 		
-			procedure->setInputCount (P.RDB$PROCEDURE_INPUTS);
-			procedure->setOutputCount (P.RDB$PROCEDURE_OUTPUTS);
-
 			FOR(REQUEST_HANDLE request2) 
 				PA IN RDB$PROCEDURE_PARAMETERS CROSS
 				F IN RDB$FIELDS 
@@ -1965,6 +1963,9 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 					
 
 			END_FOR;
+			
+			procedure->setInputCount (P.RDB$PROCEDURE_INPUTS);
+			procedure->setOutputCount (P.RDB$PROCEDURE_OUTPUTS);
 
 			if (!REQUEST(irq_l_params)) 
 				REQUEST(irq_l_params) = request2;
