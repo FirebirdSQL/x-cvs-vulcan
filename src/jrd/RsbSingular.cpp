@@ -45,11 +45,18 @@ RsbSingular::~RsbSingular(void)
 
 void RsbSingular::open(Request* request)
 {
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
+	impure->irsb_flags &= ~irsb_singular_processed;
 	rsb_next->open(request);
 }
 
 bool RsbSingular::get(Request* request, RSE_GET_MODE mode)
 {
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
+	
+	if (impure->irsb_flags & irsb_singular_processed)
+		return false;
+		
 	if (!rsb_next->get(request, mode))
 		return false;
 
@@ -64,7 +71,7 @@ bool RsbSingular::get(Request* request, RSE_GET_MODE mode)
 		
 	popRecords(request);
 	//impure->irsb_flags &= ~irsb_checking_singular;
-	//impure->irsb_flags |= irsb_singular_processed;
+	impure->irsb_flags |= irsb_singular_processed;
 		
 	return true;
 }
