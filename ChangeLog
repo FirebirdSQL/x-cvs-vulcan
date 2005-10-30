@@ -1,3 +1,38 @@
+2005-10-29 23:10  awharrison
+
+	* vulcan/src/jrd/: TipCache.cpp, tra.cpp, tra.h:
+	
+	Keep the system transaction from reading rolled back records.  The
+	system transaction is like a read-committed transaction except that
+	it also reads data from active transactions.  The latter is
+	necessary because it runs during commit to finish deferred work.
+
+2005-10-29 23:08  awharrison
+
+	* vulcan/src/jrd/: Procedure.cpp, Procedure.h, dfw.epp, met.epp:
+	
+	Set up procedures during definition enough to allow recursion, then
+	tear down and recreate them in dfw, remembering to remove them from
+	the procManager que.
+
+2005-10-29 22:58  jimstarkey
+
+	* vulcan/src/jrd/RsbSingular.cpp:
+	
+	Fixed RsbSignular to latch on after successful fetch cycle.
+
+2005-10-29 19:16  jimstarkey
+
+	* vulcan/src/MsgExtract/MsgExtract.cpp:
+	
+	Cleaned out debugging code
+
+2005-10-29 17:28  jimstarkey
+
+	* vulcan/src/: IscDbc/IscStatement.cpp, MsgExtract/MsgExtract.cpp:
+	
+	Fix IscDbc field truncation bug.
+
 2005-10-28 23:38  jimstarkey
 
 	* vulcan/src/MsgExtract/: MsgExtract.cpp, MsgExtract.h,
