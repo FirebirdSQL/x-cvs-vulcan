@@ -1712,20 +1712,20 @@ USHORT EVL_group(thread_db* tdbb, RecordSource* rsb, JRD_NOD node, USHORT state)
 			case nod_agg_average_distinct2:
 			case nod_agg_total_distinct2:
 				{
-					desc = EVL_expr(tdbb, from->nod_arg[0]);
-					if (request->req_flags & req_null)
-						break;
-					/* "Put" the value to sort. */
-					AggregateSort* asb = (AggregateSort*) from->nod_arg[1];
-					impure_agg_sort* asb_impure = (impure_agg_sort*) IMPURE (request, asb->nod_impure);
-					UCHAR* data;
-					SORT_put(tdbb,
-							 reinterpret_cast<SortContext*>(asb_impure->iasb_sort_handle),
-							 reinterpret_cast<ULONG**>(&data));
-					MOVE_CLEAR(data, ROUNDUP_LONG(asb->asb_key_desc->skd_length));
-					asb->asb_desc.dsc_address = data;
-					MOV_move(desc, &asb->asb_desc);
+				desc = EVL_expr(tdbb, from->nod_arg[0]);
+				
+				if (request->req_flags & req_null)
 					break;
+					
+				/* "Put" the value to sort. */
+				
+				AggregateSort* asb = (AggregateSort*) from->nod_arg[1];
+				impure_agg_sort* asb_impure = (impure_agg_sort*) IMPURE (request, asb->nod_impure);
+				UCHAR* data = SORT_put(tdbb, reinterpret_cast<SortContext*>(asb_impure->iasb_sort_handle));
+				MOVE_CLEAR(data, ROUNDUP_LONG(asb->asb_key_desc->skd_length));
+				asb->asb_desc.dsc_address = data;
+				MOV_move(desc, &asb->asb_desc);
+				break;
 				}
 
 			default:

@@ -180,18 +180,16 @@ void IDX_create_index(thread_db* tdbb,
  *	Create and populate index.
  *
  **************************************/
-	IDX_E result = idx_e_ok;
-
-	SET_TDBB(tdbb);
-	DBB dbb = tdbb->tdbb_database;
-
+ 
 	if (relation->rel_file)
 		ERR_post(isc_no_meta_update, isc_arg_gds, isc_extfile_uns_op,
-				 isc_arg_string, ERR_cstring(relation->rel_name), 0);
+				 isc_arg_string, relation->rel_name, 0);
 
 	if (!relation->rel_index_root)
 		get_root_page(tdbb, relation);	
 
+	IDX_E result = idx_e_ok;
+	DBB dbb = tdbb->tdbb_database;
 	BTR_reserve_slot(tdbb, relation, transaction, idx);
 
 	if (index_id)
@@ -220,11 +218,9 @@ void IDX_create_index(thread_db* tdbb,
 
 	RecordStack stack;
 	const UCHAR pad = (idx->idx_flags & idx_descending) ? -1 : 0;
-
 	index_fast_load ifl_data;
 	ifl_data.ifl_duplicates = 0;
 	ifl_data.ifl_key_length = key_length;
-
 	bool key_is_null = false;
 
 	SortKeyDef key_desc[2];
@@ -241,14 +237,12 @@ void IDX_create_index(thread_db* tdbb,
 	key_desc[1].skd_offset = key_length;
 	key_desc[1].skd_vary_offset = 0;
 
-	FPTR_REJECT_DUP_CALLBACK callback = 
-		(idx->idx_flags & idx_unique) ? duplicate_key : NULL;
-	void* callback_arg = 
-		(idx->idx_flags & idx_unique) ? &ifl_data : NULL;
+	FPTR_REJECT_DUP_CALLBACK callback = (idx->idx_flags & idx_unique) ? duplicate_key : NULL;
+	//void* callback_arg = (idx->idx_flags & idx_unique) ? &ifl_data : NULL;
 
 	SortContext* sort_handle = SORT_init(tdbb,
 							key_length + sizeof(index_sort_record),
-							2, 1, key_desc, callback, callback_arg,
+							2, 1, key_desc, callback, &ifl_data,
 							tdbb->tdbb_attachment, 0);
 
 	if (!sort_handle)
@@ -273,9 +267,10 @@ void IDX_create_index(thread_db* tdbb,
 	   preserving the page working sets of other attachments. */
 	   
 	Attachment* attachment = tdbb->tdbb_attachment;	
+	 
 	if (attachment && attachment->isSoleAttachment())
 		if (attachment->att_flags & ATT_gbak_attachment ||
-			DPM_data_pages(tdbb, relation) > (SLONG) dbb->pageCache->bcb_count)
+			 DPM_data_pages(tdbb, relation) > (SLONG) dbb->pageCache->bcb_count)
 			{
 			primary.rpb_window.win_flags = secondary.rpb_window.win_flags = WIN_large_scan;
 			primary.rpb_org_scans = secondary.rpb_org_scans = relation->rel_scan_count++;
@@ -310,6 +305,7 @@ void IDX_create_index(thread_db* tdbb,
 			{
 			if (!DPM_fetch(tdbb, &secondary, LCK_read))
 				break;			/* must be garbage collected */
+				
 			secondary.rpb_record = NULL;
 			VIO_data(tdbb, &secondary, tdbb->tdbb_default);
 			stack.push(secondary.rpb_record);
@@ -324,104 +320,114 @@ void IDX_create_index(thread_db* tdbb,
 			/* If foreign key index is being defined, make sure foreign
 			   key definition will not be violated */
 
-			if (idx->idx_flags & idx_foreign) {
+			if (idx->idx_flags & idx_foreign) 
+				{
 				idx_null_state null_state;
+				
 				/* find out if there is a null segment by faking uniqueness --
 				   if there is one, don't bother to check the primary key */
 
-				if (!(idx->idx_flags & idx_unique)) {
+				if (!(idx->idx_flags & idx_unique)) 
+					{
 					idx->idx_flags |= idx_unique;
 					result = BTR_key(tdbb, relation, record, idx, &key, &null_state);
 					idx->idx_flags &= ~idx_unique;
-				} 
-				else {
+					} 
+				else 
 					result = BTR_key(tdbb, relation, record, idx, &key, &null_state);
-				}
-				if (null_state != idx_nulls_none) {
-					result = idx_e_ok;
-				}
-				else {
-					result =
-						check_partner_index(tdbb, relation, record,
-											transaction, idx,
-											partner_relation,
-											partner_index_id);
-				}
-			}
 
-			if (result == idx_e_ok) {
+				if (null_state != idx_nulls_none) 
+					result = idx_e_ok;
+				else 
+					result = check_partner_index(tdbb, relation, record, transaction, idx,
+												 partner_relation, partner_index_id);
+				}
+
+			if (result == idx_e_ok) 
+				{
 				idx_null_state null_state;
 				BTR_key(tdbb, relation, record, idx, &key, &null_state);
 				key_is_null = (null_state == idx_nulls_all);
-			}
-			else {
+				}
+			else 
+				{
 				do {
 					if (record != gc_record)
 						delete record;
-				} while (stack.hasData() && (record = stack.pop()));
+				  } while (stack.hasData() && (record = stack.pop()));
+				  
 				SORT_fini(sort_handle, tdbb->tdbb_attachment);
 				gc_record->rec_flags &= ~REC_gc_active;
+				
 				if (primary.rpb_window.win_flags & WIN_large_scan)
 					--relation->rel_scan_count;
-				ERR_duplicate_error(result, partner_relation,
-									partner_index_id);
-			}
+					
+				ERR_duplicate_error(result, partner_relation, partner_index_id);
+				}
 
-			if (key.key_length > key_length) {
+			if (key.key_length > key_length) 
+				{
 				do {
 					if (record != gc_record)
 						delete record;
-				} while (stack.hasData() && (record = stack.pop()));
+				  } while (stack.hasData() && (record = stack.pop()));
+				  
 				SORT_fini(sort_handle, tdbb->tdbb_attachment);
 				gc_record->rec_flags &= ~REC_gc_active;
+				
 				if (primary.rpb_window.win_flags & WIN_large_scan)
 					--relation->rel_scan_count;
+					
 				BUGCHECK(174);	/* msg 174 index key too big */
-			}
+				}
 
-			UCHAR* p;
-			SORT_put(tdbb, sort_handle,
-					 reinterpret_cast<ULONG**>(&p));
+			UCHAR* p = SORT_put(tdbb, sort_handle);
 
 			/* try to catch duplicates early */
 
-			if (ifl_data.ifl_duplicates > 0) {
+			if (ifl_data.ifl_duplicates > 0)
+				{
 				do {
 					if (record != gc_record)
 						delete record;
-				} while (stack.hasData() && (record = stack.pop()));
+				  } while (stack.hasData() && (record = stack.pop()));
+				  
 				SORT_fini(sort_handle, tdbb->tdbb_attachment);
 				gc_record->rec_flags &= ~REC_gc_active;
+				
 				if (primary.rpb_window.win_flags & WIN_large_scan)
 					--relation->rel_scan_count;
-				ERR_post(isc_no_dup, isc_arg_string,
-						 ERR_cstring(index_name), 0);
-			}
+					
+				ERR_post(isc_no_dup, isc_arg_string, ERR_cstring(index_name), 0);
+				}
 
 			USHORT l = key.key_length;
 
-			if (l > 0) {
+			if (l > 0) 
+				{
                 const UCHAR* q = key.key_data;
 				memcpy(p, q, l);
 				p += l;
 				q += l;
-			}
-			if ( (l = key_length - key.key_length) ) {
+				}
+				
+			if ( (l = key_length - key.key_length) ) 
 				do {
 					*p++ = pad;
 				} while (--l);
-			}
+				
 			index_sort_record* isr = (index_sort_record*) p;
 			isr->isr_record_number = primary.rpb_number;
 			isr->isr_key_length = key.key_length;
 			isr->isr_flags = (stack.hasData() ? ISR_secondary : 0) | (key_is_null ? ISR_null : 0);
+			
 			if (record != gc_record)
 				delete record;
+			}
 		}
 
-	}
-
 	gc_record->rec_flags &= ~REC_gc_active;
+	
 	if (primary.rpb_window.win_flags & WIN_large_scan)
 		--relation->rel_scan_count;
 
@@ -441,7 +447,7 @@ void IDX_create_index(thread_db* tdbb,
 	BTR_create(tdbb, relation, transaction, idx, key_length, sort_handle, selectivity);
 
 	if (ifl_data.ifl_duplicates > 0) 
-			// we don't need SORT_fini() here, as it's called inside BTR_create()
+		// we don't need SORT_fini() here, as it's called inside BTR_create()
 		ERR_post(isc_no_dup, isc_arg_string,
 				 ERR_cstring(index_name), 0);
 	
@@ -1280,17 +1286,14 @@ static bool duplicate_key(const UCHAR* record1, const UCHAR* record2, void* ifl_
  *	bump a counter.
  *
  **************************************/
+ 
 	index_fast_load* ifl_data = static_cast<index_fast_load*>(ifl_void);
-	const index_sort_record* rec1 =
-		(index_sort_record*) (record1 + ifl_data->ifl_key_length);
-	const index_sort_record* rec2 =
-		(index_sort_record*) (record2 + ifl_data->ifl_key_length);
+	const index_sort_record* rec1 = (index_sort_record*) (record1 + ifl_data->ifl_key_length);
+	const index_sort_record* rec2 = (index_sort_record*) (record2 + ifl_data->ifl_key_length);
 
 	if (!(rec1->isr_flags & (ISR_secondary | ISR_null)) &&
 		!(rec2->isr_flags & (ISR_secondary | ISR_null)))
-	{
 		++ifl_data->ifl_duplicates;
-	}
 
 	return false;
 }

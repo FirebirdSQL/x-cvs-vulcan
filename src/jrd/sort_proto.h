@@ -42,7 +42,7 @@ void	SORT_error(SortWorkFile*, const TEXT *, ISC_STATUS, int);
 void	SORT_fini(SortContext*, Attachment *);
 SortContext*	SORT_init(thread_db*, USHORT, USHORT, USHORT, const SortKeyDef*,
 						FPTR_REJECT_DUP_CALLBACK, void*, Attachment*, UINT64);
-void	SORT_put(thread_db*, SortContext*, ULONG**);
+UCHAR*	SORT_put(thread_db*, SortContext*);
 void	SORT_shutdown(Attachment*);
 bool	SORT_sort(thread_db*, SortContext*);
 ULONG	SORT_write_block(SortWorkFile*, ULONG, BLOB_PTR*, ULONG);

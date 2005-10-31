@@ -78,7 +78,8 @@ void RsbSort::open(Request* request)
 	//UINT64 max_records = (first_records < 0) ? 0 : (UINT64) first_records + skip_records);
 	UINT64 max_records = 0;
 
-	UCHAR *data, flag;
+	//UCHAR *data, flag;
+	UCHAR flag;
 	DSC *from, to, temp;
 	record_param* rpb;
 	smb_repeat *item, *end_item;
@@ -122,7 +123,7 @@ void RsbSort::open(Request* request)
 		// "Put" a record to sort. Actually, get the address of a place
 		// to build a record.
 
-		SORT_put(tdbb, impure->irsb_sort_handle, (ULONG **) &data);
+		UCHAR *data = SORT_put(tdbb, impure->irsb_sort_handle);
 
 		// Zero out the sort key. This solve a multitude of problems.
 
