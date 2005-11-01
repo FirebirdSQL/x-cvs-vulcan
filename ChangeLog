@@ -1,3 +1,17 @@
+2005-10-31 19:01  jimstarkey
+
+	* vulcan/src/misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-10-31 19:01  jimstarkey
+
+	* vulcan/src/jrd/: RsbSort.cpp, evl.cpp, idx.cpp, sort.cpp,
+	sort_proto.h:
+	
+	Fixed bug sort duplicate detection bug inherited from FB2.  Also
+	eliminated most SCROLLABLE_CURSOR conditionals from sort.cpp
+
 2005-10-29 23:10  awharrison
 
 	* vulcan/src/jrd/: TipCache.cpp, tra.cpp, tra.h:
