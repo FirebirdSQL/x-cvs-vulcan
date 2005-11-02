@@ -165,9 +165,9 @@ static void modify_privilege(CStatement*, NOD_TYPE, SSHORT, const char*,
 static SCHAR modify_privileges(CStatement*, NOD_TYPE, SSHORT, dsql_nod*,
 	const dsql_nod*, const dsql_nod*);
 static void modify_relation(CStatement*);
-static int	new_parameter_list (CStatement*, dsql_nod*, int);
+static int	new_parameter_list (CStatement*, dsql_nod*, int, Procedure *);
 static void new_parameter_message (CStatement*, dsql_nod*);
-static int	new_parameters (CStatement*, dsql_nod*);
+static int	new_parameters (CStatement*, dsql_nod*, Procedure *);
 static void new_procedure(CStatement*, dsql_str*, dsql_nod*);
 static par* parameter_reverse_order(par* parameter, par* prev);
 static void process_role_nm_list(CStatement*, SSHORT, dsql_nod*, dsql_nod*, NOD_TYPE);
@@ -6067,7 +6067,8 @@ static void modify_field(CStatement*	request,
 //    create a list of parameter definitions in DYN
 //
 
-int	new_parameter_list (CStatement *request, dsql_nod *parameters, int parameterType)
+int	new_parameter_list (CStatement *request, dsql_nod *parameters, int parameterType,
+						Procedure *procedure)
 {
 	int position = 0;
 	dsql_nod** ptr = parameters->nod_arg;
@@ -6076,6 +6077,13 @@ int	new_parameter_list (CStatement *request, dsql_nod *parameters, int parameter
 		{
 		dsql_nod* parameter = *ptr;
 		dsql_fld* field = (dsql_fld*) parameter->nod_arg[e_dfl_field];
+		ProcParam *procParam = new ProcParam (field);
+
+		if (!parameterType)
+			procedure->setInputParameter (procParam);
+		else
+			procedure->setOutputParameter (procParam);
+
 		request->appendDynString(isc_dyn_def_parameter, field->fld_name);
 		request->appendNumber(isc_dyn_prm_number, position);
 		request->appendNumber(isc_dyn_prm_type, parameterType);
@@ -6124,19 +6132,19 @@ static void new_parameter_message (CStatement *request,
 //
 //  create blr etc. for procedure parameters
 //
-static int  new_parameters (CStatement *request, dsql_nod *procedure_node)
+static int  new_parameters (CStatement *request, dsql_nod *procedure_node, Procedure *procedure)
 {
 	int inputs = 0;
 	int outputs = 0;
 	dsql_nod* parameters;
 
 	if (parameters = procedure_node->nod_arg[e_prc_inputs])
-		inputs = new_parameter_list (request, parameters, inputParameter);
+		inputs = new_parameter_list (request, parameters, inputParameter, procedure);
 
 	request->appendNumber(isc_dyn_prc_inputs, inputs);
 
 	if (parameters = procedure_node->nod_arg[e_prc_outputs])
-		outputs = new_parameter_list (request, parameters, outputParameter);
+		outputs = new_parameter_list (request, parameters, outputParameter, procedure);
 
 	request->appendNumber(isc_dyn_prc_outputs, outputs);
 	request->blrBegin(isc_dyn_prc_blr);
@@ -6210,10 +6218,15 @@ static void  new_procedure (CStatement *request,
 
 	// create enough to allow procedure to self reference
 
-	//const char *procName = procedure_name->str_data;
-	//const char *procOwner = procedure_name->str_data + procedure_name->str_length + 1;
-	
-	int locals = new_parameters (request, procedure_node);
+	const char *procName = procedure_name->str_data;
+	const char *procOwner = procedure_name->str_data + procedure_name->str_length + 1;
+
+	Procedure *procedure = new Procedure (request->database, procName, procOwner);
+	procedure->setFlags (PRC_being_scanned);
+	procedure->setFlags (PRC_create);
+	request->database->procManager->addProcedure (procedure);
+
+	int locals = new_parameters (request, procedure_node, procedure);
 	put_local_variables(request, procedure_node->nod_arg[e_prc_dcls], locals);
 
 	request->appendUCHAR(blr_stall);
@@ -6233,7 +6246,9 @@ static void  new_procedure (CStatement *request,
 	request->blrEnd();
 
 	request->appendUCHAR(isc_dyn_end);
-
+	
+	request->database->procManager->remove (procedure);
+	delete procedure;
 }
 
 

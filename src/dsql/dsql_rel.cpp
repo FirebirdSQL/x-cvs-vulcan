@@ -154,7 +154,7 @@ void dsql_rel::orderFields(void)
 	dsql_fld *fields = rel_fields;
 	rel_fields = NULL;
 	
-	// Really crud sort, but what hell...
+	// Really crude sort, but what the hell...
 	
 	for (dsql_fld *field; field = fields;)
 		{
