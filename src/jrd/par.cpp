@@ -1450,21 +1450,22 @@ static JRD_NOD par_message(thread_db* tdbb, CompilerScratch* csb)
 	tail->csb_message = node;
 	node->nod_count = 0;
 	node->nod_arg[e_msg_number] = (JRD_NOD) (long) n;
+	
 	if (n > csb->csb_msg_number)
 		csb->csb_msg_number = n;
 
-/* Get the number of parameters in the message and prepare to fill
-   out the format block */
+	/* Get the number of parameters in the message and prepare to fill
+	   out the format block */
 
 	n = BLR_WORD;
 	Format* format = Format::newFmt(*tdbb->tdbb_default, n);
 	node->nod_arg[e_msg_format] = (JRD_NOD) format;
-	//format->fmt_count = n;
 	ULONG offset = 0;
 
-	Format::fmt_desc_iterator desc, end;
+	//Format::fmt_desc_iterator desc, end;
 	
-	for (desc = format->fmt_desc.begin(), end = desc + n; desc < end; desc++) 
+	//for (desc = format->fmt_desc.begin(), end = desc + n; desc < end; desc++) 
+	for (dsc *desc = format->fmt_desc, *end = desc + n; desc < end; ++desc)
 		{
 		const USHORT alignment = PAR_desc(csb, &*desc);
 		
@@ -1862,8 +1863,9 @@ static void par_procedure_parms(thread_db* tdbb,
 		message->nod_arg[e_msg_format] = (JRD_NOD) format;
 		*/
 		
-		Format* fmt_copy = Format::newFmt(*tdbb->tdbb_default, format->fmt_count);
-		*fmt_copy = *format;
+		//Format* fmt_copy = Format::newFmt(*tdbb->tdbb_default, format->fmt_count);
+		//*fmt_copy = *format;
+		Format *fmt_copy = new (tdbb->tdbb_default) Format(tdbb->tdbb_default, format);
 		message->nod_arg[e_msg_format] = (JRD_NOD) fmt_copy;
 		
 		/* --- end of fix --- */

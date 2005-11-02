@@ -695,53 +695,30 @@ Format* MET_format(thread_db* tdbb, Relation* relation, USHORT number)
 
 		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, &X.RDB$DESCRIPTOR);
 
-		if (sizeof(OdsDesc) == sizeof(struct dsc) || dbb->dbb_ods_version < ODS_VERSION11) 
-			{
-			// For ODS10 and earlier read descriptors in their in-memory representation
-			// This makes 64-bit and 32-bit ODS10 different for the same architecture.
-			
-			const USHORT count = blob->blb_length / sizeof(struct dsc);
-			format = Format::newFmt(*dbb->dbb_permanent, count);
-			//format->fmt_count = count;
-			BLB_get_data(tdbb, blob, (UCHAR*) &(format->fmt_desc[0]), blob->blb_length);
+		// Use generic representation of formats with 32-bit offsets
 
-			Format::fmt_desc_const_iterator desc = format->fmt_desc.end() - 1;
-			for (;desc >= format->fmt_desc.begin(); --desc)
-				{
-	 			if (desc->dsc_address)
-					{
-					format->fmt_length =
-						(IPTR) desc->dsc_address + desc->dsc_length;
-					break;
-					}
-				}
-			} 
-		else 
+		const USHORT count = blob->blb_length / sizeof(OdsDesc);
+		format = Format::newFmt(*dbb->dbb_permanent, count);
+		OdsDesc *odsDescs = new OdsDesc [count];
+		BLB_get_data(tdbb, blob, (UCHAR*) odsDescs, blob->blb_length);
+		OdsDesc *odsDesc = odsDescs;
+		//Format::fmt_desc_iterator desc = format->fmt_desc.begin();
+		
+		//for (;desc < format->fmt_desc.end(); ++desc, ++odsDesc)
+		for (dsc *desc = format->fmt_desc, *end = desc + format->fmt_count; desc < end; ++desc, ++odsDesc)
 			{
-			// Use generic representation of formats with 32-bit offsets
-
-			const USHORT count = blob->blb_length / sizeof(OdsDesc);
-			format = Format::newFmt(*dbb->dbb_permanent, count);
-			//format->fmt_count = count;
-			OdsDesc *odsDescs = new OdsDesc [count];
-			BLB_get_data(tdbb, blob, (UCHAR*) odsDescs, blob->blb_length);
-			OdsDesc *odsDesc = odsDescs;
+			desc->dsc_dtype = odsDesc->dsc_dtype;
+			desc->dsc_scale = odsDesc->dsc_scale;
+			desc->dsc_length = odsDesc->dsc_length;
+			desc->dsc_sub_type = odsDesc->dsc_sub_type;
+			desc->dsc_flags = odsDesc->dsc_flags;
+			desc->dsc_address = (UCHAR*) odsDesc->dsc_offset;
 			
-			Format::fmt_desc_iterator desc = format->fmt_desc.begin();
-			for (;desc < format->fmt_desc.end(); ++desc, ++odsDesc)
-				{
-				desc->dsc_dtype = odsDesc->dsc_dtype;
-				desc->dsc_scale = odsDesc->dsc_scale;
-				desc->dsc_length = odsDesc->dsc_length;
-				desc->dsc_sub_type = odsDesc->dsc_sub_type;
-				desc->dsc_flags = odsDesc->dsc_flags;
-				desc->dsc_address = (UCHAR*) odsDesc->dsc_offset;
-				if (desc->dsc_address)
-					format->fmt_length = (long) desc->dsc_address + desc->dsc_length;
-				}
-			
-			delete [] odsDescs;
+			if (desc->dsc_address)
+				format->fmt_length = (long) desc->dsc_address + desc->dsc_length;
 			}
+		
+		delete [] odsDescs;
 	END_FOR;
 
 	if (!REQUEST(irq_r_format))
@@ -1891,7 +1868,7 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 
 	vec::iterator ptr, end;
 	ProcParam * parameter;
-	Format::fmt_desc_iterator desc;
+	//Format::fmt_desc_iterator desc;
 	Database* dbb = tdbb->tdbb_database;
 	Procedure* procedure = NULL;
 	
@@ -1975,9 +1952,9 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 				ULONG length;
 				Format* format = Format::newFmt(*dbb->dbb_permanent, procedure->findOutputCount());
 				procedure->setFormat (format);
-				//format->fmt_count = procedure->findOutputCount();
 				length = FLAG_BYTES(format->fmt_count);
-				desc = format->fmt_desc.begin();
+				//desc = format->fmt_desc.begin();
+				dsc *desc = format->fmt_desc;
 				
 				for (parameter = procedure->findOutputParameters();  parameter; parameter = parameter->findNext(), ++desc)
 					{
@@ -1993,7 +1970,6 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 			/***
 			old_pool = tdbb->tdbb_default;
 			tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-			//csb = CompilerScratch::newCsb(*tdbb->tdbb_default, 5);
 			CompilerScratch csb(*tdbb->tdbb_default, 5);
 			parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
 			procedure->findRequest()->req_procedure = procedure;

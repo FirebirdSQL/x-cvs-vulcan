@@ -312,8 +312,9 @@ int EXT_get(thread_db* tdbb, RecordSource* rsb)
 	/* Loop thru fields setting missing fields to either blanks/zeros
 	   or the missing value */
 
-	Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
-
+	//Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	dsc *desc_ptr = format->fmt_desc;
+	
 	//for (i = 0, itr = relation->rel_fields->begin(); i < format->fmt_count; ++i, ++itr, ++desc_ptr) 
 	for (int i = 0; i < relation->rel_fields.size(); ++i)
 		{
@@ -519,7 +520,8 @@ void EXT_store(DBB dbb, record_param* rpb, int *transaction)
 		}
 
 	//vec::iterator field_ptr = relation->rel_fields->begin();
-	Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	//Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	dsc *desc_ptr = format->fmt_desc;
 
 	//for (i = 0; i < format->fmt_count; i++, field_ptr++, desc_ptr++)
 	for (i = 0; i < format->fmt_count; i++, desc_ptr++)

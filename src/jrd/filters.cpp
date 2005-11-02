@@ -259,25 +259,32 @@ ISC_STATUS filter_format(USHORT action, ctl* control)
  *	Get next segment from a record format blob.
  *
  **************************************/
-/* Unless this is a get segment call, just return success */
+ 
+	/* Unless this is a get segment call, just return success */
 
 	if (action != ACTION_get_segment)
 		return FB_SUCCESS;
 
-/* Loop thru descriptors looking for one with a data type */
-	dsc desc;
-	for (;;) {
+	/* Loop thru descriptors looking for one with a data type */
+	
+	OdsDesc desc;
+	
+	for (;;) 
+		{
         USHORT length;
 		const ISC_STATUS status = caller(ACTION_get_segment,
 						control,
 						sizeof(desc),
 						reinterpret_cast<UCHAR*>(&desc), &length);
+						
 		if (status != FB_SUCCESS && status != isc_segment)
 			return status;
+			
 		if (desc.dsc_dtype)
 			break;
+			
 		++control->ctl_data[0];
-	}
+		}
 
 	int value = desc.dsc_scale;
 	const TEXT* p = dtypes[desc.dsc_dtype];
@@ -286,22 +293,25 @@ ISC_STATUS filter_format(USHORT action, ctl* control)
 		value = desc.dsc_length;
 	else if (desc.dsc_dtype == dtype_varying)
 		value = desc.dsc_length - sizeof(SSHORT);
-	else if (desc.dsc_dtype > dtype_array) {
+	else if (desc.dsc_dtype > dtype_array)
+		{
 		p = "data type %d unknown";
 		value = desc.dsc_dtype;
-	}
+		}
 
     TEXT temp1[64], temp2[64];
-	if ((desc.dsc_dtype <= dtype_any_text) && (desc.dsc_ttype != 0)) {
+    
+	if ((desc.dsc_dtype <= dtype_any_text) && (desc.dsc_ttype != 0)) 
+		{
 		sprintf(temp2, p, value);
 		sprintf(temp1, "%s, sub-type %d", temp2, INTL_TTYPE(&desc));
-	}
+		}
 	else
 		sprintf(temp1, p, value);
 
 	sprintf(temp2, "%ld: %s", control->ctl_data[0]++, temp1);
-
 	USHORT length = strlen(temp2);
+	
 	if (length > control->ctl_buffer_length)
 		length = control->ctl_buffer_length;
 

@@ -101,9 +101,11 @@ Procedure::~Procedure()
 	if (procRequest)
 		{
 		procRequest->release();
-		//CMP_release(tdbb, procRequest);
 		procRequest = NULL;
 		}
+	
+	delete procInputFormat;
+	delete procOutputFormat;
 }
 
 //
@@ -371,16 +373,18 @@ bool Procedure::parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, 
 		const USHORT msg_number = BLR_BYTE;
 		USHORT count = BLR_BYTE;
 		count += (BLR_BYTE) << 8;
-		Format* format = Format::newFmt(*tdbb->tdbb_default, count);
-		//format->fmt_count = count;
-		// CVC: This offset should be protected against 32K overflow in the future
+		//Format* format = Format::newFmt(*tdbb->tdbb_default, count);
+		Format* format = new Format(count);
 		USHORT offset = 0;
 		
-		for (Format::fmt_desc_iterator desc = format->fmt_desc.begin(); count; --count, ++desc)
+		//for (Format::fmt_desc_iterator desc = format->fmt_desc.begin(); count; --count, ++desc)
+		for (dsc *desc = format->fmt_desc; count; --count, ++desc)
 			{
 			const USHORT align = PAR_desc(csb, &*desc);
+			
 			if (align)
 				offset = FB_ALIGN(offset, align);
+				
 			desc->dsc_address = (UCHAR *) (long) offset;
 			offset += desc->dsc_length;
 			}

@@ -4494,15 +4494,17 @@ static JRD_NOD pass2(thread_db* tdbb, CompilerScratch* csb, JRD_NOD node, JRD_NO
 		case nod_modify:
 			{
 			Format* format;
-			Format::fmt_desc_iterator desc;
+			//Format::fmt_desc_iterator desc;
 
 			stream = (USHORT)(long) node->nod_arg[e_mod_org_stream];
 			csb->csb_rpt[stream].csb_flags |= csb_update;
 			format = CMP_format(tdbb, csb, stream);
-			desc = format->fmt_desc.begin();
+			dsc *desc = format->fmt_desc;
+			
 			for (id = 0; id < format->fmt_count; id++, desc++)
 				if (desc->dsc_dtype)
 					SBM_SET(tdbb->tdbb_default, &csb->csb_rpt[stream].csb_fields, id);
+					
 			csb->csb_impure += sizeof(impure_state);
 			}
 			break;
@@ -5303,103 +5305,109 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, Form
  *	is missing or incomplete, extend it.
  *
  **************************************/
-	JRD_NOD *ptr, *end, assignment, field;
 	Format* format;
 	DSC *desc, desc2;
-	USHORT id, min, max, align;
+	//USHORT id, min, max, align;
 
-	DEV_BLKCHK(csb, type_csb);
-	DEV_BLKCHK(map, type_nod);
-	DEV_BLKCHK(*input_format, type_fmt);
-
-	SET_TDBB(tdbb);
+	//DEV_BLKCHK(csb, type_csb);
+	//DEV_BLKCHK(map, type_nod);
+	//DEV_BLKCHK(*input_format, type_fmt);
+	//SET_TDBB(tdbb);
 
 	if (!(format = *input_format)) 
 		format = *input_format = Format::newFmt(*tdbb->tdbb_default, map->nod_count);
 
 	// process alternating rse and map blocks
 
-	ptr = map->nod_arg;
+	JRD_NOD *ptr = map->nod_arg;
 
-	for (end = ptr + map->nod_count; ptr < end; ptr++) {
-		assignment = *ptr;
-		field = assignment->nod_arg[e_asgn_to];
-		id = (USHORT)(long) field->nod_arg[e_fld_id];
-		if (id >= format->fmt_count) {
-			format->fmt_desc.resize(id + 1);
-		}
+	for (JRD_NOD *end = ptr + map->nod_count; ptr < end; ptr++) 
+		{
+		JRD_NOD assignment = *ptr;
+		JRD_NOD field = assignment->nod_arg[e_asgn_to];
+		USHORT id = (USHORT)(long) field->nod_arg[e_fld_id];
+		
+		if (id >= format->fmt_count) 
+			//format->fmt_desc.resize(id + 1);
+			format->resize(id + 1);
+
 		desc = &format->fmt_desc[id];
 		CMP_get_desc(tdbb, csb, assignment->nod_arg[e_asgn_from], &desc2);
-		min = MIN(desc->dsc_dtype, desc2.dsc_dtype);
-		max = MAX(desc->dsc_dtype, desc2.dsc_dtype);
-		if (max == dtype_blob) {
+		USHORT min = MIN(desc->dsc_dtype, desc2.dsc_dtype);
+		USHORT max = MAX(desc->dsc_dtype, desc2.dsc_dtype);
+		
+		if (max == dtype_blob) 
+			{
 			desc->dsc_dtype = dtype_quad;
 			desc->dsc_length = 8;
 			desc->dsc_scale = 0;
 			desc->dsc_sub_type = 0;
 			desc->dsc_flags = 0;
-		}
+			}
 		else if (!min)			// eg: dtype_unknown
 			*desc = desc2;
-		else if (min <= dtype_any_text) {	// either field a text field?
-			USHORT len1, len2;
-
-			len1 = DSC_string_length(desc);
-			len2 = DSC_string_length(&desc2);
+		else if (min <= dtype_any_text) 
+			{	// either field a text field?
+			USHORT len1 = DSC_string_length(desc);
+			USHORT len2 = DSC_string_length(&desc2);
 			desc->dsc_dtype = dtype_varying;
 			desc->dsc_length = MAX(len1, len2) + sizeof(USHORT);
 
 			// pick the max text type, so any transparent casts from ints are 
 			// not left in ASCII format, but converted to the richer text format
 
-			INTL_ASSIGN_TTYPE(desc,
-							  MAX(INTL_TEXT_TYPE(*desc),
-								  INTL_TEXT_TYPE(desc2)));
+			INTL_ASSIGN_TTYPE(desc, MAX(INTL_TEXT_TYPE(*desc), INTL_TEXT_TYPE(desc2)));
 			desc->dsc_scale = 0;
 			desc->dsc_flags = 0;
-		}
-		else if (DTYPE_IS_DATE(max) && !DTYPE_IS_DATE(min)) {
+			}
+		else if (DTYPE_IS_DATE(max) && !DTYPE_IS_DATE(min)) 
+			{
 			desc->dsc_dtype = dtype_varying;
-			desc->dsc_length =
-				DSC_convert_to_text_length(max) + sizeof(USHORT);
+			desc->dsc_length = DSC_convert_to_text_length(max) + sizeof(USHORT);
 			desc->dsc_ttype = ttype_ascii;
 			desc->dsc_scale = 0;
 			desc->dsc_flags = 0;
-		}
-		else if (max != min) {
+			}
+		else if (max != min) 
+			{
 			// different numeric types: if one is inexact use double,
 			// if both are exact use int64
-			if ((!DTYPE_IS_EXACT(max)) || (!DTYPE_IS_EXACT(min))) {
+			
+			if ((!DTYPE_IS_EXACT(max)) || (!DTYPE_IS_EXACT(min)))
+				{
 				desc->dsc_dtype = DEFAULT_DOUBLE;
 				desc->dsc_length = sizeof(double);
 				desc->dsc_scale = 0;
 				desc->dsc_sub_type = 0;
 				desc->dsc_flags = 0;
-			}
-			else {
+				}
+			else 
+				{
 				desc->dsc_dtype = dtype_int64;
 				desc->dsc_length = sizeof(SINT64);
 				desc->dsc_scale = MIN(desc->dsc_scale, desc2.dsc_scale);
 				desc->dsc_sub_type =
 					MAX(desc->dsc_sub_type, desc2.dsc_sub_type);
 				desc->dsc_flags = 0;
+				}
 			}
 		}
-	}
 
 	// flesh out the format of the record
 
 	format->fmt_length = (USHORT) FLAG_BYTES(format->fmt_count);
-	Format::fmt_desc_iterator desc3, end_desc;
+	//Format::fmt_desc_iterator desc3, end_desc;
 
-	for (desc3 = format->fmt_desc.begin(), end_desc= format->fmt_desc.end();
-		 desc3 < end_desc; desc3++) {
-		align = type_alignments[desc3->dsc_dtype];
+	for (dsc *desc3 = format->fmt_desc, *end_desc = desc + format->fmt_count; desc3 < end_desc; desc3++) 
+		{
+		USHORT align = type_alignments[desc3->dsc_dtype];
+		
 		if (align)
 			format->fmt_length = FB_ALIGN(format->fmt_length, align);
+			
 		desc3->dsc_address = (UCHAR *) (long) format->fmt_length;
 		format->fmt_length += desc3->dsc_length;
-	}
+		}
 }
 
 

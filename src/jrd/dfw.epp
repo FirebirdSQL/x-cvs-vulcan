@@ -1399,14 +1399,12 @@ static bool formatsAreEqual(Format* old_format, Format* new_format)
  *
  **************************************/
 
-	if ((old_format->fmt_length != new_format->fmt_length)
-		|| (old_format->fmt_count != new_format->fmt_count)) {
+	if (old_format->fmt_length != new_format->fmt_length || old_format->fmt_count != new_format->fmt_count) 
 		return false;
-    }
 
+	/***
     Format::fmt_desc_iterator  old_desc = old_format->fmt_desc.begin();
     Format::fmt_desc_iterator  old_end = old_format->fmt_desc.end();
-
     Format::fmt_desc_iterator new_desc = old_format->fmt_desc.begin();
 
     while (old_desc != old_end) {
@@ -1422,7 +1420,18 @@ static bool formatsAreEqual(Format* old_format, Format* new_format)
         new_desc++;
         old_desc++;
     }
-
+	***/
+	
+	for (dsc *old_desc = old_format->fmt_desc, *old_end = old_desc + old_format->fmt_count, 
+			 *new_desc = new_format->fmt_desc; old_desc < old_end; ++old_desc, ++new_desc)
+		if (old_desc->dsc_dtype != new_desc->dsc_dtype || 
+			 old_desc->dsc_scale != new_desc->dsc_scale || 
+			 old_desc->dsc_length != new_desc->dsc_length  || 
+			 old_desc->dsc_sub_type != new_desc->dsc_sub_type || 
+			 old_desc->dsc_flags != new_desc->dsc_flags || 
+			 old_desc->dsc_address != new_desc->dsc_address)
+			return false;
+	
 	return true;
 }
 
@@ -3588,7 +3597,8 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 	offset = FLAG_BYTES(count);
 	count = 0;
 	
-	for (Format::fmt_desc_iterator desc2 = format->fmt_desc.begin(); count < format->fmt_count; count++, desc2++)
+	//for (Format::fmt_desc_iterator desc2 = format->fmt_desc.begin(); count < format->fmt_count; count++, desc2++)
+	for (dsc *desc2 = format->fmt_desc; count < format->fmt_count; ++count, ++desc2)
 		{
 		if (desc2->dsc_dtype & COMPUTED_FLAG)
 			{
@@ -3675,8 +3685,8 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 		OdsDesc *odsDescs = new OdsDesc [count];
 		OdsDesc *odsDesc = odsDescs;
 		
-		for (Format::fmt_desc_iterator desc = format->fmt_desc.begin();
-			 desc < format->fmt_desc.end(); ++desc, ++odsDesc)
+		//for (Format::fmt_desc_iterator desc = format->fmt_desc.begin(); desc < format->fmt_desc.end(); ++desc, ++odsDesc)
+		for (dsc *desc = format->fmt_desc, *end = desc + format->fmt_count; desc < end; ++desc, ++odsDesc)
 			{
 			odsDesc->dsc_dtype = desc->dsc_dtype;
 			odsDesc->dsc_length = desc->dsc_length;
@@ -3684,10 +3694,6 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 			odsDesc->dsc_flags = desc->dsc_flags;
 			odsDesc->dsc_scale = desc->dsc_scale;
 			odsDesc->dsc_offset = (ULONG) (long) desc->dsc_address;
-			/***
-			if (desc->dsc_address)
-				format->fmt_length = (long) desc->dsc_address + desc->dsc_length;
-			***/
 			}
 		
 		BLB_put_segment(tdbb, blob, (UCHAR*) odsDescs, count * sizeof (OdsDesc));

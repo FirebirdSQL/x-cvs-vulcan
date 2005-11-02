@@ -29,26 +29,35 @@
 #ifndef _FORMAT_H
 #define _FORMAT_H
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
-#include "../include/fb_vector.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
+//#include "../include/fb_vector.h"
 #include "../jrd/dsc.h"
 
 
 class Format
 {
 public:
-	Format(MemoryPool& p, int len);
+	Format(MemoryPool *p, const Format* format);
+	Format(MemoryPool *p, int len);
 	~Format(void);
 
-	USHORT fmt_length;
-	USHORT fmt_count;
-	USHORT fmt_version;
+	USHORT		fmt_length;
+	USHORT		fmt_count;
+	USHORT		fmt_version;
+	MemoryPool	*fmt_pool;
+	dsc			*fmt_desc;
 	
 	static Format* newFmt(MemoryPool& p, int len);
+
+	/***
 	firebird::vector<dsc> fmt_desc;
 	typedef firebird::vector<dsc>::iterator fmt_desc_iterator;
 	typedef firebird::vector<dsc>::const_iterator fmt_desc_const_iterator;
+	***/
+	void resize(int newSize);
+	void alloc(int size);
+	Format(int count);
 };
 
 #endif

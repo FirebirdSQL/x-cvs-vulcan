@@ -31,18 +31,57 @@
 #include "common.h"
 #include "Format.h"
 
-Format::Format(MemoryPool& p, int len) : fmt_desc(len, p, type_fmt)
+Format::Format(MemoryPool *p, int count) //: fmt_desc(len, p, type_fmt)
 {
+	fmt_pool = p;
 	fmt_length = 0;
-	fmt_count = len;
 	fmt_version = 0;
+	alloc(count);
+}
+
+
+Format::Format(int count)
+{
+	fmt_pool = NULL;
+	fmt_length = 0;
+	fmt_version = 0;
+	alloc(count);
+}
+
+Format::Format(MemoryPool *p, const Format* format)
+{
+	fmt_pool = p;
+	fmt_length = format->fmt_length;
+	fmt_version = format->fmt_version;
+	alloc(format->fmt_count);
+	memcpy(fmt_desc, format->fmt_desc, fmt_count * sizeof(fmt_desc[0]));
 }
 
 Format::~Format(void)
 {
+	delete [] fmt_desc;
 }
 
 Format* Format::newFmt(MemoryPool& p, int len)
 { 
-	return FB_NEW(p) Format(p, len); 
+	return FB_NEW(p) Format(&p, len); 
+}
+
+void Format::resize(int newSize)
+{
+	int n = MIN(fmt_count, newSize);
+	dsc *oldVector = fmt_desc;
+	alloc(newSize);
+	memcpy(fmt_desc, oldVector, n * sizeof(fmt_desc[0]));
+	delete [] fmt_desc;
+}
+
+void Format::alloc(int size)
+{
+	fmt_count = size;
+	
+	if (fmt_pool)
+		fmt_desc = new (fmt_pool) dsc[fmt_count];
+	else
+		fmt_desc = new dsc[fmt_count];
 }

@@ -535,16 +535,19 @@ void INI_init(thread_db* tdbb)
 		//VEC fields = relation->rel_fields = vec::newVector(*dbb->dbb_permanent, n);
 		//relation->rel_fields = fields = vec::newVector(*dbb->dbb_permanent, n);
 		//field = (JRD_FLD *) fields->vec_object;
+		
 		relation->rel_fields.checkSize(n - 1, n);
 		Format* format = Format::newFmt(*dbb->dbb_permanent, n);
+		
 		//relation->rel_current_format = format;
 		//VEC formats = relation->rel_formats =  vec::newVector(*dbb->dbb_permanent, 1);
 		//(*formats)[0] = format;
 		//relation->setFormat(format);
 		//format->fmt_count = n;
-		Format::fmt_desc_iterator desc = format->fmt_desc.begin();
+		//Format::fmt_desc_iterator desc = format->fmt_desc.begin();
 		//vec::iterator itr = fields->begin();
 		int fieldId = 0;
+		dsc *desc = format->fmt_desc;
 		
 		//for (fld = relfld + RFLD_RPT; fld[RFLD_F_NAME]; fld += RFLD_F_LENGTH, desc++, itr++, ++fieldId)
 		for (fld = relfld + RFLD_RPT; fld[RFLD_F_NAME]; fld += RFLD_F_LENGTH, desc++, ++fieldId)
@@ -646,7 +649,8 @@ void INI_init2(thread_db* tdbb)
 			relation->rel_fields.checkSize(n - 1, n);
 			format->fmt_count = n;
 			format->fmt_length = (USHORT)FLAG_BYTES(n);
-			Format::fmt_desc_iterator desc = format->fmt_desc.begin();
+			//Format::fmt_desc_iterator desc = format->fmt_desc.begin();
+			dsc *desc = format->fmt_desc;
 			
 			for (fld = relfld + RFLD_RPT; fld[RFLD_F_NAME]; fld += RFLD_F_LENGTH, desc++)
 				if (n-- > 0)
@@ -656,6 +660,7 @@ void INI_init2(thread_db* tdbb)
 
 					// In ODS11 length of RDB$MESSAGES are 
 					//	enlarged from 80 to 1023 bytes
+					
 					if ((fld[RFLD_F_NAME] == nam_msg) && (major_version < ODS_VERSION11))
 						desc->dsc_length = 80;
 					
