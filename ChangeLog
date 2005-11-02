@@ -1,3 +1,21 @@
+2005-11-01 15:37  dchri
+
+	* vulcan/test.txt:
+	
+	auto inc build number test
+
+2005-11-01 15:37  dchri
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-01 04:16  fsg
+
+	* vulcan/src/misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-10-31 19:01  jimstarkey
 
 	* vulcan/src/misc/writeBuildNum.sh:
