@@ -146,10 +146,11 @@ void Database::genSummary(void)
 	try
 		{
 		PStatement statement = connection->prepareStatement(
-			"select facility, max(number), count(*), max(max_number) as last_assigned " 
-			" from messages m, facilities f "
-			" where m.fac_code=f.fac_code "
-			" group by f.facility");
+			"select f.facility, max(m.number) as last_assigned,"
+			"       count(*), max(f.max_number) as next_number" 
+			"   from messages m"
+			"       join facilities f on m.fac_code=f.fac_code "
+			"    group by f.facility");
 		RSet resultSet = statement->executeQuery();
 		displayResults("Message Summary", resultSet);
 		}
@@ -254,9 +255,8 @@ void Database::addMessage(void)
 			statement->executeUpdate();
 			
 			statement = connection->prepareStatement(
-				"update facilities set max_number=? where fac_code=?");
-			statement->setInt(1, msgNumber + 1);
-			statement->setInt(2, facCode);
+				"update facilities set max_number=max_number + 1 where fac_code=?");
+			statement->setInt(1, facCode);
 			statement->executeUpdate();
 			
 			connection->commit();
