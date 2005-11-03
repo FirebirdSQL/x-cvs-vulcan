@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="IscDbc"
+	Name="FbDbc"
 	ProjectGUID="{2ACA2D51-B16E-413F-9E3F-7E6B5DD28A70}"
 	SccProjectName=""
 	SccLocalPath="">
@@ -40,11 +40,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile=".\Release/IscDbc.dll"
+				OutputFile="..\..\install\bin\fbdbc.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\install\lib"
-				ModuleDefinitionFile="IscDbc.def"
+				ModuleDefinitionFile="fbdbc.def"
 				ProgramDatabaseFile=".\Release/IscDbc.pdb"
 				ImportLibrary=".\Release/IscDbc.lib"
 				TargetMachine="1"/>
@@ -106,7 +106,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\install\bin\IscDbc.dll"
+				OutputFile="..\..\install\bin\fbdbc.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\install\lib"

@@ -675,9 +675,8 @@ install: <value name="file"/>
 <!--	Generic / IscDbc		-->
 
 <component name="IscDbc">
-<template name="target">libiscdbc.so</template>
-
-<template name="namespace"> -DNAMESPACE=iscdbc </template>
+<template name="target">libfbdbc.so</template>
+<template name="namespace"> -DNAMESPACE=fbdbc </template>
 
 <template name="SourceDirectories">
 DIRS = $(SRCDIR)/jrd \
@@ -730,7 +729,7 @@ DIRS = $(SRCDIR)/xload \
 </template>
 
 <template name="Libraries">
-    -lm -ldl -lfirebird -lpthread -liscdbc \
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
 </template>
 
 <template name="memmgr">
@@ -769,7 +768,7 @@ DIRS = $(SRCDIR)/lock \
 </template>
 
 <template name="Libraries">
-    -lm -ldl -lfirebird -lpthread -liscdbc \
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
 </template>
 
 <template name="memmgr">
@@ -806,7 +805,7 @@ DIRS = $(SRCDIR)/ThreadTest \
 </template>
 
 <template name="Libraries">
-    -lm -ldl -lfirebird -lpthread -liscdbc \
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
 </template>
 
 <template name="memmgr">
@@ -1182,7 +1181,7 @@ nothing:
 <component name="xload">
 
 <template name="Libraries">
-    -lm -ldl -lfirebird -lpthread -liscdbc \
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
 </template>
 
 </component>

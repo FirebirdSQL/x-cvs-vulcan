@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iscdbc.lib"
+				AdditionalDependencies="fbdbc.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
@@ -88,6 +88,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="fbdbc.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
