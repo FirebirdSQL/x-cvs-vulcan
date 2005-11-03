@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="MsgMgr" ProjectGUID="{67857939-CB57-46C5-8183-E800A7937858}" Keyword="MFCProj">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Debug|Win32" OutputDirectory="Debug" IntermediateDirectory="Debug" ConfigurationType="1" UseOfMFC="2" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/include;../../../src/IscDbc;../../../src/jrd" PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG" MinimalRebuild="TRUE" BasicRuntimeChecks="3" RuntimeLibrary="3" TreatWChar_tAsBuiltInType="TRUE" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="FALSE" DebugInformationFormat="3"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalDependencies="iscdbc.lib" LinkIncremental="2" AdditionalLibraryDirectories="..\..\..\install\lib" GenerateDebugInformation="TRUE" SubSystem="2" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" PreprocessorDefinitions="_DEBUG" MkTypLibCompatible="FALSE"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="1033" AdditionalIncludeDirectories="$(IntDir)"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Release|Win32" OutputDirectory="Release" IntermediateDirectory="Release" ConfigurationType="1" UseOfMFC="2" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" AdditionalIncludeDirectories="../../../src/include;../../../src/IscDbc;../../../src/jrd" PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG" MinimalRebuild="FALSE" RuntimeLibrary="2" TreatWChar_tAsBuiltInType="TRUE" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="FALSE" DebugInformationFormat="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" LinkIncremental="1" GenerateDebugInformation="FALSE" SubSystem="2" OptimizeReferences="2" EnableCOMDATFolding="2" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" PreprocessorDefinitions="NDEBUG" MkTypLibCompatible="FALSE"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="NDEBUG" Culture="1033" AdditionalIncludeDirectories="$(IntDir)"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="Source Files" Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+         <File RelativePath="..\..\..\src\MsgMgr\AddFacilityDialog.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\AddMsgDialog.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ChildFrm.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ConnectDialog.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\Database.cpp"/>
+         <File RelativePath="..\..\..\src\IscDbc\JString.cpp"/>
+         <File RelativePath="..\..\..\src\IscDbc\LinkedList.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ListHistoryDialog.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ListMsgsDialog.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MainFrm.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgr.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgrDoc.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgrView.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\PStatement.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\QueryDialog.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\RecentStringList.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ResultWindow.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\RSet.cpp"/>
+         <File RelativePath="..\..\..\src\IscDbc\SQLError.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\stdafx.cpp">
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCCLCompilerTool" UsePrecompiledHeader="1"/>
+            </FileConfiguration>
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCCLCompilerTool" UsePrecompiledHeader="1"/>
+            </FileConfiguration>
+         </File>
+         <File RelativePath="..\..\..\src\IscDbc\Stream.cpp"/>
+         <File RelativePath="..\..\..\src\MsgMgr\UpdateMsgDialog.cpp"/>
+      </Filter>
+      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl;inc;xsd" UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+         <File RelativePath="..\..\..\src\MsgMgr\AddFacilityDialog.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\AddMsgDialog.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ChildFrm.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ConnectDialog.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\Connection.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\Database.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\JString.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\LinkedList.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ListHistoryDialog.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ListMsgsDialog.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MainFrm.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgr.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgrDoc.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgrView.h"/>
+         <File RelativePath="..\..\..\src\jrd\PStatement.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\QueryDialog.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\RecentStringList.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\Resource.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\ResultWindow.h"/>
+         <File RelativePath="..\..\..\src\jrd\RSet.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\SQLError.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\SQLException.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\stdafx.h"/>
+         <File RelativePath="..\..\..\src\IscDbc\Stream.h"/>
+         <File RelativePath="..\..\..\src\MsgMgr\UpdateMsgDialog.h"/>
+      </Filter>
+      <Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx" UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+         <File RelativePath="..\..\..\src\MsgMgr\res\MsgMgr.ico"/>
+         <File RelativePath="..\..\..\src\MsgMgr\MsgMgr.rc"/>
+         <File RelativePath="..\..\..\src\MsgMgr\res\MsgMgr.rc2"/>
+         <File RelativePath="..\..\..\src\MsgMgr\res\MsgMgrDoc.ico"/>
+         <File RelativePath="..\..\..\src\MsgMgr\res\Toolbar.bmp"/>
+      </Filter>
+      <File RelativePath="..\..\..\src\MsgMgr\res\MsgMgr.manifest"/>
+      <File RelativePath="..\..\..\src\MsgMgr\ReadMe.txt"/>
+   </Files>
+   <Globals>
+      <Global Name="RESOURCE_FILE" Value="MsgMgr.rc"/>
+   </Globals>
+</VisualStudioProject>
