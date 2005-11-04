@@ -1,3 +1,103 @@
+2005-11-03 23:32  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-03 23:32  awharrison
+
+	* vulcan/src/IscDbc/Value.cpp:
+	
+	handle the case of a conversion from the lowest possible signed
+	quad to string.
+
+2005-11-03 22:38  awharrison
+
+	* vulcan/src/MsgMgr/Database.cpp:
+	
+	Fix a join to use the SQL-92 syntax and change an alias, per CVC
+
+2005-11-03 22:38  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-03 22:22  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
+	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	jrd/build_no.h, misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-03 22:22  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/IscDbc/IscDbc.vcproj,
+	builds/VisualStudio7/MsgExtract/MsgExtract.vcproj, vulcan.build,
+	builds/VisualStudio7/MsgMgr/MsgMgr.vcproj,
+	builds/VisualStudio7/XLoad/XLoad.vcproj, src/IscDbc/IscDbc.vcproj,
+	src/MsgExtract/MsgExtract.vcproj, src/MsgMgr/MsgMgr.vcproj:
+	
+	Switched the name of IscDbc to FbDbc to avoid conflict with the
+	Odbc driver
+
+2005-11-03 20:00  awharrison
+
+	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h:
+	
+	increment build number
+
+2005-11-03 20:00  awharrison
+
+	* vulcan/builds/VisualStudio7/intl/intl.vcproj:
+	
+	remove extra reference to version.rc
+
+2005-11-03 18:01  jimstarkey
+
+	* vulcan/builds/VisualStudio7/: MsgExtract/MsgExtract.vcproj,
+	MsgMgr/MsgMgr.vcproj:
+	
+	Change target location for MsgMgr and MsgExtract to install\bin
+
+2005-11-03 18:01  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-03 17:05  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-03 17:05  jimstarkey
+
+	* vulcan/builds/VisualStudio7/: MsgExtract/MsgExtract.vcproj,
+	MsgMgr/MsgMgr.vcproj:
+	
+	Added build projects for MsgMgr and MsgExtract
+
+2005-11-03 16:58  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-03 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-02 20:10  jimstarkey
 
 	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h,
