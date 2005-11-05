@@ -902,6 +902,12 @@ int Value::convert(QUAD value, int scale, char *string)
 {
 	UQUAD number;
 
+    if (value = 0)
+		{
+		strcpy (string, "0");
+		return (1);
+		}
+
 	if (scale < -18)
 		{
 		strcpy (string, "***");
