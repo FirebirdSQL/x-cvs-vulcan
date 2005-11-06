@@ -1142,9 +1142,7 @@ dsc Value::getDescriptor(void)
 
 int Value::convert(INT64 value, int scale, char *string)
 {
-	INT64 number = value;
-
-	if (number == 0)
+	if (value == 0)
 		{
 		strcpy (string, "0");
 		return 1;
@@ -1157,10 +1155,13 @@ int Value::convert(INT64 value, int scale, char *string)
 		}
 
 	bool negative = false;
+	UINT64 number;
 
-	if (number < 0)
+	if (value >= 0)
+		number = value
+	else
 		{
-		number = -number;
+		number = -value;
 		negative = true;
 		}
 
