@@ -1481,7 +1481,7 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 			return state;
 		}
 
-	/* If the transaction is a commited sub-transction - do the easy lookup. */
+	/* If the transaction is a commited sub-transaction - do the easy lookup. */
 
 	if (trans->tra_commit_sub_trans &&
 		UInt32Bitmap::test(trans->tra_commit_sub_trans, number))
@@ -1490,7 +1490,7 @@ int TRA_snapshot_state(thread_db* tdbb, Transaction* trans, SLONG number)
 	}
 
 	/* If the transaction is younger than we are and we are not read committed
-	   or the system transaction, the transacton must be considered active */
+	   or the system transaction, the transaction must be considered active */
 
 	if (number > trans->tra_top)
 		return tra_active;

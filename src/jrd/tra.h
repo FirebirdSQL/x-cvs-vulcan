@@ -104,9 +104,9 @@ public:
 	void connectionsCheckout(void);
 };
 
-//  System tranasction is always tranaction zero
+//  System transaction is always transaction zero
 
-#define TRA_system_transaction 0
+const SLONG TRA_system_transaction = 0;
 
 // Flag definitions
 
