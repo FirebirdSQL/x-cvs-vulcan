@@ -900,9 +900,7 @@ void Value::setValue(Clob * blob)
 
 int Value::convert(QUAD value, int scale, char *string)
 {
-	UQUAD number;
-
-    if (value = 0)
+    if (value == 0)
 		{
 		strcpy (string, "0");
 		return (1);
@@ -915,6 +913,7 @@ int Value::convert(QUAD value, int scale, char *string)
 		}
 
 	bool negative = false;
+	UQUAD number;
 
 	if (value >= 0)
 		number = value;
