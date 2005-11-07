@@ -1,3 +1,52 @@
+2005-11-06 08:05  robocop
+
+	* vulcan/src/jrd/tra.h:
+	
+	Totally misc.
+
+2005-11-06 08:05  robocop
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-06 07:44  robocop
+
+	* vulcan/src/jrd/Value.cpp:
+	
+	Fix wrong string output with the most negative value.
+
+2005-11-06 07:44  robocop
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-06 07:28  robocop
+
+	* vulcan/src/jrd/: tra.cpp, tra.h:
+	
+	Misc.
+
+2005-11-06 07:27  robocop
+
+	* vulcan/src/IscDbc/Value.cpp:
+	
+	Fix assignment that should be comparison instead.
+
+2005-11-06 07:27  robocop
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-06 04:16  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-05 21:45  awharrison
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
