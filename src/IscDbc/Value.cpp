@@ -455,8 +455,8 @@ char* Value::getString(char **tempPtr)
 			{
 			if (*tempPtr)
 				delete [] *tempPtr;
-			int length = data.blob->length();
-			*tempPtr = new char [length + 1];
+			uint64 length = data.blob->length();
+			*tempPtr = new char [(unsigned int) length + 1];
 			data.blob->getBytes (0, length, *tempPtr);
 			(*tempPtr) [length] = 0;
 			return *tempPtr;
@@ -466,9 +466,9 @@ char* Value::getString(char **tempPtr)
 			{
 			if (*tempPtr)
 				delete [] *tempPtr;
-			int length = data.clob->length();
-			*tempPtr = new char [length + 1];
-			data.clob->getSubString (0, length, *tempPtr);
+			uint64 length = data.clob->length();
+			*tempPtr = new char [(unsigned int) length + 1];
+			data.clob->getSubString (0, (unsigned int) length, *tempPtr);
 			(*tempPtr) [length] = 0;
 			return *tempPtr;
 			}

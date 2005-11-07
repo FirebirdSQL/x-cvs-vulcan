@@ -135,15 +135,15 @@ bool BinaryBlob::loadFile(const char * fileName)
 }
 ***/
 
-void BinaryBlob::getBytes(long pos, long length, void * address)
+void BinaryBlob::getBytes(uint64 pos, uint64 length, void * address)
 {
 	if (!populated)
 		populate();
 
-	Stream::getSegment (pos, length, address);
+	Stream::getSegment ((int) pos, (int) length, address);
 }
 
-int BinaryBlob::length()
+uint64 BinaryBlob::length()
 {
 	if (!populated)
 		populate();

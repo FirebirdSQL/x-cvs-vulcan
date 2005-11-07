@@ -26,7 +26,7 @@ IscBlob::~IscBlob()
 
 }
 
-int IscBlob::length()
+uint64 IscBlob::length()
 {
 	if (!fetched)
 		fetchBlob();

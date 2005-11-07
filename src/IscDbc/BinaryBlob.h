@@ -32,8 +32,8 @@ public:
 	virtual int getSegmentLength (int pos);
 	 BinaryBlob (Clob *blob);
 	void putSegment (int length, const char *data, bool copyFlag);
-	int length();
-	void getBytes (long pos, long length, void *address);
+	uint64 length();
+	void getBytes (uint64 pos, uint64 length, void *address);
 	 BinaryBlob (int minSegmentSize);
 	BinaryBlob();
 	virtual ~BinaryBlob();

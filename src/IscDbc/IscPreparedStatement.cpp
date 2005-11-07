@@ -91,7 +91,7 @@ int IscPreparedStatement::executeUpdate()
 	return updateCount;
 }
 
-void IscPreparedStatement::setBytes(int index, int length, const void* bytes)
+void IscPreparedStatement::setBytes(uint64 index, uint64 length, const void* bytes)
 {
 	BinaryBlob *blob = new BinaryBlob();
 	getParameter (index - 1)->setValue (blob);

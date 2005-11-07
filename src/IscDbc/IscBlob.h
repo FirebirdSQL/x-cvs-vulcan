@@ -23,7 +23,7 @@ public:
 	virtual char* getString();
 	void fetchBlob();
 	virtual int getSegment (int offset, int length, void *address);
-	virtual int length();
+	virtual uint64 length();
 	IscBlob(IscStatement *parentStatement, ISC_QUAD *id);
 	virtual ~IscBlob();
 

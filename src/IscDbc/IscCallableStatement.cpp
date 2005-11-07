@@ -130,7 +130,7 @@ int IscCallableStatement::executeUpdate()
 	return Parent::executeUpdate();
 }
 
-void IscCallableStatement::setBytes(int index, int length, const void* bytes)
+void IscCallableStatement::setBytes(uint64 index, uint64 length, const void* bytes)
 {
 	Parent::setBytes(index, length, bytes);
 }

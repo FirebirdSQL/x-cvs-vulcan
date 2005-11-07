@@ -9,13 +9,21 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
+#ifdef WIN32
+typedef __int64				int64;
+typedef unsigned __int64	uint64;
+#else
+typedef long long			int64;
+typedef unsigned long long	uint64;
+#endif
+
 class Blob
 {
 public:
 	virtual void	addRef() = 0;
 	virtual int		release() = 0;
-	virtual void	getBytes (long pos, long length, void *buffer) = 0;
-	virtual int		length() = 0;
+	virtual void	getBytes (uint64 pos, uint64 length, void *buffer) = 0;
+	virtual uint64	length() = 0;
 	virtual int		getSegmentLength (int pos) = 0;
 	virtual void	*getSegment (int pos) = 0;
 };
@@ -26,7 +34,7 @@ public:
 	virtual void	addRef() = 0;
 	virtual int		release() = 0;
 	virtual void	getSubString (long pos, long length, char *buffer) = 0;
-	virtual int		length() = 0;
+	virtual uint64	length() = 0;
 	virtual int		getSegmentLength (int pos) = 0;
 	virtual const char *getSegment (int pos) = 0;
 };
