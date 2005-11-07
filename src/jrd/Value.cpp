@@ -1157,8 +1157,8 @@ int Value::convert(INT64 value, int scale, char *string)
 	bool negative = false;
 	UINT64 number;
 
-	if (value >= 0)
-		number = value
+	if (value > 0)
+		number = value;
 	else
 		{
 		number = -value;
