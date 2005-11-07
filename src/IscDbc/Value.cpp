@@ -915,7 +915,7 @@ int Value::convert(QUAD value, int scale, char *string)
 	bool negative = false;
 	UQUAD number;
 
-	if (value >= 0)
+	if (value > 0)
 		number = value;
 	else 
 		{
