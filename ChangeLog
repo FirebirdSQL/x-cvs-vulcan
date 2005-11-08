@@ -1,3 +1,46 @@
+2005-11-07 20:13  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-07 20:13  jimstarkey
+
+	* vulcan/src/IscDbc/: AsciiBlob.cpp, AsciiBlob.h, BinaryBlob.cpp,
+	BinaryBlob.h, Blob.h, Connection.h, IscBlob.cpp, IscBlob.h,
+	IscCallableStatement.cpp, IscCallableStatement.h,
+	IscPreparedStatement.cpp, IscPreparedStatement.h, Value.cpp:
+	
+	Switched FbDbc to unsigned 64 bit integers for blob offset and
+	lengths.
+
+2005-11-07 19:33  awharrison
+
+	* vulcan/src/jrd/Value.cpp:
+	
+	Zero is handled explicity above, so testing for it here is very
+	slightly misleading.
+
+2005-11-07 19:31  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-07 19:31  awharrison
+
+	* vulcan/src/IscDbc/Value.cpp:
+	
+	Zero is handled explicitly above.  Including it in this comparision
+	is (very slightly) misleading
+
+2005-11-07 04:17  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-06 08:05  robocop
 
 	* vulcan/src/jrd/tra.h:
