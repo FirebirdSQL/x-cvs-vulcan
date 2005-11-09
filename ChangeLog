@@ -1,3 +1,21 @@
+2005-11-09 01:35  arnobrinkman
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-09 01:35  arnobrinkman
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Fix problem with sub-queries/derived tables in the HAVING clause
+
+2005-11-08 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-07 20:13  jimstarkey
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
