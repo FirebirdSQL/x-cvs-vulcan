@@ -1018,6 +1018,7 @@ static void add_relation_fields(thread_db* tdbb,  USHORT minor_version)
 	Request* s_handle = NULL;
 	Request* m_handle = NULL;
 	const UCHAR*	fld;
+	
 #ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "add_relation_fields");
 	sync.lock(Exclusive);

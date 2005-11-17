@@ -381,7 +381,9 @@ Format* Relation::getFormat(thread_db* tdbb, int formatVersion)
 #ifdef SHARED_CACHE
 	sync.unlock();
 #endif
+
 	format = MET_format(tdbb, this, formatVersion);
+	
 #ifdef SHARED_CACHE
 	sync.lock(Exclusive);
 #endif

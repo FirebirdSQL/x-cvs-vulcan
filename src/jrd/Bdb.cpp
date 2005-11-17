@@ -238,7 +238,6 @@ void Bdb::release(thread_db* tdbb)
 	
 	if (tdbb)
 		tdbb->clearBdb (this);
-
 }
 
 INTERLOCK_TYPE Bdb::incrementUseCount(void)

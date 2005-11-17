@@ -5398,7 +5398,7 @@ static void process_map(thread_db* tdbb, CompilerScratch* csb, JRD_NOD map, Form
 	format->fmt_length = (USHORT) FLAG_BYTES(format->fmt_count);
 	//Format::fmt_desc_iterator desc3, end_desc;
 
-	for (dsc *desc3 = format->fmt_desc, *end_desc = desc + format->fmt_count; desc3 < end_desc; desc3++) 
+	for (dsc *desc3 = format->fmt_desc, *end_desc = desc3 + format->fmt_count; desc3 < end_desc; desc3++) 
 		{
 		USHORT align = type_alignments[desc3->dsc_dtype];
 		

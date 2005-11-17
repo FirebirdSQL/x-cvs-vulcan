@@ -29,11 +29,13 @@
 #endif
 
 #include <stdio.h>
+
 #if defined(MVS) || defined(__VMS)
 #include <stdlib.h>
 #else
 #include <malloc.h>
 #endif
+
 #include <memory.h>
 #include "fbdev.h"
 #include "common.h"
@@ -48,6 +50,12 @@
 static Mutex				defaultMemMgrMutex;
 static NAMESPACE::MemMgr	*defaultMemoryManager;
 
+/*** emergency debugging stuff
+static const char	*lastFileName;
+static int			lastLine;
+static void			*lastBlock;
+static void			*stopAddress = (void*) 0x2254938;
+***/
 
 static const int guardBytes = sizeof(long); // * 2048;
 
@@ -212,7 +220,9 @@ MemMgr::~MemMgr(void)
 MemBlock* MemMgr::alloc(int length)
 {
 	Sync sync (&mutex, "MemMgr::alloc");
-	if (threadShared) sync.lock(Exclusive);
+	
+	if (threadShared) 
+		sync.lock(Exclusive);
 	
 	// If this is a small block, look for it there
 	
@@ -222,33 +232,28 @@ MemBlock* MemMgr::alloc(int length)
 		MemBlock *block;
 		
 		if (threadShared)
-			{
 			while (block = freeObjects [slot])
 				{
 				if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, block, (void *)block->pool))
 					{
 #ifdef MEM_DEBUG
 					if (slot != (-block->length) / roundingSize)
-						{
-						corrupt ("lenght trashed for block in slot");
-						}
+						corrupt ("length trashed for block in slot");
 #endif
 					return block;
 					}
 				}
-			}
 		else
 			{
 			block = freeObjects [slot];
+			
 			if (block)
 				{
 				freeObjects[slot] = (MemBlock *)block->pool;
 
 #ifdef MEM_DEBUG
 				if (slot != (-block->length) / roundingSize)
-					{
-					corrupt ("lenght trashed for block in slot");
-					}
+					corrupt ("length trashed for block in slot");
 #endif
 				return block;
 				}
@@ -428,7 +433,7 @@ void* MemMgr::allocateDebug(int size, const char* fileName, int line)
 	memset (&memory->body + size, GUARD_BYTE, ABS(memory->length) - size - OFFSET(MemBlock*,body));
 	++blocksAllocated;
 	++blocksActive;
-	
+
 	return &memory->body;
 }
 
@@ -459,7 +464,6 @@ void MemMgr::releaseBlock(MemBlock *block)
 	--blocksActive;
 	int length = block->length;
 
-	
 	// If length is negative, this is a small block
 	
 	if (length < 0)
@@ -470,23 +474,28 @@ void MemMgr::releaseBlock(MemBlock *block)
 
 		if (threadShared)
 			for (int slot = -length / roundingSize;;)
-			{
-			void *next = freeObjects [slot];
-			block->pool = (MemMgr*) next;
-			if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, next, block))
-				return;
-			}
+				{
+				void *next = freeObjects [slot];
+				block->pool = (MemMgr*) next;
+				
+				if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, next, block))
+					return;
+				}
 
 		int slot = -length / roundingSize;
 		void *next = freeObjects [slot];
 		block->pool = (MemMgr*) next;
 		freeObjects[slot] = block;
+		
 		return;
 		}
 	
 	// OK, this is a large block.  Try recombining with neighbors
+	
 	Sync sync (&mutex, "MemMgr::release");
-	if (threadShared) sync.lock(Exclusive);
+	
+	if (threadShared) 
+		sync.lock(Exclusive);
 
 #ifdef MEM_DEBUG
 	memset (&block->body, DELETE_BYTE, length - OFFSET(MemBlock*, body));
@@ -720,4 +729,13 @@ void* MemMgr::allocate(int size, int type, const char* fileName, int line)
 void MemMgr::deletePool(MemMgr* pool)
 {
 	delete pool;
+}
+
+void MemMgr::validate(void)
+{
+	int slot = 3;
+	
+	for (MemBlock *block = freeObjects [slot]; block; block = (MemBlock*) block->pool)
+		if (slot != (-block->length) / roundingSize)
+			corrupt ("length trashed for block in slot");
 }
