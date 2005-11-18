@@ -30,19 +30,20 @@ class TempSpace
 {
 public:
 	TempSpace(void);
+	TempSpace(int length);
+	TempSpace(int initialSize, void* initial);
 	virtual ~TempSpace(void);
 	
 	UCHAR	*space;
-	UCHAR	*initialSpace;
-	int		size;				// allocated space
 	int		length;				// effective length (length <= size)
-	int		increment;
-	
+
 	UCHAR *resize(int newLength, bool copy = false);
-	TempSpace(int length);
 	void addByte(UCHAR data);
 	void addBytes(int numberBytes, const UCHAR* data);
-	TempSpace(int initialSize, void* initial);
+private:
+	UCHAR	*initialSpace;
+	int		size;				// allocated space
+	int		increment;
 };
 
 #endif

@@ -86,7 +86,7 @@ UCHAR* TempSpace::resize(int newLength, bool copy)
 void TempSpace::addByte(UCHAR data)
 {
 	if (length + 1 >= size)
-		resize (MAX(size+increment, length + 1));
+		resize (MAX(size + increment, length + 1));
 
 	space[length++] = data;
 }
@@ -94,7 +94,7 @@ void TempSpace::addByte(UCHAR data)
 void TempSpace::addBytes(int numberBytes, const UCHAR* data)
 {
 	if (length + numberBytes >= size)
-		resize(MAX(size+increment, length + numberBytes));
+		resize(MAX(size + increment, length + numberBytes));
 	
 	memcpy(space + length, data, numberBytes);
 	length += numberBytes;

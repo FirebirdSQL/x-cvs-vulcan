@@ -731,11 +731,11 @@ void MemMgr::deletePool(MemMgr* pool)
 	delete pool;
 }
 
-void MemMgr::validate(void)
+void MemMgr::validate(void) const
 {
 	int slot = 3;
 	
-	for (MemBlock *block = freeObjects [slot]; block; block = (MemBlock*) block->pool)
+	for (const MemBlock *block = freeObjects [slot]; block; block = (MemBlock*) block->pool)
 		if (slot != (-block->length) / roundingSize)
 			corrupt ("length trashed for block in slot");
 }
