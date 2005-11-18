@@ -1,3 +1,22 @@
+2005-11-18 00:30  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-18 00:30  jimstarkey
+
+	* vulcan/src/jrd/: Bdb.cpp, MemMgr.cpp, MemMgr.h, Relation.cpp,
+	cmp.cpp, ini.epp:
+	
+	A number of fixes, including a memory overrun in cmp.cpp
+
+2005-11-17 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-16 04:16  fsg
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
