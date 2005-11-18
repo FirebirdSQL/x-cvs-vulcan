@@ -731,7 +731,7 @@ void MemMgr::deletePool(MemMgr* pool)
 	delete pool;
 }
 
-void MemMgr::validate(void) const
+void MemMgr::validate(void)
 {
 	int slot = 3;
 	

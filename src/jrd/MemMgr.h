@@ -165,7 +165,7 @@ public:
 	static void deallocate(void* block);
 	void* allocate(int size, int type);
 	void* allocate(int size, int type, const char* fileName, int line);
-	void validate(void) const;
+	void validate(void);
 };
 
 END_NAMESPACE
