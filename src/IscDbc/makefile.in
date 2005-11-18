@@ -1,118 +1,220 @@
 AsciiBlob.o: AsciiBlob.cpp Engine.h JString.h AsciiBlob.h Blob.h Stream.h \
   BinaryBlob.h
 Attachment.o: Attachment.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h Attachment.h Mutex.h SQLError.h SQLException.h Parameters.h \
-  Properties.h IscConnection.h Connection.h Blob.h LinkedList.h
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h Attachment.h \
+  Mutex.h SQLError.h SQLException.h Parameters.h Properties.h \
+  IscConnection.h Connection.h Blob.h LinkedList.h ../jrd/PBGen.h \
+  ../jrd/Generate.h
 BinaryBlob.o: BinaryBlob.cpp Engine.h JString.h BinaryBlob.h Blob.h \
   Stream.h AsciiBlob.h
 Blob.o: Blob.cpp IscDbc.h ../jrd/ibase.h ../include/fb_types.h \
-  ../jrd/blr.h ../include/gen/iberror.h JString.h JavaType.h Blob.h
+  ../jrd/blr.h ../include/gen/iberror.h ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h JString.h \
+  JavaType.h Blob.h
 DateTime.o: DateTime.cpp Engine.h JString.h DateTime.h SQLError.h \
   SQLException.h
 Error.o: Error.cpp Engine.h JString.h Error.h SQLError.h SQLException.h
+Generate.o: ../jrd/Generate.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/Generate.h
 IscBlob.o: IscBlob.cpp IscDbc.h ../jrd/ibase.h ../include/fb_types.h \
-  ../jrd/blr.h ../include/gen/iberror.h JString.h JavaType.h IscBlob.h \
-  BinaryBlob.h Blob.h Stream.h Connection.h Properties.h SQLException.h \
-  IscResultSet.h LinkedList.h Values.h DateTime.h TimeStamp.h \
-  IscStatement.h Sqlda.h IscConnection.h SQLError.h
+  ../jrd/blr.h ../include/gen/iberror.h ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h JString.h \
+  JavaType.h IscBlob.h BinaryBlob.h Blob.h Stream.h Connection.h \
+  Properties.h SQLException.h IscResultSet.h LinkedList.h Values.h \
+  DateTime.h TimeStamp.h IscStatement.h Sqlda.h IscConnection.h \
+  SQLError.h
 IscCallableStatement.o: IscCallableStatement.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscCallableStatement.h Connection.h Blob.h Properties.h \
-  SQLException.h IscPreparedStatement.h IscStatement.h LinkedList.h \
-  Sqlda.h Values.h DateTime.h TimeStamp.h IscConnection.h Value.h Types.h \
-  Stream.h SQLError.h
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscCallableStatement.h Connection.h Blob.h Properties.h SQLException.h \
+  IscPreparedStatement.h IscStatement.h LinkedList.h Sqlda.h Values.h \
+  DateTime.h TimeStamp.h IscConnection.h Value.h Types.h Stream.h \
+  SQLError.h
 IscColumnsResultSet.o: IscColumnsResultSet.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscColumnsResultSet.h IscMetaDataResultSet.h IscResultSet.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscColumnsResultSet.h IscMetaDataResultSet.h IscResultSet.h \
   Connection.h Blob.h Properties.h SQLException.h LinkedList.h Values.h \
   DateTime.h TimeStamp.h IscConnection.h IscDatabaseMetaData.h \
   IscPreparedStatement.h IscStatement.h Sqlda.h IscBlob.h BinaryBlob.h \
   Stream.h IscSqlType.h
 IscConnection.o: IscConnection.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscConnection.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h SQLError.h IscCallableStatement.h \
-  IscPreparedStatement.h IscStatement.h Sqlda.h Values.h DateTime.h \
-  TimeStamp.h IscDatabaseMetaData.h Parameters.h Attachment.h Mutex.h
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscConnection.h Connection.h Blob.h Properties.h SQLException.h \
+  LinkedList.h SQLError.h IscCallableStatement.h IscPreparedStatement.h \
+  IscStatement.h Sqlda.h Values.h DateTime.h TimeStamp.h \
+  IscDatabaseMetaData.h Parameters.h Attachment.h Mutex.h
 IscCrossReferenceResultSet.o: IscCrossReferenceResultSet.cpp IscDbc.h \
   ../jrd/ibase.h ../include/fb_types.h ../jrd/blr.h \
-  ../include/gen/iberror.h JString.h JavaType.h \
+  ../include/gen/iberror.h ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
   IscCrossReferenceResultSet.h IscMetaDataResultSet.h IscResultSet.h \
   Connection.h Blob.h Properties.h SQLException.h LinkedList.h Values.h \
   DateTime.h TimeStamp.h
 IscDatabaseMetaData.o: IscDatabaseMetaData.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscDatabaseMetaData.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h IscConnection.h Attachment.h Mutex.h \
-  SQLError.h IscResultSet.h Values.h DateTime.h TimeStamp.h \
-  IscTablesResultSet.h IscMetaDataResultSet.h IscColumnsResultSet.h \
-  IscIndexInfoResultSet.h IscPrimaryKeysResultSet.h \
-  IscCrossReferenceResultSet.h IscProceduresResultSet.h \
-  IscProcedureColumnsResultSet.h
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscDatabaseMetaData.h Connection.h Blob.h Properties.h SQLException.h \
+  LinkedList.h IscConnection.h Attachment.h Mutex.h SQLError.h \
+  IscResultSet.h Values.h DateTime.h TimeStamp.h IscTablesResultSet.h \
+  IscMetaDataResultSet.h IscColumnsResultSet.h IscIndexInfoResultSet.h \
+  IscPrimaryKeysResultSet.h IscCrossReferenceResultSet.h \
+  IscProceduresResultSet.h IscProcedureColumnsResultSet.h
 IscIndexInfoResultSet.o: IscIndexInfoResultSet.cpp IscDbc.h \
   ../jrd/ibase.h ../include/fb_types.h ../jrd/blr.h \
-  ../include/gen/iberror.h JString.h JavaType.h IscIndexInfoResultSet.h \
-  IscMetaDataResultSet.h IscResultSet.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h Values.h DateTime.h TimeStamp.h
+  ../include/gen/iberror.h ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscIndexInfoResultSet.h IscMetaDataResultSet.h IscResultSet.h \
+  Connection.h Blob.h Properties.h SQLException.h LinkedList.h Values.h \
+  DateTime.h TimeStamp.h
 IscMetaDataResultSet.o: IscMetaDataResultSet.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscMetaDataResultSet.h IscResultSet.h Connection.h Blob.h \
-  Properties.h SQLException.h LinkedList.h Values.h DateTime.h \
-  TimeStamp.h IscDatabaseMetaData.h SQLError.h IscConnection.h Value.h \
-  Types.h Stream.h
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscMetaDataResultSet.h IscResultSet.h Connection.h Blob.h Properties.h \
+  SQLException.h LinkedList.h Values.h DateTime.h TimeStamp.h \
+  IscDatabaseMetaData.h SQLError.h IscConnection.h Value.h Types.h \
+  Stream.h
 IscPreparedStatement.o: IscPreparedStatement.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscPreparedStatement.h Connection.h Blob.h Properties.h \
-  SQLException.h IscStatement.h LinkedList.h Sqlda.h Values.h SQLError.h \
-  IscResultSet.h DateTime.h TimeStamp.h IscConnection.h BinaryBlob.h \
-  Stream.h AsciiBlob.h Value.h Types.h IscStatementMetaData.h
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscPreparedStatement.h Connection.h Blob.h Properties.h SQLException.h \
+  IscStatement.h LinkedList.h Sqlda.h Values.h SQLError.h IscResultSet.h \
+  DateTime.h TimeStamp.h IscConnection.h BinaryBlob.h Stream.h \
+  AsciiBlob.h Value.h Types.h IscStatementMetaData.h
 IscPrimaryKeysResultSet.o: IscPrimaryKeysResultSet.cpp IscDbc.h \
   ../jrd/ibase.h ../include/fb_types.h ../jrd/blr.h \
-  ../include/gen/iberror.h JString.h JavaType.h IscPrimaryKeysResultSet.h \
-  IscMetaDataResultSet.h IscResultSet.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h Values.h DateTime.h TimeStamp.h
+  ../include/gen/iberror.h ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscPrimaryKeysResultSet.h IscMetaDataResultSet.h IscResultSet.h \
+  Connection.h Blob.h Properties.h SQLException.h LinkedList.h Values.h \
+  DateTime.h TimeStamp.h
 IscProcedureColumnsResultSet.o: IscProcedureColumnsResultSet.cpp IscDbc.h \
   ../jrd/ibase.h ../include/fb_types.h ../jrd/blr.h \
-  ../include/gen/iberror.h JString.h JavaType.h \
+  ../include/gen/iberror.h ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
   IscProcedureColumnsResultSet.h IscMetaDataResultSet.h IscResultSet.h \
   Connection.h Blob.h Properties.h SQLException.h LinkedList.h Values.h \
   DateTime.h TimeStamp.h IscSqlType.h
 IscProceduresResultSet.o: IscProceduresResultSet.cpp IscDbc.h \
   ../jrd/ibase.h ../include/fb_types.h ../jrd/blr.h \
-  ../include/gen/iberror.h JString.h JavaType.h IscProceduresResultSet.h \
-  IscMetaDataResultSet.h IscResultSet.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h Values.h DateTime.h TimeStamp.h
-IscResultSet.o: IscResultSet.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscResultSet.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h Values.h DateTime.h TimeStamp.h \
-  IscStatement.h Sqlda.h IscResultSetMetaData.h IscBlob.h BinaryBlob.h \
-  Stream.h IscConnection.h SQLError.h Value.h Types.h
-IscResultSetMetaData.o: IscResultSetMetaData.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscResultSetMetaData.h Connection.h Blob.h Properties.h \
-  SQLException.h IscResultSet.h LinkedList.h Values.h DateTime.h \
-  TimeStamp.h SQLError.h Sqlda.h
-IscSqlType.o: IscSqlType.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscSqlType.h
-IscStatement.o: IscStatement.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscStatement.h Connection.h Blob.h Properties.h \
-  SQLException.h LinkedList.h Sqlda.h IscResultSet.h Values.h DateTime.h \
-  TimeStamp.h IscConnection.h IscBlob.h BinaryBlob.h Stream.h SQLError.h \
-  Value.h Types.h
-IscStatementMetaData.o: IscStatementMetaData.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscStatementMetaData.h Connection.h Blob.h Properties.h \
-  SQLException.h IscPreparedStatement.h IscStatement.h LinkedList.h \
-  Sqlda.h Values.h
-IscTablesResultSet.o: IscTablesResultSet.cpp IscDbc.h ../jrd/ibase.h \
-  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h JString.h \
-  JavaType.h IscTablesResultSet.h IscMetaDataResultSet.h IscResultSet.h \
+  ../include/gen/iberror.h ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscProceduresResultSet.h IscMetaDataResultSet.h IscResultSet.h \
   Connection.h Blob.h Properties.h SQLException.h LinkedList.h Values.h \
-  DateTime.h TimeStamp.h IscConnection.h IscDatabaseMetaData.h \
+  DateTime.h TimeStamp.h
+IscResultSet.o: IscResultSet.cpp IscDbc.h ../jrd/ibase.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscResultSet.h Connection.h Blob.h Properties.h SQLException.h \
+  LinkedList.h Values.h DateTime.h TimeStamp.h IscStatement.h Sqlda.h \
+  IscResultSetMetaData.h IscBlob.h BinaryBlob.h Stream.h IscConnection.h \
+  SQLError.h Value.h Types.h
+IscResultSetMetaData.o: IscResultSetMetaData.cpp IscDbc.h ../jrd/ibase.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscResultSetMetaData.h Connection.h Blob.h Properties.h SQLException.h \
+  IscResultSet.h LinkedList.h Values.h DateTime.h TimeStamp.h SQLError.h \
+  Sqlda.h
+IscSqlType.o: IscSqlType.cpp IscDbc.h ../jrd/ibase.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h IscSqlType.h
+IscStatement.o: IscStatement.cpp IscDbc.h ../jrd/ibase.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscStatement.h Connection.h Blob.h Properties.h SQLException.h \
+  LinkedList.h Sqlda.h IscResultSet.h Values.h DateTime.h TimeStamp.h \
+  IscConnection.h IscBlob.h BinaryBlob.h Stream.h SQLError.h Value.h \
+  Types.h
+IscStatementMetaData.o: IscStatementMetaData.cpp IscDbc.h ../jrd/ibase.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscStatementMetaData.h Connection.h Blob.h Properties.h SQLException.h \
+  IscPreparedStatement.h IscStatement.h LinkedList.h Sqlda.h Values.h
+IscTablesResultSet.o: IscTablesResultSet.cpp IscDbc.h ../jrd/ibase.h \
+  ../include/fb_types.h ../jrd/blr.h ../include/gen/iberror.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h JString.h JavaType.h \
+  IscTablesResultSet.h IscMetaDataResultSet.h IscResultSet.h Connection.h \
+  Blob.h Properties.h SQLException.h LinkedList.h Values.h DateTime.h \
+  TimeStamp.h IscConnection.h IscDatabaseMetaData.h \
   IscPreparedStatement.h IscStatement.h Sqlda.h IscBlob.h BinaryBlob.h \
   Stream.h
 JString.o: JString.cpp JString.h
@@ -122,10 +224,21 @@ Mutex.o: Mutex.cpp Mutex.h
 Parameter.o: Parameter.cpp Parameter.h
 Parameters.o: Parameters.cpp Engine.h JString.h Parameters.h Properties.h \
   Parameter.h
+PBGen.o: ../jrd/PBGen.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/PBGen.h \
+  ../jrd/Generate.h
 Sqlda.o: Sqlda.cpp IscDbc.h ../jrd/ibase.h ../include/fb_types.h \
-  ../jrd/blr.h ../include/gen/iberror.h JString.h JavaType.h Sqlda.h \
-  SQLError.h SQLException.h Value.h Types.h TimeStamp.h DateTime.h \
-  Stream.h Blob.h IscConnection.h Connection.h Properties.h LinkedList.h
+  ../jrd/blr.h ../include/gen/iberror.h ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h JString.h \
+  JavaType.h Sqlda.h SQLError.h SQLException.h Value.h Types.h \
+  TimeStamp.h DateTime.h Stream.h Blob.h IscConnection.h Connection.h \
+  Properties.h LinkedList.h
 SQLError.o: SQLError.cpp Engine.h JString.h SQLError.h SQLException.h \
   Stream.h
 Stream.o: Stream.cpp Engine.h JString.h Stream.h SQLError.h \
