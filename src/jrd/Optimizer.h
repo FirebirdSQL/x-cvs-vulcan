@@ -34,7 +34,7 @@
 //#define OPT_DEBUG
 
 #ifdef OPT_DEBUG
-#define OPTIMIZER_DEBUG_FILE "opt_debug.out"
+#define OPTIMIZER_DEBUG_FILE "OPT_debug.out"
 #endif
 
 
@@ -45,14 +45,17 @@
 #include "../jrd/exe.h"
 #include "CompilerScratch.h"
 
+// AB: 2005-11-05
+// Constants below needs some discussions and ideas
 const double REDUCE_SELECTIVITY_FACTOR_BETWEEN = 0.2;
 const double REDUCE_SELECTIVITY_FACTOR_LESS = 0.5;
 const double REDUCE_SELECTIVITY_FACTOR_GREATER = 0.5;
-const double REDUCE_SELECTIVITY_FACTOR_STARTING = 0.8;
-
-const int SELECTIVITY_THRESHOLD_FACTOR_ADD = 10;
+const double REDUCE_SELECTIVITY_FACTOR_STARTING = 0.01;
 
 const double MAXIMUM_SELECTIVITY = 1.0;
+
+// Default (Minimum) cost (nr. of pages) for an index.
+const int DEFAULT_INDEX_COST = 1;
 
 
 class jrd_nod;
@@ -60,18 +63,18 @@ struct index_desc;
 class OptimizerBlk;
 class Relation;
 
-bool opt_computable(CompilerScratch*, jrd_nod*, SSHORT, bool, bool);
+bool OPT_computable(CompilerScratch*, jrd_nod*, SSHORT, bool, bool);
 
 #ifdef EXPRESSION_INDICES
-bool opt_expression_equal(thread_db*, OptimizerBlk*, const index_desc*,
+bool OPT_expression_equal(thread_db*, OptimizerBlk*, const index_desc*,
 							 jrd_nod*, USHORT);
-bool opt_expression_equal2(thread_db*, OptimizerBlk*, jrd_nod*,
+bool OPT_expression_equal2(thread_db*, OptimizerBlk*, jrd_nod*,
 							  jrd_nod*, USHORT);
 #endif
 
-double opt_getRelationCardinality(thread_db*, Relation*,const Format*);
-str* opt_make_alias(thread_db*, CompilerScratch*, CompilerScratch::csb_repeat*);
-jrd_nod* opt_make_binary_node(thread_db*, NOD_T, jrd_nod*, jrd_nod*, bool);
+double OPT_getRelationCardinality(thread_db*, Relation*,const Format*);
+str* OPT_make_alias(thread_db*, CompilerScratch*, CompilerScratch::csb_repeat*);
+jrd_nod* OPT_make_binary_node(thread_db*, NOD_T, jrd_nod*, jrd_nod*, bool);
 //USHORT nav_rsb_size(RecordSource*, USHORT, USHORT);
 
 inline int STREAM_INDEX(const jrd_nod* node)
@@ -117,7 +120,7 @@ public:
 class IndexScratch 
 {
 public:
-	IndexScratch(MemoryPool& p, index_desc* idx);
+	IndexScratch(MemoryPool& p, thread_db* tdbb, index_desc* idx, CompilerScratch::csb_repeat* csb_tail);
 	IndexScratch(MemoryPool& p, IndexScratch* scratch);
 	~IndexScratch();
 
@@ -128,6 +131,10 @@ public:
 	int lowerCount;					//
 	int upperCount;					//
 	int nonFullMatchedSegments;		//
+	double cardinality;				// Estimated cardinality when using the whole index
+
+	bool excludeLower;				//  
+	bool excludeUpper;				//
 
 	firebird::Array<IndexScratchSegment*> segments;
 };
@@ -140,6 +147,7 @@ public:
 	InversionCandidate(MemoryPool& p);
 
 	double			selectivity;
+	double			cost;
 	USHORT			nonFullMatchedSegments;
 	USHORT			matchedSegments;
 	int				indexes;
@@ -181,6 +189,13 @@ protected:
 	bool matchBoolean(IndexScratch* indexScratch, jrd_nod* boolean, USHORT scope) const;
 	InversionCandidate* matchOnIndexes(IndexScratchList* indexScratches,
 		jrd_nod* boolean, USHORT scope) const;
+
+#ifdef OPT_DEBUG_RETRIEVAL
+	void printCandidate(const InversionCandidate* candidate) const;
+	void printCandidates(const InversionCandidateList* inversions) const;
+	void printFinalCandidate(const InversionCandidate* candidate) const;
+#endif
+
 	bool validateStarts(IndexScratch* indexScratch, jrd_nod* boolean, USHORT segment) const;
 private:
 	MemoryPool& pool;
@@ -255,8 +270,11 @@ protected:
 		InnerJoinStreamInfo* testStream);
 	InnerJoinStreamInfo* getStreamInfo(int stream);
 #ifdef OPT_DEBUG
-	void printFoundOrder(int position, double cost, double cardinality) const;
+	void printBestOrder() const;
+	void printFoundOrder(int position, double positionCost, 
+		double positionCardinality, double cost, double cardinality) const;
 	void printProcessList(const IndexedRelationships* processList, int stream) const;
+	void printStartOrder() const;
 #endif
 
 private:
