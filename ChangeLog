@@ -1,3 +1,21 @@
+2005-11-19 17:30  arnobrinkman
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-19 17:30  arnobrinkman
+
+	* vulcan/src/jrd/: Optimizer.cpp, Optimizer.h, btr.h, opt.cpp:
+	
+	Synchronize optimizer changes between FB2-head and Vulcan
+
+2005-11-19 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-18 22:04  jimstarkey
 
 	* vulcan/src/IscDbc/makefile.in:
