@@ -46,7 +46,7 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
 				ProgramDatabaseFile=".\Release/IscDbc.pdb"
-				ImportLibrary="..\..\..\install\lib\IscDbc.lib"
+				ImportLibrary="..\..\..\install\lib\fbdbc.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -113,7 +113,7 @@
 				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/IscDbc.pdb"
-				ImportLibrary="..\..\..\install\lib\$(TargetName).lib"
+				ImportLibrary="..\..\..\install\lib\fbdbc.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
