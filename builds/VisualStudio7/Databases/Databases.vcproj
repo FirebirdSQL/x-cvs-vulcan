@@ -46,6 +46,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\deploy"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1">
 			<Tool
 				Name="VCCLCompilerTool"/>
@@ -93,6 +94,13 @@
 					AdditionalDependencies=""
 					Outputs="$(vulcan)\help\help.fdb"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="..\..\..\install\bin\gbak -replace  $(InputPath) help.fdb"
+					Outputs="$(vulcan)\help\help.fdb"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\..\..\src\msgs\msg.gbak">
@@ -103,6 +111,13 @@
 					CommandLine="..\..\..\install\bin\gbak -r  $(InputPath) msg.fdb
 "
 					AdditionalDependencies=""
+					Outputs="$(vulcan)\databases\msg.fdb"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="..\..\..\install\bin\gbak -r  $(InputPath) msg.fdb"
 					Outputs="$(vulcan)\databases\msg.fdb"/>
 			</FileConfiguration>
 		</File>

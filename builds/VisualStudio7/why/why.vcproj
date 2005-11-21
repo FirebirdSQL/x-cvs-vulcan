@@ -905,6 +905,13 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\dsql\blob.epp">
@@ -914,6 +921,13 @@
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre  -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>

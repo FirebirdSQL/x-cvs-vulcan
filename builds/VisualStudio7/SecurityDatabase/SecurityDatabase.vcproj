@@ -89,6 +89,13 @@
 "
 					Outputs="..\..\..\install\security.fdb"/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="..\..\..\install\bin\gbak -r $(InputPath) security.fdb"
+					Outputs="..\..\..\install\security.fdb"/>
+			</FileConfiguration>
 		</File>
 	</Files>
 	<Globals>

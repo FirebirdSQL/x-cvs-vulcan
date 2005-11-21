@@ -120,7 +120,7 @@
 				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Release/jrd.pdb"
-				ImportLibrary="..\..\..\src\jrd\Release\jrd.lib"
+				ImportLibrary=".\Release/engine11.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -2217,6 +2217,14 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\dpm.epp">
@@ -2225,6 +2233,14 @@
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -2239,6 +2255,14 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\dyn_def.epp">
@@ -2247,6 +2271,14 @@
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -n -gds  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -2261,6 +2293,14 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\dyn_mod.epp">
@@ -2269,6 +2309,14 @@
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -2283,6 +2331,14 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\envelope.epp">
@@ -2291,6 +2347,14 @@
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -2305,6 +2369,14 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\grant.epp">
@@ -2316,11 +2388,27 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\ini.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
@@ -2338,11 +2426,29 @@
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\dsql\parse.y">
 					<FileConfiguration
 						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
+move dsql.tab.c  $(InputDir)\parse.cpp
+move dsql.tab.h  $(InputDir)\parse.h
+"
+							Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
@@ -2362,6 +2468,14 @@ move dsql.tab.h  $(InputDir)\parse.h
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\scl.epp">
@@ -2373,9 +2487,14 @@ move dsql.tab.h  $(InputDir)\parse.h
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\utilities\gsec\security.epp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\jrd\stats.epp">
@@ -2384,6 +2503,14 @@ move dsql.tab.h  $(InputDir)\parse.h
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
 "
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -2406,10 +2533,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\all.h">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\all.h">
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\all_proto.h">
@@ -2457,10 +2584,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\..\..\src\jrd\blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\blk.h">
+				RelativePath="..\..\..\src\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\blk.h">
+				RelativePath="..\..\..\src\jrd\blk.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\common\Blob.h">
@@ -3444,10 +3571,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\..\..\src\include\gen\sql_code.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sqlda.h">
+				RelativePath="..\..\..\src\dsql\sqlda.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\sqlda.h">
+				RelativePath="..\..\..\src\jrd\Sqlda.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\SQLError.h">

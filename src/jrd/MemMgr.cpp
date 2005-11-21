@@ -68,12 +68,12 @@ MemMgr* getDefaultMemoryManager()
 	{
 	if (!defaultMemoryManager)
 		{
-		defaultMemMgrMutex.lock();
+		//defaultMemMgrMutex.lock();
 		
 		if (!defaultMemoryManager)
 			defaultMemoryManager = new (malloc (sizeof (MemMgr))) MemMgr;
 			
-		defaultMemMgrMutex.release();
+		//defaultMemMgrMutex.release();
 		}
 
 	return defaultMemoryManager;

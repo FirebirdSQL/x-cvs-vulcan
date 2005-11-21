@@ -75,7 +75,7 @@
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -191,8 +191,16 @@
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -n -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
+							AdditionalDependencies="..\..\install\help\help.fdb"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
 							AdditionalDependencies="..\..\install\help\help.fdb"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -208,6 +216,14 @@
 							AdditionalDependencies="..\..\install\help\help.fdb"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							AdditionalDependencies="..\..\install\help\help.fdb"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\isql\show.epp">
@@ -217,6 +233,14 @@
 							Name="VCCustomBuildTool"
 							CommandLine="..\..\..\install\bin\gpre -n -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
+							AdditionalDependencies="..\..\install\help\help.fdb"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
 							AdditionalDependencies="..\..\install\help\help.fdb"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>

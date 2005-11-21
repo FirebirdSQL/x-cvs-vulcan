@@ -75,7 +75,7 @@
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -235,6 +235,13 @@
 							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\qli\meta.epp">
@@ -245,6 +252,13 @@
 							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
 							AdditionalDependencies=""
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
@@ -259,6 +273,13 @@
 							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\..\src\qli\show.epp">
@@ -269,6 +290,13 @@
 							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
 							AdditionalDependencies=""
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
