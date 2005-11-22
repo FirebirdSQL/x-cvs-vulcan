@@ -1,3 +1,72 @@
+2005-11-21 23:20  jimstarkey
+
+	* vulcan/builds/VisualStudio7/IscDbc/IscDbc.vcproj:
+	
+	Fix target fbdbc.lib file location
+
+2005-11-21 23:20  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-21 22:37  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
+	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
+	misc/writeBuildNum.sh, jrd/build_no.h, jrd/build_no.h,
+	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
+	jrd/build_no.h, misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-21 22:37  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/Databases/Databases.vcproj,
+	builds/VisualStudio7/MsgExtract/MsgExtract.vcproj,
+	builds/VisualStudio7/MsgMgr/MsgMgr.vcproj,
+	builds/VisualStudio7/SecurityDatabase/SecurityDatabase.vcproj,
+	builds/VisualStudio7/XLoad/XLoad.vcproj,
+	builds/VisualStudio7/alice/alice.vcproj,
+	builds/VisualStudio7/buildgen/buildgen.vcproj,
+	builds/VisualStudio7/burp/burp.vcproj,
+	builds/VisualStudio7/config/config.vcproj,
+	builds/VisualStudio7/gateway/gateway.vcproj,
+	builds/VisualStudio7/gpre/gpre.vcproj,
+	builds/VisualStudio7/gsec/gsec.vcproj,
+	builds/VisualStudio7/gstat/gstat.vcproj,
+	builds/VisualStudio7/isql/isql.vcproj,
+	builds/VisualStudio7/jrd/jrd.vcproj,
+	builds/VisualStudio7/lock/lock.vcproj,
+	builds/VisualStudio7/msgs/msgs.vcproj,
+	builds/VisualStudio7/qli/qli.vcproj,
+	builds/VisualStudio7/remote/remote.vcproj,
+	builds/VisualStudio7/server/server.vcproj,
+	builds/VisualStudio7/services/services.vcproj,
+	builds/VisualStudio7/why/why.vcproj,
+	builds/VisualStudio7/winserver/winserver.vcproj,
+	src/jrd/MemMgr.cpp, src/jrd/jrd.vcproj:
+	
+	Fixed up custom build steps for Release builds.
+
+2005-11-21 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-20 04:15  fsg
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
