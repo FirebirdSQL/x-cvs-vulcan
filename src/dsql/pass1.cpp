@@ -4038,12 +4038,13 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 				// if an qualifier is present check if we have the same derived 
 				// table else continue;
 				
-				if (!qualifier) 
-					continue;
-				else if (!context->ctx_alias)
-					continue;
-				else if (strcmp(qualifier->str_data, context->ctx_alias)) 
-					continue;
+				if (qualifier) 
+					{
+					if (!context->ctx_alias)
+						continue;
+					else if (strcmp(qualifier->str_data, context->ctx_alias)) 
+						continue;
+					}
 
 				// If there's no name then we have most probable a asterisk that
 				// needs to be exploded. This should be handled by the caller and
@@ -4645,6 +4646,15 @@ static bool pass1_found_sub_select(const dsql_nod* node)
 			break;
 
 		case nod_aggregate:
+		case nod_agg_average:
+		case nod_agg_count:
+		case nod_agg_max:
+		case nod_agg_min:
+		case nod_agg_total:
+		case nod_agg_average2:
+		case nod_agg_total2:
+		case nod_map:
+
 		case nod_derived_field:
 		case nod_dbkey:
 		case nod_field:
