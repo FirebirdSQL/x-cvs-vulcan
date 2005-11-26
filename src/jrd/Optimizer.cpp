@@ -1082,6 +1082,7 @@ void OptimizerRetrieval::findDependentFromStreams(jrd_nod* node,
 			int fieldStream = (USHORT)(IPTR) node->nod_arg[e_fld_stream];
 			// dimitr: OLD/NEW contexts shouldn't create any stream dependencies
 			if (fieldStream != stream &&
+				(csb->csb_rpt[fieldStream].csb_flags & csb_active) &&
 				!(csb->csb_rpt[fieldStream].csb_flags & csb_trigger))
 			{
 				int pos;
@@ -1096,7 +1097,9 @@ void OptimizerRetrieval::findDependentFromStreams(jrd_nod* node,
 		case nod_dbkey:
 		{
 			int keyStream = (USHORT)(IPTR) node->nod_arg[0];
-			if (keyStream != stream) {
+			if (keyStream != stream &&
+				(csb->csb_rpt[keyStream].csb_flags & csb_active)) 
+			{
 				int pos;
 				if (!streamList->find(keyStream, pos)) {
 					streamList->add(keyStream);
@@ -1203,7 +1206,7 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 	}
 
 	// It's recalculated later.
-	const OptimizerBlk::opt_conjunct* OPT_end =
+	const OptimizerBlk::opt_conjunct* opt_end =
 		optimizer->opt_conjuncts.begin() + 
 		(innerFlag ? optimizer->opt_base_missing_conjuncts : 
 			optimizer->opt_conjuncts.getCount());
@@ -1216,7 +1219,7 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 	if (outerFlag) {
 		tail += optimizer->opt_base_parent_conjuncts;
 	}
-	for (; tail < OPT_end; tail++) {
+	for (; tail < opt_end; tail++) {
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used) &&
 			tail->opt_conjunct_node && (tail->opt_conjunct_node->nod_type != nod_or)) 
 		{
@@ -1235,7 +1238,7 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 	if (outerFlag) {
 		tail += optimizer->opt_base_parent_conjuncts;
 	}
-	for (; tail < OPT_end; tail++) {
+	for (; tail < opt_end; tail++) {
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used) &&
 			tail->opt_conjunct_node && (tail->opt_conjunct_node->nod_type == nod_or)) 
 		{
@@ -1274,7 +1277,7 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 		// However SortedArray class should be updated to handle join right!
 		matches.join(invCandidate->matches);
 		tail = optimizer->opt_conjuncts.begin();
-		for (; tail < OPT_end; tail++) {
+		for (; tail < opt_end; tail++) {
 			if (!(tail->opt_conjunct_flags & opt_conjunct_used)) {
 				int pos;
 				if (matches.find(tail->opt_conjunct_node, pos)) {
@@ -1962,6 +1965,9 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 						}
 					}
 					invCandidate->matches.join(matches);
+					if (acceptAll)
+						continue;
+
 					return invCandidate;
 				}
 		
@@ -1975,7 +1981,7 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 					}
 				}
 
-				if (anyMatchAlreadyUsed) {
+				if (anyMatchAlreadyUsed && !acceptAll) {
 					currentInv->used = true;
 					// If a match on this index was already used by another 
 					// index, add also the other matches from this index.
@@ -2183,7 +2189,8 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 				}
 				if (invCandidate->unique) {
 					// Single unique full equal match is enough
-					break;
+					if (!acceptAll)
+						break;
 				}
 			}
 			else {
