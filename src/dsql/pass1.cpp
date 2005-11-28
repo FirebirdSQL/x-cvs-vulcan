@@ -6869,6 +6869,10 @@ static void pass1_union_auto_cast(CStatement* request, dsql_nod* input, const ds
 							 (select_item->nod_arg[e_alias_value]) &&
 							 (select_item->nod_arg[e_alias_value]->nod_type == nod_cast))
 							cast_node = select_item->nod_arg[e_alias_value];
+						else if ((select_item->nod_type == nod_derived_field) &&
+							(select_item->nod_arg[e_derived_field_value]) &&
+							(select_item->nod_arg[e_derived_field_value]->nod_type == nod_cast))
+							cast_node = select_item->nod_arg[e_derived_field_value];
 						else if (select_item->nod_type == nod_cast)
 							cast_node = select_item;
 						else {
@@ -6884,6 +6888,8 @@ static void pass1_union_auto_cast(CStatement* request, dsql_nod* input, const ds
 							// columnname.
 							if (select_item->nod_type == nod_alias) 
 								cast_node->nod_arg[e_cast_source] = select_item->nod_arg[e_alias_value];
+							else if (select_item->nod_type == nod_derived_field)
+								cast_node->nod_arg[e_cast_source] = select_item->nod_arg[e_derived_field_value];
 							else 
 								cast_node->nod_arg[e_cast_source] = select_item;							
 
@@ -6933,6 +6939,11 @@ static void pass1_union_auto_cast(CStatement* request, dsql_nod* input, const ds
 						if (select_item->nod_type == nod_alias) 
 							{
 							select_item->nod_arg[e_alias_value] = cast_node;
+							select_item->nod_desc = desc;
+							}
+						else if (select_item->nod_type == nod_derived_field) 
+							{
+							select_item->nod_arg[e_derived_field_value] = cast_node;
 							select_item->nod_desc = desc;
 							}
 						else 
