@@ -30,6 +30,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+START_NAMESPACE
 
 class Error
 {
@@ -39,5 +40,7 @@ public:
 	static void assertContinue(const char* fileName, int lineNumber);
 	static void log(const char* text, ...);
 };
+
+END_NAMESPACE
 
 #endif

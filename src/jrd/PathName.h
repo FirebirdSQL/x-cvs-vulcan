@@ -32,6 +32,7 @@
 
 #include "JString.h"
 
+START_NAMESPACE
 
 class PathName
 {
@@ -49,5 +50,7 @@ public:
 	static bool hasDirectory(const char* fileName);
 	static bool pathsEquivalent(const char* path1, const char* path2);
 };
+
+END_NAMESPACE
 
 #endif

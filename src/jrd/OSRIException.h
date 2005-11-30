@@ -45,6 +45,8 @@ CLASS (AdminException);
 	
 static const int STRING_SPACE = 4096;
 
+START_NAMESPACE
+
 class OSRIException
 {
 public:
@@ -77,6 +79,8 @@ public:
 	bool isBugcheck(void);
 	void printStatus(void);
 };
+
+END_NAMESPACE
 
 #endif
 
