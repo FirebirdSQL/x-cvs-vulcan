@@ -7098,13 +7098,10 @@ static bool check_field_type (const CStatement* request, const dsql_fld* field)
 			ERRD_post(isc_sqlerr, isc_arg_number,  -206,
 					isc_arg_gds, isc_dsql_field_err,
 					isc_arg_gds, isc_random,
-					isc_arg_string, 
-					field->fld_name,
-					isc_arg_gds,
-					isc_sql_dialect_datatype_unsupport,
+					isc_arg_string,  (const char*) field->fld_name,
+					isc_arg_gds, isc_sql_dialect_datatype_unsupport,
 					isc_arg_number, request->req_client_dialect,
-					isc_arg_string,
-					DSC_dtype_tostring(field->fld_dtype), 0);
+					isc_arg_string, DSC_dtype_tostring(field->fld_dtype), 0);
 			return false;
 		}
 	return true;

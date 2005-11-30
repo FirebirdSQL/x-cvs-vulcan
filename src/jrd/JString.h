@@ -64,7 +64,7 @@ public:
 		return (string) ? string : "";
 		}
 
-	inline 	operator const char*()
+	inline 	operator const char*() const
 		{
 		return (string) ? string : "";
 		}
