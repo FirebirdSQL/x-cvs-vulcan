@@ -126,6 +126,9 @@
 				RelativePath="..\..\..\src\config\AdminException.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\BlrPrint.cpp">
 			</File>
 			<File
@@ -375,6 +378,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\allr_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\BlrPrint.h">
