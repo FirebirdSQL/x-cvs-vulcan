@@ -52,6 +52,26 @@ void asm_sync(void);
 }
 #endif
 
+#ifdef DARWIN
+#include <libkern/OSAtomic.h>
+extern "C"
+{
+static inline int COMPARE_EXCHANGE(volatile int *vTarget, int compare, int exchange)
+{
+	int *target = (int *)vTarget;
+	return OSAtomicCompareAndSwap32Barrier(compare, exchange, target);
+}
+
+static inline int COMPARE_EXCHANGE_POINTER(volatile void *vTarget, void * compare, void * exchange)
+{
+	int *target = (int *) vTarget;
+	return OSAtomicCompareAndSwap32Barrier((int)compare, (int)exchange, (int *) target);
+}
+
+}
+#endif
+
+
 #ifdef MVS
 extern "C" {
 static inline int cas (volatile int *state, int compare, int exchange)
@@ -137,6 +157,8 @@ inline INTERLOCK_TYPE interlockedIncrement(volatile INTERLOCK_TYPE *ptr)
 {
 #ifdef _WIN32
 	return InterlockedIncrement ((INTERLOCK_TYPE*) ptr);
+#elif defined DARWIN
+	return OSAtomicIncrement32Barrier ((int *) ptr);
 #elif defined (__i386) || (__x86_64__)
 	INTERLOCK_TYPE ret;
 	asm (
@@ -164,6 +186,8 @@ inline INTERLOCK_TYPE interlockedDecrement(volatile INTERLOCK_TYPE *ptr)
 {
 #ifdef _WIN32
 	return InterlockedDecrement ((INTERLOCK_TYPE*) ptr);
+#elif defined DARWIN
+	return OSAtomicDecrement32Barrier ((int *) ptr);
 #elif defined (__i386) || (__x86_64__)
 	INTERLOCK_TYPE ret;
 	asm (
