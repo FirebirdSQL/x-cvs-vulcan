@@ -126,6 +126,7 @@ dependencies:
 </template>
 
 <template name="SharedLibr"> -shared </template>
+
 <template name="OptionFile"/>
 
 <template name="Libraries">
@@ -960,7 +961,7 @@ CPPFLAGS = <buildopt/> -I. \
 <!--	Generic / test				-->
 
 <component name="test">
-<template name="target">text</template>
+<template name="target">test</template>
 
 <template name="Includes">-I$(SRCDIR)/include \
 	-I$(SRCDIR)/jrd \
@@ -969,6 +970,85 @@ CPPFLAGS = <buildopt/> -I. \
 <template name="Production">
 <BuildExe/>
 <Install/>
+</template>
+
+</component>
+
+</configuration>
+
+<!--   Mac OS X 10.4  32 bit    -->
+
+<configuration name="darwin">
+
+<component name="Generic">
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+        -DFIREBIRD_ENGINE \
+        -fPIC \
+        -D_REENTRANT \
+        -D_PTHREADS \
+        -DPOSIX_THREADS \
+        -DSUPERSERVER \
+        -DMULTI_THREAD \
+        -DDEV_BUILD \
+        -D_GNU_SOURCE \
+        -DTHREAD_DELIVERY \
+        -DMEMMGR \
+	-DDARWIN \
+	-fvisibility=hidden \
+	-dynamic \
+        -arch ppc \
+        <namespace /> \
+       <Includes />
+</template>
+
+<template name="SharedLibr"> -dynamiclib </template>
+
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird \
+</template>
+
+
+</component>
+
+<component name="why">
+<template name="target">libfirebird.dylib</template>
+</component>
+
+<component name="IscDbc">
+<template name="target">libfbdbc.dylib</template>
+</component>
+
+<component name="remote">
+<template name="target">remote.dylib</template>
+</component>
+
+</configuration>
+
+
+<!--   Mac OS X 10.4  64 bit    -->
+
+<configuration name="darwin64">
+
+<component name="Generic">
+<template name="bin">bin64</template>
+<template name="intl">intl64</template>
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+        -DFIREBIRD_ENGINE \
+        -fPIC \
+        -D_REENTRANT \
+        -D_PTHREADS \
+        -DPOSIX_THREADS \
+        -DSUPERSERVER \
+        -DMULTI_THREAD \
+        -DDEV_BUILD \
+        -D_GNU_SOURCE \
+        -DTHREAD_DELIVERY \
+        -DMEMMGR \
+	-arch ppc64 \
+        <namespace /> \
+        <Includes /> 
 </template>
 
 </component>
