@@ -197,6 +197,9 @@
 				RelativePath="..\..\..\src\gpre\noform.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
 			</File>
 			<File
@@ -216,6 +219,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\gpre\sql.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Sync.cpp">
@@ -243,7 +249,8 @@
 						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							CommandLine="..\..\..\install\bin\gpre -n  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
@@ -344,6 +351,9 @@
 				RelativePath="..\..\..\src\jrd\Mutex.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\OSRIException.h">
 			</File>
 			<File
@@ -372,6 +382,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\gpre\sql_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Sync.h">
