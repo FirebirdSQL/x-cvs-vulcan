@@ -67,15 +67,15 @@ double Link::getDouble(void)
 	return 0;
 }
 
-void flushBlock()
+void Link::flushBlock()
 {
 }
 
-void flushMessage()
+void Link::flushMessage()
 {
 }
 
-void endBlock()
+void Link::endBlock()
 {
 }
 
