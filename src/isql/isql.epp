@@ -48,16 +48,19 @@
 #define _STLP_CCTYPE
 #endif
 
-#include "fbdev.h"
-//#include "../jrd/ib_stdio.h"
-#include "../dsql/keywords.h"
+#include <string>
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 #include <math.h>
 #include <ctype.h>
 #include <errno.h>
+
+#include "fbdev.h"
+//#include "../jrd/ib_stdio.h"
+#include "../dsql/keywords.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -75,7 +78,6 @@
 #include "editline.h"
 #endif
 
-#include <string>
 
 
 #define TIME_ERR	101
