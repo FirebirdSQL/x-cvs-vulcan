@@ -9,7 +9,7 @@ BuildType=V
 MajorVer=2
 MinorVer=0
 RevNo=0
-BuildNum=4156
+BuildNum=4157
 #BuildSuffix="Firebird 1.5 Release Candidate 7"
 BuildSuffix="Vulcan 1.0 Development"
 FIREBIRD_PACKAGE_VERSION=RC7
@@ -83,7 +83,7 @@ cat >$1 <<eof
 MajorVer = $MajorVer
 MinorVer = $MinorVer
 RevNo = $RevNo
-BuildNum=4156
+BuildNum=4157
 BuildType = $BuildType
 BuildSuffix = $BuildSuffix
 
