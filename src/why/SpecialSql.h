@@ -32,8 +32,7 @@
 
 #include "Lex.h"
 
-class PBGen;
-
+CLASS(PBGen);
 CLASS(Element);
 
 class SpecialSql : public Lex

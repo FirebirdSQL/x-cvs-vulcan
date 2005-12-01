@@ -37,6 +37,8 @@
 
 #include "Generate.h"
 
+START_NAMESPACE
+
 class PBGen : public Generate
 {
 public:
@@ -49,6 +51,8 @@ public:
 	PBGen(UCHAR version);
 	void putParameter(UCHAR parameter, int length, const UCHAR* data);
 };
+
+END_NAMESPACE
 
 #endif
 
