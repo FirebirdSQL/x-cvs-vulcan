@@ -33,7 +33,7 @@
 
 #include "Subsystem.h"
 
-class OSRIException;
+CLASS (OSRIException);
 
 class Services : public Subsystem
 {

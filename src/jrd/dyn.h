@@ -58,7 +58,7 @@ typedef struct dyn_fld {
 
 } *DYN_FLD;
 
-class OSRIException;
+CLASS (OSRIException);
 struct bid;
 
 void	DYN_error(thread_db* tdbb, bool, USHORT, const TEXT*, const TEXT*, const TEXT*,
