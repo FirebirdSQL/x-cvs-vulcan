@@ -236,6 +236,8 @@ void MakeGen::processFilter(Element *filter)
 	for (Element *child = filter->children; child; child = child->sibling)
 		if (child->name == "File")
 			processFile (child, folder);
+		else if (child->name == "Filter")
+			processFilter(child);
 }
 
 void MakeGen::processFile(Element *file, const char* folder)

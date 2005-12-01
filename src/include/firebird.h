@@ -57,7 +57,7 @@ $Id$
 
 typedef	int				ISC_LONG;
 typedef	unsigned int	ISC_ULONG;
-typedef unsigned int    isc_handle;
+typedef unsigned int32  isc_handle;
 
 typedef	signed short	ISC_SHORT;
 typedef	unsigned short	ISC_USHORT;
