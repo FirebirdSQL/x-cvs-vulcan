@@ -255,6 +255,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
 			</File>
 			<File
@@ -394,6 +397,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\burp\mvol_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\OSRIException.h">
