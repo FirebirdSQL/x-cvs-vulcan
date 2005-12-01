@@ -1,3 +1,131 @@
+2005-12-01 01:13  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 01:13  jimstarkey
+
+	* vulcan/src/jrd/OSRIException.h:
+	
+	Temporarily removed NAMESPACE macros
+
+2005-12-01 01:02  awharrison
+
+	* vulcan/src/: jrd/MemMgr.cpp, IscDbc/IscPreparedStatement.cpp,
+	IscDbc/IscStatement.cpp, IscDbc/Sqlda.cpp, IscDbc/Stream.cpp:
+	
+	add conditionals for darwin - malloc.h doesn't exist there
+
+2005-12-01 01:02  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 00:58  awharrison
+
+	* vulcan/src/jrd/Interlock.h:
+	
+	Add darwin interlocks
+
+2005-12-01 00:56  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 00:56  awharrison
+
+	* vulcan/vulcan.build:
+	
+	Add darwin specializations
+
+2005-12-01 00:48  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 00:48  awharrison
+
+	* vulcan/src/jrd/: Error.h, HandleManager.h, OSRIException.h,
+	OSRIMemException.h, PathName.h, Synchronize.h:
+	
+	Added START_NAMESPACE END_NAMESPACE
+
+2005-12-01 00:43  awharrison
+
+	* vulcan/src/jrd/BlrPrint.h:
+	
+	
+	Added START_NAMESPACE
+
+2005-12-01 00:43  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-30 22:43  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-30 22:43  awharrison
+
+	* vulcan/builds/VisualStudio7/remote/remote.vcproj:
+	
+	Added AsyncEvent and PBGen
+
+2005-11-30 22:27  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-30 22:27  awharrison
+
+	* vulcan/builds/VisualStudio7/gpre/gpre.vcproj:
+	
+	Added OSRIBugcheck and StatusPrint
+
+2005-11-30 19:50  jimstarkey
+
+	* vulcan/src/: dsql/pass1.cpp, jrd/JString.h, jrd/jrd.vcproj:
+	
+	Fix a reference to a JString in a variable argument list
+
+2005-11-30 19:50  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-30 19:37  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/config/config.vcproj,
+	src/config/config.vcproj:
+	
+	Added StatusPrint to config
+
+2005-11-30 19:37  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-11-30 04:16  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-11-29 04:16  fsg
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
