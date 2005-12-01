@@ -5,7 +5,11 @@
 //#include "stdafx.h"
 #include <memory.h>
 #include <string.h>
+#ifdef DARWIN
+#include <stdlib>
+#else
 #include <malloc.h>
+#endif
 #include <stdio.h>
 #include "Engine.h"
 #include "Stream.h"

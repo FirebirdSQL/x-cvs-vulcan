@@ -2,7 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef DARWIN
+#include <stdlib>
+#else
 #include <malloc.h>
+#endif
 #include <time.h>
 #include "IscDbc.h"
 #include "IscStatement.h"

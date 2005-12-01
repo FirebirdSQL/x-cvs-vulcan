@@ -1,8 +1,11 @@
 // IscPreparedStatement.cpp: implementation of the IscPreparedStatement class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#if defined  (DARWIN)
+#include <stdlib>
+#else
 #include <malloc.h>
+#endif
 #include "IscDbc.h"
 #include "IscPreparedStatement.h"
 #include "SQLError.h"

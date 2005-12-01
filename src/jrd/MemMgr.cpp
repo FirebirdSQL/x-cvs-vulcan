@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 
-#if defined(MVS) || defined(__VMS)
+#if defined(MVS) || defined(__VMS) || defined (DARWIN)
 #include <stdlib.h>
 #else
 #include <malloc.h>

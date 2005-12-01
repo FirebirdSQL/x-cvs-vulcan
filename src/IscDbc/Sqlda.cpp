@@ -2,7 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef DARWIN
+#included <stdlib>
+#else
 #include <malloc.h>
+#endif
 #include <memory.h>
 #include <stdio.h>
 #include <string.h>
