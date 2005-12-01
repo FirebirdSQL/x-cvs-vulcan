@@ -35,7 +35,7 @@
 #include "../jrd/dsc.h"
 #include "../burp/misc_proto.h"
 #include "../jrd/gds_proto.h"
-#include "../jrd/thd.h"
+//#include "../jrd/thd.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
