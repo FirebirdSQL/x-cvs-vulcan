@@ -3,7 +3,7 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version LI-V2.0.0.4154 Vulcan 1.0 Development **********************/
 #line 1 "restore.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
@@ -597,7 +597,7 @@ static const char
       blr_begin, 
 	 blr_message, 0, 3,0, 
 	    blr_cstring, 32,0, 
-	    blr_cstring, 254,0, 
+	    blr_cstring, 254,3, 
 	    blr_short, 0, 
 	 blr_receive, 0, 
 	    blr_store, 
@@ -1931,7 +1931,7 @@ static const char
 	    blr_cstring, 32,0, 
 	    blr_quad, 0, 
 	    blr_short, 0, 
-	    blr_cstring, 254,0, 
+	    blr_cstring, 254,3, 
 	    blr_short, 0, 
 	 blr_receive, 0, 
 	    blr_store, 
@@ -3771,7 +3771,7 @@ namespace // unnamed, private
    } isc_100;
    struct {
           char  isc_110 [32];	/* RDB$TRIGGER_NAME */
-          char  isc_111 [254];	/* RDB$MESSAGE */
+          char  isc_111 [1022];	/* RDB$MESSAGE */
           short isc_112;	/* RDB$MESSAGE_NUMBER */
    } isc_109;
    struct {
@@ -4139,7 +4139,7 @@ namespace // unnamed, private
           char  isc_471 [32];	/* RDB$EXCEPTION_NAME */
           ISC_QUAD isc_472;	/* RDB$DESCRIPTION */
           short isc_473;	/* gds__null_flag */
-          char  isc_474 [254];	/* RDB$MESSAGE */
+          char  isc_474 [1022];	/* RDB$MESSAGE */
           short isc_475;	/* gds__null_flag */
    } isc_470;
    struct {
@@ -6655,7 +6655,7 @@ bool get_exception(void)
 		}
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_exception_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 298, &isc_470, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_exception_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 1066, &isc_470, (short) 0);
 	   };
 #line 2745 "restore.epp"
 	/*ON_ERROR*/
@@ -10983,7 +10983,7 @@ bool get_trigger_message()
 #line 5512 "restore.epp"
 	/*BASED_ON RDB$TRIGGER_MESSAGES.RDB$MESSAGE		message;*/
 	char
-	   message[254];
+	   message[1022];
 
 #line 5513 "restore.epp"
 
@@ -11073,7 +11073,7 @@ bool get_trigger_message()
 #line 5564 "restore.epp"
 	/*END_STORE;*/
 	   
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (isc_tr_handle*) &local_trans, (short) 0, (short) 288, &isc_109, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_trigger_message_req_handle2, (isc_tr_handle*) &local_trans, (short) 0, (short) 1056, &isc_109, (short) 0);
 	   };
 #line 5565 "restore.epp"
 	/*ON_ERROR*/

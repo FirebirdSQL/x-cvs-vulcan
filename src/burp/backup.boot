@@ -3,7 +3,7 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version LI-V2.0.0.4154 Vulcan 1.0 Development **********************/
 #line 1 "backup.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
@@ -279,7 +279,7 @@ static const char
 	 blr_message, 0, 4,0, 
 	    blr_cstring, 32,0, 
 	    blr_short, 0, 
-	    blr_cstring, 254,0, 
+	    blr_cstring, 254,3, 
 	    blr_short, 0, 
 	 blr_begin, 
 	    blr_for, 
@@ -1886,7 +1886,7 @@ static const char
 	    blr_quad, 0, 
 	    blr_cstring, 32,0, 
 	    blr_short, 0, 
-	    blr_cstring, 254,0, 
+	    blr_cstring, 254,3, 
 	 blr_begin, 
 	    blr_for, 
 	       blr_rse, 1, 
@@ -4002,7 +4002,7 @@ namespace // unnamed, private
    struct {
           char  isc_36 [32];	/* RDB$TRIGGER_NAME */
           short isc_37;	/* isc_utility */
-          char  isc_38 [254];	/* RDB$MESSAGE */
+          char  isc_38 [1022];	/* RDB$MESSAGE */
           short isc_39;	/* RDB$MESSAGE_NUMBER */
    } isc_35;
    struct {
@@ -4313,7 +4313,7 @@ namespace // unnamed, private
           ISC_QUAD isc_335;	/* RDB$DESCRIPTION */
           char  isc_336 [32];	/* RDB$EXCEPTION_NAME */
           short isc_337;	/* isc_utility */
-          char  isc_338 [254];	/* RDB$MESSAGE */
+          char  isc_338 [1022];	/* RDB$MESSAGE */
    } isc_334;
    struct {
           char  isc_341 [32];	/* RDB$CHARACTER_SET_NAME */
@@ -7885,7 +7885,7 @@ void write_exceptions(void)
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 296, &isc_334, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 1064, &isc_334, (short) 0);
 	   if (!isc_334.isc_337 || isc_status [1]) break;
 #line 2880 "backup.epp"
 		put(tdgbl, rec_exception);
@@ -9892,7 +9892,7 @@ void write_trigger_messages(void)
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 290, &isc_35, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 1058, &isc_35, (short) 0);
 	   if (!isc_35.isc_37 || isc_status [1]) break;;
 #line 3863 "backup.epp"
 

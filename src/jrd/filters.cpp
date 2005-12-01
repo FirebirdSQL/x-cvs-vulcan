@@ -496,7 +496,7 @@ ISC_STATUS filter_text(USHORT action, ctl* control)
 	case ACTION_close:
 		if (control->ctl_data[1]) {
 			gds__free((SLONG *) control->ctl_data[1]);
-			control->ctl_data[1] = (IPTR) NULL;
+			control->ctl_data[1] = 0;
 		}
 		return FB_SUCCESS;
 
@@ -580,7 +580,7 @@ ISC_STATUS filter_text(USHORT action, ctl* control)
 				&& (control->ctl_data[0] > control->ctl_data[3]))
 			{
 				gds__free((SLONG *) control->ctl_data[1]);
-				control->ctl_data[1] = (IPTR) NULL;
+				control->ctl_data[1] = 0;
 				control->ctl_data[3] = 0;
 			}
 
@@ -830,7 +830,7 @@ ISC_STATUS filter_transliterate_text(USHORT action, ctl* control)
 		}
 		if (aux) {
 			gds__free(aux);
-			control->ctl_data[0] = (IPTR) NULL;
+			control->ctl_data[0] = 0;
 			aux = NULL;
 		}
 		return FB_SUCCESS;

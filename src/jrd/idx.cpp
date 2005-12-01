@@ -183,7 +183,7 @@ void IDX_create_index(thread_db* tdbb,
  
 	if (relation->rel_file)
 		ERR_post(isc_no_meta_update, isc_arg_gds, isc_extfile_uns_op,
-				 isc_arg_string, relation->rel_name, 0);
+				 isc_arg_string, (const char*) relation->rel_name, 0);
 
 	if (!relation->rel_index_root)
 		get_root_page(tdbb, relation);	

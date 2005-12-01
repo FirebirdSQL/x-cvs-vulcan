@@ -23,14 +23,14 @@
 #  Contributor(s): ______________________________________.
 
 
-{
+VERSION {
 global:
 # private entrypoint for REMOTE server
 	server_main;
 #-------------------
 # PRIVATE INTERFACE
 #-------------------
-	gds__alloc;
+	#gds__alloc;
 	gds__attach_database;
 	gds__blob_info;
 	gds__blob_size;
@@ -343,10 +343,10 @@ global:
 # OTHER FUNCTIONS
 #-----------------
 
-	CVT_move;
+	#CVT_move;
 
-	KEYWORD_stringIsAToken;
-	KEYWORD_getTokens;
+	#KEYWORD_stringIsAToken;
+	#KEYWORD_getTokens;
 
 #--------------------------------------
 #functions needed by Solaris utilyties

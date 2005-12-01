@@ -87,7 +87,7 @@ Attachment::Attachment(Database *database)
 	att_security_classes = NULL;
 	att_relation_locks = NULL;
 	att_record_locks = NULL;
-	att_event_session = NULL;
+	att_event_session = 0;
 	//att_bookmarks = NULL;
 	//att_bkm_quick_ref = NULL;
 	//att_lck_quick_ref = NULL;
