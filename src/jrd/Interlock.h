@@ -62,9 +62,9 @@ static inline int COMPARE_EXCHANGE(volatile int *vTarget, int compare, int excha
 	return OSAtomicCompareAndSwap32Barrier(compare, exchange, target);
 }
 
-static inline int COMPARE_EXCHANGE_POINTER(volatile void *vTarget, void * compare, void * exchange)
+static inline int COMPARE_EXCHANGE_POINTER(void *target, volatile void * vCompare, void * exchange)
 {
-	int *target = (int *) vTarget;
+	int compare = (int)vCompare;
 	return OSAtomicCompareAndSwap32Barrier((int)compare, (int)exchange, (int *) target);
 }
 
