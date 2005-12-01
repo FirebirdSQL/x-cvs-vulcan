@@ -66,3 +66,16 @@ double Link::getDouble(void)
 {
 	return 0;
 }
+
+void flushBlock()
+{
+}
+
+void flushMessage()
+{
+}
+
+void endBlock()
+{
+}
+
