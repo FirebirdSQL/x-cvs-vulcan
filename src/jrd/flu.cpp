@@ -948,7 +948,7 @@ static MOD search_for_module(Database *database, const TEXT* module_name, const 
 		if (!module) 
 			return NULL;
 
-		if (!(module->mod_handle = (__NSModule *)OPEN_HANDLE(pathName))) 
+		if (!(module->mod_handle = OPEN_HANDLE(pathName))) 
 			{
 			/*
 			* Temporarily commented - what to do with dlerror() on NT ?
