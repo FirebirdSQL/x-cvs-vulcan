@@ -39,7 +39,7 @@
 #include "iberror.h"
 #include "../jrd/ibsetjmp.h"
 #include "../jrd/msg_encode.h"
-#include "../jrd/thd_proto.h"
+//#include "../jrd/thd_proto.h"
 #include "../jrd/ods.h"			// to get MAX_PAGE_SIZE
 #include "../burp/burp.h"
 #include "../burp/burpswi.h"
