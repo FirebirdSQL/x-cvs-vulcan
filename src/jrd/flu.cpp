@@ -238,14 +238,14 @@ void FLU_unregister_module(MOD module)
 
 #ifdef DARWIN
 	/* Make sure the fini function gets called, if there is one */
-	NSSymbol symbol = NSLookupSymbolInModule(module->mod_handle, "__fini");
+	NSSymbol symbol = NSLookupSymbolInModule((__NSModule*)module->mod_handle, "__fini");
 	if (symbol != NULL)
 	{
 		void (*fini)(void);
 		fini = (void (*)(void)) NSAddressOfSymbol(symbol);
 		fini();
 	}
-	NSUnLinkModule (module->mod_handle, 0);
+	NSUnLinkModule ((__NSModule*)module->mod_handle, 0);
 #endif
 
 	gds__free(module);
@@ -741,13 +741,13 @@ if (!(mod = FLU_lookup_module (module)))
 
 /* Look for the symbol and return a pointer to the function if found */
 mod->mod_use_count++;
-symbol = NSLookupSymbolInModule(mod->mod_handle, name);
+symbol = NSLookupSymbolInModule((__NSModule*)mod->mod_handle, name);
 if (symbol == NULL)
 {
     /*printf("Failed to find function: %s in module %s, trying _%s\n", name, module, name);*/
     strcpy(absolute_module, "_");
     strncat(absolute_module, name, sizeof(absolute_module) - 2);
-    symbol = NSLookupSymbolInModule(mod->mod_handle, absolute_module);
+    symbol = NSLookupSymbolInModule((__NSModule*)mod->mod_handle, absolute_module);
     if (symbol == NULL)
     {
         /*printf("Failed to find symbol %s.  Giving up.\n", absolute_module);*/
@@ -759,7 +759,7 @@ return (FPTR_INT) NSAddressOfSymbol(symbol);
 }
 
 #define REQUIRED_MODULE_ACCESS (R_OK)
-#define OPEN_HANDLE(name) ISC_link_with_module(name.c_str())
+#define OPEN_HANDLE(name) ISC_link_with_module((TEXT *)(name.getString()))
 
 NSModule ISC_link_with_module (
     TEXT        *fileName)
@@ -948,7 +948,7 @@ static MOD search_for_module(Database *database, const TEXT* module_name, const 
 		if (!module) 
 			return NULL;
 
-		if (!(module->mod_handle = OPEN_HANDLE(pathName))) 
+		if (!(module->mod_handle = (__NSModule *)OPEN_HANDLE(pathName))) 
 			{
 			/*
 			* Temporarily commented - what to do with dlerror() on NT ?
