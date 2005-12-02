@@ -1,3 +1,206 @@
+2005-12-01 23:29  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 23:29  awharrison
+
+	* vulcan/src/jrd/Interlock.h:
+	
+	It's not atomic, but it compiles and that's all I want until I get
+	a database built...
+
+2005-12-01 23:25  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 23:25  awharrison
+
+	* vulcan/builds/VisualStudio7/burp/burp.vcproj:
+	
+	Add another necessary reference
+
+2005-12-01 23:16  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 23:16  jimstarkey
+
+	* vulcan/src/burp/: backup.epp, burp.cpp, misc.cpp, mvol.cpp,
+	restore.epp:
+	
+	Purge burp of thd stuff
+
+2005-12-01 22:54  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 22:54  awharrison
+
+	* vulcan/src/jrd/flu.cpp:
+	
+	backout last change partially - figure out how to make this
+	assignment specific to Darwin
+
+2005-12-01 22:50  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 22:50  jimstarkey
+
+	* vulcan/src/burp/burp.h:
+	
+	Get rid of unused thd.h
+
+2005-12-01 22:48  awharrison
+
+	* vulcan/builds/VisualStudio7/burp/burp.vcproj:
+	
+	add OSRIBugcheck
+
+2005-12-01 22:48  awharrison
+
+	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h:
+	
+	increment build number
+
+2005-12-01 21:49  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 21:49  awharrison
+
+	* vulcan/src/jrd/flu.cpp:
+	
+	Darwin specific feature - casting, fixed a macro to use JString...
+
+2005-12-01 20:56  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 20:56  awharrison
+
+	* vulcan/src/remote/Link.cpp:
+	
+	Define all routines with appropriate namespace
+
+2005-12-01 20:25  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 20:25  jimstarkey
+
+	* vulcan/src/: jrd/PBGen.h, why/SpecialSql.h:
+	
+	Qualified PBGen with a NAMESPACE
+
+2005-12-01 19:45  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 19:45  jimstarkey
+
+	* vulcan/src/qli/meta.epp:
+	
+	Eliminated some warnings.
+
+2005-12-01 19:24  jimstarkey
+
+	* vulcan/: install/bin/buildgen.linux32, src/burp/boot,
+	src/isql/isql.epp:
+	
+	Rebuilt buildgen for linux32; fixed boot script problem for burp;
+	fixed include file order problem in isql.epp.
+
+2005-12-01 19:24  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 18:46  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 18:46  awharrison
+
+	* vulcan/src/remote/Link.cpp:
+	
+	Add missing (no-op) functions
+
+2005-12-01 17:58  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 17:58  jimstarkey
+
+	* vulcan/: install/bin/buildgen.linux64, src/burp/backup.boot,
+	src/burp/restore.boot, src/dsql/array.boot, src/dsql/blob.boot,
+	src/gpre/gpre_meta.boot, src/jrd/Attachment.cpp,
+	src/jrd/filters.cpp, src/jrd/idx.cpp, src/why/firebird.vers:
+	
+	Eliminate some warnings; rebuilt buildgen and boot files.
+
+2005-12-01 17:53  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 17:53  jimstarkey
+
+	* vulcan/src/: buildgen/MakeGen.cpp, include/firebird.h:
+	
+	Fixed buildgen to walk sub-folders
+
+2005-12-01 17:04  jimstarkey
+
+	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
+	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-01 17:04  jimstarkey
+
+	* vulcan/src/: Services/Services.h, jrd/OSRIException.h, jrd/dyn.h:
+	
+	Restored NAMESPACE qualifier for OSRIException
+
+2005-12-01 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-12-01 01:13  jimstarkey
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
