@@ -988,13 +988,13 @@ CPPFLAGS = <buildopt/> -I. \
         -D_REENTRANT \
         -D_PTHREADS \
         -DPOSIX_THREADS \
-        -DSUPERSERVER \
         -DMULTI_THREAD \
         -DDEV_BUILD \
         -D_GNU_SOURCE \
         -DTHREAD_DELIVERY \
         -DMEMMGR \
 	-DDARWIN \
+	-DSUPERSERVER \
 	-fvisibility=hidden \
 	-dynamic \
         -arch ppc \
@@ -1019,10 +1019,27 @@ CPPFLAGS = <buildopt/> -I. \
 <template name="target">libfbdbc.dylib</template>
 </component>
 
-<component name="remote">
-<template name="target">remote.dylib</template>
+<component name="burp">
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+        -DFIREBIRD_ENGINE \
+        -fPIC \
+        -D_REENTRANT \
+        -D_PTHREADS \
+        -DPOSIX_THREADS \
+        -DMULTI_THREAD \
+        -DDEV_BUILD \
+        -D_GNU_SOURCE \
+        -DTHREAD_DELIVERY \
+        -DMEMMGR \
+        -DDARWIN \
+        -fvisibility=hidden \
+        -dynamic \
+        -arch ppc \
+        <namespace /> \
+       <Includes />
+</template>
 </component>
-
 </configuration>
 
 
