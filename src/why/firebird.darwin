@@ -1,0 +1,49 @@
+#
+#   Version script to hide private symbols from Firebird libraries
+#   GNU and Solaris linkers should understand it
+#
+#
+#  The contents of this file are subject to the Interbase Public
+#  License Version 1.0 (the "License"); you may not use this file
+#  except in compliance with the License. You may obtain a copy
+#  of the License at http://www.Inprise.com/IPL.html
+# 
+#  Software distributed under the License is distributed on an
+#  "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either express
+#  or implied. See the License for the specific language governing
+#  rights and limitations under the License.
+# 
+#  The Original Code was created by Inprise Corporation
+#  and its predecessors. Portions created by Inprise Corporation are
+#  Copyright (C) Inprise Corporation.
+# 
+#   Created from fbclient.def by Nickolay Samofatov
+#
+#  All Rights Reserved.
+#  Contributor(s): ______________________________________.
+
+
+_isc_print_blr
+_gds__log
+_isc_attach_database
+_isc_close_blob
+_isc_commit_transaction
+_isc_compile_request
+_isc_database_info
+_isc_detach_database
+_isc_get_segment
+_isc_open_blob2
+_isc_print_status
+_isc_receive
+_isc_release_request
+_isc_start_and_send
+_isc_start_request
+_isc_start_transaction
+_isc_vax_integer
+_isc_version
+_isc_vtov
+_gds__print_blr
+_gds__alloc
+_gds__decode
+_gds__msg_format
+
