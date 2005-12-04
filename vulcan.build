@@ -1013,6 +1013,31 @@ CPPFLAGS = <buildopt/> -I. \
 
 <component name="why">
 <template name="target">libfirebird.dylib</template>
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+        -DFIREBIRD_ENGINE \
+	    -fPIC \
+	    -D_REENTRANT \
+	    -D_PTHREADS \
+	    -DPOSIX_THREADS \
+	    -DMULTI_THREAD \
+	    -DDEV_BUILD \
+	    -D_GNU_SOURCE \
+	    -DTHREAD_DELIVERY \
+	    -DMEMMGR \
+	    -DDARWIN \
+	    -DSUPERSERVER \
+	    -dynamic \
+       -arch ppc \
+	   -exported_symbols_list firebird.darwin \
+       <namespace /> \
+       <Includes />
+</template>
+
+<template name="Libraries">
+	-lpthread -lm -ldl \
+</template>
+
 </component>
 
 <component name="IscDbc">
