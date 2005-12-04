@@ -1,3 +1,9 @@
+2005-12-03 04:16  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-12-02 21:46  awharrison
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
