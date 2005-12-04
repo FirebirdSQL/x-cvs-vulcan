@@ -38,7 +38,7 @@ $Id$
 #include "../jrd/license.h"
 #include "../jrd/obj.h"
 #include "../jrd/ods.h"
-//#include "../jrd/thd_proto.h"
+#include "../jrd/thd_proto.h"
 #include "../burp/burp_proto.h"
 #include "../burp/canon_proto.h"
 #include "../burp/misc_proto.h"

@@ -289,9 +289,6 @@
 				RelativePath="..\..\..\src\jrd\sdl.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\svc.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
