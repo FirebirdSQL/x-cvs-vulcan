@@ -289,6 +289,9 @@
 				RelativePath="..\..\..\src\jrd\sdl.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
@@ -360,6 +363,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath="..\..\..\src\jrd\acl.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\config\AdminException.h">
 			</File>
 			<File
@@ -415,6 +421,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\sdl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\svc.h">
