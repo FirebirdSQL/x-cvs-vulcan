@@ -1,3 +1,43 @@
+2005-12-04 21:38  awharrison
+
+	* vulcan/vulcan.build:
+	
+	still working on symbol visibility
+
+2005-12-04 21:37  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-04 21:37  awharrison
+
+	* vulcan/src/why/firebird.darwin:
+	
+	exported symbol list for darwin
+
+2005-12-04 19:44  jimstarkey
+
+	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h,
+	jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-04 19:44  jimstarkey
+
+	* vulcan/: builds/VisualStudio7/burp/burp.vcproj,
+	src/burp/backup.epp, src/burp/burp.cpp, src/burp/misc.cpp,
+	src/burp/mvol.cpp, src/burp/restore.epp:
+	
+	Got everything build on Windows again.
+
+2005-12-04 04:16  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-12-03 04:16  fsg
 
 	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
