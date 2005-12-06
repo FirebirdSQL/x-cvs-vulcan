@@ -993,6 +993,7 @@ CPPFLAGS = <buildopt/> -I. \
         -D_GNU_SOURCE \
         -DTHREAD_DELIVERY \
         -DMEMMGR \
+		-undefined define_a_way \
 	-DDARWIN \
 	-DSUPERSERVER \
 	-fvisibility=hidden \
@@ -1061,6 +1062,7 @@ CPPFLAGS = <buildopt/> -I. \
         -fvisibility=hidden \
         -dynamic \
         -arch ppc \
+		-Wl,-U gds(float,...)(...) \
         <namespace /> \
        <Includes />
 </template>
