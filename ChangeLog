@@ -1,3 +1,21 @@
+2005-12-06 19:52  awharrison
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
+2005-12-06 19:52  awharrison
+
+	* vulcan/vulcan.build:
+	
+	more darwin changes
+
+2005-12-06 04:15  fsg
+
+	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	
+	increment build number
+
 2005-12-05 18:28  awharrison
 
 	* vulcan/builds/VisualStudio7/burp/burp.vcproj:
