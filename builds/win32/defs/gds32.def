@@ -272,8 +272,10 @@ EXPORTS
     isc_msg_lookup=isc_msg_lookup @270
     isc_cancel_operation=isc_cancel_operation @271
     fb_authenticate_user=fb_authenticate_user @272
-    fb_interpret=fb_interpret
-    fb_config_text=fb_config_text
-    fb_config_file=fb_config_file
+    fb_interpret=fb_interpret @273
+    fb_config_text=fb_config_text @274
+    fb_config_file=fb_config_file @275
+    
+    gds__alloc_debug=gds__alloc_debug @276
 
     
