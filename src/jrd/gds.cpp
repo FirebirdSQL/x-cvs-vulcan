@@ -218,6 +218,12 @@ void* API_ROUTINE gds__alloc_debug(SLONG size_request,
 	return new UCHAR [size_request];
 }
 #else
+void * API_ROUTINE gds__alloc_debug (SLONG size_request,
+									 const TEXT* filename,
+									 ULONG lineno)
+{
+	return new UCHAR [size_request];
+}
 void* API_ROUTINE gds__alloc(SLONG size_request)
 {
 	//return getDefaultMemoryPool()->allocate(size_request);
