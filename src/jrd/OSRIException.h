@@ -46,7 +46,6 @@ CLASS (AdminException);
 static const int STRING_SPACE = 4096;
 
 START_NAMESPACE
-
 class OSRIException
 {
 public:
