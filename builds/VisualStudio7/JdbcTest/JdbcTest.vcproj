@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="IscDbc.lib"
+				AdditionalDependencies="fbDbc.lib"
 				OutputFile="..\..\..\src\JdbcTest\Release\JdbcTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -100,7 +100,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="IscDbc.lib"
+				AdditionalDependencies="fbDbc.lib"
 				OutputFile="..\..\..\src\JdbcTest\Debug\JdbcTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
