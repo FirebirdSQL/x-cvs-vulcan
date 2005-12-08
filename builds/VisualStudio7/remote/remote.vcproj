@@ -159,9 +159,6 @@
 				RelativePath="..\..\..\src\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\gds.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\jrd\Generate.cpp">
 			</File>
 			<File
