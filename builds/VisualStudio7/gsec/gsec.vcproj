@@ -81,7 +81,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\install\bin\gsec"
+				OutputFile="..\..\..\install\bin\gsec.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
