@@ -159,6 +159,9 @@
 				RelativePath="..\..\..\src\isql\show.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
@@ -200,7 +203,8 @@
 						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							AdditionalDependencies="..\..\install\help\help.fdb"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -220,7 +224,8 @@
 						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							AdditionalDependencies="..\..\install\help\help.fdb"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -240,7 +245,8 @@
 						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							AdditionalDependencies="..\..\install\help\help.fdb"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
@@ -310,6 +316,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\isql\show_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Sync.h">
