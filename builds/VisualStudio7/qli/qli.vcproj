@@ -120,9 +120,6 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\qli\all.cpp">
 			</File>
 			<File
@@ -183,19 +180,10 @@
 				RelativePath="..\..\..\src\qli\mov.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\qli\noform.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\qli\nounix.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\qli\parse.cpp">
@@ -214,12 +202,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\qli\show.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\utilities\TempFile.cpp">
@@ -329,9 +311,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.h">
-			</File>
-			<File
 				RelativePath="..\..\..\src\qli\all_proto.h">
 			</File>
 			<File
@@ -413,15 +392,6 @@
 				RelativePath="..\..\..\src\qli\mov_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.h">
-			</File>
-			<File
 				RelativePath="..\..\..\src\qli\parse.h">
 			</File>
 			<File
@@ -464,13 +434,7 @@
 				RelativePath="..\..\..\src\qli\show_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.h">
-			</File>
-			<File
 				RelativePath="..\..\..\src\qli\symbols.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\Sync.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\utilities\TempFile.h">
