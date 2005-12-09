@@ -1,14 +1,50 @@
-2005-12-07 04:15  fsg
+2005-12-09 00:18  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	* vulcan/builds/VisualStudio7/remote/remote.vcproj:
 	
-	increment build number
+	drop gds.o from remote to avoid thousands of duplicate definitions
+	on darwin
 
-2005-12-06 19:52  awharrison
+2005-12-08 22:18  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
+	* vulcan/builds/win32/defs/gds32.def:
 	
-	increment build number
+	add gds__alloc_debug so gds.o doesn't have to be included with
+	remote which causes huge numbers of multiply defined symbols.
+
+2005-12-08 22:14  awharrison
+
+	* vulcan/src/jrd/gds.cpp:
+	
+	Added gds__alloc_debug so I don't have to include gds.o in remote
+	which gives enormous numbers of duplicate definitions - added
+	simple routine for entrypoint
+
+2005-12-08 20:32  awharrison
+
+	* vulcan/src/jrd/OSRIException.h:
+	
+	Added namespace
+
+2005-12-08 16:38  dchri
+
+	* vulcan/builds/VisualStudio7/isql/isql.vcproj:
+	
+	added missing version information isc_version.rc in MSVC7 project
+
+2005-12-08 14:58  dchri
+
+	* vulcan/builds/VisualStudio7/JdbcTest/JdbcTest.vcproj:
+	
+	There is no more IscDbc.lib. Changed to fbdbc.lib on both targets
+	for MSVC7.
+
+2005-12-08 14:52  dchri
+
+	* vulcan/builds/VisualStudio7/gsec/gsec.vcproj:
+	
+	gsec release target MSVC7 add the missing .exe extension in
+	OutputFile
 
 2005-12-06 19:52  awharrison
 
@@ -16,29 +52,11 @@
 	
 	more darwin changes
 
-2005-12-06 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-12-05 18:28  awharrison
 
 	* vulcan/builds/VisualStudio7/burp/burp.vcproj:
 	
 	add StatusPrint back in
-
-2005-12-05 18:28  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-05 04:17  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-04 21:38  awharrison
 
@@ -48,23 +66,9 @@
 
 2005-12-04 21:37  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-04 21:37  awharrison
-
 	* vulcan/src/why/firebird.darwin:
 	
 	exported symbol list for darwin
-
-2005-12-04 19:44  jimstarkey
-
-	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-04 19:44  jimstarkey
 
@@ -74,41 +78,11 @@
 	
 	Got everything build on Windows again.
 
-2005-12-04 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-03 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-02 21:46  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-12-02 21:46  awharrison
 
 	* vulcan/vulcan.build:
 	
 	More darwin changes
-
-2005-12-02 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 23:29  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 23:29  awharrison
 
@@ -119,21 +93,9 @@
 
 2005-12-01 23:25  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 23:25  awharrison
-
 	* vulcan/builds/VisualStudio7/burp/burp.vcproj:
 	
 	Add another necessary reference
-
-2005-12-01 23:16  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 23:16  jimstarkey
 
@@ -144,22 +106,10 @@
 
 2005-12-01 22:54  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 22:54  awharrison
-
 	* vulcan/src/jrd/flu.cpp:
 	
 	backout last change partially - figure out how to make this
 	assignment specific to Darwin
-
-2005-12-01 22:50  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 22:50  jimstarkey
 
@@ -173,29 +123,11 @@
 	
 	add OSRIBugcheck
 
-2005-12-01 22:48  awharrison
-
-	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h:
-	
-	increment build number
-
-2005-12-01 21:49  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-12-01 21:49  awharrison
 
 	* vulcan/src/jrd/flu.cpp:
 	
 	Darwin specific feature - casting, fixed a macro to use JString...
-
-2005-12-01 20:56  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 20:56  awharrison
 
@@ -205,22 +137,9 @@
 
 2005-12-01 20:25  jimstarkey
 
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 20:25  jimstarkey
-
 	* vulcan/src/: jrd/PBGen.h, why/SpecialSql.h:
 	
 	Qualified PBGen with a NAMESPACE
-
-2005-12-01 19:45  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 19:45  jimstarkey
 
@@ -236,35 +155,11 @@
 	Rebuilt buildgen for linux32; fixed boot script problem for burp;
 	fixed include file order problem in isql.epp.
 
-2005-12-01 19:24  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 18:46  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-12-01 18:46  awharrison
 
 	* vulcan/src/remote/Link.cpp:
 	
 	Add missing (no-op) functions
-
-2005-12-01 17:58  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 17:58  jimstarkey
 
@@ -277,41 +172,15 @@
 
 2005-12-01 17:53  jimstarkey
 
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 17:53  jimstarkey
-
 	* vulcan/src/: buildgen/MakeGen.cpp, include/firebird.h:
 	
 	Fixed buildgen to walk sub-folders
 
 2005-12-01 17:04  jimstarkey
 
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 17:04  jimstarkey
-
 	* vulcan/src/: Services/Services.h, jrd/OSRIException.h, jrd/dyn.h:
 	
 	Restored NAMESPACE qualifier for OSRIException
-
-2005-12-01 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 01:13  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 01:13  jimstarkey
 
@@ -326,13 +195,6 @@
 	
 	add conditionals for darwin - malloc.h doesn't exist there
 
-2005-12-01 01:02  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-12-01 00:58  awharrison
 
 	* vulcan/src/jrd/Interlock.h:
@@ -341,22 +203,9 @@
 
 2005-12-01 00:56  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-12-01 00:56  awharrison
-
 	* vulcan/vulcan.build:
 	
 	Add darwin specializations
-
-2005-12-01 00:48  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-12-01 00:48  awharrison
 
@@ -372,29 +221,11 @@
 	
 	Added START_NAMESPACE
 
-2005-12-01 00:43  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-30 22:43  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-30 22:43  awharrison
 
 	* vulcan/builds/VisualStudio7/remote/remote.vcproj:
 	
 	Added AsyncEvent and PBGen
-
-2005-11-30 22:27  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-30 22:27  awharrison
 
@@ -408,13 +239,6 @@
 	
 	Fix a reference to a JString in a variable argument list
 
-2005-11-30 19:50  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-30 19:37  jimstarkey
 
 	* vulcan/: builds/VisualStudio7/config/config.vcproj,
@@ -422,49 +246,12 @@
 	
 	Added StatusPrint to config
 
-2005-11-30 19:37  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-30 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-29 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-29 00:06  arnobrinkman
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-29 00:06  arnobrinkman
 
 	* vulcan/src/dsql/pass1.cpp:
 	
 	Fix column-name problem with UNION and derived fields.	Problem
 	found by Volker Rehn.
-
-2005-11-28 04:17  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-27 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-26 16:08  arnobrinkman
 
@@ -478,76 +265,11 @@
 	
 	Fix wrong code simplification
 
-2005-11-26 16:07  arnobrinkman
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-26 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-25 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-24 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-23 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-22 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-21 23:20  jimstarkey
 
 	* vulcan/builds/VisualStudio7/IscDbc/IscDbc.vcproj:
 	
 	Fix target fbdbc.lib file location
-
-2005-11-21 23:20  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-21 22:37  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
-	misc/writeBuildNum.sh, jrd/build_no.h, jrd/build_no.h,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
-	jrd/build_no.h, misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-21 22:37  jimstarkey
 
@@ -578,35 +300,11 @@
 	
 	Fixed up custom build steps for Release builds.
 
-2005-11-21 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-20 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-19 17:30  arnobrinkman
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-19 17:30  arnobrinkman
 
 	* vulcan/src/jrd/: Optimizer.cpp, Optimizer.h, btr.h, opt.cpp:
 	
 	Synchronize optimizer changes between FB2-head and Vulcan
-
-2005-11-19 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-18 22:04  jimstarkey
 
@@ -614,23 +312,11 @@
 	
 	Updated dependencies for IscDbc.
 
-2005-11-18 22:04  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-18 16:17  awharrison
 
 	* vulcan/src/jrd/: MemMgr.cpp, MemMgr.h:
 	
 	undo a bit of over ambitious const correctness
-
-2005-11-18 16:17  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-18 07:52  robocop
 
@@ -639,24 +325,6 @@
 	
 	Misc.
 
-2005-11-18 07:52  robocop
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-18 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-18 00:30  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-18 00:30  jimstarkey
 
 	* vulcan/src/jrd/: Bdb.cpp, MemMgr.cpp, MemMgr.h, Relation.cpp,
@@ -664,105 +332,11 @@
 	
 	A number of fixes, including a memory overrun in cmp.cpp
 
-2005-11-17 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-16 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-15 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-14 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-13 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-12 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-11 05:22  verbguy
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-11 05:17  verbguy
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
-	jrd/build_no.h, misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh, jrd/build_no.h,
-	misc/writeBuildNum.sh, jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, jrd/build_no.h, jrd/build_no.h,
-	jrd/build_no.h, misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-11 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-10 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-09 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-09 01:35  arnobrinkman
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-09 01:35  arnobrinkman
 
 	* vulcan/src/dsql/pass1.cpp:
 	
 	Fix problem with sub-queries/derived tables in the HAVING clause
-
-2005-11-08 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-07 20:13  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-07 20:13  jimstarkey
 
@@ -783,23 +357,10 @@
 
 2005-11-07 19:31  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-07 19:31  awharrison
-
 	* vulcan/src/IscDbc/Value.cpp:
 	
 	Zero is handled explicitly above.  Including it in this comparision
 	is (very slightly) misleading
-
-2005-11-07 04:17  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-06 08:05  robocop
 
@@ -807,23 +368,11 @@
 	
 	Totally misc.
 
-2005-11-06 08:05  robocop
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-06 07:44  robocop
 
 	* vulcan/src/jrd/Value.cpp:
 	
 	Fix wrong string output with the most negative value.
-
-2005-11-06 07:44  robocop
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-06 07:28  robocop
 
@@ -837,48 +386,11 @@
 	
 	Fix assignment that should be comparison instead.
 
-2005-11-06 07:27  robocop
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-06 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-05 21:45  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-05 21:45  awharrison
 
 	* vulcan/src/IscDbc/Value.cpp:
 	
 	Handle zero ...
-
-2005-11-05 04:15  fsg
-
-	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h:
-	
-	increment build number
-
-2005-11-04 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-03 23:32  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-03 23:32  awharrison
 
@@ -893,23 +405,6 @@
 	
 	Fix a join to use the SQL-92 syntax and change an alias, per CVC
 
-2005-11-03 22:38  awharrison
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-03 22:22  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh, jrd/build_no.h,
-	jrd/build_no.h, jrd/build_no.h, jrd/build_no.h, jrd/build_no.h,
-	jrd/build_no.h, misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-03 22:22  jimstarkey
 
 	* vulcan/: builds/VisualStudio7/IscDbc/IscDbc.vcproj,
@@ -920,12 +415,6 @@
 	
 	Switched the name of IscDbc to FbDbc to avoid conflict with the
 	Odbc driver
-
-2005-11-03 20:00  awharrison
-
-	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h:
-	
-	increment build number
 
 2005-11-03 20:00  awharrison
 
@@ -940,46 +429,12 @@
 	
 	Change target location for MsgMgr and MsgExtract to install\bin
 
-2005-11-03 18:01  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-03 17:05  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, jrd/build_no.h,
-	misc/writeBuildNum.sh, misc/writeBuildNum.sh:
-	
-	increment build number
-
 2005-11-03 17:05  jimstarkey
 
 	* vulcan/builds/VisualStudio7/: MsgExtract/MsgExtract.vcproj,
 	MsgMgr/MsgMgr.vcproj:
 	
 	Added build projects for MsgMgr and MsgExtract
-
-2005-11-03 16:58  jimstarkey
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-03 04:15  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-02 20:10  jimstarkey
-
-	* vulcan/src/: misc/writeBuildNum.sh, jrd/build_no.h,
-	jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-02 20:10  jimstarkey
 
@@ -993,46 +448,16 @@
 
 2005-11-02 18:54  awharrison
 
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-02 18:54  awharrison
-
 	* vulcan/src/dsql/: ddl.cpp, dsql_rel.cpp:
 	
 	build enough of a procedure to self-reference - and change a
 	comment
-
-2005-11-02 04:16  fsg
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-11-01 15:37  dchri
 
 	* vulcan/test.txt:
 	
 	auto inc build number test
-
-2005-11-01 15:37  dchri
-
-	* vulcan/src/: jrd/build_no.h, misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-11-01 04:16  fsg
-
-	* vulcan/src/misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-10-31 19:01  jimstarkey
-
-	* vulcan/src/misc/writeBuildNum.sh:
-	
-	increment build number
 
 2005-10-31 19:01  jimstarkey
 
@@ -1106,12 +531,6 @@
 
 2005-10-27 19:37  dchri
 
-	* vulcan/src/misc/writeBuildNum.sh:
-	
-	increment build number
-
-2005-10-27 19:37  dchri
-
 	* vulcan/test.txt:
 	
 	testing the build number proccess.
@@ -1122,12 +541,6 @@
 	
 	EVL_field was a little confused on nested ifs, leading to taking
 	the wrong branch
-
-2005-10-27 18:57  awharrison
-
-	* vulcan/src/jrd/build_no.h:
-	
-	Set to the agreed upon T1.9 etc.
 
 2005-10-27 16:01  jimstarkey
 
@@ -5506,8 +4919,8 @@
 	lock/lock_proto.h, lock/lock.cpp, lock/driver.cpp, lock/gen.proto,
 	lock/lock_header_shmem, lock/makefile.in, lock/LockAcquire.cpp,
 	lock/print.cpp, misc/metadata.gbak, misc/fb_boilerplate.h,
-	misc/security.gbak, misc/writeBuildNum.sh, misc/gds_header.txt,
-	misc/help.gbak, misc/metadata.sql, msgs/boot, msgs/vulcan.conf,
+	misc/security.gbak, misc/gds_header.txt, misc/help.gbak,
+	misc/metadata.sql, msgs/boot, msgs/vulcan.conf,
 	msgs/change_msgs.epp, msgs/check_msgs.epp, msgs/depends.mak,
 	msgs/modify_msgs.epp, msgs/build_file.epp, msgs/msg.gdl,
 	msgs/msgs.vcproj, msgs/load.epp, msgs/enter_msgs.epp,
@@ -5527,8 +4940,8 @@
 	lock/lock_proto.h, lock/lock.cpp, lock/driver.cpp, lock/gen.proto,
 	lock/lock_header_shmem, lock/makefile.in, lock/LockAcquire.cpp,
 	lock/print.cpp, misc/metadata.gbak, misc/fb_boilerplate.h,
-	misc/security.gbak, misc/writeBuildNum.sh, misc/gds_header.txt,
-	misc/help.gbak, misc/metadata.sql, msgs/boot, msgs/vulcan.conf,
+	misc/security.gbak, misc/gds_header.txt, misc/help.gbak,
+	misc/metadata.sql, msgs/boot, msgs/vulcan.conf,
 	msgs/change_msgs.epp, msgs/check_msgs.epp, msgs/depends.mak,
 	msgs/modify_msgs.epp, msgs/build_file.epp, msgs/msg.gdl,
 	msgs/msgs.vcproj, msgs/load.epp, msgs/enter_msgs.epp,
@@ -6089,14 +5502,13 @@
 	OSRIException.cpp, common.h, InternalPreparedStatement.cpp,
 	CharSetManager.cpp, gds.bas, gds.cpp, gds.hxx, gds.pas,
 	Connect.cpp, gds.pli, dls_proto.h, mblr_proto.h, shut_proto.h,
-	build_no.h, freebsd.h, lck_proto.h, math.cpp, shrinit.cpp,
-	vio_proto.h, SQLError.cpp, mov.cpp, sym.cpp,
-	InternalCallableStatement.cpp, btr_proto.h, divorce.h,
-	vmsthread.cpp, ods72.gdl, cvt2.cpp, ods80dif.gdl, ib_stdio.h,
-	tpc.cpp, ods80.gdl, CommitManager.h, syidef.h, blf_proto.h,
-	ods81.gdl, ExternalLibrary.h, InternalPrimaryKeysResultSet.h,
-	SecurityRoot.cpp, enc_proto.h, hpux.h, iberr_proto.h, thd_proto.h,
-	ods91.gdl, pag_proto.h:
+	freebsd.h, lck_proto.h, math.cpp, shrinit.cpp, vio_proto.h,
+	SQLError.cpp, mov.cpp, sym.cpp, InternalCallableStatement.cpp,
+	btr_proto.h, divorce.h, vmsthread.cpp, ods72.gdl, cvt2.cpp,
+	ods80dif.gdl, ib_stdio.h, tpc.cpp, ods80.gdl, CommitManager.h,
+	syidef.h, blf_proto.h, ods81.gdl, ExternalLibrary.h,
+	InternalPrimaryKeysResultSet.h, SecurityRoot.cpp, enc_proto.h,
+	hpux.h, iberr_proto.h, thd_proto.h, ods91.gdl, pag_proto.h:
 	
 	initial Vulcan import
 
@@ -6119,14 +5531,13 @@
 	OSRIException.cpp, common.h, InternalPreparedStatement.cpp,
 	CharSetManager.cpp, gds.bas, gds.cpp, gds.hxx, gds.pas,
 	Connect.cpp, gds.pli, dls_proto.h, mblr_proto.h, shut_proto.h,
-	build_no.h, freebsd.h, lck_proto.h, math.cpp, shrinit.cpp,
-	vio_proto.h, SQLError.cpp, mov.cpp, sym.cpp,
-	InternalCallableStatement.cpp, btr_proto.h, divorce.h,
-	vmsthread.cpp, ods72.gdl, cvt2.cpp, ods80dif.gdl, ib_stdio.h,
-	tpc.cpp, ods80.gdl, CommitManager.h, syidef.h, blf_proto.h,
-	ods81.gdl, ExternalLibrary.h, InternalPrimaryKeysResultSet.h,
-	SecurityRoot.cpp, enc_proto.h, hpux.h, iberr_proto.h, thd_proto.h,
-	ods91.gdl, pag_proto.h:
+	freebsd.h, lck_proto.h, math.cpp, shrinit.cpp, vio_proto.h,
+	SQLError.cpp, mov.cpp, sym.cpp, InternalCallableStatement.cpp,
+	btr_proto.h, divorce.h, vmsthread.cpp, ods72.gdl, cvt2.cpp,
+	ods80dif.gdl, ib_stdio.h, tpc.cpp, ods80.gdl, CommitManager.h,
+	syidef.h, blf_proto.h, ods81.gdl, ExternalLibrary.h,
+	InternalPrimaryKeysResultSet.h, SecurityRoot.cpp, enc_proto.h,
+	hpux.h, iberr_proto.h, thd_proto.h, ods91.gdl, pag_proto.h:
 	
 	Initial revision
 
