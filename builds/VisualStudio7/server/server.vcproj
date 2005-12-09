@@ -130,6 +130,9 @@
 				RelativePath="..\..\..\src\config\ArgsException.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\remote\os\win32\chop.cpp">
 			</File>
 			<File
@@ -340,6 +343,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\config\ArgsException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\remote\os\win32\chop_proto.h">
