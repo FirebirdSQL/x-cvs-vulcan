@@ -48,7 +48,11 @@ static const char* defaultExtension =	"";
 #ifdef __VMS
 static const char* defaultExtension =   ".exe";
 #else
+#ifdef DARWIN
+static const char* defaultExtension =   ".dylib";
+#else
 static const char* defaultExtension =	".so";
+#endif
 #endif
 #endif
 #endif
