@@ -6,7 +6,7 @@
 #include <memory.h>
 #include <string.h>
 #ifdef DARWIN
-#include <stdlib>
+#include <stdlib.h>
 #else
 #include <malloc.h>
 #endif
