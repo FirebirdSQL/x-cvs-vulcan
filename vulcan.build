@@ -993,82 +993,134 @@ CPPFLAGS = <buildopt/> -I. \
         -D_GNU_SOURCE \
         -DTHREAD_DELIVERY \
         -DMEMMGR \
-		-undefined define_a_way \
-	-DDARWIN \
-	-DSUPERSERVER \
-	-fvisibility=hidden \
-	-dynamic \
+		-DDARWIN \
+		-dynamic \
+		-fvisibility=hidden \
         -arch ppc \
         <namespace /> \
        <Includes />
 </template>
-
-<template name="SharedLibr"> -dynamiclib </template>
 
 <template name="Libraries">
     -lpthread -lm -ldl -lfirebird \
 </template>
 
+<template name="SharedLibr"> -dynamiclib </template>
 
 </component>
 
 <component name="why">
 <template name="target">libfirebird.dylib</template>
+
 <template name="CFlags">
 CPPFLAGS = <buildopt/> -I. \
-        -DFIREBIRD_ENGINE \
-	    -fPIC \
-	    -D_REENTRANT \
-	    -D_PTHREADS \
-	    -DPOSIX_THREADS \
-	    -DMULTI_THREAD \
-	    -DDEV_BUILD \
-	    -D_GNU_SOURCE \
-	    -DTHREAD_DELIVERY \
-	    -DMEMMGR \
-	    -DDARWIN \
-	    -DSUPERSERVER \
-	    -dynamic \
-       -arch ppc \
-	   -exported_symbols_list firebird.darwin \
-       <namespace /> \
-       <Includes />
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DMULTI_THREAD \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.why \
+    -arch ppc \
+	<namespace /> \
+	<Includes />
 </template>
 
 <template name="Libraries">
-	-lpthread -lm -ldl \
+	-lpthread -ldl -lm \
 </template>
 
 </component>
 
 <component name="IscDbc">
-<template name="target">libfbdbc.dylib</template>
+<template name="target">fbdbc.dylib</template>
 </component>
 
-<component name="burp">
+<component name="jrd">
+<template name="target">engine11.dylib</template>
+
 <template name="CFlags">
 CPPFLAGS = <buildopt/> -I. \
-        -DFIREBIRD_ENGINE \
-        -fPIC \
-        -D_REENTRANT \
-        -D_PTHREADS \
-        -DPOSIX_THREADS \
-        -DMULTI_THREAD \
-        -DDEV_BUILD \
-        -D_GNU_SOURCE \
-        -DTHREAD_DELIVERY \
-        -DMEMMGR \
-        -DDARWIN \
-        -fvisibility=hidden \
-        -dynamic \
-        -arch ppc \
-		-Wl,-U gds(float,...)(...) \
-        <namespace /> \
-       <Includes />
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DSUPERSERVER \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+	-DSUPERSREVER \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+	-DDARWIN \
+	-exported_symbols_list darwin.jrd \
+    <namespace /> \
+    <Includes />
+</template>
+				
+</component>
+
+<component name="remote">
+<template name="target">remote.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DSUPERSERVER \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DSUPERSREVER \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.remote \
+    <namespace /> \
+    <Includes />
+</template>
+															
+</component>
+
+<component name="Config">
+<template name="Libraries">
+	-lpthread -lm -ldl \
 </template>
 </component>
+
 </configuration>
 
+<component name="Services">
+<template name="target">services.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DSUPERSERVER \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DSUPERSREVER \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.services \
+    <namespace /> \
+    <Includes />
+</template>
+
+</component>
+														
 
 <!--   Mac OS X 10.4  64 bit    -->
 
@@ -1093,6 +1145,10 @@ CPPFLAGS = <buildopt/> -I. \
 	-arch ppc64 \
         <namespace /> \
         <Includes /> 
+</template>
+
+<template name="Libraries">
+	-lpthread -lm -ldl -lfirebird \
 </template>
 
 </component>
