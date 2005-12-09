@@ -293,6 +293,7 @@
 	_isc_set_debug
 	_isc_vtof
 	_isc_vtov
+	_fb_config_file
 
 #-----------------
 # OTHER FUNCTIONS
