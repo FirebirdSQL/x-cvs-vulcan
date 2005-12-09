@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 #if defined  (DARWIN)
-#include <stdlib>
+#include <stdlib.h>
 #else
 #include <malloc.h>
 #endif
