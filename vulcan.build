@@ -1062,32 +1062,6 @@ CPPFLAGS = <buildopt/> -I. \
 
 </component>
 
-<component name="Services">
-<template name="target">services.dylib</template>
-
-<template name="CFlags">
-CPPFLAGS = <buildopt/> -I. \
-	    -DFIREBIRD_ENGINE \
-	    -fPIC \
-	    -D_REENTRANT \
-	    -D_PTHREADS \
-	    -DPOSIX_THREADS \
-	    -DSUPERSERVER \
-	    -DDEV_BUILD \
-	    -D_GNU_SOURCE \
-	    -DTHREAD_DELIVERY \
-	    -DMEMMGR \
-	    -DSERVICE_THREAD \
-		-DDARWIN \
-		-DSUPERSERVER \
-		-exported_symbols_list=darwin.services \
-	    <namespace /> \
-	    <Includes />
-</template>
-
-</component>
-
-
 <component name="jrd">
 <template name="target">engine11.dylib</template>
 
@@ -1163,6 +1137,7 @@ CPPFLAGS = <buildopt/> -I. \
     -exported_symbols_list darwin.services \
     <namespace /> \
     <Includes />
+</template>
 
 <template name="SourceDirectories">
 DIRS = $(SRCDIR)/jrd/os/posix \
