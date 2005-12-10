@@ -286,6 +286,7 @@ DIRS = $(SRCDIR)/qli \
 		$(SRCDIR)/include/gen \
 		$(SRCDIR)/common \
 		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/config \
 </template>
 
 <template name="Production">
