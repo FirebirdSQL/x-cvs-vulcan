@@ -1,3 +1,85 @@
+2005-12-10 00:27  awharrison
+
+	* vulcan/src/IscDbc/: IscStatement.cpp, Sqlda.cpp, Stream.cpp:
+	
+	same typo!
+
+2005-12-10 00:24  awharrison
+
+	* vulcan/src/IscDbc/IscPreparedStatement.cpp:
+	
+	typo
+
+2005-12-10 00:19  awharrison
+
+	* vulcan/src/why/darwin.why:
+	
+	Another missing entrypoint
+
+2005-12-10 00:14  awharrison
+
+	* vulcan/builds/VisualStudio7/server/server.vcproj:
+	
+	Also needs AsyncEvent
+
+2005-12-10 00:10  awharrison
+
+	* vulcan/builds/VisualStudio7/server/server.vcproj:
+	
+	Needs StatusPrint.cpp
+
+2005-12-10 00:01  awharrison
+
+	* vulcan/builds/VisualStudio7/isql/isql.vcproj:
+	
+	add StatusPrint
+
+2005-12-09 23:48  awharrison
+
+	* vulcan/builds/VisualStudio7/qli/qli.vcproj:
+	
+	So we do need all those files after all - coming from the MemMgr
+	references
+
+2005-12-09 23:07  awharrison
+
+	* vulcan/src/jrd/ExternalLibrary.cpp:
+	
+	default library extension for darwin is ".dylib"... go figure
+
+2005-12-09 21:49  awharrison
+
+	* vulcan/vulcan.build:
+	
+	More darwin changes
+
+2005-12-09 21:46  awharrison
+
+	* vulcan/src/: jrd/darwin.jrd, Services/darwin.services,
+	why/darwin.why, remote/darwin.remote:
+	
+	
+	New files of exported symbols for darwin
+
+2005-12-09 20:49  awharrison
+
+	* vulcan/builds/win32/defs/gds32.def:
+	
+	Added a few more entry points (gds__parse_bpb2 and gds__trace)
+
+2005-12-09 20:47  awharrison
+
+	* vulcan/builds/VisualStudio7/jrd/jrd.vcproj:
+	
+	Removed unnecessary files that were causing multiply defined
+	symbols on Darwin.
+
+2005-12-09 18:17  awharrison
+
+	* vulcan/builds/VisualStudio7/qli/qli.vcproj:
+	
+	Add error handling modules
+
 2005-12-09 00:18  awharrison
 
 	* vulcan/builds/VisualStudio7/remote/remote.vcproj:
