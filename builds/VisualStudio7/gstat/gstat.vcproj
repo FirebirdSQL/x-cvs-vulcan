@@ -206,6 +206,9 @@
 				RelativePath="..\..\..\src\config\ScanDir.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\config\Stream.cpp">
 			</File>
 			<File
@@ -237,7 +240,8 @@
 						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							Outputs=" $(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
@@ -333,6 +337,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\config\ScanDir.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\config\Stream.h">
