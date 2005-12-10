@@ -1142,7 +1142,6 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 </component>
 
-</configuration>
 
 <component name="Services">
 <template name="target">services.dylib</template>
@@ -1164,9 +1163,31 @@ CPPFLAGS = <buildopt/> -I. \
     -exported_symbols_list darwin.services \
     <namespace /> \
     <Includes />
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/burp \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+		$(SRCDIR)/jrd \
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
 </template>
 
 </component>
+
+</configuration>
 														
 
 <!--   Mac OS X 10.4  64 bit    -->
