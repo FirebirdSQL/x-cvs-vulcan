@@ -158,10 +158,16 @@
 				RelativePath="..\..\..\src\jrd\MsgFormat.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\PBGen.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Service.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\alice\tdr.cpp">
@@ -252,10 +258,16 @@
 				RelativePath="..\..\..\src\jrd\MsgFormat.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\Mutex.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Service.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\alice\tdr_proto.h">
