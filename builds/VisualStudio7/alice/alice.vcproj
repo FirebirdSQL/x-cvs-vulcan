@@ -164,6 +164,9 @@
 				RelativePath="..\..\..\src\jrd\Service.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\alice\tdr.cpp">
 			</File>
 			<File
@@ -186,7 +189,8 @@
 						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
@@ -196,6 +200,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\..\..\src\jrd\acl.h">
+			</File>
 			<File
 				RelativePath="..\..\..\src\alice\alice.h">
 			</File>
@@ -252,6 +259,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Service.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\alice\tdr_proto.h">
