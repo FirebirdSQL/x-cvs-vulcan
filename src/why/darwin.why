@@ -294,6 +294,7 @@
 	_isc_vtof
 	_isc_vtov
 	_fb_config_file
+	_isc_format_implementation
 
 #-----------------
 # OTHER FUNCTIONS
