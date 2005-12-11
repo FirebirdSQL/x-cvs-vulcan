@@ -275,7 +275,10 @@ EXPORTS
     fb_interpret=fb_interpret
     fb_config_text=fb_config_text
     fb_config_file=fb_config_file
-	gds__alloc_debug=gds__alloc_debug
 	gds__parse_bpb2=gds__parse_bpb2
 	gds__trace=gds__trace
-	gds__temp_dir
+	gds__temp_dir=gds__temp_dir
+	
+	gds__alloc_debug=gds__alloc_debug
+	isc_format_implementation=isc_format_implementation
+	
