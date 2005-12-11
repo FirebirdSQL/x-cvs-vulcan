@@ -1099,7 +1099,6 @@ CPPFLAGS = <buildopt/> -I. \
     -DSUPERSERVER \
     -DDEV_BUILD \
     -D_GNU_SOURCE \
-    -DSUPERSREVER \
     -DTHREAD_DELIVERY \
     -DMEMMGR \
     -DDARWIN \
@@ -1128,9 +1127,9 @@ CPPFLAGS = <buildopt/> -I. \
     -D_PTHREADS \
     -DPOSIX_THREADS \
     -DSUPERSERVER \
+	-DSERVICE_THREAD \
     -DDEV_BUILD \
     -D_GNU_SOURCE \
-    -DSUPERSREVER \
     -DTHREAD_DELIVERY \
     -DMEMMGR \
     -DDARWIN \
