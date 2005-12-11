@@ -32,7 +32,7 @@
 #include "Mutex.h"
 #include "Sync.h"
 #include "../IscDbc/SQLException.h"
-#include "AdminException.h"
+#include "../config/AdminException.h"
 
 #ifdef FIREBIRD_ENGINE
 #define EXCEPTION_TRACE
