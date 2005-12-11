@@ -298,6 +298,9 @@
 				RelativePath="..\..\..\src\jrd\status.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\config\Stream.cpp">
 			</File>
 			<File
@@ -628,6 +631,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\status.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\config\Stream.h">
