@@ -24,8 +24,8 @@
 				Optimization="0"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
-				AdditionalIncludeDirectories="..\config;.;..\include;..\include\gen;..\common;..\intl"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;SERVER_SHUTDOWN;FIREBIRD_ENGINE;NAMESPACE=Engine;MEMMGR;DEV_BUILD"
+				AdditionalIncludeDirectories="../../../src/config;../../../src/jrd/;../../../src/include;../../../src/include/gen;../../../src/common;../../../src/intl"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;SERVER_SHUTDOWN;FIREBIRD_ENGINE;NAMESPACE=Engine;MEMMGR;DEV_BUILD;EXPRESSION_INDICES"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -42,15 +42,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib mpr.lib version.lib"
-				OutputFile="..\..\install\bin\engine11.dll"
+				OutputFile="..\..\..\install\bin\engine11.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
+				AdditionalLibraryDirectories="..\..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
 				IgnoreDefaultLibraryNames="nafxcwd.lib"
-				ModuleDefinitionFile=".\Engine8.def"
+				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/engine8.pdb"
-				ImportLibrary=".\Debug/engine8.lib"
+				ImportLibrary="..\..\..\src\jrd\Debug\engine8.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -92,8 +92,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				GlobalOptimizations="FALSE"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\config;.;..\include;..\include\gen;..\common;..\intl"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="../../../src/config;../../../src/jrd/;../../../src/include;../../../src/include/gen;../../../src/common;../../../src/intl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_LIB;_X86_;SUPERSERVER;SERVER_SHUTDOWN;FIREBIRD_ENGINE;NAMESPACE=Engine;MEMMGR"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -111,14 +113,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib mpr.lib version.lib"
-				OutputFile="..\..\install\bin\engine11.dll"
+				OutputFile="..\..\..\install\bin\engine11.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
-				ModuleDefinitionFile=".\Engine8.def"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
+				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Release/jrd.pdb"
-				ImportLibrary=".\Release/jrd.lib"
+				ImportLibrary=".\Release/engine11.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -157,10 +159,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\config\AdminException.cpp">
+				RelativePath="..\..\..\src\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="all.cpp">
+				RelativePath="..\..\..\src\jrd\all.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -177,10 +179,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\AsciiBlob.cpp">
+				RelativePath="..\..\..\src\jrd\AsciiBlob.cpp">
 			</File>
 			<File
-				RelativePath="AsyncEvent.cpp">
+				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -197,7 +199,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Attachment.cpp">
+				RelativePath="..\..\..\src\jrd\Attachment.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -214,16 +216,16 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Bdb.cpp">
+				RelativePath="..\..\..\src\jrd\Bdb.cpp">
 			</File>
 			<File
-				RelativePath=".\BdbSort.cpp">
+				RelativePath="..\..\..\src\jrd\BdbSort.cpp">
 			</File>
 			<File
-				RelativePath=".\BinaryBlob.cpp">
+				RelativePath="..\..\..\src\jrd\BinaryBlob.cpp">
 			</File>
 			<File
-				RelativePath="blb.cpp">
+				RelativePath="..\..\..\src\jrd\blb.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -240,7 +242,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="blob_filter.cpp">
+				RelativePath="..\..\..\src\jrd\blob_filter.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -257,7 +259,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\dsql\BlrGen.cpp">
+				RelativePath="..\..\..\src\dsql\BlrGen.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -274,13 +276,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\BlrParse.cpp">
+				RelativePath="..\..\..\src\jrd\BlrParse.cpp">
 			</File>
 			<File
-				RelativePath=".\BlrPrint.cpp">
+				RelativePath="..\..\..\src\jrd\BlrPrint.cpp">
 			</File>
 			<File
-				RelativePath="btn.cpp">
+				RelativePath="..\..\..\src\jrd\blrtable.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -297,7 +299,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="btr.cpp">
+				RelativePath="..\..\..\src\jrd\btn.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -314,7 +316,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="builtin.cpp">
+				RelativePath="..\..\..\src\jrd\btr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -331,13 +333,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\CharSet.cpp">
-			</File>
-			<File
-				RelativePath=".\CharSetManager.cpp">
-			</File>
-			<File
-				RelativePath="cmp.cpp">
+				RelativePath="..\..\..\src\jrd\builtin.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -354,37 +350,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Collation.cpp">
+				RelativePath="..\..\..\src\jrd\CharSet.cpp">
 			</File>
 			<File
-				RelativePath=".\CommitManager.cpp">
+				RelativePath="..\..\..\src\jrd\CharSetManager.cpp">
 			</File>
 			<File
-				RelativePath=".\CompilerScratch.cpp">
-			</File>
-			<File
-				RelativePath="..\config\ConfigFile.cpp">
-			</File>
-			<File
-				RelativePath="..\config\Configuration.cpp">
-			</File>
-			<File
-				RelativePath="..\config\ConfObj.cpp">
-			</File>
-			<File
-				RelativePath="..\config\ConfObject.cpp">
-			</File>
-			<File
-				RelativePath=".\Connect.cpp">
-			</File>
-			<File
-				RelativePath=".\CsConvertArray.cpp">
-			</File>
-			<File
-				RelativePath="..\dsql\Cursor.cpp">
-			</File>
-			<File
-				RelativePath="cvt.cpp">
+				RelativePath="..\..\..\src\jrd\cmp.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -401,7 +373,37 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="cvt2.cpp">
+				RelativePath="..\..\..\src\jrd\Collation.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CommitManager.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CompilerScratch.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfigFile.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Configuration.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObj.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObject.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Connect.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CsConvertArray.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\Cursor.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\cvt.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -418,7 +420,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Database.cpp">
+				RelativePath="..\..\..\src\jrd\cvt2.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -435,13 +437,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\DatabaseManager.cpp">
-			</File>
-			<File
-				RelativePath=".\DateTime.cpp">
-			</File>
-			<File
-				RelativePath="dfw.cpp">
+				RelativePath="..\..\..\src\jrd\Database.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -458,10 +454,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\config\DirectoryList.cpp">
+				RelativePath="..\..\..\src\jrd\DatabaseManager.cpp">
 			</File>
 			<File
-				RelativePath="divorce.cpp">
+				RelativePath="..\..\..\src\jrd\DateTime.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dfw.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -478,13 +477,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\dls.cpp">
+				RelativePath="..\..\..\src\config\DirectoryList.cpp">
 			</File>
 			<File
-				RelativePath=".\dmp.cpp">
-			</File>
-			<File
-				RelativePath="dpm.cpp">
+				RelativePath="..\..\..\src\jrd\divorce.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -501,7 +497,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="dsc.cpp">
+				RelativePath="..\..\..\src\jrd\dls.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dmp.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dpm.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -518,13 +520,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\dsql\dsql_msg.cpp">
-			</File>
-			<File
-				RelativePath="..\dsql\dsql_rel.cpp">
-			</File>
-			<File
-				RelativePath="dyn.cpp">
+				RelativePath="..\..\..\src\jrd\dsc.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -541,7 +537,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="dyn_def.cpp">
+				RelativePath="..\..\..\src\dsql\dsql_msg.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\dsql_rel.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -558,7 +560,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="dyn_del.cpp">
+				RelativePath="..\..\..\src\jrd\dyn_def.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -575,7 +577,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="dyn_mod.cpp">
+				RelativePath="..\..\..\src\jrd\dyn_del.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -592,7 +594,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="dyn_util.cpp">
+				RelativePath="..\..\..\src\jrd\dyn_mod.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -609,10 +611,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\config\Element.cpp">
-			</File>
-			<File
-				RelativePath="enc.cpp">
+				RelativePath="..\..\..\src\jrd\dyn_util.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -629,7 +628,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Engine8.cpp">
+				RelativePath="..\..\..\src\config\Element.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\enc.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -646,13 +648,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Engine8.def">
-			</File>
-			<File
-				RelativePath=".\Entrypoint.cpp">
-			</File>
-			<File
-				RelativePath="err.cpp">
+				RelativePath="..\..\..\src\jrd\Engine8.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -669,10 +665,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Error.cpp">
+				RelativePath="..\..\..\src\jrd\Engine8.def">
 			</File>
 			<File
-				RelativePath="event.cpp">
+				RelativePath="..\..\..\src\jrd\Entrypoint.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\err.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -689,7 +688,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="evl.cpp">
+				RelativePath="..\..\..\src\jrd\Error.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\event.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -706,7 +708,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="evl_like.cpp">
+				RelativePath="..\..\..\src\jrd\evl.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -723,7 +725,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="exe.cpp">
+				RelativePath="..\..\..\src\jrd\evl_like.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -740,13 +742,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ExecStatement.cpp">
-			</File>
-			<File
-				RelativePath=".\ExecutionPathInfoGen.cpp">
-			</File>
-			<File
-				RelativePath="ext.cpp">
+				RelativePath="..\..\..\src\jrd\exe.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -763,10 +759,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\ExternalLibrary.cpp">
+				RelativePath="..\..\..\src\jrd\ExecStatement.cpp">
 			</File>
 			<File
-				RelativePath="..\common\fb_exception.cpp">
+				RelativePath="..\..\..\src\jrd\ExecutionPathInfoGen.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ext.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -783,7 +782,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="os\win32\fbsyslog.cpp">
+				RelativePath="..\..\..\src\jrd\ExternalLibrary.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\fb_exception.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -800,7 +802,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Field.cpp">
+				RelativePath="..\..\..\src\jrd\os\win32\fbsyslog.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -817,10 +819,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\config\FileName.cpp">
-			</File>
-			<File
-				RelativePath="filters.cpp">
+				RelativePath="..\..\..\src\jrd\Field.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -837,7 +836,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="flu.cpp">
+				RelativePath="..\..\..\src\config\FileName.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\filters.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -854,10 +856,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Format.cpp">
-			</File>
-			<File
-				RelativePath="fun.cpp">
+				RelativePath="..\..\..\src\jrd\flu.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -874,7 +873,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="functions.cpp">
+				RelativePath="..\..\..\src\jrd\Format.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\fun.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -891,7 +893,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="gds.cpp">
+				RelativePath="..\..\..\src\jrd\functions.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -908,13 +910,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Generate.cpp">
+				RelativePath="..\..\..\src\jrd\Generate.cpp">
 			</File>
 			<File
-				RelativePath=".\GenericMove.cpp">
+				RelativePath="..\..\..\src\jrd\GenericMove.cpp">
 			</File>
 			<File
-				RelativePath="grant.cpp">
+				RelativePath="..\..\..\src\jrd\grant.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -931,7 +933,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="os\win32\guid.cpp">
+				RelativePath="..\..\..\src\jrd\os\win32\guid.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -948,7 +950,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="iberr.cpp">
+				RelativePath="..\..\..\src\jrd\iberr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -965,7 +967,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="idx.cpp">
+				RelativePath="..\..\..\src\jrd\idx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -982,7 +984,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="inf.cpp">
+				RelativePath="..\..\..\src\jrd\inf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -999,10 +1001,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\InfoGen.cpp">
+				RelativePath="..\..\..\src\jrd\InfoGen.cpp">
 			</File>
 			<File
-				RelativePath="ini.cpp">
+				RelativePath="..\..\..\src\jrd\ini.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1019,70 +1021,70 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\config\InputFile.cpp">
+				RelativePath="..\..\..\src\config\InputFile.cpp">
 			</File>
 			<File
-				RelativePath="..\config\InputStream.cpp">
+				RelativePath="..\..\..\src\config\InputStream.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalBlob.cpp">
+				RelativePath="..\..\..\src\jrd\InternalBlob.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalCallableStatement.cpp">
+				RelativePath="..\..\..\src\jrd\InternalCallableStatement.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalColumnsResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalColumnsResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalConnection.cpp">
+				RelativePath="..\..\..\src\jrd\InternalConnection.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalCrossReferenceResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalCrossReferenceResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalDatabaseMetaData.cpp">
+				RelativePath="..\..\..\src\jrd\InternalDatabaseMetaData.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalIndexInfoResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalIndexInfoResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalMetaDataResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalMetaDataResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalPreparedStatement.cpp">
+				RelativePath="..\..\..\src\jrd\InternalPreparedStatement.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalPrimaryKeysResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalPrimaryKeysResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalProcedureColumnsResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalProcedureColumnsResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalProceduresResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalProceduresResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalResultSet.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalResultSetMetaData.cpp">
+				RelativePath="..\..\..\src\jrd\InternalResultSetMetaData.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalSecurityContext.cpp">
+				RelativePath="..\..\..\src\jrd\InternalSecurityContext.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalSqlType.cpp">
+				RelativePath="..\..\..\src\jrd\InternalSqlType.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalStatement.cpp">
+				RelativePath="..\..\..\src\jrd\InternalStatement.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalStatementMetaData.cpp">
+				RelativePath="..\..\..\src\jrd\InternalStatementMetaData.cpp">
 			</File>
 			<File
-				RelativePath=".\InternalTablesResultSet.cpp">
+				RelativePath="..\..\..\src\jrd\InternalTablesResultSet.cpp">
 			</File>
 			<File
-				RelativePath="intl.cpp">
+				RelativePath="..\..\..\src\jrd\intl.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1099,7 +1101,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="intl_builtin.cpp">
+				RelativePath="..\..\..\src\jrd\intl_builtin.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1116,7 +1118,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="inuse.cpp">
+				RelativePath="..\..\..\src\jrd\inuse.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1133,7 +1135,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="isc.cpp">
+				RelativePath="..\..\..\src\jrd\isc.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1150,10 +1152,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\isc_exception.cpp">
+				RelativePath="..\..\..\src\jrd\isc_exception.cpp">
 			</File>
 			<File
-				RelativePath="isc_file.cpp">
+				RelativePath="..\..\..\src\jrd\isc_file.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1170,7 +1172,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="os\win32\isc_ipc.cpp">
+				RelativePath="..\..\..\src\jrd\os\win32\isc_ipc.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1187,7 +1189,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="isc_sync.cpp">
+				RelativePath="..\..\..\src\jrd\isc_sync.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1204,10 +1206,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="isc_version.rc">
-			</File>
-			<File
-				RelativePath="jrd.cpp">
+				RelativePath="..\..\..\src\jrd\jrd.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1224,10 +1223,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\JrdMove.cpp">
+				RelativePath="..\..\..\src\jrd\JrdMove.cpp">
 			</File>
 			<File
-				RelativePath="JString.cpp">
+				RelativePath="..\..\..\src\jrd\JString.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1244,10 +1243,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\JVector.cpp">
+				RelativePath="..\..\..\src\jrd\JVector.cpp">
 			</File>
 			<File
-				RelativePath="lck.cpp">
+				RelativePath="..\..\..\src\jrd\lck.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1265,10 +1264,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\config\Lex.cpp">
+				RelativePath="..\..\..\src\config\Lex.cpp">
 			</File>
 			<File
-				RelativePath="LinkedList.cpp">
+				RelativePath="..\..\..\src\jrd\LinkedList.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1285,7 +1284,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="llio.cpp">
+				RelativePath="..\..\..\src\jrd\llio.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1302,13 +1301,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\lock\LockAcquire.cpp">
+				RelativePath="..\..\..\src\lock\LockAcquire.cpp">
 			</File>
 			<File
-				RelativePath="..\lock\LockMgr.cpp">
+				RelativePath="..\..\..\src\lock\LockMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\common\classes\locks.cpp">
+				RelativePath="..\..\..\src\common\classes\locks.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1325,7 +1324,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="log.cpp">
+				RelativePath="..\..\..\src\jrd\log.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1342,10 +1341,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\MemMgr.cpp">
+				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
 			</File>
 			<File
-				RelativePath="met.cpp">
+				RelativePath="..\..\..\src\jrd\met.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1362,7 +1361,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\dsql\metd_dummy.cpp">
+				RelativePath="..\..\..\src\dsql\metd_dummy.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1379,7 +1378,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="misc.cpp">
+				RelativePath="..\..\..\src\jrd\misc.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1396,13 +1395,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Module.cpp">
+				RelativePath="..\..\..\src\jrd\Module.cpp">
 			</File>
 			<File
-				RelativePath=".\ModuleManager.cpp">
+				RelativePath="..\..\..\src\jrd\ModuleManager.cpp">
 			</File>
 			<File
-				RelativePath="mov.cpp">
+				RelativePath="..\..\..\src\jrd\mov.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1419,19 +1418,16 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Move.cpp">
+				RelativePath="..\..\..\src\jrd\Move.cpp">
 			</File>
 			<File
-				RelativePath=".\MsgFile.cpp">
+				RelativePath="..\..\..\src\jrd\MsgFile.cpp">
 			</File>
 			<File
-				RelativePath=".\MsgFormat.cpp">
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath=".\Mutex.cpp">
-			</File>
-			<File
-				RelativePath="nav.cpp">
+				RelativePath="..\..\..\src\jrd\nav.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1448,7 +1444,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="nbak.cpp">
+				RelativePath="..\..\..\src\jrd\nbak.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1465,7 +1461,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="nodebug.cpp">
+				RelativePath="..\..\..\src\jrd\nodebug.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1482,7 +1478,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="opt.cpp">
+				RelativePath="..\..\..\src\jrd\opt.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1499,7 +1495,19 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Optimizer.cpp">
+				RelativePath="..\..\..\src\jrd\Optimizer.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\pag.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1516,16 +1524,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\OSRIBugcheck.cpp">
+				RelativePath="..\..\..\src\jrd\PageCache.cpp">
 			</File>
 			<File
-				RelativePath=".\OSRIException.cpp">
-			</File>
-			<File
-				RelativePath=".\OSRIMemException.cpp">
-			</File>
-			<File
-				RelativePath="pag.cpp">
+				RelativePath="..\..\..\src\jrd\par.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1542,10 +1544,16 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PageCache.cpp">
+				RelativePath="..\..\..\src\jrd\PathName.cpp">
 			</File>
 			<File
-				RelativePath="par.cpp">
+				RelativePath="..\..\..\src\jrd\PBGen.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\pcmet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\perf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1562,13 +1570,25 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PathName.cpp">
+				RelativePath="..\..\..\src\jrd\os\win32\pio.cpp">
 			</File>
 			<File
-				RelativePath=".\PBGen.cpp">
+				RelativePath="..\..\..\src\jrd\Procedure.cpp">
 			</File>
 			<File
-				RelativePath="pcmet.cpp">
+				RelativePath="..\..\..\src\jrd\ProcManager.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ProcParam.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PStatement.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RecordSource.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RefObject.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1585,7 +1605,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="perf.cpp">
+				RelativePath="..\..\..\src\jrd\Relation.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1602,25 +1622,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\os\win32\pio.cpp">
+				RelativePath="..\..\..\src\jrd\Request.cpp">
 			</File>
 			<File
-				RelativePath=".\Procedure.cpp">
+				RelativePath="..\..\..\src\jrd\Resource.cpp">
 			</File>
 			<File
-				RelativePath=".\ProcManager.cpp">
-			</File>
-			<File
-				RelativePath=".\ProcParam.cpp">
-			</File>
-			<File
-				RelativePath=".\PStatement.cpp">
-			</File>
-			<File
-				RelativePath=".\RecordSource.cpp">
-			</File>
-			<File
-				RelativePath="RefObject.cpp">
+				RelativePath="..\..\..\src\jrd\rlck.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1637,7 +1645,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Relation.cpp">
+				RelativePath="..\..\..\src\jrd\rpb_chain.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1654,13 +1662,70 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Request.cpp">
+				RelativePath="..\..\..\src\jrd\RsbAggregate.cpp">
 			</File>
 			<File
-				RelativePath=".\Resource.cpp">
+				RelativePath="..\..\..\src\jrd\RsbBoolean.cpp">
 			</File>
 			<File
-				RelativePath="rlck.cpp">
+				RelativePath="..\..\..\src\jrd\RsbCount.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbCross.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbExtDbkey.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RSbExtIndexed.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbExtSequential.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbFirst.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbIndexed.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbLeftCross.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbMerge.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbNavigate.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbProcedure.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSequential.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSingular.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSkip.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSort.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbUnion.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbWriteLock.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ScanDir.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sch.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1677,7 +1742,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="rpb_chain.cpp">
+				RelativePath="..\..\..\src\jrd\scl.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1694,73 +1759,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\RsbAggregate.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbBoolean.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbCount.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbCross.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbExtDbkey.cpp">
-			</File>
-			<File
-				RelativePath=".\RSbExtIndexed.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbExtSequential.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbFirst.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbIndexed.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbLeftCross.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbMerge.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbNavigate.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbProcedure.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbSequential.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbSingular.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbSkip.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbSort.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbUnion.cpp">
-			</File>
-			<File
-				RelativePath=".\RsbWriteLock.cpp">
-			</File>
-			<File
-				RelativePath=".\RSet.cpp">
-			</File>
-			<File
-				RelativePath=".\SafeRefObject.cpp">
-			</File>
-			<File
-				RelativePath="..\config\ScanDir.cpp">
-			</File>
-			<File
-				RelativePath="sch.cpp">
+				RelativePath="..\..\..\src\jrd\sdl.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1777,7 +1776,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="scl.cpp">
+				RelativePath="..\..\..\src\jrd\sdw.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1794,7 +1793,16 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sdl.cpp">
+				RelativePath="..\..\..\src\jrd\SecurityDb.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SecurityPlugin.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SecurityRoot.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Service.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1811,7 +1819,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sdw.cpp">
+				RelativePath="..\..\..\src\jrd\shut.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1828,16 +1836,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SecurityDb.cpp">
-			</File>
-			<File
-				RelativePath=".\SecurityPlugin.cpp">
-			</File>
-			<File
-				RelativePath=".\SecurityRoot.cpp">
-			</File>
-			<File
-				RelativePath="Service.cpp">
+				RelativePath="..\..\..\src\jrd\sort.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1854,7 +1853,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="shut.cpp">
+				RelativePath="..\..\..\src\jrd\sort_mem.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1871,44 +1870,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sort.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath="..\..\..\src\jrd\SQLError.cpp">
 			</File>
 			<File
-				RelativePath="sort_mem.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\SQLError.cpp">
-			</File>
-			<File
-				RelativePath="..\dsql\SQLParse.cpp">
+				RelativePath="..\..\..\src\dsql\SQLParse.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1917,13 +1882,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\dsql\SQLSyntaxError.cpp">
+				RelativePath="..\..\..\src\dsql\SQLSyntaxError.cpp">
 			</File>
 			<File
-				RelativePath=".\SqlTime.cpp">
+				RelativePath="..\..\..\src\jrd\SqlTime.cpp">
 			</File>
 			<File
-				RelativePath="sqz.cpp">
+				RelativePath="..\..\..\src\jrd\sqz.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1940,10 +1905,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Stack.cpp">
+				RelativePath="..\..\..\src\jrd\Stack.cpp">
 			</File>
 			<File
-				RelativePath="status.cpp">
+				RelativePath="..\..\..\src\jrd\status.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1960,10 +1925,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\StatusPrint.cpp">
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
 			</File>
 			<File
-				RelativePath="StatusVector.cpp">
+				RelativePath="..\..\..\src\jrd\StatusVector.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1980,13 +1945,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\config\Stream.cpp">
+				RelativePath="..\..\..\src\config\Stream.cpp">
 			</File>
 			<File
-				RelativePath="..\config\StreamSegment.cpp">
+				RelativePath="..\..\..\src\config\StreamSegment.cpp">
 			</File>
 			<File
-				RelativePath="Subsystem.cpp">
+				RelativePath="..\..\..\src\jrd\Subsystem.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2003,7 +1968,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="support.cpp">
+				RelativePath="..\..\..\src\jrd\sym.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2020,7 +1985,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="sym.cpp">
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2037,7 +2002,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Sync.cpp">
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Synchronize.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2054,10 +2022,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SynchronizationObject.cpp">
-			</File>
-			<File
-				RelativePath="Synchronize.cpp">
+				RelativePath="..\..\..\src\jrd\SyncObject.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2074,7 +2039,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="SyncObject.cpp">
+				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\thd.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2091,10 +2059,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\TempSpace.cpp">
-			</File>
-			<File
-				RelativePath="thd.cpp">
+				RelativePath="..\..\..\src\jrd\Thread.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2111,7 +2076,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Thread.cpp">
+				RelativePath="..\..\..\src\jrd\ThreadData.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2128,7 +2093,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="ThreadData.cpp">
+				RelativePath="..\..\..\src\jrd\Threads.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2145,7 +2110,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="Threads.cpp">
+				RelativePath="..\..\..\src\jrd\TimeStamp.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TipCache.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\tra.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2162,13 +2133,25 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\TimeStamp.cpp">
+				RelativePath="..\..\..\src\jrd\Trigger.cpp">
 			</File>
 			<File
-				RelativePath=".\TipCache.cpp">
+				RelativePath="..\..\..\src\jrd\Triggers.cpp">
 			</File>
 			<File
-				RelativePath="tra.cpp">
+				RelativePath="..\..\..\src\jrd\UserData.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\validation.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Value.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Values.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\vio.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2184,43 +2167,1829 @@
 						Optimization="2"/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="Preprocessed Files"
+				Filter="epp">
+				<File
+					RelativePath="..\..\..\src\jrd\dfw.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\dpm.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\dyn.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\dyn_def.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\dyn_del.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\dyn_mod.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\dyn_util.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\envelope.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\fun.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\grant.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\ini.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\met.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -m -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\parse.y">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
+move dsql.tab.c  $(InputDir)\parse.cpp
+move dsql.tab.h  $(InputDir)\parse.h
+"
+							Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
+move dsql.tab.c  $(InputDir)\parse.cpp
+move dsql.tab.h  $(InputDir)\parse.h
+"
+							Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\pcmet.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\scl.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\jrd\stats.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -n -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath=".\Trigger.cpp">
+				RelativePath="..\..\..\src\jrd\acl.h">
 			</File>
 			<File
-				RelativePath=".\Triggers.cpp">
+				RelativePath="..\..\..\src\config\AdminException.h">
 			</File>
 			<File
-				RelativePath=".\UserData.cpp">
+				RelativePath="..\..\..\src\jrd\ail.h">
 			</File>
 			<File
-				RelativePath=".\utl.cpp">
+				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="validation.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
-				RelativePath=".\Value.cpp">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath=".\Values.cpp">
+				RelativePath="..\..\..\src\jrd\all_proto.h">
 			</File>
 			<File
-				RelativePath="version.rc">
+				RelativePath="..\..\..\src\dsql\alld_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\alloc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\array.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\AsciiBlob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Attachment.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\autoconfig.h">
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\:\Program Files\Microsoft Visual Studio\VC98\Include\BASETSD.H">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Bdb.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\BdbSort.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\BinaryBlob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blb.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blb_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blf_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blk.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\blk.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\Blob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blob_filter.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\BlobID.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\block_cache.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blp.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\blr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\BlrGen.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\BlrParse.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\BlrPrint.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\blrtable.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\bookmark.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\btn.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\btr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\btr_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\build_no.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\burp\burpswi.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\cch.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\cch_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\chars.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CharSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CharSetManager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\intl\charsets.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\cmp_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\codes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\codetext.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Collation.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CommitManager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\common.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CompilerScratch.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfigFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Configuration.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObj.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ConfObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Connect.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\Connection.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\constants.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\intl\country_codes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CsConvert.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\CsConvertArray.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\Cursor.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\cvt2_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\cvt_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Database.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\DatabaseManager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\DateTime.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\dbaswi.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dbg.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dbg_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\ddl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dflt.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dfw_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dialect.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\DirectoryList.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\divorce.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dls_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dmp_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dpm_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\drq.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dsc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dsc_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\dsql.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\dsql_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\dsql_rel.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\DVector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn_df_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn_dl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn_md_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\dyn_ut_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Element.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\enc_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Engine8.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\entry.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Entrypoint.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\err_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\errd_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Error.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\event.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\event_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\everything.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\evl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\exe.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\exe_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExecStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExecuteStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExecutionPathInfoGen.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ext.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ext_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExternalLibrary.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\fb_atomic.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_blk.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_exception.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_list.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_macros.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_map.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_string.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_types.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fb_vector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\fbdev.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\os\fbsyslog.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Field.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\fields.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\fil.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\file_params.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\FileName.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\filte_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\firebird.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\flags.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\flu.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\flu_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Format.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\fun_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\functions.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\gds.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\gdsassert.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\gdsold.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\gen_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Generate.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\GenericMove.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\grant_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\gsec.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\gsecswi.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\hsh_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ib_stdio.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ibase.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\iberr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\iberr_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\iberror.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ibsetjmp.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\ids.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\idx.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\idx_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\inf.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\inf_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InfoGen.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ini.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ini_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\InputStream.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Interlock.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalBlob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalCallableStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalColumnsResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalConnection.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalCrossReferenceResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalDatabaseMetaData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalIndexInfoResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalMetaDataResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalPreparedStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalPrimaryKeysResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalProcedureColumnsResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalProceduresResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalResultSetMetaData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalSecurityContext.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalSqlType.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalStatementMetaData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\InternalTablesResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\intl.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\intl_classes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\intl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\intlnames.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\intlobj.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\inuse_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\irq.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\isc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\isc_f_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\isc_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\isc_s_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\isc_signal.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\jrd.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\jrd_blks.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\jrd_math.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\jrd_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\jrd_time.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JrdMove.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JString.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JVector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\keywords.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\lck.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\lck_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Lex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\license.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\LinkedList.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\LinkedList.inl">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\llio.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\llio_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\lls.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\lnmdef.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\lock\lock_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\lock\LockAcquire.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\lock\LockMgr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\locks.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\log.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\log2.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\log_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\make_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\map_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\mblr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\mblr_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemoryManager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\met.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\met_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\metd_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\misc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\misc_func.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\misc_func_ids.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\misc_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Module.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ModuleManager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\mov_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\movd_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Move.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\msg.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\msg_encode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MsgFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\msgs.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Mutex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\names.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\nav_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\nbak.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\nod.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\node.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\obj.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ods.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\old_vector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\opt_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Optimizer.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\pag.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\pag_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PageCache.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\par_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Parameters.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\parse_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\pass1_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\os\path_utils.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PathName.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PBGen.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\pcmet_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\perf.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\perf_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\os\pio.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\pio_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\plugin_manager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\prepa_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Procedure.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ProcManager.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ProcParam.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\Properties.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\prv_m_bypass.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\QSort.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\quad.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\quad_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\que.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rdb.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rdbcodes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rec_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RecordNumber.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RecordSource.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RefObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\registry.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Relation.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\relations.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\req.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Request.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Resource.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rlck_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rng.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rng_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rpb_chain.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbAggregate.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbBoolean.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbCount.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbCross.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbExtDbkey.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbExtIndexed.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbExtSequential.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbFirst.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbIndexed.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbLeftCross.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbMerge.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbNavigate.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbProcedure.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSequential.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSingular.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSkip.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbSort.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbUnion.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbWriteLock.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rse.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\rse_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\rwlock.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sbm.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\ScanDir.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sch_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\scl.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\scl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\scroll_cursors.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sdl.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sdl_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sdw.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sdw_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\secur_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SecurityDb.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SecurityPlugin.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SecurityRoot.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Service.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\shdef.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\shut_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SIVector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\smp.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\smp_impl.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sort.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sort_mem.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sort_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\sparse_bitmap.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\include\gen\sql_code.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\sqlda.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sqlda.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SQLError.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\SQLException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\SQLParse.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\SQLSyntaxError.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SqlTime.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sqz.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sqz_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Stack.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\status.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusVector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\Stream.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\config\StreamSegment.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Subsystem.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\svc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\svc_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\svc_undoc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SVector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\syidef.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\sym.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\sym_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Symb.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Synchronize.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SyncObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\tdbb.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TempSpace.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\thd.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\os\thd_priority.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\thd_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Thread.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ThreadData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Threads.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TimeStamp.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TipCache.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\tpc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\tpc_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\tra.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\tra_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\tree.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\trig.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Trigger.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Triggers.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\types.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\UserData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\dsql\utld_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\val.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\val_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Value.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Values.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\common\classes\vector.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\vio_debug.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\vio_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\vmslo_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\why_proto.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Dsql Files"
+			Filter="*.cpp">
+			<Filter
+				Name="DSQL Source Files"
+				Filter="">
+				<File
+					RelativePath="..\..\..\src\dsql\alld.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\CStatement.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\ddl.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\DStatement.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\errd.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\gen.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\hsh.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\keywords.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\make.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\misc_func.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\movd.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\parse.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\pass1.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\utld.cpp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="0"
+							AdditionalIncludeDirectories=""
+							BasicRuntimeChecks="3"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							Optimization="2"
+							PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
+					</FileConfiguration>
+				</File>
+				<Filter
+					Name="Dsql Preprocessed Files"
+					Filter="*.epp">
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Dsql  Header Files"
+				Filter="*.epp">
+				<File
+					RelativePath="..\..\..\src\dsql\CStatement.h">
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\DStatement.h">
+				</File>
+				<File
+					RelativePath="..\..\..\src\dsql\parse.h">
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\version.rc">
 				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="TRUE">
@@ -2236,1707 +4005,6 @@
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="vio.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<Filter
-				Name="Preprocessed File"
-				Filter="epp">
-				<File
-					RelativePath="dfw.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="dpm.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="dyn.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="dyn_def.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -gds  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="dyn_del.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="dyn_mod.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="dyn_util.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="envelope.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="fun.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="grant.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="ini.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="met.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\dsql\parse.y">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
-move dsql.tab.c  $(InputDir)\parse.cpp
-move dsql.tab.h  $(InputDir)\parse.h
-"
-							Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="pcmet.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="scl.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="stats.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
-			<File
-				RelativePath="acl.h">
-			</File>
-			<File
-				RelativePath="..\config\AdminException.h">
-			</File>
-			<File
-				RelativePath="ail.h">
-			</File>
-			<File
-				RelativePath="align.h">
-			</File>
-			<File
-				RelativePath="all.h">
-			</File>
-			<File
-				RelativePath="..\dsql\all.h">
-			</File>
-			<File
-				RelativePath="all_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\alld_proto.h">
-			</File>
-			<File
-				RelativePath="..\common\classes\alloc.h">
-			</File>
-			<File
-				RelativePath="..\common\classes\array.h">
-			</File>
-			<File
-				RelativePath=".\AsciiBlob.h">
-			</File>
-			<File
-				RelativePath="AsyncEvent.h">
-			</File>
-			<File
-				RelativePath="Attachment.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\autoconfig.h">
-			</File>
-			<File
-				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\BASETSD.H">
-			</File>
-			<File
-				RelativePath=".\Bdb.h">
-			</File>
-			<File
-				RelativePath=".\BdbSort.h">
-			</File>
-			<File
-				RelativePath=".\BinaryBlob.h">
-			</File>
-			<File
-				RelativePath="blb.h">
-			</File>
-			<File
-				RelativePath="blb_proto.h">
-			</File>
-			<File
-				RelativePath="blf_proto.h">
-			</File>
-			<File
-				RelativePath="blk.h">
-			</File>
-			<File
-				RelativePath="..\dsql\blk.h">
-			</File>
-			<File
-				RelativePath="..\common\Blob.h">
-			</File>
-			<File
-				RelativePath="blob_filter.h">
-			</File>
-			<File
-				RelativePath="block_cache.h">
-			</File>
-			<File
-				RelativePath="blp.h">
-			</File>
-			<File
-				RelativePath="blr.h">
-			</File>
-			<File
-				RelativePath="..\dsql\BlrGen.h">
-			</File>
-			<File
-				RelativePath=".\BlrParse.h">
-			</File>
-			<File
-				RelativePath=".\BlrPrint.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\blrtable.h">
-			</File>
-			<File
-				RelativePath="bookmark.h">
-			</File>
-			<File
-				RelativePath="btn.h">
-			</File>
-			<File
-				RelativePath="btr.h">
-			</File>
-			<File
-				RelativePath="btr_proto.h">
-			</File>
-			<File
-				RelativePath="build_no.h">
-			</File>
-			<File
-				RelativePath="..\burp\burpswi.h">
-			</File>
-			<File
-				RelativePath="cch.h">
-			</File>
-			<File
-				RelativePath="cch_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\chars.h">
-			</File>
-			<File
-				RelativePath=".\CharSet.h">
-			</File>
-			<File
-				RelativePath=".\CharSetManager.h">
-			</File>
-			<File
-				RelativePath="..\intl\charsets.h">
-			</File>
-			<File
-				RelativePath="cmp_proto.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\codes.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\codetext.h">
-			</File>
-			<File
-				RelativePath=".\Collation.h">
-			</File>
-			<File
-				RelativePath=".\CommitManager.h">
-			</File>
-			<File
-				RelativePath="common.h">
-			</File>
-			<File
-				RelativePath=".\CompilerScratch.h">
-			</File>
-			<File
-				RelativePath="..\config\ConfigFile.h">
-			</File>
-			<File
-				RelativePath="..\config\Configuration.h">
-			</File>
-			<File
-				RelativePath="..\config\ConfObj.h">
-			</File>
-			<File
-				RelativePath="..\config\ConfObject.h">
-			</File>
-			<File
-				RelativePath=".\Connect.h">
-			</File>
-			<File
-				RelativePath="..\common\Connection.h">
-			</File>
-			<File
-				RelativePath="constants.h">
-			</File>
-			<File
-				RelativePath="..\intl\country_codes.h">
-			</File>
-			<File
-				RelativePath=".\CsConvert.h">
-			</File>
-			<File
-				RelativePath=".\CsConvertArray.h">
-			</File>
-			<File
-				RelativePath="..\dsql\Cursor.h">
-			</File>
-			<File
-				RelativePath="cvt2_proto.h">
-			</File>
-			<File
-				RelativePath="cvt_proto.h">
-			</File>
-			<File
-				RelativePath="Database.h">
-			</File>
-			<File
-				RelativePath=".\DatabaseManager.h">
-			</File>
-			<File
-				RelativePath=".\DateTime.h">
-			</File>
-			<File
-				RelativePath="..\utilities\dbaswi.h">
-			</File>
-			<File
-				RelativePath="dbg.h">
-			</File>
-			<File
-				RelativePath="dbg_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\ddl_proto.h">
-			</File>
-			<File
-				RelativePath="dflt.h">
-			</File>
-			<File
-				RelativePath="dfw_proto.h">
-			</File>
-			<File
-				RelativePath="dialect.h">
-			</File>
-			<File
-				RelativePath="..\config\DirectoryList.h">
-			</File>
-			<File
-				RelativePath="divorce.h">
-			</File>
-			<File
-				RelativePath="dls_proto.h">
-			</File>
-			<File
-				RelativePath="dmp_proto.h">
-			</File>
-			<File
-				RelativePath="dpm_proto.h">
-			</File>
-			<File
-				RelativePath="drq.h">
-			</File>
-			<File
-				RelativePath="dsc.h">
-			</File>
-			<File
-				RelativePath="dsc_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\dsql.h">
-			</File>
-			<File
-				RelativePath="..\dsql\dsql_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\dsql_rel.h">
-			</File>
-			<File
-				RelativePath=".\DVector.h">
-			</File>
-			<File
-				RelativePath="dyn.h">
-			</File>
-			<File
-				RelativePath="dyn_df_proto.h">
-			</File>
-			<File
-				RelativePath="dyn_dl_proto.h">
-			</File>
-			<File
-				RelativePath="dyn_md_proto.h">
-			</File>
-			<File
-				RelativePath="dyn_proto.h">
-			</File>
-			<File
-				RelativePath="dyn_ut_proto.h">
-			</File>
-			<File
-				RelativePath="..\config\Element.h">
-			</File>
-			<File
-				RelativePath="enc_proto.h">
-			</File>
-			<File
-				RelativePath="Engine8.h">
-			</File>
-			<File
-				RelativePath="entry.h">
-			</File>
-			<File
-				RelativePath=".\Entrypoint.h">
-			</File>
-			<File
-				RelativePath="err_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\errd_proto.h">
-			</File>
-			<File
-				RelativePath=".\Error.h">
-			</File>
-			<File
-				RelativePath="event.h">
-			</File>
-			<File
-				RelativePath="event_proto.h">
-			</File>
-			<File
-				RelativePath="everything.h">
-			</File>
-			<File
-				RelativePath="evl_proto.h">
-			</File>
-			<File
-				RelativePath="exe.h">
-			</File>
-			<File
-				RelativePath="exe_proto.h">
-			</File>
-			<File
-				RelativePath=".\ExecStatement.h">
-			</File>
-			<File
-				RelativePath="ExecuteStatement.h">
-			</File>
-			<File
-				RelativePath=".\ExecutionPathInfoGen.h">
-			</File>
-			<File
-				RelativePath="ext.h">
-			</File>
-			<File
-				RelativePath="ext_proto.h">
-			</File>
-			<File
-				RelativePath=".\ExternalLibrary.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_blk.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_exception.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_list.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_macros.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_map.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_string.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_types.h">
-			</File>
-			<File
-				RelativePath="..\include\fb_vector.h">
-			</File>
-			<File
-				RelativePath="os\fbsyslog.h">
-			</File>
-			<File
-				RelativePath="Field.h">
-			</File>
-			<File
-				RelativePath="fields.h">
-			</File>
-			<File
-				RelativePath="fil.h">
-			</File>
-			<File
-				RelativePath="file_params.h">
-			</File>
-			<File
-				RelativePath="..\config\FileName.h">
-			</File>
-			<File
-				RelativePath="filte_proto.h">
-			</File>
-			<File
-				RelativePath="..\include\firebird.h">
-			</File>
-			<File
-				RelativePath="flags.h">
-			</File>
-			<File
-				RelativePath="flu.h">
-			</File>
-			<File
-				RelativePath="flu_proto.h">
-			</File>
-			<File
-				RelativePath=".\Format.h">
-			</File>
-			<File
-				RelativePath="fun_proto.h">
-			</File>
-			<File
-				RelativePath="gds.h">
-			</File>
-			<File
-				RelativePath="gds_proto.h">
-			</File>
-			<File
-				RelativePath="gdsassert.h">
-			</File>
-			<File
-				RelativePath="gdsold.h">
-			</File>
-			<File
-				RelativePath="..\dsql\gen_proto.h">
-			</File>
-			<File
-				RelativePath=".\Generate.h">
-			</File>
-			<File
-				RelativePath=".\GenericMove.h">
-			</File>
-			<File
-				RelativePath="grant_proto.h">
-			</File>
-			<File
-				RelativePath="..\utilities\gsec.h">
-			</File>
-			<File
-				RelativePath="..\utilities\gsecswi.h">
-			</File>
-			<File
-				RelativePath="..\dsql\hsh_proto.h">
-			</File>
-			<File
-				RelativePath="ib_stdio.h">
-			</File>
-			<File
-				RelativePath="ibase.h">
-			</File>
-			<File
-				RelativePath="iberr.h">
-			</File>
-			<File
-				RelativePath="iberr_proto.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\iberror.h">
-			</File>
-			<File
-				RelativePath="ibsetjmp.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\ids.h">
-			</File>
-			<File
-				RelativePath="idx.h">
-			</File>
-			<File
-				RelativePath="idx_proto.h">
-			</File>
-			<File
-				RelativePath="inf.h">
-			</File>
-			<File
-				RelativePath="inf_proto.h">
-			</File>
-			<File
-				RelativePath=".\InfoGen.h">
-			</File>
-			<File
-				RelativePath="ini.h">
-			</File>
-			<File
-				RelativePath="ini_proto.h">
-			</File>
-			<File
-				RelativePath="..\config\InputFile.h">
-			</File>
-			<File
-				RelativePath="..\config\InputStream.h">
-			</File>
-			<File
-				RelativePath="Interlock.h">
-			</File>
-			<File
-				RelativePath=".\InternalBlob.h">
-			</File>
-			<File
-				RelativePath=".\InternalCallableStatement.h">
-			</File>
-			<File
-				RelativePath=".\InternalColumnsResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalConnection.h">
-			</File>
-			<File
-				RelativePath=".\InternalCrossReferenceResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalDatabaseMetaData.h">
-			</File>
-			<File
-				RelativePath=".\InternalIndexInfoResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalMetaDataResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalPreparedStatement.h">
-			</File>
-			<File
-				RelativePath=".\InternalPrimaryKeysResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalProcedureColumnsResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalProceduresResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalResultSet.h">
-			</File>
-			<File
-				RelativePath=".\InternalResultSetMetaData.h">
-			</File>
-			<File
-				RelativePath=".\InternalSecurityContext.h">
-			</File>
-			<File
-				RelativePath=".\InternalSqlType.h">
-			</File>
-			<File
-				RelativePath=".\InternalStatement.h">
-			</File>
-			<File
-				RelativePath=".\InternalStatementMetaData.h">
-			</File>
-			<File
-				RelativePath=".\InternalTablesResultSet.h">
-			</File>
-			<File
-				RelativePath="intl.h">
-			</File>
-			<File
-				RelativePath="intl_classes.h">
-			</File>
-			<File
-				RelativePath="intl_proto.h">
-			</File>
-			<File
-				RelativePath="intlnames.h">
-			</File>
-			<File
-				RelativePath="intlobj.h">
-			</File>
-			<File
-				RelativePath="inuse_proto.h">
-			</File>
-			<File
-				RelativePath="irq.h">
-			</File>
-			<File
-				RelativePath="isc.h">
-			</File>
-			<File
-				RelativePath="isc_f_proto.h">
-			</File>
-			<File
-				RelativePath="isc_proto.h">
-			</File>
-			<File
-				RelativePath="isc_s_proto.h">
-			</File>
-			<File
-				RelativePath="isc_signal.h">
-			</File>
-			<File
-				RelativePath="isc_version.h">
-			</File>
-			<File
-				RelativePath="jrd.h">
-			</File>
-			<File
-				RelativePath="jrd_blks.h">
-			</File>
-			<File
-				RelativePath="jrd_math.h">
-			</File>
-			<File
-				RelativePath="jrd_proto.h">
-			</File>
-			<File
-				RelativePath="jrd_pwd.h">
-			</File>
-			<File
-				RelativePath="jrd_time.h">
-			</File>
-			<File
-				RelativePath=".\JrdMove.h">
-			</File>
-			<File
-				RelativePath="JString.h">
-			</File>
-			<File
-				RelativePath="JVector.h">
-			</File>
-			<File
-				RelativePath="..\dsql\keywords.h">
-			</File>
-			<File
-				RelativePath="lck.h">
-			</File>
-			<File
-				RelativePath="lck_proto.h">
-			</File>
-			<File
-				RelativePath="..\config\Lex.h">
-			</File>
-			<File
-				RelativePath="license.h">
-			</File>
-			<File
-				RelativePath="LinkedList.h">
-			</File>
-			<File
-				RelativePath="LinkedList.inl">
-			</File>
-			<File
-				RelativePath="llio.h">
-			</File>
-			<File
-				RelativePath="llio_proto.h">
-			</File>
-			<File
-				RelativePath="lls.h">
-			</File>
-			<File
-				RelativePath="lnmdef.h">
-			</File>
-			<File
-				RelativePath="..\lock\lock_proto.h">
-			</File>
-			<File
-				RelativePath="..\lock\LockAcquire.h">
-			</File>
-			<File
-				RelativePath="..\lock\LockMgr.h">
-			</File>
-			<File
-				RelativePath="..\common\classes\locks.h">
-			</File>
-			<File
-				RelativePath="log.h">
-			</File>
-			<File
-				RelativePath="log2.h">
-			</File>
-			<File
-				RelativePath="log_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\make_proto.h">
-			</File>
-			<File
-				RelativePath="map_proto.h">
-			</File>
-			<File
-				RelativePath="mblr.h">
-			</File>
-			<File
-				RelativePath="mblr_proto.h">
-			</File>
-			<File
-				RelativePath=".\MemMgr.h">
-			</File>
-			<File
-				RelativePath=".\MemoryManager.h">
-			</File>
-			<File
-				RelativePath="met.h">
-			</File>
-			<File
-				RelativePath="met_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\metd_proto.h">
-			</File>
-			<File
-				RelativePath="misc.h">
-			</File>
-			<File
-				RelativePath="..\dsql\misc_func.h">
-			</File>
-			<File
-				RelativePath="misc_func_ids.h">
-			</File>
-			<File
-				RelativePath="misc_proto.h">
-			</File>
-			<File
-				RelativePath=".\Module.h">
-			</File>
-			<File
-				RelativePath=".\ModuleManager.h">
-			</File>
-			<File
-				RelativePath="mov_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\movd_proto.h">
-			</File>
-			<File
-				RelativePath=".\Move.h">
-			</File>
-			<File
-				RelativePath="msg.h">
-			</File>
-			<File
-				RelativePath="msg_encode.h">
-			</File>
-			<File
-				RelativePath=".\MsgFile.h">
-			</File>
-			<File
-				RelativePath=".\MsgFormat.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\msgs.h">
-			</File>
-			<File
-				RelativePath=".\Mutex.h">
-			</File>
-			<File
-				RelativePath="names.h">
-			</File>
-			<File
-				RelativePath="nav_proto.h">
-			</File>
-			<File
-				RelativePath="nbak.h">
-			</File>
-			<File
-				RelativePath="nod.h">
-			</File>
-			<File
-				RelativePath="..\dsql\node.h">
-			</File>
-			<File
-				RelativePath="obj.h">
-			</File>
-			<File
-				RelativePath="ods.h">
-			</File>
-			<File
-				RelativePath=".\old_vector.h">
-			</File>
-			<File
-				RelativePath="opt_proto.h">
-			</File>
-			<File
-				RelativePath=".\Optimizer.h">
-			</File>
-			<File
-				RelativePath=".\OSRIBugcheck.h">
-			</File>
-			<File
-				RelativePath=".\OSRIException.h">
-			</File>
-			<File
-				RelativePath=".\OSRIMemException.h">
-			</File>
-			<File
-				RelativePath="pag.h">
-			</File>
-			<File
-				RelativePath="pag_proto.h">
-			</File>
-			<File
-				RelativePath=".\PageCache.h">
-			</File>
-			<File
-				RelativePath="par_proto.h">
-			</File>
-			<File
-				RelativePath="..\config\Parameters.h">
-			</File>
-			<File
-				RelativePath="..\dsql\parse_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\pass1_proto.h">
-			</File>
-			<File
-				RelativePath="os\path_utils.h">
-			</File>
-			<File
-				RelativePath=".\PathName.h">
-			</File>
-			<File
-				RelativePath=".\PBGen.h">
-			</File>
-			<File
-				RelativePath="pcmet_proto.h">
-			</File>
-			<File
-				RelativePath="perf.h">
-			</File>
-			<File
-				RelativePath="perf_proto.h">
-			</File>
-			<File
-				RelativePath="os\pio.h">
-			</File>
-			<File
-				RelativePath="pio_proto.h">
-			</File>
-			<File
-				RelativePath="plugin_manager.h">
-			</File>
-			<File
-				RelativePath="..\dsql\prepa_proto.h">
-			</File>
-			<File
-				RelativePath=".\Procedure.h">
-			</File>
-			<File
-				RelativePath=".\ProcManager.h">
-			</File>
-			<File
-				RelativePath=".\ProcParam.h">
-			</File>
-			<File
-				RelativePath="..\common\Properties.h">
-			</File>
-			<File
-				RelativePath="prv_m_bypass.h">
-			</File>
-			<File
-				RelativePath=".\PStatement.h">
-			</File>
-			<File
-				RelativePath=".\QSort.h">
-			</File>
-			<File
-				RelativePath="quad.h">
-			</File>
-			<File
-				RelativePath="quad_proto.h">
-			</File>
-			<File
-				RelativePath="que.h">
-			</File>
-			<File
-				RelativePath="rdb.h">
-			</File>
-			<File
-				RelativePath="rdbcodes.h">
-			</File>
-			<File
-				RelativePath="rec_proto.h">
-			</File>
-			<File
-				RelativePath=".\RecordSource.h">
-			</File>
-			<File
-				RelativePath="RefObject.h">
-			</File>
-			<File
-				RelativePath="..\utilities\registry.h">
-			</File>
-			<File
-				RelativePath="Relation.h">
-			</File>
-			<File
-				RelativePath="relations.h">
-			</File>
-			<File
-				RelativePath="req.h">
-			</File>
-			<File
-				RelativePath=".\Request.h">
-			</File>
-			<File
-				RelativePath=".\Resource.h">
-			</File>
-			<File
-				RelativePath="rlck_proto.h">
-			</File>
-			<File
-				RelativePath="rng.h">
-			</File>
-			<File
-				RelativePath="rng_proto.h">
-			</File>
-			<File
-				RelativePath="rpb_chain.h">
-			</File>
-			<File
-				RelativePath=".\RsbAggregate.h">
-			</File>
-			<File
-				RelativePath=".\RsbBoolean.h">
-			</File>
-			<File
-				RelativePath=".\RsbCount.h">
-			</File>
-			<File
-				RelativePath=".\RsbCross.h">
-			</File>
-			<File
-				RelativePath=".\RsbExtDbkey.h">
-			</File>
-			<File
-				RelativePath=".\RsbExtIndexed.h">
-			</File>
-			<File
-				RelativePath=".\RsbExtSequential.h">
-			</File>
-			<File
-				RelativePath=".\RsbFirst.h">
-			</File>
-			<File
-				RelativePath=".\RsbIndexed.h">
-			</File>
-			<File
-				RelativePath=".\RsbLeftCross.h">
-			</File>
-			<File
-				RelativePath=".\RsbMerge.h">
-			</File>
-			<File
-				RelativePath=".\RsbNavigate.h">
-			</File>
-			<File
-				RelativePath=".\RsbProcedure.h">
-			</File>
-			<File
-				RelativePath=".\RsbSequential.h">
-			</File>
-			<File
-				RelativePath=".\RsbSingular.h">
-			</File>
-			<File
-				RelativePath=".\RsbSkip.h">
-			</File>
-			<File
-				RelativePath=".\RsbSort.h">
-			</File>
-			<File
-				RelativePath=".\RsbUnion.h">
-			</File>
-			<File
-				RelativePath=".\RsbWriteLock.h">
-			</File>
-			<File
-				RelativePath="rse.h">
-			</File>
-			<File
-				RelativePath="rse_proto.h">
-			</File>
-			<File
-				RelativePath=".\RSet.h">
-			</File>
-			<File
-				RelativePath="..\common\classes\rwlock.h">
-			</File>
-			<File
-				RelativePath=".\SafeRefObject.h">
-			</File>
-			<File
-				RelativePath="sbm.h">
-			</File>
-			<File
-				RelativePath="sbm_proto.h">
-			</File>
-			<File
-				RelativePath="..\config\ScanDir.h">
-			</File>
-			<File
-				RelativePath="sch_proto.h">
-			</File>
-			<File
-				RelativePath="scl.h">
-			</File>
-			<File
-				RelativePath="scl_proto.h">
-			</File>
-			<File
-				RelativePath="scroll_cursors.h">
-			</File>
-			<File
-				RelativePath="sdl.h">
-			</File>
-			<File
-				RelativePath="sdl_proto.h">
-			</File>
-			<File
-				RelativePath="sdw.h">
-			</File>
-			<File
-				RelativePath="sdw_proto.h">
-			</File>
-			<File
-				RelativePath="..\utilities\secur_proto.h">
-			</File>
-			<File
-				RelativePath=".\SecurityDb.h">
-			</File>
-			<File
-				RelativePath=".\SecurityPlugin.h">
-			</File>
-			<File
-				RelativePath=".\SecurityRoot.h">
-			</File>
-			<File
-				RelativePath="Service.h">
-			</File>
-			<File
-				RelativePath="shdef.h">
-			</File>
-			<File
-				RelativePath="shut_proto.h">
-			</File>
-			<File
-				RelativePath=".\SIVector.h">
-			</File>
-			<File
-				RelativePath="smp.h">
-			</File>
-			<File
-				RelativePath="smp_impl.h">
-			</File>
-			<File
-				RelativePath="sort.h">
-			</File>
-			<File
-				RelativePath="sort_mem.h">
-			</File>
-			<File
-				RelativePath="sort_proto.h">
-			</File>
-			<File
-				RelativePath="..\include\gen\sql_code.h">
-			</File>
-			<File
-				RelativePath="..\dsql\sqlda.h">
-			</File>
-			<File
-				RelativePath=".\SQLError.h">
-			</File>
-			<File
-				RelativePath="..\common\SQLException.h">
-			</File>
-			<File
-				RelativePath="..\dsql\SQLParse.h">
-			</File>
-			<File
-				RelativePath="..\dsql\SQLSyntaxError.h">
-			</File>
-			<File
-				RelativePath=".\SqlTime.h">
-			</File>
-			<File
-				RelativePath="sqz.h">
-			</File>
-			<File
-				RelativePath="sqz_proto.h">
-			</File>
-			<File
-				RelativePath=".\Stack.h">
-			</File>
-			<File
-				RelativePath="status.h">
-			</File>
-			<File
-				RelativePath=".\StatusPrint.h">
-			</File>
-			<File
-				RelativePath="StatusVector.h">
-			</File>
-			<File
-				RelativePath="..\config\Stream.h">
-			</File>
-			<File
-				RelativePath="..\config\StreamSegment.h">
-			</File>
-			<File
-				RelativePath="Subsystem.h">
-			</File>
-			<File
-				RelativePath="svc.h">
-			</File>
-			<File
-				RelativePath="svc_proto.h">
-			</File>
-			<File
-				RelativePath="svc_undoc.h">
-			</File>
-			<File
-				RelativePath=".\SVector.h">
-			</File>
-			<File
-				RelativePath="syidef.h">
-			</File>
-			<File
-				RelativePath="..\dsql\sym.h">
-			</File>
-			<File
-				RelativePath="sym_proto.h">
-			</File>
-			<File
-				RelativePath=".\Symb.h">
-			</File>
-			<File
-				RelativePath="Sync.h">
-			</File>
-			<File
-				RelativePath=".\SynchronizationObject.h">
-			</File>
-			<File
-				RelativePath="Synchronize.h">
-			</File>
-			<File
-				RelativePath="SyncObject.h">
-			</File>
-			<File
-				RelativePath="tdbb.h">
-			</File>
-			<File
-				RelativePath=".\TempSpace.h">
-			</File>
-			<File
-				RelativePath="thd.h">
-			</File>
-			<File
-				RelativePath="os\thd_priority.h">
-			</File>
-			<File
-				RelativePath="thd_proto.h">
-			</File>
-			<File
-				RelativePath="Thread.h">
-			</File>
-			<File
-				RelativePath="ThreadData.h">
-			</File>
-			<File
-				RelativePath=".\ThreadDataState.h">
-			</File>
-			<File
-				RelativePath="Threads.h">
-			</File>
-			<File
-				RelativePath=".\TimeStamp.h">
-			</File>
-			<File
-				RelativePath=".\TipCache.h">
-			</File>
-			<File
-				RelativePath="tpc.h">
-			</File>
-			<File
-				RelativePath="tpc_proto.h">
-			</File>
-			<File
-				RelativePath="tra.h">
-			</File>
-			<File
-				RelativePath="tra_proto.h">
-			</File>
-			<File
-				RelativePath="..\common\classes\tree.h">
-			</File>
-			<File
-				RelativePath="trig.h">
-			</File>
-			<File
-				RelativePath=".\Trigger.h">
-			</File>
-			<File
-				RelativePath=".\Triggers.h">
-			</File>
-			<File
-				RelativePath="types.h">
-			</File>
-			<File
-				RelativePath=".\UserData.h">
-			</File>
-			<File
-				RelativePath="utl_proto.h">
-			</File>
-			<File
-				RelativePath="..\dsql\utld_proto.h">
-			</File>
-			<File
-				RelativePath="val.h">
-			</File>
-			<File
-				RelativePath="val_proto.h">
-			</File>
-			<File
-				RelativePath=".\Value.h">
-			</File>
-			<File
-				RelativePath=".\Values.h">
-			</File>
-			<File
-				RelativePath="..\common\classes\vector.h">
-			</File>
-			<File
-				RelativePath="vio_debug.h">
-			</File>
-			<File
-				RelativePath="vio_proto.h">
-			</File>
-			<File
-				RelativePath="vmslo_proto.h">
-			</File>
-			<File
-				RelativePath="why_proto.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="Dsql Files"
-			Filter="*.cpp">
-			<File
-				RelativePath="..\dsql\alld.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\CStatement.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\ddl.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\DStatement.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\errd.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\gen.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\hsh.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\keywords.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\make.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\misc_func.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\movd.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\parse.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\pass1.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\utld.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
-				</FileConfiguration>
-			</File>
-			<Filter
-				Name="Dsql Preprocessed Files"
-				Filter="*.epp">
-			</Filter>
-		</Filter>
-		<Filter
-			Name="Dsql  Header Files"
-			Filter="*.epp">
-			<File
-				RelativePath="..\dsql\CStatement.h">
-			</File>
-			<File
-				RelativePath="..\dsql\DStatement.h">
-			</File>
-			<File
-				RelativePath="..\dsql\parse.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		</Filter>
 	</Files>
 	<Globals>

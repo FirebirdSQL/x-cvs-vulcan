@@ -23,9 +23,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="../../../src/IscDbc;../../../src/include;../../../src/jrd"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release/JdbcTest.pch"
@@ -38,9 +39,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Release/JdbcTest.exe"
+				AdditionalDependencies="fbDbc.lib"
+				OutputFile="..\..\..\src\JdbcTest\Release\JdbcTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ProgramDatabaseFile=".\Release/JdbcTest.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
@@ -80,7 +83,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\IscDbc;..\include"
+				AdditionalIncludeDirectories="../../../src/IscDbc;../../../src/include;../../../src/jrd"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -97,11 +100,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="IscDbc.lib"
-				OutputFile="Debug/JdbcTest.exe"
+				AdditionalDependencies="fbDbc.lib"
+				OutputFile="..\..\..\src\JdbcTest\Debug\JdbcTest.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/JdbcTest.pdb"
 				SubSystem="1"
@@ -139,7 +142,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath=".\Test.cpp">
+				RelativePath="..\..\..\src\JdbcTest\Test.cpp">
 			</File>
 		</Filter>
 		<Filter

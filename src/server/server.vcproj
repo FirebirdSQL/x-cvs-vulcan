@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\include\gen;..\jrd;..\config;..\why"
+				AdditionalIncludeDirectories="../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config;../../../src/why"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;DEV_BUILD;MULTI_THREAD;MEMMGR;NAMESPACE=server"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,9 +33,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
-				OutputFile="..\..\install\bin\inetserver.exe"
+				OutputFile="..\..\..\install\bin\inetserver.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/server.pdb"
 				SubSystem="1"
@@ -69,18 +69,23 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				GlobalOptimizations="FALSE"
+				FavorSizeOrSpeed="0"
+				AdditionalIncludeDirectories="../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config;../../../src/why"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;MULTI_THREAD;MEMMGR;NAMESPACE=server"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/server.exe"
+				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
+				OutputFile="..\..\..\install\bin\inetserver.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -116,205 +121,208 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\config\AdminException.cpp">
+				RelativePath="..\..\..\src\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Args.cpp">
+				RelativePath="..\..\..\src\config\Args.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ArgsException.cpp">
+				RelativePath="..\..\..\src\config\ArgsException.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\AsyncEvent.cpp">
+				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\os\win32\chop.cpp">
+				RelativePath="..\..\..\src\remote\os\win32\chop.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\os\win32\cntl.cpp">
+				RelativePath="..\..\..\src\remote\os\win32\cntl.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ConfigFile.cpp">
+				RelativePath="..\..\..\src\config\ConfigFile.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Configuration.cpp">
+				RelativePath="..\..\..\src\config\Configuration.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ConfObj.cpp">
+				RelativePath="..\..\..\src\config\ConfObj.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ConfObject.cpp">
+				RelativePath="..\..\..\src\config\ConfObject.cpp">
 			</File>
 			<File
-				RelativePath="..\config\DirectoryList.cpp">
+				RelativePath="..\..\..\src\config\DirectoryList.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\divorce.cpp">
+				RelativePath="..\..\..\src\jrd\divorce.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Element.cpp">
+				RelativePath="..\..\..\src\config\Element.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Error.cpp">
+				RelativePath="..\..\..\src\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath="..\common\fb_exception.cpp">
+				RelativePath="..\..\..\src\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\config\FileName.cpp">
+				RelativePath="..\..\..\src\config\FileName.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\HandleManager.cpp">
+				RelativePath="..\..\..\src\jrd\HandleManager.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\inet_server.cpp">
+				RelativePath="..\..\..\src\remote\inet_server.cpp">
 			</File>
 			<File
-				RelativePath="..\config\InputFile.cpp">
+				RelativePath="..\..\..\src\config\InputFile.cpp">
 			</File>
 			<File
-				RelativePath="..\config\InputStream.cpp">
+				RelativePath="..\..\..\src\config\InputStream.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\isc.cpp">
+				RelativePath="..\..\..\src\jrd\isc.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\os\win32\isc_ipc.cpp">
+				RelativePath="..\..\..\src\jrd\os\win32\isc_ipc.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\isc_sync.cpp">
+				RelativePath="..\..\..\src\jrd\isc_sync.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\JString.cpp">
+				RelativePath="..\..\..\src\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Lex.cpp">
+				RelativePath="..\..\..\src\config\Lex.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\LinkedList.cpp">
+				RelativePath="..\..\..\src\jrd\LinkedList.cpp">
 			</File>
 			<File
-				RelativePath="..\common\classes\locks.cpp">
+				RelativePath="..\..\..\src\common\classes\locks.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\MemMgr.cpp">
+				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\merge.cpp">
+				RelativePath="..\..\..\src\remote\merge.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Mutex.cpp">
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIBugcheck.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIException.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIMemException.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\parser.cpp">
+				RelativePath="..\..\..\src\remote\parser.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\PathName.cpp">
+				RelativePath="..\..\..\src\jrd\PathName.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\Port.cpp">
+				RelativePath="..\..\..\src\remote\Port.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\PortInet.cpp">
+				RelativePath="..\..\..\src\remote\PortInet.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\protocol.cpp">
+				RelativePath="..\..\..\src\remote\protocol.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RBlob.cpp">
+				RelativePath="..\..\..\src\remote\RBlob.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RDatabase.cpp">
+				RelativePath="..\..\..\src\remote\RDatabase.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\RefObject.cpp">
+				RelativePath="..\..\..\src\jrd\RefObject.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\remote.cpp">
+				RelativePath="..\..\..\src\remote\remote.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\REvent.cpp">
+				RelativePath="..\..\..\src\remote\REvent.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RFmt.cpp">
+				RelativePath="..\..\..\src\remote\RFmt.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RFormat.cpp">
+				RelativePath="..\..\..\src\remote\RFormat.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RMessage.cpp">
+				RelativePath="..\..\..\src\remote\RMessage.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RMsg.cpp">
+				RelativePath="..\..\..\src\remote\RMsg.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RProcedure.cpp">
+				RelativePath="..\..\..\src\remote\RProcedure.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RRequest.cpp">
+				RelativePath="..\..\..\src\remote\RRequest.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RServer.cpp">
+				RelativePath="..\..\..\src\remote\RServer.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RStatement.cpp">
+				RelativePath="..\..\..\src\remote\RStatement.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\RTransaction.cpp">
+				RelativePath="..\..\..\src\remote\RTransaction.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\SafeRefObject.cpp">
+				RelativePath="..\..\..\src\jrd\SafeRefObject.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ScanDir.cpp">
+				RelativePath="..\..\..\src\config\ScanDir.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\sdl.cpp">
+				RelativePath="..\..\..\src\jrd\sdl.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\status.cpp">
+				RelativePath="..\..\..\src\jrd\status.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Stream.cpp">
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
 			</File>
 			<File
-				RelativePath="..\config\StreamSegment.cpp">
+				RelativePath="..\..\..\src\config\Stream.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Sync.cpp">
+				RelativePath="..\..\..\src\config\StreamSegment.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\SynchronizationObject.cpp">
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Synchronize.cpp">
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\SyncObject.cpp">
+				RelativePath="..\..\..\src\jrd\Synchronize.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\TempSpace.cpp">
+				RelativePath="..\..\..\src\jrd\SyncObject.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\thd.cpp">
+				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Thread.cpp">
+				RelativePath="..\..\..\src\jrd\thd.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Threads.cpp">
+				RelativePath="..\..\..\src\jrd\Thread.cpp">
 			</File>
 			<File
-				RelativePath="..\remote\xdr.cpp">
+				RelativePath="..\..\..\src\jrd\Threads.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\xdr.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -322,238 +330,244 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\config\AdminException.h">
+				RelativePath="..\..\..\src\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="..\common\classes\alloc.h">
+				RelativePath="..\..\..\src\common\classes\alloc.h">
 			</File>
 			<File
-				RelativePath="..\remote\allr_proto.h">
+				RelativePath="..\..\..\src\remote\allr_proto.h">
 			</File>
 			<File
-				RelativePath="..\config\Args.h">
+				RelativePath="..\..\..\src\config\Args.h">
 			</File>
 			<File
-				RelativePath="..\config\ArgsException.h">
+				RelativePath="..\..\..\src\config\ArgsException.h">
 			</File>
 			<File
-				RelativePath="..\jrd\AsyncEvent.h">
+				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
 			</File>
 			<File
-				RelativePath="..\remote\os\win32\chop_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\chop_proto.h">
 			</File>
 			<File
-				RelativePath="..\remote\os\win32\cntl_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\cntl_proto.h">
 			</File>
 			<File
-				RelativePath="..\config\ConfigFile.h">
+				RelativePath="..\..\..\src\config\ConfigFile.h">
 			</File>
 			<File
-				RelativePath="..\config\Configuration.h">
+				RelativePath="..\..\..\src\config\Configuration.h">
 			</File>
 			<File
-				RelativePath="..\config\ConfObj.h">
+				RelativePath="..\..\..\src\config\ConfObj.h">
 			</File>
 			<File
-				RelativePath="..\config\ConfObject.h">
+				RelativePath="..\..\..\src\config\ConfObject.h">
 			</File>
 			<File
-				RelativePath="..\config\DirectoryList.h">
+				RelativePath="..\..\..\src\config\DirectoryList.h">
 			</File>
 			<File
-				RelativePath="..\jrd\divorce.h">
+				RelativePath="..\..\..\src\jrd\divorce.h">
 			</File>
 			<File
-				RelativePath="..\config\Element.h">
+				RelativePath="..\..\..\src\config\Element.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Error.h">
+				RelativePath="..\..\..\src\jrd\Error.h">
 			</File>
 			<File
-				RelativePath="..\config\FileName.h">
+				RelativePath="..\..\..\src\config\FileName.h">
 			</File>
 			<File
-				RelativePath="..\jrd\HandleManager.h">
+				RelativePath="..\..\..\src\jrd\HandleManager.h">
 			</File>
 			<File
-				RelativePath="..\jrd\ib_stdio.h">
+				RelativePath="..\..\..\src\jrd\ib_stdio.h">
 			</File>
 			<File
-				RelativePath="..\remote\os\win32\ibconfig.h">
+				RelativePath="..\..\..\src\remote\os\win32\ibconfig.h">
 			</File>
 			<File
-				RelativePath="..\remote\inet_proto.h">
+				RelativePath="..\..\..\src\remote\inet_proto.h">
 			</File>
 			<File
-				RelativePath="..\config\InputFile.h">
+				RelativePath="..\..\..\src\config\InputFile.h">
 			</File>
 			<File
-				RelativePath="..\config\InputStream.h">
+				RelativePath="..\..\..\src\config\InputStream.h">
 			</File>
 			<File
-				RelativePath="..\remote\inter_proto.h">
+				RelativePath="..\..\..\src\remote\inter_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\isc.h">
+				RelativePath="..\..\..\src\jrd\isc.h">
 			</File>
 			<File
-				RelativePath="..\jrd\os\isc_i_proto.h">
+				RelativePath="..\..\..\src\jrd\os\isc_i_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\isc_s_proto.h">
+				RelativePath="..\..\..\src\jrd\isc_s_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\JString.h">
+				RelativePath="..\..\..\src\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\config\Lex.h">
+				RelativePath="..\..\..\src\config\Lex.h">
 			</File>
 			<File
-				RelativePath="..\jrd\LinkedList.h">
+				RelativePath="..\..\..\src\jrd\LinkedList.h">
 			</File>
 			<File
-				RelativePath="..\common\classes\locks.h">
+				RelativePath="..\..\..\src\common\classes\locks.h">
 			</File>
 			<File
-				RelativePath="..\jrd\MemMgr.h">
+				RelativePath="..\..\..\src\jrd\MemMgr.h">
 			</File>
 			<File
-				RelativePath="..\jrd\MemoryManager.h">
+				RelativePath="..\..\..\src\jrd\MemoryManager.h">
 			</File>
 			<File
-				RelativePath="..\remote\merge_proto.h">
+				RelativePath="..\..\..\src\remote\merge_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Mutex.h">
+				RelativePath="..\..\..\src\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIBugcheck.h">
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIException.h">
+				RelativePath="..\..\..\src\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIMemException.h">
+				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
 			</File>
 			<File
-				RelativePath="..\config\Parameters.h">
+				RelativePath="..\..\..\src\config\Parameters.h">
 			</File>
 			<File
-				RelativePath="..\remote\parse_proto.h">
+				RelativePath="..\..\..\src\remote\parse_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\PathName.h">
+				RelativePath="..\..\..\src\jrd\PathName.h">
 			</File>
 			<File
-				RelativePath="..\remote\Port.h">
+				RelativePath="..\..\..\src\remote\Port.h">
 			</File>
 			<File
-				RelativePath="..\remote\PortInet.h">
+				RelativePath="..\..\..\src\remote\PortInet.h">
 			</File>
 			<File
-				RelativePath="..\remote\os\win32\propty_proto.h">
+				RelativePath="..\..\..\src\remote\os\win32\propty_proto.h">
 			</File>
 			<File
-				RelativePath="..\remote\protocol.h">
+				RelativePath="..\..\..\src\remote\protocol.h">
 			</File>
 			<File
-				RelativePath="..\remote\RBlob.h">
+				RelativePath="..\..\..\src\remote\RBlob.h">
 			</File>
 			<File
-				RelativePath="..\remote\RDatabase.h">
+				RelativePath="..\..\..\src\remote\RDatabase.h">
 			</File>
 			<File
-				RelativePath="..\jrd\RefObject.h">
+				RelativePath="..\..\..\src\jrd\RefObject.h">
 			</File>
 			<File
-				RelativePath="..\remote\remote.h">
+				RelativePath="..\..\..\src\remote\remote.h">
 			</File>
 			<File
-				RelativePath="..\remote\REvent.h">
+				RelativePath="..\..\..\src\remote\REvent.h">
 			</File>
 			<File
-				RelativePath="..\remote\RFmt.h">
+				RelativePath="..\..\..\src\remote\RFmt.h">
 			</File>
 			<File
-				RelativePath="..\remote\RFormat.h">
+				RelativePath="..\..\..\src\remote\RFormat.h">
 			</File>
 			<File
-				RelativePath="..\remote\RMessage.h">
+				RelativePath="..\..\..\src\remote\RMessage.h">
 			</File>
 			<File
-				RelativePath="..\remote\RMsg.h">
+				RelativePath="..\..\..\src\remote\RMsg.h">
 			</File>
 			<File
-				RelativePath="..\remote\RProcedure.h">
+				RelativePath="..\..\..\src\remote\RProcedure.h">
 			</File>
 			<File
-				RelativePath="..\remote\RRequest.h">
+				RelativePath="..\..\..\src\remote\RRequest.h">
 			</File>
 			<File
-				RelativePath="..\remote\RServer.h">
+				RelativePath="..\..\..\src\remote\RServer.h">
 			</File>
 			<File
-				RelativePath="..\remote\RStatement.h">
+				RelativePath="..\..\..\src\remote\RStatement.h">
 			</File>
 			<File
-				RelativePath="..\remote\RTransaction.h">
+				RelativePath="..\..\..\src\remote\RTransaction.h">
 			</File>
 			<File
-				RelativePath="..\jrd\SafeRefObject.h">
+				RelativePath="..\..\..\src\jrd\SafeRefObject.h">
 			</File>
 			<File
-				RelativePath="..\config\ScanDir.h">
+				RelativePath="..\..\..\src\config\ScanDir.h">
 			</File>
 			<File
-				RelativePath="..\jrd\sdl.h">
+				RelativePath="..\..\..\src\jrd\sdl.h">
 			</File>
 			<File
-				RelativePath="..\jrd\sdl_proto.h">
+				RelativePath="..\..\..\src\jrd\sdl_proto.h">
 			</File>
 			<File
-				RelativePath="..\remote\serve_proto.h">
+				RelativePath="..\..\..\src\remote\serve_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\status.h">
+				RelativePath="..\..\..\src\jrd\status.h">
 			</File>
 			<File
-				RelativePath="..\config\Stream.h">
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
-				RelativePath="..\config\StreamSegment.h">
+				RelativePath="..\..\..\src\config\Stream.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Sync.h">
+				RelativePath="..\..\..\src\config\StreamSegment.h">
 			</File>
 			<File
-				RelativePath="..\jrd\SynchronizationObject.h">
+				RelativePath="..\..\..\src\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Synchronize.h">
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
 			</File>
 			<File
-				RelativePath="..\jrd\SyncObject.h">
+				RelativePath="..\..\..\src\jrd\Synchronize.h">
 			</File>
 			<File
-				RelativePath="..\jrd\TempSpace.h">
+				RelativePath="..\..\..\src\jrd\SyncObject.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Thread.h">
+				RelativePath="..\..\..\src\jrd\TempSpace.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Threads.h">
+				RelativePath="..\..\..\src\jrd\Thread.h">
 			</File>
 			<File
-				RelativePath="..\remote\xdr.h">
+				RelativePath="..\..\..\src\jrd\Threads.h">
 			</File>
 			<File
-				RelativePath="..\remote\xdr_proto.h">
+				RelativePath="..\..\..\src\remote\xdr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\remote\xdr_proto.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

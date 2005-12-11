@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\include;..\include\gen;..\jrd;..\config"
+				AdditionalIncludeDirectories="../../../src/gstat/;../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config"
 				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32;_X86_;NAMESPACE=Gtat;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,9 +33,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib"
-				OutputFile="..\..\install\bin\gstat.exe"
+				OutputFile="..\..\..\install\bin\gstat.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/gstat.pdb"
 				SubSystem="1"
@@ -69,18 +69,21 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="../../../src/gstat/;../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config"
+				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32;_X86_;NAMESPACE=Gtat;MEMMGR"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/gstat.exe"
+				AdditionalDependencies="firebird.lib ws2_32.lib"
+				OutputFile="..\..\..\install\bin\gstat.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -116,231 +119,252 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\config\AdminException.cpp">
+				RelativePath="..\..\..\src\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\btn.cpp">
+				RelativePath="..\..\..\src\jrd\btn.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ConfigFile.cpp">
+				RelativePath="..\..\..\src\config\ConfigFile.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Configuration.cpp">
+				RelativePath="..\..\..\src\config\Configuration.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ConfObj.cpp">
+				RelativePath="..\..\..\src\config\ConfObj.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ConfObject.cpp">
+				RelativePath="..\..\..\src\config\ConfObject.cpp">
 			</File>
 			<File
-				RelativePath=".\dba.cpp">
+				RelativePath="..\..\..\src\gstat\dba.cpp">
 			</File>
 			<File
-				RelativePath=".\DbaData.cpp">
+				RelativePath="..\..\..\src\gstat\DbaData.cpp">
 			</File>
 			<File
-				RelativePath=".\DbaFile.cpp">
+				RelativePath="..\..\..\src\gstat\DbaFile.cpp">
 			</File>
 			<File
-				RelativePath=".\DbaIndex.cpp">
+				RelativePath="..\..\..\src\gstat\DbaIndex.cpp">
 			</File>
 			<File
-				RelativePath=".\DbaRelation.cpp">
+				RelativePath="..\..\..\src\gstat\DbaRelation.cpp">
 			</File>
 			<File
-				RelativePath="..\config\DirectoryList.cpp">
+				RelativePath="..\..\..\src\config\DirectoryList.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Element.cpp">
+				RelativePath="..\..\..\src\config\Element.cpp">
 			</File>
 			<File
-				RelativePath="..\common\fb_exception.cpp">
+				RelativePath="..\..\..\src\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\config\FileName.cpp">
+				RelativePath="..\..\..\src\config\FileName.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Generate.cpp">
+				RelativePath="..\..\..\src\jrd\Generate.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\os\win32\guid.cpp">
+				RelativePath="..\..\..\src\jrd\os\win32\guid.cpp">
 			</File>
 			<File
-				RelativePath="..\config\InputFile.cpp">
+				RelativePath="..\..\..\src\config\InputFile.cpp">
 			</File>
 			<File
-				RelativePath="..\config\InputStream.cpp">
+				RelativePath="..\..\..\src\config\InputStream.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\JString.cpp">
+				RelativePath="..\..\..\src\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Lex.cpp">
+				RelativePath="..\..\..\src\config\Lex.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\MsgFormat.cpp">
+				RelativePath="..\..\..\src\jrd\MsgFormat.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Mutex.cpp">
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIException.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\PathName.cpp">
+				RelativePath="..\..\..\src\jrd\PathName.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\PBGen.cpp">
+				RelativePath="..\..\..\src\jrd\PBGen.cpp">
 			</File>
 			<File
-				RelativePath=".\ppg.cpp">
+				RelativePath="..\..\..\src\gstat\ppg.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\RefObject.cpp">
+				RelativePath="..\..\..\src\jrd\RefObject.cpp">
 			</File>
 			<File
-				RelativePath="..\config\ScanDir.cpp">
+				RelativePath="..\..\..\src\config\ScanDir.cpp">
 			</File>
 			<File
-				RelativePath="..\config\Stream.cpp">
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
 			</File>
 			<File
-				RelativePath="..\config\StreamSegment.cpp">
+				RelativePath="..\..\..\src\config\Stream.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Sync.cpp">
+				RelativePath="..\..\..\src\config\StreamSegment.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\SynchronizationObject.cpp">
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\TempSpace.cpp">
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
 			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
+			</File>
+			<Filter
+				Name="Preprocessed Files"
+				Filter="">
+				<File
+					RelativePath="..\..\..\src\gstat\dba.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs=" $(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs=" $(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\config\AdminException.h">
+				RelativePath="..\..\..\src\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="..\jrd\btn.h">
+				RelativePath="..\..\..\src\jrd\btn.h">
 			</File>
 			<File
-				RelativePath="..\config\ConfigFile.h">
+				RelativePath="..\..\..\src\config\ConfigFile.h">
 			</File>
 			<File
-				RelativePath="..\config\Configuration.h">
+				RelativePath="..\..\..\src\config\Configuration.h">
 			</File>
 			<File
-				RelativePath="..\config\ConfObj.h">
+				RelativePath="..\..\..\src\config\ConfObj.h">
 			</File>
 			<File
-				RelativePath="..\config\ConfObject.h">
+				RelativePath="..\..\..\src\config\ConfObject.h">
 			</File>
 			<File
-				RelativePath=".\DbaData.h">
+				RelativePath="..\..\..\src\gstat\DbaData.h">
 			</File>
 			<File
-				RelativePath=".\DbaFile.h">
+				RelativePath="..\..\..\src\gstat\DbaFile.h">
 			</File>
 			<File
-				RelativePath=".\DbaIndex.h">
+				RelativePath="..\..\..\src\gstat\DbaIndex.h">
 			</File>
 			<File
-				RelativePath=".\DbaRelation.h">
+				RelativePath="..\..\..\src\gstat\DbaRelation.h">
 			</File>
 			<File
-				RelativePath=".\dbaswi.h">
+				RelativePath="..\..\..\src\gstat\dbaswi.h">
 			</File>
 			<File
-				RelativePath="..\config\DirectoryList.h">
+				RelativePath="..\..\..\src\config\DirectoryList.h">
 			</File>
 			<File
-				RelativePath="..\config\Element.h">
+				RelativePath="..\..\..\src\config\Element.h">
 			</File>
 			<File
-				RelativePath="..\config\FileName.h">
+				RelativePath="..\..\..\src\config\FileName.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Generate.h">
+				RelativePath="..\..\..\src\jrd\Generate.h">
 			</File>
 			<File
-				RelativePath="..\jrd\os\guid.h">
+				RelativePath="..\..\..\src\jrd\os\guid.h">
 			</File>
 			<File
-				RelativePath="..\config\InputFile.h">
+				RelativePath="..\..\..\src\config\InputFile.h">
 			</File>
 			<File
-				RelativePath="..\config\InputStream.h">
+				RelativePath="..\..\..\src\config\InputStream.h">
 			</File>
 			<File
-				RelativePath="..\jrd\JString.h">
+				RelativePath="..\..\..\src\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\config\Lex.h">
+				RelativePath="..\..\..\src\config\Lex.h">
 			</File>
 			<File
-				RelativePath="..\jrd\MsgFormat.h">
+				RelativePath="..\..\..\src\jrd\MsgFormat.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Mutex.h">
+				RelativePath="..\..\..\src\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\jrd\OSRIException.h">
+				RelativePath="..\..\..\src\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath="..\config\Parameters.h">
+				RelativePath="..\..\..\src\config\Parameters.h">
 			</File>
 			<File
-				RelativePath="..\jrd\PathName.h">
+				RelativePath="..\..\..\src\jrd\PathName.h">
 			</File>
 			<File
-				RelativePath="..\jrd\PBGen.h">
+				RelativePath="..\..\..\src\jrd\PBGen.h">
 			</File>
 			<File
-				RelativePath=".\ppg_proto.h">
+				RelativePath="..\..\..\src\gstat\ppg_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\RefObject.h">
+				RelativePath="..\..\..\src\jrd\RefObject.h">
 			</File>
 			<File
-				RelativePath="..\config\ScanDir.h">
+				RelativePath="..\..\..\src\config\ScanDir.h">
 			</File>
 			<File
-				RelativePath="..\config\Stream.h">
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
 			</File>
 			<File
-				RelativePath="..\config\StreamSegment.h">
+				RelativePath="..\..\..\src\config\Stream.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Sync.h">
+				RelativePath="..\..\..\src\config\StreamSegment.h">
 			</File>
 			<File
-				RelativePath="..\jrd\SynchronizationObject.h">
+				RelativePath="..\..\..\src\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\jrd\TempSpace.h">
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\TempSpace.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
 		</Filter>
-		<File
-			RelativePath=".\dba.epp">
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCustomBuildTool"
-					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-					Outputs=" $(InputDir)$(InputName).cpp"/>
-			</FileConfiguration>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

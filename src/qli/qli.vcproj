@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include\gen;..\include;..\jrd"
+				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/jrd"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Qli;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,9 +34,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\install\bin/qli.exe"
+				OutputFile="..\..\..\install\bin\qli.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/qli.pdb"
 				SubSystem="1"
@@ -70,19 +70,21 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./;../jrd/;../intl/;../utilities/;../config/;../include/;../include/gen/"
+				AdditionalIncludeDirectories="../../../src/qli/;../../../src/jrd/;../../../src/intl/;../../../src/utilities/;../../../src/config/;../../../src/include/;../../../src/include/gen/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
+				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/qli.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\install\bin\qli.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -118,104 +120,125 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\all.cpp">
+				RelativePath="..\..\..\src\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath=".\command.cpp">
+				RelativePath="..\..\..\src\qli\all.cpp">
 			</File>
 			<File
-				RelativePath=".\compile.cpp">
+				RelativePath="..\..\..\src\qli\command.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\dsc.cpp">
+				RelativePath="..\..\..\src\qli\compile.cpp">
 			</File>
 			<File
-				RelativePath=".\dtr.cpp">
+				RelativePath="..\..\..\src\jrd\dsc.cpp">
 			</File>
 			<File
-				RelativePath=".\err.cpp">
+				RelativePath="..\..\..\src\qli\dtr.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\Error.cpp">
+				RelativePath="..\..\..\src\qli\err.cpp">
 			</File>
 			<File
-				RelativePath=".\eval.cpp">
+				RelativePath="..\..\..\src\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath=".\exe.cpp">
+				RelativePath="..\..\..\src\qli\eval.cpp">
 			</File>
 			<File
-				RelativePath=".\expand.cpp">
+				RelativePath="..\..\..\src\qli\exe.cpp">
 			</File>
 			<File
-				RelativePath="..\common\fb_exception.cpp">
+				RelativePath="..\..\..\src\qli\expand.cpp">
 			</File>
 			<File
-				RelativePath=".\format.cpp">
+				RelativePath="..\..\..\src\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath=".\gener.cpp">
+				RelativePath="..\..\..\src\qli\format.cpp">
 			</File>
 			<File
-				RelativePath=".\help.cpp">
+				RelativePath="..\..\..\src\qli\gener.cpp">
 			</File>
 			<File
-				RelativePath=".\hsh.cpp">
+				RelativePath="..\..\..\src\qli\help.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\JString.cpp">
+				RelativePath="..\..\..\src\qli\hsh.cpp">
 			</File>
 			<File
-				RelativePath=".\lex.cpp">
+				RelativePath="..\..\..\src\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\common\classes\locks.cpp">
+				RelativePath="..\..\..\src\qli\lex.cpp">
 			</File>
 			<File
-				RelativePath=".\meta.cpp">
+				RelativePath="..\..\..\src\common\classes\locks.cpp">
 			</File>
 			<File
-				RelativePath=".\mov.cpp">
+				RelativePath="..\..\..\src\qli\meta.cpp">
 			</File>
 			<File
-				RelativePath=".\noform.cpp">
+				RelativePath="..\..\..\src\qli\mov.cpp">
 			</File>
 			<File
-				RelativePath=".\nounix.cpp">
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath=".\parse.cpp">
+				RelativePath="..\..\..\src\qli\noform.cpp">
 			</File>
 			<File
-				RelativePath=".\picstr.cpp">
+				RelativePath="..\..\..\src\qli\nounix.cpp">
 			</File>
 			<File
-				RelativePath="..\gpre\pretty.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
 			</File>
 			<File
-				RelativePath=".\proc.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath=".\report.cpp">
+				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
 			</File>
 			<File
-				RelativePath=".\show.cpp">
+				RelativePath="..\..\..\src\qli\parse.cpp">
 			</File>
 			<File
-				RelativePath="..\utilities\TempFile.cpp">
+				RelativePath="..\..\..\src\qli\picstr.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\gpre\pretty.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\proc.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\report.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\show.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\TempFile.cpp">
 			</File>
 			<Filter
 				Name="Database Backups"
 				Filter="">
 				<File
-					RelativePath="..\misc\help.gbak">
+					RelativePath="..\..\..\src\misc\help.gbak">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="gbak -r $(InputPath) help.fdb
 "
-							Outputs="..\..\install\help\help.fdb"/>
+							Outputs="..\..\..\install\help\help.fdb"/>
 					</FileConfiguration>
 				</File>
 			</Filter>
@@ -223,50 +246,82 @@
 				Name="Preprocessed files"
 				Filter="">
 				<File
-					RelativePath=".\help.epp">
+					RelativePath="..\..\..\src\qli\help.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
 							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\meta.epp">
 					<FileConfiguration
-						Name="Debug|Win32">
+						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
-							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\proc.epp">
+					RelativePath="..\..\..\src\qli\meta.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
 							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\show.epp">
+					RelativePath="..\..\..\src\qli\proc.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
 							AdditionalDependencies=""
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\..\src\qli\show.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+							AdditionalDependencies=""
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="..\..\..\install\bin\gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
@@ -277,142 +332,169 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\all_proto.h">
+				RelativePath="..\..\..\src\jrd\acl.h">
 			</File>
 			<File
-				RelativePath="..\common\classes\alloc.h">
+				RelativePath="..\..\..\src\config\AdminException.h">
 			</File>
 			<File
-				RelativePath=".\blk.h">
+				RelativePath="..\..\..\src\qli\all_proto.h">
 			</File>
 			<File
-				RelativePath=".\comma_proto.h">
+				RelativePath="..\..\..\src\common\classes\alloc.h">
 			</File>
 			<File
-				RelativePath=".\compi_proto.h">
+				RelativePath="..\..\..\src\qli\blk.h">
 			</File>
 			<File
-				RelativePath=".\compile.h">
+				RelativePath="..\..\..\src\qli\comma_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\dsc.h">
+				RelativePath="..\..\..\src\qli\compi_proto.h">
 			</File>
 			<File
-				RelativePath=".\dtr.h">
+				RelativePath="..\..\..\src\qli\compile.h">
 			</File>
 			<File
-				RelativePath=".\err_proto.h">
+				RelativePath="..\..\..\src\jrd\dsc.h">
 			</File>
 			<File
-				RelativePath="..\jrd\Error.h">
+				RelativePath="..\..\..\src\qli\dtr.h">
 			</File>
 			<File
-				RelativePath=".\eval_proto.h">
+				RelativePath="..\..\..\src\qli\err_proto.h">
 			</File>
 			<File
-				RelativePath=".\everything.h">
+				RelativePath="..\..\..\src\jrd\Error.h">
 			</File>
 			<File
-				RelativePath=".\exe.h">
+				RelativePath="..\..\..\src\qli\eval_proto.h">
 			</File>
 			<File
-				RelativePath=".\exe_proto.h">
+				RelativePath="..\..\..\src\qli\everything.h">
 			</File>
 			<File
-				RelativePath=".\expan_proto.h">
+				RelativePath="..\..\..\src\qli\exe.h">
 			</File>
 			<File
-				RelativePath=".\form.h">
+				RelativePath="..\..\..\src\qli\exe_proto.h">
 			</File>
 			<File
-				RelativePath=".\form_proto.h">
+				RelativePath="..\..\..\src\qli\expan_proto.h">
 			</File>
 			<File
-				RelativePath=".\forma_proto.h">
+				RelativePath="..\..\..\src\qli\form.h">
 			</File>
 			<File
-				RelativePath=".\format.h">
+				RelativePath="..\..\..\src\qli\form_proto.h">
 			</File>
 			<File
-				RelativePath=".\gener_proto.h">
+				RelativePath="..\..\..\src\qli\forma_proto.h">
 			</File>
 			<File
-				RelativePath=".\help_proto.h">
+				RelativePath="..\..\..\src\qli\format.h">
 			</File>
 			<File
-				RelativePath=".\hsh_proto.h">
+				RelativePath="..\..\..\src\qli\gener_proto.h">
 			</File>
 			<File
-				RelativePath="..\jrd\JString.h">
+				RelativePath="..\..\..\src\qli\help_proto.h">
 			</File>
 			<File
-				RelativePath=".\lex_proto.h">
+				RelativePath="..\..\..\src\qli\hsh_proto.h">
 			</File>
 			<File
-				RelativePath="..\common\classes\locks.h">
+				RelativePath="..\..\..\src\jrd\JString.h">
 			</File>
 			<File
-				RelativePath=".\meta_proto.h">
+				RelativePath="..\..\..\src\qli\lex_proto.h">
 			</File>
 			<File
-				RelativePath=".\mov_proto.h">
+				RelativePath="..\..\..\src\common\classes\locks.h">
 			</File>
 			<File
-				RelativePath=".\parse.h">
+				RelativePath="..\..\..\src\qli\meta_proto.h">
 			</File>
 			<File
-				RelativePath=".\parse_proto.h">
+				RelativePath="..\..\..\src\qli\mov_proto.h">
 			</File>
 			<File
-				RelativePath=".\picst_proto.h">
+				RelativePath="..\..\..\src\jrd\MsgFormat.h">
 			</File>
 			<File
-				RelativePath="..\gpre\prett_proto.h">
+				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
 			</File>
 			<File
-				RelativePath=".\proc_ddl.h">
+				RelativePath="..\..\..\src\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath=".\proc_proto.h">
+				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
 			</File>
 			<File
-				RelativePath=".\procddl1.h">
+				RelativePath="..\..\..\src\qli\parse.h">
 			</File>
 			<File
-				RelativePath=".\procddl2.h">
+				RelativePath="..\..\..\src\qli\parse_proto.h">
 			</File>
 			<File
-				RelativePath=".\procddl3.h">
+				RelativePath="..\..\..\src\qli\picst_proto.h">
 			</File>
 			<File
-				RelativePath=".\procddl4.h">
+				RelativePath="..\..\..\src\gpre\prett_proto.h">
 			</File>
 			<File
-				RelativePath=".\repor_proto.h">
+				RelativePath="..\..\..\src\qli\proc_ddl.h">
 			</File>
 			<File
-				RelativePath=".\report.h">
+				RelativePath="..\..\..\src\qli\proc_proto.h">
 			</File>
 			<File
-				RelativePath=".\reqs.h">
+				RelativePath="..\..\..\src\qli\procddl1.h">
 			</File>
 			<File
-				RelativePath=".\show_proto.h">
+				RelativePath="..\..\..\src\qli\procddl2.h">
 			</File>
 			<File
-				RelativePath=".\symbols.h">
+				RelativePath="..\..\..\src\qli\procddl3.h">
 			</File>
 			<File
-				RelativePath="..\utilities\TempFile.h">
+				RelativePath="..\..\..\src\qli\procddl4.h">
 			</File>
 			<File
-				RelativePath=".\words.h">
+				RelativePath="..\..\..\src\qli\repor_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\report.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\reqs.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\show_proto.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\StatusPrint.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\symbols.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\utilities\TempFile.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\qli\words.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\..\..\src\jrd\isc_version.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
