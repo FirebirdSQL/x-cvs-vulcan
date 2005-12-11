@@ -910,6 +910,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\gds.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Generate.cpp">
 			</File>
 			<File
@@ -2142,9 +2145,6 @@
 				RelativePath="..\..\..\src\jrd\UserData.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\utl.cpp">
-			</File>
-			<File
 				RelativePath="..\..\..\src\jrd\validation.cpp">
 			</File>
 			<File
@@ -2499,10 +2499,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\..\..\src\jrd\align.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\all.h">
+				RelativePath="..\..\..\src\jrd\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\all.h">
+				RelativePath="..\..\..\src\dsql\all.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\all_proto.h">
@@ -2550,10 +2550,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\..\..\src\jrd\blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\blk.h">
+				RelativePath="..\..\..\src\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\blk.h">
+				RelativePath="..\..\..\src\jrd\blk.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\common\Blob.h">
@@ -3679,9 +3679,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\UserData.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\utl_proto.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\dsql\utld_proto.h">
