@@ -1,3 +1,58 @@
+2005-12-10 23:47  awharrison
+
+	* vulcan/vulcan.build:
+	
+	
+	typo corrected
+
+2005-12-10 23:29  awharrison
+
+	* vulcan/vulcan.build:
+	
+	Still more darwin tweaks
+
+2005-12-10 23:17  awharrison
+
+	* vulcan/vulcan.build:
+	
+	More tweaks for Darwin
+
+2005-12-10 23:08  awharrison
+
+	* vulcan/builds/VisualStudio7/alice/alice.vcproj:
+	
+	Trying again to get all the required files
+
+2005-12-10 22:51  awharrison
+
+	* vulcan/builds/VisualStudio7/alice/alice.vcproj:
+	
+	Whoops! wrong utility
+
+2005-12-10 22:44  awharrison
+
+	* vulcan/builds/VisualStudio7/gstat/gstat.vcproj:
+	
+	Added StatusPrint
+
+2005-12-10 22:28  awharrison
+
+	* vulcan/builds/VisualStudio7/services/services.vcproj:
+	
+	remove redundant utl.o
+
+2005-12-10 21:20  awharrison
+
+	* vulcan/vulcan.build:
+	
+	Darwin build
+
+2005-12-10 21:17  awharrison
+
+	* vulcan/builds/VisualStudio7/alice/alice.vcproj:
+	
+	added StatusPrint for darwin link
+
 2005-12-10 00:27  awharrison
 
 	* vulcan/src/IscDbc/: IscStatement.cpp, Sqlda.cpp, Stream.cpp:
