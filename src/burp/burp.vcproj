@@ -23,7 +23,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/burp/;../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config"
+				AdditionalIncludeDirectories=".;..\include;..\include\gen;..\jrd;..\config"
 				PreprocessorDefinitions="_DEBUG;WIN32;_X86_;NAMESPACE=Gbak;MEMMGR"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -40,9 +40,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib ws2_32.lib"
-				OutputFile="..\..\..\install\bin\gbak.exe"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
+				AdditionalDependencies="firebird.lib ws2_32.lib $(NOINHERIT)"
+				OutputFile="..\..\install\bin\gbak.exe"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -71,7 +71,7 @@
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory=".\Release"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="2">
@@ -79,10 +79,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../../src/burp/;../../../src/jrd/;../../../src/intl/;../../../src/utilities/;../../../src/config/;../../../src/include/;../../../src/include/gen/"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;NAMESPACE=Gbak;MEMMGR"
+				AdditionalIncludeDirectories="./;../jrd/;../intl/;../utilities/;../config/;../include/;../include/gen/"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
-				RuntimeLibrary="2"
+				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release/burp.pch"
@@ -94,11 +94,9 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib ws2_32.lib"
-				OutputFile="..\..\..\install\bin\gbak.exe"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
-				GenerateDebugInformation="TRUE"/>
+				Name="VCLibrarianTool"
+				OutputFile=".\Release\burp.lib"
+				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -116,8 +114,6 @@
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
@@ -130,10 +126,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.cpp">
+				RelativePath="..\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\backup.cpp">
+				RelativePath="backup.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -152,7 +148,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\burp.cpp">
+				RelativePath="burp.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -171,7 +167,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\canonical.cpp">
+				RelativePath="canonical.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -190,28 +186,28 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.cpp">
+				RelativePath="..\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\fb_exception.cpp">
+				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Generate.cpp">
+				RelativePath="..\jrd\Generate.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.cpp">
+				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.h">
+				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\locks.cpp">
+				RelativePath="..\common\classes\locks.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+				RelativePath="..\jrd\MemMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\misc.cpp">
+				RelativePath="misc.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -230,13 +226,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MsgFormat.cpp">
+				RelativePath="..\jrd\MsgFormat.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\mvol.cpp">
+				RelativePath="mvol.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -255,19 +251,16 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
+				RelativePath="..\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+				RelativePath="..\jrd\OSRIMemException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PBGen.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\burp\restore.cpp">
+				RelativePath="restore.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -286,19 +279,16 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\sdl.cpp">
+				RelativePath="..\jrd\sdl.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.cpp">
+				RelativePath="..\jrd\SynchronizationObject.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\remote\xdr.cpp">
+				RelativePath="..\remote\xdr.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -320,17 +310,9 @@
 				Name="Preprocessed Files"
 				Filter="*.epp">
 				<File
-					RelativePath="..\..\..\src\burp\backup.epp">
+					RelativePath="backup.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
@@ -339,17 +321,9 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\burp\restore.epp">
+					RelativePath="restore.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
@@ -363,86 +337,67 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\..\..\src\jrd\acl.h">
+				RelativePath="..\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\AdminException.h">
+				RelativePath="..\common\classes\alloc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\alloc.h">
+				RelativePath="burp.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\burp.h">
+				RelativePath="burp_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\burp_proto.h">
+				RelativePath="..\jrd\Error.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.h">
+				RelativePath="..\jrd\Generate.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Generate.h">
+				RelativePath="..\common\classes\locks.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\locks.h">
+				RelativePath="..\jrd\MemMgr.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.h">
+				RelativePath="..\jrd\MemoryManager.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemoryManager.h">
+				RelativePath="misc_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\misc_proto.h">
+				RelativePath="..\jrd\MsgFormat.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MsgFormat.h">
+				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.h">
+				RelativePath="mvol_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\mvol_proto.h">
+				RelativePath="..\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
+				RelativePath="..\jrd\OSRIMemException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.h">
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+				RelativePath="..\jrd\sdl.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PBGen.h">
+				RelativePath="..\jrd\sdl_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\sdl.h">
+				RelativePath="..\common\classes\sparse_bitmap.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\sdl_proto.h">
+				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\svc.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\svc_proto.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\Sync.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="Resources"
-			Filter="">
-			<File
-				RelativePath="..\..\..\src\jrd\isc_version.rc">
+				RelativePath="..\jrd\SynchronizationObject.h">
 			</File>
 		</Filter>
 	</Files>

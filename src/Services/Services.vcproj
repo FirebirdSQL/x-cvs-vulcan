@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/;../../../src/include;../../../src/config;../../../src/jrd;../../../src/include/gen;../../../src/common;../../../src/burp;../../../src/alice;../../../src/gsec"
+				AdditionalIncludeDirectories="..\;..\include;..\config;..\jrd;..\include\gen;..\common;..\burp;..\alice;..\gsec"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=SERVICES;MEMMGR;SERVICE_THREAD;SUPERSERVER"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib firebird.lib"
-				OutputFile="..\..\..\install\bin\services.dll"
+				OutputFile="..\..\install\bin/services.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
-				ModuleDefinitionFile="..\..\..\src\services\services.def"
+				AdditionalLibraryDirectories="..\..\install\lib"
+				ModuleDefinitionFile="services.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Services.pdb"
 				SubSystem="1"
@@ -66,26 +66,23 @@
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../src/;../../../src/include;../../../src/config;../../../src/jrd;../../../src/include/gen;../../../src/common;../../../src/burp;../../../src/alice;../../../src/gsec"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CONSOLE;NAMESPACE=SERVICES;MEMMGR;SERVICE_THREAD;SUPERSERVER"
-				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="4"
+				UsePrecompiledHeader="3"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib firebird.lib"
-				OutputFile="..\..\..\install\bin\services.dll"
+				OutputFile="$(OutDir)/Services.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
-				ModuleDefinitionFile="..\..\..\src\services\services.def"
+				ModuleDefinitionFile="services.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -121,571 +118,519 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.cpp">
+				RelativePath="..\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice.cpp">
+				RelativePath="..\alice\alice.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice_meta.cpp">
+				RelativePath="..\alice\alice_meta.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Args.cpp">
+				RelativePath="..\config\Args.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ArgsException.cpp">
+				RelativePath="..\config\ArgsException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
+				RelativePath="..\jrd\AsyncEvent.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\backup.cpp">
+				RelativePath="..\burp\backup.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\btn.cpp">
+				RelativePath="..\jrd\btn.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\burp.cpp">
+				RelativePath="..\burp\burp.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\call_service.cpp">
+				RelativePath="..\gsec\call_service.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\canonical.cpp">
+				RelativePath="..\burp\canonical.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\utilities\common\cmd_util.cpp">
+				RelativePath="..\utilities\common\cmd_util.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfigFile.cpp">
+				RelativePath="..\config\ConfigFile.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Configuration.cpp">
+				RelativePath="..\config\Configuration.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObj.cpp">
+				RelativePath="..\config\ConfObj.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObject.cpp">
+				RelativePath="..\config\ConfObject.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\dba.cpp">
+				RelativePath="..\gstat\dba.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaData.cpp">
+				RelativePath="..\gstat\DbaData.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaFile.cpp">
+				RelativePath="..\gstat\DbaFile.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaIndex.cpp">
+				RelativePath="..\gstat\DbaIndex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaRelation.cpp">
+				RelativePath="..\gstat\DbaRelation.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Element.cpp">
+				RelativePath="..\config\Element.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\enc.cpp">
+				RelativePath="..\jrd\enc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.cpp">
+				RelativePath="..\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\event.cpp">
+				RelativePath="..\jrd\event.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\exe.cpp">
+				RelativePath="..\alice\exe.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\fb_exception.cpp">
+				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\FileName.cpp">
+				RelativePath="..\config\FileName.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Generate.cpp">
+				RelativePath="..\jrd\Generate.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\gsec.cpp">
+				RelativePath="..\gsec\gsec.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\os\win32\guid.cpp">
+				RelativePath="..\jrd\os\win32\guid.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\InfoGen.cpp">
+				RelativePath="..\jrd\InfoGen.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputFile.cpp">
+				RelativePath="..\config\InputFile.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputStream.cpp">
+				RelativePath="..\config\InputStream.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc.cpp">
+				RelativePath="..\jrd\isc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\os\win32\isc_ipc.cpp">
+				RelativePath="..\jrd\os\win32\isc_ipc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc_sync.cpp">
+				RelativePath="..\jrd\isc_sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.cpp">
+				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Lex.cpp">
+				RelativePath="..\config\Lex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+				RelativePath="..\jrd\MemMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\misc.cpp">
+				RelativePath="..\burp\misc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MsgFormat.cpp">
+				RelativePath="..\jrd\MsgFormat.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\mvol.cpp">
+				RelativePath="..\burp\mvol.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIBugcheck.cpp">
+				RelativePath="..\jrd\OSRIBugcheck.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+				RelativePath="..\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+				RelativePath="..\jrd\OSRIMemException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PathName.cpp">
+				RelativePath="..\jrd\PathName.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PBGen.cpp">
+				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\ppg.cpp">
+				RelativePath="..\gstat\ppg.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\RefObject.cpp">
+				RelativePath="..\jrd\RefObject.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\restore.cpp">
+				RelativePath="..\burp\restore.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ScanDir.cpp">
+				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\sdl.cpp">
+				RelativePath="..\jrd\sdl.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\security.cpp">
+				RelativePath="..\gsec\security.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Service.cpp">
+				RelativePath="..\jrd\Service.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\services\Services.cpp">
+				RelativePath=".\Services.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\services\services.def">
+				RelativePath=".\services.def">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\status.cpp">
+				RelativePath="..\jrd\status.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+				RelativePath="..\config\Stream.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Stream.cpp">
+				RelativePath="..\config\StreamSegment.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\StreamSegment.cpp">
+				RelativePath="..\jrd\Subsystem.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Subsystem.cpp">
+				RelativePath="..\jrd\svc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\svc.cpp">
+				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.cpp">
+				RelativePath="..\alice\tdr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\tdr.cpp">
+				RelativePath="..\jrd\TempSpace.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
+				RelativePath="..\jrd\thd.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\thd.cpp">
+				RelativePath="..\jrd\utl.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\xdr.cpp">
+				RelativePath="..\remote\xdr.cpp">
 			</File>
-			<Filter
-				Name="Preprocessed files"
-				Filter="">
-				<File
-					RelativePath="..\..\..\src\alice\alice_meta.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre   -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\burp\backup.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\gstat\dba.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\burp\restore.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\..\src\gsec\security.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.h">
+				RelativePath="..\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice.h">
+				RelativePath="..\alice\alice.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice_meta.h">
+				RelativePath="..\alice\alice_meta.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice_proto.h">
+				RelativePath="..\alice\alice_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\aliceswi.h">
+				RelativePath="..\alice\aliceswi.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Args.h">
+				RelativePath="..\config\Args.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ArgsException.h">
+				RelativePath="..\config\ArgsException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
+				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\btn.h">
+				RelativePath="..\jrd\btn.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\burp.h">
+				RelativePath="..\burp\burp.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\burp_proto.h">
+				RelativePath="..\burp\burp_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\call_service.h">
+				RelativePath="..\gsec\call_service.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\canon_proto.h">
+				RelativePath="..\burp\canon_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\utilities\common\cmd_util_proto.h">
+				RelativePath="..\utilities\common\cmd_util_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Config.h">
+				RelativePath="..\config\Config.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfigFile.h">
+				RelativePath="..\config\ConfigFile.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Configuration.h">
+				RelativePath="..\config\Configuration.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObj.h">
+				RelativePath="..\config\ConfObj.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObject.h">
+				RelativePath="..\config\ConfObject.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaData.h">
+				RelativePath="..\gstat\DbaData.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaFile.h">
+				RelativePath="..\gstat\DbaFile.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaIndex.h">
+				RelativePath="..\gstat\DbaIndex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\DbaRelation.h">
+				RelativePath="..\gstat\DbaRelation.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\dbaswi.h">
+				RelativePath="..\gstat\dbaswi.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Element.h">
+				RelativePath="..\config\Element.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\enc_proto.h">
+				RelativePath="..\jrd\enc_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.h">
+				RelativePath="..\jrd\Error.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\event.h">
+				RelativePath="..\jrd\event.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\exe_proto.h">
+				RelativePath="..\alice\exe_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\FileName.h">
+				RelativePath="..\config\FileName.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Generate.h">
+				RelativePath="..\jrd\Generate.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\gsec.h">
+				RelativePath="..\gsec\gsec.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\gsec_proto.h">
+				RelativePath="..\gsec\gsec_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\gsecswi.h">
+				RelativePath="..\gsec\gsecswi.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\os\guid.h">
+				RelativePath="..\jrd\os\guid.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\inf.h">
+				RelativePath="..\jrd\inf.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\inf_proto.h">
+				RelativePath="..\jrd\inf_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\InfoGen.h">
+				RelativePath="..\jrd\InfoGen.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputFile.h">
+				RelativePath="..\config\InputFile.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputStream.h">
+				RelativePath="..\config\InputStream.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc.h">
+				RelativePath="..\jrd\isc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc_proto.h">
+				RelativePath="..\jrd\isc_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc_s_proto.h">
+				RelativePath="..\jrd\isc_s_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.h">
+				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Lex.h">
+				RelativePath="..\config\Lex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\lls.h">
+				RelativePath="..\alice\lls.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.h">
+				RelativePath="..\jrd\MemMgr.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\misc_proto.h">
+				RelativePath="..\burp\misc_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MsgFormat.h">
+				RelativePath="..\jrd\MsgFormat.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.h">
+				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\mvol_proto.h">
+				RelativePath="..\burp\mvol_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIBugcheck.h">
+				RelativePath="..\jrd\OSRIBugcheck.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.h">
+				RelativePath="..\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+				RelativePath="..\jrd\OSRIMemException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PathName.h">
+				RelativePath="..\jrd\PathName.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PBGen.h">
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gstat\ppg_proto.h">
+				RelativePath="..\gstat\ppg_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\RefObject.h">
+				RelativePath="..\jrd\RefObject.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\resto_proto.h">
+				RelativePath="..\burp\resto_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ScanDir.h">
+				RelativePath="..\config\ScanDir.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\sdl.h">
+				RelativePath="..\jrd\sdl.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\sdl_proto.h">
+				RelativePath="..\jrd\sdl_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\gsec\secur_proto.h">
+				RelativePath="..\gsec\secur_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Service.h">
+				RelativePath="..\jrd\Service.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\services\Services.h">
+				RelativePath=".\Services.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\burp\spit.h">
+				RelativePath="..\burp\spit.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\status.h">
+				RelativePath="..\jrd\status.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.h">
+				RelativePath="..\config\Stream.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Stream.h">
+				RelativePath="..\config\StreamSegment.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\StreamSegment.h">
+				RelativePath="..\jrd\Subsystem.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Subsystem.h">
+				RelativePath="..\jrd\svc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\svc.h">
+				RelativePath="..\jrd\svc_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\svc_proto.h">
+				RelativePath="..\jrd\svc_undoc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\svc_undoc.h">
+				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.h">
+				RelativePath="..\alice\tdr_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\tdr_proto.h">
+				RelativePath="..\jrd\TempSpace.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\TempSpace.h">
+				RelativePath="..\jrd\thd.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\thd.h">
+				RelativePath="..\jrd\thd_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\thd_proto.h">
+				RelativePath="..\jrd\utl_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\utl_proto.h">
+				RelativePath="..\remote\xdr.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\remote\xdr.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\remote\xdr_proto.h">
+				RelativePath="..\remote\xdr_proto.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-			<File
-				RelativePath="..\..\..\src\jrd\isc_version.rc">
-			</File>
 		</Filter>
+		<File
+			RelativePath="..\alice\alice_meta.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre   -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\burp\backup.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\gstat\dba.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\burp\restore.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\gsec\security.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

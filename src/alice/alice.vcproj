@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/alice/;../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config"
+				AdditionalIncludeDirectories=".;..\include;..\include\gen;..\jrd;..\config"
 				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32;_X86_;NAMESPACE=Alice;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,9 +33,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\install\bin\gfix.exe"
+				OutputFile="..\..\install\bin\gfix.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/alice.pdb"
 				SubSystem="1"
@@ -69,21 +69,19 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../src/alice/;../../../src/include;../../../src/include/gen;../../../src/jrd;../../../src/config"
+				AdditionalIncludeDirectories=".;..\include;..\include\gen;..\jrd;..\config"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;NAMESPACE=Alice;MEMMGR"
 				RuntimeLibrary="4"
-				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\install\bin\gfix.exe"
+				OutputFile="$(OutDir)/alice.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -119,171 +117,153 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\..\src\alice\alice.cpp">
+				RelativePath=".\alice.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice_meta.cpp">
+				RelativePath=".\alice_meta.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\AsyncEvent.cpp">
+				RelativePath="..\jrd\AsyncEvent.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\enc.cpp">
+				RelativePath="..\jrd\enc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.cpp">
+				RelativePath="..\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\exe.cpp">
+				RelativePath=".\exe.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\fb_exception.cpp">
+				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Generate.cpp">
+				RelativePath="..\jrd\Generate.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc.cpp">
+				RelativePath="..\jrd\isc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\os\win32\isc_ipc.cpp">
+				RelativePath="..\jrd\os\win32\isc_ipc.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc_sync.cpp">
+				RelativePath="..\jrd\isc_sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.cpp">
+				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MsgFormat.cpp">
+				RelativePath="..\jrd\MsgFormat.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PBGen.cpp">
+				RelativePath="..\jrd\PBGen.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Service.cpp">
+				RelativePath="..\jrd\Service.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.cpp">
+				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\tdr.cpp">
+				RelativePath=".\tdr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\TempSpace.cpp">
+				RelativePath="..\jrd\TempSpace.cpp">
 			</File>
-			<Filter
-				Name="Preprocessed Files"
-				Filter="">
-				<File
-					RelativePath="..\..\..\src\alice\alice_meta.epp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\..\src\jrd\acl.h">
+				RelativePath=".\alice.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice.h">
+				RelativePath=".\alice_meta.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice_meta.h">
+				RelativePath=".\alice_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alice_proto.h">
+				RelativePath=".\aliceswi.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\aliceswi.h">
+				RelativePath=".\all.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\all.h">
+				RelativePath=".\all_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\all_proto.h">
+				RelativePath=".\alloc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\alloc.h">
+				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\AsyncEvent.h">
+				RelativePath=".\blk.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\blk.h">
+				RelativePath="..\jrd\enc_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\enc_proto.h">
+				RelativePath="..\jrd\Error.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.h">
+				RelativePath=".\exe_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\exe_proto.h">
+				RelativePath="..\jrd\Generate.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Generate.h">
+				RelativePath="..\jrd\isc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\isc.h">
+				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.h">
+				RelativePath=".\lls.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\lls.h">
+				RelativePath="..\jrd\MsgFormat.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MsgFormat.h">
+				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.h">
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PBGen.h">
+				RelativePath="..\jrd\Service.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Service.h">
+				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.h">
+				RelativePath=".\tdr_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\alice\tdr_proto.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\TempSpace.h">
+				RelativePath="..\jrd\TempSpace.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-			<File
-				RelativePath="..\..\..\src\jrd\isc_version.rc">
-			</File>
 		</Filter>
+		<File
+			RelativePath=".\alice_meta.epp">
+			<FileConfiguration
+				Name="Debug|Win32">
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
+					Outputs="$(InputDir)$(InputName).cpp"/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

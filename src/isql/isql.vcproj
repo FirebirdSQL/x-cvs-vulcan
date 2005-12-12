@@ -20,8 +20,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/jrd;../../../src/utilities;../../../src/config"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=ISql;MEMMGR;SQLDA_DEBUG"
+				AdditionalIncludeDirectories="..\include\gen;..\include;..\jrd;..\utilities;../config"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=ISql;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -34,9 +34,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\install\bin\isql.exe"
+				OutputFile="..\..\install\bin\isql.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/isql.pdb"
 				SubSystem="1"
@@ -70,21 +70,19 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/jrd;../../../src/utilities;../../../src/config"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=ISql;MEMMGR"
+				AdditionalIncludeDirectories="./;../jrd/;../intl/;../utilities/;../config/;../include/;../include/gen/"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\install\bin\isql.exe"
+				OutputFile="$(OutDir)/isql.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -120,68 +118,65 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.cpp">
+				RelativePath="..\config\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.cpp">
+				RelativePath="..\jrd\Error.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\extract.cpp">
+				RelativePath=".\extract.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\fb_exception.cpp">
+				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\isql.cpp">
+				RelativePath=".\isql.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.cpp">
+				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\keywords.cpp">
+				RelativePath="..\dsql\keywords.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\locks.cpp">
+				RelativePath="..\common\classes\locks.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+				RelativePath="..\jrd\MemMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+				RelativePath="..\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+				RelativePath="..\jrd\OSRIMemException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\show.cpp">
+				RelativePath=".\show.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.cpp">
+				RelativePath="..\jrd\SynchronizationObject.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\TempFile.cpp">
+				RelativePath="..\utilities\TempFile.cpp">
 			</File>
 			<Filter
 				Name="Database Backups"
 				Filter="">
 				<File
-					RelativePath="..\..\..\src\misc\help.gbak">
+					RelativePath="..\misc\help.gbak">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
 							CommandLine="gbak -r $(InputPath) help.fdb
 "
-							Outputs="..\..\..\install\help\help.fdb"/>
+							Outputs="..\..\install\help\help.fdb"/>
 					</FileConfiguration>
 				</File>
 			</Filter>
@@ -189,65 +184,38 @@
 				Name="Preprocessed Files"
 				Filter="">
 				<File
-					RelativePath="..\..\..\src\isql\extract.epp">
+					RelativePath=".\extract.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
-							AdditionalDependencies="..\..\install\help\help.fdb"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							AdditionalDependencies="..\..\install\help\help.fdb"
+							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\isql\isql.epp">
+					RelativePath=".\isql.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -n -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
-							AdditionalDependencies="..\..\install\help\help.fdb"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							AdditionalDependencies="..\..\install\help\help.fdb"
+							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\isql\show.epp">
+					RelativePath=".\show.epp">
 					<FileConfiguration
 						Name="Debug|Win32">
 						<Tool
 							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -n -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+							CommandLine="gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
 "
-							AdditionalDependencies="..\..\install\help\help.fdb"
-							Outputs="$(InputDir)$(InputName).cpp"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCustomBuildTool"
-							CommandLine="..\..\..\install\bin\gpre -manual -raw $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
-"
-							AdditionalDependencies="..\..\install\help\help.fdb"
+							AdditionalDependencies=""
 							Outputs="$(InputDir)$(InputName).cpp"/>
 					</FileConfiguration>
 				</File>
@@ -258,31 +226,31 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.h">
+				RelativePath="..\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\alloc.h">
+				RelativePath="..\common\classes\alloc.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Error.h">
+				RelativePath="..\jrd\Error.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\extra_proto.h">
+				RelativePath=".\extra_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\isql.h">
+				RelativePath=".\isql.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\isql_proto.h">
+				RelativePath=".\isql_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\isql_res.h">
+				RelativePath=".\isql_res.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\isql_win.h">
+				RelativePath=".\isql_win.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\isqlw_proto.h">
+				RelativePath=".\isqlw_proto.h">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -291,53 +259,50 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.h">
+				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\dsql\keywords.h">
+				RelativePath="..\dsql\keywords.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\locks.h">
+				RelativePath="..\common\classes\locks.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.h">
+				RelativePath="..\jrd\MemMgr.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemoryManager.h">
+				RelativePath="..\jrd\MemoryManager.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.h">
+				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.h">
+				RelativePath="..\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+				RelativePath="..\jrd\OSRIMemException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\isql\show_proto.h">
+				RelativePath=".\show_proto.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.h">
+				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.h">
+				RelativePath="..\jrd\SynchronizationObject.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\TempFile.h">
+				RelativePath="..\utilities\TempFile.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-			<File
-				RelativePath="..\..\..\src\jrd\isc_version.rc">
-			</File>
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
