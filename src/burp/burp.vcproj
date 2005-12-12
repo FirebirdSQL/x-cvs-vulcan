@@ -282,6 +282,9 @@
 				RelativePath="..\jrd\sdl.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
@@ -336,6 +339,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\jrd\acl.h">
+			</File>
 			<File
 				RelativePath="..\config\AdminException.h">
 			</File>
@@ -392,6 +398,9 @@
 			</File>
 			<File
 				RelativePath="..\common\classes\sparse_bitmap.h">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Sync.h">
