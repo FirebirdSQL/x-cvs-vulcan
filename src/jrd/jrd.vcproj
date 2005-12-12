@@ -2194,9 +2194,6 @@
 				RelativePath=".\UserData.cpp">
 			</File>
 			<File
-				RelativePath=".\utl.cpp">
-			</File>
-			<File
 				RelativePath="validation.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2452,10 +2449,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2503,10 +2500,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="blf_proto.h">
 			</File>
 			<File
-				RelativePath="blk.h">
+				RelativePath="..\dsql\blk.h">
 			</File>
 			<File
-				RelativePath="..\dsql\blk.h">
+				RelativePath="blk.h">
 			</File>
 			<File
 				RelativePath="..\common\Blob.h">
@@ -3626,9 +3623,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath=".\UserData.h">
-			</File>
-			<File
-				RelativePath="utl_proto.h">
 			</File>
 			<File
 				RelativePath="..\dsql\utld_proto.h">
