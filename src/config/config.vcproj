@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/config/;../../../src/jrd;../../../src/include;../../../src/include/gen;../../../src/why"
+				AdditionalIncludeDirectories="./;../jrd;../include;../include/gen;../why"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Confg;MEMMGR"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib "
-				OutputFile="..\..\..\install\bin\fbconfig.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\install\bin\fbconfig.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/config.pdb"
 				SubSystem="1"
@@ -70,21 +70,21 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="../../../src/config/;../../../src/jrd;../../../src/include;../../../src/include/gen;../../../src/why"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=Confg;MEMMGR"
+				AdditionalIncludeDirectories="./;../jrd/;../intl/;../utilities/;../config/;../include/;../include/gen/"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib "
-				OutputFile="..\..\..\install\bin\fbconfig.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="$(OutDir)/config.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\install\lib"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -120,16 +120,16 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.cpp">
+				RelativePath=".\AdminException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Args.cpp">
+				RelativePath=".\Args.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ArgsException.cpp">
+				RelativePath=".\ArgsException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Config.cpp">
+				RelativePath=".\Config.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -138,82 +138,82 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfigFile.cpp">
+				RelativePath=".\ConfigFile.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Configuration.cpp">
+				RelativePath=".\Configuration.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObj.cpp">
+				RelativePath=".\ConfObj.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObject.cpp">
+				RelativePath=".\ConfObject.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\DirectoryList.cpp">
+				RelativePath=".\DirectoryList.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Element.cpp">
+				RelativePath=".\Element.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\ExternalLibrary.cpp">
+				RelativePath="..\jrd\ExternalLibrary.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\fb_exception.cpp">
+				RelativePath="..\common\fb_exception.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputFile.cpp">
+				RelativePath=".\InputFile.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputStream.cpp">
+				RelativePath=".\InputStream.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.cpp">
+				RelativePath="..\jrd\JString.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Lex.cpp">
+				RelativePath=".\Lex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\locks.cpp">
+				RelativePath="..\common\classes\locks.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+				RelativePath="..\jrd\MemMgr.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+				RelativePath="..\jrd\Mutex.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+				RelativePath="..\jrd\OSRIException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+				RelativePath="..\jrd\OSRIMemException.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PathName.cpp">
+				RelativePath="..\jrd\PathName.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\why\Provider.cpp">
+				RelativePath="..\why\Provider.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\RefObject.cpp">
+				RelativePath="..\jrd\RefObject.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ScanDir.cpp">
+				RelativePath=".\ScanDir.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.cpp">
+				RelativePath="..\jrd\StatusPrint.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Stream.cpp">
+				RelativePath=".\Stream.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\StreamSegment.cpp">
+				RelativePath=".\StreamSegment.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.cpp">
+				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
+				RelativePath="..\jrd\SynchronizationObject.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -221,104 +221,104 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\..\src\config\AdminException.h">
+				RelativePath=".\AdminException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Args.h">
+				RelativePath=".\Args.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ArgsException.h">
+				RelativePath=".\ArgsException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Config.h">
+				RelativePath=".\Config.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfigFile.h">
+				RelativePath=".\ConfigFile.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Configuration.h">
+				RelativePath=".\Configuration.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObj.h">
+				RelativePath=".\ConfObj.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ConfObject.h">
+				RelativePath=".\ConfObject.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\DirectoryList.h">
+				RelativePath=".\DirectoryList.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Element.h">
+				RelativePath=".\Element.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\ExternalLibrary.h">
+				RelativePath="..\jrd\ExternalLibrary.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputFile.h">
+				RelativePath=".\InputFile.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\InputStream.h">
+				RelativePath=".\InputStream.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\JString.h">
+				RelativePath="..\jrd\JString.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Lex.h">
+				RelativePath=".\Lex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\common\classes\locks.h">
+				RelativePath="..\common\classes\locks.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\MemMgr.h">
+				RelativePath="..\jrd\MemMgr.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Mutex.h">
+				RelativePath="..\jrd\Mutex.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIException.h">
+				RelativePath="..\jrd\OSRIException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+				RelativePath="..\jrd\OSRIMemException.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Parameters.h">
+				RelativePath=".\Parameters.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\PathName.h">
+				RelativePath="..\jrd\PathName.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\why\Provider.h">
+				RelativePath="..\why\Provider.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\RefObject.h">
+				RelativePath=".\ScanDir.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\ScanDir.h">
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\StatusPrint.h">
+				RelativePath=".\Stream.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\Stream.h">
+				RelativePath=".\StreamSegment.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\config\StreamSegment.h">
+				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File
-				RelativePath="..\..\..\src\jrd\Sync.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
+				RelativePath="..\jrd\SynchronizationObject.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-			<File
-				RelativePath="..\..\..\src\jrd\isc_version.rc">
-			</File>
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt">
+		</File>
+		<File
+			RelativePath="..\jrd\RefObject.h">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
