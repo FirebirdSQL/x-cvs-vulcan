@@ -203,6 +203,9 @@
 				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\config\Stream.cpp">
 			</File>
 			<File
@@ -222,6 +225,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\jrd\acl.h">
+			</File>
 			<File
 				RelativePath="..\config\AdminException.h">
 			</File>
@@ -308,6 +314,9 @@
 			</File>
 			<File
 				RelativePath="..\config\ScanDir.h">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\config\Stream.h">

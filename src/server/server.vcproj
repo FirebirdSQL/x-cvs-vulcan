@@ -284,6 +284,9 @@
 				RelativePath="..\jrd\status.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\config\Stream.cpp">
 			</File>
 			<File
@@ -490,6 +493,9 @@
 				RelativePath="..\remote\RRequest.h">
 			</File>
 			<File
+				RelativePath="..\jrd\RsbSort.h">
+			</File>
+			<File
 				RelativePath="..\remote\RServer.h">
 			</File>
 			<File
@@ -515,6 +521,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\status.h">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\config\Stream.h">
