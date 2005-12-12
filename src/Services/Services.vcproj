@@ -295,6 +295,9 @@
 				RelativePath="..\jrd\status.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\config\Stream.cpp">
 			</File>
 			<File
@@ -319,9 +322,6 @@
 				RelativePath="..\jrd\thd.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\utl.cpp">
-			</File>
-			<File
 				RelativePath="..\remote\xdr.cpp">
 			</File>
 		</Filter>
@@ -329,6 +329,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\jrd\acl.h">
+			</File>
 			<File
 				RelativePath="..\config\AdminException.h">
 			</File>
@@ -531,6 +534,9 @@
 				RelativePath="..\jrd\status.h">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.h">
+			</File>
+			<File
 				RelativePath="..\config\Stream.h">
 			</File>
 			<File
@@ -562,9 +568,6 @@
 			</File>
 			<File
 				RelativePath="..\jrd\thd_proto.h">
-			</File>
-			<File
-				RelativePath="..\jrd\utl_proto.h">
 			</File>
 			<File
 				RelativePath="..\remote\xdr.h">
@@ -606,7 +609,8 @@
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 					Outputs="$(InputDir)$(InputName).cpp"/>
 			</FileConfiguration>
 		</File>
@@ -627,7 +631,8 @@
 				Name="Debug|Win32">
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp"
+					CommandLine="gpre  -manual  $(InputDir)$(InputName).epp $(InputDir)$(InputName).cpp
+"
 					Outputs="$(InputDir)$(InputName).cpp"/>
 			</FileConfiguration>
 		</File>
