@@ -2003,23 +2003,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="support.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="sym.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
