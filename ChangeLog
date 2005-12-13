@@ -1,3 +1,75 @@
+2005-12-12 19:35  awharrison
+
+	* vulcan/src/Services/Services.vcproj:
+	
+	Reapply darwin changes
+
+2005-12-12 19:22  awharrison
+
+	* vulcan/src/: gstat/gstat.vcproj, isql/isql.vcproj,
+	server/server.vcproj:
+	
+	Reapply darwin changes
+
+2005-12-12 18:53  awharrison
+
+	* vulcan/src/jrd/jrd.vcproj:
+	
+	Remove support.cpp too- it doesn't cause undefineds and does cause
+	multiple definitions
+
+2005-12-12 18:52  awharrison
+
+	* vulcan/src/burp/burp.vcproj:
+	
+	Reapply Darwin changes
+
+2005-12-12 18:38  awharrison
+
+	* vulcan/src/jrd/jrd.vcproj:
+	
+	Reapply most darwin changes - left gds.o in for problems with debug
+	build
+
+2005-12-12 18:38  awharrison
+
+	* vulcan/src/gpre/gpre.vcproj:
+	
+	Reapply darwin changes
+
+2005-12-12 17:51  awharrison
+
+	* vulcan/src/config/config.vcproj:
+	
+	Revert and fix for Jims build
+
+2005-12-12 17:43  awharrison
+
+	* vulcan/src/: server/server.vcproj, Services/Services.vcproj:
+	
+	Revert and fix for Jims build
+
+2005-12-12 17:39  awharrison
+
+	* vulcan/src/: JdbcTest/JdbcTest.vcproj, jrd/jrd.vcproj,
+	qli/qli.vcproj:
+	
+	Revert and fix for Jims build
+
+2005-12-12 17:36  awharrison
+
+	* vulcan/src/: alice/alice.vcproj, burp/burp.vcproj,
+	gpre/gpre.vcproj, gstat/gstat.vcproj, isql/isql.vcproj:
+	
+	Revert and fix for Jims build
+
+2005-12-12 16:37  awharrison
+
+	* vulcan/src/JdbcTest/JdbcTest.vcproj:
+	
+	Reincorporated Jim's debugging stuff and corrected relative path
+	names
+
 2005-12-11 23:08  awharrison
 
 	* vulcan/src/jrd/OSRIException.cpp:
