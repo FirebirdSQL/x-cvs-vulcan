@@ -97,7 +97,11 @@ move firebird.msg ..\..\..\install\
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="path=..\..\..\install\bin;%path%
+.\release\msgs
+move firebird.msg ..\..\..\install\
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
