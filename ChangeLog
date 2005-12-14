@@ -1,3 +1,10 @@
+2005-12-13 18:11  dchri
+
+	* vulcan/builds/VisualStudio7/msgs/msgs.vcproj:
+	
+	missing PostBuildEvent added to Release target for msgs MSVC7
+	project
+
 2005-12-12 19:35  awharrison
 
 	* vulcan/src/Services/Services.vcproj:
