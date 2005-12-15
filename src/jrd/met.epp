@@ -2101,6 +2101,7 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 
 	DBB dbb = tdbb->tdbb_database;
 	Request* request = CMP_find_request(tdbb, irq_l_type_info, IRQ_REQUESTS);
+	long fieldCounter = 0L; /* Needed for optimization below */
 	
 	FOR (REQUEST_HANDLE request)
 			RFR IN RDB$RELATION_FIELDS CROSS
@@ -2108,16 +2109,75 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 			RFR.RDB$FIELD_SOURCE EQ FLD.RDB$FIELD_NAME AND
 			RFR.RDB$RELATION_NAME EQ relation->rel_name
 		//FOR_VEC (Field*, field, relation->rel_fields)
+		
+	/*
+	 * Cheapo optimization.  In the cases I've studied, most often the field
+	 * we aspire to match is the last one added to the list.  See if that's 
+	 * a workable shortcut.
+	 */
+		bool optimalFind = false;
+
+		{	/* Scope, for convenience in testing the fix in isolation. */
+
+
+			/* Array is zero-based, get the nth one */
+
+            long arrayPos = fieldCounter++;
+			Field * field = relation->rel_fields[arrayPos];
+
+			/* Zap trailing blanks (not NLS safe, I think!) */
+			/* Removes need to do it later in the main loop */
+			/* (which probably could have been refactored)  */
+			
+			for (char *p = RFR.RDB$FIELD_NAME; *p; ++p)
+				if (*p == ' ')
+				{
+				*p = 0;
+				break;
+				}
+
+			/* See if the field just after the one we processed on the    */
+			/* last iteration of the JOIN is the one we want - this seems */
+			/* to be the case a lot of the time, and apparantly always    */
+			/* when building with (NO)SHARED_CACHE.  TBC 12/15/2005       */
+			
+			if (field && strcmp (field->fld_name, RFR.RDB$FIELD_NAME) == 0)
+				{
+				DSC desc;
+				DSC_make_descriptor(&desc, FLD.RDB$FIELD_TYPE,
+	 						   FLD.RDB$FIELD_SCALE, 
+							   FLD.RDB$FIELD_LENGTH,
+							   FLD.RDB$FIELD_SUB_TYPE, 
+							   FLD.RDB$CHARACTER_SET_ID,
+							   FLD.RDB$COLLATION_ID);
+				field->setType(&desc, FLD.RDB$DIMENSIONS);
+				field->fld_id = RFR.RDB$FIELD_ID;
+				field->fld_position = RFR.RDB$FIELD_POSITION;
+				optimalFind = true;
+				}
+			
+		}	/* End Scope */
+
+		if( !optimalFind ) /* Not the last one, search the HARD way! */
+
+
 		for (int n = 0; n < relation->rel_fields.size(); ++n)
 			{
 			Field *field = relation->rel_fields[n];
-			
+
+#if 0	// I don't think this is needed at this point in the loop
+		// because it's done above... and probably doesn't need to
+		// be inside the loop iterating over the internal fields
+		// in either case.
+					
 			for (char *p = RFR.RDB$FIELD_NAME; *p; ++p)
 				if (*p == ' ')
 					{
 					*p = 0;
 					break;
 					}
+#endif
+					
 			if (field && strcmp (field->fld_name, RFR.RDB$FIELD_NAME) == 0)
 				{
 				DSC desc;

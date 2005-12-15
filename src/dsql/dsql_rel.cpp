@@ -152,6 +152,63 @@ void dsql_rel::orderFields(void)
 	sync.lock(Exclusive);
 #endif
 	dsql_fld *fields = rel_fields;
+	
+/*
+ * Are the fields even out of order?  Let's check and see. In
+ * many cases they are in proper order (especially true for
+ * (NON)SHARED_CACHE mode.  The cost of doing this initial 
+ * scan is trivial compared to the cost of the bubble sort 
+ * that follows, and the sort is apparantly usually not
+ * necessary.  This is particularly an issue with very large
+ * numbers of fields; on a fast Windows XP box the sort of 32k
+ * fields takes about 40 seconds, so it's worth it to try to 
+ * avoid the sort if possible.  TBC 12/15/2005
+ */
+	long lastFieldPos = -1;
+	bool reSortASC = false;
+	bool reSortDESC = false;
+    long fieldCount = 0L;	
+	long dupFields = 0L;
+	
+	for( ; fields; fields = fields->fld_next ) 
+	    {
+		if( fields-> field ) 
+		    {
+			fieldCount++;
+			long currentFieldPos = fields->field->fld_position;
+			
+			if( currentFieldPos < lastFieldPos ) 
+			    {
+				reSortASC = true;
+			    }
+			else 
+				{
+			    if( currentFieldPos > lastFieldPos ) 
+				    {
+				    reSortDESC = true;
+			        }
+			    else
+			        {
+			    	dupFields++;
+					lastFieldPos = currentFieldPos;
+					}
+				}
+			}
+		}
+
+	/* If we don't have to sort ascending, we're done! */
+	if( !reSortASC )
+		return;
+
+	/* Now that we're done and it looks like we'll do the sort,  */
+	/* put this value back before continuing.  Note that at this */
+	/* point I have the count of fields in the list, so a future */
+	/* optimization might be to go to the trouble of building an */
+	/* array of the pointers/keys and doing a quicksort, if the  */
+	/* number of fields is greater than several hundred...       */
+
+	fields = rel_fields;	
+
 	rel_fields = NULL;
 	
 	// Really crude sort, but what the hell...
