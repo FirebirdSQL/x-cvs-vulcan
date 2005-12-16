@@ -1,3 +1,11 @@
+2005-12-15 17:02  tomcole
+
+	* vulcan/src/: dsql/dsql_rel.cpp, jrd/met.epp:
+	
+	Optimizations affecting very large numbers of columns (greater than
+	1000). Do not do sorts/linear searches if the fields are already in
+	positional order.
+
 2005-12-13 18:11  dchri
 
 	* vulcan/builds/VisualStudio7/msgs/msgs.vcproj:
