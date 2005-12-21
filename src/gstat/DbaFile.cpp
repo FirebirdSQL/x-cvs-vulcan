@@ -86,17 +86,10 @@ void DbaFile::open(void)
 
 	if (fil_desc  == INVALID_HANDLE_VALUE)
 		// msg 29: Can't open database file %s 
-		throw OSRIException(GSTAT_CODE(29), isc_arg_string, (const char*) fil_string, 0);
-		/***
-		throw OSRIException(isc_io_error, 
-							isc_arg_string, "CreateFile (open)", 
-							isc_arg_string, (const char*) fil_string,
-							isc_arg_gds, isc_io_open_err,
-							isc_arg_win32, GetLastError(), 0);
-		***/
+		throw OSRIException(isc_gstat_open_err, isc_arg_string, fil_string, 0);	
 #else
 	if ((fil_desc = ::open(fil_string, O_RDONLY)) == -1)
-		throw OSRIException(GSTAT_CODE(29), isc_arg_string, (const char*) fil_string, 0);
+		throw OSRIException(isc_gstat_open_err, isc_arg_string, fil_string, 0);
 #endif
 }
 

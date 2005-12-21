@@ -322,7 +322,7 @@ int dba_main(int argc, char** argv, Service *service)
 							if (in_sw_tab->in_sw_msg)
 								dba_print(tddba, in_sw_tab->in_sw_msg);
 						
-						throw OSRIException(GSTAT_CODE(1), 0);
+						throw OSRIException(isc_gstat_unknown_switch, 0);
 
 #ifdef OBSOLETE_SERVICE_THREAD
 						CMD_UTIL_put_svc_status(tddba->dba_service_blk->svc_status,
@@ -416,7 +416,8 @@ int dba_main(int argc, char** argv, Service *service)
 
 		if (!name) 
 			{
-			throw OSRIException(GSTAT_CODE(2), 0);
+			throw OSRIException(isc_gstat_retry ,0);
+			
 #ifdef OBSOLETE_SERVICE_THREAD
 			CMD_UTIL_put_svc_status(tddba->dba_service_blk->svc_status,
 									GSTAT_MSG_FAC, 2,
@@ -478,7 +479,7 @@ int dba_main(int argc, char** argv, Service *service)
 			minorVersion > ODS_CURRENT || 
 			!DECODE_FIREBIRD_FLAG(header->hdr_ods_version))
 			{
-			throw OSRIException(GSTAT_CODE(3), 
+			throw OSRIException(isc_gstat_wrong_ods,
 								isc_arg_number, ODS_VERSION,
 								isc_arg_number, header->hdr_ods_version & ~ODS_FIREBIRD_FLAG,
 								0);
@@ -1182,6 +1183,7 @@ static void db_error(DbaData* tddba,  SLONG status)
 
 	tddba->page_number = -1;
 	StatusPrint::getOSText(isc_arg_win32, status, sizeof(s), s);
+	
 	FPRINTF(tddba->sw_outfile, "%s\n", s);
 	dba_exit(FINI_ERROR, tddba);
 }
