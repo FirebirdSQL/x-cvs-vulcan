@@ -1,3 +1,9 @@
+2005-12-21 17:51  paulbeach
+
+	* vulcan/src/gstat/: DbaFile.cpp, dba.epp:
+	
+	Fix Gstat so it thows the right errors in the right places
+
 2005-12-15 17:02  tomcole
 
 	* vulcan/src/: dsql/dsql_rel.cpp, jrd/met.epp:
