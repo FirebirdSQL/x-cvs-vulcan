@@ -166,35 +166,19 @@ void dsql_rel::orderFields(void)
  */
 	long lastFieldPos = -1;
 	bool reSortASC = false;
-	bool reSortDESC = false;
     long fieldCount = 0L;	
-	long dupFields = 0L;
 	
 	for( ; fields; fields = fields->fld_next ) 
-	    {
-		if( fields-> field ) 
+		if (fields->field) 
 		    {
 			fieldCount++;
 			long currentFieldPos = fields->field->fld_position;
 			
-			if( currentFieldPos < lastFieldPos ) 
-			    {
+			if (currentFieldPos < lastFieldPos) 
 				reSortASC = true;
-			    }
 			else 
-				{
-			    if( currentFieldPos > lastFieldPos ) 
-				    {
-				    reSortDESC = true;
-			        }
-			    else
-			        {
-			    	dupFields++;
-					lastFieldPos = currentFieldPos;
-					}
-				}
+			    lastFieldPos = currentFieldPos;
 			}
-		}
 
 	/* If we don't have to sort ascending, we're done! */
 	if( !reSortASC )
@@ -208,7 +192,6 @@ void dsql_rel::orderFields(void)
 	/* number of fields is greater than several hundred...       */
 
 	fields = rel_fields;	
-
 	rel_fields = NULL;
 	
 	// Really crude sort, but what the hell...
