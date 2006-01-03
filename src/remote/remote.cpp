@@ -301,15 +301,17 @@ void REMOTE_free_packet( Port* port, Packet * packet)
 	XDR xdr;
 	USHORT n;
 
-	if (packet) {
-		xdrmem_create(&xdr, reinterpret_cast < char *>(packet),
-					  sizeof(Packet), XDR_FREE);
+	if (packet) 
+		{
+		xdrmem_create(&xdr, reinterpret_cast < char *>(packet), sizeof(Packet), XDR_FREE);
 		xdr.x_public = (caddr_t) port;
 
-		for (n = (USHORT) op_connect; n < (USHORT) op_max; n++) {
+		for (n = (USHORT) op_connect; n < (USHORT) op_max; n++) 
+			{
 			packet->p_operation = (P_OP) n;
 			xdr_protocol(&xdr, packet);
-		}
+			}
+			
 #ifdef DEBUG_XDR_MEMORY
 		/* All packet memory allocations should now be voided. */
 
@@ -317,7 +319,7 @@ void REMOTE_free_packet( Port* port, Packet * packet)
 			fb_assert(packet->p_malloc[n].p_operation == op_void);
 #endif
 		packet->p_operation = op_void;
-	}
+		}
 }
 
 

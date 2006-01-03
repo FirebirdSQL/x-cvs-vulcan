@@ -958,88 +958,92 @@ ISC_STATUS Port::fetch(P_SQLDATA * sqldata, Packet* send)
  *****************************************/
 	RSR statement;
 	REM_MSG message, next;
-	USHORT msg_length, count, count2;
-	P_SQLDATA *response;
-	ISC_STATUS s;
+	USHORT msg_length;
+	//P_SQLDATA *response;
+	//ISC_STATUS s;
 	ISC_STATUS_ARRAY status_vector;
 
-	CHECK_HANDLE_MEMBER(statement,
-						RSR,
-						type_rsr,
-						sqldata->p_sqldata_statement,
-						isc_bad_req_handle);
+	CHECK_HANDLE_MEMBER(statement, RSR, type_rsr, sqldata->p_sqldata_statement, 
+					    isc_bad_req_handle);
 
-	if (statement->rsr_flags & RSR_blob) {
+	if (statement->rsr_flags & RSR_blob) 
 		return fetch_blob(sqldata, send);
-	}
 
-	if (statement->rsr_format) {
+	if (statement->rsr_format) 
 		msg_length = statement->rsr_format->fmt_length;
-	} else {
+	else 
 		msg_length = 0;
-	}
-	count = ((port_flags & PORT_rpc) ||
+		
+	USHORT count = ((port_flags & PORT_rpc) ||
 			(statement->rsr_flags & RSR_no_batch)) ? 1 :
 			sqldata->p_sqldata_messages;
-	count2 = (statement->rsr_flags & RSR_no_batch) ? 0 : count;
+	USHORT count2 = (statement->rsr_flags & RSR_no_batch) ? 0 : count;
 
-/* On first fetch, clear the end-of-stream flag & reset the message buffers */
+	/* On first fetch, clear the end-of-stream flag & reset the message buffers */
 
-	if (!(statement->rsr_flags & RSR_fetched)) {
+	if (!(statement->rsr_flags & RSR_fetched)) 
+		{
 		statement->rsr_flags &= ~(RSR_eof | RSR_stream_err);
-		memset(statement->rsr_status_vector, 0,
-			   sizeof(statement->rsr_status_vector));
-		if ((message = statement->rsr_message) != NULL) {
+		memset(statement->rsr_status_vector, 0, sizeof(statement->rsr_status_vector));
+		
+		if ((message = statement->rsr_message) != NULL) 
+			{
 			statement->rsr_buffer = message;
-			while (true) {
+			
+			while (true) 
+				{
 				message->msg_address = NULL;
 				message = message->msg_next;
 				if (message == statement->rsr_message)
 					break;
+				}
 			}
 		}
-	}
 
-/* Get ready to ship the data out */
+	/* Get ready to ship the data out */
 
-	response = &send->p_sqldata;
+	P_SQLDATA *response = &send->p_sqldata;
 	send->p_operation = op_fetch_response;
 	response->p_sqldata_statement = sqldata->p_sqldata_statement;
 	response->p_sqldata_status = 0;
 	response->p_sqldata_messages = 1;
-	s = 0;
+	ISC_STATUS s = 0;
 	message = NULL;
 
-/* Check to see if any messages are already sitting around */
+	/* Check to see if any messages are already sitting around */
 
-	while (true) {
-
+	while (true) 
+		{
 		/* Have we exhausted the cache & reached cursor EOF? */
-		if ((statement->rsr_flags & RSR_eof) && !statement->rsr_msgs_waiting) {
+		
+		if ((statement->rsr_flags & RSR_eof) && !statement->rsr_msgs_waiting) 
+			{
 			statement->rsr_flags &= ~RSR_eof;
 			s = 100;
 			count2 = 0;
 			break;
-		}
+			}
 
 		/* Have we exhausted the cache & have a pending error? */
-		if ((statement->rsr_flags & RSR_stream_err)
-			&& !statement->rsr_msgs_waiting) {
+		
+		if ((statement->rsr_flags & RSR_stream_err) && !statement->rsr_msgs_waiting) 
+			{
 			statement->rsr_flags &= ~RSR_stream_err;
-			return send_response(send, 0, 0,
-								 statement->rsr_status_vector);
-		}
+			return send_response(send, 0, 0, statement->rsr_status_vector);
+			}
 
 		message = statement->rsr_buffer;
 
 		/* Make sure message can be de referenced, if not then return false */
+		
 		if (message == NULL)
 			return FALSE;
 
 		/* If we don't have a message cached, get one from the
 		   access method. */
 
-		if (!message->msg_address) {
+		if (!message->msg_address) 
+			{
 			fb_assert(statement->rsr_msgs_waiting == 0);
 			s = GDS_DSQL_FETCH(status_vector,
 							   &statement->rsr_handle,
@@ -1050,42 +1054,47 @@ ISC_STATUS Port::fetch(P_SQLDATA * sqldata, Packet* send)
 							   reinterpret_cast<char*>(message->msg_buffer));
 
 			statement->rsr_flags |= RSR_fetched;
-			if (s) {
-				if (s == 100 || s == 101) {
+			
+			if (s) 
+				{
+				if (s == 100 || s == 101) 
+					{
 					count2 = 0;
 					break;
-				} else {
+					} 
+				else 
 					return send_response(send, 0, 0, status_vector);
 				}
-			}
+				
 			message->msg_address = message->msg_buffer;
-		}
-		else {
+			}
+		else 
+			{
 			/* Take a message from the outqoing queue */
 			fb_assert(statement->rsr_msgs_waiting >= 1);
 			statement->rsr_msgs_waiting--;
-		}
+			}
 
 		/* For compatibility with Protocol 7, we must break out of the
 		   loop before sending the last record. */
 
 		count--;
-		if (port_protocol <= PROTOCOL_VERSION7 && count <= 0) {
+		
+		if (port_protocol <= PROTOCOL_VERSION7 && count <= 0) 
 			break;
-		}
 
 		/* There's a buffer waiting -- send it */
 
-		if (!sendPartial(send)) {
+		if (!sendPartial(send)) 
 			return FALSE;
-		}
+
 		message->msg_address = NULL;
 
 		/* If we've sent the requested amount, break out of loop */
 
 		if (count <= 0)
 			break;
-	}
+		}
 
 	response->p_sqldata_status = s;
 	response->p_sqldata_messages = 0;
@@ -1104,17 +1113,21 @@ ISC_STATUS Port::fetch(P_SQLDATA * sqldata, Packet* send)
 	while (message->msg_address && message->msg_next != statement->rsr_buffer)
 		message = message->msg_next;
 
-	for (; count2; --count2) {
-		if (message->msg_address) {
+	for (; count2; --count2) 
+		{
+		if (message->msg_address) 
+			{
 			if (!next)
 				for (next = statement->rsr_buffer; next->msg_next != message;
 					 next = next->msg_next);
+					 
 			message = new RMessage (statement->rsr_fmt_length);
 			message->msg_number = next->msg_number;
 			message->msg_next = next->msg_next;
 			next->msg_next = message;
 			next = message;
-		}
+			}
+			
 		s = GDS_DSQL_FETCH(status_vector,
 						   &statement->rsr_handle,
 						   sqldata->p_sqldata_blr.cstr_length,
@@ -1122,23 +1135,28 @@ ISC_STATUS Port::fetch(P_SQLDATA * sqldata, Packet* send)
 						   sqldata->p_sqldata_message_number,
 						   msg_length,
 						   reinterpret_cast<char*>(message->msg_buffer));
-		if (s) {
-			if (status_vector[1]) {
+		if (s) 
+			{
+			if (status_vector[1]) 
+				{
 				/* If already have an error queued, don't overwrite it */
-				if (!(statement->rsr_flags & RSR_stream_err)) {
+				
+				if (!(statement->rsr_flags & RSR_stream_err)) 
+					{
 					statement->rsr_flags |= RSR_stream_err;
-					memcpy(statement->rsr_status_vector, status_vector,
-						   sizeof(statement->rsr_status_vector));
+					memcpy(statement->rsr_status_vector, status_vector, sizeof(statement->rsr_status_vector));
+					}
 				}
-			}
+				
 			if (s == 100)
 				statement->rsr_flags |= RSR_eof;
 			break;
-		}
+			}
+			
 		message->msg_address = message->msg_buffer;
 		message = message->msg_next;
 		statement->rsr_msgs_waiting++;
-	}
+		}
 
 	return TRUE;
 }
@@ -1177,7 +1195,7 @@ ISC_STATUS Port::fetch_blob(P_SQLDATA * sqldata, Packet* send)
 	if ((message = statement->rsr_message) != NULL)
 		statement->rsr_buffer = message;
 
-/* Get ready to ship the data out */
+	/* Get ready to ship the data out */
 
 	response = &send->p_sqldata;
 	send->p_operation = op_fetch_response;
@@ -1196,14 +1214,14 @@ ISC_STATUS Port::fetch_blob(P_SQLDATA * sqldata, Packet* send)
 					   reinterpret_cast<char*>(message->msg_buffer));
 
 	if (!status_vector[1] ||
-		status_vector[1] != isc_segment || status_vector[1] != isc_segstr_eof) {
+		status_vector[1] != isc_segment || status_vector[1] != isc_segstr_eof) 
+		{
 		message->msg_address = message->msg_buffer;
 		response->p_sqldata_status = s;
-		response->p_sqldata_messages =
-			(status_vector[1] == isc_segstr_eof) ? 0 : 1;
+		response->p_sqldata_messages = (status_vector[1] == isc_segstr_eof) ? 0 : 1;
 		sendPartial(send);
 		message->msg_address = NULL;
-	}
+		}
 
 	return send_response(send, 0, 0, status_vector);
 }

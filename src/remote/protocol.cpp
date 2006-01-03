@@ -726,7 +726,7 @@ bool_t xdr_protocol(XDR* xdrs, Packet* p)
 			}
 		
 		default:
-#ifdef DEBUG
+#ifdef DEBUG_
 			if (xdrs->x_op != XDR_FREE)
 				ib_fprintf(ib_stderr, "xdr_packet: operation %d not recognized\n",
 						p->p_operation);
