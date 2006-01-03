@@ -1,3 +1,9 @@
+2006-01-02 16:02  tomcole
+
+	* vulcan/src/dsql/dsql_rel.cpp:
+	
+	Clean up style guideline violations
+
 2005-12-22 13:22  paulbeach
 
 	* vulcan/src/gstat/DbaFile.cpp:
