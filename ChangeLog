@@ -1,3 +1,9 @@
+2006-01-03 21:39  jimstarkey
+
+	* vulcan/src/remote/: Port.cpp, protocol.cpp, remote.cpp:
+	
+	Stylistic cleanups for readability
+
 2006-01-02 16:02  tomcole
 
 	* vulcan/src/dsql/dsql_rel.cpp:
