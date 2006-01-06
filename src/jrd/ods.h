@@ -291,7 +291,8 @@ struct IndexJumpNode
 	UCHAR* data;		// Data can be read from here
 };
 
-struct IndexJumpInfo {
+struct IndexJumpInfo 
+{
 	USHORT firstNodeOffset;		// offset to node in page
 	USHORT jumpAreaSize;		// size area before a new jumpnode is made
 	UCHAR  jumpers;				// nr of jump-nodes in page, with a maximum of 255
