@@ -258,7 +258,7 @@ USHORT SQZ_no_differences (SCHAR* out, int length)
  **************************************
  *
  * Functional description
- *  Denerates differences record marking that there are no differences
+ *  Generates differences record marking that there are no differences
  *
  **************************************/
 	SCHAR *temp = out;
