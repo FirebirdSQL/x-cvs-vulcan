@@ -270,27 +270,6 @@ struct btree_page
 const USHORT BTN_LEAF_SIZE	= 6;
 const USHORT BTN_PAGE_SIZE	= 10;
 
-struct IndexNode
-{
-	UCHAR* nodePointer;	// pointer to where this node can be read from the page
-	USHORT prefix;		// size of compressed prefix
-	USHORT length;		// length of data in node
-	SLONG pageNumber;	// page number
-	UCHAR* data;		// Data can be read from here
-	RecordNumber recordNumber;	// record number
-	bool isEndBucket;
-	bool isEndLevel;
-};
-
-struct IndexJumpNode
-{
-	UCHAR* nodePointer;	// pointer to where this node can be read from the page
-	USHORT prefix;		// length of prefix against previous jump node
-	USHORT length;		// length of data in jump node (together with prefix this is prefix for pointing node)
-	USHORT offset;		// offset to node in page  
-	UCHAR* data;		// Data can be read from here
-};
-
 struct IndexJumpInfo 
 {
 	USHORT firstNodeOffset;		// offset to node in page
