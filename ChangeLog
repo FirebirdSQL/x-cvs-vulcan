@@ -1,3 +1,16 @@
+2006-01-06 22:43  awharrison
+
+	* vulcan/src/jrd/ods.h:
+	
+	Aesthetic - make all the declarations use the same bracketing
+	convention.
+
+2006-01-06 22:41  awharrison
+
+	* vulcan/src/jrd/sqz.cpp:
+	
+	Fixed a comment
+
 2006-01-03 21:39  jimstarkey
 
 	* vulcan/src/remote/: Port.cpp, protocol.cpp, remote.cpp:
