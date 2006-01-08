@@ -4120,7 +4120,9 @@ static UCHAR* find_area_start_point(btree_page* bucket, const temporary_key* key
 
 	if (!(flags & btr_jump_info))
 		{
-		*return_prefix = prefix;
+		if (return_prefix)
+			*return_prefix = prefix;
+
 		return pointer = BTreeNode::getPointerFirstNode(bucket);
 		}
 
