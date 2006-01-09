@@ -1,3 +1,10 @@
+2006-01-08 17:47  awharrison
+
+	* vulcan/src/jrd/btr.cpp:
+	
+	check that a location was supplied for a return prefix before
+	stuffing something in it.
+
 2006-01-07 22:36  awharrison
 
 	* vulcan/src/jrd/btn.cpp:
