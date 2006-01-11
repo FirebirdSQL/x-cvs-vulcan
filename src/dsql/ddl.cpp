@@ -2256,27 +2256,25 @@ static void define_index(CStatement* request)
    unless we have a computation, in which case generate an expression index */
 
 	if (field_list->nod_type == nod_list)
-	{
+		{
 	    const dsql_nod* const* ptr = field_list->nod_arg;
 	    const dsql_nod* const* const end = ptr + field_list->nod_count;
 		for (; ptr < end; ptr++)
 			request->appendDynString(isc_dyn_fld_name,
 						((dsql_str*) (*ptr)->nod_arg[1])->str_data);
-	}
-#ifdef EXPRESSION_INDICES
+		}
 	else if (field_list->nod_type == nod_def_computed)
 		define_computed(request, relation_node, NULL, field_list);
-#endif
 
 // check for a unique index 
 
-	if (ddl_node->nod_arg[e_idx_unique]) {
+	if (ddl_node->nod_arg[e_idx_unique]) 
 		request->appendNumber(isc_dyn_idx_unique, 1);
-	}
 
-	if (ddl_node->nod_arg[e_idx_asc_dsc]) {
+
+	if (ddl_node->nod_arg[e_idx_asc_dsc]) 
 		request->appendNumber(isc_dyn_idx_type, 1);
-	}
+
 
 	request->appendUCHAR(isc_dyn_end);			// of define index 
 	request->appendUCHAR(isc_dyn_end);			// of begin 
