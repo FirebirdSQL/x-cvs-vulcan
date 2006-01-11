@@ -4161,6 +4161,7 @@ static RecordSource* gen_navigation(thread_db* tdbb,
 	// go home.  Also don't bother if we have a non-unique index.
 	// This is because null values aren't placed in a "good" spot in
 	// the index in versions prior to V3.2.
+
 	jrd_nod* sort = *sort_ptr;
 
 	// if the number of fields in the sort is greater than the number of 
@@ -4168,34 +4169,29 @@ static RecordSource* gen_navigation(thread_db* tdbb,
 	// sort--note that in the case where the first field is unique, this 
 	// could be optimized, since the sort will be performed correctly by 
 	// navigating on a unique index on the first field--deej
-	if (sort->nod_count > idx->idx_count) {
+
+	if (sort->nod_count > idx->idx_count) 
 		return NULL;
-	}
+
 
 	// not sure the significance of this magic number; if it's meant to 
 	// signify that we shouldn't navigate on a system table, our catalog 
 	// has grown beyond 16 tables--it doesn't seem like a problem 
 	// to allow navigating through system tables, so I won't bump the 
 	// number up, but I'll leave it at 16 for safety's sake--deej
-	if (relation->rel_id <= 16) {
+
+if (relation->rel_id <= 16) 
 		return NULL;
-	}
 
 	// if the user-specified access plan for this request didn't
 	// mention this index, forget it
 	if ((idx->idx_runtime_flags & idx_plan_dont_use) &&
-		!(idx->idx_runtime_flags & idx_plan_navigate)) 
-	{
+			!(idx->idx_runtime_flags & idx_plan_navigate)) 	
 		return NULL;
-	}
 
-#ifdef EXPRESSION_INDICES
 	if (idx->idx_flags & idx_expressn)
-	{
 		if (sort->nod_count != 1)
 			return NULL;
-	}
-#endif
 
 	// check to see if the fields in the sort match the fields in the index 
 	// in the exact same order--we used to check for ascending/descending prior 
@@ -4210,54 +4206,50 @@ static RecordSource* gen_navigation(thread_db* tdbb,
 	jrd_nod** ptr = sort->nod_arg;
 	for (const jrd_nod* const* const end = ptr + sort->nod_count; ptr < end;
 		ptr++, idx_tail++)
-	{
-		jrd_nod* node = *ptr;
-#ifdef EXPRESSION_INDICES
-		if (idx->idx_flags & idx_expressn)
 		{
+		jrd_nod* node = *ptr;
+
+		if (idx->idx_flags & idx_expressn)
 			if (!OPT_expression_equal(tdbb, opt, idx, node, stream))
 				return NULL;	
-		}
-		else
-#endif
-		if (node->nod_type != nod_field
-			|| (USHORT)(long) node->nod_arg[e_fld_stream] != stream
-			|| (USHORT)(long) node->nod_arg[e_fld_id] != idx_tail->idx_field )
-		{
-			return NULL;
-		}
+		else if (node->nod_type != nod_field
+				|| (USHORT)(long) node->nod_arg[e_fld_stream] != stream
+				|| (USHORT)(long) node->nod_arg[e_fld_id] != idx_tail->idx_field )
 
-		if (// for ODS11 default nulls placement always may be matched to index
-			(dbb->dbb_ods_version >= ODS_VERSION11 && (
-			  (reinterpret_cast<long>(ptr[2 * sort->nod_count]) == rse_nulls_first && ptr[sort->nod_count])
-			    || (reinterpret_cast<long>(ptr[2 * sort->nod_count]) == rse_nulls_last && !ptr[sort->nod_count])))
-			// for ODS10 and earlier indices always placed nulls at the end of dataset
-			|| (dbb->dbb_ods_version < ODS_VERSION11 && 
-			  reinterpret_cast<long>(ptr[2 * sort->nod_count]) == rse_nulls_first)
-#ifdef SCROLLABLE_CURSORS
-			)
-#else
-			|| (ptr[sort->nod_count] && !(idx->idx_flags & idx_descending))
-			|| (!ptr[sort->nod_count] && (idx->idx_flags & idx_descending)) )
-#endif
-		{
 			return NULL;
-		}
+
+		// Do we need to do something special about null placement?
+		//  - for ODS11 default nulls placement always may be matched to index
+		// - for ODS10 and earlier indices always placed nulls at the end of dataset
+		// The variable temp exists to reduce the number of reinterpret_casts
+
+		long temp = reinterpret_cast<long>(ptr[2 * sort->nod_count]);
+
+		if (dbb->dbb_ods_version >= ODS_VERSION11 && 
+				((temp == rse_nulls_first && ptr[sort->nod_count])
+			    || (temp == rse_nulls_last && !ptr[sort->nod_count]))
+				|| (dbb->dbb_ods_version < ODS_VERSION11 && temp  == rse_nulls_first)
+#ifdef SCROLLABLE_CURSORS
+				)
+#else
+				|| (ptr[sort->nod_count] && !(idx->idx_flags & idx_descending))
+				|| (!ptr[sort->nod_count] && (idx->idx_flags & idx_descending)) )
+#endif
+			return NULL;
 
 #ifdef SCROLLABLE_CURSORS
 		// determine whether we ought to navigate backwards or forwards through 
 		// the index--we can't allow navigating one index in two different directions 
 		// on two different fields at the same time!
 		mode = ((ptr[sort->nod_count] && !(idx->idx_flags & idx_descending))
-				|| (!ptr[sort->nod_count]
+					|| (!ptr[sort->nod_count]
 					&& (idx->idx_flags & idx_descending))) ?
 						RSE_get_backward : RSE_get_forward;
-		if (last_mode == RSE_get_next) {
+
+		if (last_mode == RSE_get_next) 
 			last_mode = mode;
-		}
-		else if (last_mode != mode) {
+		else if (last_mode != mode) 
 			return NULL;
-		}
 #endif
 	}
 
@@ -6261,55 +6253,42 @@ static JRD_NOD make_missing(thread_db* tdbb,
 
 	jrd_nod* field = boolean->nod_arg[0];
 
-#ifdef EXPRESSION_INDICES
 	if (idx->idx_flags & idx_expressn)
-	{
-		fb_assert(idx->idx_expression != NULL);
-		if (!OPT_expression_equal(tdbb, opt, idx, field, stream))
 		{
+		fb_assert(idx->idx_expression != NULL);
+
+		if (!OPT_expression_equal(tdbb, opt, idx, field, stream))
 			return NULL;
 		}
-	}
-	else
-	{
-#endif
-	if (field->nod_type != nod_field)
-	{
+	else if (field->nod_type != nod_field)
 		return NULL;
-	}
 
 	if ((USHORT)(long) field->nod_arg[e_fld_stream] != stream ||
-		(USHORT)(long) field->nod_arg[e_fld_id] != idx->idx_rpt[0].idx_field)
-	{
+			(USHORT)(long) field->nod_arg[e_fld_id] != idx->idx_rpt[0].idx_field)	
 		return NULL;
-	}
-#ifdef EXPRESSION_INDICES
-	}
-#endif
-
+		
 	jrd_nod* node = make_index_node(tdbb, relation, opt->opt_csb, idx);
 	IndexRetrieval* retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
 	retrieval->irb_relation = relation;
 
-	if ((dbb->dbb_ods_version < ODS_VERSION11) || (idx->idx_flags & idx_descending)) {
-		// AB: irb_starting? Why?
-		// Commenting myself. Because we don't know exact length for the field.
-		// For ascending NULLs in ODS 11 and higher this doesn't matter, because
-		// a NULL is always stored as a key with length 0 (zero).
+	// irb_starting? Why? Because we don't know exact length for the field.
+	// For ascending NULLs in ODS 11 and higher this doesn't matter, because
+	// a NULL is always stored as a key with length 0 (zero).
+
+	if ((dbb->dbb_ods_version < ODS_VERSION11) || (idx->idx_flags & idx_descending)) 
 		retrieval->irb_generic = irb_starting;
-	}
 
 	retrieval->irb_lower_count = retrieval->irb_upper_count = 1;
 
 	// If we are matching less than the full index, this is a partial match
-	if (retrieval->irb_upper_count < idx->idx_count) {
+
+	if (retrieval->irb_upper_count < idx->idx_count)
 		retrieval->irb_generic |= irb_partial;
-	}
 
 	// Set descending flag on retrieval if index is descending
-	if (idx->idx_flags & idx_descending) {
+
+	if (idx->idx_flags & idx_descending) 
 		retrieval->irb_generic |= irb_descending;
-	}
 
 	jrd_nod* value = PAR_make_node(tdbb, 0);
 	retrieval->irb_value[0] = retrieval->irb_value[idx->idx_count] = value;
@@ -6347,30 +6326,25 @@ static JRD_NOD make_starts(thread_db* tdbb,
 	jrd_nod* field = boolean->nod_arg[0];
 	jrd_nod* value = boolean->nod_arg[1];
 
-#ifdef EXPRESSION_INDICES
 	if (idx->idx_flags & idx_expressn)
-	{
+		{
 		fb_assert(idx->idx_expression != NULL);
+
 		if (!(OPT_expression_equal(tdbb, opt, idx, field, stream) && 
 			OPT_computable(opt->opt_csb, value, stream, true, false)))
-		{
+			{
 			if (OPT_expression_equal(tdbb, opt, idx, value, stream) && 
 				OPT_computable(opt->opt_csb, field, stream, true, false))
-			{
+				{
 				field = value; 
 				value = boolean->nod_arg[0]; 
-			}
+				}
 			else
-			{
 				return NULL;
 			}
 		}
-	}
-	else
-#endif
-	{
-	if (field->nod_type != nod_field)
-	{
+	else if (field->nod_type != nod_field)
+		{
 		// dimitr:	any idea how we can use an index in this case?
 		//			The code below produced wrong results.
 		return NULL;
@@ -6380,34 +6354,31 @@ static JRD_NOD make_starts(thread_db* tdbb,
 		field = value;
 		value = boolean->nod_arg[0];
 		*/
-	}
+		}
 
 /* Every string starts with an empty string so
    don't bother using an index in that case. */
 
 	if (value->nod_type == nod_literal)
-	{
-		const dsc* literal_desc = &((Literal*) value)->lit_desc;
-		if ((literal_desc->dsc_dtype == dtype_text &&
-			 literal_desc->dsc_length == 0) ||
-			(literal_desc->dsc_dtype == dtype_varying &&
-			 literal_desc->dsc_length == sizeof(USHORT)))
 		{
-			return NULL;
-		}
-	}
+		const dsc* literal_desc = &((Literal*) value)->lit_desc;
 
-	if ((USHORT)(long) field->nod_arg[e_fld_stream] != stream ||
-		(USHORT)(long) field->nod_arg[e_fld_id] != idx->idx_rpt[0].idx_field
-		|| !(idx->idx_rpt[0].idx_itype == idx_string
-			 || idx->idx_rpt[0].idx_itype == idx_byte_array
-			 || idx->idx_rpt[0].idx_itype == idx_metadata
-			 || idx->idx_rpt[0].idx_itype >= idx_first_intl_string)
-		|| !OPT_computable(opt->opt_csb, value, stream, false, false))
-	{
+		if ((literal_desc->dsc_dtype == dtype_text 
+				&& literal_desc->dsc_length == 0) 
+				|| (literal_desc->dsc_dtype == dtype_varying 
+				&& literal_desc->dsc_length == sizeof(USHORT)))
+			return NULL;
+
+		}
+
+	if ((USHORT)(long) field->nod_arg[e_fld_stream] != stream
+			|| 	(USHORT)(long) field->nod_arg[e_fld_id] != idx->idx_rpt[0].idx_field
+			|| !(idx->idx_rpt[0].idx_itype == idx_string
+			|| idx->idx_rpt[0].idx_itype == idx_byte_array
+			|| idx->idx_rpt[0].idx_itype == idx_metadata
+			|| idx->idx_rpt[0].idx_itype >= idx_first_intl_string)
+			|| !OPT_computable(opt->opt_csb, value, stream, false, false))
 		return NULL;
-	}
-	}
 
 	jrd_nod* node = make_index_node(tdbb, relation, opt->opt_csb, idx);
 	IndexRetrieval* retrieval = (IndexRetrieval*) node->nod_arg[e_idx_retrieval];
@@ -6416,18 +6387,20 @@ static JRD_NOD make_starts(thread_db* tdbb,
 
 	// STARTING WITH can never include NULL values, thus ignore 
 	// them already at index scan
+
 	retrieval->irb_generic |= irb_ignore_null_value_key;
 
 	retrieval->irb_lower_count = retrieval->irb_upper_count = 1;
+
 	// If we are matching less than the full index, this is a partial match
-	if (retrieval->irb_upper_count < idx->idx_count) {
+
+	if (retrieval->irb_upper_count < idx->idx_count) 
 		retrieval->irb_generic |= irb_partial;
-	}
 
 	// Set descending flag on retrieval if index is descending
-	if (idx->idx_flags & idx_descending) {
+	if (idx->idx_flags & idx_descending) 
 		retrieval->irb_generic |= irb_descending;
-	}
+
 	retrieval->irb_value[0] = retrieval->irb_value[idx->idx_count] = value;
 	idx->idx_runtime_flags |= idx_plan_starts;
 
@@ -6576,60 +6549,50 @@ static SSHORT match_index(thread_db* tdbb,
 	SET_TDBB(tdbb);
 
 	if (boolean->nod_type == nod_and)
-	{
 		return match_index(tdbb, opt, stream, boolean->nod_arg[0], idx) +
 			match_index(tdbb, opt, stream, boolean->nod_arg[1], idx);
-	}
+
 
 	bool forward = true;
 
 	jrd_nod* match = boolean->nod_arg[0];
 	jrd_nod* value = (boolean->nod_count < 2) ? NULL : boolean->nod_arg[1];
 
-#ifdef EXPRESSION_INDICES
 	if (idx->idx_flags & idx_expressn)
-	{
+		{
 		// see if one side or the other is matchable to the index expression
 
 	    fb_assert(idx->idx_expression != NULL);
 
 		if (!OPT_expression_equal(tdbb, opt, idx, match, stream) ||
 			(value && !OPT_computable(opt->opt_csb, value, stream, true, false)))
-		{
-			if (value &&
-				OPT_expression_equal(tdbb, opt, idx, value, stream) &&
-				OPT_computable(opt->opt_csb, match, stream, true, false))
 			{
+			if (value && OPT_expression_equal(tdbb, opt, idx, value, stream) &&
+					OPT_computable(opt->opt_csb, match, stream, true, false))
+				{
 				match = boolean->nod_arg[1];
 				value = boolean->nod_arg[0];
-			}
+				}
 			else
 				return 0;
+			}
 		}
-	}
-	else {
-#endif
-		// If left side is not a field, swap sides. 
-		// If left side is still not a field, give up
-
-		if (match->nod_type != nod_field ||
+	// If left side is not a field, swap sides. 
+	// If left side is still not a field, give up
+	else if (match->nod_type != nod_field ||
 			(USHORT)(long) match->nod_arg[e_fld_stream] != stream ||
 			(value && !OPT_computable(opt->opt_csb, value, stream, true, false)))
 		{
-			match = value;
-			value = boolean->nod_arg[0];
-			if (!match ||
-				match->nod_type != nod_field ||
+		match = value;
+		value = boolean->nod_arg[0];
+
+		if (!match || match->nod_type != nod_field ||
 				(USHORT)(long) match->nod_arg[e_fld_stream] != stream ||
 				!OPT_computable(opt->opt_csb, value, stream, true, false))
-			{
-				return 0;
-			}
-			forward = false;
+			return 0;
+
+		forward = false;
 		}
-#ifdef EXPRESSION_INDICES
-	}
-#endif
 
 /* match the field to an index, if possible, and save the value to be matched 
    as either the lower or upper bound for retrieval, or both */
@@ -6638,31 +6601,27 @@ static SSHORT match_index(thread_db* tdbb,
 	SSHORT i = 0;
 	for (OptimizerBlk::opt_segment* ptr = opt->opt_segments; i < idx->idx_count;
 		i++, ptr++)
-	{
-		if (
-#ifdef EXPRESSION_INDICES
-			(idx->idx_flags & idx_expressn) ||
-#endif
-			 (USHORT)(long) match->nod_arg[e_fld_id] == idx->idx_rpt[i].idx_field)
 		{
+		if ((idx->idx_flags & idx_expressn) ||
+				(USHORT)(long) match->nod_arg[e_fld_id] == idx->idx_rpt[i].idx_field)
+			{
 			++count;
+
 			/* AB: If we have already an exact match don't 
 			   override it with worser matches, but increment the 
 			   count so that the node will be marked as matched! */
-			if (ptr->opt_match && ptr->opt_match->nod_type == nod_eql) {
+
+			if (ptr->opt_match && ptr->opt_match->nod_type == nod_eql) 
 				break;
-			}
-			switch (boolean->nod_type) {
+
+			switch (boolean->nod_type) 
+				{
 				case nod_between:
-					if (!forward ||
-						!OPT_computable(opt->opt_csb,
-						            boolean->nod_arg[2],
-						            stream,
-						            true,
-									false))
-					{
+					if ((!OPT_computable(opt->opt_csb, boolean->nod_arg[2], stream,
+										true, false)) 
+							|| !forward)
 						return 0;
-					}
+
 					ptr->opt_lower = value;
 					ptr->opt_upper = boolean->nod_arg[2];
 					ptr->opt_match = boolean;
@@ -6674,29 +6633,27 @@ static SSHORT match_index(thread_db* tdbb,
 					break;
 				case nod_gtr:
 				case nod_geq:
-					if (forward) {
+					if (forward) 
 						ptr->opt_lower = value;
-					}
-					else {
+					else 
 						ptr->opt_upper = value;
-					}
+
 					ptr->opt_match = boolean;
 					break;
 				case nod_lss:
 				case nod_leq:
-					if (forward) {
+					if (forward)
 						ptr->opt_upper = value;
-					}
-					else {
+					else
 						ptr->opt_lower = value;
-					}
+
 					ptr->opt_match = boolean;
 					break;
-				default:    /* Shut up compiler warnings */
+				default:    // Shut up compiler warnings 
 					break;
+				}
 			}
 		}
-	}
 
 	return count;
 }
