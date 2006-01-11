@@ -1781,7 +1781,6 @@ void DYN_define_index(thread_db*	tdbb,
 							DYN_REQUEST(drq_l_lfield) = request;
 						break;
 
-#ifdef EXPRESSION_INDICES
 					/* for expression indices, store the BLR and the source string */
 
 					case isc_dyn_fld_computed_blr:
@@ -1793,7 +1792,6 @@ void DYN_define_index(thread_db*	tdbb,
 						DYN_put_text_blob(tdbb, gbl, ptr, &IDX.RDB$EXPRESSION_SOURCE);
 						IDX.RDB$EXPRESSION_SOURCE.NULL = FALSE;
 						break;
-#endif
 
 					/* for foreign keys, point to the corresponding relation */
 
@@ -1962,10 +1960,7 @@ void DYN_define_index(thread_db*	tdbb,
 				request = old_request;
 				id = old_id;
 				}
-			else
-#ifdef EXPRESSION_INDICES
-			if (IDX.RDB$EXPRESSION_BLR.NULL)
-#endif
+			else if (IDX.RDB$EXPRESSION_BLR.NULL)
 				DYN_error_punt(tdbb, false, 119, IDX.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
 				/* msg 119 "no keys for index %s" */
 

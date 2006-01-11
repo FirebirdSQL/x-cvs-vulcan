@@ -239,9 +239,7 @@ static const DeferredTask task_table[] =
 	{ dfw_scan_relation, scan_relation },
 	{ dfw_compute_security, compute_security },
 	{ dfw_create_index, create_index },
-#ifdef EXPRESSION_INDICES
 	{ dfw_create_expression_index, PCMET_expression_index },
-#endif
 	{ dfw_delete_expression_index, delete_index },
 	{ dfw_grant, (bool(*)(thread_db*, SSHORT, DeferredWork*, Transaction*))GRANT_privileges },
 	{ dfw_create_trigger, create_trigger },
