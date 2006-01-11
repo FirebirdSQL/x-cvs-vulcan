@@ -1120,6 +1120,7 @@ static JRD_NOD par_field(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_
 		if (procedure)
 			{
 			int	flags = procedure->findFlags();
+
 			if (!(flags & PRC_scanned) ||
 				(flags & PRC_being_scanned) || 
 				(flags & PRC_being_altered))
