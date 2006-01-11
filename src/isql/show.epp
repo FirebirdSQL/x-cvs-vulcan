@@ -2694,15 +2694,14 @@ static int show_indices( SCHAR ** cmd)
             show_index (IDX1.RDB$RELATION_NAME, IDX1.RDB$INDEX_NAME,
                         IDX1.RDB$UNIQUE_FLAG, IDX1.RDB$INDEX_TYPE, IDX1.RDB$INDEX_INACTIVE);
 	
-#ifdef EXPRESSION_INDICES
-            if (!IDX1.RDB$EXPRESSION_BLR.NULL) {
+            if (!IDX1.RDB$EXPRESSION_BLR.NULL)
+				{
                 sprintf (Print_buffer, " COMPUTED BY ");
                 ISQL_printf (Out, Print_buffer);
                 if (!IDX1.RDB$EXPRESSION_SOURCE.NULL)
                     SHOW_print_metadata_text_blob (Out, &IDX1.RDB$EXPRESSION_SOURCE);
                 ISQL_printf (Out, NEWLINE);
-            }
-#endif
+				}
             
             first = FALSE;
         END_FOR
@@ -2727,15 +2726,15 @@ static int show_indices( SCHAR ** cmd)
             show_index (IDX2.RDB$RELATION_NAME, IDX2.RDB$INDEX_NAME,
                         IDX2.RDB$UNIQUE_FLAG, IDX2.RDB$INDEX_TYPE, IDX2.RDB$INDEX_INACTIVE);
 	
-#ifdef EXPRESSION_INDICES
-            if (!IDX2.RDB$EXPRESSION_BLR.NULL) {
+
+            if (!IDX2.RDB$EXPRESSION_BLR.NULL) 
+				{
                 sprintf (Print_buffer, " COMPUTED BY ");
                 ISQL_printf (Out, Print_buffer);
                 if (!IDX2.RDB$EXPRESSION_SOURCE.NULL)
                     SHOW_print_metadata_text_blob (Out, &IDX2.RDB$EXPRESSION_SOURCE);
                 ISQL_printf (Out, NEWLINE);
-            }
-#endif
+				}
 	
         END_FOR
 		ON_ERROR 
