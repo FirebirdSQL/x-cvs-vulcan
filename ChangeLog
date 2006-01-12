@@ -1,3 +1,35 @@
+2006-01-12 00:34  awharrison
+
+	* vulcan/src/jrd/: Optimizer.cpp, Optimizer.h, btr.cpp, opt.cpp:
+	
+	Removed conditionalization of expression indexes and major
+	reformatting for style consistency
+
+2006-01-12 00:33  awharrison
+
+	* vulcan/src/jrd/par.cpp:
+	
+	Minor reformat
+
+2006-01-12 00:31  awharrison
+
+	* vulcan/src/jrd/: dfw.epp, dyn_def.epp, validation.cpp:
+	
+	Removed the conditionalization of expression indexes
+
+2006-01-12 00:29  awharrison
+
+	* vulcan/src/isql/show.epp:
+	
+	Remove conditionalization of expression indexes
+
+2006-01-12 00:27  awharrison
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	Small amount of code clean-up and removed EXPRESSION_INDEX
+	condiditonals
+
 2006-01-08 17:47  awharrison
 
 	* vulcan/src/jrd/btr.cpp:
