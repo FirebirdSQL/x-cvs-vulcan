@@ -1,3 +1,9 @@
+2006-01-13 22:55  awharrison
+
+	* vulcan/src/include/fbdev.h:
+	
+	Fix the license per agreement with creators
+
 2006-01-12 00:34  awharrison
 
 	* vulcan/src/jrd/: Optimizer.cpp, Optimizer.h, btr.cpp, opt.cpp:
