@@ -1039,7 +1039,7 @@ CPPFLAGS = <buildopt/> -I. \
 </component>
 
 <component name="IscDbc">
-<template name="target">fbdbc.dylib</template>
+<template name="target">libfbdbc.dylib</template>
 
 <template name="CFlags">
 CPPFLAGS = <buildopt/> -I. \
