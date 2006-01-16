@@ -981,6 +981,8 @@ CPPFLAGS = <buildopt/> -I. \
 
 <configuration name="darwin">
 
+<!--	Darwin32 / Generic	-->
+
 <component name="Generic">
 <template name="CFlags">
 CPPFLAGS = <buildopt/> -I. \
@@ -1010,6 +1012,8 @@ CPPFLAGS = <buildopt/> -I. \
 
 </component>
 
+<!--	Darwin32 / why		-->
+
 <component name="why">
 <template name="target">libfirebird.dylib</template>
 
@@ -1038,6 +1042,9 @@ CPPFLAGS = <buildopt/> -I. \
 
 </component>
 
+
+<!--	Darwin32 / IscDbc	-->
+
 <component name="IscDbc">
 <template name="target">libfbdbc.dylib</template>
 
@@ -1061,6 +1068,8 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 </component>
+
+<!--	Darwin32 / jrd		-->
 
 <component name="jrd">
 <template name="target">engine11.dylib</template>
@@ -1086,6 +1095,8 @@ CPPFLAGS = <buildopt/> -I. \
 				
 </component>
 
+<!--	Darwin32 / remote	-->
+
 <component name="remote">
 <template name="target">remote.dylib</template>
 
@@ -1109,12 +1120,16 @@ CPPFLAGS = <buildopt/> -I. \
 															
 </component>
 
+<!--	Darwin32 / Config	-->
+
 <component name="Config">
 <template name="Libraries">
 	-lpthread -lm -ldl \
 </template>
 </component>
 
+
+<!--	Darwin32 / Services	-->
 
 <component name="Services">
 <template name="target">services.dylib</template>
@@ -1160,6 +1175,17 @@ DIRS = $(SRCDIR)/jrd/os/posix \
 </template>
 
 </component>
+
+<!--	Darwin32 / xload		-->
+
+<component name="xload">
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
+</template>
+
+</component>
+
 
 </configuration>
 														
