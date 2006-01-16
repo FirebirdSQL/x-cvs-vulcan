@@ -58,7 +58,6 @@
 
 DATABASE DB = "yachts.lnk";
 
-#ifdef EXPRESSION_INDICES
 bool PCMET_expression_index(thread_db* tdbb, SSHORT phase, DeferredWork* work,
 							Transaction* transaction)
 {
@@ -97,9 +96,7 @@ bool PCMET_expression_index(thread_db* tdbb, SSHORT phase, DeferredWork* work,
 		request = CMP_find_request(tdbb, irq_c_exp_index, IRQ_REQUESTS);
 /*
 		if (request)
-		{
 			EXE_unwind(tdbb, request);
-		}
 */
 		FOR(REQUEST_HANDLE request)
 			IDX IN RDB$INDICES CROSS
@@ -235,10 +232,9 @@ bool PCMET_expression_index(thread_db* tdbb, SSHORT phase, DeferredWork* work,
 
 	return false;
 }
-#endif
 
 
-#ifdef EXPRESSION_INDICES
+
 void PCMET_lookup_index(thread_db* tdbb, Relation* relation, index_desc* idx)
 {
 /**************************************
@@ -344,5 +340,5 @@ void PCMET_lookup_index(thread_db* tdbb, Relation* relation, index_desc* idx)
 	MOVE_FAST(&idx->idx_expression_desc, &index_block->idb_expression_desc,
 			  sizeof(struct dsc));
 }
-#endif
+
 
