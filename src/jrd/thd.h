@@ -108,7 +108,7 @@ $Id$
 
 #ifdef SUPERSERVER
 #ifdef SHARED_CACHE
-#define SWEEP_THREAD
+//#define SWEEP_THREAD
 #endif
 #else
 #define AST_THREAD

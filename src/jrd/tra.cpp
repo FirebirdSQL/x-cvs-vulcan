@@ -124,11 +124,14 @@ static tx_inv_page* fetch_inventory_page(thread_db*, WIN *, SLONG, USHORT);
 static SLONG inventory_page(thread_db*, SLONG);
 static SSHORT limbo_transaction(thread_db*, SLONG);
 static void restart_requests(thread_db*, Transaction*);
+
 #ifdef SWEEP_THREAD
 static BOOLEAN start_sweeper(thread_db*, DBB);
 static void THREAD_ROUTINE sweep_database(Database*);
 #endif
+
 static void transaction_options(thread_db*, Transaction*, const UCHAR*, USHORT);
+
 #ifdef VMS
 static BOOLEAN vms_convert(Lock*, SLONG *, SCHAR, BOOLEAN);
 #endif
@@ -1747,11 +1750,11 @@ Transaction* TRA_start(thread_db* tdbb, Attachment *attachment, int tpb_length, 
 		(trans->tra_oldest_active - trans->tra_oldest > dbb->dbb_sweep_interval) && 
 		 oldest_state != tra_limbo) 
 		{
-#ifndef SWEEP_THREAD
+#ifdef SWEEP_THREAD
+		start_sweeper(tdbb, dbb);
+#else
 		/* force a sweep */
 		TRA_sweep(tdbb, trans);
-#else
-		start_sweeper(tdbb, dbb);
 #endif
 		}
 

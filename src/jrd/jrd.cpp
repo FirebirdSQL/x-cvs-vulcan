@@ -2690,6 +2690,10 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 	try
 		{
 		request = request->getInstantiatedRequest(level);
+
+		if (!request->req_transaction)
+			ERR_post(isc_bad_trans_handle, 0);
+		
 #ifdef SHARED_CACHE
 		Sync syncTransaction(&request->req_transaction->syncInUse, "jrd8_receive");
 		syncTransaction.lock(Exclusive);
@@ -3040,10 +3044,15 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 	try
 		{
 		request = request->getInstantiatedRequest(level);
+		
+		if (!request->req_transaction)
+			ERR_post(isc_bad_trans_handle, 0);
+			
 #ifdef SHARED_CACHE
 		Sync syncTransaction(&request->req_transaction->syncInUse, "jrd8_send");
 		syncTransaction.lock(Exclusive);
 #endif
+
 		EXE_send(threadData, request, msg_type, msg_length, msg);
 		check_autocommit(request, threadData);
 	

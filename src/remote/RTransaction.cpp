@@ -43,7 +43,7 @@ RTransaction::~RTransaction(void)
 
 	rtr_rdb->releaseTransaction (this);
 	
-	if (rtr_rdb && rtr_id)
+	if (rtr_rdb && rtr_id && rtr_rdb->rdb_port)
 		rtr_rdb->rdb_port->releaseObjectId (rtr_id);
 }
 

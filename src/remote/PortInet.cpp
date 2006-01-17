@@ -2572,9 +2572,9 @@ Port* INET_connect(const TEXT* name,
 			port->disconnect();
 			return NULL;
 			}
-	}
+		}
 
-	n = listen((SOCKET) port->port_handle, 5);
+	n = listen((SOCKET) port->port_handle, 25);
 
 	if (n == -1) 
 		{
