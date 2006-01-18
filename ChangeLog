@@ -1,3 +1,64 @@
+2006-01-17 20:05  awharrison
+
+	* vulcan/src/jrd/validation.cpp:
+	
+	Make the formatting consistent
+
+2006-01-17 19:06  awharrison
+
+	* vulcan/src/: boot_build, build:
+	
+	Remove XLoad from normal build
+
+2006-01-17 01:06  jimstarkey
+
+	* vulcan/src/: jrd/jrd.cpp, jrd/thd.h, jrd/tra.cpp,
+	remote/PortInet.cpp, remote/RTransaction.cpp:
+	
+	Added some runtime checking for validate transactions; disabled the
+	sweep thread; cleaned up some error recovery.
+
+2006-01-16 23:08  awharrison
+
+	* vulcan/vulcan.build:
+	
+	try to make XLoad work on Darwin again
+
+2006-01-16 18:43  awharrison
+
+	* vulcan/vulcan.build:
+	
+	change the name of fbdbc.dylib to libfbdbc.dylib to follow platform
+	rules.
+
+2006-01-16 18:22  awharrison
+
+	* vulcan/src/why/darwin.why:
+	
+	Add entry fb_config_text for passing configuration information as
+	text.
+
+2006-01-16 17:38  awharrison
+
+	* vulcan/src/jrd/pcmet.epp:
+	
+	commit the epp, not the cpp.
+
+2006-01-16 14:53  paulbeach
+
+	* vulcan/src/: common/classes/alloc.cpp, common/classes/alloc.h,
+	common/classes/class_perf.cpp, common/classes/class_test.cpp,
+	common/classes/locks.h, common/classes/rwlock.h,
+	common/classes/semaphore.h, common/classes/tree.h,
+	common/classes/vector.h, common/config/config_file.cpp,
+	common/config/config_file.h, dsql/keywords.cpp, include/editline.h,
+	jrd/nbak.cpp, jrd/nbak.h, jrd/os/darwin/config_root.cpp,
+	jrd/os/guid.h, jrd/os/posix/config_root.cpp, jrd/os/posix/guid.cpp,
+	misc/fb_boilerplate.h:
+	
+	Remove references to LGPL and replace with IDPL as per Dimitry's
+	comments
+
 2006-01-13 22:55  awharrison
 
 	* vulcan/src/include/fbdev.h:
