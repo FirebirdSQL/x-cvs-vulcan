@@ -109,6 +109,8 @@ public:
 
 	jrd_nod* lowerValue;		// lower bound on index value
 	jrd_nod* upperValue;		// upper bound on index value
+	bool excludeLower;			// exclude lower bound value from scan 
+	bool excludeUpper;			// exclude upper bound value from scan
 	int scope;					// highest scope level
 	segmentScanType scanType;	// scan type
 
@@ -130,9 +132,6 @@ public:
 	int upperCount;					//
 	int nonFullMatchedSegments;		//
 	double cardinality;				// Estimated cardinality when using the whole index
-
-	bool excludeLower;				//  
-	bool excludeUpper;				//
 
 	firebird::Array<IndexScratchSegment*> segments;
 };
@@ -240,7 +239,7 @@ public:
 	bool	used;
 
 	IndexedRelationships indexedRelationships;
-	firebird::Array<int> previousExpectedStreams;
+	int previousExpectedStreams;
 };
 
 typedef firebird::HalfStaticArray<InnerJoinStreamInfo*, 8> StreamInfoList;

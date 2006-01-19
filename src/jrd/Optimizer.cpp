@@ -406,16 +406,7 @@ bool OPT_expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 			if ((node1->nod_arg[e_fld_id] == node2->nod_arg[e_fld_id]) &&
 					(fld_stream == stream))
 				{
-				/*
-				dsc dsc1, dsc2; 
-				dsc *desc1 = &dsc1, *desc2 = &dsc2; 
-
-				CMP_get_desc(tdbb, opt->opt_csb, node1, desc1);
-				CMP_get_desc(tdbb, opt->opt_csb, node2, desc2);
-
-				if (DSC_GET_COLLATE(desc1) == DSC_GET_COLLATE(desc2))
-				*/	
-				return true;
+					return true;
 				}
 			}
 			break;
@@ -492,16 +483,7 @@ bool OPT_expression_equal2(thread_db* tdbb, OptimizerBlk* opt,
 			if (OPT_expression_equal2(tdbb, opt, node1->nod_arg[0],
 								  node2->nod_arg[0], stream))
 				{
-				/*
-				dsc dsc1, dsc2; 
-				dsc *desc1 = &dsc1, *desc2 = &dsc2; 
-
-				CMP_get_desc(tdbb, opt->opt_csb, node1, desc1);
-				CMP_get_desc(tdbb, opt->opt_csb, node2, desc2);
-
-				if (DSC_GET_COLLATE(desc1) == DSC_GET_COLLATE(desc2))
-				*/
-				return true;
+					return true;
 				}
 			break;
 
@@ -754,6 +736,8 @@ IndexScratchSegment::IndexScratchSegment(MemoryPool& p) :
  **************************************/
 	lowerValue = NULL;
 	upperValue = NULL;
+	excludeLower = false;
+	excludeUpper = false;
 	scope = 0;
 	scanType = segmentScanNone;
 }
@@ -772,6 +756,8 @@ IndexScratchSegment::IndexScratchSegment(MemoryPool& p, IndexScratchSegment* seg
  **************************************/
 	lowerValue = segment->lowerValue;
 	upperValue = segment->upperValue;
+	excludeLower = segment->excludeLower;
+	excludeUpper = segment->excludeUpper;
 	scope = segment->scope;
 	scanType = segment->scanType;
 
@@ -800,9 +786,6 @@ IndexScratch::IndexScratch(MemoryPool& p, thread_db* tdbb, index_desc* idx,
 	upperCount = 0;
 	nonFullMatchedSegments = 0;
 	this->idx = idx;
-
-	excludeLower = false;
-	excludeUpper = false;
 
 	segments.grow(idx->idx_count);
 
@@ -856,9 +839,6 @@ IndexScratch::IndexScratch(MemoryPool& p, IndexScratch* scratch) :
 	upperCount = scratch->upperCount;
 	nonFullMatchedSegments = scratch->nonFullMatchedSegments;
 	idx = scratch->idx;
-
-	excludeLower = scratch->excludeLower;
-	excludeUpper = scratch->excludeUpper;
 
 	// Allocate needed segments
 	segments.grow(scratch->segments.getCount());
@@ -1479,6 +1459,11 @@ InversionCandidate* OptimizerRetrieval::getCost()
 	invCandidate->indexes = 0;
 	invCandidate->selectivity = MAXIMUM_SELECTIVITY;
 	invCandidate->cost = csb->csb_rpt[stream].csb_cardinality;
+	OptimizerBlk::opt_conjunct* tail = optimizer->opt_conjuncts.begin();
+	for (; tail < optimizer->opt_conjuncts.end(); tail++) {
+		findDependentFromStreams(tail->opt_conjunct_node,
+									&invCandidate->dependentFromStreams);
+	}
 	return invCandidate;
 }
 
@@ -1669,6 +1654,16 @@ bool OptimizerRetrieval::getInversionCandidates(InversionCandidateList* inversio
 				invCandidate->unique = unique;
 				invCandidate->selectivity = scratch[i]->selectivity;
 
+				// When selectivty is zero the statement is prepared on an
+				// empty table or the statistics aren't updated.
+				// Assume a half of the maximum selectivty, so at least some
+				// indexes are chosen by the optimizer. This avoids some slowdown
+				// statements on growing tables.
+
+				if (invCandidate->selectivity <= 0) {
+					invCandidate->selectivity = MAXIMUM_SELECTIVITY / 2;
+				}
+
 				// Calculate the cost (only index pages) for this index. 
 				// The constant DEFAULT_INDEX_COST 1 is an average for 
 				// the rootpage and non-leaf pages.
@@ -1806,9 +1801,17 @@ jrd_nod* OptimizerRetrieval::makeIndexScanNode(IndexScratch* indexScratch) const
 		}
 
 	i = std::max(indexScratch->lowerCount, indexScratch->upperCount) - 1;
+	if (i >= 0)  
+	{
+		if (segment[i]->scanType == segmentScanStarting) 
+			retrieval->irb_generic |= irb_starting;
 
-	if ((i >= 0) && (segment[i]->scanType == segmentScanStarting)) 
-		retrieval->irb_generic |= irb_starting;
+		if (segment[i]->excludeLower)
+			retrieval->irb_generic |= irb_exclude_lower;
+
+		if (segment[i]->excludeUpper)
+			retrieval->irb_generic |= irb_exclude_upper;		
+	}
 
 /* FB2.0 INTL
 	for (IndexScratchSegment** tail = indexScratch->segments.begin();
@@ -1888,12 +1891,6 @@ jrd_nod* OptimizerRetrieval::makeIndexScanNode(IndexScratch* indexScratch) const
 	else if (retrieval->irb_upper_count < idx->idx_count)
 			retrieval->irb_generic |= irb_partial;
 
-	if (indexScratch->excludeLower)
-		retrieval->irb_generic |= irb_exclude_lower;
-
-	if (indexScratch->excludeUpper)
-		retrieval->irb_generic |= irb_exclude_upper;
-
 	// mark the index as utilized for the purposes of this compile
 	idx->idx_runtime_flags |= idx_used;
 
@@ -1920,20 +1917,24 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 	if (inversions->getCount() < 1) 
 		return NULL;
 
-	// This constant disables our smart index selection algorithm. When we
-	// deal with a system request, most probably it's being cached at the
-	// first invocation and hence it may have out-of-date plan at runtime.
-	// An example is a database restore process which starts with almost
-	// empty system tables which may significantly grow later. So, as a
-	// practical rule, we use all available indices for any system request.
-	// Another special case is an explicit (i.e. user specified) plan which
+	// This flag disables our smart index selection algorithm. 
+	// It's set for any explicit (i.e. user specified) plan which
 	// requires all existing indices to be considered for a retrieval.
 
 	const bool acceptAll = csb->csb_rpt[stream].csb_plan;
-	const double streamCard = csb->csb_rpt[stream].csb_cardinality;
+
+	double streamCardinality = csb->csb_rpt[stream].csb_cardinality;
+	// When the cardinality is very small then the statement is being
+	// prepared on an almost empty table, which would meant no indexes
+	// will be used at all. The prepared statement could be cached
+	// (such as in system restore process) and cause slowdown when the
+	// table grows. Set the cardinality to a value so that at least
+	// some indexes are chosen.
+	if (streamCardinality <= 5) {
+		streamCardinality = 5;
+	}
 
 	double totalSelectivity = MAXIMUM_SELECTIVITY; // worst selectivity
-	double totalCost = 0;
 	double totalIndexCost = 0;
 
 	// Allow indexes also to be used on very small tables. Limit starts
@@ -1941,11 +1942,16 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 	// Also when the table is small and a statement is prepared, but would grow
 	// while inserting data into this would really slow down the statement.
 	// An example here is with system tables and the restore process of gbak.
+	//
+	// dimitr: TO BE REVIEWED!!!
+	//
+	const double maximumCost = (DEFAULT_INDEX_COST * 5) + (streamCardinality * 0.95);
+	const double minimumSelectivity = 1 / streamCardinality;
 
-	const double maximumCost = (DEFAULT_INDEX_COST * 5) + (streamCard * 0.95);
 	double previousTotalCost = maximumCost;
 
-	const double minimumSelectivity = streamCard ? 1 / streamCard : 0;
+	// Force to always choose at least one index
+	bool firstCandidate = true;
 
 	int i = 0;
 	InversionCandidate* invCandidate = NULL;
@@ -2075,9 +2081,9 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 							{
 
 							double bestCandidateCost = bestCandidate->cost + 
-								(bestCandidate->selectivity * streamCard);
+								(bestCandidate->selectivity * streamCardinality);
 							double currentCandidateCost = currentInv->cost +
-								(currentInv->selectivity * streamCard);
+								(currentInv->selectivity * streamCardinality);
 
 							// Do we have very similar costs?
 							double diffCost = currentCandidateCost;
@@ -2181,22 +2187,23 @@ InversionCandidate* OptimizerRetrieval::makeInversion(InversionCandidateList* in
 				}
 			*/
 
-			double newTotalSelectivity = bestCandidate->selectivity * totalSelectivity;
-			double newTotalDataCost = newTotalSelectivity * streamCard;
-			double newTotalIndexCost = totalIndexCost + bestCandidate->cost;
-			totalCost = newTotalDataCost + newTotalIndexCost;
+			const double newTotalSelectivity = bestCandidate->selectivity * totalSelectivity;
+			const double newTotalDataCost = newTotalSelectivity * streamCardinality;
+			const double newTotalIndexCost = totalIndexCost + bestCandidate->cost;
+			const double totalCost = newTotalDataCost + newTotalIndexCost;
 
 			// Test if the new totalCost will be higher than the previous totalCost 
 			// and if the current selectivity (without the bestCandidate) is already good enough.
 
-			if (acceptAll || ((totalCost < previousTotalCost) 
-				&& (!totalSelectivity || totalSelectivity > minimumSelectivity)))
+			if (acceptAll || firstCandidate ||
+				((totalCost < previousTotalCost) &&
+				(totalSelectivity > minimumSelectivity)))
 				{
 				// Exclude index from next pass
 				bestCandidate->used = true;
+				firstCandidate = false;
 				previousTotalCost = totalCost;
 				totalIndexCost = newTotalIndexCost; 
-
 				totalSelectivity = newTotalSelectivity;
 
 				if (!invCandidate) 
@@ -2374,8 +2381,8 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 						segment[i]->lowerValue = value;
 						segment[i]->upperValue = boolean->nod_arg[2];
 						segment[i]->scanType = segmentScanBetween;
-						indexScratch->excludeLower = false;
-						indexScratch->excludeUpper = false;
+						segment[i]->excludeLower = false;
+						segment[i]->excludeUpper = false;
 						}
 					break;
 
@@ -2389,8 +2396,8 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 						{
 						segment[i]->lowerValue = segment[i]->upperValue = value;
 						segment[i]->scanType = segmentScanEquivalent;
-						indexScratch->excludeLower = false;
-						indexScratch->excludeUpper = false;
+						segment[i]->excludeLower = false;
+						segment[i]->excludeUpper = false;
 						}
 					break;
 
@@ -2398,8 +2405,8 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 					segment[i]->matches.add(boolean);
 					segment[i]->lowerValue = segment[i]->upperValue = value;
 					segment[i]->scanType = segmentScanEqual;
-					indexScratch->excludeLower = false;
-					indexScratch->excludeUpper = false;
+					segment[i]->excludeLower = false;
+					segment[i]->excludeUpper = false;
 					break;
 
 				case nod_gtr:
@@ -2410,13 +2417,10 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 							|| (segment[i]->scanType == segmentScanEquivalent)
 							|| (segment[i]->scanType == segmentScanBetween))) 
 						{
-						if (boolean->nod_type == nod_gtr) 
-							{
-							if (forward != isDesc) // (forward && !isDesc || !forward && isDesc)
-								indexScratch->excludeLower = true;
-							else
-								indexScratch->excludeUpper = true;
-							}	
+						if (forward != isDesc) // (forward && !isDesc || !forward && isDesc)
+							segment[i]->excludeLower = (boolean->nod_type == nod_gtr);
+						else
+							segment[i]->excludeUpper = (boolean->nod_type == nod_gtr);
 
 						if (forward) 
 							{
@@ -2447,13 +2451,10 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 							|| (segment[i]->scanType == segmentScanEquivalent) 
 							|| (segment[i]->scanType == segmentScanBetween))) 
 						{
-						if (boolean->nod_type == nod_lss) 
-							{
-							if (forward != isDesc)
-								indexScratch->excludeUpper = true;
-							else
-								indexScratch->excludeLower = true;
-							}
+						if (forward != isDesc)
+							segment[i]->excludeUpper = (boolean->nod_type == nod_lss);
+						else
+							segment[i]->excludeLower = (boolean->nod_type == nod_lss);
 
 						if (forward) 
 							{
@@ -2488,8 +2489,8 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 						{
 						segment[i]->lowerValue = segment[i]->upperValue = value;
 						segment[i]->scanType = segmentScanStarting;
-						indexScratch->excludeLower = false;
-						indexScratch->excludeUpper = false;
+						segment[i]->excludeLower = false;
+						segment[i]->excludeUpper = false;
 						}
 					break;
 
@@ -2501,8 +2502,8 @@ bool OptimizerRetrieval::matchBoolean(IndexScratch* indexScratch,
 						{
 						segment[i]->lowerValue = segment[i]->upperValue = value;
 						segment[i]->scanType = segmentScanMissing;
-						indexScratch->excludeLower = false;
-						indexScratch->excludeUpper = false;
+						segment[i]->excludeLower = false;
+						segment[i]->excludeUpper = false;
 						}
 					break;
 
@@ -2883,7 +2884,7 @@ IndexRelationship::IndexRelationship()
 
 
 InnerJoinStreamInfo::InnerJoinStreamInfo(MemoryPool& p) :
-	indexedRelationships(p), previousExpectedStreams(p)
+	indexedRelationships(p)
 {
 /**************************************
  *
@@ -2902,7 +2903,7 @@ InnerJoinStreamInfo::InnerJoinStreamInfo(MemoryPool& p) :
 	used = false;
 
 	indexedRelationships.shrink(0);
-	previousExpectedStreams.shrink(0);
+	previousExpectedStreams = 0;
 }
 
 bool InnerJoinStreamInfo::independent() const
@@ -2920,7 +2921,7 @@ bool InnerJoinStreamInfo::independent() const
  *
  **************************************/
 	return (indexedRelationships.getCount() == 0) &&
-		(previousExpectedStreams.getCount() == 0);
+		(previousExpectedStreams == 0);
 }
 
 
@@ -3081,8 +3082,8 @@ void OptimizerInnerJoin::calculateStreamInfo()
 
 				// Next those with the lowest previous expected streams
 
-				int compare = innerStreams[i]->previousExpectedStreams.getCount() -
-					tempStreams[index]->previousExpectedStreams.getCount();
+				int compare = innerStreams[i]->previousExpectedStreams -
+					tempStreams[index]->previousExpectedStreams;
 
 				if (compare < 0)
 					break;
@@ -3372,7 +3373,7 @@ void OptimizerInnerJoin::findBestOrder(int position, InnerJoinStreamInfo* stream
 					if (relationStreamInfo->stream == relationships[index]->stream) 
 						{
 						// If the cost of this relationship is cheaper then remove the
-						// old realtionship and add this one.
+						// old relationship and add this one.
 						if (cheaperRelationship(relationship, relationships[index])) 
 							{
 							processList->remove(index);
@@ -3483,27 +3484,30 @@ void OptimizerInnerJoin::getIndexedRelationship(InnerJoinStreamInfo* baseStream,
 
 	if (candidate->dependentFromStreams.find(baseStream->stream, pos)) 
 		{
-		// If we could use more conjunctions on the testing stream with the base stream
-		// active as without the base stream then the test stream has a indexed
-		// relationship with the base stream.
+		if (candidate->indexes) 
+			{
+			// If we could use more conjunctions on the testing stream with the base stream
+			// active as without the base stream then the test stream has a indexed
+			// relationship with the base stream.
 
-		IndexRelationship* indexRelationship = FB_NEW(pool) IndexRelationship();
-		indexRelationship->stream = testStream->stream;
-		indexRelationship->unique = candidate->unique;
-		indexRelationship->cost = cost;
-		indexRelationship->cardinality = csb_tail->csb_cardinality;
+			IndexRelationship* indexRelationship = FB_NEW(pool) IndexRelationship();
+			indexRelationship->stream = testStream->stream;
+			indexRelationship->unique = candidate->unique;
+			indexRelationship->cost = cost;
+			indexRelationship->cardinality = csb_tail->csb_cardinality;
 
-		// indexRelationship are kept sorted on cost and unique in the indexRelations array.
-		// The unqiue and cheapest indexed relatioships are on the first position.
+			// indexRelationship are kept sorted on cost and unique in the indexRelations array.
+			// The unqiue and cheapest indexed relatioships are on the first position.
 
-		int index = 0;
+			int index = 0;
 
-		for (; index < baseStream->indexedRelationships.getCount(); index++) 
-			if (cheaperRelationship(indexRelationship, baseStream->indexedRelationships[index]))
-				break;
+			for (; index < baseStream->indexedRelationships.getCount(); index++) 
+				if (cheaperRelationship(indexRelationship, baseStream->indexedRelationships[index]))
+					break;
 
-		baseStream->indexedRelationships.insert(index, indexRelationship);
-		testStream->previousExpectedStreams.add(baseStream->stream);
+			baseStream->indexedRelationships.insert(index, indexRelationship);
+			}
+		testStream->previousExpectedStreams++;
 		}
 
 	delete candidate;

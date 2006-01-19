@@ -204,7 +204,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 	// The bitmap is only valid when we are continuing on in one 
 	// direction.  It is of no help when we change direction,
 	// and so we need to reset in that case.
-	
+#ifdef SCROLLABLE_CURSORS
 	if (((impure->irsb_flags & irsb_backwards) && direction != RSE_get_backward)
 		|| (!(impure->irsb_flags & irsb_backwards) && direction != RSE_get_forward))
 		RecordBitmap::reset(impure->irsb_nav_records_visited);
@@ -213,6 +213,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 		impure->irsb_flags &= ~irsb_backwards;
 	else if (direction == RSE_get_backward) 
 		impure->irsb_flags |= irsb_backwards;
+#endif
 
 	// find the last fetched position from the index
 	WIN window(impure->irsb_nav_page);
@@ -226,9 +227,10 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 	IndexRetrieval* retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 
 	// set the upper (or lower) limit for navigational retrieval
-	
-	temporary_key upper, lower;
-	
+	temporary_key upper;
+#ifdef SCROLLABLE_CURSORS
+	temporary_key lower;
+#endif
 	if ((direction == RSE_get_forward) && retrieval->irb_upper_count) 
 		{
 		upper.key_length = impure->irsb_nav_upper_length;
@@ -239,11 +241,13 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 		MOVE_FAST((impure->irsb_nav_data + rsb->keyLength), upper.key_data, upper.key_length);
 #endif
 		}
+#ifdef SCROLLABLE_CURSORS
 	else if ((direction == RSE_get_backward) && retrieval->irb_lower_count) 
 		{
 		lower.key_length = impure->irsb_nav_lower_length;
 		MOVE_FAST((impure->irsb_nav_data + rsb->keyLength),lower.key_data, lower.key_length);
 		}
+#endif
 
 	// In the case of a DISTINCT, we must detect whether the key changed since the last 
 	// time a record was returned from the rsb.  It is not good enough to know whether the 
@@ -319,7 +323,9 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 			{
 			if (node.isEndLevel) 
 				{
+#ifdef SCROLLABLE_CURSORS
 				impure->irsb_flags |= irsb_eof;
+#endif
 				break;
 				}
 				
@@ -411,6 +417,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 			break;
 			}
 
+#ifdef SCROLLABLE_CURSORS
 		if ((direction == RSE_get_backward) && retrieval->irb_lower_count &&
 			compare_keys(idx, key.key_data, key.key_length, &lower,
 						 retrieval->irb_generic & (irb_descending |
@@ -420,6 +427,7 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 			//RSE_MARK_CRACK(tdbb, rsb, irsb_crack);
 			break;
 			}
+#endif
 
 		// skip this record if:
 		// 1) there is an inversion tree for this index and this record
@@ -433,13 +441,18 @@ BOOLEAN NAV_get_record(thread_db* tdbb,
 			|| RecordBitmap::test(impure->irsb_nav_records_visited, number.getValue())
 			|| ((rsb->rsb_flags & rsb_project) && !(impure->irsb_flags & irsb_key_changed))) 
 			{
+#ifdef SCROLLABLE_CURSORS
 			if (direction == RSE_get_backward) 
 				{
 				nextPointer = BTreeNode::previousNode(&node, pointer, flags, &expanded_node);
 				expanded_next = expanded_node;
 				continue;
 				}
-			else if (direction == RSE_get_forward) // && !(impure->irsb_flags & irsb_forced_crack)) 
+			if ((direction == RSE_get_forward) 
+					&& !(impure->irsb_flags & irsb_forced_crack))
+#else
+			if (direction == RSE_get_forward)
+#endif
 				{
 				nextPointer = BTreeNode::nextNode(&node, pointer, flags, &expanded_node);
 				expanded_next = expanded_node;
@@ -805,8 +818,15 @@ static UCHAR* get_position(thread_db* tdbb,
 
 	// If this is the first time, start at the beginning (or the end)
 	
-	if (!window->win_page || impure->irsb_flags & (irsb_bof | irsb_eof)) 
+#ifdef SCROLLABLE_CURSORS
+	if (!window->win_page || impure->irsb_flags & (irsb_bof | irsb_eof))
+		{
+#else
+	if (!window->win_page)
+		{
+#endif
 		return nav_open(tdbb, rsb, impure, window, direction, expanded_node);
+		}
 
 	exp_index_buf* expanded_page = NULL;
 
@@ -847,11 +867,14 @@ static UCHAR* get_position(thread_db* tdbb,
 		// nav_offset be the last node fetched.  Go forward or
 		// backward from that point accordingly.
 		
+#ifdef SCROLLABLE_CURSORS
 		if (direction == RSE_get_backward) {
 			pointer = BTreeNode::previousNode(&node, pointer, flags, expanded_node);
 			//node = (btree_nod*) BTR_previous_node( (UCHAR*)node, expanded_node);
 		}
-		else if (direction == RSE_get_forward) {
+		else 
+#endif
+			if (direction == RSE_get_forward) {
 			pointer = BTreeNode::nextNode(&node, pointer, flags, expanded_node);
 		}
 		return pointer;
@@ -868,11 +891,14 @@ static UCHAR* get_position(thread_db* tdbb,
 	page = (btree_page*) window->win_buffer;
 	if (pointer) {
 		*expanded_node = find_current(window->win_expanded_buffer, page, pointer);
+#ifdef SCROLLABLE_CURSORS
 		if (direction == RSE_get_backward) {
 			pointer = BTreeNode::previousNode(&node, pointer, flags, expanded_node);
 			//node = (btree_nod*) BTR_previous_node((UCHAR*) node, expanded_node);
 		}
-		else if (direction == RSE_get_forward && found) {
+		else 
+#endif
+			if (direction == RSE_get_forward && found) {
 			// in the forward case, seek to the next node only if we found
 			// the actual node on page; if we did not find it, we are already
 			// at the next node (such as when the node is garbage collected)
@@ -936,11 +962,13 @@ static BOOLEAN get_record(thread_db* tdbb,
 		tdbb->tdbb_attachment->att_flags |= ATT_no_cleanup;	// HACK
 	}
 
+#ifdef SCROLLABLE_CURSORS
 	// the attempt to get a record, whether successful or not, takes
 	// us off bof or eof (otherwise we will keep trying to retrieve
 	// the first record)
 
 	impure->irsb_flags &= ~(irsb_bof | irsb_eof);
+#endif
 
 	result = VIO_get(tdbb, rpb, request->req_transaction, request->req_pool);
 
@@ -1039,10 +1067,12 @@ static UCHAR* nav_open(
 	impure->irsb_nav_page = 0;
 	impure->irsb_nav_length = 0;
 
+#ifdef SCROLLABLE_CURSORS
 	if (direction == RSE_get_forward) 
 		impure->irsb_flags |= irsb_bof;
 	else if (direction == RSE_get_backward) 
 		impure->irsb_flags |= irsb_eof;
+#endif
 
 	// Find the starting leaf page
 	
@@ -1051,8 +1081,13 @@ static UCHAR* nav_open(
 	retrieval = (IndexRetrieval*) retrieval_node->nod_arg[e_idx_retrieval];
 	//index_desc* idx = (index_desc* ) ((SCHAR *) impure + (long) rsb->rsb_arg[RSB_NAV_idx_offset]);
 	index_desc* idx = (index_desc* ) ((SCHAR *) impure + rsb->indexOffset);
+#ifdef SCROLLABLE_CURSORS
 	btree_page* page = BTR_find_page(tdbb, retrieval, window, idx, &lower, 
 		&upper, (direction == RSE_get_backward));
+#else
+	btree_page* page = BTR_find_page(tdbb, retrieval, window, idx, &lower, 
+		&upper, false);
+#endif
 	impure->irsb_nav_page = window->win_page;
 
 
