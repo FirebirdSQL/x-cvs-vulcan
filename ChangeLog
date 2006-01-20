@@ -1,3 +1,9 @@
+2006-01-19 22:29  awharrison
+
+	* vulcan/src/jrd/vio.cpp:
+	
+	Formatting changes
+
 2006-01-19 01:15  arnobrinkman
 
 	* vulcan/src/jrd/: Optimizer.cpp, Optimizer.h, btr.cpp, nav.cpp,
