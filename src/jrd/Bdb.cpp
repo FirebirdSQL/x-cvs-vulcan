@@ -139,7 +139,8 @@ USHORT Bdb::computeChecksum(void)
 	const ULONG* p = (ULONG *) page;
 	ULONG checksum = 0;
 
-	do {
+	while (p <= end)
+		{
 		checksum += *p++;
 		checksum += *p++;
 		checksum += *p++;
@@ -148,7 +149,7 @@ USHORT Bdb::computeChecksum(void)
 		checksum += *p++;
 		checksum += *p++;
 		checksum += *p++;
-		} while (p < end);
+		}
 
 	page->pag_checksum = old_checksum;
 
