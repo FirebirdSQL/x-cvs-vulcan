@@ -291,7 +291,10 @@ const SSHORT CLASS		= CLASS_LINUX_AMD64;
 int PAG_add_clump(thread_db* tdbb,
 				  SLONG page_num,
 				  USHORT type,
-				  USHORT len, const UCHAR* entry, USHORT mode, USHORT must_write)
+				  USHORT len, 
+				  const UCHAR* entry, 
+				  USHORT mode, 
+				  USHORT must_write)
 {
 /***********************************************
  *
@@ -343,7 +346,7 @@ int PAG_add_clump(thread_db* tdbb,
 		found = find_type(tdbb, page_num, &window, &page, LCK_write, type,
 						  &entry_p, &clump_end);
 
-		/* If we did'nt find it and it is REPLACE_ONLY, return */
+		// If we did'nt find it and it is REPLACE_ONLY, return 
 
 		if ((!found) && (mode == CLUMP_REPLACE_ONLY)) 
 			{
@@ -351,12 +354,12 @@ int PAG_add_clump(thread_db* tdbb,
 			return FALSE;
 			}
 
-		/* If not found, just go and add the entry */
+		// If not found, just go and add the entry 
 
 		if (!found)
 			break;
 
-		/* if same size, overwrite it */
+		// if same size, overwrite it 
 
 		if (entry_p[1] == len) 
 			{
@@ -376,12 +379,11 @@ int PAG_add_clump(thread_db* tdbb,
 			return TRUE;
 			}
 
-		/* delete the entry
+		// delete the entry
 
-		 * Page is marked must write because of precedence problems.  Later
-		 * on we may allocate a new page and set up a precedence relationship.
-		 * This may be the lower precedence page and so it cannot be dirty
-		 */
+		// Page is marked must write because of precedence problems.  Later
+		// on we may allocate a new page and set up a precedence relationship.
+		// This may be the lower precedence page and so it cannot be dirt
 
 		CCH_MARK_MUST_WRITE(tdbb, &window);
 
@@ -390,17 +392,12 @@ int PAG_add_clump(thread_db* tdbb,
 		const UCHAR* r = entry_p + 2 + entry_p[1];
 		l = clump_end - r + 1;
 
-		if (l) 
-			{
-			do {
-				*entry_p++ = *r++;
-			} while (--l);
-			}
-
+		while (l--) 
+			*entry_p++ = *r++;
 
 		CCH_RELEASE(tdbb, &window);
 
-		/* refetch the page */
+		// refetch the page
 
 		window.win_page = page_num;
 		
@@ -419,7 +416,7 @@ int PAG_add_clump(thread_db* tdbb,
 		break;
 		}
 
-	/* Add the entry */
+	// Add the entry 
 
 	find_clump_space(tdbb, page_num, &window, &page, type, len, entry, must_write);
 	CCH_RELEASE(tdbb, &window);
@@ -428,7 +425,9 @@ int PAG_add_clump(thread_db* tdbb,
 }
 
 
-USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
+USHORT PAG_add_file(thread_db* tdbb, 
+					TEXT * file_name, 
+					SLONG start)
 {
 /**************************************
  *
@@ -450,7 +449,7 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
 
 	ERR_POST_IF_DATABASE_IS_READONLY(dbb);
 
-	/* Find current last file */
+	//Find current last file 
 
 	for (file = dbb->dbb_file; file->fil_next; file = file->fil_next)
 		;
@@ -463,13 +462,13 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
 			isc_arg_string, ERR_cstring(file_name),
 			isc_arg_end);
 
-	/* Create the file.  If the sequence number comes back zero, it didn't
-	   work, so punt */
+	// Create the file.  If the sequence number comes back zero, it didn't
+	//   work, so punt 
 
 	if (!(sequence = PIO_add_file(tdbb, dbb->dbb_file, file_name, start)))
 		return 0;
 
-	/* Create header page for new file */
+	// Create header page for new file 
 
 	next = file->fil_next;
 
@@ -486,8 +485,9 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
 	next->fil_sequence = sequence;
 
 #ifdef SUPPORT_RAW_DEVICES
-/* The following lines (taken from PAG_format_header) are needed to identify
-   this file in raw_devices_validate_database as a valid database attachment. */
+	// The following lines (taken from PAG_format_header) are needed to identify
+	// this file in raw_devices_validate_database as a valid database attachment. 
+
 	MOV_time_stamp(reinterpret_cast <
 				   ISC_TIMESTAMP * >(header->hdr_creation_date));
 	header->hdr_ods_version        = ODS_VERSION | ODS_TYPE_CURRENT;
@@ -504,7 +504,7 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
 	CCH_RELEASE(tdbb, &window);
 	next->fil_fudge = 1;
 
-/* Update the previous header page to point to new file */
+	// Update the previous header page to point to new file 
 
 	file->fil_fudge = 0;
 	window.win_page = file->fil_min_page;
@@ -543,7 +543,11 @@ USHORT PAG_add_file(thread_db* tdbb, TEXT * file_name, SLONG start)
 }
 
 
-int PAG_add_header_entry(thread_db* tdbb, header_page* header, USHORT type, SSHORT len, UCHAR * entry)
+int PAG_add_header_entry(thread_db* tdbb, 
+						 header_page* header, 
+						 USHORT type, 
+						 SSHORT len, 
+						 UCHAR * entry)
 {
 /***********************************************
  *
@@ -578,40 +582,44 @@ int PAG_add_header_entry(thread_db* tdbb, header_page* header, USHORT type, SSHO
 	if (*p != HDR_end)
 		return FALSE;
 
-/* We are at HDR_end, add the entry */
+	// We are at HDR_end, add the entry 
 
 	free_space = dbb->dbb_page_size - header->hdr_end;
 
-	if (free_space > (2 + len)) {
+	if (free_space > (2 + len)) 
+		{
 		fb_assert(type <= MAX_UCHAR);
 		fb_assert(len <= MAX_UCHAR);
 		*p++ = static_cast < UCHAR > (type);
 		*p++ = static_cast < UCHAR > (len);
 
-		if (len) {
+		if (len) 
+			{
 			if (q)
-				do
+				while (len--)
 					*p++ = *q++;
-				while (--len);
 			else
-				do
+				while (len--)
 					*p++ = 0;
-				while (--len);
-		}
+			}
 
 		*p = HDR_end;
 
 		header->hdr_end = p - (UCHAR *) header;
 
 		return TRUE;
-	}
+		}
 
 	BUGCHECK(251);
-	return FALSE;				/* Added to remove compiler warning */
+	return false;				// Added to remove compiler warning 
 }
 
 
-int PAG_replace_entry_first(thread_db* tdbb, header_page* header, USHORT type, SSHORT len, UCHAR * entry)
+int PAG_replace_entry_first(thread_db* tdbb, 
+							header_page* header, 
+							USHORT type, 
+							SSHORT len, 
+							UCHAR * entry)
 {
 /***********************************************
  *
@@ -643,21 +651,31 @@ int PAG_replace_entry_first(thread_db* tdbb, header_page* header, USHORT type, S
 		 p += 2 + p[1]);
 
 	// Remove item if found it somewhere
-	if (*p != HDR_end) {
+
+	if (*p != HDR_end) 
+		{
 		UCHAR l = p[1] + 2;
+
+		// preserve hdr_end
+
 		memmove(p, p+l, 
-			header->hdr_end - (p-(UCHAR*)header) - l + 1/*to preserve HDR_end*/);
+			header->hdr_end - (p-(UCHAR*)header) - l + 1);
+
 		header->hdr_end -= l;
-	}
+		}
 	
-	
-	if (!entry) return FALSE; // We were asked just to remove item. We finished.
+	// We were asked just to remove item. We finished.
+
+	if (!entry) 
+		return FALSE; 
 	
 	// Check if we got enough space
+
 	if (dbb->dbb_page_size - header->hdr_end <= len + 2)
 		BUGCHECK(251);
 		
 	// Actually add the item
+
 	memmove(header->hdr_data + len + 2, header->hdr_data, header->hdr_end - HDR_SIZE + 1);
 	header->hdr_data[0] = type;
 	header->hdr_data[1] = len;
@@ -667,7 +685,8 @@ int PAG_replace_entry_first(thread_db* tdbb, header_page* header, USHORT type, S
 	return TRUE;
 }
 
-PAG PAG_allocate(thread_db* tdbb, WIN * window)
+PAG PAG_allocate(thread_db* tdbb, 
+				 WIN * window)
 {
 /**************************************
  *
@@ -685,16 +704,13 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 	PageControl* control = dbb->dbb_pcontrol;
-	
-	// Not sure if this can be moved inside the loop. Maybe some data members
-	// should persist across iterations?
-	
+		
 	WIN pip_window(-1);
 	UCHAR* bytes = NULL;
 	UCHAR bit = 0;
 	pag* new_page = NULL;
 
-	/* Find an allocation page with something on it */
+	//Find an allocation page with something on it 
 
 	for (sequence = control->pgc_high_water;; sequence++) 
 		{
@@ -706,9 +722,10 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 			{
 			if (*bytes != 0) 
 				{
-				/* 'byte' is not zero, so it describes at least one free page. */
+				//'byte' is not zero, so it describes at least one free page. 
 				bit = 1;
-				for (SLONG i = 0; i < 8; i++, bit <<= 1) 
+				for (SLONG i = 0; i < 8; i++, bit <<= 1)
+					{
 					if (bit & *bytes) 
 						{
 						relative_bit = ((bytes - pip_page->pip_bits) << 3) + i;
@@ -730,8 +747,8 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 							return new_page;
 							}
 							
-						/* We've allocated the last page on the space management page.  Rather
-							than returning it, format it as a page inventory page, and recurse. */
+						// We've allocated the last page on the space management page.  Rather
+						//	than returning it, format it as a page inventory page, and recurse. 
 
 						new_page = CCH_FAKE(tdbb, window, 1);
 						page_inv_page* new_pip_page = (page_inv_page*) new_page;
@@ -744,6 +761,7 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 
 						return PAG_allocate(tdbb, window);
 						}
+					}
 				}
 			}
 		CCH_RELEASE(tdbb, &pip_window);
@@ -766,8 +784,8 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 		return new_page;
 		}
 
-	/* We've allocated the last page on the space management page.  Rather
-		than returning it, format it as a page inventory page, and recurse. */
+	// We've allocated the last page on the space management page.  Rather
+	//	than returning it, format it as a page inventory page, and recurse. 
 
 	page_inv_page* new_pip_page = (page_inv_page*) new_page;
 	new_pip_page->pip_header.pag_type = pag_pages;
@@ -776,6 +794,7 @@ PAG PAG_allocate(thread_db* tdbb, WIN * window)
 	// a pointer to ULONG setting memory to 0xffffffff.
 
 	const UCHAR* end = (UCHAR *) new_pip_page + dbb->dbb_page_size;
+
 	for (bytes = new_pip_page->pip_bits; bytes < end;)
 		*bytes++ = 0xff;
 
@@ -805,12 +824,12 @@ SLONG PAG_attachment_id(thread_db* tdbb)
 	DBB dbb = tdbb->tdbb_database;
 	Attachment* attachment = tdbb->tdbb_attachment;
 
-	/* If we've been here before just return the id */
+	//If we've been here before just return the id 
 
 	if (attachment->att_id_lock)
 		return attachment->att_attachment_id;
 
-	/* Get new attachment id */
+	//Get new attachment id 
 
 	if (dbb->dbb_flags & DBB_read_only)
 		attachment->att_attachment_id = ++dbb->dbb_attachment_id;
@@ -824,7 +843,7 @@ SLONG PAG_attachment_id(thread_db* tdbb)
 		CCH_RELEASE(tdbb, &window);
 		}
 
-	/* Take out lock on attachment id */
+	//Take out lock on attachment id 
 
 	Lock* lock = attachment->att_id_lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) Lock();
 	lock->lck_type = LCK_attachment;
@@ -870,29 +889,32 @@ int PAG_delete_clump_entry(thread_db* tdbb, SLONG page_num, USHORT type)
 	else
 		page = CCH_FETCH(tdbb, &window, LCK_write, pag_log);
 
-	if (!find_type(tdbb, page_num, &window, &page, LCK_write, type, &entry_p, &clump_end)) {
+	if (!find_type(tdbb, page_num, &window, &page, LCK_write, type, &entry_p, &clump_end)) 
+		{
 		CCH_RELEASE(tdbb, &window);
 		return FALSE;
-	}
+		}
+
 	CCH_MARK(tdbb, &window);
-	if (page_num == HEADER_PAGE) {
+
+	if (page_num == HEADER_PAGE) 
+		{
 		header = (header_page*) page;
 		end_addr = &header->hdr_end;
-	}
-	else {
+		}
+	else 
+		{
 		logp = (log_info_page*) page;
 		end_addr = &logp->log_end;
-	}
+		}
 
 	*end_addr -= (2 + entry_p[1]);
 
 	r = entry_p + 2 + entry_p[1];
 	l = clump_end - r + 1;
 
-	if (l)
-		do
-			*entry_p++ = *r++;
-		while (--l);
+	while (l--)
+		*entry_p++ = *r++;
 
 	CCH_RELEASE(tdbb, &window);
 
@@ -916,13 +938,14 @@ void PAG_format_header(thread_db* tdbb)
 	Database *dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-	/* Initialize header page */
+	//Initialize header page 
 
 	WIN window(HEADER_PAGE);
 	header = (header_page*) CCH_FAKE(tdbb, &window, 1);
 	header->hdr_header.pag_scn = 0;
 	int size = sizeof (ISC_TIMESTAMP);
 	size = sizeof (header->hdr_creation_date);
+
 	MOV_time_stamp(reinterpret_cast <ISC_TIMESTAMP * >(header->hdr_creation_date));
 	header->hdr_header.pag_type = pag_header;
 	header->hdr_page_size = dbb->dbb_page_size;
@@ -997,7 +1020,7 @@ void PAG_format_pip(thread_db* tdbb)
 	dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
-/* Initialize Page Inventory Page */
+	// Initialize Page Inventory Page 
 
 	WIN window(1);
 	dbb->dbb_pcontrol->pgc_pip = 1;
@@ -1045,19 +1068,19 @@ int PAG_get_clump(thread_db* tdbb, SLONG page_num, USHORT type, USHORT * len, UC
 	else
 		page = CCH_FETCH(tdbb, &window, LCK_read, pag_log);
 
-	if (!find_type(tdbb, page_num, &window, &page, LCK_read, type, &entry_p, &q)) {
+	if (!find_type(tdbb, page_num, &window, &page, LCK_read, type, &entry_p, &q)) 
+		{
 		CCH_RELEASE(tdbb, &window);
 		return FALSE;
-	}
+		}
 
 	*len = l = entry_p[1];
 	entry_p += 2;
 
 	q = entry;
-	if (l)
-		do
-			*q++ = *entry_p++;
-		while (--l);
+
+	while (l--)
+		*q++ = *entry_p++;
 
 	CCH_RELEASE(tdbb, &window);
 
@@ -1088,6 +1111,7 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 		ERR_post(isc_bad_db_format, isc_arg_string, file_name, 0);
 
 	//if (!ODS_SUPPORTED(header->hdr_ods_version))
+
 	int majorVersion = header->hdr_ods_version & ~ODS_FIREBIRD_FLAG;
 	int minorVersion = header->hdr_ods_minor;
 	
@@ -1097,7 +1121,9 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 		minorVersion = DECODE_ODS_MINOR(header->hdr_ods_version);
 		}
 		
-	if (majorVersion != ODS_VERSION || minorVersion > ODS_CURRENT || !DECODE_FIREBIRD_FLAG(header->hdr_ods_version))
+	if (majorVersion != ODS_VERSION 
+			|| minorVersion > ODS_CURRENT 
+			|| !DECODE_FIREBIRD_FLAG(header->hdr_ods_version))
 		ERR_post(isc_wrong_ods,
 				isc_arg_string, file_name,
 				isc_arg_number, (SLONG) (header->hdr_ods_version & ~ODS_FIREBIRD_FLAG), 
@@ -1105,32 +1131,33 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 				isc_arg_number, (SLONG) ODS_VERSION, 
 				isc_arg_number, (SLONG) ODS_TYPE_CURRENT, 0);
 
-	/****
-	Note that if this check is turned on, it should be recoded in order that
-	the Intel platforms can share databases.  At present (Feb 95) it is possible
-	to share databases between Windows and NT, but not with NetWare.  Sharing
-	databases with OS/2 is unknown and needs to be investigated.  The CLASS was
-	initially 8 for all Intel platforms, but was changed after 4.0 was released
-	in order to allow differentiation between databases created on various
-	platforms.  This should allow us in future to identify where databases were
-	created.  Even when we get to the stage where databases created on PC platforms
-	are sharable between all platforms, it would be useful to identify where they
-	were created for debugging purposes.  - Deej 2/6/95
+	/*****
+	// Note that if this check is turned on, it should be recoded in order that
+	// the Intel platforms can share databases.  At present (Feb 95) it is possible
+	// to share databases between Windows and NT, but not with NetWare.  Sharing
+	// databases with OS/2 is unknown and needs to be investigated.  The CLASS was
+	// initially 8 for all Intel platforms, but was changed after 4.0 was released
+	// in order to allow differentiation between databases created on various
+	// platforms.  This should allow us in future to identify where databases were
+	// created.  Even when we get to the stage where databases created on PC platforms
+	// are sharable between all platforms, it would be useful to identify where they
+	//  were created for debugging purposes.  - Deej 2/6/95
 
 	if (header->hdr_implementation && header->hdr_implementation != CLASS)
 		ERR_post (isc_bad_db_format,
 		isc_arg_cstring, file_length,  ERR_string(file_name, file_length), 0);
 	****/
 
-	if (header->hdr_implementation != CLASS &&
-		DECODE_ODS_MAJOR(header->hdr_ods_version) < ODS_VERSION11 ?  
-		  (header->hdr_implementation < 0 || header->hdr_implementation > CLASS_MAX10 ||
-		   archMatrix10[header->hdr_implementation] == archUnknown ||
-		   archMatrix10[header->hdr_implementation] != archMatrix10[CLASS])
-		:
-		  (header->hdr_implementation < 0 || header->hdr_implementation > CLASS_MAX ||
-		   archMatrix[header->hdr_implementation] == archUnknown ||
-		   archMatrix[header->hdr_implementation] != archMatrix[CLASS]))
+	if (header->hdr_implementation != CLASS 
+			&& DECODE_ODS_MAJOR(header->hdr_ods_version) < ODS_VERSION11  
+				? (header->hdr_implementation < 0 
+					|| header->hdr_implementation > CLASS_MAX10 
+					|| archMatrix10[header->hdr_implementation] == archUnknown 
+					||  archMatrix10[header->hdr_implementation] != archMatrix10[CLASS])
+				:
+					(header->hdr_implementation < 0 || header->hdr_implementation > CLASS_MAX 
+						|| archMatrix[header->hdr_implementation] == archUnknown 
+						|| archMatrix[header->hdr_implementation] != archMatrix[CLASS]))
 		{
 	    ERR_post (isc_bad_db_format, isc_arg_string, file_name, 0);
 		}
@@ -1141,10 +1168,10 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 	if (header->hdr_next_transaction) 
 		{
 		if (header->hdr_oldest_active > header->hdr_next_transaction)
-			BUGCHECK(266);		/*next transaction older than oldest active */
+			BUGCHECK(266);		// next transaction older than oldest active 
 
 		if (header->hdr_oldest_transaction > header->hdr_next_transaction)
-			BUGCHECK(267);		/* next transaction older than oldest transaction */
+			BUGCHECK(267);		// next transaction older than oldest transaction 
 		}
 
 	dbb->dbb_ods_version = majorVersion;
@@ -1167,6 +1194,7 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 		// but let somebody else fix that problem, I just fix the memory leak.
 		
 		//relation->rel_pages = vector = vcl::newVector(*dbb->dbb_permanent, 1);
+
 		relation->rel_pages.resize(1);
 		relation->rel_pages[0] = header->hdr_PAGES;
 		}
@@ -1182,18 +1210,19 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 
 	if (header->hdr_flags & hdr_read_only) 
 		{
-		/* If Header Page flag says the database is ReadOnly, gladly accept it. */
+		// If Header Page flag says the database is ReadOnly, gladly accept it.
 		dbb->dbb_flags &= ~DBB_being_opened_read_only;
 		dbb->dbb_flags |= DBB_read_only;
 		}
 
-	/* If hdr_read_only is not set... */
+	// If hdr_read_only is not set... 
 	
-	if (!(header->hdr_flags & hdr_read_only)&& (dbb->dbb_flags & DBB_being_opened_read_only)) 
-		/* Looks like the Header page says, it is NOT ReadOnly!! But the database
-		* file system permission gives only ReadOnly access. Punt out with
-		* isc_no_priv error (no privileges)
-		*/
+	if (!(header->hdr_flags & hdr_read_only)&& (dbb->dbb_flags & DBB_being_opened_read_only))
+
+		// Looks like the Header page says, it is NOT ReadOnly!! But the database
+		// file system permission gives only ReadOnly access. Punt out with
+		// isc_no_priv error (no privileges)
+
 		ERR_post(isc_no_priv,
 				isc_arg_string, "read-write",
 				isc_arg_string, "database",
@@ -1202,6 +1231,7 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 	if (header->hdr_flags & hdr_force_write) 
 		{
 		dbb->dbb_flags |= DBB_force_write;
+
 		if (!(header->hdr_flags & hdr_read_only))
 			PIO_force_write(dbb->dbb_file, TRUE, dbb->fileShared);
 		}
@@ -1211,7 +1241,6 @@ void PAG_header(thread_db* tdbb, const TEXT* file_name)
 
 	if (header->hdr_flags & hdr_shutdown)
 		dbb->dbb_ast_flags |= DBB_shutdown;
-		//printf ("PAG_header: database marked for shutdown!\n");
 }
 
 
@@ -1225,6 +1254,9 @@ void PAG_init(thread_db* tdbb)
  *
  * Functional description
  *	Initialize stuff for page handling.
+ *  This code is executed once when the
+ *  database is opened so clarity trumps
+ *  efficiency
  *
  **************************************/
  
@@ -1235,51 +1267,60 @@ void PAG_init(thread_db* tdbb)
 	control->pgc_tpt = (dbb->dbb_page_size - OFFSETA(tx_inv_page*, tip_transactions)) * 4;
 	control->pgc_pip = 1;
 	
-	/* dbb_ods_version can be 0 when a new database is being created */
+	// dbb_ods_version can be 0 when a new database is being created
+	// new databases will be ODS11 or higher.  Older databases have a
+	// different header on generator pages.  Pick up the start of
+	// generators, then compute the number per page
+
+	int genPageSpace = dbb->dbb_page_size 
+						- (dbb->dbb_ods_version == 0 || (dbb->dbb_ods_version >= ODS_VERSION10)
+							?	OFFSETA(generator_page*, gpg_values)
+								: OFFSETA(pointer_page*, ppg_page));
 	
 	if ((dbb->dbb_ods_version == 0) || (dbb->dbb_ods_version >= ODS_VERSION10))
-		control->pgc_gpg = (dbb->dbb_page_size - OFFSETA(generator_page*, gpg_values)) / sizeof(((generator_page*) NULL)->gpg_values);
+		control->pgc_gpg = genPageSpace / sizeof(((generator_page*) NULL)->gpg_values);
 	else
-		control->pgc_gpg = (dbb->dbb_page_size - OFFSETA(pointer_page*, ppg_page)) / sizeof(((pointer_page*) NULL)->ppg_page);
+		control->pgc_gpg = genPageSpace / sizeof(((pointer_page*) NULL)->ppg_page);
 
+	// Compute the number of data pages per pointer page.  Each data page
+	// requires a 32 bit pointer and a 2 bit control field. 
 
-	/* Compute the number of data pages per pointer page.  Each data page
-	   requires a 32 bit pointer and a 2 bit control field. */
+	int dpgPageSpace = dbb->dbb_page_size - OFFSETA(pointer_page*, ppg_page);
+	dbb->dbb_dp_per_pp = dpgPageSpace * 8 / (BITS_PER_LONG + 2);
 
-	dbb->dbb_dp_per_pp = (dbb->dbb_page_size - OFFSETA(pointer_page*, ppg_page)) * 8 / 
-		(BITS_PER_LONG + 2);
+	// Compute the number of records that can fit on a page using the
+	// size of the record index (dpb_repeat) and a record header.  This
+	// gives an artificially high number, reducing the density of db_keys.
 
-	/* Compute the number of records that can fit on a page using the
-	   size of the record index (dpb_repeat) and a record header.  This
-	   gives an artificially high number, reducing the density of db_keys. */
-
-	dbb->dbb_max_records = (dbb->dbb_page_size - sizeof(struct data_page)) /
-		(sizeof(data_page::dpg_repeat) + OFFSETA(RHD, rhd_data));
+	dbb->dbb_max_records = (dbb->dbb_page_size - sizeof(struct data_page)) 
+								/ (sizeof(data_page::dpg_repeat) + OFFSETA(RHD, rhd_data));
 
 	// Artifically reduce density of records to test high bits of record number
 	// dbb->dbb_max_records = 32000;
 
-/* Optimize record numbers for new 64-bit sparse bitmap implementation 
-   We need to measure if it is beneficial from performance point of view.
-   Price is slightly reduced density of record numbers, but for
-   ODS11 it doesn't matter because record numbers are 40-bit.
-   Benefit is ~1.5 times smaller sparse bitmaps on average and 
-   faster bitmap iteration. */
-//	if (dbb->dbb_ods_version >= ODS_VERSION11)
-//		dbb->dbb_max_records = FB_ALIGN(dbb->dbb_max_records, 64);
+	// Optimize record numbers for new 64-bit sparse bitmap implementation 
+	//    We need to measure if it is beneficial from performance point of view.
+	//    Price is slightly reduced density of record numbers, but for
+	//    ODS11 it doesn't matter because record numbers are 40-bit.
+	//    Benefit is ~1.5 times smaller sparse bitmaps on average and 
+	//    faster bitmap iteration. 
 
-	/* Compute the number of index roots that will fit on an index root page,
-	   assuming that each index has only one key */
+	//	if (dbb->dbb_ods_version >= ODS_VERSION11)
+	//		dbb->dbb_max_records = FB_ALIGN(dbb->dbb_max_records, 64);
 
-	dbb->dbb_max_idx = (dbb->dbb_page_size - OFFSETA(index_root_page*, irt_rpt)) /
-		(sizeof(index_root_page::irt_repeat) +
-		(1 * (dbb->dbb_ods_version >= ODS_VERSION11) ?
-			sizeof(irtd) : sizeof(irtd_ods10)));
+	//  Compute the number of index roots that will fit on an index root page,
+	//  assuming that each index has only one key 
 
-	/* Compute prefetch constants from database page size and maximum prefetch
-	   transfer size. Double pages per prefetch request so that cache reader
-	   can overlap prefetch I/O with database computation over previously
-	   prefetched pages. */
+	int irtPageSpace = dbb->dbb_page_size - OFFSETA(index_root_page*, irt_rpt);
+	int irtdSize = (dbb->dbb_ods_version >= ODS_VERSION11 || dbb->dbb_ods_version == 0) 
+						? sizeof(irtd) : sizeof(irtd_ods10);
+
+	dbb->dbb_max_idx = irtPageSpace / (sizeof(index_root_page::irt_repeat) + irtdSize);
+
+	//  Compute prefetch constants from database page size and maximum prefetch
+	//  transfer size. Double pages per prefetch request so that cache reader
+	//  can overlap prefetch I/O with database computation over previously
+	//  prefetched pages. 
 
 	dbb->dbb_prefetch_sequence = PREFETCH_MAX_TRANSFER / dbb->dbb_page_size;
 	dbb->dbb_prefetch_pages = dbb->dbb_prefetch_sequence * 2;
@@ -1315,18 +1356,16 @@ void PAG_init2(thread_db* tdbb, USHORT shadow_number)
 	dbb = tdbb->tdbb_database;
 	status = tdbb->tdbb_status_vector;
 
-	/* allocate a spare buffer which is large enough,
-	   and set up to release it in case of error. Align
-	   the temporary page buffer for raw disk access. */
+	// allocate a spare buffer which is large enough,
+	//   and set up to release it in case of error. Align
+	//   the temporary page buffer for raw disk access. 
 
 	temp_buffer = (SCHAR*) gds__alloc((SLONG) dbb->dbb_page_size + MIN_PAGE_SIZE);
-	temp_page =
-		(SCHAR *) (((U_IPTR) temp_buffer + MIN_PAGE_SIZE - 1) &
+	temp_page = (SCHAR *) (((U_IPTR) temp_buffer + MIN_PAGE_SIZE - 1) &
 				   ~((U_IPTR) MIN_PAGE_SIZE - 1));
 
 	try 
 		{
-
 		file = dbb->dbb_file;
 
 		if (shadow_number) 
@@ -1339,13 +1378,13 @@ void PAG_init2(thread_db* tdbb, USHORT shadow_number)
 					}
 			
 			if (!shadow)
-				BUGCHECK(161);		/* msg 161 shadow block not found */
+				BUGCHECK(161);		// msg 161 shadow block not found 
 			}
 
 		sequence = 1;
 		WIN window(-1);
 
-	/* Loop thru files and header pages until everything is open */
+		// Loop thru files and header pages until everything is open 
 
 		for (;;)
 			{
@@ -1353,14 +1392,14 @@ void PAG_init2(thread_db* tdbb, USHORT shadow_number)
 			window.win_page = file->fil_min_page;
 			do 
 				{
-				/* note that we do not have to get a read lock on
-				   the header page (except for header page 0) because
-				   the only time it will be modified is when adding a file,
-				   which must be done with an exclusive lock on the database --
-				   if this changes, this policy will have to be reevaluated;
-				   at any rate there is a problem with getting a read lock
-				   because the corresponding page in the main database file
-				   may not exist */
+				//   note that we do not have to get a read lock on
+				//   the header page (except for header page 0) because
+				//   the only time it will be modified is when adding a file,
+				//   which must be done with an exclusive lock on the database --
+				//   if this changes, this policy will have to be reevaluated;
+				//   at any rate there is a problem with getting a read lock
+				//   because the corresponding page in the main database file
+				//   may not exist
 
 				if (!file->fil_min_page)
 					CCH_FETCH(tdbb, &window, LCK_read, pag_header);
@@ -1370,7 +1409,7 @@ void PAG_init2(thread_db* tdbb, USHORT shadow_number)
 				temp_bdb.bdb_page = window.win_page;
 				temp_bdb.bdb_dbb = dbb;
 
-				/* Read the required page into the local buffer */
+				// Read the required page into the local buffer 
 				PIO_read(file, &temp_bdb, (PAG) header, status);
 
 				if ((shadow_number) && (!file->fil_min_page))
@@ -1403,11 +1442,9 @@ void PAG_init2(thread_db* tdbb, USHORT shadow_number)
 
 				window.win_page = next_page;
 
-				/*
-				 * Make sure the header page and all the overflow header
-				 * pages are traversed.  For V4.0, only the header page for
-				 * the primary database page will have overflow pages.
-				 */
+				 // Make sure the header page and all the overflow header
+				 // pages are traversed.  For V4.0, only the header page for
+				 // the primary database page will have overflow pages.
 
 				} 
 			while (next_page);
@@ -1479,23 +1516,28 @@ SLONG PAG_last_page(thread_db* tdbb)
 	pages_per_pip = dbb->dbb_pcontrol->pgc_ppp;
 	WIN window(-1);
 
-/* Find the last page allocated */
+	// Find the last page allocated 
 
-	for (sequence = 0;; ++sequence) {
+	for (sequence = 0;; ++sequence) 
+		{
 		window.win_page =
 			(!sequence) ? dbb->dbb_pcontrol->pgc_pip : sequence *
 			pages_per_pip - 1;
 		page = (page_inv_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_pages);
+
 		for (bits = page->pip_bits + (pages_per_pip >> 3) - 1;
 			 *bits == (UCHAR) - 1; --bits);
+
 		for (bit = 7; bit >= 0; --bit)
 			if (!(*bits & (1 << bit)))
 				break;
+
 		relative_bit = (bits - page->pip_bits) * 8 + bit;
 		CCH_RELEASE(tdbb, &window);
+
 		if (relative_bit != pages_per_pip - 1)
 			break;
-	}
+		}
 
 	return sequence * pages_per_pip + relative_bit;
 }
@@ -1523,7 +1565,7 @@ void PAG_modify_log(thread_db* tdbb, SLONG tid, SLONG flag)
 	page = (log_info_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_log);
 	CCH_MARK_MUST_WRITE(tdbb, &window);
 
-/* get the tx_inv_page* page for this transaction */
+	// get the tx_inv_page* page for this transaction 
 
 	if (flag & TRA_add_log)
 		page->log_flags |= log_add;
@@ -1570,14 +1612,14 @@ void PAG_release_page(thread_db* tdbb, SLONG number, SLONG prior_page)
 	WIN pip_window((sequence == 0) ?
 		control->pgc_pip : sequence * control->pgc_ppp - 1);
 
-/* if shared cache is being used, the page which is being freed up
- * may have a journal buffer which in no longer valid after the
- * page has been freed up.  Zero out the journal buffer.
- * It is possible that the shared cache manager will write out the
- * record as part of a scan.
+	//if shared cache is being used, the page which is being freed up
+	// may have a journal buffer which in no longer valid after the
+	// page has been freed up.  Zero out the journal buffer.
+	// It is possible that the shared cache manager will write out the
+	// record as part of a scan.
 
- * A similar problem can happen without shared cache.
- */
+	// A similar problem can happen without shared cache.
+
 
 /*******************************
 CCH_release_journal (tdbb, number);
@@ -1621,7 +1663,7 @@ void PAG_set_force_write(thread_db* tdbb, DBB dbb, SSHORT flag)
 	CCH_MARK_MUST_WRITE(tdbb, &window);
 
 	if (flag == 2)
-		/* Set force write to the default for the platform */
+		// Set force write to the default for the platform 
 #ifdef SYNC_WRITE_DEFAULT
 		flag = 1;
 #else
@@ -1639,7 +1681,7 @@ void PAG_set_force_write(thread_db* tdbb, DBB dbb, SSHORT flag)
 		dbb->dbb_flags &= ~DBB_force_write;
 		}
 
-	/* If journalling is enabled, journal the change */
+	// If journalling is enabled, journal the change
 
 	CCH_RELEASE(tdbb, &window);
 
@@ -1706,11 +1748,11 @@ void PAG_set_db_readonly(thread_db* tdbb, DBB dbb, SSHORT flag)
 
 	if (!flag) 
 		{
-		/* If the database is transitioning from RO to RW, reset the
-		 * in-memory DBB flag which indicates that the database is RO.
-		 * This will allow the CCH subsystem to allow pages to be MARK'ed
-		 * for WRITE operations
-		 */
+		// If the database is transitioning from RO to RW, reset the
+		// in-memory DBB flag which indicates that the database is RO.
+		// This will allow the CCH subsystem to allow pages to be MARK'ed
+		// for WRITE operations
+
 		header->hdr_flags &= ~hdr_read_only;
 		dbb->dbb_flags &= ~DBB_read_only;
 		}
@@ -1756,13 +1798,13 @@ void PAG_set_db_SQL_dialect(thread_db* tdbb, DBB dbb, SSHORT flag)
 				header->hdr_flags & hdr_SQL_dialect_3)
 					ERR_post_warning(isc_dialect_reset_warning, 0);
 
-			dbb->dbb_flags &= ~DBB_DB_SQL_dialect_3;	/* set to 0 */
-			header->hdr_flags &= ~hdr_SQL_dialect_3;	/* set to 0 */
+			dbb->dbb_flags &= ~DBB_DB_SQL_dialect_3;	// set to 0 
+			header->hdr_flags &= ~hdr_SQL_dialect_3;	// set to 0 
 			break;
 
 		case SQL_DIALECT_V6:
-			dbb->dbb_flags |= DBB_DB_SQL_dialect_3;	/* set to dialect 3 */
-			header->hdr_flags |= hdr_SQL_dialect_3;	/* set to dialect 3 */
+			dbb->dbb_flags |= DBB_DB_SQL_dialect_3;	// set to dialect 3 
+			header->hdr_flags |= hdr_SQL_dialect_3;	// set to dialect 3 
 			break;
 
 		default:
@@ -1861,23 +1903,27 @@ static void find_clump_space(thread_db* tdbb,
 	const UCHAR* ptr = entry;
 	page = *ppage;
 
-	while (true) {
-		if (page_num == HEADER_PAGE) {
+	while (true) 
+		{
+		if (page_num == HEADER_PAGE) 
+			{
 			header = (header_page*) page;
 			next_page = header->hdr_next_page;
 			free_space = dbb->dbb_page_size - header->hdr_end;
 			end_addr = &header->hdr_end;
 			p = (UCHAR *) header + header->hdr_end;
-		}
-		else {
+			}
+		else 
+			{
 			logp = (log_info_page*) page;
 			next_page = logp->log_next_page;
 			free_space = dbb->dbb_page_size - logp->log_end;
 			end_addr = &logp->log_end;
 			p = (UCHAR *) logp + logp->log_end;
-		}
+			}
 
-		if (free_space > (2 + len)) {
+		if (free_space > (2 + len)) 
+			{
 			if (must_write)
 				CCH_MARK_MUST_WRITE(tdbb, window);
 			else
@@ -1888,22 +1934,19 @@ static void find_clump_space(thread_db* tdbb,
 			*p++ = static_cast < UCHAR > (type);
 			*p++ = static_cast < UCHAR > (len);
 
-			if (len) {
-				do {
-					*p++ = *ptr++;
-				} while (--len);
-			}
+			while (len--)
+				*p++ = *ptr++;
 
 			*p = HDR_end;
 
 			*end_addr = (USHORT) (p - (UCHAR *) page);
 			return;
-		}
+			}
 
 		if (!next_page)
 			break;
 
-		/* Follow chain of header pages */
+		// Follow chain of header pages 
 
 		if (page_num == HEADER_PAGE)
 			*ppage = page =
@@ -1911,7 +1954,7 @@ static void find_clump_space(thread_db* tdbb,
 		else
 			*ppage = page =
 				CCH_HANDOFF(tdbb, window, next_page, LCK_write, pag_log);
-	}
+		}
 
 	WIN new_window(-1);
 	new_page = (PAG) DPM_allocate(tdbb, &new_window);
@@ -1921,7 +1964,8 @@ static void find_clump_space(thread_db* tdbb,
 	else
 		CCH_MARK(tdbb, &new_window);
 
-	if (page_num == HEADER_PAGE) {
+	if (page_num == HEADER_PAGE) 
+		{
 		new_header = (header_page*) new_page;
 		new_header->hdr_header.pag_type = pag_header;
 		new_header->hdr_end = HDR_SIZE;
@@ -1930,8 +1974,9 @@ static void find_clump_space(thread_db* tdbb,
 		next_page = new_window.win_page;
 		end_addr = &new_header->hdr_end;
 		p = new_header->hdr_data;
-	}
-	else {
+		}
+	else 
+		{
 		new_logp = (log_info_page*) new_page;
 		new_logp->log_header.pag_type = pag_log;
 		new_logp->log_data[0] = LOG_end;
@@ -1939,18 +1984,15 @@ static void find_clump_space(thread_db* tdbb,
 		next_page = new_window.win_page;
 		end_addr = &new_logp->log_end;
 		p = new_logp->log_data;
-	}
+		}
 
 	fb_assert(type <= MAX_UCHAR);
 	fb_assert(len <= MAX_UCHAR);
 	*p++ = static_cast < UCHAR > (type);
 	*p++ = static_cast < UCHAR > (len);
 
-	if (len) {
-		do {
+	while (len--)
 			*p++ = *ptr++;
-		} while (--len);
-	}
 
 	*p = HDR_end;
 	*end_addr = (USHORT) (p - (UCHAR *) new_page);
@@ -1996,40 +2038,44 @@ static BOOLEAN find_type(thread_db* tdbb,
 
 	q = 0;
 
-	while (true) {
-		if (page_num == HEADER_PAGE) {
+	while (true) 
+		{
+		if (page_num == HEADER_PAGE) 
+			{
 			header = (header_page*) (*ppage);
 			p = header->hdr_data;
 			next_page = header->hdr_next_page;
-		}
-		else {
+			}
+		else 
+			{
 			logp = (log_info_page*) (*ppage);
 			p = logp->log_data;
 			next_page = logp->log_next_page;
-		}
+			}
 
-		for (; (*p != HDR_end); p += 2 + p[1]) {
+		for (; (*p != HDR_end); p += 2 + p[1]) 
 			if (*p == type)
 				q = p;
-		}
 
-		if (q) {
+		if (q) 
+			{
 			*entry_p = q;
 			*clump_end = p;
 			return TRUE;
-		}
+			}
 
-		/* Follow chain of pages */
+		// Follow chain of pages 
 
-		if (next_page) {
+		if (next_page) 
+			{
 			if (page_num == HEADER_PAGE)
 				*ppage =
 					CCH_HANDOFF(tdbb, window, next_page, lock, pag_header);
 			else
 				*ppage = CCH_HANDOFF(tdbb, window, next_page, lock, pag_log);
-		}
+			}
 		else
 			return FALSE;
-	}
+		}
 }
 
