@@ -1,3 +1,21 @@
+2006-01-20 20:20  awharrison
+
+	* vulcan/src/jrd/pag.cpp:
+	
+	Formatting
+
+2006-01-20 17:52  awharrison
+
+	* vulcan/src/jrd/dpm.epp:
+	
+	Formatting cleanup
+
+2006-01-20 17:52  awharrison
+
+	* vulcan/src/jrd/Bdb.cpp:
+	
+	Get rid of one do ... while
+
 2006-01-19 22:29  awharrison
 
 	* vulcan/src/jrd/vio.cpp:
