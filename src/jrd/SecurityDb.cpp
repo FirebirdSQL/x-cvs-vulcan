@@ -162,7 +162,7 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 			case fb_apb_update_account:
 			case fb_apb_upgrade_account:
 				statement = connection->prepareStatement(
-					"update rdb$users set rdb$password=?, rdb$uid=? rdb$gid=?"
+					"update rdb$users set rdb$password=?, rdb$uid=?, rdb$gid=?"
 					"  where rdb$user_name=?");
 				statement->setString(n++, encryptedPassword);
 				statement->setInt(n++, userData.uid);
