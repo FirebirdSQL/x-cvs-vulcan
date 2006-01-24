@@ -3044,16 +3044,14 @@ static dsc* eval(thread_db* tdbb, JRD_NOD node, dsc* temp, bool* isNull)
  *	a flag to indicate a null value.  
  *
  **************************************/
-	SET_TDBB(tdbb);
-
+	//SET_TDBB(tdbb);
 	dsc* desc = EVL_expr(tdbb, node);
 	*isNull = false;
 
 	if (desc && !(tdbb->tdbb_request->req_flags & req_null)) 
 		return desc;
-	else 
-		*isNull = true;
 
+	*isNull = true;
 	temp->dsc_dtype = dtype_text;
 	temp->dsc_flags = 0;
 	temp->dsc_sub_type = 0;

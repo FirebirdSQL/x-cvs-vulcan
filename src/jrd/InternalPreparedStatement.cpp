@@ -271,7 +271,7 @@ void InternalPreparedStatement::mapParameters(dsql_msg* message)
 	
 		dsc flag = parameter->par_desc;
 		flag.dsc_address = sendBuffer + (long) flag.dsc_address;
-		*((short*) flag.dsc_address) = 0;
+		*((short*) flag.dsc_address) = (value->type == Null) ? 1 : 0;
 		parameter = parameter->par_ordered;
 		value->getValue(&desc);
 		}

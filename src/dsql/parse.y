@@ -2017,7 +2017,7 @@ alter_clause	: EXCEPTION alter_exception_clause
 		| INDEX alter_index_clause
 						{ $$ = MAKE_NODE (nod_mod_index,  e_mod_idx_count, $2); }
 		| USER symbol_user_name user_clauses
-			{ $$ = MAKE_NODE (nod_def_user, 2, $2, MAKE_LIST($3)); }
+			{ $$ = MAKE_NODE (nod_mod_user, 2, $2, MAKE_LIST($3)); }
 		| SEQUENCE alter_sequence_clause
 			{ $$ = $2; }
 		;

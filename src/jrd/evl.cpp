@@ -450,8 +450,8 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			SSHORT force_equal = 0;
 
 			/* Evaluate arguments.  If either is null, result is null, but in
-			any case, evaluate both, since some expressions may later depend
-			on mappings which are developed here */
+			   any case, evaluate both, since some expressions may later depend
+			   on mappings which are developed here */
 
 			const jrd_nod* rec_version = *ptr;
 			desc[0] = EVL_expr(tdbb, *ptr++);
@@ -461,7 +461,9 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			force_equal |= request->req_flags & req_same_tx_upd;
 
 			// Currently only nod_like and nod_contains may be marked invariant
-			if (node->nod_flags & nod_invariant) {
+			
+			if (node->nod_flags & nod_invariant) 
+				{
 				impure = reinterpret_cast<impure_value*>((SCHAR *)request + node->nod_impure);
 
 				// Check that data type of operand is still the same.
@@ -470,46 +472,52 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 				// data coming from ini.epp has ASCII ttype, user data is UNICODE_FSS
 				//
 				// Note that value descriptor may be NULL pointer if value is SQL NULL
+				
 				if ((impure->vlu_flags & VLU_computed) && desc[0] &&
 					(impure->vlu_desc.dsc_dtype != desc[0]->dsc_dtype ||
 					 impure->vlu_desc.dsc_sub_type != desc[0]->dsc_sub_type ||
-					 impure->vlu_desc.dsc_scale != desc[0]->dsc_scale)
-					)
-				{
+					 impure->vlu_desc.dsc_scale != desc[0]->dsc_scale) )
 					impure->vlu_flags &= ~VLU_computed;
-				}
 
-				if (impure->vlu_flags & VLU_computed) {
+				if (impure->vlu_flags & VLU_computed) 
+					{
 					if (impure->vlu_flags & VLU_null)
 						request->req_flags |= req_null;
 					else
 						computed_invariant = true;
-				} 
-				else {
+					} 
+				else 
+					{
 					desc[1] = EVL_expr(tdbb, *ptr++);
-					if (request->req_flags & req_null) {
+					if (request->req_flags & req_null) 
+						{
 						impure->vlu_flags |= VLU_computed;
 						impure->vlu_flags |= VLU_null;
-					}
-					else {
+						}
+					else 
+						{
 						impure->vlu_flags &= ~VLU_null;
 
 						// Search object depends on operand data type.
 						// Thus save data type which we use to compute invariant
-						if (desc[0]) {
+						
+						if (desc[0]) 
+							{
 							impure->vlu_desc.dsc_dtype = desc[0]->dsc_dtype;
 							impure->vlu_desc.dsc_sub_type = desc[0]->dsc_sub_type;
 							impure->vlu_desc.dsc_scale = desc[0]->dsc_scale;
-						} else {
+							} 
+						else 
+							{
 							// Indicate we do not know type of expression.
 							// This code will force pattern recompile for the next non-null value
 							impure->vlu_desc.dsc_dtype = 0;
 							impure->vlu_desc.dsc_sub_type = 0;
 							impure->vlu_desc.dsc_scale = 0;
+							}
 						}
 					}
 				}
-			}
 			else
 				desc[1] = EVL_expr(tdbb, *ptr++);
 
@@ -518,18 +526,19 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			// Note that this operator never sets req_null flag
 
 			if (node->nod_type == nod_equiv)
-			{
-				if ((flags & req_null) && (request->req_flags & req_null))
 				{
+				if ((flags & req_null) && (request->req_flags & req_null))
+					{
 					request->req_flags &= ~req_null;
 					return true;
-				}
-				else if ((flags & req_null) || (request->req_flags & req_null))
-				{
+					}
+					
+				if ((flags & req_null) || (request->req_flags & req_null))
+					{
 					request->req_flags &= ~req_null;
 					return false;
+					}
 				}
-			}
 
 			// If either of expressions above returned NULL set req_null flag 
 			// and return false
@@ -626,7 +635,8 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 
 			if ((!value && !firstnull) || (!value2 && !secondnull))
 				return false;	/* at least one operand was FALSE */
-			else if (value && value2) 
+			
+			if (value && value2) 
 				return true;	/* both true */
 				
 			request->req_flags |= req_null;
