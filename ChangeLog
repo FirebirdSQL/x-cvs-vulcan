@@ -1,3 +1,10 @@
+2006-01-24 20:12  jimstarkey
+
+	* vulcan/src/: dsql/parse.y, jrd/InternalPreparedStatement.cpp,
+	jrd/SecurityDb.cpp, jrd/btr.cpp, jrd/evl.cpp:
+	
+	Fixed some problem in "alter user"
+
 2006-01-22 19:51  awharrison
 
 	* vulcan/src/jrd/SecurityDb.cpp:
