@@ -371,6 +371,8 @@ void Port::disconnect(Packet* send, Packet* receive)
 	   See interface.cpp - event_thread(). */
 
 	Packet *packet = &rdb->rdb_packet;
+	Sync sync(&rdb->syncObject, "xyzzy");
+	sync.lock(Exclusive);
 	
 	if ((port_async) &&
 		((port_type == port_xnet) || (port_type == port_pipe)))
@@ -389,6 +391,11 @@ void Port::disconnect(Packet* send, Packet* receive)
 			isc_cancel_operation(status_vector, (isc_handle *) &rdb->rdb_handle,
 								  CANCEL_disable);
 #endif
+			rdb->deleteTransactions();
+			
+			// The following is now a no-op -- everything of interest is done by rdb->deleteTransactions().
+			// If somebody every figures out the gds__handle_clean, the following should be flushed
+			
 			while (transaction = rdb->rdb_transactions) 
 				{
 				if (!(transaction->rtr_flags & RTR_limbo))
@@ -407,8 +414,9 @@ void Port::disconnect(Packet* send, Packet* receive)
 				delete transaction;
 				//release_transaction(rdb->rdb_transactions);
 				}
-				
-			isc_detach_database(status_vector, &rdb->rdb_handle);
+			
+			if (rdb->rdb_handle)	
+				isc_detach_database(status_vector, &rdb->rdb_handle);
 			
 			clearStatement();
 			rdb->clearObjects();
@@ -2569,17 +2577,17 @@ ISC_STATUS Port::send_response(	Packet*	send,
  *	Send a response packet.
  *
  **************************************/
-	ISC_STATUS *v, code, exit_code;
+	ISC_STATUS code;
 	ISC_STATUS_ARRAY new_vector;
 	USHORT l, sw;
-	TEXT *p, *q, **sp, buffer[1024];
+	TEXT *q, **sp, buffer[1024];
 	P_RESP *response;
 
-/* Start by translating the status vector into "generic" form */
+	/* Start by translating the status vector into "generic" form */
 
-	v = new_vector;
-	p = buffer;
-	exit_code = status_vector[1];
+	ISC_STATUS *v = new_vector;
+	TEXT *p = buffer;
+	ISC_STATUS exit_code = status_vector[1];
 
 	for (sw = TRUE; *status_vector && sw;)
 		{

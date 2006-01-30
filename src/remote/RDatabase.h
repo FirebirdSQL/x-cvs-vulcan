@@ -66,6 +66,7 @@ public:
 	RStatement* createStatement(void);
 	REvent* findEvent(int eventId);
 	void clearPort(void);
+	void deleteTransactions(void);
 };
 
 #endif

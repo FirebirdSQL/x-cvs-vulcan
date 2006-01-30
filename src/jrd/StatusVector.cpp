@@ -51,6 +51,7 @@ StatusVector::StatusVector(ISC_STATUS *userStatus, int flags)
 	statusVector[1] = 0;
 	statusVector[2] = isc_arg_end;
 	options = flags;
+	//options |= statusReport;
 }
 
 StatusVector::~StatusVector()

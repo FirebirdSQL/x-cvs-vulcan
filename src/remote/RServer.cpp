@@ -775,6 +775,8 @@ ServerRequest* RServer::getRequest(void)
 
 void RServer::freeRequest(ServerRequest* request)
 {
+	Sync sync (&syncRequestQue, "RServer::freeRequest");
+	sync.lock (Exclusive);
 	request->req_next = freeRequests;
 	freeRequests = request;
 }

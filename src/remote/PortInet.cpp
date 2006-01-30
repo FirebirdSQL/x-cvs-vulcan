@@ -315,6 +315,8 @@ Port* INET_analyze(	ConfObject *configuration,
 	RDatabase *rdb = new RDatabase (NULL);
 	rdb->rdb_status_vector = status_vector;
 	Packet*	packet	= &rdb->rdb_packet;
+	Sync sync(&rdb->syncObject, "xyzzy");
+	sync.lock(Exclusive);
 	P_CNCT*	cnct = &packet->p_cnct;
 	
 	/* Pick up some user identification information */

@@ -347,6 +347,8 @@ PortXNet* PortXNet::analyze(ConfObject *configuration,
 	   blocks and get ready to go. */
 
 	RDatabase *rdb = new RDatabase (NULL);
+	Sync sync(&rdb->syncObject, "xyzzy");
+	sync.lock(Exclusive);
 	Packet *packet = &rdb->rdb_packet;
 
 	/* Pick up some user identification information */
