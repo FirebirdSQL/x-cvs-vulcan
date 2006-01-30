@@ -3227,9 +3227,10 @@ static dsql_nod* pass1_cursor_name(CStatement* request, dsql_str* string,
 	
 	FOR_STACK (dsql_nod*, node, &request->cursors)
 		dsql_str* cname = (dsql_str*) node->nod_arg[e_cur_name];
-		if (!strcmp(string->str_data, cname->str_data))
+		if (!strcmp(string->str_data, cname->str_data)) {
+			cursor = node;
 			break;
-		cursor = NULL;
+		}
 	END_FOR
 
 	if ((!cursor && existance_flag) || (cursor && !existance_flag))
