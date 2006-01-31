@@ -1,3 +1,19 @@
+2006-01-31 00:51  jimstarkey
+
+	* vulcan/src/: jrd/StatusVector.cpp, remote/Port.cpp,
+	remote/PortInet.cpp, remote/PortXNet.cpp, remote/RDatabase.cpp,
+	remote/RDatabase.h, remote/RServer.cpp, remote/interface.cpp,
+	remote/remote.vcproj:
+	
+	Work in progress on race condition eliminating in remote client
+	code.
+
+2006-01-30 15:29  dimitr
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Fixed broken cursor logic.
+
 2006-01-24 20:12  jimstarkey
 
 	* vulcan/src/: dsql/parse.y, jrd/InternalPreparedStatement.cpp,
