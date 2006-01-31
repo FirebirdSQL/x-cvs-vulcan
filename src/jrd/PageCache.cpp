@@ -2509,14 +2509,17 @@ bool PageCache::getExclusiveAttachment(thread_db * tdbb, int level, int wait_fla
 				continue;
 
 			if (level == LCK_none) 
-				{	/* Wait for other attachments requesting exclusive access */
-				if (attachment->att_flags & 
-					(ATT_exclusive | ATT_exclusive_pending))
+				{	
+				/* Wait for other attachments requesting exclusive access */
+				
+				if (attachment->att_flags & (ATT_exclusive | ATT_exclusive_pending))
 					{
 					found = true;
 					break;
 					}
 				}
+			else if (attachment->att_flags & ATT_internal)
+				;
 			else 				/* Requesting exclusive database access */
 				{
 				found = true;
@@ -2527,8 +2530,8 @@ bool PageCache::getExclusiveAttachment(thread_db * tdbb, int level, int wait_fla
 
 					if (wait_flag == LCK_WAIT)
 						ERR_post(isc_deadlock, 0);
-					else
-						return FALSE;
+
+					return FALSE;
 					}
 					
 				break;
@@ -2537,8 +2540,7 @@ bool PageCache::getExclusiveAttachment(thread_db * tdbb, int level, int wait_fla
 
 		if (!found) 
 			{
-			tdbb->tdbb_attachment->att_flags &=
-				~(ATT_exclusive_pending | ATT_attach_pending);
+			tdbb->tdbb_attachment->att_flags &= ~(ATT_exclusive_pending | ATT_attach_pending);
 
 			if (level != LCK_none)
 				tdbb->tdbb_attachment->att_flags |= ATT_exclusive;

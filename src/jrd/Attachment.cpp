@@ -78,7 +78,6 @@ Attachment::Attachment(Database *database)
 	firstConnection = lastConnection = NULL;
 	att_next = NULL;
 	att_blocking = NULL;
-	//att_user = NULL;
 	att_transactions = NULL;
 	att_dbkey_trans = NULL;
 	att_requests = NULL;
@@ -88,9 +87,6 @@ Attachment::Attachment(Database *database)
 	att_relation_locks = NULL;
 	att_record_locks = NULL;
 	att_event_session = 0;
-	//att_bookmarks = NULL;
-	//att_bkm_quick_ref = NULL;
-	//att_lck_quick_ref = NULL;
 	att_lc_messages = NULL;
 	att_long_locks = NULL;
 	att_compatibility_table = NULL;
@@ -105,23 +101,6 @@ Attachment::Attachment(Database *database)
 
 Attachment::~Attachment()
 {
-	/***
-	if (att_user) 
-		delete att_user;
-	
-	for (Bookmark* bookmark; bookmark = att_bookmarks;) 
-		{
-		att_bookmarks = bookmark->bkm_next;
-		delete bookmark;
-		}
-		
-	if (att_bkm_quick_ref)
-		delete att_bkm_quick_ref;
-			
-	if (att_lck_quick_ref)
-		delete att_lck_quick_ref;
-	***/
-
 	while (firstConnection)
 		firstConnection->close();
 }
@@ -143,6 +122,7 @@ DStatement* Attachment::allocateStatement(void)
 InternalConnection* Attachment::getUserConnection(Transaction* transaction)
 {
 	InternalConnection *connection = new InternalConnection (this, transaction);
+	
 #ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Attachment::getUserConnection");
 	sync.lock (Exclusive);
@@ -311,7 +291,7 @@ void Attachment::addLongLock(Lock* lock)
 	sync.lock(Exclusive);
 #endif
 	
-/* check to see if lock is already here ???? */
+	/* check to see if lock is already here ???? */
 
 #ifdef DEV_BUILD
     for (Lock *t = att_long_locks; t; t = t->lck_next)

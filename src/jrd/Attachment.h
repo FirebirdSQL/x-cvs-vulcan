@@ -111,66 +111,67 @@ class Attachment //: public pool_alloc<type_att>
 public:
 	Attachment(Database *database);
 	virtual ~Attachment();
-	Cursor*		allocateCursor(DStatement* statement, Transaction* transaction);
-	DStatement* allocateStatement(void);
+	
+	Cursor*			allocateCursor(DStatement* statement, Transaction* transaction);
+	DStatement*		allocateStatement(void);
+	void			closeConnection(InternalConnection* connection);
+	bool			isSoleAttachment(void);
+	Cursor*			findCursor(const char* name);
+	void			deleteCursor(Cursor* cursor);
+	void			endTransaction(Transaction* transaction);
+	void			updateAccountInfo(thread_db *tdbb, int apbLength, const UCHAR* apb);
+	void			authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb);
+	void			shutdown(thread_db *tdbb);
+	void			addLongLock(Lock* lock);
+	void			removeLongLock(Lock* lock);
+	Lock*			findBlock(Lock* lock, int level);
+	Relation*		findRelation(thread_db* tdbb, int relationId, int csbFlags=0);
+	Relation*		getRelation(thread_db* tdbb, int relationId);
+	Relation*		findRelation(thread_db* tdbb, const char* relationName, int csbFlags=0);
+	Relation*		getRelation(thread_db* tdbb, const char* relationName);
+	void			addTransaction(Transaction* transaction);
+	void			addConnection(InternalConnection* connection);
 	InternalConnection* getUserConnection(Transaction* transaction);
-	void closeConnection(InternalConnection* connection);
 
-	Database*	att_database;			// Parent databasea block
-	Attachment*	att_next;				// Next attachment to database
-	Attachment*	att_blocking;			// Blocking attachment, if any
-	Cursor		*cursors;				// Active cursors
-	//UserId*		att_user;				// User identification
+	Database*		att_database;			// Parent databasea block
+	Attachment*		att_next;				// Next attachment to database
+	Attachment*		att_blocking;			// Blocking attachment, if any
+	Cursor			*cursors;				// Active cursors
 	Transaction*	att_transactions;	// Transactions belonging to attachment
 	Transaction*	att_dbkey_trans;	// transaction to control db-key scope
-	Request*	att_requests;			// Requests belonging to attachment
-	SortContext*		att_active_sorts;	// Active sorts
-	Lock*		att_id_lock;			// Attachment lock (if any)
-	SLONG		att_attachment_id;		// Attachment ID
-	SLONG		att_lock_owner_handle;	// Handle for the lock manager
-	SLONG		att_event_session;		// Event session id, if any
-	SecurityClass*		att_security_class;	// security class for database
-	SecurityClass*		att_security_classes;	// security classes
-	vcl*		att_counts[DBB_max_count];
-	vec*		att_relation_locks;		// explicit persistent locks for relations
-	Lock*		att_record_locks;		// explicit or implicit record locks taken out during attachment
-	ULONG		att_flags;				// Flags describing the state of the attachment
-	SSHORT		att_charset;			// user's charset specified in dpb
-	str*		att_lc_messages;		// attachment's preference for message natural language
-	Lock*		att_long_locks;			// outstanding two phased locks
-	vec*		att_compatibility_table;	// hash table of compatible locks
-	vcl*		att_val_errors;
-	JString		att_working_directory;	// Current working directory is cached
-	JString		att_filename;			// alias used to attach the database
+	Request*		att_requests;			// Requests belonging to attachment
+	SortContext*	att_active_sorts;	// Active sorts
+	Lock*			att_id_lock;			// Attachment lock (if any)
+	SLONG			att_attachment_id;		// Attachment ID
+	SLONG			att_lock_owner_handle;	// Handle for the lock manager
+	SLONG			att_event_session;		// Event session id, if any
+	SecurityClass*	att_security_class;	// security class for database
+	SecurityClass*	att_security_classes;	// security classes
+	vcl*			att_counts[DBB_max_count];
+	vec*			att_relation_locks;		// explicit persistent locks for relations
+	Lock*			att_record_locks;		// explicit or implicit record locks taken out during attachment
+	ULONG			att_flags;				// Flags describing the state of the attachment
+	SSHORT			att_charset;			// user's charset specified in dpb
+	str*			att_lc_messages;		// attachment's preference for message natural language
+	Lock*			att_long_locks;			// outstanding two phased locks
+	vec*			att_compatibility_table;	// hash table of compatible locks
+	vcl*			att_val_errors;
+	JString			att_working_directory;	// Current working directory is cached
+	JString			att_filename;			// alias used to attach the database
 	GDS_TIMESTAMP	att_timestamp;		// connection date and time
 
-	int					userFlags;
-	UserData			userData;
+	int				userFlags;
+	UserData		userData;
+	
 	InternalConnection	*firstConnection;
 	InternalConnection	*lastConnection;
 	
 #ifdef SHARED_CACHE
-	SyncObject	syncObject;
-	SyncObject	syncLongLocks;
-	SyncObject	syncRequests;
+	SyncObject		syncObject;
+	SyncObject		syncLongLocks;
+	SyncObject		syncRequests;
 #endif
 
-	bool isSoleAttachment(void);
-	Cursor* findCursor(const char* name);
-	void deleteCursor(Cursor* cursor);
-	void endTransaction(Transaction* transaction);
-	void updateAccountInfo(thread_db *tdbb, int apbLength, const UCHAR* apb);
-	void authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb);
-	void shutdown(thread_db *tdbb);
-	void addLongLock(Lock* lock);
-	void removeLongLock(Lock* lock);
-	Lock* findBlock(Lock* lock, int level);
-	Relation* findRelation(thread_db* tdbb, int relationId, int csbFlags=0);
-	Relation* getRelation(thread_db* tdbb, int relationId);
-	Relation* findRelation(thread_db* tdbb, const char* relationName, int csbFlags=0);
-	Relation* getRelation(thread_db* tdbb, const char* relationName);
-	void addTransaction(Transaction* transaction);
-	void addConnection(InternalConnection* connection);
 };
 
 #endif // !defined(AFX_ATTACHMENT_H__79215D0A_E447_411D_A318_BD185E131E4F__INCLUDED_)
