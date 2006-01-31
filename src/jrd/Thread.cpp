@@ -113,14 +113,14 @@ void Thread::init(const char *desc)
 	//printf ("Thread::init %s %x\n", desc, this);
 	description = desc;
 	useCount = 1;
-	active = false;
+	//active = false;
 	activeLocks = 0;
 	locks = NULL;
 	lockPending = NULL;
 	syncWait = NULL;
 	lockType = None;
-//	defaultTimeZone = NULL;
-//	javaThread = NULL;
+	//defaultTimeZone = NULL;
+	//javaThread = NULL;
 	pool = NULL;
 }
 
@@ -159,21 +159,22 @@ void Thread::thread()
 			lockPending = NULL;
 			if (function)
 				{
-				active = true;
+				//active = true;
 				(*function)(argument);
 				if (!shutdownInProgress)
 					{
 					ASSERT (locks == NULL);
 					ASSERT (javaThread == NULL);
 					}
-				active = false;
+				if (activeLocks)
+					activeLocks = 0;
 				function = NULL;
+				//active = false;
 				}
 			if (shutdownInProgress)
 				break;
-			if (activeLocks)
-				activeLocks = 0;
-			sleep();
+			if (!function)
+				sleep();
 			}
 		}
 	catch (...)
@@ -190,7 +191,6 @@ void Thread::start(const char *desc, void (*fn)(void*), void * arg)
 	description = desc;
 	function = fn;
 	argument = arg;
-	active = true;
 	wake();
 }
 
@@ -270,7 +270,7 @@ void Thread::createThread(void (*fn)(void *), void *arg)
 {
 	function = fn;
 	argument = arg;
-	active = true;
+	//active = true;
 	addRef();
 
 #ifdef _WIN32

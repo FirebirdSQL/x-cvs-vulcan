@@ -64,7 +64,6 @@ CLASS(Threads);
 
 START_NAMESPACE
 
-
 class SyncWait;
 
 struct TimeZone;
@@ -93,7 +92,8 @@ public:
 	Thread(const char *desc, Threads *threads, void (*fn)(void*), void *arg);
 
 	void			*argument;
-	void			(*function)(void*);
+	//void	(*function)(void*);
+	void			(* volatile function)(void*);
 	Threads			*pool;
 	void*			threadHandle;
 
@@ -101,7 +101,7 @@ public:
 	Thread			*next;				// next thread in pool
 	Thread			*que;				// next thread in wait que (see SyncObject)
 	LockType		lockType;			// requested lock type (see SyncObject)
-	bool			active;
+	//volatile bool	active;
 	volatile bool	lockGranted;
 	volatile long	activeLocks;
 	Sync			*locks;
