@@ -1,3 +1,15 @@
+2006-01-31 20:09  jimstarkey
+
+	* vulcan/src/jrd/: Attachment.cpp, Attachment.h, PageCache.cpp:
+	
+	Fix foreign key creation problem.
+
+2006-01-31 17:15  jimstarkey
+
+	* vulcan/src/jrd/: Thread.cpp, Thread.h, Threads.cpp:
+	
+	Fixed remote client threading problems
+
 2006-01-31 00:51  jimstarkey
 
 	* vulcan/src/: jrd/StatusVector.cpp, remote/Port.cpp,
