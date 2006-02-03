@@ -247,6 +247,15 @@ void MakeGen::processFile(Element *file, const char* folder)
 	if (!fileName)
 		throw AdminException ("expected relative path name for file");
 
+	for (Element *child = file->children; child; child = child->sibling)
+		if (child->name == "FileConfiguration")
+			{
+			const char *excluded = child->getAttributeValue("ExcludedFromBuild");
+			
+			if (excluded && strcmp(excluded, "TRUE") == 0)
+				return;
+			}
+
 	ProjectFile *projectFile = *filePtr = new ProjectFile (fileName, folder);
 	filePtr = &projectFile->next;
 
