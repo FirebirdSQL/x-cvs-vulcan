@@ -34,8 +34,8 @@
 #include "ScanDir.h"
 #include "AdminException.h"
 
-static char *input;
-static char *output;
+static const char *input;
+static const char *output;
 static bool	swHelp;
 static bool	swSolution;
 static bool	swCreate;
@@ -50,7 +50,7 @@ static const Switches switches [] =
 	NULL
 	};
 
-main (int argc, char **argv)
+main (int argc, const char **argv)
 {
 	Args args;
 	args.parse(switches, argc, argv);

@@ -39,12 +39,12 @@
 
 static bool	printHelp;
 static bool	verbose;
-static char *projectFileName;
-static char *configFileName = "vulcan.conf";
-static char *port;
-static char *type;
-static char *component;
-static char *outputFileName;
+static const char *projectFileName;
+static const char *configFileName = "vulcan.conf";
+static const char *port;
+static const char *type;
+static const char *component;
+static const char *outputFileName;
 
 static const Switches switches [] =
 	{
@@ -99,7 +99,7 @@ MakeGen::~MakeGen()
 			}
 }
 
-int MakeGen::gen(int argc, char **argv)
+int MakeGen::gen(int argc, const char **argv)
 {
 	args.parseParameters (switches, argc - 1, argv + 1);
 

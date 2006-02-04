@@ -48,7 +48,7 @@ public:
 	void processFile (Element *file, const char* folder);
 	void processFilter (Element *filter);
 	void processConfiguration (Element *configuration);
-	int gen (int argc, char **argv);
+	int gen (int argc, const char **argv);
 	MakeGen();
 	virtual ~MakeGen();
 

@@ -23,7 +23,7 @@
 #include "BuildGen.h"
 #include "MakeGen.h"
 
-int main (int argc, char **argv)
+int main (int argc, const char **argv)
 {
 	MakeGen makeGen;
 	//getchar();

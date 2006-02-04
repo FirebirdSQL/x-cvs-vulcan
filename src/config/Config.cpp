@@ -46,8 +46,8 @@ static bool		swList;
 static bool		swVerbose;
 static bool		swHelp;
 static bool		swInstall;
-static char		*databaseName;
-static char		*fileName;
+static const char		*databaseName;
+static const char		*fileName;
 
 static const Switches switches [] =
 	{
@@ -63,7 +63,7 @@ static const Switches switches [] =
 
 static const char* HELP_TEXT =	"Usage: config [-t] [-l] [-f file] [database]\n";
 
-main (int argc, char **argv)
+main (int argc, const char **argv)
 {
 	return Config::parse (argc, argv);
 }
@@ -76,7 +76,7 @@ Config::~Config(void)
 {
 }
 
-int Config::parse(int argc, char ** argv)
+int Config::parse(int argc, const char ** argv)
 {
 	Args::parse (switches, argc - 1, argv + 1);
 

@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="XLoad"
-	ProjectGUID="{4E7B72E9-830D-4519-B037-44F8D6C1D823}"
+	Name="ProjectAnalyst"
+	ProjectGUID="{4DD575A5-25C2-4634-B48E-300F1D4DE333}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,25 +19,23 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include\gen;..\include;..\config;..\jrd;..\IscDbc"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=xload"
+				AdditionalIncludeDirectories="..\config,..\jrd,..\XLoad,..\include,..\include\gen"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="FALSE"
+				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FbDbc.lib"
-				OutputFile="$(OutDir)/XLoad.exe"
+				OutputFile="$(OutDir)/ProjectAnalyst.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/XLoad.pdb"
+				ProgramDatabaseFile="$(OutDir)/ProjectAnalyst.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -69,7 +67,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;NAMESPACE=xload"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="4"
 				UsePrecompiledHeader="3"
 				WarningLevel="3"
@@ -79,7 +77,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/XLoad.exe"
+				OutputFile="$(OutDir)/ProjectAnalyst.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
@@ -128,9 +126,6 @@
 				RelativePath="..\config\Element.cpp">
 			</File>
 			<File
-				RelativePath=".\Field.cpp">
-			</File>
-			<File
 				RelativePath="..\config\InputFile.cpp">
 			</File>
 			<File
@@ -143,10 +138,10 @@
 				RelativePath="..\config\Lex.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\LinkedList.cpp">
+				RelativePath=".\ProjectAnalyst.cpp">
 			</File>
 			<File
-				RelativePath="..\jrd\RefObject.cpp">
+				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
 				RelativePath="..\config\Stream.cpp">
@@ -155,19 +150,7 @@
 				RelativePath="..\config\StreamSegment.cpp">
 			</File>
 			<File
-				RelativePath=".\Table.cpp">
-			</File>
-			<File
-				RelativePath=".\XDump.cpp">
-			</File>
-			<File
-				RelativePath=".\XLoad.cpp">
-			</File>
-			<File
-				RelativePath=".\XMain.cpp">
-			</File>
-			<File
-				RelativePath=".\XMLParse.cpp">
+				RelativePath="..\XLoad\XMLParse.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -184,13 +167,7 @@
 				RelativePath="..\config\ArgsException.h">
 			</File>
 			<File
-				RelativePath="..\IscDbc\Connection.h">
-			</File>
-			<File
 				RelativePath="..\config\Element.h">
-			</File>
-			<File
-				RelativePath=".\Field.h">
 			</File>
 			<File
 				RelativePath="..\config\InputFile.h">
@@ -205,10 +182,10 @@
 				RelativePath="..\config\Lex.h">
 			</File>
 			<File
-				RelativePath="..\jrd\LinkedList.h">
+				RelativePath=".\ProjectAnalyst.h">
 			</File>
 			<File
-				RelativePath="..\jrd\RefObject.h">
+				RelativePath="..\config\ScanDir.h">
 			</File>
 			<File
 				RelativePath="..\config\Stream.h">
@@ -217,16 +194,7 @@
 				RelativePath="..\config\StreamSegment.h">
 			</File>
 			<File
-				RelativePath=".\Table.h">
-			</File>
-			<File
-				RelativePath=".\XDump.h">
-			</File>
-			<File
-				RelativePath=".\XLoad.h">
-			</File>
-			<File
-				RelativePath=".\XMLParse.h">
+				RelativePath="..\XLoad\XMLParse.h">
 			</File>
 		</Filter>
 		<Filter
@@ -234,9 +202,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
-		<File
-			RelativePath=".\ReadMe.txt">
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

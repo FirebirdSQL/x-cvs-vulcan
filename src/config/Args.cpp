@@ -61,12 +61,12 @@ Args::~Args()
 	delete lengths;
 }
 
-void Args::parse(const Switches *switches, int argc, char **argv, Args *args)
+void Args::parse(const Switches *switches, int argc, const char **argv, Args *args)
 {
 	
-	for (char **arg = argv, **end = arg + argc; arg < end;)
+	for (const char **arg = argv, **end = arg + argc; arg < end;)
 		{
-		char *p = *arg++;
+		const char *p = *arg++;
 		const Switches *parameter = NULL;
 		bool hit = false;
 		
@@ -114,7 +114,7 @@ void Args::parse(const Switches *switches, int argc, char **argv, Args *args)
 }
 
 
-void Args::parseParameters(const Switches* switches, int argc, char** argv)
+void Args::parseParameters(const Switches* switches, int argc, const char** argv)
 {
 	parametersUsed = 0;
 	parse(switches, argc, argv, this);
