@@ -1,3 +1,9 @@
+2006-02-03 17:25  jimstarkey
+
+	* vulcan/src/buildgen/MakeGen.cpp:
+	
+	Teach buildgen to ignore files excluded from build.
+
 2006-02-02 17:07  awharrison
 
 	* vulcan/src/jrd/: opt.cpp, vio.cpp:
