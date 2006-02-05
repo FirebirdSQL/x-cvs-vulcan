@@ -218,13 +218,13 @@ static const UCHAR nonnull_validation_blr[] =
 	blr_eoc
 };
 
-struct DeferredTask
+struct DeferredWorkTask
 {
 	enum dfw_t task_type;
 	bool (*task_routine) (thread_db*, SSHORT, DeferredWork*, Transaction*);
 }; // TASK;
 
-static const DeferredTask task_table[] =
+static const DeferredWorkTask task_table[] =
 {
 	{ dfw_add_file, add_file },
 	{ dfw_add_shadow, add_shadow },
@@ -260,7 +260,6 @@ static const DeferredTask task_table[] =
 	{ dfw_end_backup, end_backup },
 	{ dfw_null, NULL }
 };
-
 
 USHORT DFW_assign_index_type(thread_db* tdbb, DeferredWork* work, SSHORT field_type, SSHORT ttype)
 {
@@ -517,7 +516,7 @@ void DFW_perform_work(thread_db* tdbb, Transaction* transaction)
 		try 
 			{
 			DeferredWork* prior = NULL;
-			for (const DeferredTask* task = task_table; task->task_type != dfw_null; ++task)
+			for (const DeferredWorkTask* task = task_table; task->task_type != dfw_null; ++task)
 				for (work = transaction->tra_deferred_work; work; work = work->dfw_next)
 					if (work->dfw_type == task->task_type)
 						{
