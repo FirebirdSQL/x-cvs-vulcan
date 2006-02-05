@@ -53,19 +53,21 @@ void asm_sync(void);
 #endif
 
 #ifdef DARWIN
-#include <libkern/OSAtomic.h>
+#define __DEBUGGING__
+//#include "/Developer/Headers/FlatCarbon/DriverSynchronization.h"
+#include <CoreServices/CoreServices.h>
+//#define UInt32 ULONG
+//#define SInt32 SLONG
 extern "C"
 {
-static inline int COMPARE_EXCHANGE(volatile int *vTarget, int compare, int exchange)
+static inline int COMPARE_EXCHANGE(volatile int * target, int compare, int exchange)
 {
-	int *target = (int *)vTarget;
-	return OSAtomicCompareAndSwap32Barrier(compare, exchange, target);
+	return CompareAndSwap((UInt32)compare, (UInt32) exchange, (UInt32 *)(target));
 }
 
-static inline int COMPARE_EXCHANGE_POINTER(void *target, volatile void * vCompare, void * exchange)
+static inline int COMPARE_EXCHANGE_POINTER(void * target, volatile void * compare, void * exchange)
 {
-	int compare = (int)vCompare;
-	return OSAtomicCompareAndSwap32Barrier((int)compare, (int)exchange, (int *) target);
+	return CompareAndSwap( (UInt32) compare, (UInt32) exchange, (UInt32 *) target);
 }
 
 }
@@ -158,7 +160,7 @@ inline INTERLOCK_TYPE interlockedIncrement(volatile INTERLOCK_TYPE *ptr)
 #ifdef _WIN32
 	return InterlockedIncrement ((INTERLOCK_TYPE*) ptr);
 #elif defined DARWIN
-	return OSAtomicIncrement32Barrier ((int *) ptr);
+	return IncrementAtomic ((SInt32 *) ptr);
 #elif defined (__i386) || (__x86_64__)
 	INTERLOCK_TYPE ret;
 	asm (
@@ -187,7 +189,7 @@ inline INTERLOCK_TYPE interlockedDecrement(volatile INTERLOCK_TYPE *ptr)
 #ifdef _WIN32
 	return InterlockedDecrement ((INTERLOCK_TYPE*) ptr);
 #elif defined DARWIN
-	return OSAtomicDecrement32Barrier ((int *) ptr);
+	return DecrementAtomic ((SInt32 *) ptr);
 #elif defined (__i386) || (__x86_64__)
 	INTERLOCK_TYPE ret;
 	asm (
