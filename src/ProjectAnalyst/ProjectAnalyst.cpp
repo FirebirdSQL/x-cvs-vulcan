@@ -12,24 +12,19 @@
 #include "XMLParse.h"
 #include "Element.h"
 #include "PathName.h"
+#include "AnalyseModule.h"
 
 static const char *vcprojFile;
+static const char *swDirectory = "./";
 static bool	swHelp;
-static bool	swDirectory = "./";
 
 static const Switches switches [] =
 	{
 	WORD_ARG(vcprojFile, "vcproj-file")
-	SW_ARG("-d", swDirectory, "Project directory")
+	ARG_ARG("-d", swDirectory, "Project directory")
 	SW_ARG("-h", swHelp, "Print this text")
 	NULL
 	};
-
-static const char *filterFiles [] =
-	{ "VisualStudioProject", "Files", "Filter", "File", NULL };
-	
-static const char *filterFilterFiles [] =
-	{ "VisualStudioProject", "Files", "Filter", "Filter", "File", NULL };
 
 
 int main(int argc, const char **argv)
@@ -68,6 +63,9 @@ void ProjectAnalyst::analyse(Element* element)
 			
 }
 
-void ProjectAnalyst::analyse(const char* fileName)
+void ProjectAnalyst::analyse(const char* relativeName)
 {
+	char fileName[512];
+	PathName::merge(relativeName, swDirectory, sizeof(fileName), fileName);
+	AnalyseModule module(fileName);
 }

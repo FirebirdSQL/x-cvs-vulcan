@@ -117,6 +117,9 @@
 				RelativePath="..\config\AdminException.cpp">
 			</File>
 			<File
+				RelativePath=".\AnalyseModule.cpp">
+			</File>
+			<File
 				RelativePath="..\config\Args.cpp">
 			</File>
 			<File
@@ -136,6 +139,9 @@
 			</File>
 			<File
 				RelativePath="..\config\Lex.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\PathName.cpp">
 			</File>
 			<File
 				RelativePath=".\ProjectAnalyst.cpp">
@@ -161,6 +167,9 @@
 				RelativePath="..\config\AdminException.h">
 			</File>
 			<File
+				RelativePath=".\AnalyseModule.h">
+			</File>
+			<File
 				RelativePath="..\config\Args.h">
 			</File>
 			<File
@@ -180,6 +189,9 @@
 			</File>
 			<File
 				RelativePath="..\config\Lex.h">
+			</File>
+			<File
+				RelativePath="..\jrd\PathName.h">
 			</File>
 			<File
 				RelativePath=".\ProjectAnalyst.h">
