@@ -517,6 +517,7 @@ static FPTR_SHORT lookup_init_function(thread_db* tdbb,
 					INTL_LOOKUP_ENTRY1));
 		if ((*lookup_fn) (type, &function, parm1, parm2) != 0) 
 			function = NULL;
+		}
 	else
 		return function;
 #else

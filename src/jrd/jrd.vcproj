@@ -2426,16 +2426,13 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="ail.h">
-			</File>
-			<File
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2483,10 +2480,10 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="blf_proto.h">
 			</File>
 			<File
-				RelativePath="..\dsql\blk.h">
+				RelativePath="blk.h">
 			</File>
 			<File
-				RelativePath="blk.h">
+				RelativePath="..\dsql\blk.h">
 			</File>
 			<File
 				RelativePath="..\common\Blob.h">
@@ -2619,9 +2616,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath=".\DateTime.h">
-			</File>
-			<File
-				RelativePath="..\utilities\dbaswi.h">
 			</File>
 			<File
 				RelativePath="dbg.h">
@@ -2841,12 +2835,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath="grant_proto.h">
-			</File>
-			<File
-				RelativePath="..\utilities\gsec.h">
-			</File>
-			<File
-				RelativePath="..\utilities\gsecswi.h">
 			</File>
 			<File
 				RelativePath="..\dsql\hsh_proto.h">
@@ -3233,9 +3221,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="os\pio.h">
 			</File>
 			<File
-				RelativePath="pio_proto.h">
-			</File>
-			<File
 				RelativePath="plugin_manager.h">
 			</File>
 			<File
@@ -3269,9 +3254,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="quad_proto.h">
 			</File>
 			<File
-				RelativePath="que.h">
-			</File>
-			<File
 				RelativePath="rdb.h">
 			</File>
 			<File
@@ -3285,9 +3267,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath="RefObject.h">
-			</File>
-			<File
-				RelativePath="..\utilities\registry.h">
 			</File>
 			<File
 				RelativePath="Relation.h">
@@ -3420,9 +3399,6 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath="sdw_proto.h">
-			</File>
-			<File
-				RelativePath="..\utilities\secur_proto.h">
 			</File>
 			<File
 				RelativePath=".\SecurityDb.h">

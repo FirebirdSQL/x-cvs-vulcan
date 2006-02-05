@@ -1814,8 +1814,11 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 	lock.l_whence = 0;
 	lock.l_start = 0;
 	lock.l_len = 0;
-	if (fcntl(fd, F_SETLK, &lock) != -1) {
-		if (!init_routine) {
+	
+	if (fcntl(fd, F_SETLK, &lock) != -1) 
+		{
+		if (!init_routine) 
+			{
 			/* unlock the file and the init file to release the other process */
 			lock.l_type = F_UNLCK;
 			lock.l_whence = 0;
@@ -1836,7 +1839,7 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			*status_vector++ = isc_unavailable;
 			*status_vector++ = isc_arg_end;
 			return NULL;
-		}
+			}
 
 		// Create semaphores here
 		
@@ -1866,7 +1869,8 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			close(fd);
 			close(fd_init);
 			return NULL;
-		}
+			}
+			
 		shmem_data->sh_mem_mutex_arg = semid;
 #else
 		shmem_data->sh_mem_mutex_arg = 0;
@@ -1878,8 +1882,10 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			ftruncate(fd, length);
 #endif
 		(*init_routine) (init_arg, shmem_data, true);
+		
 #ifdef HAVE_FLOCK
-		if (flock(fd, LOCK_SH)) {
+		if (flock(fd, LOCK_SH)) 
+			{
 			error(status_vector, "flock", errno);
 			flock(fd, LOCK_UN);
 			flock(fd_init, LOCK_UN);
@@ -1888,8 +1894,9 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 		lock.l_whence = 0;
 		lock.l_start = 0;
 		lock.l_len = 0;
+		
 		if (fcntl(fd, F_SETLK, &lock) == -1)
-		{
+			{
 			error(status_vector, "fcntl", errno);
 			/* unlock the file */
 			lock.l_type = F_UNLCK;
@@ -1910,9 +1917,10 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			close(fd_init);
 			close(fd);
 			return NULL;
+			}
 		}
-	}
-	else {
+	else 
+		{
 skip_exclusive:
 #ifdef HAVE_FLOCK
 		if (flock(fd, LOCK_SH)) {
