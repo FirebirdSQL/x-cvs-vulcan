@@ -1,3 +1,14 @@
+2006-02-05 00:34  jimstarkey
+
+	* vulcan/src/: VSRelo/vsrelo.cpp, XLoad/XLoad.vcproj,
+	XLoad/XMain.cpp, buildgen/MakeGen.cpp, buildgen/MakeGen.h,
+	buildgen/main.cpp, config/Args.cpp, config/Args.h,
+	config/Config.cpp, config/Config.h,
+	ProjectAnalyst/ProjectAnalyst.cpp, ProjectAnalyst/ProjectAnalyst.h,
+	ProjectAnalyst/ProjectAnalyst.vcproj:
+	
+	Made Arg string const char*; started ProjectAnalyst
+
 2006-02-03 17:25  jimstarkey
 
 	* vulcan/src/buildgen/MakeGen.cpp:
