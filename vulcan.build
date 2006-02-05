@@ -1005,7 +1005,7 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 <template name="Libraries">
-    -lpthread -lm -ldl -lfirebird \
+    -lpthread -lm -ldl -lfirebird -framework Carbon \
 </template>
 
 <template name="SharedLibr"> -dynamiclib </template>
@@ -1037,7 +1037,7 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 <template name="Libraries">
-	-lpthread -ldl -lm \
+	-lpthread -ldl -lm -framework Carbon \
 </template>
 
 </component>
@@ -1124,7 +1124,7 @@ CPPFLAGS = <buildopt/> -I. \
 
 <component name="Config">
 <template name="Libraries">
-	-lpthread -lm -ldl \
+	-lpthread -lm -ldl -framework Carbon \
 </template>
 </component>
 
