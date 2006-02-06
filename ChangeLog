@@ -1,3 +1,43 @@
+2006-02-05 22:29  jimstarkey
+
+	* vulcan/src/: ProjectAnalyst/AnalyseModule.cpp,
+	ProjectAnalyst/AnalyseModule.h, ProjectAnalyst/ProjectAnalyst.cpp,
+	ProjectAnalyst/ProjectAnalyst.h,
+	ProjectsSummary/ProjectsSummary.cpp,
+	ProjectsSummary/ProjectsSummary.vcproj, jrd/intl.cpp,
+	jrd/isc_sync.cpp, jrd/jrd.vcproj:
+	
+	Added ProjectsSummary to source tree
+
+2006-02-05 20:37  awharrison
+
+	* vulcan/vulcan.build:
+	
+	Use the older Darwin primitives for atomic operations in
+	Interlock.h, which requires dragging in a bit of Carbon and causes
+	a few side effects, now under control.
+
+2006-02-05 20:19  awharrison
+
+	* vulcan/src/jrd/Interlock.h:
+	
+	Use the older atomic primitives for Darwin to support 10.3 and
+	earlier
+
+2006-02-05 19:55  awharrison
+
+	* vulcan/src/jrd/dfw.epp:
+	
+	Changed the name of DeferredTask to DeferredWorkTask to avoid a
+	conflict with a structure declared in Carbon on Darwin
+
+2006-02-05 18:23  jimstarkey
+
+	* vulcan/src/ProjectAnalyst/: AnalyseModule.cpp, AnalyseModule.h,
+	ProjectAnalyst.cpp, ProjectAnalyst.vcproj:
+	
+	Fleshed out ProjectAnalyst
+
 2006-02-05 00:34  jimstarkey
 
 	* vulcan/src/: VSRelo/vsrelo.cpp, XLoad/XLoad.vcproj,
