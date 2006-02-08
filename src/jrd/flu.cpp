@@ -682,79 +682,102 @@ FPTR_INT ISC_lookup_entrypoint (
  *      Lookup entrypoint of function.
  *
  **************************************/
-FPTR_INT        function;
-int             lastSpace, i, len;
-MOD             mod;
-TEXT            absolute_module[MAXPATHLEN];
-NSSymbol        symbol;
-if (function = FUNCTIONS_entrypoint (module, name))
-    return function;
+	FPTR_INT        function;
+	int             lastSpace, i, len;
+	MOD             mod;
+	TEXT            absolute_module[MAXPATHLEN];
+	NSSymbol        symbol;
 
-/* Remove TRAILING spaces from path names; spaces within the path are valid */
-for (i = strlen(module) - 1, lastSpace = 0; i >= 0; i--)
-    if (module[i] == ' ')
-        lastSpace = i;
-    else
-        break;
-if (module[lastSpace] == ' ')
-    module[lastSpace] = 0;
+	if (function = FUNCTIONS_entrypoint (module, name))
+		return function;
 
-for (i = strlen(name) - 1, lastSpace = 0; i >= 0; i--)
-    if (name[i] == ' ')
-        lastSpace = i;
-    else
-        break;
-if (name[lastSpace] == ' ')
-    name[lastSpace] = 0;
+	// Remove TRAILING spaces from path names; spaces within the path are valid 
 
-if (!*module || !*name)
-    return NULL;
+	for (i = strlen(module) - 1, lastSpace = 0; i >= 0; i--)
+		{
+		if (module[i] == ' ')
+			lastSpace = i;
+		else
+			break;
+		}
 
-/*printf("names truncated: %s, function %s.\n", module, name);*/
-/* Check if external function module has already been loaded */
-if (!(mod = FLU_lookup_module (module)))
-    {
-    USHORT length ;
-    strcpy (absolute_module, module);
-    length = strlen (absolute_module);
-    /* call search_for_module with the supplied name,
-       and if unsuccessful, then with <name>.so . */
-    mod = search_for_module (database, absolute_module, name, false);
-    if (!mod)
-        {
-        strcat (absolute_module, ".so");
-        mod = search_for_module (database, absolute_module, name, ShowAccessError);
-        }
-    if (!mod)
-    {
-        /*printf("Couldn't find module: %s\n", absolute_module);*/
-        return NULL;
-    }
+	if (module[lastSpace] == ' ')
+		module[lastSpace] = 0;
 
-    fb_assert (mod->mod_handle);   /* fb_assert that we found the module */
-    mod->mod_use_count = 0;
-    mod->mod_length = length;
-    strcpy (mod->mod_name, module);
-    mod->mod_next = FLU_modules;
-    FLU_modules = mod;
-    }
+	for (i = strlen(name) - 1, lastSpace = 0; i >= 0; i--)
+		{
+		if (name[i] == ' ')
+			lastSpace = i;
+		else
+			break;
+		}
 
-/* Look for the symbol and return a pointer to the function if found */
-mod->mod_use_count++;
-symbol = NSLookupSymbolInModule((__NSModule*)mod->mod_handle, name);
-if (symbol == NULL)
-{
-    /*printf("Failed to find function: %s in module %s, trying _%s\n", name, module, name);*/
-    strcpy(absolute_module, "_");
-    strncat(absolute_module, name, sizeof(absolute_module) - 2);
-    symbol = NSLookupSymbolInModule((__NSModule*)mod->mod_handle, absolute_module);
-    if (symbol == NULL)
-    {
-        /*printf("Failed to find symbol %s.  Giving up.\n", absolute_module);*/
-        return NULL;
-    }
-}
-return (FPTR_INT) NSAddressOfSymbol(symbol);
+	if (name[lastSpace] == ' ')
+		name[lastSpace] = 0;
+
+	if (!*module || !*name)
+		return NULL;
+
+	// printf("names truncated: %s, function %s.\n", module, name);
+	// Check if external function module has already been loaded 
+
+	if (!(mod = FLU_lookup_module (module)))
+		{
+		USHORT length ;
+		strcpy (absolute_module, module);
+		length = strlen (absolute_module);
+
+		// call search_for_module with the supplied name,
+		// and if unsuccessful, try <name>.dylib then with <name>.so 
+
+		mod = search_for_module (database, absolute_module, name, false);
+
+		if (!mod)
+			{
+			sprintf (absolute_module, "%s.dylib", module);
+			mod = search_for_module (database, absolute_module, name, ShowAccessError);
+			}
+		
+		if (!mod)
+			{
+			sprintf (absolute_module, "%s.so", module);
+			mod = search_for_module (database, absolute_module, name, ShowAccessError);
+			}
+
+		if (!mod)
+			{
+			// printf("Couldn't find module: %s\n", absolute_module);
+			return NULL;
+			}
+
+		fb_assert (mod->mod_handle);   // fb_assert that we found the module 
+		mod->mod_use_count = 0;
+		mod->mod_length = length;
+		strcpy (mod->mod_name, module);
+		mod->mod_next = FLU_modules;
+		FLU_modules = mod;
+		}
+
+	// Look for the symbol and return a pointer to the function if found
+
+	mod->mod_use_count++;
+	symbol = NSLookupSymbolInModule((__NSModule*)mod->mod_handle, name);
+
+	if (symbol == NULL)
+		{
+		// printf("Failed to find function: %s in module %s, trying _%s\n", name, module, name);
+		strcpy(absolute_module, "_");
+		strncat(absolute_module, name, sizeof(absolute_module) - 2);
+		symbol = NSLookupSymbolInModule((__NSModule*)mod->mod_handle, absolute_module);
+
+		if (symbol == NULL)
+			{
+			// printf("Failed to find symbol %s.  Giving up.\n", absolute_module);
+			return NULL;
+			}
+		}
+
+	return (FPTR_INT) NSAddressOfSymbol(symbol);
 
 }
 
