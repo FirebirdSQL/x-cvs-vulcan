@@ -1,3 +1,10 @@
+2006-02-08 21:44  awharrison
+
+	* vulcan/src/jrd/flu.cpp:
+	
+	try teaching the Darwin port about dynamic libraries with the
+	.dylib extension
+
 2006-02-05 22:29  jimstarkey
 
 	* vulcan/src/: ProjectAnalyst/AnalyseModule.cpp,
