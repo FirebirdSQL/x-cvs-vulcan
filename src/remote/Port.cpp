@@ -620,6 +620,9 @@ ISC_STATUS Port::end_statement(P_SQLFREE* free_stmt, Packet* send)
 
 	if (!statement->rsr_handle) 
 		{
+		if (statement->rsr_id)
+			portObjects.releaseHandle (statement->rsr_id);
+
 		delete statement;
 		statement = NULL;
 		}

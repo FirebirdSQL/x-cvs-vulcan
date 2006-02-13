@@ -39,6 +39,7 @@ RStatement::RStatement(RDatabase *database)
 	rsr_msgs_waiting = 0;
 	rsr_reorder_level = 0;
 	rsr_batch_count = 0;
+	rsr_id = 0;
 }
 
 RStatement::~RStatement(void)

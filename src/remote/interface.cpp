@@ -5883,7 +5883,7 @@ static bool init(ISC_STATUS* user_status,
  **************************************/
 	RDatabase* rdb = port->port_context;
 	Packet *packet = &rdb->rdb_packet;
-	Sync sync(&rdb->syncObject, "xyzzy");
+	Sync sync(&rdb->syncObject, "interface init");
 	sync.lock(Exclusive);
 
 	/* Make attach packet */
@@ -5897,6 +5897,7 @@ static bool init(ISC_STATUS* user_status,
 
 	if (!send_packet(rdb->rdb_port, packet, user_status)) 
 		{
+		sync.unlock();
 		disconnect(port);
 		return false;
 		}
@@ -5905,6 +5906,7 @@ static bool init(ISC_STATUS* user_status,
 
 	if (!receive_response(rdb, packet)) 
 		{
+		sync.unlock();
 		REMOTE_save_status_strings(user_status);
 		disconnect(port);
 		return false;
