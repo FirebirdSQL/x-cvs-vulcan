@@ -1,3 +1,9 @@
+2006-02-13 20:40  jimstarkey
+
+	* vulcan/src/remote/: Port.cpp, RStatement.cpp, interface.cpp:
+	
+	Release statement handlers in Server.
+
 2006-02-08 21:44  awharrison
 
 	* vulcan/src/jrd/flu.cpp:
