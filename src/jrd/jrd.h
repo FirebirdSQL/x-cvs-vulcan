@@ -195,7 +195,7 @@ public:
 	Request*	idb_expression_request;	/* request in which index expression is evaluated */
 	dsc			idb_expression_desc;	/* descriptor for expression result */
 	Lock*		idb_lock;				/* lock to synchronize changes to index */
-	UCHAR		idb_id;
+	USHORT		idb_id;
 };
 
 
