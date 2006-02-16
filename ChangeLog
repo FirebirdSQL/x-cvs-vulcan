@@ -1,3 +1,9 @@
+2006-02-15 18:40  awharrison
+
+	* vulcan/src/jrd/jrd.h:
+	
+	change the index id from UCHAR to USHORT in IndexBlock
+
 2006-02-13 20:40  jimstarkey
 
 	* vulcan/src/remote/: Port.cpp, RStatement.cpp, interface.cpp:
