@@ -469,9 +469,13 @@ void YSQLDA::copyToMessage(void)
 			{
 			case dtype_varying:
 				((vary*) to)->vary_length = ((vary*) from)->vary_length;
-				if (!*variable->sqlind) /* this seems to be the check that FB15 uses for NULL */
-										/* NULL data. (see null_ind in utld.cpp, near line 628 */
+
+				// this seems to be the check that FB15 uses for NULL 
+				// NULL data. (see null_ind in utld.cpp, near line 628 
+
+				if (!(sqlType & 1) || !*variable->sqlind) 
 					memcpy (((vary*) to)->vary_string, ((vary*)from)->vary_string, ((vary*)from)->vary_length);
+
 				break;
 			
 			default:
