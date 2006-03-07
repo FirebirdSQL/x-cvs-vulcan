@@ -1,3 +1,13 @@
+2006-03-06 21:10  tomcole
+
+	* vulcan/src/ThreadTest/: ReadMe.txt, threadtest1.c, threadtest2.c,
+	threadtest3.c:
+	
+	Updated threadtest programs for driving Vulcan under load.  These
+	are not fully cooked yet in terms of being easily built and run, 
+	but are committed to make the code available for review.  See the
+	ReadMe.txt file for additional information.
+
 2006-02-18 23:46  awharrison
 
 	* vulcan/src/why/YSQLDA.cpp:
