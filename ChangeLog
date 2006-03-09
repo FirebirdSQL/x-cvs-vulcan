@@ -1,3 +1,11 @@
+2006-03-08 11:02  paulbeach
+
+	* vulcan/src/isql/isql.epp:
+	
+	Modify isql.epp to use fb_isspace rather than isspace as per
+	Adriano's fix in FB2 to solve a problem with debug builds using
+	MSVC 7.x
+
 2006-03-06 21:10  tomcole
 
 	* vulcan/src/ThreadTest/: ReadMe.txt, threadtest1.c, threadtest2.c,
