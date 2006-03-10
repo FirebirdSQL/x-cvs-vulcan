@@ -170,15 +170,15 @@ static const TEXT *status_name;
 #define NULL_SQLDA	"(XSQLDA*) 0L"
 
 #ifdef VMS
-#define GDS_INCLUDE	"\"interbase:[syslib]firebird.h\""
+#define GDS_INCLUDE	"\"interbase:[syslib]gds.h\""
 #endif
 
 #ifdef DARWIN
-#define GDS_INCLUDE	"<Firebird/firebird.h>"
+#define GDS_INCLUDE	"<Firebird/ibase.h>"
 #endif
 
 #ifndef GDS_INCLUDE
-#define GDS_INCLUDE	"<firebird.h>"
+#define GDS_INCLUDE	"<ibase.h>"
 #endif
 
 #ifndef DCL_LONG
@@ -1270,7 +1270,7 @@ static void gen_compile( ACT action, int column)
 	BLB blob;
 	PAT args;
 	const TEXT *pattern1 =
-		"isc_compile_request%IF2%EN (%V1, (isc_db_handle*) &%DH, (isc_req_handle*) &%RH, (short) sizeof (%RI), (unsigned char *) %RI);",
+		"isc_compile_request%IF2%EN (%V1, (isc_db_handle*) &%DH, (isc_req_handle*) &%RH, (short) sizeof (%RI), (char *) %RI);",
 		*pattern2 = "if (!%RH%IF && %S1%EN)";
 
 	args.pat_request = request = action->act_request;
@@ -1506,7 +1506,7 @@ static void gen_database( ACT action, int column)
 		return;
 
 	fprintf(out_file, "\n/**** GDS Preprocessor Definitions ****/\n");
-	fprintf(out_file, "#ifndef FIREBIRD_H\n#include %s\n#endif\n",
+	fprintf(out_file, "#ifndef JRD_IBASE_H\n#include %s\n#endif\n",
 			   GDS_INCLUDE);
 
 	printa(column, "static %sISC_QUAD", CONST_STR);
