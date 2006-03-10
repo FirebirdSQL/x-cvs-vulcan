@@ -1,3 +1,11 @@
+2006-03-09 16:34  dchri
+
+	* vulcan/src/gpre/c_cxx.cpp:
+	
+	fix gpre to use firebird.h instead of ibase.h and fix
+	isc_compile_request2 5th parameter from (char *) to (unsigned char
+	*)
+
 2006-03-08 11:02  paulbeach
 
 	* vulcan/src/isql/isql.epp:
