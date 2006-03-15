@@ -5,10 +5,14 @@
  *
 */
 #include "fbdev.h"
+#include "../jrd/Mutex.h"
+#include "../jrd/Sync.h"
 
 #include "../jrd/common.h"
 #include "../jrd/enc_proto.h"
 #include "../jrd/gdsassert.h"
+
+static Mutex mutex;
 
 /*
 #ifdef HAVE_UNISTD_H
@@ -436,6 +440,9 @@ const static size_t RESULT_SIZE = (1 + 4 + 4 + 11 + 1);
  */
 void ENC_crypt(TEXT* buf, size_t bufSize, const TEXT* key, const TEXT* setting)
 {
+	Sync sync(&mutex, "ENC_crypt");
+	sync.lock(Exclusive);
+
 	const TEXT *orgKey = key;
 	fb_assert(bufSize >= RESULT_SIZE);
 
