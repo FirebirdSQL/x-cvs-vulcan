@@ -1,3 +1,10 @@
+2006-03-15 03:14  asfernandes
+
+	* vulcan/src/jrd/enc.cpp:
+	
+	Synchronize access to ENC_crypt to not cause authentication
+	problems in MT environment
+
 2006-03-10 09:12  dchri
 
 	* vulcan/src/gpre/c_cxx.cpp:
