@@ -57,6 +57,8 @@ void RsbProcedure::open(Request* request)
 
 	thread_db* tdbb = request->req_tdbb;
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
+	impure->irsb_flags |= irsb_open;
+
 	record_param* rpb = request->req_rpb + rsb_stream;
 
 	/* get rid of any lingering record */
@@ -112,9 +114,6 @@ bool RsbProcedure::get(Request* request, RSE_GET_MODE mode)
 	thread_db* tdbb = request->req_tdbb;
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
 	
-	if (impure->irsb_flags & irsb_singular_processed)
-		return FALSE;
-
 	record_param* rpb = request->req_rpb + rsb_stream;
 	JRD_REQ proc_request = impure->irsb_req_handle;
 	Format* rec_format = procedure->findFormat();
@@ -218,6 +217,12 @@ bool RsbProcedure::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* 
 void RsbProcedure::close(Request* request)
 {
 	IRSB_PROCEDURE impure = (IRSB_PROCEDURE) IMPURE (request, rsb_impure);
+
+	if (!(impure->irsb_flags & irsb_open))
+		return;
+
+	impure->irsb_flags &= ~irsb_open;
+
 	Request* proc_request = impure->irsb_req_handle;
 	
 	if (proc_request) 

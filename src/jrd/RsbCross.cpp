@@ -47,8 +47,7 @@ RsbCross::~RsbCross(void)
 void RsbCross::open(Request* request)
 {
 	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
-	impure->irsb_flags |= irsb_first | irsb_open;
-	impure->irsb_flags &= ~(irsb_singular_processed | irsb_checking_singular);
+	impure->irsb_flags |= irsb_first;
 	//record_param* rpb = &request->req_rpb[rsb_stream];
 	//rpb->rpb_window.win_flags = 0;
 }

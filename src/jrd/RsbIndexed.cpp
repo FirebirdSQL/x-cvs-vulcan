@@ -78,9 +78,6 @@ bool RsbIndexed::get(Request* request, RSE_GET_MODE mode)
 
 	IRSB_INDEX impure = (IRSB_INDEX) IMPURE (request, rsb_impure);
 	
-	if (impure->irsb_flags & irsb_singular_processed)
-		return FALSE;
-
 	record_param* rpb = request->req_rpb + rsb_stream;
 	thread_db *tdbb = request->req_tdbb;
 	RecordBitmap **pbitmap = impure->irsb_bitmap;
@@ -190,10 +187,4 @@ bool RsbIndexed::getExecutionPathInfo(Request* request, ExecutionPathInfoGen* in
 
 void RsbIndexed::close(Request* request)
 {
-	IRSB_INDEX impure = (IRSB_INDEX) IMPURE (request, rsb_impure);
-	
-	if (!(impure->irsb_flags & irsb_open))
-		return;
-
-	impure->irsb_flags &= ~irsb_open;
 }

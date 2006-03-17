@@ -48,6 +48,8 @@ RsbExtSequential::~RsbExtSequential(void)
 
 void RsbExtSequential::open(Request* request)
 {
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
+	impure->irsb_flags |= irsb_open;
 	EXT_open(request->req_tdbb, this);
 }
 
@@ -73,5 +75,12 @@ bool RsbExtSequential::getExecutionPathInfo(Request* request, ExecutionPathInfoG
 
 void RsbExtSequential::close(Request* request)
 {
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
+
+	if (!(impure->irsb_flags & irsb_open))
+		return;
+
+	impure->irsb_flags &= ~irsb_open;
+
 	EXT_close(request->req_tdbb, this);
 }

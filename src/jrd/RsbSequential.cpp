@@ -66,8 +66,7 @@ void RsbSequential::open(Request* request)
 	DBB dbb = tdbb->tdbb_database;
 	//SINT64 first_records = -1, skip_records = 0;
 	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
-	impure->irsb_flags |= irsb_first | irsb_open;
-	impure->irsb_flags &= ~(irsb_singular_processed | irsb_checking_singular);
+	impure->irsb_flags |= irsb_open;
 	record_param* rpb = &request->req_rpb[rsb_stream];
 	rpb->rpb_window.win_flags = 0;
 
@@ -109,9 +108,6 @@ bool RsbSequential::get(Request* request, RSE_GET_MODE mode)
 
 	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
 	
-	if (impure->irsb_flags & irsb_singular_processed)
-		return FALSE;
-
 	record_param* rpb = request->req_rpb + rsb_stream;
 	thread_db *tdbb = request->req_tdbb;
 	//DBB dbb = tdbb->tdbb_database;
@@ -154,6 +150,7 @@ void RsbSequential::close(Request* request)
 		return;
 
 	impure->irsb_flags &= ~irsb_open;
+
 	record_param* rpb = &request->req_rpb[rsb_stream];
 	
 	if (rpb->rpb_window.win_flags & WIN_large_scan && rpb->rpb_relation->rel_scan_count)

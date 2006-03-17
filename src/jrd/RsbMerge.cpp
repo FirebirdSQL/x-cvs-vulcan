@@ -78,6 +78,7 @@ void RsbMerge::open(Request* request)
 {
 	thread_db* tdbb = request->req_tdbb;
 	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
+	impure->irsb_flags |= irsb_open;
 
 	/* do two simultaneous but unrelated things in one loop */
 
@@ -314,6 +315,12 @@ void RsbMerge::close(Request* request)
 {
 	//thread_db* tdbb = request->req_tdbb;
 	IRSB_MRG impure = (IRSB_MRG) IMPURE (request, rsb_impure);
+	
+	if (!(impure->irsb_flags & irsb_open))
+		return;
+
+	impure->irsb_flags &= ~irsb_open;
+
 	
 	//for (RecordSource** const end = ptr + rsb_count * 2; ptr < end; ptr += 2, tail++)
 	for (int n = 0; n < rsb_count; ++n)
