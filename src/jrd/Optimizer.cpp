@@ -1350,11 +1350,13 @@ RecordSource* OptimizerRetrieval::generateNavigation()
 			jrd_nod* node = *ptr;
 
 			if (idx->idx_flags & idx_expressn)
+				{
 				if (!OPT_expression_equal(tdbb, optimizer, idx, node, stream))
 					{
 					usableIndex = false;
 					break;
 					}	
+				}
 			else if (node->nod_type != nod_field
 					|| (USHORT)(IPTR) node->nod_arg[e_fld_stream] != stream
 					|| (USHORT)(IPTR) node->nod_arg[e_fld_id] != idx_tail->idx_field)
