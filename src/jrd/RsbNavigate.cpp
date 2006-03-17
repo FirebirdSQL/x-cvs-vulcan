@@ -52,6 +52,8 @@ RsbNavigate::~RsbNavigate(void)
 
 void RsbNavigate::open(Request* request)
 {
+	IRSB impure = (IRSB) IMPURE (request, rsb_impure);
+	impure->irsb_flags |= irsb_first;
 #ifdef SCROLLABLE_CURSORS
 	impure->irsb_flags |= irsb_bof;
 	impure->irsb_flags &= ~irsb_eof;
