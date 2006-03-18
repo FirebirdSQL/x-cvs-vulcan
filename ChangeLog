@@ -1,3 +1,33 @@
+2006-03-17 14:44  dimitr
+
+	* vulcan/src/jrd/: RsbCross.cpp, RsbExtSequential.cpp,
+	RsbIndexed.cpp, RsbMerge.cpp, RsbProcedure.cpp, RsbSequential.cpp:
+	
+	1) Restored irsb_open to avoid double resource cleanup 2) Removed
+	unused singular checking flags
+
+2006-03-17 14:42  dimitr
+
+	* vulcan/src/jrd/RsbNavigate.cpp:
+	
+	Fixed missing irsb_first in RsbNavigate.
+
+2006-03-17 14:15  arnobrinkman
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Backport compare bug in node_match with nod_derived_field
+	Reproducable query: SELECT   RELID,   MAX(A),	MAX(B) FROM  
+	(SELECT RDB$RELATION_ID, 0, 0 FROM RDB$DATABASE    UNION ALL   
+	SELECT RDB$RELATION_ID, 0, 10 FROM RDB$DATABASE) (RELID, A, B)
+	GROUP BY   RELID
+
+2006-03-17 13:55  arnobrinkman
+
+	* vulcan/src/jrd/Optimizer.cpp:
+	
+	Fix order by problem reported by Paul Beach
+
 2006-03-15 03:14  asfernandes
 
 	* vulcan/src/jrd/enc.cpp:
