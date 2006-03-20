@@ -3554,7 +3554,7 @@ static SLONG fast_load(thread_db* tdbb,
 
 					// Store new data in jumpKey, so a new jump node can calculate prefix
 
-					memcpy(jumpNode.data, jumpKey->keyData + jumpNode.prefix, jumpNode.length);
+					memcpy(jumpKey->keyData + jumpNode.prefix, jumpNode.data, jumpNode.length);
 					jumpKey->keyLength = jumpNode.length + jumpNode.prefix;
 
 					// Set new position for generating jumpnode
@@ -3654,7 +3654,7 @@ static SLONG fast_load(thread_db* tdbb,
 
 				if (bucket->btr_length 
 						+ BTreeNode::getNodeSize(&levelNode[level], flags, false)  
-						+ totalJumpSize[level]  > pp_fill_limit)
+						+ totalJumpSize[level] > pp_fill_limit)
 					{
 					// mark the end of the page; note that the end_bucket marker must 
 					// contain info about the first node on the next page
@@ -5569,8 +5569,8 @@ static void generate_jump_nodes(thread_db* tdbb, btree_page* page,
 			if (splitIndex && splitPrefix && !*splitIndex) 
 				*splitPrefix += node.prefix;
 
-			if ((node.nodePointer > newAreaPosition)  
-					&&(node.nodePointer != excludePointer)) 
+			if ((node.nodePointer > newAreaPosition) &&
+					(node.nodePointer != excludePointer)) 
 				{
 				// Create a jumpnode, but it may not point to the new
 				// insert pointer or any MARKER else we make split 
