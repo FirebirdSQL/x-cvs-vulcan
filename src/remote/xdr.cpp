@@ -90,7 +90,7 @@ static bool_t mem_putlong(XDR *, SLONG *);
 static bool_t mem_setpostn(XDR *, u_int);
 
 
-#pragma FB_COMPILER_MESSAGE("Fix! Bad, bad functioun pointer type casts!")
+#pragma FB_COMPILER_MESSAGE("Fix! Bad, bad function pointer type casts!")
 
 static const XDR::xdr_ops mem_ops =
 {
