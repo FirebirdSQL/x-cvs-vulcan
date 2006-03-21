@@ -34,7 +34,7 @@
 #include "../jrd/gds.h"
 #include "../gpre/gpre.h"
 #include "../jrd/intl.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 #include "../gpre/cme_proto.h"
 #include "../gpre/cmp_proto.h"
 #include "../gpre/gpre_proto.h"

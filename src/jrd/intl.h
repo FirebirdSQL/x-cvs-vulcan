@@ -24,7 +24,7 @@
 #ifndef JRD_INTL_H
 #define JRD_INTL_H
 
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 
 #define ASCII_SPACE     32		/* ASCII code for space */
 

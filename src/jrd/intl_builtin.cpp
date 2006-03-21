@@ -4,11 +4,11 @@
 #endif
 #include "../common/classes/alloc.h"
 #include "../jrd/intl.h"
-#include "../intl/country_codes.h"
+#include "../intlcpp/country_codes.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/jrd.h"
 #include "../jrd/err_proto.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 
 
 #define TEXTTYPE_RETURN         return (0)

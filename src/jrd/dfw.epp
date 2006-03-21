@@ -74,7 +74,7 @@
 #include "../jrd/flags.h"
 #include "../jrd/all.h"
 #include "../jrd/intl.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 #include "../jrd/align.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/constants.h"

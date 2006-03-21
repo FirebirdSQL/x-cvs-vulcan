@@ -100,12 +100,12 @@
 #include "../jrd/intl_classes.h"
 #include "../jrd/ods.h"
 #include "../jrd/btr.h"
-#include "../intl/charsets.h"
-#include "../intl/country_codes.h"
+#include "../intlcpp/charsets.h"
+#include "../intlcpp/country_codes.h"
 #include "Attachment.h"
 
 #ifdef INTL_BUILTIN
-#include "../intl/ld_proto.h"
+#include "../intlcpp/ld_proto.h"
 #endif
 
 #include "../jrd/cvt_proto.h"

@@ -32,7 +32,7 @@ blob.o: ../dsql/blob.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
   ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
   ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/ibase.h \
-  ../jrd/blr.h ../include/gen/iberror.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/blr.h ../include/gen/iberror.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/constants.h ../dsql/blob_proto.h
 BlrParse.o: ../jrd/BlrParse.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
@@ -478,7 +478,7 @@ YSQLDA.o: YSQLDA.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../dsql/sqlda.h \
   ../jrd/inf.h ../jrd/align.h ../jrd/blr.h ../jrd/dsc.h YSQLDA.h \
   ../jrd/GenericMove.h ../jrd/Move.h ../jrd/jrd_time.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/intlobj.h ../jrd/constants.h
+  ../intlcpp/charsets.h ../jrd/intlobj.h ../jrd/constants.h
 YStatement.o: YStatement.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \

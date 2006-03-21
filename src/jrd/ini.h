@@ -26,8 +26,8 @@
    changes are compatible in both places. */
 
 #include "../jrd/intl.h"
-#include "../intl/country_codes.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/country_codes.h"
+#include "../intlcpp/charsets.h"
 #include "../jrd/obj.h"
 
 /* Define name ids */

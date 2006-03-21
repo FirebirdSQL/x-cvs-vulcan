@@ -32,7 +32,7 @@
 #include "tdbb.h"
 #include "Database.h"
 #include "Attachment.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 #include "met_proto.h"
 #include "CsConvertArray.h"
 #include "Collation.h"

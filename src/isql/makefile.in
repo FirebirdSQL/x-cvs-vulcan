@@ -113,7 +113,7 @@ show.o: show.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../dsql/CStatement.h ../jrd/RefObject.h ../dsql/BlrGen.h \
   ../jrd/Generate.h ../jrd/dialect.h ../jrd/tdbb.h ../jrd/thd.h \
   ../isql/isql.h ../jrd/flags.h ../jrd/constants.h ../jrd/intl.h \
-  ../intl/charsets.h ../isql/isql_proto.h ../isql/show_proto.h \
+  ../intlcpp/charsets.h ../isql/isql_proto.h ../isql/show_proto.h \
   ../jrd/gds_proto.h ../jrd/utl_proto.h ../jrd/obj.h ../jrd/ods.h \
   ../jrd/RecordNumber.h ../isql/extra_proto.h
 Sync.o: ../jrd/Sync.cpp ../include/fbdev.h ../include/gen/autoconfig.h \

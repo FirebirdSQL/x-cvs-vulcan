@@ -127,7 +127,7 @@ blb.o: blb.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h ../jrd/constants.h \
   ../jrd/lls.h ../jrd/Stack.h ../jrd/RecordNumber.h ../jrd/RecordSource.h \
   ../jrd/req.h ../jrd/Request.h ../jrd/blb.h ../jrd/BlobID.h ../jrd/ods.h \
-  ../jrd/blob_filter.h ../jrd/sdl.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/blob_filter.h ../jrd/sdl.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/cch.h ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/blf_proto.h \
   ../jrd/cch_proto.h ../jrd/dpm_proto.h ../jrd/err_proto.h \
   ../jrd/evl_proto.h ../jrd/intl_classes.h ../jrd/intlobj.h \
@@ -210,7 +210,7 @@ btr.o: btr.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/constants.h ../jrd/btn.h ../jrd/req.h ../jrd/exe.h \
   ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h ../jrd/lls.h \
   ../jrd/Stack.h ../jrd/RecordSource.h ../jrd/Request.h ../jrd/tra.h \
-  ../jrd/intl.h ../intl/charsets.h ../jrd/jrn.h ../jrd/cch.h \
+  ../jrd/intl.h ../intlcpp/charsets.h ../jrd/jrn.h ../jrd/cch.h \
   ../jrd/sort.h ../jrd/all_proto.h ../jrd/btr_proto.h ../jrd/err_proto.h \
   ../jrd/cch_proto.h ../jrd/dpm_proto.h ../jrd/evl_proto.h \
   ../jrd/intl_classes.h ../jrd/intlobj.h ../jrd/CsConvert.h \
@@ -246,7 +246,7 @@ CharSetManager.o: CharSetManager.cpp ../include/fbdev.h \
   ../config/ConfObj.h RefObject.h LinkedList.h DVector.h SIVector.h \
   ../lock/LockMgr.h ../jrd/common.h ../jrd/file_params.h Thread.h \
   Synchronize.h Mutex.h DatabaseManager.h Attachment.h \
-  ../include/fb_vector.h ../intl/charsets.h met_proto.h CsConvertArray.h \
+  ../include/fb_vector.h ../intlcpp/charsets.h met_proto.h CsConvertArray.h \
   Collation.h Connect.h InternalConnection.h ../common/Connection.h \
   ../common/Blob.h ../common/Properties.h ../common/SQLException.h \
   PStatement.h RSet.h intl_classes.h ../jrd/jrd.h ../jrd/dsc.h \
@@ -279,7 +279,7 @@ cmp.o: cmp.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Stack.h ../jrd/RecordNumber.h ../jrd/RecordSource.h \
   ../jrd/Request.h ../jrd/val.h ../jrd/align.h ../jrd/scl.h ../jrd/tra.h \
   ../jrd/lck.h ../jrd/irq.h ../jrd/drq.h ../jrd/license.h \
-  ../jrd/build_no.h ../jrd/isc_version.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/build_no.h ../jrd/isc_version.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/rng.h ../jrd/btr.h ../jrd/all_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dsc_proto.h ../jrd/err_proto.h \
   ../jrd/exe_proto.h ../jrd/fun_proto.h ../jrd/gds_proto.h \
@@ -409,7 +409,7 @@ CStatement.o: ../dsql/CStatement.cpp ../include/fbdev.h \
   sbm.h ../common/classes/sparse_bitmap.h Field.h status.h ibase.h \
   old_vector.h ../config/ConfObject.h ../config/Parameters.h \
   ../dsql/SQLParse.h ../dsql/alld_proto.h ../dsql/hsh_proto.h \
-  ../dsql/parse_proto.h ../jrd/intl.h ../intl/charsets.h ProcManager.h \
+  ../dsql/parse_proto.h ../jrd/intl.h ../intlcpp/charsets.h ProcManager.h \
   Procedure.h Connect.h InternalConnection.h ../common/Connection.h \
   ../common/Blob.h ../common/Properties.h ../common/SQLException.h \
   PStatement.h RSet.h tra.h ../jrd/sbm.h Request.h fun_proto.h align.h \
@@ -438,7 +438,7 @@ cvt2.o: cvt2.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   Synchronize.h Mutex.h ../jrd/DatabaseManager.h ../jrd/Attachment.h \
   ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h ../jrd/Symb.h \
   ../jrd/tdbb.h ../jrd/val.h ../jrd/quad.h ../include/gen/iberror.h \
-  ../jrd/intl.h ../intl/charsets.h ../jrd/all_proto.h ../jrd/cvt_proto.h \
+  ../jrd/intl.h ../intlcpp/charsets.h ../jrd/all_proto.h ../jrd/cvt_proto.h \
   ../jrd/cvt2_proto.h ../jrd/err_proto.h ../jrd/intl_proto.h \
   ../jrd/intl_classes.h ../jrd/constants.h ../jrd/intlobj.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/thd_proto.h \
@@ -468,7 +468,7 @@ cvt.o: cvt.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/rse.h ../jrd/constants.h ../jrd/lls.h ../jrd/Stack.h \
   ../jrd/sbm.h ../common/classes/sparse_bitmap.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/val.h ../jrd/quad.h \
-  ../jrd/intl.h ../intl/charsets.h ../jrd/cvt_proto.h ../jrd/dsc_proto.h \
+  ../jrd/intl.h ../intlcpp/charsets.h ../jrd/cvt_proto.h ../jrd/dsc_proto.h \
   ../jrd/err_proto.h ../jrd/gds_proto.h ../jrd/intl_proto.h \
   ../jrd/intl_classes.h ../jrd/intlobj.h ../jrd/CsConvert.h \
   ../jrd/CharSet.h ../jrd/thd_proto.h
@@ -526,7 +526,7 @@ ddl.o: ../dsql/ddl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../dsql/sym.h ../jrd/dsc.h ../dsql/node.h ../dsql/dsql_nodes.h \
   ../dsql/dsql_rel.h JString.h SyncObject.h ../dsql/DStatement.h \
   ../dsql/CStatement.h RefObject.h ../dsql/BlrGen.h Generate.h dialect.h \
-  Stack.h ../jrd/tdbb.h ../jrd/thd.h ../jrd/intl.h ../intl/charsets.h \
+  Stack.h ../jrd/tdbb.h ../jrd/thd.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/flags.h ../jrd/constants.h ../dsql/alld_proto.h \
   ../dsql/errd_proto.h ../dsql/ddl_proto.h ../dsql/gen_proto.h \
   ../dsql/make_proto.h ../dsql/metd_proto.h ../dsql/pass1_proto.h \
@@ -564,7 +564,7 @@ dfw.o: dfw.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/exe.h ../jrd/nod.h ../jrd/rse.h ../jrd/lls.h ../jrd/Stack.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/scl.h ../jrd/blb.h \
   ../jrd/BlobID.h ../jrd/met.h ../jrd/obj.h ../jrd/lck.h ../jrd/sdw.h \
-  ../jrd/flags.h ../jrd/intl.h ../intl/charsets.h ../jrd/align.h \
+  ../jrd/flags.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/align.h \
   ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/btr_proto.h \
   ../jrd/err_proto.h ../jrd/cch_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dfw_proto.h ../jrd/dpm_proto.h \
@@ -659,7 +659,7 @@ dsc.o: dsc.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Error.h ../common/classes/vector.h MemoryManager.h common.h \
   ../include/fb_macros.h linux.h ../jrd/common.h ../jrd/dsc.h \
   ../jrd/ibase.h ../jrd/blr.h ../include/gen/iberror.h ../jrd/constants.h \
-  ../jrd/intl.h ../intl/charsets.h ../jrd/gds_proto.h ../jrd/dsc_proto.h
+  ../jrd/intl.h ../intlcpp/charsets.h ../jrd/gds_proto.h ../jrd/dsc_proto.h
 dsql_msg.o: ../dsql/dsql_msg.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \
@@ -681,7 +681,7 @@ dsql_rel.o: ../dsql/dsql_rel.cpp ../include/fbdev.h \
   ../common/classes/vector.h MemoryManager.h common.h \
   ../include/fb_macros.h linux.h ../dsql/dsql_rel.h JString.h \
   SyncObject.h SynchronizationObject.h Mutex.h dsc.h ../jrd/intl.h \
-  ../intl/charsets.h Sync.h Field.h
+  ../intlcpp/charsets.h Sync.h Field.h
 DStatement.o: ../dsql/DStatement.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \
@@ -699,7 +699,7 @@ DStatement.o: ../dsql/DStatement.cpp ../include/fbdev.h \
   ../dsql/errd_proto.h jrd_proto.h gds_proto.h sch_proto.h status.h \
   inf_proto.h Attachment.h ../include/fb_vector.h ibase.h InfoGen.h \
   ThreadData.h tdbb.h ../dsql/Cursor.h align.h dsc.h JrdMove.h Move.h \
-  jrd_time.h intl.h ../intl/charsets.h intlobj.h constants.h BlrParse.h \
+  jrd_time.h intl.h ../intlcpp/charsets.h intlobj.h constants.h BlrParse.h \
   OSRIException.h ../dsql/ddl_proto.h Database.h thd.h isc.h AsyncEvent.h \
   JVector.h ../config/ConfObj.h LinkedList.h DVector.h SVector.h \
   OSRIBugcheck.h SIVector.h Sync.h ../lock/LockMgr.h ../jrd/file_params.h \
@@ -728,7 +728,7 @@ dyn.o: dyn.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/sparse_bitmap.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/ods.h ../jrd/tra.h \
   ../jrd/scl.h ../jrd/drq.h ../jrd/flags.h ../jrd/ibase.h ../jrd/blr.h \
-  ../jrd/met.h ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/met.h ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/dyn.h ../jrd/license.h ../jrd/build_no.h ../jrd/isc_version.h \
   ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dpm_proto.h ../jrd/dyn_proto.h \
@@ -761,7 +761,7 @@ dyn_def.o: dyn_def.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/exe.h ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h \
   ../jrd/lls.h ../jrd/Stack.h ../jrd/RecordSource.h ../jrd/Request.h \
   ../jrd/flags.h ../jrd/ibase.h ../jrd/blr.h ../jrd/met.h ../jrd/obj.h \
-  ../jrd/btr.h ../jrd/intl.h ../intl/charsets.h ../jrd/dyn.h \
+  ../jrd/btr.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/dyn.h \
   ../jrd/BlobID.h ../jrd/all_proto.h ../jrd/blb_proto.h \
   ../jrd/cmp_proto.h ../jrd/CompilerScratch.h ../jrd/dls_proto.h \
   ../jrd/dyn_proto.h ../jrd/dyn_df_proto.h ../jrd/dyn_ut_proto.h \
@@ -794,7 +794,7 @@ dyn_del.o: dyn_del.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/sparse_bitmap.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/ods.h ../jrd/tra.h \
   ../jrd/scl.h ../jrd/drq.h ../jrd/flags.h ../jrd/ibase.h ../jrd/blr.h \
-  ../jrd/met.h ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/met.h ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/dyn.h ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dyn_proto.h ../jrd/dyn_dl_proto.h \
   ../jrd/err_proto.h ../jrd/exe_proto.h ../jrd/gds_proto.h \
@@ -824,7 +824,7 @@ dyn_mod.o: dyn_mod.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/sbm.h ../common/classes/sparse_bitmap.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/tra.h ../jrd/scl.h \
   ../jrd/drq.h ../jrd/flags.h ../jrd/ibase.h ../jrd/blr.h ../jrd/met.h \
-  ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intl/charsets.h ../jrd/dyn.h \
+  ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/dyn.h \
   ../jrd/ods.h ../jrd/blb.h ../jrd/BlobID.h ../jrd/all_proto.h \
   ../jrd/blb_proto.h ../jrd/cmp_proto.h ../jrd/CompilerScratch.h \
   ../jrd/dyn_proto.h ../jrd/dyn_df_proto.h ../jrd/dyn_md_proto.h \
@@ -856,7 +856,7 @@ dyn_util.o: dyn_util.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/sparse_bitmap.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/tra.h ../jrd/scl.h \
   ../jrd/drq.h ../jrd/flags.h ../jrd/ibase.h ../jrd/blr.h ../jrd/met.h \
-  ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intl/charsets.h ../jrd/jrn.h \
+  ../jrd/obj.h ../jrd/btr.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/jrn.h \
   ../jrd/dyn.h ../jrd/ods.h ../jrd/all_proto.h ../jrd/blb_proto.h \
   ../jrd/cmp_proto.h ../jrd/CompilerScratch.h ../jrd/dyn_proto.h \
   ../jrd/dyn_md_proto.h ../jrd/dyn_ut_proto.h ../jrd/err_proto.h \
@@ -978,7 +978,7 @@ evl.o: evl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/rse.h ../jrd/constants.h ../jrd/lls.h ../jrd/Stack.h \
   ../jrd/RecordNumber.h ../jrd/RecordSource.h ../jrd/Request.h \
   ../jrd/blb.h ../jrd/BlobID.h ../jrd/scl.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/intl_classes.h ../jrd/intlobj.h \
+  ../intlcpp/charsets.h ../jrd/intl_classes.h ../jrd/intlobj.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/quad.h ../jrd/sort.h \
   ../jrd/tra.h ../jrd/jrd_time.h ../jrd/all_proto.h ../jrd/blb_proto.h \
   ../jrd/btr_proto.h ../jrd/btr.h ../jrd/err_proto.h ../jrd/cvt_proto.h \
@@ -1059,7 +1059,7 @@ exe.o: exe.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/exe.h ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h \
   ../jrd/constants.h ../jrd/lls.h ../jrd/Stack.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/val.h ../jrd/ods.h \
-  ../jrd/btr.h ../jrd/intl.h ../intl/charsets.h ../jrd/rng.h ../jrd/blb.h \
+  ../jrd/btr.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/rng.h ../jrd/blb.h \
   ../jrd/BlobID.h ../jrd/blr.h ../jrd/all_proto.h ../jrd/blb_proto.h \
   ../jrd/btr_proto.h ../jrd/err_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dfw_proto.h ../jrd/dpm_proto.h \
@@ -1155,7 +1155,7 @@ filters.o: filters.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Attachment.h ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h \
   ../jrd/Symb.h ../jrd/tdbb.h ../jrd/ibase.h ../jrd/blr.h \
   ../include/gen/iberror.h ../jrd/acl.h ../jrd/val.h ../jrd/met.h \
-  ../jrd/obj.h ../jrd/blob_filter.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/obj.h ../jrd/blob_filter.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/intl_classes.h ../jrd/constants.h ../jrd/intlobj.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/err_proto.h \
   ../jrd/filte_proto.h ../jrd/gds_proto.h ../jrd/intl_proto.h \
@@ -1251,7 +1251,7 @@ gen.o: ../dsql/gen.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../dsql/node.h ../dsql/dsql_nodes.h ../dsql/dsql_rel.h JString.h \
   SyncObject.h ../dsql/DStatement.h ../dsql/CStatement.h RefObject.h \
   ../dsql/BlrGen.h Generate.h dialect.h Stack.h ../jrd/tdbb.h \
-  ../jrd/thd.h ../jrd/align.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/thd.h ../jrd/align.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../dsql/alld_proto.h ../dsql/ddl_proto.h ../dsql/errd_proto.h \
   ../dsql/gen_proto.h ../dsql/make_proto.h ../dsql/metd_proto.h \
   ../dsql/misc_func.h ../jrd/misc_func_ids.h ../jrd/thd_proto.h \
@@ -1269,7 +1269,7 @@ GenericMove.o: GenericMove.cpp ../include/fbdev.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
   ../common/classes/vector.h MemoryManager.h common.h \
   ../include/fb_macros.h linux.h GenericMove.h Move.h dsc.h jrd_time.h \
-  intl.h ../intl/charsets.h intlobj.h constants.h \
+  intl.h ../intlcpp/charsets.h intlobj.h constants.h \
   ../include/gen/iberror.h
 grant.o: grant.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
@@ -1294,7 +1294,7 @@ grant.o: grant.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/sparse_bitmap.h ../jrd/req.h ../jrd/exe.h \
   ../jrd/nod.h ../jrd/rse.h ../jrd/lls.h ../jrd/Stack.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/tra.h ../jrd/val.h \
-  ../jrd/met.h ../jrd/obj.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/met.h ../jrd/obj.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dfw_proto.h ../jrd/dpm_proto.h \
   ../jrd/dyn_proto.h ../jrd/err_proto.h ../jrd/exe_proto.h \
@@ -1347,7 +1347,7 @@ idx.o: idx.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h ../jrd/Symb.h \
   ../jrd/tdbb.h ../jrd/Relation.h ../jrd/Interlock.h ../jrd/sbm.h \
   ../common/classes/sparse_bitmap.h ../common/classes/array.h \
-  ../jrd/Field.h ../jrd/val.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/Field.h ../jrd/val.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/req.h ../jrd/exe.h ../include/gen/iberror.h ../jrd/nod.h \
   ../jrd/rse.h ../jrd/constants.h ../jrd/lls.h ../jrd/Stack.h \
   ../jrd/RecordNumber.h ../jrd/RecordSource.h ../jrd/Request.h \
@@ -1416,7 +1416,7 @@ ini.o: ini.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/blr.h ../include/gen/iberror.h ../jrd/ods.h \
   ../jrd/RecordNumber.h ../jrd/btr.h ../jrd/constants.h \
   ../include/gen/ids.h ../jrd/tra.h ../jrd/trig.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/dflt.h ../jrd/ini.h ../intl/country_codes.h \
+  ../intlcpp/charsets.h ../jrd/dflt.h ../jrd/ini.h ../intlcpp/country_codes.h \
   ../jrd/obj.h ../jrd/names.h ../jrd/fields.h ../jrd/relations.h \
   ../jrd/types.h ../jrd/intlnames.h ../jrd/idx.h ../jrd/all_proto.h \
   ../jrd/blb_proto.h ../jrd/lls.h ../jrd/Stack.h ../jrd/cch_proto.h \
@@ -1703,7 +1703,7 @@ intl_builtin.o: intl_builtin.cpp intl_classes.h ../include/fbdev.h \
   Synchronize.h Mutex.h ../jrd/DatabaseManager.h ../jrd/Attachment.h \
   ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h ../jrd/Symb.h \
   ../jrd/tdbb.h ../jrd/constants.h ../jrd/intlobj.h CsConvert.h intlobj.h \
-  CharSet.h ../jrd/intl.h ../intl/charsets.h ../intl/country_codes.h \
+  CharSet.h ../jrd/intl.h ../intlcpp/charsets.h ../intlcpp/country_codes.h \
   ../jrd/err_proto.h
 intl.o: intl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
@@ -1726,9 +1726,9 @@ intl.o: intl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/lls.h ../jrd/Stack.h ../jrd/sbm.h \
   ../common/classes/sparse_bitmap.h ../jrd/RecordNumber.h \
   ../jrd/RecordSource.h ../jrd/Request.h ../jrd/val.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/intl_classes.h ../jrd/intlobj.h \
+  ../intlcpp/charsets.h ../jrd/intl_classes.h ../jrd/intlobj.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/ods.h ../jrd/btr.h \
-  ../intl/country_codes.h ../jrd/cvt_proto.h ../jrd/err_proto.h \
+  ../intlcpp/country_codes.h ../jrd/cvt_proto.h ../jrd/err_proto.h \
   ../jrd/evl_proto.h ../jrd/fun_proto.h ../jrd/iberr_proto.h \
   ../jrd/intl_proto.h ../jrd/thd_proto.h ModuleManager.h SyncObject.h \
   LinkedList.h Module.h JString.h CsConvertArray.h JVector.h SVector.h \
@@ -1846,7 +1846,7 @@ jrd.o: jrd.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/jrd_pwd.h OSRIException.h PageCache.h que.h sbm.h \
   DatabaseManager.h Sync.h Format.h ../jrd/sdw.h ../jrd/cch.h \
   ../jrd/nbak.h ../common/classes/rwlock.h ../common/classes/locks.h \
-  ../jrd/iberr.h ../jrd/status.h ../jrd/jrd_time.h ../intl/charsets.h \
+  ../jrd/iberr.h ../jrd/status.h ../jrd/jrd_time.h ../intlcpp/charsets.h \
   ../jrd/sort.h ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/cch_proto.h \
   ../jrd/cmp_proto.h ../jrd/CompilerScratch.h ../jrd/dbg_proto.h \
   ../jrd/dls_proto.h ../jrd/dyn_proto.h ../jrd/err_proto.h \
@@ -1871,7 +1871,7 @@ JrdMove.o: JrdMove.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
   ../jrd/Error.h ../common/classes/vector.h MemoryManager.h common.h \
   ../include/fb_macros.h linux.h ../jrd/constants.h JrdMove.h Move.h \
-  dsc.h jrd_time.h intl.h ../intl/charsets.h intlobj.h constants.h \
+  dsc.h jrd_time.h intl.h ../intlcpp/charsets.h intlobj.h constants.h \
   ../jrd/jrd.h ../jrd/common.h ../jrd/dsc.h ../jrd/all.h \
   ../jrd/block_cache.h ../jrd/Mutex.h ../jrd/SynchronizationObject.h \
   ../jrd/Sync.h ../jrd/MemMgr.h ../jrd/SyncObject.h ../include/fb_blk.h \
@@ -2007,7 +2007,7 @@ make.o: ../dsql/make.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../dsql/node.h ../dsql/dsql_nodes.h ../dsql/dsql_rel.h JString.h \
   SyncObject.h ../dsql/DStatement.h ../dsql/CStatement.h RefObject.h \
   ../dsql/BlrGen.h Generate.h dialect.h Stack.h ../jrd/tdbb.h \
-  ../jrd/thd.h ../jrd/intl.h ../intl/charsets.h ../jrd/constants.h \
+  ../jrd/thd.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/constants.h \
   ../jrd/align.h ../dsql/alld_proto.h ../dsql/errd_proto.h \
   ../dsql/hsh_proto.h ../dsql/make_proto.h ../jrd/thd_proto.h \
   ../jrd/isc.h ../jrd/AsyncEvent.h ../jrd/dsc_proto.h ../jrd/cvt_proto.h \
@@ -2046,7 +2046,7 @@ met.o: met.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Stack.h ../jrd/RecordSource.h ../jrd/Request.h ../jrd/scl.h \
   ../jrd/blb.h ../jrd/BlobID.h ../jrd/met.h ../jrd/obj.h ../jrd/os/pio.h \
   SyncObject.h ../jrd/sdw.h ../jrd/flags.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/align.h ../jrd/flu.h ../jrd/blob_filter.h \
+  ../intlcpp/charsets.h ../jrd/align.h ../jrd/flu.h ../jrd/blob_filter.h \
   ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dfw_proto.h ../jrd/err_proto.h \
   ../jrd/exe_proto.h ../jrd/ext_proto.h ../jrd/flu_proto.h \
@@ -2072,7 +2072,7 @@ metd_dummy.o: ../dsql/metd_dummy.cpp ../include/fbdev.h \
   SyncObject.h ../dsql/DStatement.h ../dsql/CStatement.h RefObject.h \
   ../dsql/BlrGen.h Generate.h dialect.h Stack.h ../jrd/tdbb.h \
   ../jrd/thd.h ../jrd/gds.h ../jrd/align.h ../jrd/intl.h \
-  ../intl/charsets.h ../dsql/alld_proto.h ../dsql/ddl_proto.h \
+  ../intlcpp/charsets.h ../dsql/alld_proto.h ../dsql/ddl_proto.h \
   ../dsql/metd_proto.h ../dsql/hsh_proto.h ../dsql/make_proto.h \
   ../dsql/errd_proto.h ../jrd/gds_proto.h ../jrd/constants.h
 misc.o: misc.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
@@ -2126,7 +2126,7 @@ mov.o: mov.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   Thread.h Synchronize.h Mutex.h ../jrd/DatabaseManager.h \
   ../jrd/Attachment.h ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h \
   ../jrd/Symb.h ../jrd/tdbb.h ../jrd/val.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/cvt_proto.h ../jrd/cvt2_proto.h \
+  ../intlcpp/charsets.h ../jrd/cvt_proto.h ../jrd/cvt2_proto.h \
   ../jrd/err_proto.h ../jrd/gds_proto.h ../jrd/mov_proto.h
 movd.o: ../dsql/movd.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
@@ -2147,7 +2147,7 @@ Move.o: Move.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
   ../jrd/Error.h ../common/classes/vector.h MemoryManager.h common.h \
   ../include/fb_macros.h linux.h Move.h dsc.h jrd_time.h intl.h \
-  ../intl/charsets.h intlobj.h constants.h
+  ../intlcpp/charsets.h intlobj.h constants.h
 MsgFile.o: MsgFile.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
@@ -2243,7 +2243,7 @@ opt.o: opt.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/exe.h ../jrd/nod.h ../jrd/rse.h ../jrd/constants.h ../jrd/lls.h \
   ../jrd/Stack.h ../jrd/RecordNumber.h ../jrd/RecordSource.h \
   ../jrd/Request.h ../jrd/ods.h ../jrd/sort.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/all_proto.h ../jrd/btr_proto.h ../jrd/btr.h \
+  ../intlcpp/charsets.h ../jrd/all_proto.h ../jrd/btr_proto.h ../jrd/btr.h \
   ../jrd/err_proto.h ../jrd/cch_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/dpm_proto.h ../jrd/ext_proto.h \
   ../jrd/intl_proto.h ../jrd/intl_classes.h ../jrd/intlobj.h \
@@ -2382,7 +2382,7 @@ par.o: par.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/RecordNumber.h ../jrd/RecordSource.h Format.h ../jrd/Relation.h \
   ../jrd/Interlock.h ../jrd/Field.h ../jrd/Procedure.h ../jrd/exe.h \
   ../jrd/nod.h ../jrd/scl.h ../jrd/req.h ../jrd/Request.h ../jrd/blb.h \
-  ../jrd/BlobID.h ../jrd/intl.h ../intl/charsets.h ../jrd/met.h \
+  ../jrd/BlobID.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/met.h \
   ../jrd/obj.h ../jrd/all_proto.h ../jrd/cmp_proto.h \
   ../jrd/CompilerScratch.h ../jrd/cvt_proto.h ../jrd/err_proto.h \
   ../jrd/fun_proto.h ../jrd/gds_proto.h ../jrd/met_proto.h \
@@ -2419,7 +2419,7 @@ pass1.o: ../dsql/pass1.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../dsql/sym.h ../jrd/dsc.h ../dsql/node.h ../dsql/dsql_nodes.h \
   ../dsql/dsql_rel.h JString.h SyncObject.h ../dsql/DStatement.h \
   ../dsql/CStatement.h RefObject.h ../dsql/BlrGen.h Generate.h dialect.h \
-  Stack.h ../jrd/tdbb.h ../jrd/thd.h ../jrd/intl.h ../intl/charsets.h \
+  Stack.h ../jrd/tdbb.h ../jrd/thd.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../dsql/alld_proto.h ../dsql/ddl_proto.h ../dsql/errd_proto.h \
   ../dsql/hsh_proto.h ../dsql/make_proto.h ../dsql/metd_proto.h \
   ../dsql/pass1_proto.h ../dsql/misc_func.h ../jrd/misc_func_ids.h \
@@ -2568,7 +2568,7 @@ ProcParam.o: ProcParam.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   Synchronize.h Mutex.h DatabaseManager.h Attachment.h Trigger.h \
   old_vector.h que.h Symb.h tdbb.h ../dsql/dsql_rel.h ../jrd/ProcParam.h \
   ../jrd/Field.h ../jrd/JString.h ../jrd/dsc_proto.h ../jrd/intl.h \
-  ../intl/charsets.h
+  ../intlcpp/charsets.h
 PStatement.o: PStatement.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \
@@ -2615,7 +2615,7 @@ RecordSource.o: RecordSource.cpp ../include/fbdev.h \
   rse.h ../jrd/constants.h ../jrd/lls.h ../jrd/sbm.h RecordNumber.h req.h \
   ../jrd/jrd.h ../jrd/exe.h ../jrd/SVector.h ../include/gen/iberror.h \
   ../jrd/nod.h ../jrd/rse.h ../jrd/RecordNumber.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/ext_proto.h ../jrd/gds_proto.h \
+  ../intlcpp/charsets.h ../jrd/ext_proto.h ../jrd/gds_proto.h \
   ../jrd/evl_proto.h ../jrd/intl_classes.h ../jrd/intlobj.h \
   ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/exe_proto.h \
   ../jrd/dpm_proto.h ../jrd/rlck_proto.h ../jrd/mov_proto.h ../jrd/val.h \
@@ -2979,7 +2979,7 @@ RsbMerge.o: RsbMerge.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ExecutionPathInfoGen.h ../jrd/mov_proto.h ../jrd/val.h \
   ../jrd/sort_proto.h ../jrd/evl_proto.h ../jrd/intl_classes.h \
   ../jrd/intlobj.h ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/vio_proto.h \
-  ../jrd/intl.h ../intl/charsets.h ../jrd/intl_proto.h ../jrd/gds_proto.h
+  ../jrd/intl.h ../intlcpp/charsets.h ../jrd/intl_proto.h ../jrd/gds_proto.h
 RsbNavigate.o: RsbNavigate.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \
@@ -3116,7 +3116,7 @@ RsbSort.o: RsbSort.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ExecutionPathInfoGen.h ../jrd/mov_proto.h ../jrd/val.h \
   ../jrd/sort_proto.h ../jrd/evl_proto.h ../jrd/intl_classes.h \
   ../jrd/intlobj.h ../jrd/CsConvert.h ../jrd/CharSet.h ../jrd/vio_proto.h \
-  ../jrd/intl.h ../intl/charsets.h ../jrd/intl_proto.h ../jrd/btr.h \
+  ../jrd/intl.h ../intlcpp/charsets.h ../jrd/intl_proto.h ../jrd/btr.h \
   ../jrd/err_proto.h
 RsbUnion.o: RsbUnion.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
@@ -3218,7 +3218,7 @@ sdl.o: sdl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Error.h ../common/classes/vector.h MemoryManager.h common.h \
   ../include/fb_macros.h linux.h ../jrd/common.h ../jrd/ibase.h \
   ../jrd/blr.h ../include/gen/iberror.h ../jrd/dsc.h ../jrd/sdl.h \
-  ../jrd/constants.h ../jrd/intl.h ../intl/charsets.h ../jrd/sdl_proto.h
+  ../jrd/constants.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/sdl_proto.h
 sdw.o: sdw.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
@@ -3329,7 +3329,7 @@ sort.o: sort.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   Synchronize.h Mutex.h ../jrd/DatabaseManager.h ../jrd/Attachment.h \
   ../jrd/Trigger.h ../jrd/old_vector.h ../jrd/que.h ../jrd/Symb.h \
   ../jrd/tdbb.h ../jrd/sort.h ../jrd/fil.h ../jrd/sort_mem.h \
-  ../include/gen/iberror.h ../jrd/intl.h ../intl/charsets.h ../jrd/rse.h \
+  ../include/gen/iberror.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/rse.h \
   ../common/classes/array.h ../jrd/constants.h ../jrd/lls.h \
   ../jrd/Stack.h ../jrd/sbm.h ../common/classes/sparse_bitmap.h \
   ../jrd/RecordNumber.h ../jrd/RecordSource.h ../jrd/val.h \

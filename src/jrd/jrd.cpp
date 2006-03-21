@@ -91,7 +91,7 @@
 #include "../jrd/nbak.h"
 #include "../jrd/iberr.h"
 #include "../jrd/jrd_time.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 #include "../jrd/sort.h"
 
 #include "../jrd/all_proto.h"
@@ -2693,7 +2693,7 @@ ISC_STATUS GDS_RECEIVE(ISC_STATUS * user_status,
 
 		if (!request->req_transaction)
 			ERR_post(isc_bad_trans_handle, 0);
-		
+
 #ifdef SHARED_CACHE
 		Sync syncTransaction(&request->req_transaction->syncInUse, "jrd8_receive");
 		syncTransaction.lock(Exclusive);
@@ -3044,10 +3044,10 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 	try
 		{
 		request = request->getInstantiatedRequest(level);
-		
+
 		if (!request->req_transaction)
 			ERR_post(isc_bad_trans_handle, 0);
-			
+
 #ifdef SHARED_CACHE
 		Sync syncTransaction(&request->req_transaction->syncInUse, "jrd8_send");
 		syncTransaction.lock(Exclusive);

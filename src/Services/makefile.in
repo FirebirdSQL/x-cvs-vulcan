@@ -281,7 +281,7 @@ exe.o: ../jrd/exe.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/gen/iberror.h ../jrd/nod.h ../jrd/rse.h ../jrd/constants.h \
   ../jrd/lls.h ../jrd/Stack.h ../jrd/RecordNumber.h ../jrd/RecordSource.h \
   ../jrd/Request.h ../jrd/val.h ../jrd/ods.h ../jrd/btr.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/rng.h ../jrd/blb.h ../jrd/BlobID.h \
+  ../intlcpp/charsets.h ../jrd/rng.h ../jrd/blb.h ../jrd/BlobID.h \
   ../jrd/blr.h ../jrd/all_proto.h ../jrd/blb_proto.h ../jrd/btr_proto.h \
   ../jrd/err_proto.h ../jrd/cmp_proto.h ../jrd/CompilerScratch.h \
   ../jrd/dfw_proto.h ../jrd/dpm_proto.h ../jrd/evl_proto.h \
@@ -527,7 +527,7 @@ sdl.o: ../jrd/sdl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
   ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/ibase.h \
   ../jrd/blr.h ../include/gen/iberror.h ../jrd/dsc.h ../jrd/sdl.h \
-  ../jrd/constants.h ../jrd/intl.h ../intl/charsets.h ../jrd/sdl_proto.h
+  ../jrd/constants.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/sdl_proto.h
 security.o: ../gsec/security.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \

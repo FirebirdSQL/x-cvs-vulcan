@@ -98,7 +98,7 @@ GenericMove.o: ../jrd/GenericMove.cpp ../include/fbdev.h \
   ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
   ../include/fb_macros.h ../jrd/linux.h ../jrd/GenericMove.h \
   ../jrd/Move.h ../jrd/dsc.h ../jrd/jrd_time.h ../jrd/intl.h \
-  ../intl/charsets.h ../jrd/intlobj.h ../jrd/constants.h \
+  ../intlcpp/charsets.h ../jrd/intlobj.h ../jrd/constants.h \
   ../include/gen/iberror.h
 HandleManager.o: ../jrd/HandleManager.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
@@ -139,7 +139,7 @@ interface.o: interface.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/constants.h ../jrd/jrd_pwd.h ../remote/inet_proto.h \
   ../remote/inter_proto.h ../remote/merge_proto.h ../remote/parse_proto.h \
   ../remote/remot_proto.h ../remote/proto_proto.h ../jrd/GenericMove.h \
-  ../jrd/Move.h ../jrd/jrd_time.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/Move.h ../jrd/jrd_time.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/intlobj.h ../jrd/enc_proto.h ../jrd/gds_proto.h \
   ../jrd/isc_f_proto.h ../jrd/sdl_proto.h ../config/Configuration.h \
   ../config/ConfObject.h ../jrd/OSRIException.h ../jrd/Threads.h \
@@ -246,7 +246,7 @@ Move.o: ../jrd/Move.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
   ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
   ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/Move.h \
-  ../jrd/dsc.h ../jrd/jrd_time.h ../jrd/intl.h ../intl/charsets.h \
+  ../jrd/dsc.h ../jrd/jrd_time.h ../jrd/intl.h ../intlcpp/charsets.h \
   ../jrd/intlobj.h ../jrd/constants.h
 MsgFile.o: ../jrd/MsgFile.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
@@ -536,7 +536,7 @@ sdl.o: ../jrd/sdl.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
   ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/ibase.h \
   ../jrd/blr.h ../include/gen/iberror.h ../jrd/dsc.h ../jrd/sdl.h \
-  ../jrd/constants.h ../jrd/intl.h ../intl/charsets.h ../jrd/sdl_proto.h
+  ../jrd/constants.h ../jrd/intl.h ../intlcpp/charsets.h ../jrd/sdl_proto.h
 status.o: ../jrd/status.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
   ../include/fb_types.h ../common/classes/alloc.h \

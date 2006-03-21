@@ -33,7 +33,7 @@
 #include "../jrd/blob_filter.h"
 #include "../jrd/intl.h"
 #include "../jrd/intl_classes.h"
-#include "../intl/charsets.h"
+#include "../intlcpp/charsets.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/err_proto.h"
 #include "../jrd/filte_proto.h"

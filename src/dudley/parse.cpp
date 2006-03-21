@@ -34,7 +34,7 @@
 #include "../dudley/ddl.h"
 #include "../dudley/parse.h"
 #include "../jrd/acl.h"
-#include "../intl/kanji.h"
+#include "../intlcpp/kanji.h"
 #include "../dudley/ddl_proto.h"
 #include "../dudley/exe_proto.h"
 #include "../dudley/expr_proto.h"

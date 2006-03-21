@@ -34,7 +34,7 @@
 #include "../jrd/gds.h"
 #include "../dudley/ddl.h"
 #include "../dudley/parse.h"
-#include "../intl/kanji.h"
+#include "../intlcpp/kanji.h"
 #include "../dudley/ddl_proto.h"
 #include "../dudley/hsh_proto.h"
 #include "../dudley/lex_proto.h"
