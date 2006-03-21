@@ -1,0 +1,1438 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+
+<configurations>
+
+<!--	Generic					-->
+
+<configuration name="Generic">
+
+<!--	Generic / Generic		-->
+
+<component name="Generic">
+<Extension Source="cpp" Target="o" />
+<Extension Source="c" Target="o" />
+
+<template name="Makefile">
+<CFlags />
+<GpreFlags />
+<Directories />
+<SourceDirectories />
+<VPath />
+<CppRules />
+<GpreRules />
+<Modules />
+<Production />
+<Clean />
+<BuildDependencies />
+
+# Dependencies
+
+<Dependencies />
+
+include makefile.in
+</template>
+
+<template name="buildopt"><if type="release">-O<else/>-g</if></template>
+
+<template name="Directories">
+INTDIR = .
+SRCDIR = ..
+LIBDIR = .
+BINDIR = .
+INSTALLDIR = $(SRCDIR)/../install
+</template>
+
+<template name="bin">bin</template>
+<template name="intl">intl</template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -e -manual
+</template>
+
+<template name="GpreRules">
+%.cpp : %.epp
+	gpre $(GPRE_FLAGS) $&lt; $@
+</template>
+
+<template name="memmgr">
+-DMEMMGR </template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-fPIC \
+	-DFIREBIRD_ENGINE \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	<memmgr /> \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Includes">
+</template>
+
+<template name="VPath">
+vpath %.cpp $(DIRS)
+vpath %.h $(DIRS)
+vpath %.epp $(DIRS)
+vpath %.y $(DIRS)
+</template>
+
+<template name="CppRules">
+#CPPOUTPUT = -o $@
+$(BINDIR)/%.o : %.cpp
+	$(COMPILE.cpp) $&lt; $(OUTPUT_OPTION) $(CPPOUTPUT)
+</template>
+
+<template name="Modules">
+MODULES = \
+<files targetExt="o" targetDir="$(BINDIR)/">    <value name="targetPath"/> \
+</files>
+</template>
+
+<template name="Dependencies">
+<files target="Yes" targetDir="$(BINDIR)/">
+<value name="targetPath"/> : <value name="name"/>.<value name="extension"/>
+</files>
+</template>
+
+<template name="Clean">
+clean: 
+	-rm $(MODULES) $(LIBRARY) $(LIB) <target/> $(INSTALLDIR)/<bin/>/<target/>
+</template>
+
+<template name="BuildDependencies">
+dependencies:
+	-make clean > /dev/null 
+	-rm *.d > /dev/null 
+	make CPPFLAGS='$(CPPFLAGS) -MMD'
+	cat *.d > makefile.in
+</template>
+
+<template name="BuildExe">
+<target/>:	$(MODULES) 
+	$(LINK.cpp)  $(CPPFLAGS) -ldl $(MODULES) -L../../install/<bin/> <Libraries/> -o <target/>
+</template>
+
+<template name="BuildLibr">
+# Libraries: <value name="Libraries"/>
+<target/>:	$(MODULES) 
+	$(LINK.cpp) <buildopt/> <SharedLibr/> <OptionFile/> $(MODULES) -L../../install/<bin/> <Libraries/> -o <target/>
+# end BuildLibr
+</template>
+
+<template name="SharedLibr"> -shared </template>
+
+<template name="OptionFile"/>
+
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird -lcrypt \
+</template>
+
+<template name="Install">
+install: <target/>
+	cp <target/> $(INSTALLDIR)/<bin/>
+</template>
+
+</component>
+
+<!--	Generic / why		-->
+
+<component name="why">
+<template name="target">libfirebird.so</template>
+<template name="namespace">
+-DNAMESPACE=YValve </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd \
+		$(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/dsql \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> \
+	-I. \
+	-fPIC \
+	-DFIREBIRD_ENGINE \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Libraries">
+    -lpthread -lm  -ldl \
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="OptionFile">--version-script=firebird.res</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/dsql  \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+</component>
+
+<!--	Generic / remote		-->
+
+<component name="remote">
+<template name="target">remote.so</template>
+<template name="namespace"> -DNAMESPACE=Remote </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd \
+		$(SRCDIR)/jrd/os \
+		$(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / gpre		-->
+
+<component name="gpre">
+<template name="target">gpre</template>
+<template name="namespace"> -DNAMESPACE=Gpre </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/gpre \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/config \
+		$(SRCDIR)/utilities \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/utilities \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+</component>
+
+<!--	Generic / qli		-->
+
+<component name="qli">
+<template name="target">qli</template>
+<template name="namespace"> -DNAMESPACE=Qli </template>
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/qli \
+		$(SRCDIR)/gpre \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/utilities \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/config \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/qli \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/utilities \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+</component>
+
+<!--	Generic / inetserver		-->
+
+<component name="inetserver">
+<template name="target">inetserver</template>
+
+<template name="namespace"> -DNAMESPACE=Inetserver </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/remote \
+	    $(SRCDIR)/remote/os/posix \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DMULTI_THREAD \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/remote/os/posix \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/utilities \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+</component>
+
+<!--	Generic / isql		-->
+
+<component name="isql">
+<template name="target">isql</template>
+
+<template name="namespace"> -DNAMESPACE=ISQL </template>
+
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/isql \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/dsql \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/utilities \
+		$(SRCDIR)/include/gen \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/dsql \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/utilities \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / burp		-->
+
+<component name="burp">
+<template name="target">gbak</template>
+
+<template name="namespace"> -DNAMESPACE=GBak </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+
+<!--	Generic / alice		-->
+
+<component name="gfix">
+<template name="target">gfix</template>
+
+<template name="namespace"> -DNAMESPACE=GFix </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/config \
+		$(SRCDIR)/common \
+		$(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/alice \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / gsec		-->
+
+<component name="gsec">
+<template name="target">gsec</template>
+
+<template name="namespace"> -DNAMESPACE=GSec </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/config \
+		$(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/gsec \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / gstat		-->
+
+<component name="gstat">
+<template name="target">gstat</template>
+
+<template name="namespace"> -DNAMESPACE=GStat </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/config \
+		$(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/gstat \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+
+<!--	Generic / msgs		-->
+
+<component name="msgs">
+<template name="target">msgs</template>
+
+<template name="namespace"> -DNAMESPACE=Msgs </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS =  $(SRCDIR)/jrd \
+		$(SRCDIR)/common \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+</component>
+
+<!--	Generic / JdbcTest		-->
+
+<component name="JdbcTest">
+<template name="target">JdbcTest</template>
+
+<template name="namespace"> -DNAMESPACE=JdbcText </template>
+
+<template name="GpreFlags">
+GPRE_FLAGS = -manual
+</template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/JdbcTest \
+		$(SRCDIR)/IscDbc \
+</template>
+
+<template name="Production">
+<BuildExe/>
+install:	JdbcTest
+
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-fPIC \
+	-DFIREBIRD_ENGINE \
+	-D_REENTRANT -D_PTHREADS \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/IscDbc \
+</template>
+
+</component>
+
+<!--	Generic / config		-->
+
+<component name="config">
+<template name="target">fbconfig</template>
+
+<template name="namespace"> -DNAMESPACE=Confg </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/config \
+		$(SRCDIR)/why \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/config \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/why \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / fbintl		-->
+
+<component name="fbintl">
+<template name="target">fbintl.so</template>
+
+<template name="namespace"> -DNAMESPACE=fbintl </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="Includes"> -I$(SRCDIR)/include \
+	-DINTL_COMPONENT_FB \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+<template name="Install">
+install: <value name="file"/>
+	cp <target/> $(INSTALLDIR)/<intl/>
+</template>
+
+<template name="Libraries">
+    -lpthread -lm -ldl \
+</template>
+
+
+</component>
+
+<!--	Generic / IscDbc		-->
+
+<component name="IscDbc">
+<template name="target">libfbdbc.so</template>
+<template name="namespace"> -DNAMESPACE=fbdbc </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd \
+DIRS = $(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="Includes"> -I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+
+</component>
+
+<!--	Generic / XLoad		-->
+
+<component name="xload">
+<template name="target">xload</template>
+
+<template name="namespace"> -DNAMESPACE=xload </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/xload \
+		$(SRCDIR)/config \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/config \
+	-I$(SRCDIR)/XLoad \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/IscDbc \
+</template>
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / lockprint		-->
+
+<component name="lockprint">
+<template name="target">lockprint</template>
+
+<template name="namespace"> -DNAMESPACE=loadprint </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/lock \
+		$(SRCDIR)/config \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/jrd/os/posix \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/config \
+	-I$(SRCDIR)/lock \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/IscDbc \
+</template>
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / ThreadTest		-->
+
+<component name="ThreadTest">
+<template name="target">threadtext</template>
+
+<template name="namespace"> -DNAMESPACE=threadtest </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/ThreadTest \
+		$(SRCDIR)/config \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/config \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/config \
+	-I$(SRCDIR)/IscDbc \
+</template>
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Generic / jrd		-->
+
+<component name="jrd">
+
+<template name="target">engine11.so</template>
+<template name="namespace"> -DNAMESPACE=Engine </template>
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/dsql \
+		$(SRCDIR)/config \
+		$(SRCDIR)/lock \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/dsql  \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+<template name="GpreRules">
+%.cpp : %.epp
+	$(INSTALLDIR)/<bin/>/gpre <buildopt/>ds $&lt; $@
+%.cpp : %.y
+	bison -y -d -b dsql $&lt; 
+	mv dsql.tab.c $*.cpp
+	mv dsql.tab.h $*.h
+%.h : %.y
+	bison -y -d -b dsql $&lt; 
+	mv dsql.tab.c $*.cpp
+	mv dsql.tab.h $*.h
+</template>
+
+
+</component>
+
+
+<!--	Generic / services		-->
+
+<component name="Services">
+<template name="target">services.so</template>
+<template name="namespace"> -DNAMESPACE=SERVICES </template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/jrd \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/burp \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+	-DFIREBIRD_ENGINE \
+	-fPIC \
+	-D_REENTRANT \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DSUPERSERVER \
+	-DDEV_BUILD \
+	-D_GNU_SOURCE \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	-DSERVICE_THREAD \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/include/gen \
+	-I$(SRCDIR)/jrd \
+	-I$(SRCDIR)/jrd/os  \
+	-I$(SRCDIR)/remote \
+	-I$(SRCDIR)/alice \
+	-I$(SRCDIR)/burp \
+	-I$(SRCDIR)/gsec \
+	-I$(SRCDIR)/gstat \
+	-I$(SRCDIR)/config  \
+	-I$(SRCDIR)/common  \
+	-I$(SRCDIR)/common/classes  \
+</template>
+
+
+
+</component>
+
+<!--	Generic / modules			-->
+
+<component name="modules">
+<template name="Makefile">
+<Modules />
+</template>
+</component>
+
+<!--	Generic / dependencies		-->
+
+<component name="dependencies">
+<template name="Makefile">
+<Dependencies />
+</template>
+</component>
+
+<!--	Generic / test				-->
+
+<component name="test">
+<template name="target">test</template>
+
+<template name="Includes">-I$(SRCDIR)/include \
+	-I$(SRCDIR)/jrd \
+</template>
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+</component>
+
+</configuration>
+
+<!--   Mac OS X 10.4  32 bit    -->
+
+<configuration name="darwin">
+
+<!--	Darwin32 / Generic	-->
+
+<component name="Generic">
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+        -DFIREBIRD_ENGINE \
+        -fPIC \
+        -D_REENTRANT \
+        -D_PTHREADS \
+        -DPOSIX_THREADS \
+        -DMULTI_THREAD \
+        -DDEV_BUILD \
+        -D_GNU_SOURCE \
+        -DTHREAD_DELIVERY \
+        -DMEMMGR \
+		-DDARWIN \
+		-dynamic \
+		-fvisibility=hidden \
+        -arch ppc \
+        <namespace /> \
+       <Includes />
+</template>
+
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird -framework Carbon \
+</template>
+
+<template name="SharedLibr"> -dynamiclib </template>
+
+</component>
+
+<!--	Darwin32 / why		-->
+
+<component name="why">
+<template name="target">libfirebird.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DMULTI_THREAD \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.why \
+    -arch ppc \
+	<namespace /> \
+	<Includes />
+</template>
+
+<template name="Libraries">
+	-lpthread -ldl -lm -framework Carbon \
+</template>
+
+</component>
+
+
+<!--	Darwin32 / IscDbc	-->
+
+<component name="IscDbc">
+<template name="target">libfbdbc.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DMULTI_THREAD \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.fbdbc \
+    -arch ppc \
+    <namespace /> \
+    <Includes />
+</template>
+
+</component>
+
+<!--	Darwin32 / jrd		-->
+
+<component name="jrd">
+<template name="target">engine11.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DSUPERSERVER \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+	-DSUPERSREVER \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+	-DDARWIN \
+	-exported_symbols_list darwin.jrd \
+    <namespace /> \
+    <Includes />
+</template>
+				
+</component>
+
+<!--	Darwin32 / remote	-->
+<component name="remote">
+<template name="target">remote.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DSUPERSERVER \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.remote \
+    <namespace /> \
+    <Includes />
+</template>
+															
+</component>
+
+<!--	Darwin32 / Config	-->
+
+<component name="Config">
+<template name="Libraries">
+	-lpthread -lm -ldl -framework Carbon \
+</template>
+</component>
+
+
+<!--	Darwin32 / Services	-->
+
+<component name="Services">
+<template name="target">services.dylib</template>
+
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+    -DFIREBIRD_ENGINE \
+    -fPIC \
+    -D_REENTRANT \
+    -D_PTHREADS \
+    -DPOSIX_THREADS \
+    -DSUPERSERVER \
+	-DSERVICE_THREAD \
+    -DDEV_BUILD \
+    -D_GNU_SOURCE \
+    -DTHREAD_DELIVERY \
+    -DMEMMGR \
+    -DDARWIN \
+    -exported_symbols_list darwin.services \
+    <namespace /> \
+    <Includes />
+</template>
+
+<template name="SourceDirectories">
+DIRS = $(SRCDIR)/jrd/os/posix \
+		$(SRCDIR)/remote \
+		$(SRCDIR)/config \
+		$(SRCDIR)/include/gen \
+		$(SRCDIR)/common \
+		$(SRCDIR)/alice \
+		$(SRCDIR)/burp \
+		$(SRCDIR)/gsec \
+		$(SRCDIR)/gstat \
+		$(SRCDIR)/common/classes  \
+		$(SRCDIR)/common/config  \
+		$(SRCDIR)/utilities/common \
+		$(SRCDIR)/jrd \
+</template>
+
+<template name="Production">
+<BuildLibr/>
+<Install/>
+</template>
+
+</component>
+
+<!--	Darwin32 / xload		-->
+
+<component name="xload">
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
+</template>
+
+</component>
+
+
+</configuration>
+														
+
+<!--   Mac OS X 10.4  64 bit    -->
+
+<configuration name="darwin64">
+
+<component name="Generic">
+<template name="bin">bin64</template>
+<template name="intl">intl64</template>
+<template name="CFlags">
+CPPFLAGS = <buildopt/> -I. \
+        -DFIREBIRD_ENGINE \
+        -fPIC \
+        -D_REENTRANT \
+        -D_PTHREADS \
+        -DPOSIX_THREADS \
+        -DSUPERSERVER \
+        -DMULTI_THREAD \
+        -DDEV_BUILD \
+        -D_GNU_SOURCE \
+        -DTHREAD_DELIVERY \
+        -DMEMMGR \
+	-arch ppc64 \
+        <namespace /> \
+        <Includes /> 
+</template>
+
+<template name="Libraries">
+	-lpthread -lm -ldl -lfirebird \
+</template>
+
+</component>
+
+</configuration>
+
+<!--	Linux64			-->
+
+<configuration name="linux64">
+
+<component name="Generic">
+<template name="bin">bin64</template>
+<template name="intl">intl64</template>
+</component>
+
+</configuration>
+
+<!--	Solaris64		-->
+
+<configuration name="solaris64">
+
+<!--	Solaris64 / Generic		-->
+
+<component name="Generic">
+
+<template name="bin">bin64</template>
+<template name="intl">intl64</template>
+
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird \
+</template>
+
+<template name="CppRules">
+CPPOUTPUT = -o $@
+$(BINDIR)/%.o : %.cpp
+	$(COMPILE.cpp) -c $&lt; $(OUTPUT_OPTION) $(CPPOUTPUT)
+$(BINDIR)/%.o : %.c
+	$(COMPILE.cpp) -c $&lt; $(OUTPUT_OPTION) $(CPPOUTPUT)
+</template>
+
+<template name="CFlags">
+COMPILE.cpp = CC $(CPPFLAGS)
+LINK.cpp	= CC
+OUTPUT_OPTION = 
+LINKFLAGS = -xarch=v9
+CPPFLAGS = \
+	<buildopt/> \
+	-xarch=v9a \
+	-KPIC \
+	-mt \
+	-lrt \
+	-xs \
+	-DFIREBIRD_ENGINE \
+	-DUNIX \
+	-DMULTI_THREAD \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DDEV_BUILD \
+	-DSFIO \
+	-DTHREAD_DELIVERY \
+	<memmgr /> \
+	../jrd/cas.il \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+<template name="SharedLibr"> -ldl -lCrun -lCstd -G $(CPPFLAGS) </template>
+
+# -DSOLARIS_MT
+
+<template name="BuildDependencies">
+dependencies:
+	<buildopt/>make clean >/dev/null
+	-rm *.d
+	gmake CPPFLAGS='$(CPPFLAGS) -xM1' CPPOUTPUT='> $$*.d'
+	cat *.d > makefile.in
+</template>
+
+<template name="XXXLibraries">
+    -lm -ldl -lfirebird -lpthread \
+</template>
+
+</component>
+
+<!--	Solaris64 / why		-->
+
+<component name="why">
+
+<template name="Production">
+libfirebird.so:	$(MODULES) 
+	CC $(CPPFLAGS) -ldl -lCrun -lCstd -G $(MODULES) -o libfirebird.so
+<Install file="libfirebird.so"/>
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Solaris64 / IscDbc		-->
+
+<component name="IscDbc">
+
+<template name="Production">
+libiscdbc.so:	$(MODULES) 
+	CC $(CPPFLAGS) -ldl -lCrun -lCstd -G $(MODULES) -o libiscdbc.so
+<Install file="libiscdbc.so"/>
+</template>
+
+<template name="memmgr">
+-DMEMMGR</template>
+
+</component>
+
+<!--	Solaris64 / remote		-->
+
+<component name="remote">
+
+<template name="Production">
+remote.so:	$(MODULES) 
+	CC $(CPPFLAGS) -ldl -lsocket -lnsl -G $(MODULES) -o remote.so
+<Install"/>
+</template>
+
+<template name="memmgr">
+-DMEMMGR \
+</template>
+
+</component>
+
+<!--	Solaris64 / inetserver		-->
+
+<component name="inetserver">
+
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird -lsocket -lnsl \
+</template>
+
+</component>
+
+<!--	Solaris64 / jrd		-->
+
+<component name="jrd">
+
+<template name="CFlags">
+COMPILE.cpp = CC -c $(CPPFLAGS)
+OUTPUT_OPTION = 
+LINKFLAGS = -xarch=v9
+CPPFLAGS = \
+	<buildopt/> \
+	-xarch=v9a \
+	-KPIC \
+	-mt \
+	-lrt \
+	-lpthread \
+	-lfirebird \
+	-xs \
+	-DFIREBIRD_ENGINE \
+	-DUNIX \
+	-DMULTI_THREAD \
+	-DSUPERSERVER \
+	-D_PTHREADS \
+	-DPOSIX_THREADS \
+	-DDEV_BUILD \
+	-DSFIO \
+	-DTHREAD_DELIVERY \
+	-DMEMMGR \
+	../jrd/cas.il \
+	<namespace /> \
+	<Includes /> 
+</template>
+
+#	 -DSOLARIS_MT \
+
+
+<template name="Production">
+<target/>:	$(MODULES) 
+	CC $(CPPFLAGS) -ldl -G $(MODULES) -o <target/>
+<Install file="engine11.so"/>
+</template>
+
+</component>
+
+<!--	Solaris64 / test		-->
+
+<component name="test">
+
+<template name="Production">
+<BuildExe exe="test"/>
+install:	test
+nothing:
+	
+</template>
+
+</component>
+
+<!--	Solaris64 / gpre		-->
+
+<component name="gpre">
+
+<template name="Production">
+<BuildExe/>
+<Install/>
+</template>
+
+</component>
+
+<!--	Solaris64 / xload		-->
+
+<component name="xload">
+
+<template name="Libraries">
+    -lm -ldl -lfirebird -lpthread -lfbdbc \
+</template>
+
+</component>
+
+</configuration>
+</configurations>
+
