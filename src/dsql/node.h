@@ -30,6 +30,8 @@
  * 2002.08.04 Dmitry Yemanov: ALTER VIEW
  * 2002.10.21 Nickolay Samofatov: Added support for explicit pessimistic locks
  * 2002.10.29 Nickolay Samofatov: Added support for savepoints
+ * 2004.01.16 Vlad Horsun: added support for default parameters and 
+ *   EXECUTE BLOCK statement
  */
 
 #ifndef DSQL_NODE_H
@@ -91,7 +93,17 @@ enum nod_flags_vals {
 	REF_ACTION_NONE			= 8,
 	// Node flag indicates that this node has a different type or result
 	// depending on the SQL dialect.
-	NOD_COMP_DIALECT		= 16
+	NOD_COMP_DIALECT		= 16,
+
+	NOD_SELECT_EXPR_SINGLETON	= 1,
+	NOD_SELECT_EXPR_VALUE		= 2,
+
+	NOD_CURSOR_EXPLICIT		= 1,
+	NOD_CURSOR_FOR			= 2,
+	NOD_CURSOR_ALL			= USHORT(-1U),
+
+	NOD_DT_IGNORE_COLUMN_CHECK = 1,
+	NOD_DT_ALLOW_OUTER_REFERENCE = 2
 };
 
 
@@ -107,8 +119,6 @@ enum nod_flags_vals {
  */
 enum node_args {
 	e_select_expr = 0,		// nod_select
-	e_select_order,
-	e_select_rows,
 	e_select_update,
 	e_select_lock,
 	e_select_count,
@@ -187,7 +197,6 @@ enum node_args {
 	e_rse_reduced,
 	e_rse_items,
 	e_rse_first,
-	e_rse_singleton,
 	e_rse_plan,
 	e_rse_skip,
 	e_rse_lock,
@@ -229,22 +238,35 @@ enum node_args {
 	e_exe_outputs,
 	e_exe_count,
 
+	e_exe_blk = 0,			// nod_exec_block 
+	e_exe_blk_inputs = 0,
+	e_exe_blk_outputs,
+	e_exe_blk_dcls,
+	e_exe_blk_body,	
+	e_exe_blk_count,	
+
+	e_prm_val_fld = 0,
+	e_prm_val_val,
+	e_prm_val_count,
+
 	e_msg_number = 0,		// nod_message
 	e_msg_text,
 	e_msg_count,
 
-	e_sel_limit = 0,		// nod_select_expr
-	e_sel_distinct,
-	e_sel_list,
-	e_sel_from,
-	e_sel_where,
-	e_sel_group,
-	e_sel_having,
-	e_sel_plan,
+	e_sel_query_spec = 0,	// nod_select_expr
 	e_sel_order,
 	e_sel_rows,
-	e_sel_singleton,
 	e_sel_count,
+
+	e_qry_limit = 0,		// nod_query_spec
+	e_qry_distinct,
+	e_qry_list,
+	e_qry_from,
+	e_qry_where,
+	e_qry_group,
+	e_qry_having,
+	e_qry_plan,
+	e_qry_count,
 
 	e_ins_relation = 0,		// nod_insert
 	e_ins_fields,
@@ -259,6 +281,9 @@ enum node_args {
 
 	e_del_relation = 0,		// nod_delete
 	e_del_boolean,
+	e_del_plan,
+	e_del_sort,
+	e_del_rows,
 	e_del_cursor,
 	e_del_count,
 
@@ -277,6 +302,9 @@ enum node_args {
 	e_upd_relation = 0,		// nod_update
 	e_upd_statement,
 	e_upd_boolean,
+	e_upd_plan,
+	e_upd_sort,
+	e_upd_rows,
 	e_upd_cursor,
 	e_upd_count,
 
@@ -400,8 +428,8 @@ enum node_args {
 	e_ref_trig_action_count = 0,	//
 
 	e_cnstr_name = 0,		// nod_def_constraint
-	e_cnstr_table,			// NOTE: IF ADDING AN ARG IT MUST BE */
-	e_cnstr_type,			// NULLED OUT WHEN THE NODE IS */
+	e_cnstr_table,			// NOTE: IF ADDING AN ARG IT MUST BE
+	e_cnstr_type,			// NULLED OUT WHEN THE NODE IS
 	e_cnstr_position,		// DEFINED IN parse.y
 	e_cnstr_condition,
 	e_cnstr_actions,
@@ -582,7 +610,11 @@ enum node_args {
 	e_cur_stmt_count,
 	
 	e_usr_name = 0,					// create/alter/drop/upgrade user
-	e_usr_options
+	e_usr_options,
+
+	e_agg_function_expression = 0,
+	e_agg_function_scope_level,
+	e_agg_function_count
 };
 
 #endif // DSQL_NODE_H

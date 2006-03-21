@@ -1,3 +1,4 @@
+/* $Id$ */
 #ifndef JRD_Y_REF_H
 #define JRD_Y_REF_H
 
@@ -38,6 +39,6 @@
  *
  * This file (or y_handle.h) must be included BEFORE ibase.h !
  */
-
+#undef FRBRD
 #define FRBRD struct why_hndl
 #endif  // JRD_Y_REF_H

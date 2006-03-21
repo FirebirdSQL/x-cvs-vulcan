@@ -20,7 +20,7 @@
  *
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Trigger.h"
 #include "../jrd/jrd.h"
@@ -43,17 +43,20 @@ Trigger::Trigger(void)
 
 Trigger::~Trigger(void)
 {
-	delete blr;
+	if (request) delete request;
+	if (blr) delete blr;
 }
 
-void Trigger::compile(tdbb* _tdbb)
+void Trigger::compile(thread_db* _tdbb)
 {
 	if (request)
 		return;
 	
 	DBB dbb = _tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "trig::compile");
 	sync.lock(Exclusive);
+#endif
 	
 	if (!request && !compile_in_progress)
 		{
@@ -100,7 +103,7 @@ void Trigger::compile(tdbb* _tdbb)
 		}
 }
 
-BOOLEAN Trigger::release(tdbb* _tdbb)
+BOOLEAN Trigger::release(thread_db* _tdbb)
 {
 	if (!blr/*sys_trigger*/ || !request || CMP_clone_is_active(request)) 
 		return FALSE;

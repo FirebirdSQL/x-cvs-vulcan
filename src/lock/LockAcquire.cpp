@@ -24,25 +24,41 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "LockAcquire.h"
 #include "../jrd/isc.h"
 #include "../lock/LockMgr.h"
 
+#ifdef SHARED_CACHE
 LockAcquire::LockAcquire(int offset)
+#else
+LockAcquire::LockAcquire(int offset, LockMgr *lm)
+#endif
 {
 	ptr = offset;
+#ifdef SHARED_CACHE
 	LockMgr::acquire(ptr);
+#else
+	lockMgr = lm;
+	lockMgr->acquire(ptr);
+#endif
 	wasReleased = false;
 }
 
 LockAcquire::~LockAcquire(void)
 {
+#ifdef SHARED_CACHE
 	if (wasReleased)
 		LockMgr::checkReleased(ptr);
 	else
 		LockMgr::release(ptr);
+#else
+	if (wasReleased)
+		lockMgr->checkReleased(ptr);
+	else
+		lockMgr->release(ptr);
+#endif
 }
 
 void LockAcquire::released(void)

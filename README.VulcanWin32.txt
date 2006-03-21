@@ -3,7 +3,6 @@ for an initial boot build.  They contain precompiled
 versions of the .epp files needed for burp, gpre, 
 and the dsql files in the engine. 
 
-
 Before you begin, define the environmental variable
 VULCAN to be vulcan\install, where "vulcan" is the
 path to the root of the vulcan build tree.  E.g.
@@ -18,22 +17,24 @@ system PATH environmental variable.  This value should
 precede the path to other Firebird/InterBase 
 installations.
 
-Add the %VULCAN%\bin directory to the Projects settings 
-of VC++ option dialog (Tools->Options->Projects->VC++ Directories)
-
 The build requires bison to compile the dsql parse.y
-file.  
+file.  http://www.gnu.org/software/bison/bison.html
 
-To avoid destroying existing MSVC7 "solutions", the 
-kit provides a solution file called Vulcan.sln.template.
-By default it is copied to a new directory called Vulcan
-and renamed to Vulcan.sln.  If you modify the solution,
-you should either move it to a new location, or give it a
-different name.
+To avoid overwriting existing MSVC7 "solutions", the 
+kit provides a solution file called Vulcan.sln.template 
+which you can copy or rename to create the preliminary
+solution file for the project.  That file is located in
+vulcan\builds\VisualStudio7\Vulcan.  Copy or rename it to
+vulcan.sln in the same directory
+
+Start Visual studio and open the vulcan solution. Then
+check that the %VULCAN%\bin directory and the bison
+bin directory are correct in the Projects settings 
+of VC++ option dialog 
+(Tools->Options->Projects->VC++ Directories).  
+
 
 
 After downloading the sources intially, and any time you
 execute a 'clean' on the tree, you must run the command
 file boot_copy.bat from this top level directory. 
-Note that the command file copies Vulcan.sln.template to
-.\Vulcan\Vulcan.sln.	

@@ -16,7 +16,7 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  */
-#include "firebird.h"
+#include "fbdev.h"
 #include "gen/codes.h"
 
 #define entry(r)	r(status) int	*status; {return error (status); };

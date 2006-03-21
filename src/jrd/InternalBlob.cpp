@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "InternalBlob.h"
 #include "InternalResultSet.h"
@@ -11,14 +11,14 @@
 #include "SQLError.h"
 #include "jrd.h"
 #include "ThreadData.h"
-#include "blb.h"
 #include "blb_proto.h"
+#include "blb.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-InternalBlob::InternalBlob(InternalStatement *stmt, ISC_QUAD *id)
+InternalBlob::InternalBlob(InternalStatement *stmt, bid* id)
 {
 	statement = stmt;
 	blobId = *id;
@@ -52,7 +52,7 @@ void InternalBlob::fetchBlob()
 	ISC_STATUS statusVector [20];
 	ThreadData threadData (statusVector, statement->connection->attachment);
 	blb* blob = BLB_open2(threadData, statement->connection->transaction, 
-						  (BID) &blobId, 0, NULL);
+						  &blobId, 0, NULL);
 	fetched = true;
 	int len = blob->blb_length;
 	

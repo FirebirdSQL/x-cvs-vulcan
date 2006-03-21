@@ -51,7 +51,7 @@
 #include <errno.h>
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Synchronize.h"
 //#include "Log.h"
@@ -59,7 +59,7 @@
 #ifdef ENGINE
 #define CHECK_RET(text,code)	if (ret) Error::error (text,code)
 #else
-#define CHECK_RET(text,code)	
+#define CHECK_RET(text,code)
 #endif
 
 #define NANO		1000000000
@@ -176,9 +176,16 @@ bool Synchronize::sleep(int milliseconds)
 
 	while (!wakeup)
 		{
+#ifdef MVS
+		ret = pthread_cond_timedwait (&condition, &mutex, &nanoTime);
+		if (ret == -1 && errno == EAGAIN)
+		   ret = ETIMEDOUT;
+			break;
+#else
 		ret = pthread_cond_timedwait (&condition, &mutex, &nanoTime);
 		if (ret == ETIMEDOUT)
 			break;
+#endif
 		/***
 		if (!wakeup)
 			Log::debug ("Synchronize::sleep(milliseconds): unexpected wakeup, ret %d\n", ret);
@@ -188,7 +195,6 @@ bool Synchronize::sleep(int milliseconds)
 	sleeping = false;
 	wakeup = false;
 	pthread_mutex_unlock (&mutex);
-
 	return ret != ETIMEDOUT;
 #endif
 

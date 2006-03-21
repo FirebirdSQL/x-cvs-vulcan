@@ -22,7 +22,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../intlcpp/ldcommon.h"
 
 STATIC USHORT fam2_to_upper(TEXTTYPE obj, BYTE ch);

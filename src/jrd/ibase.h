@@ -54,15 +54,9 @@ $Id$
 
 #include <limits.h>
 
-#if LONG_MAX > 2147483647
 typedef	int				ISC_LONG;
 typedef	unsigned int	ISC_ULONG;
-typedef int				isc_handle;
-#else
-typedef	long			ISC_LONG;
-typedef	unsigned long	ISC_ULONG;
-typedef void*			isc_handle;
-#endif
+typedef unsigned int    isc_handle;
 
 typedef	signed short	ISC_SHORT;
 typedef	unsigned short	ISC_USHORT;
@@ -97,16 +91,29 @@ typedef ISC_LONG isc_resv_handle;
 #ifndef ISC_TIMESTAMP_DEFINED
 typedef SLONG		ISC_DATE;
 typedef ULONG		ISC_TIME;
+
 typedef struct
 {
 	ISC_DATE timestamp_date;
 	ISC_TIME timestamp_time;
 } ISC_TIMESTAMP;
+
 #define ISC_TIMESTAMP_DEFINED
 #endif	/* ISC_TIMESTAMP_DEFINED */
 
 #define ISC_TIME_SECONDS_PRECISION          10000L
 #define ISC_TIME_SECONDS_PRECISION_SCALE    (-4)
+
+/*******************************************************************/
+/* Transaction Element Block (for isc_start_multiple)                  */
+/*******************************************************************/
+
+typedef struct{
+	isc_db_handle	*teb_database;
+	int				teb_tpb_length;
+	UCHAR			*teb_tpb;
+} teb;
+
 
 /*******************************************************************/
 /* Blob id structure                                               */
@@ -116,7 +123,7 @@ typedef struct
 typedef GDS_QUAD GDS__QUAD;
 //#endif /* !(defined __cplusplus) */
 
-typedef struct GDS_QUAD_t ISC_QUAD;
+// typedef struct GDS_QUAD_t ISC_QUAD; /* already defined in fb_types.h */
 
 typedef struct
 {
@@ -361,6 +368,8 @@ typedef struct
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#define const
 #endif
 
 ISC_STATUS ISC_EXPORT isc_attach_database(ISC_STATUS*,
@@ -617,7 +626,7 @@ void ISC_EXPORT isc_event_counts(ISC_ULONG*,
 								 const char *);
 
 /* 17 May 2001 - isc_expand_dpb is DEPRECATED */
-void ISC_EXPORT_VARARG isc_expand_dpb(char**,
+void ISC_EXPORT_VARARG isc_expand_dpb(UCHAR**,
 									  short*, ...);
 
 int ISC_EXPORT isc_modify_dpb(char**,
@@ -653,6 +662,10 @@ ISC_STATUS ISC_EXPORT isc_interprete(char*,
 /* This const params version used in the engine and other places. */
 ISC_LONG ISC_EXPORT isc_interprete_cpp(char* const,
 									 const ISC_STATUS**);
+
+SLONG ISC_EXPORT fb_interpret(char*,
+								 int,
+								 const ISC_STATUS**);
 									 
 ISC_STATUS ISC_EXPORT isc_open_blob(ISC_STATUS*,
 									isc_db_handle*,
@@ -768,6 +781,12 @@ static const int fb_shutdown_verbs = 4;			// block new verbs (calls), optional w
 static const int fb_shutdown_immediate = 5;		// stop requests immediately, optional wait
 static const int fb_shutdown_panic = 6;			// just do it
 
+ISC_STATUS ISC_EXPORT fb_config_text (ISC_STATUS* userStatus,
+									  const char *configText);
+									  
+ISC_STATUS ISC_EXPORT fb_config_file (ISC_STATUS* userStatus,
+									  const char *configFilename);
+									  
 void ISC_EXPORT gds__log(const TEXT*, ...);
 void ISC_EXPORT gds__log_status(const TEXT*, const ISC_STATUS*);
 SSHORT ISC_EXPORT isc_msg_lookup(void*, USHORT, USHORT, USHORT,TEXT*, USHORT*);
@@ -1347,6 +1366,8 @@ int  ISC_EXPORT isc_get_client_minor_version ();
 #define isc_dpb_gfix_attach		  66
 #define isc_dpb_gstat_attach		  67
 #define isc_dpb_set_db_charset			68
+#define isc_dpb_gsec_attach         69
+#define isc_dpb_address_path			70			// ???
 
 /*********************************/
 /* isc_dpb_verify specific flags */
@@ -1368,6 +1389,13 @@ int  ISC_EXPORT isc_get_client_minor_version ();
 #define isc_dpb_shut_attachment          2
 #define isc_dpb_shut_transaction         4
 #define isc_dpb_shut_force               8
+#define isc_dpb_shut_mode_mask          0x70
+
+#define isc_dpb_shut_default             0x0
+#define isc_dpb_shut_normal             0x10
+#define isc_dpb_shut_multi              0x20
+#define isc_dpb_shut_single             0x30
+#define isc_dpb_shut_full               0x40
 
 /**************************************/
 /* Bit assignments in RDB$SYSTEM_FLAG */
@@ -1632,6 +1660,7 @@ enum  info_db_implementations
 
 	isc_info_db_impl_linux_sparc = 65,
 	isc_info_db_impl_linux_amd64 = 66,
+	isc_info_db_impl_mvs = 67,
 
 	isc_info_db_impl_last_value   /* Leave this LAST! */
     };
@@ -1758,6 +1787,12 @@ enum info_db_provider
 
 #define isc_info_tra_id                   4
 
+/*********************************/
+/* Event Parameter Block items   */
+/*********************************/
+
+#define isc_epb_version1			1
+
 /*****************************
  * Service action items      *
  *****************************/
@@ -1811,6 +1846,7 @@ enum info_db_provider
 #define fb_info_user_first_name				10
 #define fb_info_user_middle_name			11
 #define fb_info_user_last_name				12
+#define fb_info_user_authenticator			13
 
 
 /******************************************************
@@ -1962,6 +1998,7 @@ enum info_db_provider
 #define isc_spb_sts_sys_relations	0x10
 #define isc_spb_sts_record_versions	0x20
 #define isc_spb_sts_table			0x40
+#define isc_spb_sts_nocreation		0x80
 
 /*************************/
 /* SQL information items */
@@ -1988,6 +2025,7 @@ enum info_db_provider
 #define isc_info_sql_get_plan             22
 #define isc_info_sql_records		  23
 #define isc_info_sql_batch_fetch	  24
+#define isc_info_sql_relation_alias	  25
 
 /*********************************/
 /* SQL information return values */

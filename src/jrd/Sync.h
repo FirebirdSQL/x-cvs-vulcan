@@ -1,5 +1,4 @@
 /*
- *  
  *     The contents of this file are subject to the Initial 
  *     Developer's Public License Version 1.0 (the "License"); 
  *     you may not use this file except in compliance with the 
@@ -35,10 +34,10 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-class LinkedList;
 
 START_NAMESPACE
 
+class LinkedList;
 class SynchronizationObject;
 
 class Sync  

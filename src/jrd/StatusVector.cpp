@@ -31,7 +31,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "StatusVector.h"
 #include "StatusPrint.h"
@@ -51,6 +51,7 @@ StatusVector::StatusVector(ISC_STATUS *userStatus, int flags)
 	statusVector[1] = 0;
 	statusVector[2] = isc_arg_end;
 	options = flags;
+	//options |= statusReport;
 }
 
 StatusVector::~StatusVector()
@@ -139,6 +140,7 @@ ISC_STATUS StatusVector::post(ISC_STATUS iscStatus, ...)
 			}
 		}
 
+	va_end(args);
 	return statusVector [1];
 }
 

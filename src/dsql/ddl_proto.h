@@ -36,12 +36,13 @@ class dsql_str;
 class Transaction;
 
 
-void DDL_execute(ISC_STATUS *statusVector,CStatement*, Transaction *transaction);
+void DDL_execute(CStatement*);
 void DDL_generate(CStatement*, dsql_nod*);
 bool DDL_ids(CStatement*);
 void DDL_put_field_dtype(CStatement*, dsql_fld*, bool);
 void DDL_resolve_intl_type(CStatement*, dsql_fld*, dsql_str*);
 void DDL_resolve_intl_type2(CStatement*, dsql_fld*, dsql_str*, bool);
+void DDL_gen_block(CStatement*, dsql_nod*);
 
 #endif // DSQL_DDL_PROTO_H
 

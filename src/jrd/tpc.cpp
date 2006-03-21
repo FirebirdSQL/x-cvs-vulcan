@@ -23,7 +23,7 @@
 
 #include <memory>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd.h"
 #include "../jrd/tpc.h"
 #include "../jrd/ods.h"
@@ -220,7 +220,7 @@ int TPC_snapshot_state(TDBB tdbb, SLONG number)
 			// Please review this. This lock has _nothing_ to do in the
 			// permamnent pool!
 			
-			std::auto_ptr<lck> temp_lock(FB_NEW_RPT(*dbb->dbb_permanent, 0) lck);
+			std::auto_ptr<Lock> temp_lock(FB_NEW_RPT(*dbb->dbb_permanent, 0) Lock);
 
 			//temp_lock.blk_type = type_lck;
 			temp_lock->lck_dbb = dbb;

@@ -3,49 +3,46 @@
  *	MODULE:		alloc.h
  *	DESCRIPTION:	Memory Pool Manager (based on B+ tree)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- * You may obtain a copy of the Licence at
- * http://www.gnu.org/licences/lgpl.html
- * 
- * As a special exception this file can also be included in modules
- * with other source code as long as that source code has been 
- * released under an Open Source Initiative certificed licence.  
- * More information about OSI certification can be found at: 
- * http://www.opensource.org 
- * 
- * This module is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public Licence for more details.
- * 
- * This module was created by members of the firebird development 
- * team.  All individual contributions remain the Copyright (C) of 
- * those individuals and all rights are reserved.  Contributors to 
- * this file are either listed below or can be obtained from a CVS 
- * history command.
+ *  The contents of this file are subject to the Initial
+ *  Developer's Public License Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the
+ *  License. You may obtain a copy of the License at
+ *  http://www.ibphoenix.com/main.nfs?a=ibphoenix&page=ibp_idpl.
  *
- *  Created by: Nickolay Samofatov <skidder@bssys.com>
- *             
+ *  Software distributed under the License is distributed AS IS,
+ *  WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing rights
+ *  and limitations under the License.
+ *
+ *  The Original Code was created by Nickolay Samofatov
+ *  for the Firebird Open Source RDBMS project.
+ *
  *  STL allocator is based on one by Mike Nordell and John Bellardo
+ *
+ *  Copyright (c) 2004 Nickolay Samofatov <nickolay@broadviewsoftware.com>
+ *  and all contributors signed below.
+ *
+ *  All Rights Reserved.
  *
  *  Contributor(s):
  * 
+ *		Alex Peshkoff <peshkoff@mail.ru>
+ *		added PermanentStorage and AutoStorage classes.
  *
- *  $Id$
  *
  */
 
 #ifndef ALLOC_H
 #define ALLOC_H
 
-#include "../../include/fb_types.h"
-#include "../../include/firebird.h"
-#include "../jrd/common.h"
-#include "../jrd/ib_stdio.h"
+#ifndef __VMS
 #include <cstddef>
+#endif
+
+#include "../../include/fb_types.h"
+//#include "../../include/fbdev.h"
+//#include "../jrd/common.h"
+//#include "../jrd/ib_stdio.h"
 #include "tree.h"
 
 #ifdef HAVE_STDLIB_H
@@ -276,7 +273,7 @@ namespace std {
 
 // Define operators as static inline to prevent replacement of STL versions
 
-#ifdef FIREBIRD_ENGINE
+//#ifdef FIREBIRD_ENGINE
 static inline void* operator new(size_t s) {
 #if defined(DEV_BUILD)
 // Do not complain here. It causes client tools to crash on Red Hat 8.0
@@ -332,15 +329,17 @@ void operator delete[](void* mem) throw();
 #endif // SYSTEM_NEW
 #endif
 
-#endif // #ifdef FIREBIRD_ENGINE
+//#endif // #ifdef FIREBIRD_ENGINE
 
 #ifdef DEBUG_GDS_ALLOC
-
-static inline void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
+abcv
+//*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
+/*static*/ / void* operator new(size_t s, firebird::MemoryPool& pool, char* file, int line) {
 	return pool.allocate(s, 0, file, line);
 //	return pool.calloc(s, 0, file, line);
 }
-static inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
+//*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
+/*static*/ void* operator new[](size_t s, firebird::MemoryPool& pool, char* file, int line) {
 	return pool.allocate(s, 0, file, line);
 //	return pool.calloc(s, 0, file, line);
 }
@@ -350,11 +349,13 @@ static inline void* operator new[](size_t s, firebird::MemoryPool& pool, char* f
 #else
 
 #ifndef SYSTEM_NEW
-static inline void* operator new(size_t s, firebird::MemoryPool& pool) {
+/*static*/ inline void* operator new(size_t s, firebird::MemoryPool& pool) {
+//*static*/ void* operator new(size_t s, firebird::MemoryPool& pool) {
 	return pool.allocate(s);
 //	return pool.calloc(s);
 }
-static inline void* operator new[](size_t s, firebird::MemoryPool& pool) {
+/*static*/ inline void* operator new[](size_t s, firebird::MemoryPool& pool) {
+//*static*/ void* operator new[](size_t s, firebird::MemoryPool& pool) {
 	return pool.allocate(s);
 //	return pool.calloc(s);
 }
@@ -419,14 +420,14 @@ namespace firebird
 
 #ifdef DEBUG_GDS_ALLOC
 		pointer allocate(size_type s, const void* = 0)
-			{ return (pointer) pool->allocate(sizeof(T) * s, 0, __FILE__, __LINE__); }
+			{ return (pointer) this->pool->allocate(sizeof(T) * s, 0, __FILE__, __LINE__); }
 		char* _Charalloc(size_type n)
 			{ return (char*) pool->allocate(n, 0, __FILE__, __LINE__); }
 #else
 		pointer allocate(size_type s, const void* = 0)
-			{ return (pointer) pool->allocate(sizeof(T) * s, 0); }
+			{ return (pointer) this->pool->allocate((int) (sizeof(T) * s), 0); }
 		char* _Charalloc(size_type n)
-			{ return (char*) pool->allocate(n, 0); }
+			{ return (char*) this->pool->allocate(n, 0); }
 #endif
 /*#ifdef DEBUG_GDS_ALLOC
 		pointer allocate(size_type s, const void * = 0)
@@ -440,8 +441,8 @@ namespace firebird
 			{ return (char*) pool->calloc(n, 0); }
 #endif*/
 			
-		void deallocate(pointer p, size_type s)	{ pool->deallocate(p); }
-		void deallocate(void* p, size_type s) { pool->deallocate(p); }
+		void deallocate(pointer p, size_type s)	{ this->pool->deallocate(p); }
+		void deallocate(void* p, size_type s) { this->pool->deallocate(p); }
 		void construct(pointer p, const T& v) { new(p) T(v); }
 		void destroy(pointer p) { p->~T(); }
 	

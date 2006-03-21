@@ -15,6 +15,7 @@ public:
 	virtual ISC_STATUS printStatus(const ISC_STATUS* statusVector);
 	virtual void putError(const char *text);
 	virtual ISC_STATUS interpretStatus(int bufferLength, char* buffer, const ISC_STATUS** vector);
+	static void getOSText(int type, int code, int bufferLength, TEXT* buffer);
 };
 
 #endif

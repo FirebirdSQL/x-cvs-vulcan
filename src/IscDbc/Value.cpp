@@ -428,6 +428,10 @@ char* Value::getString(char **tempPtr)
 			sprintf (temp, "%d", data.integer);
 			break;
 
+		case Quad:
+			convert (data.quad, scale, temp);
+			break;
+
 		case Double:
 			sprintf (temp, "%f", data.dbl);
 			break;
@@ -451,8 +455,8 @@ char* Value::getString(char **tempPtr)
 			{
 			if (*tempPtr)
 				delete [] *tempPtr;
-			int length = data.blob->length();
-			*tempPtr = new char [length + 1];
+			uint64 length = data.blob->length();
+			*tempPtr = new char [(unsigned int) length + 1];
 			data.blob->getBytes (0, length, *tempPtr);
 			(*tempPtr) [length] = 0;
 			return *tempPtr;
@@ -462,9 +466,9 @@ char* Value::getString(char **tempPtr)
 			{
 			if (*tempPtr)
 				delete [] *tempPtr;
-			int length = data.clob->length();
-			*tempPtr = new char [length + 1];
-			data.clob->getSubString (0, length, *tempPtr);
+			uint64 length = data.clob->length();
+			*tempPtr = new char [(unsigned int) length + 1];
+			data.clob->getSubString (0, (unsigned int) length, *tempPtr);
 			(*tempPtr) [length] = 0;
 			return *tempPtr;
 			}
@@ -892,4 +896,60 @@ void Value::setValue(Clob * blob)
 	type = ClobPtr;
 	data.clob = blob;
 	data.clob->addRef();
+}
+
+int Value::convert(QUAD value, int scale, char *string)
+{
+    if (value == 0)
+		{
+		strcpy (string, "0");
+		return (1);
+		}
+
+	if (scale < -18)
+		{
+		strcpy (string, "***");
+		return sizeof ("***");
+		}
+
+	bool negative = false;
+	UQUAD number;
+
+	if (value > 0)
+		number = value;
+	else 
+		{
+		number = -value;
+		negative = true;
+		}
+
+	char temp [100], *p = temp;
+	int n;
+	int digits = 0;
+
+	for (n = 0; number; number /= 10, --n)
+		{
+		if (scale && scale == digits++)
+			*p++ = '.';
+		*p++ = '0' + (char) (number % 10);
+		}
+
+	if (scale && digits <= scale)
+		{
+		for (; digits < scale; ++digits)
+			*p++ = '0';
+		*p++ = '.';
+		}
+
+	char *q = string;
+
+	if (negative)
+		*q++ = '-';
+
+	while (p > temp)
+		*q++ = *--p;
+
+	*q = 0;
+
+	return q - string;
 }

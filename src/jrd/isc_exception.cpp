@@ -38,7 +38,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
@@ -79,8 +79,10 @@ void ISC_exception_post(ULONG sig_num, const char* err_msg)
  **************************************/
 	TEXT *log_msg;
 
+#ifdef OBSOLETE
 	if (!SCH_thread_enter_check())
 		THREAD_ENTER;
+#endif
 
 	if (err_msg)
 		log_msg = (TEXT *) gds__alloc(strlen(err_msg) + 256);
@@ -152,7 +154,7 @@ ULONG ISC_exception_post(ULONG except_code, const char* err_msg)
  **************************************/
 	ULONG result;
 	bool is_critical = true;
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	if (!err_msg)
 		err_msg = "";

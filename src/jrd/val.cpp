@@ -182,7 +182,7 @@ IV. PHASES OF VALIDATION
 
    B. Garbage Collection
 
-      During this phase, the Page Inventory (PIP) pages are checked against the
+      During this phase, the Page Inventory (page_inv_page*) pages are checked against the
       bitmap of pages visited.  Two types of errors can be detected during
       this phase.
 
@@ -208,7 +208,7 @@ IV. PHASES OF VALIDATION
          on the PIP.
 
       NOTE:  If errors were found during the validation phase, no changes will
-      be made to the PIP pages.  This assumes that we did not have a chance to
+      be made to the page_inv_page* pages.  This assumes that we did not have a chance to
       visit all the pages because invalid structures were detected.
 
 V. WALK-THROUGH PHASE
@@ -224,7 +224,7 @@ V. WALK-THROUGH PHASE
       4. Transaction Inventory pages
 
          If the system relation RDB$PAGES could not be read or did not
-         contain any TIP pages, the message: 
+         contain any tx_inv_page* pages, the message: 
 
          "Transaction inventory pages lost"
  
@@ -234,11 +234,11 @@ V. WALK-THROUGH PHASE
                                         
          "Transaction inventory page lost, sequence xxx"
 
-         If -mend is specified, then a new TIP will be allocated on disk and 
+         If -mend is specified, then a new tx_inv_page* will be allocated on disk and 
          stored in RDB$PAGES in the proper sequence.  All transactions which 
          would have been on that page are assumed committed.
  
-         If a TIP page does not point to the next one in sequence, the
+         If a tx_inv_page* page does not point to the next one in sequence, the
          following message will be returned:
 
          "Transaction inventory pages confused, sequence xxx"
@@ -539,7 +539,7 @@ VI. ADDITIONAL NOTES
 
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "memory_routines.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"
@@ -554,7 +554,7 @@ VI. ADDITIONAL NOTES
 #include "../jrd/btr.h"
 #include "../jrd/btn.h"
 #include "../jrd/all.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/rse.h"
 #include "../jrd/sbm.h"
@@ -590,15 +590,15 @@ static USHORT VAL_debug_level = 0;
 
 typedef struct vdr
 {
-	SBM vdr_page_bitmap;
+	SparseBitmap* vdr_page_bitmap;
 	SLONG vdr_max_page;
 	USHORT vdr_flags;
 	USHORT vdr_errors;
 	SLONG vdr_max_transaction;
 	ULONG vdr_rel_backversion_counter;	/* Counts slots w/rhd_chain */
 	ULONG vdr_rel_chain_counter;	/* Counts chains w/rdr_chain */
-	SBM vdr_rel_records;		/* 1 bit per valid record */
-	SBM vdr_idx_records;		/* 1 bit per index item */
+	SparseBitmap* vdr_rel_records;		/* 1 bit per valid record */
+	SparseBitmap* vdr_idx_records;		/* 1 bit per index item */
 } *VDR;
 
 #define vdr_update		2		/* fix simple things */
@@ -647,30 +647,30 @@ static const TEXT msg_table[][52] = {
 };
 
 
-static RTN corrupt(TDBB, VDR, USHORT, JRD_REL, ...);
-static FETCH_CODE fetch_page(TDBB, VDR, SLONG, USHORT, WIN *, void *);
-static void garbage_collect(TDBB, VDR);
+static RTN corrupt(thread_db*, VDR, USHORT, Relation*, ...);
+static FETCH_CODE fetch_page(thread_db*, VDR, SLONG, USHORT, WIN *, void *);
+static void garbage_collect(thread_db*, VDR);
 #ifdef DEBUG_VAL_VERBOSE
 static void print_rhd(USHORT, const rhd*);
 #endif
-static RTN walk_blob(TDBB, VDR, JRD_REL, BLH, USHORT, SLONG);
-static RTN walk_chain(TDBB, VDR, JRD_REL, RHD, SLONG);
-static void walk_database(TDBB, VDR);
-static RTN walk_data_page(TDBB, VDR, JRD_REL, SLONG, SLONG);
-static void walk_generators(TDBB, VDR);
-static void walk_header(TDBB, VDR, SLONG);
-static RTN walk_index(TDBB, VDR, JRD_REL, SLONG, USHORT);
-static void walk_log(TDBB, VDR);
-static void walk_pip(TDBB, VDR);
-static RTN walk_pointer_page(TDBB, VDR, JRD_REL, int);
-static RTN walk_record(TDBB, VDR, JRD_REL, RHD, USHORT, SLONG, bool);
-static RTN walk_relation(TDBB, VDR, JRD_REL);
-static RTN walk_root(TDBB, VDR, JRD_REL);
-static RTN walk_tip(TDBB, VDR, SLONG);
+static RTN walk_blob(thread_db*, VDR, Relation*, BLH, USHORT, SLONG);
+static RTN walk_chain(thread_db*, VDR, Relation*, RHD, SLONG);
+static void walk_database(thread_db*, VDR);
+static RTN walk_data_page(thread_db*, VDR, Relation*, SLONG, SLONG);
+static void walk_generators(thread_db*, VDR);
+static void walk_header(thread_db*, VDR, SLONG);
+static RTN walk_index(thread_db*, VDR, Relation*, SLONG, USHORT);
+static void walk_log(thread_db*, VDR);
+static void walk_pip(thread_db*, VDR);
+static RTN walk_pointer_page(thread_db*, VDR, Relation*, int);
+static RTN walk_record(thread_db*, VDR, Relation*, RHD, USHORT, SLONG, bool);
+static RTN walk_relation(thread_db*, VDR, Relation*);
+static RTN walk_root(thread_db*, VDR, Relation*);
+static RTN walk_tip(thread_db*, VDR, SLONG);
 
 static const SLONG end_level = END_LEVEL, end_bucket = END_BUCKET;
 
-BOOLEAN VAL_validate(TDBB tdbb, USHORT switches)
+BOOLEAN VAL_validate(thread_db* tdbb, USHORT switches)
 {
 /**************************************
  *
@@ -688,7 +688,7 @@ BOOLEAN VAL_validate(TDBB tdbb, USHORT switches)
 
 	SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
-	ATT att = tdbb->tdbb_attachment;
+	Attachment* att = tdbb->tdbb_attachment;
 
 	try {
 
@@ -746,7 +746,7 @@ BOOLEAN VAL_validate(TDBB tdbb, USHORT switches)
 	return TRUE;
 }
 
-static RTN corrupt(TDBB tdbb, VDR control, USHORT err_code, JRD_REL relation, ...)
+static RTN corrupt(thread_db* tdbb, VDR control, USHORT err_code, Relation* relation, ...)
 {
 /**************************************
  *
@@ -761,7 +761,7 @@ static RTN corrupt(TDBB tdbb, VDR control, USHORT err_code, JRD_REL relation, ..
 	TEXT s[256], *p;
 	va_list ptr;
 	const TEXT *string;
-	ATT att;
+	Attachment* att;
 
 	VA_START(ptr, relation);
 
@@ -801,7 +801,7 @@ static RTN corrupt(TDBB tdbb, VDR control, USHORT err_code, JRD_REL relation, ..
 	return rtn_corrupt;
 }
 
-static FETCH_CODE fetch_page(TDBB tdbb,
+static FETCH_CODE fetch_page(thread_db* tdbb,
 							 VDR control,
 							 SLONG page_number,
 							 USHORT type, WIN * window, void *page_pointer)
@@ -864,7 +864,7 @@ static FETCH_CODE fetch_page(TDBB tdbb,
 	return fetch_ok;
 }
 
-static void garbage_collect(TDBB tdbb, VDR control)
+static void garbage_collect(thread_db* tdbb, VDR control)
 {
 /**************************************
  *
@@ -877,14 +877,14 @@ static void garbage_collect(TDBB tdbb, VDR control)
  *	the bitmap of pages visited.
  *
  **************************************/
-	PIP page;
+	page_inv_page* page;
 	USHORT sequence;
 	SLONG number;
 
 	SET_TDBB(tdbb);
 
 	DBB dbb = tdbb->tdbb_database;
-	PGC pgc = dbb->dbb_pcontrol;
+	PageControl* pgc = dbb->dbb_pcontrol;
 	WIN window(-1);
 
 	for (sequence = 0, number = 0; number < control->vdr_max_page; sequence++) {
@@ -984,9 +984,9 @@ static void print_rhd(USHORT length, const rhd* header)
 }
 #endif
 
-static RTN walk_blob(TDBB tdbb,
+static RTN walk_blob(thread_db* tdbb,
 					 VDR control,
-					 JRD_REL relation, BLH header, USHORT length, SLONG number)
+					 Relation* relation, BLH header, USHORT length, SLONG number)
 {
 /**************************************
  *
@@ -1025,7 +1025,7 @@ static RTN walk_blob(TDBB tdbb,
 	SLONG sequence;
 
 	for (sequence = 0; pages1 < end1; pages1++) {
-		blp* page1 = 0;
+		blob_page* page1 = 0;
 		fetch_page(tdbb, control, *pages1, pag_blob, &window1, &page1);
 		if (page1->blp_lead_page != header->blh_lead_page)
 			corrupt(tdbb, control, VAL_BLOB_INCONSISTENT, relation, number);
@@ -1040,7 +1040,7 @@ static RTN walk_blob(TDBB tdbb,
 			const SLONG* pages2 = page1->blp_page;
 			const SLONG* const end2 = pages2 + (page1->blp_length >> SHIFTLONG);
 			for (; pages2 < end2; pages2++, sequence++) {
-				blp* page2 = 0;
+				blob_page* page2 = 0;
 				fetch_page(tdbb, control, *pages2, pag_blob, &window2,
 						   &page2);
 				if (page2->blp_lead_page != header->blh_lead_page
@@ -1063,9 +1063,9 @@ static RTN walk_blob(TDBB tdbb,
 	return rtn_ok;
 }
 
-static RTN walk_chain(TDBB tdbb,
+static RTN walk_chain(thread_db* tdbb,
 					  VDR control,
-					  JRD_REL relation, RHD header, SLONG head_number)
+					  Relation* relation, RHD header, SLONG head_number)
 {
 /**************************************
  *
@@ -1077,7 +1077,7 @@ static RTN walk_chain(TDBB tdbb,
  *	Make sure chain of record versions is completely intact.
  *
  **************************************/
-	DPG page;
+	data_page* page;
 #ifdef DEBUG_VAL_VERBOSE
 	USHORT counter = 0;
 #endif
@@ -1096,7 +1096,7 @@ static RTN walk_chain(TDBB tdbb,
 #endif
 		control->vdr_rel_chain_counter++;
 		fetch_page(tdbb, control, page_number, pag_data, &window, &page);
-		const dpg::dpg_repeat* line = &page->dpg_rpt[line_number];
+		const data_page::dpg_repeat* line = &page->dpg_rpt[line_number];
 		header = (RHD) ((UCHAR *) page + line->dpg_offset);
 		if (page->dpg_count <= line_number ||
 			!line->dpg_length ||
@@ -1116,7 +1116,7 @@ static RTN walk_chain(TDBB tdbb,
 	return rtn_ok;
 }
 
-static void walk_database(TDBB tdbb, VDR control)
+static void walk_database(thread_db* tdbb, VDR control)
 {
 /**************************************
  *
@@ -1142,7 +1142,7 @@ static void walk_database(TDBB tdbb, VDR control)
 
 	DPM_scan_pages(tdbb);
 	WIN window(-1);
-	hdr* page;
+	header_page* page;
 	fetch_page(tdbb, control, (SLONG) HEADER_PAGE, pag_header, &window,
 			   &page);
 	control->vdr_max_transaction = page->hdr_next_transaction;
@@ -1170,9 +1170,9 @@ static void walk_database(TDBB tdbb, VDR control)
 	CCH_RELEASE(tdbb, &window);
 }
 
-static RTN walk_data_page(TDBB tdbb,
+static RTN walk_data_page(thread_db* tdbb,
 						  VDR control,
-						  JRD_REL relation, SLONG page_number, SLONG sequence)
+						  Relation* relation, SLONG page_number, SLONG sequence)
 {
 /**************************************
  *
@@ -1192,7 +1192,7 @@ static RTN walk_data_page(TDBB tdbb,
 	DBB dbb = tdbb->tdbb_database;
 
 	WIN window(-1);
-	dpg* page;
+	data_page* page;
 	fetch_page(tdbb, control, page_number, pag_data, &window, &page);
 
 #ifdef DEBUG_VAL_VERBOSE
@@ -1216,10 +1216,10 @@ static RTN walk_data_page(TDBB tdbb,
 /* Walk records */
 
 	const UCHAR* const end_page = (UCHAR *) page + dbb->dbb_page_size;
-	const dpg::dpg_repeat* const end = page->dpg_rpt + page->dpg_count;
+	const data_page::dpg_repeat* const end = page->dpg_rpt + page->dpg_count;
 	number = sequence * dbb->dbb_max_records;
 
-	for (const dpg::dpg_repeat* line = page->dpg_rpt; line < end; line++, number++) {
+	for (const data_page::dpg_repeat* line = page->dpg_rpt; line < end; line++, number++) {
 #ifdef DEBUG_VAL_VERBOSE
 		if (VAL_debug_level) {
 			ib_fprintf(ib_stdout, "Slot %02d (%d,%d): ",
@@ -1304,7 +1304,7 @@ static RTN walk_data_page(TDBB tdbb,
 	return rtn_ok;
 }
 
-static void walk_generators(TDBB tdbb, VDR control)
+static void walk_generators(thread_db* tdbb, VDR control)
 {
 /**************************************
  *
@@ -1316,7 +1316,7 @@ static void walk_generators(TDBB tdbb, VDR control)
  *	Walk the page inventory pages.
  *
  **************************************/
-	PPG page;
+	pointer_page* page;
 	//SET_TDBB(tdbb);
 	DBB dbb = tdbb->tdbb_database;
 	//CHECK_DBB(dbb);
@@ -1344,7 +1344,7 @@ static void walk_generators(TDBB tdbb, VDR control)
 	//}
 }
 
-static void walk_header(TDBB tdbb, VDR control, SLONG page_num)
+static void walk_header(thread_db* tdbb, VDR control, SLONG page_num)
 {
 /**************************************
  *
@@ -1356,7 +1356,7 @@ static void walk_header(TDBB tdbb, VDR control, SLONG page_num)
  *	Walk the overflow header pages
  *
  **************************************/
-	HDR page;
+	header_page* page;
 
 	SET_TDBB(tdbb);
 
@@ -1372,8 +1372,8 @@ static void walk_header(TDBB tdbb, VDR control, SLONG page_num)
 	}
 }
 
-static RTN walk_index(TDBB tdbb,
-					  VDR control, JRD_REL relation, SLONG page_number, USHORT id)
+static RTN walk_index(thread_db* tdbb,
+					  VDR control, Relation* relation, SLONG page_number, USHORT id)
 {
 /**************************************
  *
@@ -1391,7 +1391,8 @@ static RTN walk_index(TDBB tdbb,
  *	So errors are reported against index id+1
  *
  **************************************/
-	BTR page, down_page;
+	btree_page* page;
+	btree_page* down_page;
 	SLONG down_number, next_number;
 	UCHAR *p, *q, l;
 
@@ -1401,7 +1402,7 @@ static RTN walk_index(TDBB tdbb,
 
 	SLONG next = page_number;
 	SLONG down = page_number;
-	KEY key;
+	temporary_key key;
 	key.key_length = 0;
 	SLONG previous_number = 0;
 
@@ -1668,7 +1669,7 @@ static RTN walk_index(TDBB tdbb,
 	return rtn_ok;
 }
 
-static void walk_log(TDBB tdbb, VDR control)
+static void walk_log(thread_db* tdbb, VDR control)
 {
 /**************************************
  *
@@ -1693,7 +1694,7 @@ static void walk_log(TDBB tdbb, VDR control)
 	}
 }
 
-static void walk_pip(TDBB tdbb, VDR control)
+static void walk_pip(thread_db* tdbb, VDR control)
 {
 /**************************************
  *
@@ -1706,8 +1707,8 @@ static void walk_pip(TDBB tdbb, VDR control)
  *
  **************************************/
 	DBB dbb;
-	PIP page;
-	PGC pgc;
+	page_inv_page* page;
+	PageControl* pgc;
 	USHORT sequence;
 	UCHAR byte;
 	SLONG page_number;
@@ -1733,10 +1734,10 @@ static void walk_pip(TDBB tdbb, VDR control)
 	}
 }
 
-static RTN walk_pointer_page(	TDBB	tdbb,
-								VDR		control,
-								JRD_REL		relation,
-								int		sequence)
+static RTN walk_pointer_page(	thread_db* tdbb,
+								VDR control,
+								Relation* relation,
+								int sequence)
 {
 /**************************************
  *
@@ -1749,12 +1750,16 @@ static RTN walk_pointer_page(	TDBB	tdbb,
  *	to go.
  *
  **************************************/
-	PPG page;
+	pointer_page* page;
 	RTN result;
 	USHORT slot;
 	SLONG *pages, seq;
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	SIVector<SLONG> *vector = &relation->rel_pages;
+#else
+	SVector<SLONG> *vector = &relation->rel_pages;
+#endif
 
 	if (!vector || sequence >= vector->size())
 		return corrupt(tdbb, control, VAL_P_PAGE_LOST, relation, sequence);
@@ -1817,9 +1822,9 @@ static RTN walk_pointer_page(	TDBB	tdbb,
 }
 
 
-static RTN walk_record(TDBB tdbb,
+static RTN walk_record(thread_db* tdbb,
 					   VDR control,
-					   JRD_REL relation,
+					   Relation* relation,
 					   RHD header,
 					   USHORT length, SLONG number, bool delta_flag)
 {
@@ -1833,13 +1838,13 @@ static RTN walk_record(TDBB tdbb,
  *	Walk a record.
  *
  **************************************/
-	DPG page;
+	data_page* page;
 	USHORT line_number;
 	SLONG page_number;
 	UCHAR flags;
 	SCHAR c, *p, *end;
 	RTN result;
-	dpg::dpg_repeat * line;
+	data_page::dpg_repeat * line;
 
 #ifdef DEBUG_VAL_VERBOSE
 	if (VAL_debug_level) {
@@ -1969,7 +1974,7 @@ static RTN walk_record(TDBB tdbb,
 
 	/* Check out record length and format */
 
-	FMT format = relation->getFormat(tdbb, header->rhd_format);
+	Format* format = relation->getFormat(tdbb, header->rhd_format);
 
 	if (!delta_flag && record_length != format->fmt_length)
 		return corrupt(tdbb, control, VAL_REC_WRONG_LENGTH, relation, number);
@@ -1978,7 +1983,7 @@ static RTN walk_record(TDBB tdbb,
 }
 
 
-static RTN walk_relation(TDBB tdbb, VDR control, JRD_REL relation)
+static RTN walk_relation(thread_db* tdbb, VDR control, Relation* relation)
 {
 /**************************************
  *
@@ -2070,7 +2075,7 @@ static RTN walk_relation(TDBB tdbb, VDR control, JRD_REL relation)
 }
 
 
-static RTN walk_root(TDBB tdbb, VDR control, JRD_REL relation)
+static RTN walk_root(thread_db* tdbb, VDR control, Relation* relation)
 {
 /**************************************
  *
@@ -2082,7 +2087,7 @@ static RTN walk_root(TDBB tdbb, VDR control, JRD_REL relation)
  *	Walk index root page for a relation as well as any indices.
  *
  **************************************/
-	IRT page;
+	index_root_page* page;
 	USHORT i;
 
 	SET_TDBB(tdbb);
@@ -2109,7 +2114,7 @@ static RTN walk_root(TDBB tdbb, VDR control, JRD_REL relation)
 	return rtn_ok;
 }
 
-static RTN walk_tip(TDBB tdbb, VDR control, SLONG transaction)
+static RTN walk_tip(thread_db* tdbb, VDR control, SLONG transaction)
 {
 /**************************************
  *
@@ -2121,7 +2126,7 @@ static RTN walk_tip(TDBB tdbb, VDR control, SLONG transaction)
  *	Walk transaction inventory pages.
  *
  **************************************/
-	TIP page;
+	tx_inv_page* page;
 	//VCL vector;
 
 	//SET_TDBB(tdbb);

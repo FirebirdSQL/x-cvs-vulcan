@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "remote.h"
@@ -129,7 +129,7 @@ extern int h_errno;
 
 #define ERRNO		WSAGetLastError()
 #define H_ERRNO		WSAGetLastError()
-#define SOCLOSE		closesocket
+//#define SOCLOSE		closesocket
 #define SYS_ERR		isc_arg_win32
 #define INET_RETRY_ERRNO	WSAEINPROGRESS
 #define INET_ADDR_IN_USE	WSAEADDRINUSE
@@ -179,7 +179,7 @@ extern int h_errno;
 #endif
 
 #ifndef SOCLOSE
-#define SOCLOSE	close
+//#define SOCLOSE	close
 #endif
 
 #ifndef ERRNO
@@ -230,16 +230,16 @@ extern int h_errno;
 #define MAX_PTYPE       ptype_batch_send
 #endif
 
+#ifdef WIN_NT
+#define BAD_SOCKET		WSAENOTSOCK
+#else
+#define BAD_SOCKET		EBADF
+#endif
+
 #define	SELECT_TIMEOUT	60		/* Dispatch thread select timeout (sec) */
 #define inet_copy(from,to,size)	memcpy(to, from, size)
 #define inet_zero(to,size)		memset(to, 0, size)
 
-//static void		inet_copy(const SCHAR*, SCHAR*, int);
-static int		inet_destroy(XDR *);
-//static void		inet_gen_error(Port*, ISC_STATUS, ...);
-static bool_t	inet_getbytes(XDR *, SCHAR *, u_int);
-static bool_t	inet_getlong(XDR *, SLONG *);
-static u_int	inet_getpostn(XDR *);
 
 static void copy_p_cnct_repeat_array(	p_cnct::p_cnct_repeat*			pDest,
 										const p_cnct::p_cnct_repeat*	pSource,
@@ -255,20 +255,9 @@ static PortInet*	inet_try_connect(ConfObject *configuration,
 									const UCHAR* dpb,
 									SSHORT);
 
-/***
-Port* INET_connect(const TEXT* name,
-				  ConfObject *configuration, 
-				  PACKET* packet,
-				  ISC_STATUS* status_vector,
-				  USHORT flag, const UCHAR* dpb, SSHORT dpb_length);
-***/
-
 static caddr_t	inet_inline(XDR *, u_int);
-//static int		inet_error(Port*, const TEXT*, ISC_STATUS, int);
 static bool_t	inet_putlong(XDR*, SLONG*);
 static bool_t	inet_putbytes(XDR*, const SCHAR*, u_int);
-//static bool_t	inet_read(XDR *);
-static bool_t	inet_setpostn(XDR *, u_int);
 static bool_t	inet_write(XDR *, int);
 
 static in_addr get_bind_address(ConfObject *configuration);
@@ -276,14 +265,14 @@ static in_addr get_host_address(const TEXT* name);
 
 static XDR::xdr_ops inet_ops =
 {
-	inet_getlong,
-	inet_putlong,
-	inet_getbytes,
-	inet_putbytes,
-	inet_getpostn,
-	inet_setpostn,
-	inet_inline,
-	inet_destroy
+	Port::getLong,			// inet_getlong,
+	Port::putLong,			// inet_putlong,
+	PortInet::getBytes,		// inet_getbytes,
+	PortInet::putBytes,		// inet_putbytes,
+	Port::getPosition,		// inet_getpostn,
+	Port::setPosition,		// inet_setpostn,
+	Port::inlinePointer,	// inet_inline,
+	Port::destroy			// inet_destroy
 };
 
 static slct INET_select = { 0, 0, 0 };
@@ -325,7 +314,9 @@ Port* INET_analyze(	ConfObject *configuration,
 
 	RDatabase *rdb = new RDatabase (NULL);
 	rdb->rdb_status_vector = status_vector;
-	PACKET*	packet	= &rdb->rdb_packet;
+	Packet*	packet	= &rdb->rdb_packet;
+	Sync sync(&rdb->syncObject, "xyzzy");
+	sync.lock(Exclusive);
 	P_CNCT*	cnct = &packet->p_cnct;
 	
 	/* Pick up some user identification information */
@@ -373,7 +364,7 @@ Port* INET_analyze(	ConfObject *configuration,
 	/* Establish connection to server */
 
 	/* Note: prior to V3.1E a recievers could not in truth handle more
-	then 5 protocol descriptions, so we try them in chunks of 5 or less */
+	   then 5 protocol descriptions, so we try them in chunks of 5 or less */
 
 	/* If we want user verification, we can't speak anything less than version 7 */
 
@@ -385,11 +376,8 @@ Port* INET_analyze(	ConfObject *configuration,
 	static const p_cnct::p_cnct_repeat protocols_to_try1[] =
 		{
 		REMOTE_PROTOCOL(PROTOCOL_VERSION8, ptype_rpc, MAX_PTYPE, 1),
-		REMOTE_PROTOCOL(PROTOCOL_VERSION10, ptype_rpc, MAX_PTYPE, 2)
-#ifdef SCROLLABLE_CURSORS
-		,
-		REMOTE_PROTOCOL(PROTOCOL_SCROLLABLE_CURSORS, ptype_rpc, MAX_PTYPE, 3)
-#endif
+		REMOTE_PROTOCOL(PROTOCOL_VERSION10, ptype_rpc, MAX_PTYPE, 2),
+		REMOTE_PROTOCOL(PROTOCOL_VERSION11, ptype_rpc, MAX_PTYPE, 4)
 		};
 
 	cnct->p_cnct_count = FB_NELEM(protocols_to_try1);
@@ -764,14 +752,15 @@ void PortInet::disconnect()
 
 	Port* parent = port_parent;
 	
+	if (port_async) 
+		{
+		//port_async->port_flags |= PORT_disconnect;
+		disconnect();
+		port_async = NULL;
+		}
+			
 	if (parent != NULL) 
 		{
-		if (port_async) 
-			{
-			disconnect();
-			port_async = NULL;
-			}
-			
 #ifdef	DEFER_PORT_CLEANUP
 		defer_cleanup = true;
 #else
@@ -779,11 +768,9 @@ void PortInet::disconnect()
 		parent->removeClient(this);
 #endif
 		}
-	else if (port_async) 
-		port_async->port_flags |= PORT_disconnect;
 
 	if (port_handle) 
-		SOCLOSE((SOCKET) port_handle);
+		closeSocket((SOCKET) port_handle);
 
 	gds__unregister_cleanup(exitHandler, this);
 
@@ -827,9 +814,9 @@ Port* PortInet::receive(Packet* packet)
 			if (!xdr_protocol(&port_receive, packet))
 				return NULL;
 #ifdef DEBUG
-			{
 			static ULONG op_rec_count = 0;
 			op_rec_count++;
+			
 			if (INET_trace & TRACE_operations) 
 				{
 				ib_fprintf(ib_stdout, "%04lu: OP Recd %5lu opcode %d\n",
@@ -837,7 +824,6 @@ Port* PortInet::receive(Packet* packet)
 							op_rec_count, packet->p_operation);
 				ib_fflush(ib_stdout);
 				}
-			}
 #endif
 			}
 			
@@ -858,10 +844,7 @@ Port* PortInet::receive(Packet* packet)
 			port->release();
 			
 			if (port = selectAccept())
-				{
-				port->addRef();
 				return port;
-				}
 				
 			continue;
 			}
@@ -884,18 +867,18 @@ Port* PortInet::receive(Packet* packet)
 
 			if (!xdr_protocol(&port->port_receive, packet))
 				packet->p_operation = op_exit;
+				
 #ifdef DEBUG
+			static ULONG op_rec_count = 0;
+			op_rec_count++;
+			
+			if (INET_trace & TRACE_operations) 
 				{
-				static ULONG op_rec_count = 0;
-				op_rec_count++;
-				if (INET_trace & TRACE_operations) 
-					{
-					ib_fprintf(ib_stdout, "%05lu: OP Recd %5lu opcode %d\n",
-							   inet_debug_timer(),
-							   op_rec_count, packet->p_operation);
-					ib_fflush(ib_stdout);
-					}
-				};
+				ib_fprintf(ib_stdout, "%05lu: OP Recd %5lu opcode %d\n",
+							inet_debug_timer(),
+							op_rec_count, packet->p_operation);
+				ib_fflush(ib_stdout);
+				}
 #endif
 
 			/*  Make sure that there are no more messages in this port before blocking
@@ -925,7 +908,7 @@ Port* PortInet::receive(Packet* packet)
 
 // was send_full
 
-XDR_INT PortInet::sendPacket(PACKET* packet)
+XDR_INT PortInet::sendPacket(Packet* packet)
 {
 	if (!xdr_protocol(&port_send, packet))
 		return FALSE;
@@ -946,7 +929,7 @@ XDR_INT PortInet::sendPacket(PACKET* packet)
 	return xdrEndOfRecord(&port_send, TRUE);
 }
 
-XDR_INT PortInet::sendPartial(PACKET* packet)
+XDR_INT PortInet::sendPartial(Packet* packet)
 {
 #ifdef DEBUG
 	{
@@ -964,7 +947,7 @@ XDR_INT PortInet::sendPartial(PACKET* packet)
 	return xdr_protocol(&port_send, packet);
 }
 
-Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
+Port* PortInet::connect(Packet* packet, void(*ast)(Port*))
 {
 	SOCKET n;
 	struct sockaddr_in address;
@@ -978,11 +961,11 @@ Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
 		if (n == INVALID_SOCKET) 
 			{
 			error("accept", isc_net_event_connect_err, ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 			}
-		SOCLOSE(port_channel);
-		port_handle = (HANDLE) n;
+		closeSocket(port_channel);
+		port_handle = n;
 		port_flags |= PORT_async;
 		return this;
 		}
@@ -995,7 +978,7 @@ Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
 	new_port->port_flags |= PORT_async;
 	P_RESP* response = &packet->p_resp;
 
-/* Set up new socket */
+	/* Set up new socket */
 
 	if ((n = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) 
 		{
@@ -1016,7 +999,7 @@ Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
 	if (status < 0) 
 		{
 		error("connect", isc_net_event_connect_err, ERRNO);
-		SOCLOSE(n);
+		closeSocket(n);
 		return NULL;
 		}
 
@@ -1032,7 +1015,7 @@ Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
 		if (ioctl(n, SIOCSPGRP, &arg) < 0) 
 			{
 			error("ioctl/SIOCSPGRP", isc_net_event_connect_err, ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 			}
 
@@ -1041,13 +1024,13 @@ Port* PortInet::connect(PACKET* packet, void(*ast)(Port*))
 		}
 #endif /* SIOCSPGRP */
 
-	new_port->port_handle = (HANDLE) n;
+	new_port->port_handle = n;
 	new_port->port_flags |= port_flags & PORT_no_oob;
 
 	return new_port;
 }
 
-Port* PortInet::request(PACKET* packet)
+Port* PortInet::auxRequest(Packet* packet)
 {
 	SOCKET n;
 	struct sockaddr_in address;
@@ -1156,7 +1139,7 @@ void PortInet::exitHandler(void* arg)
 	for (PortInet *port = main_port; port; port = (PortInet*) port->port_next) 
 		{
 		shutdown((int) port->port_handle, 2);
-		SOCLOSE((SOCKET) port->port_handle);
+		closeSocket((SOCKET) port->port_handle);
 		}
 #endif
 }
@@ -1239,8 +1222,7 @@ PortInet* PortInet::selectAccept(void)
 	PortInet *port = allocPort(configuration, this);
 	socklen_t l = sizeof(address);
 
-	port->port_handle = (HANDLE) ::accept((SOCKET) port_handle,
-										(struct sockaddr *) &address, &l);
+	port->port_handle = ::accept(port_handle, (struct sockaddr *) &address, &l);
 										
 	if ((SOCKET) port->port_handle == INVALID_SOCKET) 
 		{
@@ -1263,7 +1245,7 @@ PortInet* PortInet::selectAccept(void)
 	if (n >= INET_max_clients) 
 		{
 		port_state = state_closed;
-		SOCLOSE((int) port_handle);
+		closeSocket((int) port_handle);
 		TEXT msg[64];
 		sprintf(msg,
 				"INET/select_accept: exec new server at client limit: %d", n);
@@ -1319,9 +1301,7 @@ int PortInet::selectWait(slct* selct)
 #endif
 
 		for (PortInet *port = this; port; port = (PortInet*) port->port_next)
-			{
-			if ((port->port_state == state_active) ||
-				(port->port_state == state_pending))
+			if ((port->port_state == state_active) || (port->port_state == state_pending))
 				{
 				/* Adjust down the port's keepalive timer. */
 
@@ -1336,7 +1316,6 @@ int PortInet::selectWait(slct* selct)
 #endif
 				found = true;
 				}
-			}
 			
 		//STOP_PORT_CRITICAL;
 
@@ -1370,38 +1349,24 @@ int PortInet::selectWait(slct* selct)
 				   they can be used in select_port() */
 				   
 				if (selct->slct_count == 0)
-					{
 					for (PortInet* port = this; port; port = (PortInet*) port->port_next)
-						{
-#ifdef WIN_NT
-						FD_CLR((SOCKET)port->port_handle, &selct->slct_fdset);
-#else
 						FD_CLR(port->port_handle, &selct->slct_fdset);
-#endif
-						}
-					}
+
 				return TRUE;
 				}
 			else if (INTERRUPT_ERROR(ERRNO))
 				continue;
-#ifndef WIN_NT
-			else if (ERRNO == EBADF)
+			else if (ERRNO == BAD_SOCKET)
 				break;
-#else
-			else if (ERRNO == WSAENOTSOCK)
-				break;
-#endif
 			else 
 				{
-				THREAD_ENTER;
-				sprintf(msg, "INET/select_wait: select failed, errno = %d",
-						ERRNO);
+				//THREAD_ENTER;
+				sprintf(msg, "INET/select_wait: select failed, errno = %d", ERRNO);
 				gds__log(msg, 0);
+				
 				return FALSE;
 				}
-			}	// for (;;)
-
-		THREAD_ENTER;
+			}
 		}
 }
 
@@ -1449,7 +1414,7 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 		}
 #endif
 		
-	//Port* port = (Port*) ALLOCV(type_port, INET_remote_buffer * 2);
+
 	PortInet *port = new PortInet (INET_remote_buffer * 2);
 	port->port_type = port_inet;
 	port->port_state = state_pending;
@@ -1460,13 +1425,10 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 		port->configuration = parent->configuration;
 		
 	gethostname(buffer, sizeof(buffer));
-	port->port_host = buffer; //REMOTE_make_string(buffer);
-	port->port_connection =  buffer; //REMOTE_make_string(buffer);
+	port->port_host = buffer; 
+	port->port_connection =  buffer;
 	port->port_version.Format("tcp (%s)", (const char*) port->port_host);
-	//port->port_version = REMOTE_make_string(buffer);
 
-	//START_PORT_CRITICAL;
-	
 	if (parent && !(parent->port_server_flags & SRVR_thread_per_port)) 
 		{
 		parent->addClient (port);
@@ -1475,18 +1437,6 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 		port->port_server_flags = parent->port_server_flags;
 		}
 		
-	//STOP_PORT_CRITICAL;
-
-	/***
-	port->port_accept = accept_connection;
-	port->port_disconnect = disconnect;
-	port->port_receive_packet = receive;
-	port->port_send_packet = send_full;
-	port->port_send_partial = send_partial;
-	port->port_connect = reinterpret_cast<PORT(*)(PORT, PACKET*, void (*)())>(aux_connect);
-	port->port_request = aux_request;
-	***/
-	
 	port->port_buff_size = (USHORT) INET_remote_buffer;
 
 	port->xdrCreate(&port->port_send, &port->port_buffer[INET_remote_buffer],
@@ -1497,7 +1447,7 @@ PortInet* PortInet::allocPort(ConfObject* configuration, PortInet* parent)
 	return port;
 }
 
-PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
+PortInet* PortInet::auxConnect(Packet* packet, void (*ast)(Port*))
 {
 /**************************************
  *
@@ -1523,12 +1473,12 @@ PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
 		if (n == INVALID_SOCKET) 
 			{
 			error("accept", isc_net_event_connect_err, ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 			}
 			
-		SOCLOSE(port_channel);
-		port_handle = (HANDLE) n;
+		closeSocket(port_channel);
+		port_handle = n;
 		port_flags |= PORT_async;
 		return this;
 		}
@@ -1563,7 +1513,7 @@ PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
 	if (status < 0) 
 		{
 		error("connect", isc_net_event_connect_err, ERRNO);
-		SOCLOSE(n);
+		closeSocket(n);
 		return NULL;
 		}
 
@@ -1579,7 +1529,7 @@ PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
 		if (ioctl(n, SIOCSPGRP, &arg) < 0) {
 			error("ioctl/SIOCSPGRP", isc_net_event_connect_err,
 					   ERRNO);
-			SOCLOSE(port_channel);
+			closeSocket(port_channel);
 			return NULL;
 		}
 
@@ -1588,7 +1538,7 @@ PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
 	}
 #endif /* SIOCSPGRP */
 
-	new_port->port_handle = (HANDLE) n;
+	new_port->port_handle = n;
 	new_port->port_flags |= port_flags & PORT_no_oob;
 
 	return new_port;
@@ -1597,6 +1547,10 @@ PortInet* PortInet::auxConnect(PACKET* packet, void (*ast)(Port*))
 int PortInet::error(const char* function, ISC_STATUS operation, int status)
 {
 	TEXT msg[64];
+
+#ifdef WIN_NT
+	int code = WSAGetLastError();
+#endif
 
 	if (status) 
 		{
@@ -1631,6 +1585,8 @@ int PortInet::error(const char* function, ISC_STATUS operation, int status)
 
 void PortInet::genError(ISC_STATUS status, ...)
 {
+	Sync sync (&syncRequest, "PortInet::genError");
+	sync.lock(Exclusive);
 	port_flags |= PORT_broken;
 	port_state = state_broken;
 
@@ -1660,156 +1616,6 @@ int PortInet::xdrCreate(xdr_t* xdrs, UCHAR* buffer, int length, xdr_op x_op)
 	return TRUE;
 }
 
-static caddr_t inet_inline( XDR* xdrs, u_int bytecount)
-{
-/**************************************
- *
- *	i n e t _  i n l i n e
- *
- **************************************
- *
- * Functional description
- *	Return a pointer to somewhere in the buffer.
- *
- **************************************/
-
-	if (bytecount > (u_int) xdrs->x_handy)
-		return FALSE;
-
-	return xdrs->x_base + bytecount;
-}
-
-static XDR_INT inet_destroy( XDR* xdrs)
-{
-/**************************************
- *
- *	i n e t _ d e s t r o y
- *
- **************************************
- *
- * Functional description
- *	Destroy a stream.  A no-op.
- *
- **************************************/
-
-	return (XDR_INT)0;
-}
-static bool_t inet_getlong( XDR * xdrs, SLONG * lp)
-{
-/**************************************
- *
- *	i n e t _ g e t l o n g
- *
- **************************************
- *
- * Functional description
- *	Fetch a longword into a memory stream if it fits.
- *
- **************************************/
-
-	SLONG l;
-
-	if (!(*xdrs->x_ops->x_getbytes) (xdrs, reinterpret_cast<char*>(&l), 4))
-		return FALSE;
-
-	*lp = ntohl(l);
-
-	return TRUE;
-}
-
-static u_int inet_getpostn( XDR * xdrs)
-{
-/**************************************
- *
- *	i n e t _ g e t p o s t n
- *
- **************************************
- *
- * Functional description
- *	Get the current position (which is also current length) from stream.
- *
- **************************************/
-
-	return (u_int) (xdrs->x_private - xdrs->x_base);
-}
-static bool_t inet_putbytes( XDR* xdrs, const SCHAR* buff, u_int count)
-{
-/**************************************
- *
- *	i n e t _ p u t b y t e s
- *
- **************************************
- *
- * Functional description
- *	Put a bunch of bytes to a memory stream if it fits.
- *
- **************************************/
-	SLONG bytecount = count;
-
-/* Use memcpy to optimize bulk transfers. */
-
-	while (bytecount > (SLONG) sizeof(ISC_QUAD)) {
-		if (xdrs->x_handy >= bytecount) {
-			memcpy(xdrs->x_private, buff, bytecount);
-			xdrs->x_private += bytecount;
-			xdrs->x_handy -= bytecount;
-			return TRUE;
-		}
-		else {
-			if (xdrs->x_handy > 0) {
-				memcpy(xdrs->x_private, buff, xdrs->x_handy);
-				xdrs->x_private += xdrs->x_handy;
-				buff += xdrs->x_handy;
-				bytecount -= xdrs->x_handy;
-				xdrs->x_handy = 0;
-			}
-			if (!inet_write(xdrs, 0))
-				return FALSE;
-		}
-	}
-
-/* Scalar values and bulk transfer remainder fall thru
-   to be moved byte-by-byte to avoid memcpy setup costs. */
-
-	if (!bytecount)
-		return TRUE;
-
-	if (xdrs->x_handy >= bytecount) {
-		xdrs->x_handy -= bytecount;
-		do {
-			*xdrs->x_private++ = *buff++;
-		} while (--bytecount);
-		return TRUE;
-	}
-
-	while (--bytecount >= 0) {
-		if (xdrs->x_handy <= 0 && !inet_write(xdrs, 0))
-			return FALSE;
-		--xdrs->x_handy;
-		*xdrs->x_private++ = *buff++;
-	}
-
-	return TRUE;
-}
-
-// CVC: It could be const SLONG* lp, but it should fit into xdr_ops' signature.
-static bool_t inet_putlong( XDR* xdrs, SLONG* lp)
-{
-/**************************************
- *
- *	i n e t _ p u t l o n g
- *
- **************************************
- *
- * Functional description
- *	Fetch a longword into a memory stream if it fits.
- *
- **************************************/
-	const SLONG l = htonl(*lp);
-	return (*xdrs->x_ops->x_putbytes) (xdrs,
-									   reinterpret_cast<const char*>(AOF32L(l)),
-									   4);
-}
 
 static bool_t inet_read( XDR * xdrs)
 {
@@ -1875,26 +1681,6 @@ static bool_t inet_read( XDR * xdrs)
 	return TRUE;
 }
 
-static bool_t inet_setpostn( XDR * xdrs, u_int bytecount)
-{
-/**************************************
- *
- *	i n e t _ s e t p o s t n
- *
- **************************************
- *
- * Functional description
- *	Set the current position (which is also current length) from stream.
- *
- **************************************/
-
-	if (bytecount > (u_int) xdrs->x_handy)
-		return FALSE;
-
-	xdrs->x_private = xdrs->x_base + bytecount;
-
-	return TRUE;
-}
 
 static bool_t inet_write( XDR * xdrs, bool_t end_flag)
 {
@@ -2023,7 +1809,7 @@ int PortInet::receive(UCHAR* buffer, int buffer_length, short* length)
 
 	int ph = (int) port_handle;
 	// Unsed to send a dummy packet, but too big to be defined in the loop.
-	PACKET packet;
+	Packet packet;
 #endif
 
 #ifdef VMS
@@ -2066,11 +1852,9 @@ int PortInet::receive(UCHAR* buffer, int buffer_length, short* length)
 			for (;;) 
 				{
 #if (defined WIN_NT)
-				slct_count = select(FD_SETSIZE, &slct_fdset,
-									NULL, NULL, time_ptr);
+				slct_count = select(FD_SETSIZE, &slct_fdset, NULL, NULL, time_ptr);
 #else
-				slct_count = select((SOCKET) port_handle + 1, &slct_fdset,
-						   NULL, NULL, time_ptr);
+				slct_count = select((SOCKET) port_handle + 1, &slct_fdset, NULL, NULL, time_ptr);
 #endif
 
 				// restore original timeout value FSG 3 MAY 2001
@@ -2286,6 +2070,7 @@ int PortInet::sendFull(Packet* packet)
 	{
 		static ULONG op_sent_count = 0;
 		op_sent_count++;
+		
 		if (INET_trace & TRACE_operations) 
 			{
 			ib_fprintf(ib_stdout, "%05lu: OP Sent %5lu opcode %d\n",
@@ -2441,8 +2226,7 @@ static PortInet* inet_try_connect(ConfObject *configuration,
 
 	if (!port) 
 		{
-		//ALLR_release((BLK) rdb);
-		delete rdb;
+		rdb->release();
 		return NULL;
 		}
 
@@ -2455,8 +2239,7 @@ static PortInet* inet_try_connect(ConfObject *configuration,
 		{
 		port->error("receive in try_connect", isc_net_connect_err, ERRNO);
 		port->disconnect();
-		//ALLR_release((BLK) rdb);
-		delete rdb;
+		rdb->release();
 		return NULL;
 		}
 
@@ -2465,7 +2248,7 @@ static PortInet* inet_try_connect(ConfObject *configuration,
 
 Port* INET_connect(const TEXT* name,
 				  ConfObject *configuration, 
-				  PACKET* packet,
+				  Packet* packet,
 				  ISC_STATUS* status_vector,
 				  USHORT flag, 
 				  const UCHAR* dpb, 
@@ -2681,7 +2464,7 @@ Port* INET_connect(const TEXT* name,
 
 /* Allocate a port block and initialize a socket for communications */
 
-	port->port_handle = (HANDLE) socket(AF_INET, SOCK_STREAM, 0);
+	port->port_handle = socket(AF_INET, SOCK_STREAM, 0);
 
 	if ((SOCKET) port->port_handle == INVALID_SOCKET)
 		{
@@ -2791,9 +2574,9 @@ Port* INET_connect(const TEXT* name,
 			port->disconnect();
 			return NULL;
 			}
-	}
+		}
 
-	n = listen((SOCKET) port->port_handle, 5);
+	n = listen((SOCKET) port->port_handle, 25);
 
 	if (n == -1) 
 		{
@@ -2832,13 +2615,13 @@ Port* INET_connect(const TEXT* name,
 #endif
 			{
 			THREAD_ENTER;
-			SOCLOSE((SOCKET) port->port_handle);
+			closeSocket((SOCKET) port->port_handle);
 			port->port_handle = (HANDLE) s;
 			port->port_server_flags |= SRVR_server;
 			return port;
 			}
 ***/
-		SOCLOSE(s);
+		PortInet::closeSocket(s);
 		}
 }
 
@@ -2880,7 +2663,7 @@ static in_addr get_host_address(const TEXT* name)
 			inet_copy(host->h_addr, (SCHAR*) &address, sizeof(address));
 		}
 
-	THREAD_ENTER;
+	//THREAD_ENTER;
 
 	return address;
 }
@@ -2904,7 +2687,7 @@ Port* INET_server(ConfObject *configuration, int sock)
 
 	PortInet *port = PortInet::allocPort(configuration, 0);
 	port->port_server_flags |= SRVR_server;
-	port->port_handle = (HANDLE) sock;
+	port->port_handle = sock;
 	port->configuration = configuration;
 
 	int optval = 1;
@@ -2951,7 +2734,7 @@ Port* INET_reconnect(HANDLE handle, ConfObject *configuration, ISC_STATUS* statu
 	status_vector[1] = 0;
 	status_vector[2] = isc_arg_end;
 
-	port->port_handle = handle;
+	port->port_handle = (SOCKET) handle;
 	port->port_server_flags |= SRVR_server;
 
 	return port;
@@ -3238,4 +3021,132 @@ int PortInet::parseLine(char* entry1, char* entry2, char* host_name, char* user_
 
 void PortInet::alarmHandler(int x)
 {
+}
+
+bool_t PortInet::getBytes(XDR* xdrs, SCHAR* buff, u_int count)
+{
+	SLONG bytecount = count;
+
+	/* Use memcpy to optimize bulk transfers. */
+
+	while (bytecount > (SLONG) sizeof(ISC_QUAD))
+		{
+		if (xdrs->x_handy >= bytecount) 
+			{
+			memcpy(buff, xdrs->x_private, bytecount);
+			xdrs->x_private += bytecount;
+			xdrs->x_handy -= bytecount;
+			
+			return TRUE;
+			}
+		else 
+			{
+			if (xdrs->x_handy > 0) 
+				{
+				memcpy(buff, xdrs->x_private, xdrs->x_handy);
+				xdrs->x_private += xdrs->x_handy;
+				buff += xdrs->x_handy;
+				bytecount -= xdrs->x_handy;
+				xdrs->x_handy = 0;
+				}
+				
+			if (!inet_read(xdrs))
+				return FALSE;
+			}
+		}
+
+	/* Scalar values and bulk transfer remainder fall thru
+	   to be moved byte-by-byte to avoid memcpy setup costs. */
+
+	if (!bytecount)
+		return TRUE;
+
+	if (xdrs->x_handy >= bytecount) 
+		{
+		xdrs->x_handy -= bytecount;
+		do
+			*buff++ = *xdrs->x_private++;
+		while (--bytecount);
+		return TRUE;
+		}
+
+	while (--bytecount >= 0) 
+		{
+		if (!xdrs->x_handy && !inet_read(xdrs))
+			return FALSE;
+		*buff++ = *xdrs->x_private++;
+		--xdrs->x_handy;
+		}
+
+	return TRUE;
+}
+
+bool_t PortInet::putBytes(XDR* xdrs, const SCHAR* buff, u_int count)
+{
+	SLONG bytecount = count;
+
+	/* Use memcpy to optimize bulk transfers. */
+
+	while (bytecount > (SLONG) sizeof(ISC_QUAD))
+		 {
+		if (xdrs->x_handy >= bytecount) 
+			{
+			memcpy(xdrs->x_private, buff, bytecount);
+			xdrs->x_private += bytecount;
+			xdrs->x_handy -= bytecount;
+			
+			return TRUE;
+			}
+		else 
+			{
+			if (xdrs->x_handy > 0) 
+				{
+				memcpy(xdrs->x_private, buff, xdrs->x_handy);
+				xdrs->x_private += xdrs->x_handy;
+				buff += xdrs->x_handy;
+				bytecount -= xdrs->x_handy;
+				xdrs->x_handy = 0;
+				}
+				
+			if (!inet_write(xdrs, 0))
+				return FALSE;
+			}
+		}
+
+	/* Scalar values and bulk transfer remainder fall thru
+	   to be moved byte-by-byte to avoid memcpy setup costs. */
+
+	if (!bytecount)
+		return TRUE;
+
+	if (xdrs->x_handy >= bytecount) 
+		{
+		xdrs->x_handy -= bytecount;
+		
+		do {
+			*xdrs->x_private++ = *buff++;
+		} while (--bytecount);
+		
+		return TRUE;
+		}
+
+	while (--bytecount >= 0) 
+		{
+		if (xdrs->x_handy <= 0 && !inet_write(xdrs, 0))
+			return FALSE;
+			
+		--xdrs->x_handy;
+		*xdrs->x_private++ = *buff++;
+		}
+
+	return TRUE;
+}
+
+int PortInet::closeSocket(SOCKET socket)
+{
+#ifdef WIN_NT
+	return closesocket(socket);
+#else
+	return close(socket);
+#endif
 }

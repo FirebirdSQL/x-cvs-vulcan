@@ -53,6 +53,8 @@ public:
 	YStatement		*next;
 	YStatement		*prior;
 	YSQLDA			outYSqlda;
+	bool			active;
+	
 	ISC_STATUS releaseStatement(StatusVector& statusVector, int options, bool force);
 };
 

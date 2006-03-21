@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../wal/wal.h"

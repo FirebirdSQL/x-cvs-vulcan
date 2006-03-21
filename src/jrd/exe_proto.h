@@ -25,25 +25,20 @@
 #define JRD_EXE_PROTO_H
 
 class jrd_node;
-struct tdbb;
+struct thread_db;
 class Request;
-class Rsb;
 class Transaction;
 
-void EXE_assignment(tdbb*, jrd_nod*);
-Request* EXE_find_request(tdbb*, Request *, bool);
-void EXE_receive(tdbb*, Request*, USHORT, USHORT, UCHAR*);
-void EXE_send(tdbb*, Request *, USHORT, USHORT, const UCHAR *);
-void EXE_start(tdbb*, Request *, Transaction *);
-void EXE_unwind(tdbb*, Request *);
+void EXE_assignment(thread_db*, jrd_nod*);
+Request* EXE_find_request(thread_db*, Request *, bool);
+void EXE_receive(thread_db*, Request*, USHORT, USHORT, UCHAR*);
+void EXE_send(thread_db*, Request *, USHORT, USHORT, const UCHAR *);
+void EXE_start(thread_db*, Request *, Transaction *);
+
 #ifdef SCROLLABLE_CURSORS
-void EXE_seek(tdbb*, Request *, USHORT, ULONG);
+void EXE_seek(thread_db*, Request *, USHORT, ULONG);
 #endif
 
-#ifdef PC_ENGINE
-bool EXE_crack(tdbb*, Rsb*, USHORT);
-void EXE_mark_crack(tdbb*, Rsb*, USHORT);
-#endif
 
 
 #endif /* JRD_EXE_PROTO_H */

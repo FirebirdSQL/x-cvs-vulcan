@@ -6,13 +6,14 @@ export VULCAN
 export PATH
 export LD_LIBRARY_PATH
 
-for x in config why gpre remote jrd intlcpp burp isql qli server lock IscDbc XLoad ; do
+for x in why config gpre remote jrd burp msgs qli isql server intlcpp IscDbc lock alice gsec gstat Services ; do
 	(
 	cd $x
 	echo
+	echo "build: Entering directory \`$PWD'"
 	echo Building $x
 	echo
-	./gen
+	./gen $*
 	gmake
 	gmake install
 	)

@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/val.h"
@@ -34,7 +34,7 @@
 static SSHORT hash_func(const TEXT *);
 
 
-void SYM_insert(DBB dbb, Sym* symbol)
+void SYM_insert(DBB dbb, Symbol* symbol)
 {
 /**************************************
  *
@@ -49,7 +49,7 @@ void SYM_insert(DBB dbb, Sym* symbol)
 
 	int h = hash_func(symbol->sym_string);
 
-	for (Sym* old = dbb->dbb_hash_table[h]; old; old = old->sym_collision)
+	for (Symbol* old = dbb->dbb_hash_table[h]; old; old = old->sym_collision)
 		if (!strcmp(symbol->sym_string, old->sym_string)) 
 			{
 			symbol->sym_homonym = old->sym_homonym;
@@ -62,7 +62,7 @@ void SYM_insert(DBB dbb, Sym* symbol)
 }
 
 
-Sym* SYM_lookup(tdbb *tdbb, const TEXT * string)
+Symbol* SYM_lookup(thread_db* tdbb, const TEXT * string)
 {
 /**************************************
  *
@@ -78,7 +78,7 @@ Sym* SYM_lookup(tdbb *tdbb, const TEXT * string)
 
 	//dbb = GET_DBB;
 
-	for (Sym* symbol = dbb->dbb_hash_table[hash_func(string)]; symbol; symbol = symbol->sym_collision)
+	for (Symbol* symbol = dbb->dbb_hash_table[hash_func(string)]; symbol; symbol = symbol->sym_collision)
 		if (!strcmp(string, symbol->sym_string)) 
 			return symbol;
 
@@ -86,7 +86,7 @@ Sym* SYM_lookup(tdbb *tdbb, const TEXT * string)
 }
 
 
-void SYM_remove(DBB dbb, Sym* symbol)
+void SYM_remove(DBB dbb, Symbol* symbol)
 {
 /**************************************
  *
@@ -99,7 +99,9 @@ void SYM_remove(DBB dbb, Sym* symbol)
  *
  **************************************/
 	int h;
-	SYM *next, *ptr, homonym;
+	Symbol** next;
+	Symbol** ptr;
+	Symbol* homonym;
 
 	h = hash_func(symbol->sym_string);
 

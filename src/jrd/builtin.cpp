@@ -23,7 +23,7 @@
  * $Id$
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/flu.h"
 #include "../jrd/common.h"

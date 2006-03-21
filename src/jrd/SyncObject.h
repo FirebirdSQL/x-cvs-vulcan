@@ -56,8 +56,10 @@
 #endif
 
 CLASS(Sync);
+CLASS(Thread);
 
-class Thread;
+START_NAMESPACE
+
 class LinkedList;
 
 class SyncObject : public SynchronizationObject
@@ -97,5 +99,7 @@ public:
 	bool ourExclusiveLock(void);
 	bool lockConditional(LockType type);
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_SYNCOBJECT_H__59333A53_BC53_11D2_AB5E_0000C01D2301__INCLUDED_)

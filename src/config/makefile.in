@@ -1,202 +1,198 @@
-AdminException.o: AdminException.cpp ../include/firebird.h \
+AdminException.o: AdminException.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h AdminException.h \
-  ../jrd/JString.h
-Args.o: Args.cpp ../include/firebird.h ../include/gen/autoconfig.h \
-  ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h Args.h ArgsException.h ../jrd/JString.h
-ArgsException.o: ArgsException.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ArgsException.h \
-  ../jrd/JString.h
-Config.o: Config.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h AdminException.h ../jrd/JString.h
+Args.o: Args.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
-  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h Config.h Configuration.h ConfObject.h \
-  ../jrd/JString.h ../jrd/RefObject.h ConfObj.h ConfigFile.h Lex.h \
-  Stream.h Args.h ../why/Provider.h AdminException.h ../jrd/MemMgr.h \
-  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h
-ConfigFile.o: ConfigFile.cpp ../include/firebird.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h Args.h \
+  ArgsException.h ../jrd/JString.h
+ArgsException.o: ArgsException.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ConfigFile.h Lex.h Stream.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ArgsException.h ../jrd/JString.h
+Config.o: Config.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h Config.h \
+  Configuration.h ConfObject.h ../jrd/JString.h ../jrd/RefObject.h \
+  ConfObj.h ConfigFile.h Lex.h Stream.h Args.h ../why/Provider.h \
+  AdminException.h ../jrd/MemMgr.h ../jrd/Mutex.h \
+  ../jrd/SynchronizationObject.h ../jrd/SyncObject.h
+ConfigFile.o: ConfigFile.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ConfigFile.h Lex.h Stream.h \
   ../jrd/JString.h ../jrd/RefObject.h ConfObject.h InputFile.h \
-  InputStream.h Element.h AdminException.h
-Configuration.o: Configuration.cpp ../include/firebird.h \
+  InputStream.h Element.h AdminException.h ScanDir.h
+Configuration.o: Configuration.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h Configuration.h ConfigFile.h \
-  Lex.h Stream.h ../jrd/JString.h ../jrd/RefObject.h
-ConfObj.o: ConfObj.cpp ../include/firebird.h ../include/gen/autoconfig.h \
-  ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h ConfObj.h ConfObject.h ../jrd/JString.h \
-  ../jrd/RefObject.h
-ConfObject.o: ConfObject.cpp ../include/firebird.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h Configuration.h ConfigFile.h \
+  Lex.h Stream.h ../jrd/JString.h ../jrd/RefObject.h
+ConfObj.o: ConfObj.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ConfObj.h \
+  ConfObject.h ../jrd/JString.h ../jrd/RefObject.h
+ConfObject.o: ConfObject.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ConfObject.h ../jrd/JString.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ConfObject.h ../jrd/JString.h \
   ../jrd/RefObject.h Element.h AdminException.h ConfigFile.h Lex.h \
   Stream.h ../jrd/PathName.h
-DirectoryList.o: DirectoryList.cpp ../include/firebird.h \
+DirectoryList.o: DirectoryList.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h DirectoryList.h \
-  AdminException.h ../jrd/JString.h
-Element.o: Element.cpp ../include/firebird.h ../include/gen/autoconfig.h \
-  ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h Element.h ../jrd/JString.h Stream.h \
-  InputStream.h
-ExternalLibrary.o: ../jrd/ExternalLibrary.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemMgr.h \
-  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
-  ../jrd/ExternalLibrary.h ../jrd/JString.h
-fb_exception.o: ../common/fb_exception.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h
-FileName.o: FileName.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h FileName.h ../jrd/JString.h
-InputFile.o: InputFile.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h InputFile.h InputStream.h \
-  ../jrd/JString.h AdminException.h
-InputStream.o: InputStream.cpp InputStream.h
-JString.o: ../jrd/JString.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemMgr.h \
-  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h DirectoryList.h AdminException.h \
   ../jrd/JString.h
-Lex.o: Lex.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+Element.o: Element.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h Element.h \
+  ../jrd/JString.h Stream.h InputStream.h
+ExternalLibrary.o: ../jrd/ExternalLibrary.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h Lex.h Stream.h ../jrd/JString.h \
-  AdminException.h InputStream.h
-locks.o: ../common/classes/locks.cpp ../include/firebird.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemMgr.h ../jrd/Mutex.h \
+  ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
+  ../jrd/ExternalLibrary.h ../jrd/JString.h
+fb_exception.o: ../common/fb_exception.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../common/classes/locks.h
-MemMgr.o: ../jrd/MemMgr.cpp ../include/firebird.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h
+InputFile.o: InputFile.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h InputFile.h \
+  InputStream.h ../jrd/JString.h AdminException.h
+InputStream.o: InputStream.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemMgr.h \
-  ../jrd/Mutex.h ../jrd/SynchronizationObject.h ../jrd/SyncObject.h \
-  ../jrd/Sync.h ../jrd/OSRIMemException.h ../jrd/OSRIException.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h InputStream.h
+JString.o: ../jrd/JString.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemMgr.h ../jrd/Mutex.h \
+  ../jrd/SynchronizationObject.h ../jrd/SyncObject.h ../jrd/JString.h
+Lex.o: Lex.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h Lex.h Stream.h \
+  ../jrd/JString.h AdminException.h InputStream.h
+locks.o: ../common/classes/locks.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../common/classes/locks.h
+MemMgr.o: ../jrd/MemMgr.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemMgr.h ../jrd/Mutex.h \
+  ../jrd/SynchronizationObject.h ../jrd/SyncObject.h ../jrd/Sync.h \
+  ../jrd/OSRIMemException.h ../jrd/OSRIException.h ../jrd/Interlock.h \
   ../include/gen/iberror.h
-Mutex.o: ../jrd/Mutex.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/Mutex.h \
+Mutex.o: ../jrd/Mutex.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/Mutex.h \
   ../jrd/SynchronizationObject.h
-OSRIException.o: ../jrd/OSRIException.cpp ../include/firebird.h \
+OSRIException.o: ../jrd/OSRIException.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../include/gen/iberror.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../include/gen/iberror.h \
   ../jrd/OSRIException.h ../jrd/Mutex.h ../jrd/SynchronizationObject.h \
   ../jrd/Sync.h ../IscDbc/SQLException.h AdminException.h \
-  ../jrd/JString.h
-OSRIMemException.o: ../jrd/OSRIMemException.cpp ../include/firebird.h \
+  ../jrd/JString.h ../jrd/StatusPrint.h
+OSRIMemException.o: ../jrd/OSRIMemException.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/OSRIMemException.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/OSRIMemException.h \
   ../jrd/OSRIException.h ../include/gen/iberror.h
-PathName.o: ../jrd/PathName.cpp ../include/firebird.h \
+PathName.o: ../jrd/PathName.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/ibase.h ../jrd/blr.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/ibase.h ../jrd/blr.h \
   ../include/gen/iberror.h ../jrd/PathName.h ../jrd/JString.h
-Provider.o: ../why/Provider.cpp ../include/firebird.h \
+Provider.o: ../why/Provider.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../why/Provider.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
+  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../why/Provider.h \
   ../jrd/JString.h ConfObject.h ../jrd/RefObject.h \
   ../jrd/ExternalLibrary.h ../jrd/Subsystem.h ../dsql/sqlda.h
-RefObject.o: ../jrd/RefObject.cpp ../include/firebird.h \
+RefObject.o: ../jrd/RefObject.cpp ../include/fbdev.h \
   ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h ../jrd/RefObject.h
-Stream.o: Stream.cpp ../include/firebird.h ../include/gen/autoconfig.h \
-  ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h Stream.h ../jrd/JString.h StreamSegment.h
-StreamSegment.o: StreamSegment.cpp ../include/firebird.h \
-  ../include/gen/autoconfig.h ../include/fb_exception.h \
-  ../include/fb_types.h ../common/classes/alloc.h ../jrd/common.h \
-  ../include/fb_macros.h ../jrd/linux.h ../jrd/MemoryManager.h \
-  ../jrd/ib_stdio.h ../common/classes/tree.h ../jrd/gdsassert.h \
-  ../jrd/Error.h ../common/classes/vector.h StreamSegment.h Stream.h \
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h ../jrd/RefObject.h
+ScanDir.o: ScanDir.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ScanDir.h \
   ../jrd/JString.h
-Sync.o: ../jrd/Sync.cpp ../include/firebird.h ../include/gen/autoconfig.h \
+Stream.o: Stream.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h Stream.h \
+  ../jrd/JString.h StreamSegment.h
+StreamSegment.o: StreamSegment.cpp ../include/fbdev.h \
+  ../include/gen/autoconfig.h ../include/fb_exception.h \
+  ../include/fb_types.h ../common/classes/alloc.h \
   ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h ../jrd/Sync.h ../jrd/SynchronizationObject.h \
-  ../jrd/LinkedList.h
+  ../common/classes/vector.h ../jrd/MemoryManager.h ../jrd/common.h \
+  ../include/fb_macros.h ../jrd/linux.h StreamSegment.h Stream.h \
+  ../jrd/JString.h
+Sync.o: ../jrd/Sync.cpp ../include/fbdev.h ../include/gen/autoconfig.h \
+  ../include/fb_exception.h ../include/fb_types.h \
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h ../jrd/Sync.h \
+  ../jrd/SynchronizationObject.h ../jrd/LinkedList.h
 SynchronizationObject.o: ../jrd/SynchronizationObject.cpp \
-  ../include/firebird.h ../include/gen/autoconfig.h \
+  ../include/fbdev.h ../include/gen/autoconfig.h \
   ../include/fb_exception.h ../include/fb_types.h \
-  ../common/classes/alloc.h ../jrd/common.h ../include/fb_macros.h \
-  ../jrd/linux.h ../jrd/MemoryManager.h ../jrd/ib_stdio.h \
-  ../common/classes/tree.h ../jrd/gdsassert.h ../jrd/Error.h \
-  ../common/classes/vector.h ../jrd/SynchronizationObject.h
+  ../common/classes/alloc.h ../common/classes/tree.h ../jrd/gdsassert.h \
+  ../jrd/Error.h ../common/classes/vector.h ../jrd/MemoryManager.h \
+  ../jrd/common.h ../include/fb_macros.h ../jrd/linux.h \
+  ../jrd/SynchronizationObject.h

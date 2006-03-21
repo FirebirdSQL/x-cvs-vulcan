@@ -19,7 +19,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "RBlob.h"
@@ -38,15 +38,11 @@ RBlob::RBlob(RTransaction *transaction, int size)
 	rbl_buffer = rbl_data;
 	rbl_ptr = rbl_buffer;
 	rbl_id = 0;
+	rbl_length = 0;
+	rbl_fragment_length = 0;
+	rbl_offset = 0;
 	/***
-	SLONG		rbl_offset;	
-	USHORT		rbl_id;
-	USHORT		rbl_flags;
 	UCHAR*		rbl_ptr;
-	UCHAR*		rbl_buffer;
-	USHORT		rbl_buffer_length;
-	USHORT		rbl_length;
-	USHORT		rbl_fragment_length;
 	USHORT		rbl_source_interp;	// source interp (for writing)
 	USHORT		rbl_target_interp;	// destination interp (for reading) 
 	***/

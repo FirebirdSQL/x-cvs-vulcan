@@ -29,8 +29,10 @@
 
 #include "JString.h"
 
-class ExternalLibrary;
-class Entrypoint;
+CLASS (ExternalLibrary);
+CLASS (Entrypoint);
+
+START_NAMESPACE
 
 class Module
 {
@@ -44,5 +46,7 @@ public:
 	ExternalLibrary	*library;
 	Entrypoint		*entrypoints;
 };
+
+END_NAMESPACE
 
 #endif

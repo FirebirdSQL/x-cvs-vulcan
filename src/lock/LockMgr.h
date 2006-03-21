@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *      PROGRAM:        JRD Lock Manager
  *      MODULE:         LockMgr.h
@@ -55,6 +56,8 @@
 #include "../jrd/common.h"
 #include "../jrd/file_params.h"
 #include "AsyncEvent.h"
+#include "Thread.h"
+#include "Mutex.h"
 
 #ifdef WIN_NT
 #define DEFAULT_SIZE    32768
@@ -70,6 +73,9 @@
 #define EXTEND_SIZE     32768
 #endif
 
+
+#if 0
+
 #ifdef SCO_UNIX
 #define SEMAPHORES      25
 #endif
@@ -82,12 +88,10 @@
 #define SEMAPHORES      32
 #endif
 
-#undef BASE
-#define BASE                    ((UCHAR*) LOCK_header)
-#define REL_PTR(item)           (PTR) ((UCHAR*) item - BASE)
-#define ABS_PTR(item)           (BASE + item)
+#endif
 
 typedef SLONG	PTR;
+class Database;
 
 /* Maximum lock series for gathering statistics
    and querying data */
@@ -114,20 +118,6 @@ typedef SLONG	PTR;
 #define LCK_EX          6		/* Exclusive */
 #define LCK_max         7
 
-/* Lock block types */
-
-#define type_null       0
-#define type_lhb        1
-#define type_prb        2
-#define type_lrq        3
-#define type_lbl        4
-#define type_his        5
-#define type_smb        6
-#define type_shb        7
-#define type_own        8
-
-#define type_MAX        type_own
-
 
 
 /* Self-relative que block.  Offsets are from the block itself. */
@@ -135,7 +125,7 @@ typedef SLONG	PTR;
 typedef struct srq {
 	PTR srq_forward;			/* Forward offset */
 	PTR srq_backward;			/* Backward offset */
-} *SRQ;
+} *PSRQ;
 
 
 #define CLASSIC_LHB_VERSION	16 // Vulcan 1.0
@@ -184,8 +174,8 @@ struct LockHeader  {
 	USHORT	lhb_hash_slots;		/* Number of hash slots allocated */
 	USHORT	lhb_flags;			/* Miscellaneous info */
 	MTX_T	lhb_mutex[1];		/* Mutex controlling access */
-	ULONG	lhb_semid;			/* Semaphores
-	PTR		lhb_manager;		/* Lock manager owner block */
+	ULONG	lhb_semid;			/* Semaphores */
+	//PTR		lhb_manager;		/* Lock manager owner block */
 	PTR		lhb_history;
 	ULONG	lhb_process_count;	/* To give a unique id to each process attachment to the lock table */
 	//PTR	lhb_mask;			/* Semaphore mask block */
@@ -261,7 +251,7 @@ struct LockBlock
 
 typedef LockBlock *LBL;
 
-/* No flags are defined for LBL at this time */
+#define LBL_converting	1 			/* waiting on a convert */
 
 /* Lock requests */
 
@@ -275,12 +265,16 @@ struct LockRequest {
 	SLONG		lrq_data;			/* Lock data requested */
 	srq			lrq_own_requests;	/* Locks granted for owner */
 	srq			lrq_lbl_requests;	/* Que of requests (active, pending) */
-	//srq		lrq_own_blocks;		/* Owner block que */
-	srq 		lrq_own_pending;	/* Owner block or pending que */
+	srq			lrq_own_blocks;		/* Owner block que */
+	srq 		lrq_own_pending;	/* Pending que */
 	lock_ast_t	lrq_ast_routine;	/* Block ast routine */
 	void		*lrq_ast_argument;	/* Ast argument */
 	PTR			lrq_wakeup_event;
-	int			lrq_thread_id;
+#ifdef SHARED_CACHE
+	THREAD_ID	lrq_thread_id;
+#else
+	Database	*lrq_dbb;
+#endif
 };
 
 typedef LockRequest *LRQ;
@@ -316,6 +310,9 @@ struct LockOwner
 	ULONG	own_acquire_realtime;	/* GET_TIME when owner last tried acquire() */
 	PTR		own_events;				/* Free event blocks */
 	PTR		own_blocking_event;		/* blocking event */
+#ifndef SHARED_CACHE
+	Database	*own_dbb;
+#endif
 	
 	//AsyncEvent own_blocking[1];		/* Blocking event block */
 	AsyncEvent own_stall[1];		/* Owner is stalling for other owner */
@@ -358,23 +355,25 @@ struct LockEvent {
 };
 
 
+#if 0
 /* Semaphore mask block */
 
 typedef struct smb {
 	UCHAR smb_type;				/* memory tag - always type_smb */
 	ULONG smb_mask[1];			/* Mask of available semaphores */
 } *SMB;
+#endif
 
 /* Lock manager history block */
 
-typedef struct his {
+struct LockHistory {
 	UCHAR his_type;				/* memory tag - always type_his */
 	UCHAR his_operation;		/* operation that occured */
 	PTR his_next;				/* PTR to next item in history list */
 	PTR his_process;			/* owner to record for this operation */
 	PTR his_lock;				/* lock to record for operation */
 	PTR his_request;			/* request to record for operation */
-} *HIS;
+}; // *HIS;
 
 /* his_operation definitions */
 #define his_enq         1
@@ -400,107 +399,193 @@ typedef struct his {
 
 CLASS(ConfObject);
 
+#ifdef SHARED_CACHE
+#define STATIC static
+#else
+#define STATIC
+#endif
+
 class LockMgr
 {
 public:
 	LockMgr(void);
 	~LockMgr(void);
 
-	static int		LOCK_convert(SLONG, UCHAR, SSHORT, int (*)(void *), void *, ISC_STATUS *);
-	static int		LOCK_deq(PTR);
-	static UCHAR	LOCK_downgrade(SLONG, ISC_STATUS *);
-	static SLONG	LOCK_enq(PTR, PTR, USHORT, UCHAR *, USHORT, UCHAR,
+	STATIC int		LOCK_convert(SLONG, UCHAR, SSHORT, int (*)(void *), void *, ISC_STATUS *);
+	STATIC int		LOCK_deq(PTR);
+	STATIC UCHAR	LOCK_downgrade(SLONG, ISC_STATUS *);
+	STATIC SLONG	LOCK_enq(PTR, PTR, USHORT, UCHAR *, USHORT, UCHAR,
 						lock_ast_t, void *, SLONG, SSHORT, ISC_STATUS *,
 						PTR);
-	static void		LOCK_fini(ISC_STATUS*, PTR*);
+	STATIC void	LOCK_fini(ISC_STATUS*, PTR*);
+#ifdef SHARED_CACHE
 	static int		LOCK_init(ISC_STATUS *, ConfObject *configuration, long, UCHAR, SLONG *);
-	static void		LOCK_manager(SLONG);
-	static SLONG	LOCK_query_data(SLONG, USHORT, USHORT);
-	static SLONG	LOCK_read_data(SLONG);
-	static SLONG	LOCK_read_data2(SLONG, USHORT, UCHAR *, USHORT, SLONG);
-	static void		LOCK_re_post(int (*)(void *), void *, SLONG);
-	static bool		LOCK_shut_manager(void);
-	static SLONG	LOCK_write_data(SLONG, SLONG);
-	static void		LOCK_ast_inhibit();
-	static void		LOCK_ast_enable();
+#else
+	int		LOCK_init(Database *dbb, ISC_STATUS *, ConfObject *configuration, long, UCHAR, SLONG *);
+#endif
+	STATIC void	LOCK_manager(SLONG);
+	STATIC SLONG	LOCK_query_data(SLONG, USHORT, USHORT);
+	STATIC SLONG	LOCK_read_data(SLONG);
+	STATIC SLONG	LOCK_read_data2(SLONG, USHORT, UCHAR *, USHORT, SLONG);
+	STATIC void	LOCK_re_post(int (*)(void *), void *, SLONG);
+	STATIC bool	LOCK_shut_manager(void);
+	STATIC SLONG	LOCK_write_data(SLONG, SLONG);
+	STATIC void	LOCK_ast_inhibit();
+	STATIC void	LOCK_ast_enable();
 
 protected:
-	static void acquire(PTR);
-	static UCHAR *alloc(SSHORT, ISC_STATUS *);
-	static LBL alloc_lock(USHORT, ISC_STATUS *);
+	STATIC void acquire(PTR);
+	STATIC UCHAR *alloc(SSHORT, ISC_STATUS *);
+	STATIC LBL alloc_lock(USHORT, ISC_STATUS *);
 
 #ifdef USE_STATIC_SEMAPHORES
-	static USHORT alloc_semaphore(OWN, ISC_STATUS *);
-	static void release_semaphore(OWN);
+	STATIC USHORT alloc_semaphore(OWN, ISC_STATUS *);
+	STATIC void release_semaphore(OWN);
 #endif
 
-	static void blocking_action(PTR owner_offset);
-	static void blocking_action2(PTR, PTR);
+	STATIC void blocking_action(PTR owner_offset);
+	STATIC void blocking_action2(PTR, PTR);
 	static int blocking_action_thread(void*);
-	static void bug(ISC_STATUS *, const TEXT *);
-	static bool convert(PTR, UCHAR, SSHORT, lock_ast_t, void *, ISC_STATUS *);
-	static LockOwner* create_owner(ISC_STATUS *, SLONG, UCHAR);
+#ifndef SHARED_CACHE
+	int blocking_action_thread();
+#endif
+	STATIC void bug(ISC_STATUS *, const TEXT *);
+	STATIC bool convert(PTR, UCHAR, SSHORT, lock_ast_t, void *, ISC_STATUS *);
+	STATIC LockOwner* create_owner(ISC_STATUS *, SLONG, UCHAR);
 
 #ifdef DEV_BUILD
-	static void bug_assert(const TEXT *, ULONG);
-	static void current_is_active_owner(bool, ULONG);
-	static void debug_delay(ULONG);
+	STATIC void bug_assert(const TEXT *, ULONG);
+	STATIC void current_is_active_owner(bool, ULONG);
+	STATIC void debug_delay(ULONG);
 #endif
 
-	static void deadlock_clear(void);
-	static LRQ deadlock_scan(OWN, LRQ);
-	static LRQ deadlock_walk(LRQ, bool *);
-	static void dequeue(PTR);
+	STATIC void deadlock_clear(void);
+	STATIC LRQ deadlock_scan(OWN, LRQ);
+	STATIC LRQ deadlock_walk(LRQ, bool *);
+	STATIC void dequeue(PTR);
 	static void exit_handler(void *);
-	static LBL find_lock(PTR, USHORT, UCHAR *, USHORT, USHORT *);
-	static LRQ get_request(PTR);
-	static void grant(LRQ, LBL);
-	static PTR grant_or_que(LRQ, LBL, SSHORT);
-	static ISC_STATUS init_lock_table(ISC_STATUS *, ConfObject *configuration);
-	static void init_owner_block(OWN, UCHAR, ULONG, USHORT);
+#ifndef SHARED_CACHE
+	void exit_handler();
+#endif
+	STATIC LBL find_lock(PTR, USHORT, UCHAR *, USHORT, USHORT *);
+	STATIC LRQ get_request(PTR);
+	STATIC void grant(LRQ, LBL);
+	STATIC PTR grant_or_que(LRQ, LBL, SSHORT);
+	STATIC ISC_STATUS init_lock_table(ISC_STATUS *, ConfObject *configuration);
+	STATIC void init_owner_block(OWN, UCHAR, ULONG, USHORT);
 	static void lock_alarm_handler(void *event);
 	static void lock_initialize(void*, SH_MEM, bool);
-	static void insert_data_que(LBL);
-	static void insert_tail(SRQ, SRQ);
-	static USHORT lock_state(LBL);
-	static LockRequest* post_blockage(LRQ, LBL, bool);
-	static void post_history(USHORT, PTR, PTR, PTR, bool);
-	static void post_pending(LBL);
-	//static void post_wakeup(OWN, int id);
-	static bool probe_owners(PTR);
-	static void purge_owner(PTR, OWN);
-	static void remove_que(SRQ);
-	static void release(PTR);
-	static void release_mutex(void);
-	static void release_request(LRQ);
+#ifndef SHARED_CACHE
+	static void lock_initialize2(void*, SH_MEM, bool);
+	void lock_initialize(SH_MEM, bool);
+#endif
+	STATIC void insert_data_que(LBL);
+	STATIC void insert_tail(PSRQ, PSRQ);
+	STATIC USHORT lock_state(LBL);
+	STATIC LockRequest* post_blockage(LRQ, LBL, bool);
+	STATIC void post_history(USHORT, PTR, PTR, PTR, bool);
+	STATIC void post_pending(LBL);
+//	STATIC void post_wakeup(OWN, int id);
+	STATIC bool probe_owners(PTR);
+	STATIC void purge_owner(PTR, OWN);
+	STATIC void remove_que(PSRQ);
+	STATIC void release(PTR);
+	STATIC void release_mutex(void);
+	STATIC void release_request(LRQ);
 
-	static void shutdown_blocking_thread(LockOwner *owner);
-	static int signal_owner(OWN, PTR);
+	STATIC void shutdown_blocking_thread(LockOwner *owner);
+	STATIC int signal_owner(OWN, PTR);
 
 #ifdef VALIDATE_LOCK_TABLE
-	static void validate_lhb(LHB);
-	static void validate_shb(PTR);
-	static void validate_owner(PTR, USHORT);
-	static void validate_lock(PTR, USHORT, PTR);
-	static void validate_request(PTR, USHORT, USHORT);
+	STATIC void validate_lhb(LHB);
+	STATIC void validate_shb(PTR);
+	STATIC void validate_owner(PTR, USHORT);
+	STATIC void validate_lock(PTR, USHORT, PTR);
+	STATIC void validate_request(PTR, USHORT, USHORT);
 	//static void validate_block(PTR);
 #endif
 
-	static USHORT wait_for_request(LRQ, SSHORT, ISC_STATUS *);
+	STATIC USHORT wait_for_request(LRQ, SSHORT, ISC_STATUS *, int *);
 public:
-	static void lockTrace(const char* text, ...);
-	static void lockBreak(void);
-	static void validate(void);
-	static void checkReleased(PTR ownerOffset);
-	static void clearPending(LRQ request);
-	static LockEvent* allocEvent(LockOwner* lockOwner);
-	static void releaseEvent(LockEvent* event, LockOwner* owner);
-	static void releaseEvent(LockEvent* event);
-	static void postWakeup(LockRequest* request);
-	static void wait(LockOwner *owner, PTR *wakeup, int wait);
-	static LockRequest* allocRequest(void);
+	STATIC void lockTrace(const char* text, ...);
+	STATIC void lockBreak(void);
+	STATIC void validate(void);
+	STATIC void checkReleased(PTR ownerOffset);
+	STATIC void clearPending(LRQ request);
+	STATIC LockEvent* allocEvent(LockOwner* lockOwner);
+	STATIC void releaseEvent(LockEvent* event, LockOwner* owner);
+	STATIC void releaseEvent(LockEvent* event);
+	STATIC void postWakeup(LockRequest* request);
+	STATIC int wait(LockOwner *owner, LRQ request, int wait);
+	STATIC LockRequest* allocRequest(void);
 	
 	friend class LockAcquire;
+
+#ifndef SHARED_CACHE
+private:
+	Database    *LOCK_dbb;
+	SSHORT		LOCK_bugcheck;
+
+#ifdef ONE_LOCK_TABLE
+	/* for hosts that can't mmap a file twice in one proces (HPUX) */
+	/* or can't remap mutexes (MVS) */
+	static LHB		LOCK_table_static;
+	LHB				LOCK_table;
+	LHB 			LOCK_header;
+	static SH_MEM_T	LOCK_data;
+	static Mutex 	LOCK_table_init_mutex;
+#else
+	LHB 		LOCK_header;
+	LHB			LOCK_table;
+	SH_MEM_T	LOCK_data;
+
+	/* these are for the blocking action thread */
+	LHB 		LOCK_header2;
+	LHB			LOCK_table2;
+	SH_MEM_T	LOCK_data2;
+#endif
+
+	PTR			LOCK_owner_offset;
+	OWN			LOCK_owner;
+
+	int			LOCK_pid;
+	int			LOCK_version;
+	SLONG		LOCK_shm_size;
+	SLONG		LOCK_sem_count;
+	SLONG		LOCK_solaris_stall;
+	int			LOCK_trace_stop;
+
+	bool		shutdown;
+	AsyncEvent	shutdownComplete;
+	int			shutdownCount;
+
+	LRQ			debugRequest;
+
+	SLONG		LOCK_ordering;
+	SLONG		LOCK_hash_slots;
+	SLONG		LOCK_scan_interval;
+//	Mutex		lockManagerMutex;
+	
+	char 		lock_buffer[MAXPATHLEN];
+
+#ifdef WIN_NT
+#ifdef ONE_LOCK_TABLE
+	static
+#endif
+	MTX_T		lock_manager_mutex[1];
+#endif
+
+#ifdef WIN_NT
+	HANDLE	blocking_action_thread_handle;
+#else
+	void*	blocking_action_thread_handle;
+#endif
+	bool blocking_action_thread_initialized;
+
+	THREAD_ID LOCK_thread;
+	THREAD_ID blocking_action_thread_id;
+#endif
+
 };
 
 #endif

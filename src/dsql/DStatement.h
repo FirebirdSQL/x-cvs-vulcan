@@ -28,7 +28,7 @@ class par;
 class opn;
 class DsqlMemoryPool;
 class tsql;
-struct tdbb;
+struct thread_db;
 
 struct dsc;
 
@@ -44,7 +44,8 @@ enum req_flags_vals {
 	REQ_no_batch			= 256,
 	REQ_backwards			= 512,
 	REQ_blr_version4		= 1024,
-	REQ_blr_version5		= 2048
+	REQ_blr_version5		= 2048,
+	REQ_block				= 4096
 };
 
 
@@ -52,12 +53,12 @@ class DStatement
 {
 public:
 	void notYetImplemented();
-	void instantiateRequest(tdbb* tdsql);
+	void instantiateRequest(thread_db* tdsql);
 	bool getIndices (int *explain_length_ptr, const UCHAR **explain_ptr, int *plan_length_ptr, UCHAR **plan_ptr);
 	bool getRsbItem (int *explain_length_ptr, const UCHAR **explain_ptr, int* plan_length_ptr, UCHAR** plan_ptr, USHORT* parent_join_count, USHORT* level_ptr);
 	UCHAR* getVariableInfo (dsql_msg *message, const UCHAR *items, const UCHAR *end_describe, UCHAR *info, const UCHAR* end, int first_index);
-	int getPlanInfo (tdbb *threadData, int bufferLength, UCHAR **bufferPtr);
-	int getRequestInfo (tdbb *threadData, int bufferLength, UCHAR *buffer);
+	int getPlanInfo (thread_db* threadData, int bufferLength, UCHAR **bufferPtr);
+	int getRequestInfo (thread_db* threadData, int bufferLength, UCHAR *buffer);
 	UCHAR* put_item (UCHAR item, int length, const UCHAR *string, UCHAR *ptr, const UCHAR *end);
 	int convert (int number, UCHAR* buffer);
 	ISC_STATUS returnSuccess(ISC_STATUS *statusVector);

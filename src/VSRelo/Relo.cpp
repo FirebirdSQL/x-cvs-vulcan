@@ -30,7 +30,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "Relo.h"
 #include "Element.h"
 #include "Stream.h"

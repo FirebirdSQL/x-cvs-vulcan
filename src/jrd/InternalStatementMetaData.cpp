@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalStatementMetaData.h"
 #include "InternalPreparedStatement.h"
 //#include "Sqlda.h"
@@ -19,8 +19,7 @@ InternalStatementMetaData::~InternalStatementMetaData()
 
 int InternalStatementMetaData::getParameterCount()
 {
-	//return statement->inputSqlda.getColumnCount();
-	return 0;
+	return statement->numberParameters;
 }
 
 int InternalStatementMetaData::getParameterType(int index)

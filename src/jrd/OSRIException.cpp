@@ -25,14 +25,14 @@
 
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
-#include "iberror.h"
+#include "../include/gen/iberror.h"
 #include "OSRIException.h"
 #include "Mutex.h"
 #include "Sync.h"
 #include "../IscDbc/SQLException.h"
-#include "AdminException.h"
+#include "../config/AdminException.h"
 
 #ifdef FIREBIRD_ENGINE
 #define EXCEPTION_TRACE
@@ -71,6 +71,7 @@ OSRIException::OSRIException(OSRIException* exception, ISC_STATUS code, ...)
 	va_start	(args, code);
 
 	post (exception, code, args);
+	va_end(args);
 	printStatus();
 }
 
@@ -80,6 +81,7 @@ OSRIException::OSRIException(va_list args, ISC_STATUS code)
 	type = osriException;
 	post (NULL, code, args);
 	printStatus();
+	va_end (args);
 }
 
 
@@ -215,7 +217,7 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 				}
 			
 			case isc_arg_string:
-				stringsLength += strlen (va_arg (args, const char*)) + 1;
+				stringsLength += (int) strlen (va_arg (args, const char*)) + 1;
 				break;
 			
 			case isc_arg_warning:
@@ -462,7 +464,7 @@ int OSRIException::getStringsLength(const ISC_STATUS* vector)
 				break;
 			
 			case isc_arg_string:
-				stringsLength += strlen ((const char*) *input++) + 1;
+				stringsLength += (int) strlen ((const char*) *input++) + 1;
 				break;
 			
 			case isc_arg_warning:

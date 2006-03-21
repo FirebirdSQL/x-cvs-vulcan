@@ -31,7 +31,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ArgsException.h"
 
 #ifdef _WIN32
@@ -51,6 +51,7 @@ ArgsException::ArgsException(const char * txt, ...)
 	if (vsnprintf (temp, sizeof (temp) - 1, txt, args) < 0)
 		temp [sizeof (temp) - 1] = 0;
 
+	va_end(args);
 	text = temp;
 }
 

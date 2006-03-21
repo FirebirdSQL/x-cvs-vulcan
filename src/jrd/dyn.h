@@ -32,11 +32,6 @@ const char* const ALL_PROC_PRIVILEGES = "X";
 #define STUFF_COUNT		4
 #define TEXT_BLOB_LENGTH	512
 
-const char* const PRIMARY_KEY		= "PRIMARY KEY";
-const char* const FOREIGN_KEY		= "FOREIGN KEY";
-const char* const UNIQUE_CNSTRT		= "UNIQUE";
-const char* const CHECK_CNSTRT		= "CHECK";
-const char* const NOT_NULL_CNSTRT	= "NOT NULL";
 
 #define GET_STRING(from,to)	DYN_get_string (tdbb, (const UCHAR**)from, (TEXT*)to, sizeof (to), true)
 
@@ -45,7 +40,7 @@ const char* const NOT_NULL_CNSTRT	= "NOT NULL";
 
 typedef struct gbl
 {
-	JRD_TRA gbl_transaction;
+	class Transaction* gbl_transaction;
 } *GBL;
 
 typedef struct dyn_fld {
@@ -63,39 +58,40 @@ typedef struct dyn_fld {
 
 } *DYN_FLD;
 
-class OSRIException;
+CLASS (OSRIException);
+struct bid;
 
-void	DYN_error(TDBB tdbb, bool, USHORT, const TEXT*, const TEXT*, const TEXT*,
+void	DYN_error(thread_db* tdbb, bool, USHORT, const TEXT*, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*);
-void	DYN_error_punt(TDBB tdbb, bool, USHORT, const TEXT*, const TEXT*,
+void	DYN_error_punt(thread_db* tdbb, bool, USHORT, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*, const TEXT*);
-void	DYN_error_punt(TDBB tdbb, OSRIException*, USHORT, const TEXT*, const TEXT*,
+void	DYN_error_punt(thread_db* tdbb, OSRIException*, USHORT, const TEXT*, const TEXT*,
 				const TEXT*, const TEXT*, const TEXT*);
-void	DYN_execute(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*);
+void	DYN_execute(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*);
 SLONG	DYN_get_number(const UCHAR**);
-USHORT	DYN_get_string(TDBB tdbb, const UCHAR**, TEXT*, USHORT, bool);
+USHORT	DYN_get_string(thread_db* tdbb, const UCHAR**, TEXT*, USHORT, bool);
 
 // This function is not defined anywhere.
 // void	DYN_get_string2(TEXT**, TEXT*, USHORT);
 
 // This function doesn't need to be exported currently.
-bool	DYN_is_it_sql_role(GBL, const TEXT*, TEXT*, TDBB);
-USHORT	DYN_put_blr_blob(TDBB tdbb, GBL, const UCHAR**, ISC_QUAD *);
+bool	DYN_is_it_sql_role(GBL, const TEXT*, TEXT*, thread_db*);
+USHORT	DYN_put_blr_blob(thread_db* tdbb, GBL, const UCHAR**, bid*);
 
 // This function is not defined anywhere.
 //USHORT	DYN_put_blr_blob2(GBL, const UCHAR**, ISC_QUAD *);
 
-USHORT	DYN_put_text_blob(TDBB tdbb, GBL, const UCHAR**, ISC_QUAD *);
+USHORT	DYN_put_text_blob(thread_db* tdbb, GBL, const UCHAR**, bid*);
 // This function is not defined anywhere.
 //USHORT	DYN_put_text_blob2(GBL, const UCHAR**, ISC_QUAD *);
 
-void	DYN_rundown_request(TDBB tdbb, Request*, SSHORT);
+void	DYN_rundown_request(thread_db* tdbb, Request*, SSHORT);
 USHORT	DYN_skip_attribute(const UCHAR**);
 
 // This function is not defined anywhere.
 //USHORT	DYN_skip_attribute2(const UCHAR**);
 
-void	DYN_unsupported_verb(TDBB tdbb);
+void	DYN_unsupported_verb(thread_db* tdbb);
 
 #endif // JRD_DYN_H
 

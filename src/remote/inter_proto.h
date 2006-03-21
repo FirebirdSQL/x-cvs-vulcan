@@ -60,12 +60,12 @@ ISC_STATUS	REM_detach_service(ISC_STATUS *, RDatabase **);
 ISC_STATUS	REM_drop_database(ISC_STATUS *, RDatabase **);
 ISC_STATUS	REM_allocate_statement(ISC_STATUS *, RDatabase **, RStatement **);
 ISC_STATUS	REM_execute(ISC_STATUS *, RTransaction **, RStatement **, USHORT, UCHAR *, USHORT, USHORT, UCHAR *);
-ISC_STATUS	REM_execute2(ISC_STATUS *, RTransaction **, RStatement **, USHORT, UCHAR *, USHORT, USHORT, UCHAR *, USHORT, UCHAR *, USHORT, USHORT, UCHAR *);
+ISC_STATUS	REM_execute2(ISC_STATUS *, RTransaction **, RStatement **, USHORT, const UCHAR *, USHORT, USHORT, const UCHAR *, USHORT, const UCHAR *, USHORT, USHORT, UCHAR *);
 ISC_STATUS	REM_execute_immediate(ISC_STATUS*, RDatabase**, RTransaction**,
 	USHORT, const TEXT*, USHORT, USHORT, const UCHAR*, USHORT, USHORT, UCHAR*);
 ISC_STATUS	REM_execute_immediate2(ISC_STATUS*, RDatabase**, RTransaction**,
-	USHORT, const TEXT*, USHORT, USHORT, const UCHAR*, USHORT, USHORT, UCHAR*,
-	USHORT, UCHAR*, USHORT, USHORT, UCHAR*);
+	USHORT, const TEXT*, USHORT, USHORT, const UCHAR*, USHORT, USHORT, const UCHAR*,
+	USHORT, const UCHAR*, USHORT, USHORT, UCHAR*);
 ISC_STATUS	REM_fetch(ISC_STATUS*, RStatement**, USHORT, const UCHAR*, USHORT,
 	USHORT, UCHAR*);
 ISC_STATUS	REM_free_statement(ISC_STATUS *, RStatement **, USHORT);
@@ -82,7 +82,7 @@ ISC_STATUS	REM_open_blob2(ISC_STATUS*, RDatabase**, RTransaction**,
 ISC_STATUS	REM_prepare_transaction(ISC_STATUS *, RTransaction **, USHORT, UCHAR *);
 ISC_STATUS	REM_put_segment(ISC_STATUS*, RBlob**, USHORT, const UCHAR*);
 ISC_STATUS	REM_put_slice(ISC_STATUS*, RDatabase**, RTransaction**, bid*, USHORT,
-	const UCHAR*, USHORT, const UCHAR*, SLONG, UCHAR*);
+	const UCHAR*, USHORT, const UCHAR*, SLONG, const UCHAR*);
 ISC_STATUS	REM_que_events(ISC_STATUS*, RDatabase**, SLONG*, SSHORT,
 	const UCHAR*, FPTR_EVENT_CALLBACK, void*);
 ISC_STATUS	REM_query_service(ISC_STATUS *, RDatabase **, USHORT, SCHAR *, USHORT, SCHAR *, USHORT, SCHAR *);
@@ -97,22 +97,33 @@ ISC_STATUS	REM_seek_blob(ISC_STATUS *, RBlob **, SSHORT, SLONG, SLONG *);
 ISC_STATUS	REM_send(ISC_STATUS *, RRequest **, USHORT, USHORT, const UCHAR *, SSHORT);
 ISC_STATUS	REM_start_and_send(ISC_STATUS *, RRequest **, RTransaction **, USHORT, USHORT, const UCHAR *, SSHORT);
 ISC_STATUS	REM_start_request(ISC_STATUS *, RRequest **, RTransaction **, USHORT);
-ISC_STATUS	REM_start_transaction(ISC_STATUS *, RTransaction **, SSHORT, RDatabase **, SSHORT, UCHAR *);
+ISC_STATUS	REM_start_transaction(ISC_STATUS *, RTransaction **, SSHORT, RDatabase **, SSHORT, const UCHAR *);
 ISC_STATUS	REM_transact_request(ISC_STATUS*, RDatabase**, RTransaction**,
-	USHORT, const UCHAR*, USHORT, UCHAR*, USHORT, UCHAR*);
+	USHORT, const UCHAR*, USHORT, const UCHAR*, USHORT, UCHAR*);
 ISC_STATUS	REM_transaction_info(ISC_STATUS*, RTransaction**, SSHORT,
 	const UCHAR*, SSHORT, UCHAR*);
 ISC_STATUS	REM_unwind_request(ISC_STATUS *, RRequest **, USHORT);
 
 ISC_STATUS	REM_rollback_retaining(ISC_STATUS *, RTransaction* *);
-ISC_STATUS	REM_service_attach(ISC_STATUS*, USHORT, const TEXT*, RDatabase**, USHORT,
-	const SCHAR*);
+ISC_STATUS	REM_service_attach(ISC_STATUS*,const TEXT*, RDatabase**, USHORT, const UCHAR*);
 ISC_STATUS	REM_service_detach(ISC_STATUS *, RDatabase* *);
-ISC_STATUS	REM_service_query(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const SCHAR*,
-									  USHORT, const SCHAR*, USHORT, SCHAR*);
-ISC_STATUS	REM_service_start(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const SCHAR*);
+ISC_STATUS	REM_service_query(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const UCHAR*,
+									  USHORT, const UCHAR*, USHORT, UCHAR*);
+ISC_STATUS	REM_service_start(ISC_STATUS*, RDatabase**, USHORT, const UCHAR*);
 
+ISC_STATUS REM_update_account_info(ISC_STATUS* user_status,
+									RDatabase** db_handle,
+									SSHORT apb_length,
+									const UCHAR* apb);
 
-
+ISC_STATUS REM_authenticate_user(ISC_STATUS* user_status,
+									RDatabase** db_handle,
+									SSHORT dpb_length,
+									const UCHAR* dpb,
+									SSHORT info_length,
+									const UCHAR *info,
+									SSHORT buffer_length,
+									UCHAR *buffer);
+									
 #endif	/* REMOTE_INTER_PROTO_H */
 

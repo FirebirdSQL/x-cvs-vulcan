@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalTablesResultSet.h"
 #include "InternalConnection.h"
 #include "InternalDatabaseMetaData.h"

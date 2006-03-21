@@ -53,6 +53,8 @@
 
 #define QUAD	ISC_INT64
 
+START_NAMESPACE
+
 class Synchronize  
 {
 public:
@@ -82,5 +84,7 @@ public:
 	mutex_t			mutex;
 #endif
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_SYNCHRONIZE_H__9E13C6D8_1F3E_11D3_AB74_0000C01D2301__INCLUDED_)

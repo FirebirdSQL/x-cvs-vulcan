@@ -33,8 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\install\bin\config.exe"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\install\bin\fbconfig.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/config.pdb"
 				SubSystem="1"
@@ -79,8 +81,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="firebird.lib"
 				OutputFile="$(OutDir)/config.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -197,6 +201,9 @@
 				RelativePath=".\ScanDir.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath=".\Stream.cpp">
 			</File>
 			<File
@@ -284,6 +291,9 @@
 			</File>
 			<File
 				RelativePath=".\ScanDir.h">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath=".\Stream.h">

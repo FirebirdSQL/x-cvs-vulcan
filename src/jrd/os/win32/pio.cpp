@@ -33,7 +33,7 @@
  * 21-Nov-2001 Ann Harrison: Allow read sharing so gstat works 
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/os/pio.h"
@@ -68,15 +68,15 @@
 #define OS_CHICAGO		2
 
 #ifdef SUPERSERVER_V2
-static void release_io_event(FIL, OVERLAPPED*);
+static void release_io_event(File*, OVERLAPPED*);
 #endif
 
-static ULONG	get_number_of_pages(const fil*, const USHORT);
+static ULONG	get_number_of_pages(const File*, const USHORT);
 static bool		MaybeCloseFile(SLONG*);
-static FIL		find_file(FIL, Bdb*);
-static FIL		seek_file(FIL, Bdb*, ISC_STATUS*, OVERLAPPED*, OVERLAPPED**);
-static FIL		setup_file(tdbb *tdbb, const TEXT*, HANDLE);
-static BOOLEAN	nt_error(TEXT*, const fil*, ISC_STATUS, ISC_STATUS*);
+static File*		find_file(File*, Bdb*);
+static File*		seek_file(File*, Bdb*, ISC_STATUS*, OVERLAPPED*, OVERLAPPED**);
+static File*		setup_file(thread_db* tdbb, const TEXT*, HANDLE);
+static BOOLEAN	nt_error(TEXT*, const File*, ISC_STATUS, ISC_STATUS*);
 
 static USHORT ostype;
 
@@ -97,7 +97,7 @@ static const DWORD g_dwExtraFlags = FILE_FLAG_RANDOM_ACCESS;
 
 
 
-int PIO_add_file(tdbb *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
+int PIO_add_file(thread_db* tdbb, File* main_file, const TEXT* file_name, SLONG start)
 {
 /**************************************
  *
@@ -113,7 +113,7 @@ int PIO_add_file(tdbb *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
  **************************************/
 
 	Database *dbb = tdbb->tdbb_database;
-	FIL new_file = PIO_create(tdbb, file_name, strlen(file_name), FALSE, dbb->fileShared);
+	File* new_file = PIO_create(tdbb, file_name, strlen(file_name), FALSE, dbb->fileShared);
 	
 	if (!new_file) 
 		return 0;
@@ -121,7 +121,7 @@ int PIO_add_file(tdbb *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
 	new_file->fil_min_page = start;
 	USHORT sequence = 1;
 
-	FIL file;
+	File* file;
 	
 	for (file = main_file; file->fil_next; file = file->fil_next) 
 		++sequence;
@@ -133,7 +133,7 @@ int PIO_add_file(tdbb *tdbb, FIL main_file, const TEXT* file_name, SLONG start)
 }
 
 
-void PIO_close(FIL main_file)
+void PIO_close(File* main_file)
 {
 /**************************************
  *
@@ -145,7 +145,7 @@ void PIO_close(FIL main_file)
  *
  **************************************/
 
-	for (FIL file = main_file; file; file = file->fil_next)
+	for (File* file = main_file; file; file = file->fil_next)
 		{
 		if (MaybeCloseFile(&file->fil_desc) ||
 			MaybeCloseFile(&file->fil_force_write_desc))
@@ -185,7 +185,7 @@ int PIO_connection(const TEXT* file_name, USHORT* file_length)
 
 
 
-FIL PIO_create(tdbb *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
+File* PIO_create(thread_db* tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite, bool shared)
 {
 /**************************************
  *
@@ -231,7 +231,7 @@ FIL PIO_create(tdbb *tdbb, const TEXT* string, SSHORT length, BOOLEAN overwrite,
 	/* workspace is the exapnded name here */
 
 	length = PIO_expand(string, length, workspace);
-	FIL file = setup_file(tdbb, workspace, desc);
+	File* file = setup_file(tdbb, workspace, desc);
 
 	return file;
 }
@@ -255,7 +255,7 @@ int PIO_expand(const TEXT* file_name, USHORT file_length, TEXT* expanded_name)
 }
 
 
-void PIO_flush(FIL main_file)
+void PIO_flush(File* main_file)
 {
 /**************************************
  *
@@ -268,7 +268,7 @@ void PIO_flush(FIL main_file)
  *
  **************************************/
  
-	for (FIL file = main_file; file; file = file->fil_next)
+	for (File* file = main_file; file; file = file->fil_next)
 		{
 		Sync sync(&file->syncObject, "PIO_flush");
 		sync.lock(Exclusive);	
@@ -277,7 +277,7 @@ void PIO_flush(FIL main_file)
 }
 
 
-void PIO_force_write(FIL file, USHORT flag, bool shared)
+void PIO_force_write(File* file, USHORT flag, bool shared)
 {
 /**************************************
  *
@@ -343,7 +343,7 @@ void PIO_header(DBB dbb, SCHAR * address, int length)
  **************************************/
 	OVERLAPPED overlapped, *overlapped_ptr;
 
-	FIL file = dbb->dbb_file;
+	File* file = dbb->dbb_file;
 	HANDLE desc = (HANDLE) ((file->fil_flags & FIL_force_write) ?
 					 file->fil_force_write_desc : file->fil_desc);
 
@@ -420,7 +420,7 @@ SLONG PIO_max_alloc(DBB dbb)
  *	Compute last physically allocated page of database.
  *
  **************************************/
-	FIL file = dbb->dbb_file;
+	File* file = dbb->dbb_file;
 
 	while (file->fil_next) {
 		file = file->fil_next;
@@ -450,7 +450,7 @@ SLONG PIO_act_alloc(DBB dbb)
  **  Traverse the linked list of files and add up the number of pages
  **  in each file
  **/
-	for (const fil* file = dbb->dbb_file; file != NULL; file = file->fil_next) {
+	for (const File* file = dbb->dbb_file; file != NULL; file = file->fil_next) {
 		tot_pages += get_number_of_pages(file, dbb->dbb_page_size);
 	}
 
@@ -458,7 +458,7 @@ SLONG PIO_act_alloc(DBB dbb)
 }
 
 
-FIL PIO_open(tdbb *tdbb,
+File* PIO_open(thread_db* tdbb,
 			 const TEXT* string,
 			 SSHORT trace_flag,
 			 const TEXT* file_name, 
@@ -525,7 +525,7 @@ FIL PIO_open(tdbb *tdbb,
 }
 
 
-int PIO_read(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
+int PIO_read(File* file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -613,7 +613,7 @@ int PIO_read_ahead(DBB		dbb,
  *	file boundaries.
  *
  **************************************/
-	FIL file;
+	File* file;
 	DWORD segmented_length, actual_length;
 	HANDLE desc;
 	OVERLAPPED overlapped, *overlapped_ptr;
@@ -740,7 +740,7 @@ int PIO_status(PIOB piob, ISC_STATUS* status_vector)
 #endif
 
 
-int PIO_write(FIL file, Bdb* bdb, PAG page, ISC_STATUS* status_vector)
+int PIO_write(File* file, Bdb* bdb, PAG page, ISC_STATUS* status_vector)
 {
 /**************************************
  *
@@ -808,7 +808,7 @@ int PIO_write(FIL file, Bdb* bdb, PAG page, ISC_STATUS* status_vector)
 
 
 
-static ULONG get_number_of_pages(const fil* file, const USHORT pagesize)
+static ULONG get_number_of_pages(const File* file, const USHORT pagesize)
 {
 /**************************************
  *
@@ -837,7 +837,7 @@ static ULONG get_number_of_pages(const fil* file, const USHORT pagesize)
 
 
 #ifdef SUPERSERVER_V2
-static void release_io_event(FIL file, OVERLAPPED* overlapped)
+static void release_io_event(File* file, OVERLAPPED* overlapped)
 {
 /**************************************
  *
@@ -868,7 +868,7 @@ static void release_io_event(FIL file, OVERLAPPED* overlapped)
 #endif
 
 
-static FIL find_file(FIL file, Bdb *bdb)
+static File* find_file(File* file, Bdb *bdb)
 {
 /**************************************
  *
@@ -892,7 +892,7 @@ static FIL find_file(FIL file, Bdb *bdb)
 	return NULL;
 }
 
-static FIL seek_file(FIL			file,
+static File* seek_file(File*			file,
 					 Bdb*			bdb,
 					 ISC_STATUS*		status_vector,
 					 OVERLAPPED*	overlapped,
@@ -924,7 +924,7 @@ static FIL seek_file(FIL			file,
 		if (SetFilePointer(desc,
 						   (LONG) liOffset.LowPart,
 						   &liOffset.HighPart, FILE_BEGIN) == 0xffffffff) 
-			return (FIL)(ULONG) nt_error("SetFilePointer", file, isc_io_access_err, status_vector);
+			return (File*)(ULONG) nt_error("SetFilePointer", file, isc_io_access_err, status_vector);
 
 		*overlapped_ptr = NULL;
 		}
@@ -951,7 +951,7 @@ static FIL seek_file(FIL			file,
 			
 		if (!overlapped->hEvent &&
 			!(overlapped->hEvent = CreateEvent(NULL, TRUE, FALSE, NULL))) 
-			return (FIL)(ULONG) nt_error("CreateEvent", file, isc_io_access_err, status_vector);
+			return (File*)(ULONG) nt_error("CreateEvent", file, isc_io_access_err, status_vector);
 		ResetEvent(overlapped->hEvent);
 #endif
 		}
@@ -960,7 +960,7 @@ static FIL seek_file(FIL			file,
 }
 
 
-static FIL setup_file(tdbb *tdbb,
+static File* setup_file(thread_db* tdbb,
 					  const TEXT *file_name,
 					  HANDLE desc)
 {
@@ -974,7 +974,7 @@ static FIL setup_file(tdbb *tdbb,
  *	Set up file and lock blocks for a file.
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 	UCHAR lock_string[32];
 	BY_HANDLE_FILE_INFORMATION file_info;
 
@@ -982,7 +982,7 @@ static FIL setup_file(tdbb *tdbb,
 
 	Database *dbb = tdbb->tdbb_database;
 	int file_length = strlen (file_name);
-	FIL file = FB_NEW_RPT(*dbb->dbb_permanent, file_length + 1) fil;
+	File* file = FB_NEW_RPT(*dbb->dbb_permanent, file_length + 1) File;
 	file->fil_desc = reinterpret_cast<SLONG>(desc);
 	file->fil_force_write_desc =
 		reinterpret_cast<SLONG>(INVALID_HANDLE_VALUE);
@@ -1037,7 +1037,7 @@ static FIL setup_file(tdbb *tdbb,
 	
 	l = p - lock_string;
 
-	dbb->dbb_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, l) lck;
+	dbb->dbb_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, l) Lock;
 	lock->lck_type = LCK_database;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_database);
 	lock->lck_object = reinterpret_cast<blk*>(dbb);
@@ -1084,7 +1084,7 @@ static bool MaybeCloseFile(SLONG* pFile)
 }
 
 static BOOLEAN nt_error(TEXT*	string,
-						const fil*		file,
+						const File*		file,
 						ISC_STATUS	operation,
 						ISC_STATUS*	status_vector)
 {

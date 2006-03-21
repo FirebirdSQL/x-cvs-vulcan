@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Config.h"
 #include "Configuration.h"
@@ -46,8 +46,8 @@ static bool		swList;
 static bool		swVerbose;
 static bool		swHelp;
 static bool		swInstall;
-static char		*databaseName;
-static char		*fileName;
+static const char		*databaseName;
+static const char		*fileName;
 
 static const Switches switches [] =
 	{
@@ -63,7 +63,7 @@ static const Switches switches [] =
 
 static const char* HELP_TEXT =	"Usage: config [-t] [-l] [-f file] [database]\n";
 
-main (int argc, char **argv)
+main (int argc, const char **argv)
 {
 	return Config::parse (argc, argv);
 }
@@ -76,7 +76,7 @@ Config::~Config(void)
 {
 }
 
-int Config::parse(int argc, char ** argv)
+int Config::parse(int argc, const char ** argv)
 {
 	Args::parse (switches, argc - 1, argv + 1);
 
@@ -119,14 +119,17 @@ int Config::parse(int argc, char ** argv)
 			for (int n = 0; !hasProvider && n < 10; ++n)
 				{
 				ConfObj confObject = configFile->findObject ("database", dbName);
+				
 				if (!confObject.hasObject())
 					break;
+					
 				const char *name = confObject->getName();
+				
 				if (!name)
 					break;
+				
+				prior = dbName;
 				dbName = confObject->getValue ("filename", (const char*) dbName);
-				if (dbName == prior)
-					break;
 				printf ("  Matches \"%s\", translates to \"%s\"\n", name, (const char*) dbName);
 
 				for (int n = 0;; ++n)
@@ -140,6 +143,9 @@ int Config::parse(int argc, char ** argv)
 					Provider *provider = new Provider (providerName, providerObject, "      ");
 					delete provider;
 					}
+				
+				if (dbName == prior)
+					break;
 				}
 			}
 		

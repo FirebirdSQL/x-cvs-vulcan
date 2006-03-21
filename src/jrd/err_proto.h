@@ -31,13 +31,16 @@ class Procedure;
 
 /* Index error types */
 
-typedef enum idx_e {
+enum idx_e {
 	idx_e_ok = 0,
 	idx_e_duplicate,
 	idx_e_keytoobig,
 	idx_e_conversion,
-	idx_e_foreign
-} IDX_E;
+	idx_e_foreign_target_doesnt_exist,
+	idx_e_foreign_references_present
+};
+
+typedef idx_e IDX_E;
 
 BOOLEAN	ERR_post_warning(ISC_STATUS, ...);
 void	ERR_assert(const TEXT*, int);

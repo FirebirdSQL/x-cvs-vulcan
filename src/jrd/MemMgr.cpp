@@ -29,9 +29,15 @@
 #endif
 
 #include <stdio.h>
+
+#if defined(MVS) || defined(__VMS) || defined (DARWIN)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
+
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "MemMgr.h"
 #include "Sync.h"
@@ -40,10 +46,16 @@
 #include "Interlock.h"
 #include "gen/iberror.h"
 
-#define CONSERVATIVE
 
 static Mutex				defaultMemMgrMutex;
 static NAMESPACE::MemMgr	*defaultMemoryManager;
+
+/*** emergency debugging stuff
+static const char	*lastFileName;
+static int			lastLine;
+static void			*lastBlock;
+static void			*stopAddress = (void*) 0x2254938;
+***/
 
 static const int guardBytes = sizeof(long); // * 2048;
 
@@ -56,16 +68,12 @@ MemMgr* getDefaultMemoryManager()
 	{
 	if (!defaultMemoryManager)
 		{
-		defaultMemMgrMutex.lock();
+		//defaultMemMgrMutex.lock();
 		
 		if (!defaultMemoryManager)
-			{
-			MemMgr *memMgr = (MemMgr*) malloc (sizeof (MemMgr));
-			new (memMgr) MemMgr;
-			defaultMemoryManager = memMgr;
-			}
+			defaultMemoryManager = new (malloc (sizeof (MemMgr))) MemMgr;
 			
-		defaultMemMgrMutex.release();
+		//defaultMemMgrMutex.release();
 		}
 
 	return defaultMemoryManager;
@@ -112,6 +120,26 @@ void* operator new[](size_t s, MemMgr& pool, char* file, int line)THROWS_BAD_ALL
 	return pool.allocateDebug((int) s, file, line);
 	}
 
+void* operator new(size_t s, MemMgr *pool) THROWS_BAD_ALLOC
+	{
+	return pool->allocate((int) s);
+	}
+	
+void* operator new[](size_t s, MemMgr *pool)THROWS_BAD_ALLOC
+	{
+	return pool->allocate((int) s);
+	}
+	
+void* operator new(size_t s, MemMgr *pool, char* file, int line) THROWS_BAD_ALLOC
+	{
+	return pool->allocateDebug((int) s, file, line);
+	}
+	
+void* operator new[](size_t s, MemMgr *pool, char* file, int line)THROWS_BAD_ALLOC
+	{
+	return pool->allocateDebug((int) s, file, line);
+	}
+
 void operator delete(void* mem) THROWS_NOTHING
 	{
 	if (mem)
@@ -138,7 +166,12 @@ static void* operator new[](size_t s, void *p) THROWS_BAD_ALLOC
 	}
 #endif // _WIN32
 
-MemMgr::MemMgr(int rounding, int cutoff, int minAlloc)
+MemMgr::MemMgr(int rounding, int cutoff, int minAlloc, bool shared)
+{
+	init(rounding, cutoff, minAlloc, shared);
+}
+
+void MemMgr::init(int rounding, int cutoff, int minAlloc, bool shared)
 {
 	roundingSize = rounding;
 	threshold = cutoff;
@@ -155,12 +188,13 @@ MemMgr::MemMgr(int rounding, int cutoff, int minAlloc)
 	currentMemory = 0;
 	blocksAllocated = 0;
 	blocksActive = 0;
+	threadShared = shared;
 }
 
 
 MemMgr::MemMgr(void* arg1, void* arg2)
 {
-	MemMgr();
+	init();
 }
 
 MemMgr::~MemMgr(void)
@@ -174,19 +208,21 @@ MemMgr::~MemMgr(void)
 		releaseRaw (hunk);
 		}
 		
-	for (MemBigHunk *hunk; hunk = bigHunks;)
+	{
+		for (MemBigHunk *hunk; hunk = bigHunks;)
 		{
 		bigHunks = hunk->nextHunk;
 		releaseRaw (hunk);
 		}
+	}
 }
 
 MemBlock* MemMgr::alloc(int length)
 {
-#ifdef CONSERVATIVE
 	Sync sync (&mutex, "MemMgr::alloc");
-	sync.lock(Exclusive);
-#endif
+	
+	if (threadShared) 
+		sync.lock(Exclusive);
 	
 	// If this is a small block, look for it there
 	
@@ -195,18 +231,33 @@ MemBlock* MemMgr::alloc(int length)
 		int slot = length / roundingSize;
 		MemBlock *block;
 		
-		while (block = freeObjects [slot])
-			{
-			void *next = (void*) block->pool;
-			if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, block, block->pool))
-				return block;
-			}
-
-#ifndef CONSERVATIVE		
-		Sync sync (&mutex, "MemMgr::alloc");
-		sync.lock(Exclusive);
+		if (threadShared)
+			while (block = freeObjects [slot])
+				{
+				if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, block, (void *)block->pool))
+					{
+#ifdef MEM_DEBUG
+					if (slot != (-block->length) / roundingSize)
+						corrupt ("length trashed for block in slot");
 #endif
-		
+					return block;
+					}
+				}
+		else
+			{
+			block = freeObjects [slot];
+			
+			if (block)
+				{
+				freeObjects[slot] = (MemBlock *)block->pool;
+
+#ifdef MEM_DEBUG
+				if (slot != (-block->length) / roundingSize)
+					corrupt ("length trashed for block in slot");
+#endif
+				return block;
+				}
+			}
 		// See if some other hunk has unallocated space to use
 		
 		MemSmallHunk *hunk;
@@ -261,10 +312,6 @@ MemBlock* MemMgr::alloc(int length)
 	 */
 	
 	
-#ifndef CONSERVATIVE		
-	Sync sync (&mutex, "MemMgr::alloc");
-	sync.lock(Exclusive);
-#endif
 	MemFreeBlock *freeBlock;
 	
 	for (freeBlock = freeBlocks.nextLarger; freeBlock != &freeBlocks; freeBlock = freeBlock->nextLarger)
@@ -289,7 +336,7 @@ MemBlock* MemMgr::alloc(int length)
 			
 			MemBigObject *newBlock = freeBlock;
 			freeBlock = (MemFreeBlock*) ((UCHAR*) block + length);
-			freeBlock->memHeader.length = tail - sizeof (MemBigHeader); 
+			freeBlock->memHeader.length = tail - sizeof (MemBigObject); 
 			block->length = length;
 			block->pool = this;
 			
@@ -312,10 +359,11 @@ MemBlock* MemMgr::alloc(int length)
 	
 	// If the hunk size is sufficient below minAllocation, allocate extra space
 	
-	if (hunkLength + sizeof(MemBigHeader) + threshold < minAllocation)
+	if (hunkLength + sizeof(MemBigObject) + threshold < minAllocation)
 		{
 		hunkLength = minAllocation;
-		freeSpace = hunkLength - 2 * sizeof(MemBigHeader) - length;
+		//freeSpace = hunkLength - 2 * sizeof(MemBigObject) - length;
+		freeSpace = hunkLength - sizeof(MemBigHunk) - 2 * sizeof(MemBigHeader) - length;
 		}
 	
 	// Allocate the new hunk
@@ -385,7 +433,7 @@ void* MemMgr::allocateDebug(int size, const char* fileName, int line)
 	memset (&memory->body + size, GUARD_BYTE, ABS(memory->length) - size - OFFSET(MemBlock*,body));
 	++blocksAllocated;
 	++blocksActive;
-	
+
 	return &memory->body;
 }
 
@@ -415,7 +463,7 @@ void MemMgr::releaseBlock(MemBlock *block)
 
 	--blocksActive;
 	int length = block->length;
-	
+
 	// If length is negative, this is a small block
 	
 	if (length < 0)
@@ -423,24 +471,37 @@ void MemMgr::releaseBlock(MemBlock *block)
 #ifdef MEM_DEBUG
 		memset (&block->body, DELETE_BYTE, -length - OFFSET(MemBlock*, body));
 #endif
-		for (int slot = -length / roundingSize;;)
-			{
-			void *next = freeObjects [slot];
-			block->pool = (MemMgr*) next;
-			if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, next, block))
-				return;
-			}
+
+		if (threadShared)
+			for (int slot = -length / roundingSize;;)
+				{
+				void *next = freeObjects [slot];
+				block->pool = (MemMgr*) next;
+				
+				if (COMPARE_EXCHANGE_POINTER(freeObjects + slot, next, block))
+					return;
+				}
+
+		int slot = -length / roundingSize;
+		void *next = freeObjects [slot];
+		block->pool = (MemMgr*) next;
+		freeObjects[slot] = block;
+		
+		return;
 		}
 	
 	// OK, this is a large block.  Try recombining with neighbors
+	
+	Sync sync (&mutex, "MemMgr::release");
+	
+	if (threadShared) 
+		sync.lock(Exclusive);
 
 #ifdef MEM_DEBUG
 	memset (&block->body, DELETE_BYTE, length - OFFSET(MemBlock*, body));
 #endif
 
 	MemFreeBlock *freeBlock = (MemFreeBlock*) ((UCHAR*) block - sizeof (MemBigHeader));
-	Sync sync (&mutex, "MemMgr::release");
-	sync.lock(Exclusive);
 	block->pool = NULL;
 
 	if (freeBlock->next && !freeBlock->next->memHeader.pool)
@@ -463,6 +524,22 @@ void MemMgr::releaseBlock(MemBlock *block)
 			prior->next->prior = prior;
 		
 		freeBlock = prior;
+		}
+	
+	// If the block has no neighbors, the entire hunk is empty and can be unlinked and
+	// released
+		
+	if (freeBlock->prior == NULL && freeBlock->next == NULL)
+		{
+		for (MemBigHunk **ptr = &bigHunks, *hunk; hunk = *ptr; ptr = &hunk->nextHunk)
+			if (&hunk->blocks == freeBlock)
+				{
+				*ptr = hunk->nextHunk;
+				releaseRaw(hunk);
+				return;
+				}
+
+		corrupt("can't find big hunk");
 		}
 	
 	insert (freeBlock);
@@ -619,7 +696,7 @@ void MemMgr::globalFree(void* block)
 
 void* MemMgr::calloc(size_t size, int type, const char* fileName, int line)
 {
-	void *block = allocateDebug(size, fileName, line);
+	void *block = allocateDebug((int) size, fileName, line);
 	memset (block, 0, size);
 	
 	return block;
@@ -627,7 +704,7 @@ void* MemMgr::calloc(size_t size, int type, const char* fileName, int line)
 
 void* MemMgr::calloc(size_t size, int type)
 {
-	void *block = allocate(size);
+	void *block = allocate((int) size);
 	memset (block, 0, size);
 	
 	return block;
@@ -652,4 +729,13 @@ void* MemMgr::allocate(int size, int type, const char* fileName, int line)
 void MemMgr::deletePool(MemMgr* pool)
 {
 	delete pool;
+}
+
+void MemMgr::validate(void)
+{
+	int slot = 3;
+	
+	for (const MemBlock *block = freeObjects [slot]; block; block = (MemBlock*) block->pool)
+		if (slot != (-block->length) / roundingSize)
+			corrupt ("length trashed for block in slot");
 }

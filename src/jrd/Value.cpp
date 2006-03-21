@@ -50,7 +50,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Value.h"
 #include "SQLError.h"
@@ -58,6 +58,7 @@
 #include "AsciiBlob.h"
 #include "dsc.h"
 #include "InternalBlob.h"
+#include "BlobID.h"
 
 #define DECIMAL_POINT		'.'
 #define DIGIT_SEPARATOR		','
@@ -471,6 +472,10 @@ char* Value::getString(char **tempPtr)
 
 		case Long:
 			sprintf (temp, "%d", data.integer);
+			break;
+
+		case Quad:
+			convert (data.quad, scale, temp);
 			break;
 
 		case Double:
@@ -984,8 +989,9 @@ void Value::setValue(dsc* desc, InternalStatement *statement)
 			break;
 		
 		case dtype_blob:
-			if (((ISC_QUAD*) p)->gds_quad_low ||((ISC_QUAD*) p)->gds_quad_high)
-				setValue (new InternalBlob(statement, (ISC_QUAD*) p));
+			//if (((ISC_QUAD*) p)->gds_quad_low ||((ISC_QUAD*) p)->gds_quad_high)
+			if (!((bid*) p)->isEmpty())
+				setValue (new InternalBlob(statement, (bid*) p));
 			else
 				setNull();
 			break;
@@ -1035,7 +1041,7 @@ bool Value::getValue(dsc* desc)
 			break;
 			
 		case dtype_short:
-			*((short*) p) = getByte(desc->dsc_scale);
+			*((short*) p) = getShort(desc->dsc_scale);
 			break;
 			
 		case dtype_long:
@@ -1066,4 +1072,126 @@ bool Value::getValue(dsc* desc)
 		}
 	
 	return type == Null;
+}
+
+dsc Value::getDescriptor(void)
+{
+	dsc desc;
+
+	switch (type)
+		{
+		case Null:
+			desc.dsc_dtype = dtype_unknown;
+			break;
+
+		case String:
+		case Char:
+			desc.dsc_dtype = dtype_text;
+			desc.dsc_address = (UCHAR*) data.string.string;
+			desc.dsc_length = data.string.length;
+			break;
+
+		case Short:
+			desc.dsc_dtype = dtype_short;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.smallInt);
+			desc.dsc_scale = scale;
+			break;
+
+		case Long:
+			desc.dsc_dtype = dtype_long;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.integer);
+			desc.dsc_scale = scale;
+			break;
+
+		case Quad:
+			desc.dsc_dtype = dtype_int64;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.quad);
+			desc.dsc_scale = scale;
+			break;
+
+		case Double:
+			desc.dsc_dtype = dtype_double;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.dbl);
+			break;
+
+		case Date:
+			desc.dsc_dtype = dtype_sql_date;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.date);
+			break;
+
+		case Timestamp:
+			desc.dsc_dtype = dtype_timestamp;
+			desc.dsc_address = (UCHAR*) &data;
+			desc.dsc_length = sizeof(data.timestamp);
+			break;
+
+		case BlobPtr:
+		case ClobPtr:
+
+		default:
+			NOT_YET_IMPLEMENTED;
+		}
+	
+	return desc;
+}
+
+int Value::convert(INT64 value, int scale, char *string)
+{
+	if (value == 0)
+		{
+		strcpy (string, "0");
+		return 1;
+		}
+
+	if (scale < -18)
+		{
+		strcpy (string, "***");
+		return sizeof ("***");
+		}
+
+	bool negative = false;
+	UINT64 number;
+
+	if (value > 0)
+		number = value;
+	else
+		{
+		number = -value;
+		negative = true;
+		}
+
+	char temp [100], *p = temp;
+	int n;
+	int digits = 0;
+
+	for (n = 0; number; number /= 10, --n)
+		{
+		if (scale && scale == digits++)
+			*p++ = '.';
+		*p++ = '0' + (char) (number % 10);
+		}
+
+	if (scale && digits <= scale)
+		{
+		for (; digits < scale; ++digits)
+			*p++ = '0';
+		*p++ = '.';
+		}
+
+	char *q = string;
+
+	if (negative)
+		*q++ = '-';
+
+	while (p > temp)
+		*q++ = *--p;
+
+	*q = 0;
+
+	return q - string;
 }

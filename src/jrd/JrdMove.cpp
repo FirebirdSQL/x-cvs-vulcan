@@ -1,7 +1,7 @@
 #include <memory.h>
 #include <string.h>
 #include <limits.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/constants.h"
 #include "common.h"
 #include "JrdMove.h"
@@ -77,7 +77,7 @@ time_t JrdMove::getCurrentTime(void)
 		BUGCHECK i.e. ERR_bugcheck() which is not part of 
 		client library **/
 		
-	TDBB tdbb = tdbb = PLATFORM_GET_THREAD_DATA;
+	thread_db* tdbb = tdbb = PLATFORM_GET_THREAD_DATA;
 	time_t clock;
 
 	/* If we're in the engine, then the THDD type must
@@ -108,7 +108,7 @@ time_t JrdMove::getCurrentTime(void)
 
 bool JrdMove::allowDateStringTruncation(void)
 {
-	TDBB tdbb = tdbb = PLATFORM_GET_THREAD_DATA;
+	thread_db* tdbb = tdbb = PLATFORM_GET_THREAD_DATA;
 	
 	if ((tdbb) &&
 		(((THDD) tdbb)->thdd_type == THDD_TYPE_TDBB) &&

@@ -37,11 +37,12 @@
  *
  */
 
-#include "firebird.h"
-#include "common.h"
+#include "fbdev.h"
+#include "../jrd/common.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef POSIX_THREADS
 #include <pthread.h>
@@ -61,6 +62,7 @@
 #include "../jrd/jrd_time.h"
 #include "../jrd/common.h"
 #include "gen/iberror.h"
+#include "../jrd/tdbb.h"
 #include "../jrd/thd_proto.h"
 #include "../jrd/isc.h"
 #include "../jrd/gds_proto.h"
@@ -69,10 +71,11 @@
 #include "../jrd/isc_s_proto.h"
 #include "../jrd/file_params.h"
 #include "../jrd/gdsassert.h"
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/sch_proto.h"
+#include "../jrd/Interlock.h"
 
-#if defined(SIG_RESTART) || defined(UNIX) 
+#if defined(SIG_RESTART) || defined(UNIX)
 static USHORT inhibit_restart;
 #endif
 
@@ -121,9 +124,16 @@ static UCHAR *next_shared_memory;
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#ifndef __VMS
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#endif
+
+#ifdef __VMS
+#include <fcntl.h>
+#endif
 
 #ifndef O_RDWR
 #include <fcntl.h>
@@ -342,6 +352,9 @@ int ISC_event_init(AsyncEvent* event, int semid, int semnum)
 	union semun arg;
 
 	event->event_count = 0;
+#ifndef SHARED_CACHE
+	event->event->shared = NULL;
+#endif
 
 	if (!semnum) {
 		/* Prepare an Inter-Thread event block */
@@ -587,21 +600,23 @@ int ISC_event_init(AsyncEvent* event, int semid, int semnum)
 		event->event_semid = semid;
 
 		pthread_mutexattr_init(&mattr);
-		
 //#if _POSIX_THREAD_PROCESS_SHARED >= 200112L
-		int ret = pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
+#ifndef MVS  // this function should be paired with condattr below
+		pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
+#endif
 //#endif
-
-		ret = pthread_mutex_init(event->event_mutex, &mattr);
+		pthread_mutex_init(event->event_mutex, &mattr);
 		pthread_mutexattr_destroy(&mattr);
 
 		pthread_condattr_init(&cattr);
 		
 //#if _POSIX_THREAD_PROCESS_SHARED >= 200112L
-		ret = pthread_condattr_setpshared(&cattr, PTHREAD_PROCESS_SHARED);
+#ifndef MVS  // this function is not available until z/OS 1.6
+		pthread_condattr_setpshared(&cattr, PTHREAD_PROCESS_SHARED);
+#endif
 //#endif
 
-		ret = pthread_cond_init(event->event_semnum, &cattr);
+		pthread_cond_init(event->event_semnum, &cattr);
 		pthread_condattr_destroy(&cattr);
 		}
 
@@ -628,7 +643,7 @@ int ISC_event_post(AsyncEvent* event)
 	ret = pthread_cond_broadcast(event->event_semnum);
 	pthread_mutex_unlock(event->event_mutex);
 	if (ret)
-#ifdef HP10
+#if defined HP10 || defined MVS
 
 	{
 		fb_assert(ret == -1);
@@ -710,7 +725,7 @@ int ISC_event_wait(
 				pthread_cond_timedwait((*events)->event_semnum,
 									   (*events)->event_mutex, &timer);
 
-#ifdef HP10
+#if defined HP10 || defined MVS
 			if ((ret == -1) && (errno == EAGAIN))
 #else
 			if (ret == ETIMEDOUT)
@@ -1112,7 +1127,7 @@ int ISC_event_wait(
 	wait.wait_count = count;
 	wait.wait_events = events;
 	wait.wait_values = values;
-	gds__thread_wait(event_test, &wait);
+	THD_thread_wait(event_test, &wait);
 
 	return 0;
 }
@@ -1168,11 +1183,11 @@ SLONG ISC_event_clear(AsyncEvent* event)
  **************************************/
 
 	ResetEvent((HANDLE) event->event_handle);
-
 	AsyncEvent* pEvent = event;
-	if (pEvent->event_shared) {
+	
+	if (pEvent->event_shared)
 		pEvent = pEvent->event_shared;
-	}
+
 	return pEvent->event_count + 1;
 }
 
@@ -1639,90 +1654,74 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 	TEXT tmp[MAXPATHLEN];
 	TEXT init_filename[MAXPATHLEN];	/* to hold the complete filename
 									   of the init file. */
-	SLONG semid;
+	UCHAR *address;
+	SLONG key, semid;
+	int oldmask, fd;
+	int fd_init;				/* filedecr. for the init file */
+	USHORT trunc_flag;
 	struct stat file_stat;
-	
 #ifndef HAVE_FLOCK
 	struct flock lock;
 #endif
 
-	sprintf(expanded_filename, filename, ISC_get_host(hostname, sizeof(hostname)));
+	sprintf(expanded_filename, filename,
+			ISC_get_host(hostname, sizeof(hostname)));
 
-	/* make the complete filename for the init file this file is to be used as a
-	   master lock to eliminate possible race conditions with just a single file
-	   locking. The race condition is caused as the conversion of a EXCLUSIVE
-	   lock to a SHARED lock is not atomic*/
+/* make the complete filename for the init file this file is to be used as a
+   master lock to eliminate possible race conditions with just a single file
+   locking. The race condition is caused as the conversion of a EXCLUSIVE
+   lock to a SHARED lock is not atomic*/
 
 	gds__prefix_lock(tmp, INIT_FILE);
 	sprintf(init_filename, tmp, hostname);	/* already have the hostname! */
 
-	int oldmask = umask(0);
-	USHORT trunc_flag = TRUE;
-	
-	if (length < 0) 
-		{
+	oldmask = umask(0);
+	if (length < 0) {
 		length = -length;
 		trunc_flag = FALSE;
-		}
+	}
+	else
+		trunc_flag = TRUE;
 
-	/* Produce shared memory key for file */
+/* Produce shared memory key for file */
 
-	SLONG key = find_key(status_vector, expanded_filename);
-	
-	if (!key) 
-		{
+	if (!(key = find_key(status_vector, expanded_filename))) {
 		umask(oldmask);
 		return NULL;
-		}
+	}
 
-	/* open the init lock file */
-	
-	int fd_init = open(init_filename, O_RDWR | O_CREAT, 0666);
-	
-	if (fd_init == -1) 
-		{
+/* open the init lock file */
+	fd_init = open(init_filename, O_RDWR | O_CREAT, 0666);
+	if (fd_init == -1) {
 		error(status_vector, "open", errno);
 		return NULL;
-		}
+	}
 
 #ifndef HAVE_FLOCK
-
-	/* get an exclusive lock on the INIT file with a block */
-	
+/* get an exclusive lock on the INIT file with a block */
 	lock.l_type = F_WRLCK;
 	lock.l_whence = 0;
 	lock.l_start = 0;
 	lock.l_len = 0;
-	
-	if (fcntl(fd_init, F_SETLKW, &lock) == -1) 
-		{
+	if (fcntl(fd_init, F_SETLKW, &lock) == -1) {
 		error(status_vector, "fcntl", errno);
 		close(fd_init);
-		
 		return NULL;
-		}
+	}
 #else
-
-	/* get an flock exclusive on the INIT file with blocking */
-	
-	if (flock(fd_init, LOCK_EX)) 
-		{
+/* get an flock exclusive on the INIT file with blocking */
+	if (flock(fd_init, LOCK_EX)) {
 		/* we failed to get an exclusive lock return back */
 		error(status_vector, "flock", errno);
 		close(fd_init);
-		
 		return NULL;
-		}
-		
+	}
 #endif
-
-	/* open the file to be inited */
-	
-	int fd = open(expanded_filename, O_RDWR | O_CREAT, 0666);
+/* open the file to be inited */
+	fd = open(expanded_filename, O_RDWR | O_CREAT, 0666);
 	umask(oldmask);
 
-	if (fd == -1) 
-		{
+	if (fd == -1) {
 		error(status_vector, "open", errno);
 #ifdef HAVE_FLOCK
 		/* unlock init file */
@@ -1735,16 +1734,13 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 		fcntl(fd_init, F_SETLK, &lock);
 #endif
 		close(fd_init);
-		
 		return NULL;
-		}
+	}
 
-	if (length == 0) 
-		{
+	if (length == 0) {
 		/* Get and use the existing length of the shared segment */
 
-		if (fstat(fd, &file_stat) == -1) 
-			{
+		if (fstat(fd, &file_stat) == -1) {
 			error(status_vector, "fstat", errno);
 			close(fd);
 #ifdef HAVE_FLOCK
@@ -1759,15 +1755,20 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 #endif
 			close(fd_init);		/* while we are at it close the init file also */
 			return NULL;
-			}
-			
-		length = file_stat.st_size;
 		}
+		length = file_stat.st_size;
+	}
 
-	UCHAR *address = (UCHAR*) mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+#ifdef MVS
+ // if length > file_stat.st_size, file size must be changed before mmap   
+	if (trunc_flag)   
+		ftruncate(fd, length);   
+ #endif 
 
-	if ((U_IPTR) address == (U_IPTR) -1) 
-		{
+	address =
+		(UCHAR *) mmap(0, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+	if ((U_IPTR) address == (U_IPTR) -1) {
 		error(status_vector, "mmap", errno);
 		close(fd);
 #ifdef HAVE_FLOCK
@@ -1783,22 +1784,28 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 
 		close(fd_init);
 		return NULL;
-		}
+	}
 
-	/* Get semaphore for mutex */
+/* Get semaphore for mutex */
 
 	shmem_data->sh_mem_address = address;
 	shmem_data->sh_mem_length_mapped = length;
+
+
 	shmem_data->sh_mem_handle = fd;
 
-	/* Try to get an exclusive lock on the lock file.  This will
-	   fail if somebody else has the exclusive lock */
+/* Try to get an exclusive lock on the lock file.  This will
+   fail if somebody else has the exclusive lock */
+
+#if !defined SHARED_CACHE && defined POSIX_THREADS && !defined ONE_LOCK_TABLE
+	if (shmem_data->sh_file_count && INTERLOCKED_INCREMENT(*shmem_data->sh_file_count) > 1)
+		goto skip_exclusive;
+#endif
 
 #ifdef HAVE_FLOCK
 	if (!flock(fd, LOCK_EX | LOCK_NB))
-		{
-		if (!init_routine) 
-			{
+	{
+		if (!init_routine) {
 			/* unlock both files */
 			flock(fd, LOCK_UN);
 			flock(fd_init, LOCK_UN);
@@ -1810,8 +1817,8 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 	
 	if (fcntl(fd, F_SETLK, &lock) != -1) 
 		{
-		if (!init_routine)
-			 {
+		if (!init_routine) 
+			{
 			/* unlock the file and the init file to release the other process */
 			lock.l_type = F_UNLCK;
 			lock.l_whence = 0;
@@ -1869,9 +1876,11 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 		shmem_data->sh_mem_mutex_arg = 0;
 #endif
 
+#ifndef MVS
+	// MVS done above
 		if (trunc_flag)
 			ftruncate(fd, length);
-			
+#endif
 		(*init_routine) (init_arg, shmem_data, true);
 		
 #ifdef HAVE_FLOCK
@@ -1912,9 +1921,9 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 		}
 	else 
 		{
+skip_exclusive:
 #ifdef HAVE_FLOCK
-		if (flock(fd, LOCK_SH))
-			{
+		if (flock(fd, LOCK_SH)) {
 			error(status_vector, "flock", errno);
 			flock(fd, LOCK_UN);
 			flock(fd_init, LOCK_UN);
@@ -1923,9 +1932,7 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 		lock.l_whence = 0;
 		lock.l_start = 0;
 		lock.l_len = 0;
-		
-		if (fcntl(fd, F_SETLK, &lock) == -1) 
-			{
+		if (fcntl(fd, F_SETLK, &lock) == -1) {
 			error(status_vector, "fcntl", errno);
 			/* unlock the file */
 			lock.l_type = F_UNLCK;
@@ -1945,8 +1952,7 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			close(fd_init);
 			close(fd);
 			return NULL;
-			}
-			
+		}
 		// Open semaphores here
 		
 #if !(defined SOLARIS_MT || defined POSIX_THREADS)
@@ -1958,7 +1964,6 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			flock(fd_init, LOCK_UN);
 #else
 			/* unlock the file and the init file to release the other process */
-			
 			lock.l_type = F_UNLCK;
 			lock.l_whence = 0;
 			lock.l_start = 0;
@@ -1975,36 +1980,28 @@ UCHAR* ISC_map_file(ISC_STATUS* status_vector,
 			close(fd);
 			close(fd_init);
 			return NULL;
-			}
-			
+		}
 		shmem_data->sh_mem_mutex_arg = semid;
 #else
 		shmem_data->sh_mem_mutex_arg = 0;
 #endif
-
 		if (init_routine)
 			(*init_routine) (init_arg, shmem_data, false);
-		}
+	}
 
 #ifdef HAVE_FLOCK
-	/* unlock the init file to release the other process */
-	
+/* unlock the init file to release the other process */
 	flock(fd_init, LOCK_UN);
 #else
-	/* unlock the init file to release the other process */
-	
+/* unlock the init file to release the other process */
 	lock.l_type = F_UNLCK;
 	lock.l_whence = 0;
 	lock.l_start = 0;
 	lock.l_len = 0;
 	fcntl(fd_init, F_SETLK, &lock);
-	
 #endif
-
-	/* close the init file_decriptor */
-	
+/* close the init file_decriptor */
 	close(fd_init);
-	
 	return address;
 }
 #endif
@@ -2463,6 +2460,7 @@ UCHAR* ISC_map_file(
 
 		DWORD fdw_create = (init_flag && file_exists) ? TRUNCATE_EXISTING | OPEN_ALWAYS : OPEN_ALWAYS;
 
+again:
 		file_handle = CreateFile(map_file,
 					GENERIC_READ | GENERIC_WRITE,
 					FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -2477,6 +2475,11 @@ UCHAR* ISC_map_file(
 					 
 		if (file_handle == INVALID_HANDLE_VALUE)
 			{
+			if (fdw_create & TRUNCATE_EXISTING)
+				{
+					fdw_create = OPEN_ALWAYS;
+					goto again;
+				}
 			CloseHandle(event_handle);
 			error(status_vector, "CreateFile", GetLastError());
 			return NULL;
@@ -2787,7 +2790,7 @@ int ISC_mutex_lock(MTX mutex)
 		for (;;) {
 			if (!lib$bbssi(&bit, mutex->mtx_event_count))
 				break;
-			gds__thread_wait(mutex_test, mutex);
+			THD_thread_wait(mutex_test, mutex);
 		}
 
 	--mutex->mtx_wait;
@@ -2944,13 +2947,15 @@ int ISC_mutex_init(MTX mutex, SLONG semaphore)
 	if (state == 0)
 		{
 //#if _POSIX_THREAD_PROCESS_SHARED >= 200112L
+#ifndef MVS
 		pthread_mutexattr_setpshared(&mattr, PTHREAD_PROCESS_SHARED);
+#endif
 //#endif
 		state = pthread_mutex_init(mutex->mtx_mutex, &mattr);
 		pthread_mutexattr_destroy(&mattr);
 		}
 		
-#ifdef HP10
+#if defined HP10 || defined MVS
 	if (state != 0)
     	state = errno;
 #endif
@@ -2971,7 +2976,7 @@ int ISC_mutex_lock(MTX mutex)
  *	Sieze a mutex.
  *
  **************************************/
-#ifdef HP10
+#if defined HP10 || defined MVS
 
 	int state;
 
@@ -3001,7 +3006,7 @@ int ISC_mutex_lock_cond(MTX mutex)
  *	Conditionally sieze a mutex.
  *
  **************************************/
-#ifdef HP10
+#if defined HP10 || defined MVS
 
 	int state;
 
@@ -3017,12 +3022,17 @@ int ISC_mutex_lock_cond(MTX mutex)
 	  0		mutex has alreary been locked. Could not get it
 	 -1	EINVAL	invalid value of mutex
 */
+#ifdef HP10
 	if (!state)
 		return -99;				/* we did not get the mutex for it had already      */
 	/* been locked, let's return something which is     */
 	/* not zero and negative (errno values are positive) */
 	if (state == 1)
 		return 0;
+#elif defined MVS
+	if (!state) // on MVS trylock returns 0 for success   
+		return 0;   
+#endif
 
 	fb_assert(state == -1);		/* if state is not 0 or 1, it should be -1 */
 	return errno;
@@ -3047,7 +3057,7 @@ int ISC_mutex_unlock(MTX mutex)
  *	Release a mutex.
  *
  **************************************/
-#ifdef HP10
+#if defined HP10 || defined MVS
 
 	int state;
 
@@ -3280,6 +3290,12 @@ int ISC_mutex_unlock(MTX mutex)
 }
 #endif
 
+void ISC_mutex_delete(MTX mutex)
+{
+#ifdef WIN_NT
+	CloseHandle(mutex->mtx_handle);
+#endif
+}
 
 #ifndef MUTEX
 int ISC_mutex_init(MTX mutex, SLONG dummy)
@@ -3369,6 +3385,7 @@ UCHAR *ISC_remap_file(ISC_STATUS * status_vector,
 
 	return address;
 }
+
 #endif
 #endif
 
@@ -3648,6 +3665,10 @@ void ISC_unmap_file(ISC_STATUS * status_vector, SH_MEM shmem_data, USHORT flag)
 	if (flag & ISC_MEM_REMOVE)
 		ftruncate(shmem_data->sh_mem_handle, 0L);
 	close(shmem_data->sh_mem_handle);
+	
+#if !defined SHARED_CACHE && defined POSIX_THREADS && !defined ONE_LOCK_TABLE
+	if (shmem_data->sh_file_count) INTERLOCKED_DECREMENT(*shmem_data->sh_file_count);
+#endif
 }
 #endif
 #endif
@@ -3701,12 +3722,17 @@ void ISC_unmap_file(ISC_STATUS * status_vector,
  **************************************/
 
 	CloseHandle(shmem_data->sh_mem_interest);
-	CloseHandle((HANDLE) shmem_data->sh_mem_mutex_arg);
+	
+	if (shmem_data->sh_mem_mutex_arg)
+		CloseHandle((HANDLE)(IPTR) shmem_data->sh_mem_mutex_arg);
+		
 	UnmapViewOfFile(shmem_data->sh_mem_address);
 	CloseHandle(shmem_data->sh_mem_object);
+	
 	if (flag & ISC_MEM_REMOVE)
 	  if (SetFilePointer(shmem_data->sh_mem_handle, 0, NULL, FILE_BEGIN) != 0xFFFFFFFF)
 	    SetEndOfFile(shmem_data->sh_mem_handle);
+	    
 	CloseHandle(shmem_data->sh_mem_handle);
 	UnmapViewOfFile(shmem_data->sh_mem_hdr_address);
 	CloseHandle(shmem_data->sh_mem_hdr_object);
@@ -3959,7 +3985,7 @@ void longjmp_sig_handler(int sig_num)
  *	The generic signal handler for all signals in a thread.
  *
  **************************************/
-	TDBB tdbb;
+	thread_db *tdbb;
 
 /* Note: we can only do this since we know that we
    will only be going to JRD, specifically fun and blf.
@@ -3967,7 +3993,7 @@ void longjmp_sig_handler(int sig_num)
    actally hang the sigsetjmp menber off of THDD, and
    make sure that it is set properly for all sub-systems. */
 
-	tdbb = GET_THREAD_DATA;
+	tdbb = (thread_db*)GET_THREAD_DATA;
 
 	siglongjmp(tdbb->tdbb_sigsetjmp, sig_num);
 }
@@ -4015,9 +4041,11 @@ static void make_object_name(
 	char hostname[64], *p, c;
 
 	sprintf(buffer, object_name, ISC_get_host(hostname, sizeof(hostname)));
-	for (p = buffer; c = *p; p++)
+	for (p = buffer; c = tolower(*p); p++)
 		if (c == '/' || c == '\\' || c == ':')
 			*p = '_';
+		else
+			*p = c;
 	strcpy(p, object_type);
 }
 #endif

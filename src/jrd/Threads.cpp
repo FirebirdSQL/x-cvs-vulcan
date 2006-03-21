@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Threads.h"
 #include "Thread.h"
@@ -64,7 +64,7 @@ Thread* Threads::start(const char *desc, void (fn)(void*), void * arg)
 	Thread *thread;
 
 	for (thread = threads; thread; thread = thread->next)
-		if (!thread->active)
+		if (!thread->function)
 			{
 			thread->start (desc, fn, arg);
 			return thread;

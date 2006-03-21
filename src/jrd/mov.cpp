@@ -25,7 +25,7 @@
  *                            to be stored (DB$xxx, for example)
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/jrd.h"
@@ -39,7 +39,7 @@
 
 
 
-int MOV_compare(tdbb *tdbb, const dsc* arg1, const dsc* arg2)
+int MOV_compare(thread_db* tdbb, const dsc* arg1, const dsc* arg2)
 {
 /**************************************
  *

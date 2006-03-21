@@ -25,7 +25,7 @@
 // copyright (c) 1999 - 2000 by James A. Starkey for IBPhoenix.
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Values.h"
 #include "Value.h"
 

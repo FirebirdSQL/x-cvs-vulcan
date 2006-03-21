@@ -21,7 +21,7 @@
  */
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "XDump.h"
 #include "XLoad.h"
@@ -39,13 +39,13 @@ static bool		swHelp;
 static bool		swCreate;
 static bool		swVerbose;
 static bool		swAll;
-static char		*databaseName;
-static char		*inputFile;
-static char		*outputFile;
-static char		*user = "sysdba";
-static char		*password = "password";
-static char		*sql;
-static char		*table;
+static const char		*databaseName;
+static const char		*inputFile;
+static const char		*outputFile;
+static const char		*user = "sysdba";
+static const char		*password = "password";
+static const char		*sql;
+static const char		*table;
 
 static const Switches switches [] =
 	{
@@ -65,14 +65,14 @@ static const Switches switches [] =
 
 static const char* HELP_TEXT =	"Usage: xload [-l xmlInput] [-d xmlOutput] databaseName\n";
 
-static int doIt(int argc, char** argv);
+static int doIt(int argc, const char** argv);
 
-int main(int argc, char** argv)
+int main(int argc, const char** argv)
 {
 	return doIt(argc, argv);
 }
 
-int doIt (int argc, char** argv)
+int doIt (int argc, const char** argv)
 {
 	Args::parse (switches, argc - 1, argv + 1);
 

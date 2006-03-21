@@ -181,6 +181,9 @@
 				RelativePath="..\jrd\OSRIMemException.h">
 			</File>
 			<File
+				RelativePath="..\jrd\Subsystem.h">
+			</File>
+			<File
 				RelativePath="..\jrd\Sync.h">
 			</File>
 			<File

@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "Stream.h"
 #include "StreamSegment.h"
 
@@ -542,6 +542,7 @@ void Stream::format(const char *pattern, ...)
 	if (vsnprintf (temp, sizeof (temp) - 1, pattern, args) < 0)
 		temp [sizeof (temp) - 1] = 0;
 
+	va_end(args);
 	putSegment (temp);
 }
 

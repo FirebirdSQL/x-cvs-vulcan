@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "AsyncEvent.h"
 #include "../jrd/isc_s_proto.h"
 

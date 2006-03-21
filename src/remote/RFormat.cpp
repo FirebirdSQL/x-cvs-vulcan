@@ -20,7 +20,7 @@
  */
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "RFormat.h"
 
 RFormat::RFormat(int count)

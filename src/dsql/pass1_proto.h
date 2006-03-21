@@ -28,7 +28,7 @@ class CStatement;
 
 dsql_ctx* PASS1_make_context(CStatement*, dsql_nod*);
 dsql_nod* PASS1_node(CStatement*, dsql_nod*, bool);
-dsql_nod* PASS1_rse(CStatement*, dsql_nod*, dsql_nod*, dsql_nod*, dsql_nod*);
+dsql_nod* PASS1_rse(CStatement*, dsql_nod*, dsql_nod*);
 dsql_nod* PASS1_statement(CStatement*, dsql_nod*, bool);
 
 #endif // DSQL_PASS1_PROTO_H

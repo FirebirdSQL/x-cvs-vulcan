@@ -28,8 +28,8 @@
 void	GEN_expr(CStatement*, dsql_nod*);
 void	GEN_port(CStatement*, dsql_msg*);
 void	GEN_request(CStatement*, dsql_nod*);
-void	GEN_return(CStatement*, dsql_nod*, bool);
-void	GEN_start_transaction(CStatement*, dsql_nod*);
+void	GEN_return(CStatement*, const dsql_nod*, bool);
+void	GEN_start_transaction(CStatement*, const dsql_nod*);
 void	GEN_statement(CStatement*, dsql_nod*);
 
 inline void stuff(CStatement* request, const UCHAR byte)

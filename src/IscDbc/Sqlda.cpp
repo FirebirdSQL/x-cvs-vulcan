@@ -2,7 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef DARWIN
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <memory.h>
 #include <stdio.h>
 #include <string.h>
@@ -529,7 +533,7 @@ void Sqlda::setBlob(XSQLVAR * var, Value * value, IscConnection *connection)
 
 	var->sqltype &= ~1;
 	ISC_STATUS statusVector [20];
-	isc_blob_handle blobHandle;
+	isc_blob_handle blobHandle = 0;
 	isc_tr_handle transactionHandle = connection->startTransaction();
 	isc_create_blob2 (statusVector, 
 					  &connection->databaseHandle,

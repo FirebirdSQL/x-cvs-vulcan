@@ -21,7 +21,7 @@
  */
 
 #include <stdlib.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "common.h"
@@ -32,9 +32,13 @@
 #include "PBGen.h"
 #include "Stream.h"
 	
-SpecialSql::SpecialSql(const char *sql, int userDialect) : Lex ("=()[].,;+-*/", LEX_upcase)
+SpecialSql::SpecialSql(int length, const char *sql, int userDialect) : Lex ("=()[].,;+-*/", LEX_upcase)
 {
 	InputStream *stream = new InputStream (sql);
+
+	if (length)
+		stream->segmentLength = length;
+
 	pushStream (stream);
 	stream->release();
 	syntax = NULL;
@@ -151,8 +155,8 @@ Element* SpecialSql::parseCreateDatabase(void)
 				{
 				if (!match("NAMES"))
 					syntaxError ("names", token);
-					
-				element->addAttribute ("set_names", getName());
+	
+				element->addAttribute ("set_names", getCharSetName());
 				}				
 			else if (match ("DEFAULT"))
 				{
@@ -162,7 +166,7 @@ Element* SpecialSql::parseCreateDatabase(void)
 				if (!match ("SET"))
 					syntaxError ("set", token);
 					
-				element->addAttribute ("charset", getName());
+				element->addAttribute ("charset", getCharSetName());
 				}
 			else if (match ("DIFFERENCES"))
 				{
@@ -329,9 +333,14 @@ JString	SpecialSql::genAlterStatement ()
 	return command.getJString();
 }
 
+/* Same as Lex::getName() but used for charset names which can be quoted */
+JString SpecialSql::getCharSetName()
+{
+	if ((tokenType != NAME)&& (tokenType != SINGLE_QUOTED_STRING))
+		syntaxError ("character set name", token);
 
-
-
-
-
-
+	JString name = token;
+	getToken();
+	
+	return name;	
+}

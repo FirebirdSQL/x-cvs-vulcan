@@ -37,7 +37,7 @@
 #include <unistd.h>
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ScanDir.h"
 

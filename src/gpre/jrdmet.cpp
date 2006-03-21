@@ -29,7 +29,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/gds.h"
 #include "../jrd/common.h"
 #include "../jrd/ods.h"

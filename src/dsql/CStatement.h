@@ -46,7 +46,8 @@ enum REQ_TYPE
 	REQ_UPDATE_CURSOR, REQ_DELETE_CURSOR,
 	REQ_COMMIT, REQ_ROLLBACK, REQ_DDL, REQ_EMBED_SELECT,
 	REQ_START_TRANS, REQ_GET_SEGMENT, REQ_PUT_SEGMENT, REQ_EXEC_PROCEDURE,
-	REQ_COMMIT_RETAIN, REQ_SET_GENERATOR, REQ_SAVEPOINT
+	REQ_COMMIT_RETAIN, REQ_SET_GENERATOR, REQ_SAVEPOINT, 
+	REQ_EXEC_BLOCK, REQ_SELECT_BLOCK
 };
 
 enum trigger_type {
@@ -81,15 +82,16 @@ class Relation;
 class Request;
 class Procedure;
 class CharSetContainer;
-class Function;
+class UserFunction;
 
-struct tdbb;
+struct thread_db;
 
 //#define FRBRD	void
 
 class CStatement : public RefObject  
 {
 public:
+	bool existsException (const TEXT *exceptionName);
 	void genMatchingKey (const dsql_nod *for_columns, const dsql_nod *prim_columns);
 	void genFiringCondition (dsql_nod *prim_columns);
 	static void notYetImplemented();
@@ -107,13 +109,14 @@ public:
 	void dropFunction (const TEXT *functionName);
 	void dropProcedure (const TEXT *procedureName);
 	void dropRelation (const TEXT *relationName);
-	Function* findFunction (const TEXT *functionName);
+	UserFunction* findFunction (const TEXT *functionName);
 	dsql_rel* findViewRelation (const TEXT *viewName, const TEXT *relationName, int level);
 	CharSetContainer* findCollation (const char *name);
 	CharSetContainer* findCharset (const TEXT *name);
 	Procedure* findProcedure (const TEXT *procedureName);
 	dsql_rel* findRelation (const char *relationName);
-	void prepare (tdbb *threadDdata, int sqlLength, const TEXT *sql, int userDialect);
+	void prepare (thread_db* threadData, int sqlLength, const TEXT *sql, int userDialect);
+	void completeDDL(thread_db* threadData);
 	CStatement(Attachment *attachment);
 	void convertDType (dsql_fld *field, int blrType);
 	JString stripString (const TEXT *string);
@@ -149,7 +152,7 @@ public:
 	JString		sql;
 	JString		cursorName;			// as in "current of <cursorName>
 	BlrGen		*blrGen;
-	tdbb		*threadData; 
+	thread_db	*threadData; 
 	DsqlMemoryPool	*pool;
 
 	Request		*request;
@@ -171,14 +174,15 @@ public:
 	bool		inOuterJoin;
 	dsql_str	*aliasRelationPrefix;
 	Stack		context;
-	Stack		derivedTableContext;
 	Stack		unionContext;
 	Stack		cursors;
 	Stack		labels;
 	Procedure	*procedure;
 	dsql_nod	*ddlNode;
+	dsql_nod	*execBlockNode;
 	dsql_nod	*syntaxTree;
 	dsql_blb	*blob;
+	dsql_str	*tempCollationName;
 	int			req_in_where_clause;	//!< processing "where clause"
 	int			req_in_group_by_clause;	//!< processing "group by clause"
 	int			req_in_having_clause;	//!< processing "having clause"
@@ -202,7 +206,7 @@ public:
 	void releaseInstantiation(int instantiation);
 	void deleteSyntaxTree(void);
 	dsql_rel* getRelation(const TEXT* relationName);
-	void getRequestInfo(tdbb* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	void getRequestInfo(thread_db* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	int findColumn(const char *columnName);
 };
 

@@ -29,21 +29,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <dlfcn.h>
-#endif
-
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "common.h"
+#include "../jrd/dsc.h"
 #include "Dispatch.h"
 #include "SubsysHandle.h"
 #include "StatusVector.h"
 #include "YTransaction.h"
 #include "YRequest.h"
 #include "YStatement.h"
+#include "YService.h"
 #include "YBlob.h"
 #include "YSQLDA.h"
 #include "Provider.h"
@@ -145,7 +141,7 @@ ISC_STATUS Dispatch::createDatabase (ISC_STATUS* userStatus,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
@@ -177,7 +173,7 @@ ISC_STATUS Dispatch::createDatabase (ISC_STATUS* userStatus,
 
 	JString dbName = translatedName;
 	JString prior;
-	UCHAR *extendedDpb = dpb;
+	UCHAR *extendedDpb = (UCHAR*) dpb;
 	int extendedDpbLength = rewriteDpb (dpbLength, &extendedDpb);
 	bool hasProvider = false;
 	bool haveError = false;
@@ -244,7 +240,7 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
 {
@@ -255,24 +251,26 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 		printTrace ("attachDatabase %s", translatedName);
 	else
 		trace ("attachDatabase %s", translatedName);
-		
-	StatusVector statusVector (userStatus, traceFlags);
 	
+	StatusVector localVector (userStatus, traceFlags);
+	StatusVector *statusVector = &localVector;
+	ISC_STATUS	localStatus[ISC_STATUS_LENGTH];
+
 	if (*((isc_db_handle*) dbHandle))
-		return statusVector.postAndReturn (isc_bad_db_handle);
+		return statusVector->postAndReturn (isc_bad_db_handle);
 
 	if (!translatedName)
 		{
-		statusVector.post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
-		return statusVector.getReturn();
+		statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+		return statusVector->getReturn();
 		}
 
 	if (dpbLength > 0 && !dpb)
-		return statusVector.postAndReturn (isc_bad_dpb_form);
+		return statusVector->postAndReturn (isc_bad_dpb_form);
 
 	JString dbName = translatedName;
 	JString prior;
-	UCHAR *extendedDpb = dpb;
+	UCHAR *extendedDpb = (UCHAR*) dpb;
 	int extendedDpbLength = rewriteDpb (dpbLength, &extendedDpb);
 	bool hasProvider = false;
 	bool haveError = false;
@@ -286,15 +284,15 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 			
 			if (!confObject)
 				{
-				statusVector.post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
-				return statusVector.getReturn();
+				statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+				return statusVector->getReturn();
 				}
 			}
 		catch (AdminException& exception)
 			{
 			exception;
-			statusVector.post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
-			return statusVector.getReturn();
+			statusVector->post(isc_bad_db_format, isc_arg_string, translatedName, isc_arg_end);
+			return statusVector->getReturn();
 			}
 		
 		dbName = confObject->getValue ("filename", (const char*) dbName);
@@ -318,17 +316,22 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 					if (!subsystem)
 						break;
 					DbHandle tempHandle = NULL;
-					if (subsystem->attachDatabase (statusVector, orgName, dbName, &tempHandle, 
+					if (subsystem->attachDatabase (*statusVector, orgName, dbName, &tempHandle, 
 												   extendedDpbLength, extendedDpb, 
 												   confObject, provider->configuration))
+						{
+						if (!haveError)
+							memcpy (localStatus, statusVector->statusVector, sizeof(localStatus));
+
 						haveError = true;
+						}
 					else
 						{
 						SubsysHandle *handle = new SubsysHandle (subsystem, tempHandle);
 						*((isc_db_handle*) dbHandle) = (isc_db_handle) databaseHandles.allocateHandle (handle);
 						if (extendedDpb != dpb)
 							delete [] extendedDpb;
-						return statusVector.getCode();
+						return statusVector->getCode();
 						}
 					}
 			}
@@ -338,8 +341,11 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 		delete [] extendedDpb;
 
 	if (haveError)
-		return statusVector.getReturn();
-
+		{
+		memcpy (statusVector->statusVector, localStatus, sizeof(localStatus));
+		return statusVector->getReturn();
+		}
+		
 	return entrypointUnavailable (userStatus);
 }
 
@@ -411,7 +417,7 @@ ISC_STATUS Dispatch::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, teb *tebs)
+ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int count, const TransactionElement *tebs)
 {
 	trace ("startMultiple");
 	StatusVector statusVector (userStatus, traceFlags);
@@ -423,7 +429,7 @@ ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle,
 
 	for (int n = 0; n < count; ++n)
 		{
-		teb *element = tebs + n;
+		const TransactionElement *element = tebs + n;
 		SubsysHandle *subsystem = getDatabase (element->dbHandle);
 		if (!subsystem)
 			{
@@ -438,7 +444,7 @@ ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle,
 		transaction->setDatabase (n, subsystem, element->tpbLength, element->tpb);
 		}
 		
-	if (statusVector.success() && !transaction->start (statusVector), &databaseHandles)
+	if (statusVector.success() && !transaction->start (statusVector))
 		SET_HANDLE (isc_tr_handle, traHandle, transactionHandles.allocateHandle (transaction));
 	else
 		delete transaction;
@@ -447,21 +453,42 @@ ISC_STATUS Dispatch::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle,
 }
 
 
-ISC_STATUS Dispatch::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Dispatch::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int infoLength, const UCHAR *info)
 {
 	trace ("reconnectTransaction");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = new YTransaction (1);
+
+	if (!transaction->reconnect (statusVector, handle, infoLength, info))
+		SET_HANDLE (isc_tr_handle, traHandle, transactionHandles.allocateHandle (transaction));
+	else
+		delete transaction;
+	
+	return statusVector.getReturn();
 }
 
 
 ISC_STATUS Dispatch::transactionInfo(ISC_STATUS* userStatus, TraHandle *traHandle, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	trace ("transactionInfo");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	transaction->transactionInfo(statusVector, itemsLength, items, bufferLength, buffer);
+	
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int msgLength, UCHAR* msg)
+ISC_STATUS Dispatch::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int msgLength, const UCHAR* msg)
 {
 	trace ("prepareTransaction");
 	StatusVector statusVector (userStatus, traceFlags);
@@ -572,7 +599,6 @@ ISC_STATUS Dispatch::compileRequest(ISC_STATUS* userStatus, DbHandle *dbHandle, 
 		{
 		YRequest *requestHandle = new YRequest (handle, tempHandle);
 		*((isc_req_handle*) reqHandle) = (isc_req_handle) requestHandles.allocateHandle (requestHandle);
-		//*reqHandle = (ReqHandle*) requestHandle;
 		}
 
 	return statusVector.getReturn();
@@ -582,13 +608,13 @@ ISC_STATUS Dispatch::compileRequest(ISC_STATUS* userStatus, DbHandle *dbHandle, 
 ISC_STATUS Dispatch::compileRequest2(ISC_STATUS* userStatus, DbHandle *dbHandle, ReqHandle *reqHandle, int blrLength, const UCHAR* blr)
 {
 	trace ("compileRequest2");
-	DbHandle *orgPointer = reqHandle;
+	//DbHandle *orgPointer = dbHandle;
 	ISC_STATUS ret = compileRequest (userStatus, dbHandle, reqHandle, blrLength, blr);
 
 	if (!ret)
 		{
 		YRequest *request = getRequest (reqHandle);
-		request->userPtr = orgPointer;
+		request->userPtr = reqHandle; //orgPointer;
 		}
 
 	return ret;
@@ -720,7 +746,18 @@ ISC_STATUS Dispatch::receive(ISC_STATUS* userStatus, ReqHandle *reqHandle, int m
 ISC_STATUS Dispatch::unwindRequest(ISC_STATUS* userStatus, ReqHandle *reqHandle, int level)
 {
 	trace ("unwindRequest");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YRequest *request = getRequest (reqHandle);
+
+	if (!request)
+		return statusVector.postAndReturn (isc_bad_req_handle);
+
+	request->subsystem->subsystem->unwindRequest(
+			statusVector, 
+			&request->handle, 
+			level);
+
+	return statusVector.getReturn();
 }
 
 
@@ -733,10 +770,13 @@ ISC_STATUS Dispatch::releaseRequest(ISC_STATUS*userStatus, ReqHandle *reqHandle)
 	if (!request)
 		return statusVector.postAndReturn (isc_bad_req_handle);
 
+	isc_req_handle handleCopy = *(isc_req_handle*) reqHandle;
+	
 	if (!request->releaseRequest( statusVector))
 		{
 		*(isc_req_handle*) reqHandle = 0;
 		delete request;
+		requestHandles.releaseHandle(handleCopy);
 		}
 
 	return statusVector.getReturn();
@@ -927,17 +967,78 @@ ISC_STATUS Dispatch::cancelBlob(ISC_STATUS* userStatus, BlbHandle *blbHandle)
 
 
 
-ISC_STATUS Dispatch::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, SLONG sliceLength, UCHAR* slice)
+ISC_STATUS Dispatch::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
+							  SLONG* arrayId, int sdlLength, const UCHAR* sdl, int paramLength, const UCHAR* param, 
+							  SLONG sliceLength, const UCHAR* slice)
 {
 	trace ("putSlice");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	TraHandle trHandle = transaction->getDbHandle (handle);
+
+	if (!trHandle)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	handle->subsystem->putSlice(statusVector,
+									&handle->handle,
+									&trHandle,
+									arrayId, 
+									sdlLength, 
+									sdl, 
+									paramLength, 
+									param, 
+									sliceLength, 
+									slice);
+	
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
+ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
+							  SLONG* arrayId, 
+							  int sdlLength, const UCHAR *sdl, 
+							  int paramLength, const UCHAR *param, 
+							  SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
 	trace ("getSlice");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	TraHandle trHandle = transaction->getDbHandle (handle);
+
+	if (!trHandle)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	handle->subsystem->getSlice(statusVector,
+									&handle->handle,
+									&trHandle,
+									arrayId, 
+									sdlLength, 
+									sdl, 
+									paramLength, 
+									param, 
+									sliceLength, 
+									slice,
+									returnLength);
+	
+	return statusVector.getReturn();
 }
 
 
@@ -945,14 +1046,40 @@ ISC_STATUS Dispatch::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHan
 ISC_STATUS Dispatch::cancelEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId)
 {
 	trace ("cancelEvents");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+		
+	handle->subsystem->cancelEvents(
+			statusVector, 
+			&handle->handle, 
+			eventId);
+
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, UCHAR* events, FPTR_VOID ast,void* astArg)
+ISC_STATUS Dispatch::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast,void* astArg)
 {
 	trace ("queEvents");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+		
+	handle->subsystem->queEvents(
+			statusVector, 
+			&handle->handle, 
+			eventId,
+			eventsLength,
+			events,
+			ast,
+			astArg);
+
+	return statusVector.getReturn();
 }
 
 
@@ -987,8 +1114,30 @@ ISC_STATUS Dispatch::dsqlAllocateStatement(ISC_STATUS* userStatus, DbHandle *dbH
 
 ISC_STATUS Dispatch::dsqlAllocateStatement2(ISC_STATUS* userStatus, DbHandle *dbHandle, DsqlHandle *dsqlHandle)
 {
-	trace ("dsqlAllocateStatement2");
-	return entrypointUnavailable (userStatus);
+	trace ("dsqlAllocateStatement");
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	if (*(isc_stmt_handle*) dsqlHandle)
+		return statusVector.postAndReturn (isc_bad_stmt_handle);
+
+	DsqlHandle tempHandle = NULL;
+
+	if (!handle->subsystem->dsqlAllocateStatement (
+			statusVector, 
+			&handle->handle, 
+			&tempHandle))
+		{
+		YStatement *statement = new YStatement (handle, tempHandle);
+		statement->userPtr = dsqlHandle;
+		*(isc_stmt_handle*) dsqlHandle = (isc_stmt_handle) statementHandles.allocateHandle (statement);
+		//*dsqlHandle = (DsqlHandle*) statement;
+		}
+
+	return statusVector.getReturn();
 }
 
 
@@ -1169,7 +1318,7 @@ ISC_STATUS Dispatch::dsqlDescribeBind(ISC_STATUS* userStatus, DsqlHandle *dsqlHa
 	return statusVector.getReturn();
 }
 
-
+/***
 ISC_STATUS Dispatch::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	trace ("dsqlInsert");
@@ -1177,12 +1326,12 @@ ISC_STATUS Dispatch::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, 
 }
 
 
-ISC_STATUS Dispatch::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
+ISC_STATUS Dispatch::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
 {
 	trace ("dsqlInsert");
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 
 ISC_STATUS Dispatch::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
@@ -1257,7 +1406,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 		{
 		try
 			{
-			SpecialSql hack (sql, dialect);
+			SpecialSql hack (sqlLength, sql, dialect);
 			Element *element = hack.parse();
 			const char *fileName = element->getAttributeValue("filename", NULL);
 			
@@ -1267,7 +1416,7 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 				int dpbLength = hack.genDPB(&dpb);
 
 				if (!createDatabase(statusVector, fileName, fileName, dbHandle, 
-							dpbLength, dpb.buffer,0, NULL, NULL))
+							dpbLength, dpb.buffer, 0, NULL, NULL))
 					if (element->children)
 						alterDatabase (statusVector, dbHandle, &hack);
 
@@ -1347,9 +1496,9 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbH
 
 
 ISC_STATUS Dispatch::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle,
-								 int inBlrLength, UCHAR *inBlr, 
-								 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-								 int outBlrLength, UCHAR *outBlr, 
+								 int inBlrLength, const UCHAR *inBlr, 
+								 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+								 int outBlrLength, const UCHAR *outBlr, 
 								 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	trace ("dsqlExecute");
@@ -1479,7 +1628,7 @@ ISC_STATUS Dispatch::dsqlExecute (ISC_STATUS* userStatus,
 		if (!shandle && statement)
 			{
 			delete statement;
-			releaseHandle (dsqlHandle);
+			releaseStatementHandle (dsqlHandle);
 			SET_HANDLE (isc_tr_handle, traHandle, 0);
 			}
 		}
@@ -1496,19 +1645,44 @@ ISC_STATUS Dispatch::dsqlExecute (ISC_STATUS* userStatus,
 
 ISC_STATUS Dispatch::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	trace ("dsqlExecuteImmediate2");
 	traceSql (sqlLength, sql);
 	StatusVector statusVector (userStatus, traceFlags);
-	
 	SubsysHandle *subsystem = getDatabase (dbHandle);
 
 	if (!subsystem)
+		{
+		try
+			{
+			SpecialSql hack (sqlLength, sql, dialect);
+			Element *element = hack.parse();
+			const char *fileName = element->getAttributeValue("filename", NULL);
+			
+			if (fileName)
+				{
+				PBGen dpb;
+				int dpbLength = hack.genDPB(&dpb);
+				dbHandle = NULL;
+				if (!createDatabase(statusVector, fileName, fileName, dbHandle, 
+							dpbLength, dpb.buffer,0, NULL, NULL))
+					if (element->children)
+						alterDatabase (statusVector, dbHandle, &hack);
+
+				return statusVector.getReturn();
+				}
+			}
+		catch (OSRIException& exception)
+			{
+			return exception.copy (statusVector);
+			}
+
 		return statusVector.postAndReturn (isc_bad_db_handle);
+		}
 
 	YTransaction *transaction = getTransaction (traHandle);
 
@@ -1558,9 +1732,9 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbH
 
 ISC_STATUS Dispatch::dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	trace ("dsqlExecuteImmediate3");
@@ -1578,11 +1752,21 @@ ISC_STATUS Dispatch::dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbH
 
 
 ISC_STATUS Dispatch::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-										 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+										 int sqlLength, const char* sql, int dialect, 
+										 int blrLength, const UCHAR *blr, 
 										 int msgType, int msgLength, UCHAR* msg)
 {
 	trace ("dsqlExecuteImmediate");
-	return entrypointUnavailable (userStatus);
+
+	return dsqlExecuteImmediate2 (
+				userStatus,
+				dbHandle,
+				traHandle,
+				sqlLength, sql, dialect,
+				blrLength, blr,					// inBlrLength, inBlr,
+				msgType, msgLength, msg,	// inMsgType, inMsgLength, inMsg,
+				0, NULL,						//outBlrLength, outBlr,
+				0, 0, NULL);					//outMsgType, outMsgLength, outMsg);
 }
 
 
@@ -1595,10 +1779,16 @@ ISC_STATUS Dispatch::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 	if (!statement)
 		return statusVector.postAndReturn (isc_bad_req_handle);
 
+	// call below zeroes what dsqlHandle pointed to
+	// hence we must release a copy of real handle
+	
+	isc_stmt_handle handle = *(isc_stmt_handle*) dsqlHandle;
+	
 	if (!statement->releaseStatement(statusVector, option, false) && (option & DSQL_drop))
 		{
-		releaseHandle(dsqlHandle);
 		delete statement;
+		statementHandles.releaseHandle(handle);
+		*(isc_stmt_handle*) dsqlHandle = 0;
 		}
 
 	return statusVector.getReturn();
@@ -1608,45 +1798,165 @@ ISC_STATUS Dispatch::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 
 //ISC_STATUS Dispatch::cancelOperation(ISC_STATUS* userStatus, DbHandle *dbHandle, int);
 ISC_STATUS Dispatch::serviceQuery(ISC_STATUS *userStatus, 
-								DbHandle *dbHandle, 
+								SvcHandle *svcHandle, 
 								int inItemLength, 
-								UCHAR* inItem, 
+								const UCHAR* inItem, 
 								int outItemLength, 
-								UCHAR* outItem, 
+								const UCHAR* outItem, 
 								int bufferLength, 
 								UCHAR *buffer)
 {
 	trace ("serviceQuery");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YService *service = getService (svcHandle);
+
+	if (!service)
+		return statusVector.postAndReturn (isc_bad_svc_handle);
+
+	service->subsystem->serviceQuery (
+			statusVector, 
+			&service->handle, 
+			inItemLength, inItem,
+			outItemLength, outItem,
+			bufferLength, buffer);
+
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle)
+ISC_STATUS Dispatch::serviceDetach(ISC_STATUS *userStatus, SvcHandle *svcHandle)
 {
 	trace ("serviceDetach");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YService *service = getService (svcHandle);
+
+	if (!service)
+		return statusVector.postAndReturn (isc_bad_svc_handle);
+
+	if (!service->subsystem->serviceDetach (statusVector, &service->handle))
+		{
+		int slot = getHandleSlot (svcHandle);
+		serviceHandles.releaseHandle (slot);
+		*((isc_svc_handle*) svcHandle) = 0;
+		delete service;
+		}
+
+	return statusVector.getReturn();
 }
 
 
 ISC_STATUS Dispatch::serviceAttach(ISC_STATUS *userStatus, 
-								  int serviceLength, 
-								  TEXT *service, 
-								  DbHandle *dbHandle, 
+								  const TEXT *service, 
+								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb)
+								  const UCHAR *spb,
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
-	trace ("serviceAttach");
+	if (!initialized)
+		initialize();
+		
+	if (traceFlags & traceSQL)
+		printTrace ("serviceAttach %s", service);
+	else
+		trace ("serviceAttach %s", service);
+	
+	StatusVector localVector (userStatus, traceFlags);
+	StatusVector *statusVector = &localVector;
+	ISC_STATUS localStatus[ISC_STATUS_LENGTH];
+
+	if (*((isc_svc_handle*) dbHandle))
+		return statusVector->postAndReturn (isc_bad_db_handle);
+
+	if (spbLength > 0 && !spb)
+		return statusVector->postAndReturn (isc_bad_spb_form);
+
+	bool hasProvider = false;
+	bool haveError = false;
+	ConfObject *confObject;
+	
+	try
+		{
+		confObject = Configuration::findObject ("services", "generic");
+		
+		if (!confObject)
+			{
+			statusVector->post(isc_bad_db_format, isc_arg_string, service, isc_arg_end);
+			return statusVector->getReturn();
+			}
+		}
+	catch (AdminException& exception)
+		{
+		exception;
+		statusVector->post(isc_bad_db_format, isc_arg_string, service, isc_arg_end);
+		return statusVector->getReturn();
+		}
+	
+	for (int n = 0;; ++n)
+		{
+		JString providerName = confObject->getValue (n, "provider");
+		
+		if (providerName.IsEmpty())
+			break;
+			
+		hasProvider = true;
+		Provider *provider = getProvider (providerName);
+		
+		if (provider->subsystems)
+			for (int subsys = 0;; ++subsys)
+				{
+				Subsystem *subsystem = provider->subsystems [subsys];
+				
+				if (!subsystem)
+					break;
+					
+				SvcHandle tempHandle = NULL;
+				
+				if (subsystem->serviceAttach (*statusVector, service, &tempHandle, spbLength, spb, 
+											  confObject, provider->configuration))
+					{
+					if (!haveError)
+						memcpy (localStatus, statusVector->statusVector, sizeof(localStatus));
+
+					haveError = true;
+					}
+				else
+					{
+					YService *handle = new YService (subsystem, tempHandle);
+					*((isc_svc_handle*) dbHandle) = (isc_svc_handle) serviceHandles.allocateHandle (handle);
+					return statusVector->getCode();
+					}
+				}
+		}
+
+	if (haveError)
+		{
+		memcpy (statusVector->statusVector, localStatus, sizeof(localStatus));
+		return statusVector->getReturn();
+		}
+		
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Dispatch::serviceStart(ISC_STATUS* userStatus,
-								 DbHandle *dbHandle,
+								 SvcHandle *svcHandle,
 								 int spbLength, 
-								 UCHAR * spb)
+								 const UCHAR * spb)
 {
 	trace ("serviceStart");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	YService *service = getService (svcHandle);
+
+	if (!service)
+		return statusVector.postAndReturn (isc_bad_svc_handle);
+
+	service->subsystem->serviceStart (
+			statusVector, 
+			&service->handle, 
+			spbLength, spb);
+
+	return statusVector.getReturn();
 }
 
 
@@ -1654,18 +1964,45 @@ ISC_STATUS Dispatch::transactRequest(ISC_STATUS* userStatus,
 								   DbHandle *dbHandle, 
 								   TraHandle *traHandle, 
 								   int blrLength, 
-								   UCHAR* blr,
+								   const UCHAR* blr,
 								   int inMsgLength, 
-								   UCHAR* inMsg, 
+								   const UCHAR* inMsg, 
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
 	trace ("transactRequest");
-	return entrypointUnavailable (userStatus);
+	StatusVector statusVector (userStatus, traceFlags);
+	SubsysHandle *handle = getDatabase (dbHandle);
+
+	if (!handle)
+		return statusVector.postAndReturn (isc_bad_db_handle);
+
+	YTransaction *transaction = getTransaction (traHandle);
+
+	if (!transaction)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	TraHandle trHandle = transaction->getDbHandle (handle);
+
+	if (!trHandle)
+		return statusVector.postAndReturn (isc_bad_trans_handle);
+
+	handle->subsystem->transactRequest (
+			statusVector, 
+			&handle->handle,
+			&trHandle,
+			blrLength,
+			blr,
+			inMsgLength,
+			inMsg,
+			outMsgLength,
+			outMsg);
+	
+	return statusVector.getReturn();
 }
 
 
-ISC_STATUS Dispatch::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR* ddl)
+ISC_STATUS Dispatch::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl)
 {
 	trace ("executeDDL");
 	StatusVector statusVector (userStatus, traceFlags);
@@ -1694,7 +2031,7 @@ ISC_STATUS Dispatch::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraH
 	return statusVector.getReturn();
 }
 
-
+/***
 int Dispatch::enableSubsystem (TEXT* subSystem)
 {
 	trace ("enableSubsystem");
@@ -1707,8 +2044,9 @@ int Dispatch::disableSubsystem (TEXT* subSystem)
 	trace ("disableSubsystem");
 	return false;
 }
+***/
 
-
+/***
 ISC_STATUS Dispatch::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
 									 DatabaseCleanupRoutine *routine, 
@@ -1727,7 +2065,7 @@ ISC_STATUS Dispatch::transactionCleanup (ISC_STATUS* userStatus,
 	trace ("transactionCleanup");
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 
 ISC_STATUS Dispatch::seekBlob (ISC_STATUS* userStatus, 
 							 BlbHandle *blbHandle,
@@ -1751,17 +2089,6 @@ ISC_STATUS Dispatch::seekBlob (ISC_STATUS* userStatus,
 	return statusVector.getReturn();
 }
 
-
-
-ISC_STATUS Dispatch::eventWait(ISC_STATUS* userStatus,
-							 DbHandle *dbHandle,
-							 int eventsLength,
-							 UCHAR* events, 
-							 UCHAR *buffer)
-{
-	trace ("eventWait");
-	return entrypointUnavailable (userStatus);
-}
 
 
 
@@ -1792,12 +2119,13 @@ ISC_STATUS Dispatch::postError(ISC_STATUS *statusVector, ISC_STATUS *userVector)
 	return statusVector [1];
 }
 
+/***
 ISC_STATUS Dispatch::registerCleanupHandler(ISC_STATUS *userStatus, DbHandle *handle, DatabaseCleanupRoutine *routine, void *arg)
 {
 	trace ("registerCleanupHandler");
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 int Dispatch::rewriteDpb(int dpbLength, UCHAR **dpbPtr)
 {
 	UCHAR *p = *dpbPtr, *end = p + dpbLength;
@@ -1891,6 +2219,16 @@ Provider* Dispatch::getProvider(JString providerName)
 {
 	Provider *provider;
 	
+	Sync sync(&syncProvider, "getProvider");
+	sync.lock(Shared);
+	
+	for (provider = providers; provider; provider = provider->next)
+		if (provider->name == providerName)
+			return provider;
+	
+	sync.unlock();
+	
+	sync.lock(Exclusive);
 	for (provider = providers; provider; provider = provider->next)
 		if (provider->name == providerName)
 			return provider;
@@ -1919,6 +2257,7 @@ void Dispatch::trace(const char* method, ...)
 		va_start	(args, method);
 		printf ("Dispatch: ");
 		vprintf (method, args);
+		va_end(args);
 		printf ("\n");
 		}
 }
@@ -1929,6 +2268,7 @@ void Dispatch::printTrace(const char* method, ...)
 	va_start	(args, method);
 	printf ("Dispatch: ");
 	vprintf (method, args);
+	va_end(args);
 	printf ("\n");
 }
 
@@ -1991,7 +2331,7 @@ void Dispatch::releaseTransaction(TraHandle* traHandle)
 	*(isc_tr_handle*) traHandle = 0;
 }
 
-void Dispatch::releaseHandle(DsqlHandle* handle)
+void Dispatch::releaseStatementHandle(DsqlHandle* handle)
 {
 	int slot = getHandleSlot (handle);
 	statementHandles.releaseHandle (slot);
@@ -2077,7 +2417,7 @@ ISC_STATUS Dispatch::alterDatabase (ISC_STATUS* userStatus,
 	StatusVector statusVector (userStatus, traceFlags);
 	SubsysHandle *handle = getDatabase (dbHandle);
 
-	struct teb	trBlock;
+	TransactionElement	trBlock;
 	trBlock.dbHandle = dbHandle;
 	trBlock.tpb = NULL;
 	trBlock.tpbLength = 0;
@@ -2104,4 +2444,43 @@ ISC_STATUS Dispatch::alterDatabase (ISC_STATUS* userStatus,
 
 	return commitTransaction (statusVector, traHandle);
 
+}
+
+YService* Dispatch::getService(SvcHandle* svcHandle)
+{
+	int slot = getHandleSlot (svcHandle);
+	
+	return (YService*) serviceHandles.getObject(slot);
+}
+
+ISC_STATUS Dispatch::setConfigFilename(ISC_STATUS *userStatus, const char* configFilename)
+{
+	StatusVector statusVector (userStatus, traceFlags);
+
+	try
+		{
+		Configuration::setConfigFile(configFilename);
+		}
+	catch (AdminException& exception)
+		{
+		exception;
+		}
+
+	return statusVector.getReturn();
+}
+
+ISC_STATUS Dispatch::setConfigText(ISC_STATUS *userStatus, const char* configText)
+{
+	StatusVector statusVector (userStatus, traceFlags);
+
+	try
+		{
+		Configuration::setConfigText(configText);
+		}
+	catch (AdminException& exception)
+		{
+		exception;
+		}
+
+	return statusVector.getReturn();
 }

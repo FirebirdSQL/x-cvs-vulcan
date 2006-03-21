@@ -31,7 +31,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../burp/burp.h"
@@ -149,7 +149,7 @@ ULONG CAN_encode_decode(BURP_REL relation,
 
 		case dtype_cstring:
 			if (xdrs->x_op == XDR_ENCODE)
-				n = (strlen(reinterpret_cast<const char*>(p)));
+				n = (SSHORT) (strlen(reinterpret_cast<const char*>(p)));
 			if (!xdr_short(xdrs, &n))
 				return FALSE;
 			if (!xdr_opaque(xdrs, reinterpret_cast<SCHAR*>(p), n))
@@ -489,91 +489,91 @@ static bool_t xdr_datum( XDR * xdrs, DSC * desc, UCHAR * buffer)
  **************************************/
 	SSHORT n;
 
-	UCHAR* p = buffer + (long) desc->dsc_address;
+	UCHAR* p = buffer + (IPTR) desc->dsc_address;
 
 	switch (desc->dsc_dtype)
-	{
-	case dtype_text:
-		if (!xdr_opaque(xdrs, reinterpret_cast<SCHAR*>(p), desc->dsc_length))
 		{
-			return FALSE;
-		}
-		break;
-
-	case dtype_varying:
-		{
-			vary* pVary = reinterpret_cast<vary*>(p);
-			if (!xdr_short(xdrs,
-							reinterpret_cast<short*>(&pVary->vary_length)))
-			{
+		case dtype_text:
+			if (!xdr_opaque(xdrs, reinterpret_cast<SCHAR*>(p), desc->dsc_length))
 				return FALSE;
-			}
+
+			break;
+
+		case dtype_varying:
+			{
+			vary* pVary = reinterpret_cast<vary*>(p);
+			
+			if (!xdr_short(xdrs, reinterpret_cast<short*>(&pVary->vary_length)))
+				return FALSE;
+
 			if (!xdr_opaque(xdrs,
 							reinterpret_cast<SCHAR*>(pVary->vary_string),
 							MIN(desc->dsc_length - 2,
 							pVary->vary_length)))
-			{
 				return FALSE;
 			}
+			break;
+
+		case dtype_cstring:
+			if (xdrs->x_op == XDR_ENCODE)
+				n = MIN((SSHORT) strlen(reinterpret_cast<const char*>(p)), (desc->dsc_length - 1));
+				
+			if (!xdr_short(xdrs, &n))
+				return FALSE;
+				
+			if (!xdr_opaque(xdrs, reinterpret_cast<char*>(p), n))
+				return FALSE;
+				
+			if (xdrs->x_op == XDR_DECODE)
+				p[n] = 0;
+				
+			break;
+
+		case dtype_short:
+			if (!xdr_short(xdrs, (SSHORT *) p))
+				return FALSE;
+			break;
+
+		case dtype_sql_date:
+		case dtype_sql_time:
+		case dtype_long:
+			if (!xdr_long(xdrs, (SLONG *) p))
+				return FALSE;
+			break;
+
+		case dtype_real:
+			if (!xdr_float(xdrs, (float *) p))
+				return FALSE;
+			break;
+
+		case dtype_double:
+			if (!xdr_double(xdrs, (double *) p))
+				return FALSE;
+			break;
+
+		case dtype_timestamp:
+			if (!xdr_long(xdrs, &((SLONG *) p)[0]))
+				return FALSE;
+				
+			if (!xdr_long(xdrs, &((SLONG *) p)[1]))
+				return FALSE;
+			break;
+
+		case dtype_quad:
+		case dtype_blob:
+			if (!xdr_quad(xdrs, (SLONG *) p))
+				return FALSE;
+			break;
+
+		case dtype_int64:
+			if (!xdr_hyper(xdrs, (SINT64 *) p))
+				return FALSE;
+			break;
+
+		default:
+			fb_assert(FALSE);
+			return FALSE;
 		}
-		break;
-
-	case dtype_cstring:
-		if (xdrs->x_op == XDR_ENCODE)
-			n = MIN(strlen(reinterpret_cast<const char*>(p)),
-					(size_t) (desc->dsc_length - 1));
-		if (!xdr_short(xdrs, &n))
-			return FALSE;
-		if (!xdr_opaque(xdrs, reinterpret_cast<char*>(p), n))
-			  return FALSE;
-		if (xdrs->x_op == XDR_DECODE)
-			p[n] = 0;
-		break;
-
-	case dtype_short:
-		if (!xdr_short(xdrs, (SSHORT *) p))
-			return FALSE;
-		break;
-
-	case dtype_sql_date:
-	case dtype_sql_time:
-	case dtype_long:
-		if (!xdr_long(xdrs, (SLONG *) p))
-			return FALSE;
-		break;
-
-	case dtype_real:
-		if (!xdr_float(xdrs, (float *) p))
-			return FALSE;
-		break;
-
-	case dtype_double:
-		if (!xdr_double(xdrs, (double *) p))
-			return FALSE;
-		break;
-
-	case dtype_timestamp:
-		if (!xdr_long(xdrs, &((SLONG *) p)[0]))
-			return FALSE;
-		if (!xdr_long(xdrs, &((SLONG *) p)[1]))
-			return FALSE;
-		break;
-
-	case dtype_quad:
-	case dtype_blob:
-		if (!xdr_quad(xdrs, (SLONG *) p))
-			return FALSE;
-		break;
-
-	case dtype_int64:
-		if (!xdr_hyper(xdrs, (SINT64 *) p))
-			return FALSE;
-		break;
-
-	default:
-		fb_assert(FALSE);
-		return FALSE;
-	}
 
 	return TRUE;
 }

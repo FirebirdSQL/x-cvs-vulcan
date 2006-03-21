@@ -40,7 +40,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1176,7 +1176,7 @@ GPRE_REQ PAR_set_up_dpb_info(RDY ready, ACT action, USHORT buffercount)
 SYM PAR_symbol(enum sym_t type)
 {
 	SYM symbol;
-	TEXT s[128];
+	TEXT s[ERROR_LENGTH];
 
 	for (symbol = token.tok_symbol; symbol; symbol = symbol->sym_homonym)
 		if (type == SYM_dummy || symbol->sym_type == type) {
@@ -1247,7 +1247,7 @@ static void block_data_list( DBB db)
 	list = global_db_list;
 
 	if (global_db_count)
-		if (global_db_count > 32)
+		if (global_db_count > MAX_DATABASES)
 			PAR_error
 				("Database limit exceeded: 32 databases per source file.");
 		else
@@ -1255,7 +1255,7 @@ static void block_data_list( DBB db)
 				if (!(strcmp(name, list->dbb_name)))
 					return;
 
-	if (global_db_count > 32)
+	if (global_db_count > MAX_DATABASES)
 		return;
 
 	strcpy(list->dbb_name, name);
@@ -1410,7 +1410,7 @@ static ACT par_based()
 	BAS based_on;
 	GPRE_REL relation;
 	ACT action;
-	TEXT s[64];
+	TEXT s[ERROR_LENGTH];
 	TEXT t_str[NAME_SIZE + 1];
 	BOOLEAN ambiguous_flag;
 	LLS t1, t2, hold;
@@ -1710,7 +1710,7 @@ static ACT par_derived_from()
 	BAS based_on;
 	GPRE_REL relation;
 	ACT action;
-	TEXT s[64];
+	TEXT s[ERROR_LENGTH];
 
 	if ((sw_language != lang_c) && (!isLangCpp(sw_language))) {
 		return (NULL);
@@ -2279,7 +2279,7 @@ static ACT par_for()
 	RSE rec_expr;
 	GPRE_CTX context, *ptr, *end;
 	GPRE_REL relation;
-	TEXT s[128], dup_symbol;
+	TEXT s[ERROR_LENGTH], dup_symbol;
 #ifdef PYXIS
 	if (MATCH(KW_FORM))
 		return par_form_for();
@@ -2829,7 +2829,7 @@ static ACT par_modify()
 	UPD modify;
 	SYM symbol;
 	GPRE_REQ request;
-	SCHAR s[50];
+	SCHAR s[ERROR_LENGTH];
 
 //  Set up modify and action blocks.  This is done here to leave the
 //  structure in place to cleanly handle END_MODIFY under error conditions. 
@@ -2932,7 +2932,7 @@ static ACT par_open_blob( ACT_T act_op, SYM symbol)
 	ACT action;
 	BLB blob;
 	GPRE_REQ request;
-	TEXT s[128];
+	TEXT s[ERROR_LENGTH];
 	USHORT filter_is_defined = FALSE;
 
 //  If somebody hasn't already parsed up a symbol for us, parse the
@@ -3688,7 +3688,7 @@ static ACT par_type()
 	GPRE_FLD field;
 	ACT action;
 	SSHORT type;
-	TEXT s[64];
+	TEXT s[ERROR_LENGTH];
 
 //  Pick up relation 
 

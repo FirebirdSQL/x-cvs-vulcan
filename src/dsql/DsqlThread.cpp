@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "dsql.h"
 #include "DsqlThread.h"
 #include "thd_proto.h"

@@ -20,7 +20,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_types.h"
 #include "gen/iberror.h"
 
@@ -73,7 +73,7 @@ static struct {
 /* dtype_int64		*/ {SQL_INT64, sizeof(SINT64)},
 };
 
-void ExecuteStatement::Open(TDBB tdbb, JRD_NOD sql, SSHORT nVars, bool SingleTon) 
+void ExecuteStatement::Open(thread_db *tdbb, JRD_NOD sql, SSHORT nVars, bool SingleTon) 
 
 {
 	SET_TDBB(tdbb);
@@ -180,7 +180,7 @@ err_handler:
 	}
 }
 
-bool ExecuteStatement::Fetch(TDBB tdbb, JRD_NOD * JrdVar) {
+bool ExecuteStatement::Fetch(thread_db *tdbb, JRD_NOD * JrdVar) {
 	// If already bugged - we should never get here
 	fb_assert(! (tdbb->tdbb_status_vector[0] == 1 && 
 			  tdbb->tdbb_status_vector[1] != 0));
@@ -286,7 +286,7 @@ rec_err:
     return true;
 }
 
-void ExecuteStatement::Close(TDBB tdbb) {
+void ExecuteStatement::Close(thread_db *tdbb) {
 	if (Statement) {
 		tdbb->tdbb_transaction->tra_callback_count++;
 		THREAD_EXIT;
@@ -306,12 +306,12 @@ void ExecuteStatement::Close(TDBB tdbb) {
 	StartOfSqlOperator = 0;
 }
 
-XSQLDA * ExecuteStatement::MakeSqlda(TDBB tdbb, short n) {
+XSQLDA * ExecuteStatement::MakeSqlda(thread_db *tdbb, short n) {
 	return (XSQLDA *)
 		(FB_NEW(*tdbb->tdbb_transaction->tra_pool) char[XSQLDA_LENGTH(n)]);
 }
 
-ISC_STATUS ExecuteStatement::ReMakeSqlda(ISC_STATUS *vector, TDBB tdbb)
+ISC_STATUS ExecuteStatement::ReMakeSqlda(ISC_STATUS *vector, thread_db *tdbb)
 {
 	if (Sqlda->sqln != Sqlda->sqld) {
 		vector[0] = isc_arg_gds;

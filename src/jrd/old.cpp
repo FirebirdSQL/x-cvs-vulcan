@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../jrd/common.h"
@@ -615,7 +615,7 @@ static void old_put_db_filename(OLD OLD_handle)
  **************************************/
 	DBB dbb;
 	JRNF journal;
-	FIL fil;
+	File *fil;
 
 	dbb = GET_DBB;
 

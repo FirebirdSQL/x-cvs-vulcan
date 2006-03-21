@@ -23,7 +23,7 @@
 
 #include <string.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../jrd/ibase.h"
 #include "../jrd/dsc.h"
@@ -693,21 +693,26 @@ static BOOLEAN execute(SDL_ARG arg)
 		case op_scalar:
 			value = *next++;
 			next++;				/* Skip count, unsupported. */
-			for (range = array_desc->ads_rpt, subscript = 0;
-				 range < range_end; ++range) {
+			
+			for (range = array_desc->ads_rpt, subscript = 0; range < range_end; ++range) 
+				{
 				n = *stack_ptr++;
-				if (n < range->ads_lower || n > range->ads_upper) {
+				
+				if (n < range->ads_lower || n > range->ads_upper) 
+					{
 					error(arg->sdl_arg_status_vector, isc_out_of_bounds, 0);
 					return FALSE;
-				}
+					}
 				subscript += (n - range->ads_lower) * range->ads_length;
-			}
+				}
+				
 			element_desc = array_desc->ads_rpt[value].ads_desc;
 			element_desc.dsc_address = (BLOB_PTR *) arg->sdl_arg_array +
-				(long) element_desc.dsc_address +
+				(IPTR) element_desc.dsc_address +
 				(array_desc->ads_element_length * subscript);
 
 			/* Is this element within the array bounds? */
+			
 			fb_assert_continue((BLOB_PTR *) element_desc.dsc_address >=
 								(BLOB_PTR *) arg->sdl_arg_array);
 			fb_assert_continue((BLOB_PTR *) element_desc.dsc_address +

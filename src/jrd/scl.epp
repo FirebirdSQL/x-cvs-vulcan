@@ -31,9 +31,12 @@
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include <string.h>
+#if defined(MVS)
+#include <strings.h> // for strcasecmp
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 #include "../jrd/ibase.h"
@@ -42,7 +45,7 @@
 #include "../jrd/Field.h"
 #include "../jrd/ods.h"
 #include "../jrd/scl.h"
-#include "../jrd/jrd_pwd.h"
+//#include "../jrd/jrd_pwd.h"
 #include "../jrd/acl.h"
 #include "../jrd/blb.h"
 #include "../jrd/irq.h"
@@ -65,6 +68,7 @@
 #include "../include/fb_exception.h"
 #include "Generate.h"
 #include "TempSpace.h"
+#include "Attachment.h"
 
 #ifdef VMS
 #define UIC_BASE	8
@@ -89,11 +93,11 @@ DATABASE DB = FILENAME "ODS.RDB";
 
 static bool check_hex(const TEXT*, USHORT);
 static bool check_number(const TEXT*, USHORT);
-static bool check_user_group(TDBB tdbb, const TEXT*);
+static bool check_user_group(thread_db* tdbb, const TEXT*);
 static bool check_string(const TEXT*, const TEXT*);
-static SLONG compute_access(TDBB, scl*, JRD_REL, const TEXT*, const TEXT*);
+static SLONG compute_access(thread_db*, SecurityClass*, Relation*, const TEXT*, const TEXT*);
 static TEXT* save_string(const TEXT*, TEXT**);
-static SLONG walk_acl(TDBB, const TEXT*, JRD_REL, const TEXT*, const TEXT*);
+static SLONG walk_acl(thread_db*, const TEXT*, Relation*, const TEXT*, const TEXT*);
 
 static inline void check_and_move(UCHAR*& to, UCHAR from, STR& start, ULONG* length_ptr)
 {
@@ -127,7 +131,7 @@ static const P_NAMES p_names[] =
 };
 
 
-void SCL_check_access(TDBB tdbb, scl* s_class,
+void SCL_check_access(thread_db* tdbb, SecurityClass* s_class,
 					  SLONG view_id,
 					  const TEXT* trg_name,
 					  const TEXT* prc_name,
@@ -154,9 +158,19 @@ void SCL_check_access(TDBB tdbb, scl* s_class,
 				 isc_arg_string, (const char*) s_class->scl_name,
 				 0);
 
-	ATT attachment = tdbb->tdbb_attachment;
-	SCL att_class = attachment->att_security_class;
-	
+	Attachment* attachment = tdbb->tdbb_attachment;
+	SecurityClass* att_class = attachment->att_security_class;
+
+	if (attachment->userData.authenticating)
+		return;
+		
+	if (attachment->userData.authenticator)
+		ERR_post(isc_no_priv,
+				isc_arg_string, "access",
+				isc_arg_string, type,
+				isc_arg_string, name,
+				0);
+				
 	if (att_class && !(att_class->scl_flags & mask))
 		{
 		type = "DATABASE";
@@ -167,7 +181,7 @@ void SCL_check_access(TDBB tdbb, scl* s_class,
 		if (!s_class ||	(mask & s_class->scl_flags))
 			return;
 
-		JRD_REL view = NULL;
+		Relation* view = NULL;
 		
 		if (view_id)
 			view = MET_lookup_relation_id(tdbb, view_id, false);
@@ -197,7 +211,7 @@ void SCL_check_access(TDBB tdbb, scl* s_class,
 }
 
 
-void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT mask)
+void SCL_check_index(thread_db* tdbb, const TEXT* index_name, UCHAR index_id, USHORT mask)
 {
 /******************************************************
  *
@@ -216,7 +230,8 @@ void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT m
  *      becomes relation_name since index ids are relative to tables.
  *
  *******************************************************/
-	SCL			s_class, default_s_class;
+	SecurityClass* s_class;
+	SecurityClass* default_s_class;
     TEXT		reln_name[32], aux_idx_name[32];
     const TEXT *idx_name_ptr = index_name;
     const TEXT  *relation_name_ptr = index_name;
@@ -231,8 +246,10 @@ void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT m
 
     reln_name[0] = aux_idx_name[0] = 0;
 	Request *request = NULL;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_check_index");
 	sync.lock(Exclusive);
+#endif
 	
 	// No need to cache this request handle, it's only used when
 	// new constraints are created
@@ -325,7 +342,7 @@ void SCL_check_index(TDBB tdbb, const TEXT* index_name, UCHAR index_id, USHORT m
 }
 
 
-void SCL_check_procedure(TDBB tdbb, DSC* dsc_name, USHORT mask)
+void SCL_check_procedure(thread_db* tdbb, DSC* dsc_name, USHORT mask)
 {
 /**************************************
  *
@@ -357,10 +374,12 @@ void SCL_check_procedure(TDBB tdbb, DSC* dsc_name, USHORT mask)
 	
     MET_exact_name(name);
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_check_procedure");
 	sync.lock(Exclusive);
+#endif
 
-	SCL s_class = NULL;
+	SecurityClass* s_class = NULL;
 	Request *request = CMP_find_request(tdbb, irq_p_security, IRQ_REQUESTS);
 
 	FOR(REQUEST_HANDLE request) JRD_PRC IN RDB$PROCEDURES WITH
@@ -380,7 +399,7 @@ void SCL_check_procedure(TDBB tdbb, DSC* dsc_name, USHORT mask)
 }
 
 
-void SCL_check_relation(TDBB tdbb, DSC* dsc_name, USHORT mask)
+void SCL_check_relation(thread_db* tdbb, DSC* dsc_name, USHORT mask)
 {
 /**************************************
  *
@@ -411,10 +430,12 @@ void SCL_check_relation(TDBB tdbb, DSC* dsc_name, USHORT mask)
 	
 	MET_exact_name(name);
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_check_relation");
 	sync.lock(Exclusive);
+#endif
 
-	SCL s_class = NULL;
+	SecurityClass* s_class = NULL;
 	Request *request = CMP_find_request(tdbb, irq_v_security, IRQ_REQUESTS);
 
 	FOR(REQUEST_HANDLE request) REL IN RDB$RELATIONS WITH
@@ -434,7 +455,7 @@ void SCL_check_relation(TDBB tdbb, DSC* dsc_name, USHORT mask)
 }
 
 
-SCL SCL_get_class(TDBB tdbb, const TEXT* string)
+SecurityClass* SCL_get_class(thread_db* tdbb, const TEXT* string)
 {
 /**************************************
  *
@@ -460,11 +481,16 @@ SCL SCL_get_class(TDBB tdbb, const TEXT* string)
 	if (!string[0])
 		return NULL;
 
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
+	// If we're authenticating, skip this
+
+	if (attachment->userData.authenticating)
+		return NULL;
+		
 	// Look for the class already known
 
-	SCL s_class;
+	SecurityClass* s_class;
 	
 	for (s_class = attachment->att_security_classes;  s_class; s_class = s_class->scl_next)
 		if (!strcmp(string, s_class->scl_name)) 
@@ -472,7 +498,7 @@ SCL SCL_get_class(TDBB tdbb, const TEXT* string)
 
 	// Class isn't known. So make up a new security class block.
 
-	s_class = new scl;
+	s_class = new SecurityClass;
 	s_class->scl_name = string;
 	s_class->scl_flags = (USHORT) compute_access(tdbb, s_class, NULL, NULL, NULL);
 
@@ -490,7 +516,7 @@ SCL SCL_get_class(TDBB tdbb, const TEXT* string)
 }
 
 
-int SCL_get_mask(TDBB tdbb, const TEXT* relation_name, const TEXT* field_name)
+int SCL_get_mask(thread_db* tdbb, const TEXT* relation_name, const TEXT* field_name)
 {
 /**************************************
  *
@@ -505,13 +531,13 @@ int SCL_get_mask(TDBB tdbb, const TEXT* relation_name, const TEXT* field_name)
  *	access for database.
  *
  **************************************/
-	JRD_REL relation;
+	Relation* relation;
 
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
 	// Start with database security class
 
-	SCL s_class = attachment->att_security_class;
+	SecurityClass* s_class = attachment->att_security_class;
 	USHORT access = (s_class) ? s_class->scl_flags : -1;
 
 	// If there's a relation, track it down
@@ -523,7 +549,7 @@ int SCL_get_mask(TDBB tdbb, const TEXT* relation_name, const TEXT* field_name)
 		if ( (s_class = SCL_get_class(tdbb, relation->rel_security_name)) )
 			access &= s_class->scl_flags;
 		
-		JRD_FLD field;
+		Field *field;
 		SSHORT id;
 		
 		if (field_name &&
@@ -540,6 +566,8 @@ int SCL_get_mask(TDBB tdbb, const TEXT* relation_name, const TEXT* field_name)
 }
 
 
+void SCL_init(bool create, Attachment *attachment, const TEXT *securityDatabase, thread_db* tdbb)
+/***
 void SCL_init(bool create,
 			  const TEXT*	sys_user_name,
 			  TEXT*			user_name,
@@ -547,8 +575,9 @@ void SCL_init(bool create,
 			  TEXT*			password_enc,
 			  TEXT*			sql_role,
 			  const TEXT*	securityDatabase,
-			  TDBB			tdbb,
+			  thread_db*	tdbb,
 			  bool			internal)
+***/
 {
 /**************************************
  *
@@ -566,7 +595,7 @@ void SCL_init(bool create,
  *
  **************************************/
 	Request		*request;
-	TEXT		name[129], project[33], organization[33];
+	//TEXT		name[129], project[33], organization[33];
 	const TEXT	*p;
 	TEXT		role_name[33], login_name[129], *q;
     bool		preODS9;
@@ -574,9 +603,12 @@ void SCL_init(bool create,
 	DBB dbb = tdbb->tdbb_database;
 	USHORT major_version = dbb->dbb_ods_version;
 	USHORT minor_original = dbb->dbb_minor_original;
-	*project = *organization = *name = *role_name = *login_name = '\0';
-	int node_id = 0;
-	int id = -1, group = -1;	// CVC: This var contained trash
+    const char *sql_role = attachment->userData.roleName;
+    UserData *userData = &attachment->userData;
+    
+	//*project = *organization = *name = *role_name = *login_name = '\0';
+	//int node_id = 0;
+	//int id = -1, group = -1;	// CVC: This var contained trash
 
 #ifdef NO_SECURITY
 	bool wheel = true;
@@ -584,40 +616,47 @@ void SCL_init(bool create,
 
 	bool wheel = false;
 	
+	/***
 	if (!user_name) 
-		wheel = (bool) ISC_get_user(name, &id, &group, project,
-									organization, &node_id, sys_user_name);
+		//wheel = ISC_get_user(name, &id, &group, project, organization, &node_id, sys_user_name);
+		wheel = ISC_get_user(userData);
+	
+	if (!user_name || (!password_enc && !password))
+		ERR_post(isc_login, 0);
+	***/
 
-	if (user_name || (id == -1))
-		{
-		if (!user_name || (!password_enc && !password))
-			ERR_post(isc_login, 0);
-
-		if (internal || !*securityDatabase || 
-			 strcasecmp (securityDatabase, "None") == 0 ||
-			 strcasecmp (securityDatabase, "Self") == 0)
+	if (!userData->authenticator)
+		if (!*securityDatabase || 
+			strcasecmp (securityDatabase, "None") == 0 ||
+			strcasecmp (securityDatabase, "Self") == 0)
 			wheel = true;
-		else
-			SecurityDatabase::verifyUser(securityDatabase, name, user_name, password, password_enc,
-										 &id, &group, &node_id);
+	/***
+	else
+		SecurityDatabase::verifyUser(securityDatabase, name, user_name, password, password_enc,
+										&id, &group, &node_id);
+	***/
+	
+	// if the name from the user database is defined as SYSDBA,
+	// we define that user id as having system privileges
 
-		// if the name from the user database is defined as SYSDBA,
-		// we define that user id as having system privileges
-
-		if (!strcmp(name, SYSDBA_USER_NAME))
-			wheel = true;
-		}
+	//if (!strcmp(name, SYSDBA_USER_NAME))
+	if (attachment->userData.userName == SYSDBA_USER_NAME)
+		wheel = true;
 		
 #endif // NO_SECURITY
 
 	// In case we became WHEEL on an OS that didn't require name SYSDBA,
 	// (Like Unix) force the effective Database User name to be SYSDBA
 
+	/***
 	if (wheel)
 		strcpy(name, SYSDBA_USER_NAME);
-
+	***/
+	
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "SCL_init");
 	sync.lock(Exclusive);
+#endif
 
 	/***************************************************************
 	**
@@ -626,12 +665,13 @@ void SCL_init(bool create,
 	****************************************************************/
 
     // CVC: We'll verify the role and wipe it out when it doesn't exist
-
+	const char *name = attachment->userData.userName;
+	
 	if (ENCODE_ODS(major_version, minor_original) >= ODS_9_0) 
 		{
         preODS9 = false;
 
-		if (strlen(name) != 0)
+		if (name[0])
 			{
 			//for (p = login_name, q = name; (*p++ = UPPER7(*q)); q++)
 			for (q = login_name, p = name; (*q++ = UPPER7(*p)); p++)
@@ -647,7 +687,8 @@ void SCL_init(bool create,
                     if (!REQUEST(irq_get_role_name))
                         REQUEST(irq_get_role_name) = request;
 
-					EXE_unwind(tdbb, request);
+					//EXE_unwind(tdbb, request);
+					request->unwind();
 					ERR_post(isc_login_same_as_role_name,
 							 isc_arg_string, ERR_cstring(login_name), 0);
 
@@ -661,9 +702,11 @@ void SCL_init(bool create,
         // CVC: If this is ODS>=ODS_9_0 and we aren't creating a db and sql_role was specified,
         // then verify it against rdb$roles and rdb$user_privileges
         
+        
         if (!create && sql_role && *sql_role && strcmp (sql_role, "NONE")) 
 			{
             bool found = false;
+            
             for (q = login_name, p = name; *q++ = UPPER7 (*p); p++)
 				;
             
@@ -705,7 +748,7 @@ void SCL_init(bool create,
     else 
         preODS9 = true;
 
-	if (sql_role) 
+	if (sql_role && sql_role[0]) 
 		{
         if (!preODS9 && strcmp (role_name, "NONE")) 
             strcpy(role_name, sql_role);
@@ -717,7 +760,8 @@ void SCL_init(bool create,
 	else 
 		strcpy(role_name, "NONE");
 
-	usr* user = new usr;
+	/***
+	UserId* user = new UserId;
 	tdbb->tdbb_attachment->att_user = user;
 	
 	p = user->usr_data;
@@ -725,15 +769,16 @@ void SCL_init(bool create,
 	user->usr_project_name = project;
 	user->usr_org_name = organization; 
 	user->usr_sql_role_name = role_name;
-	user->usr_user_id = id;
-	user->usr_group_id = group;
+	user->usr_user_id = attachment->userData.uid; //id;
+	user->usr_group_id = attachment->userData.gid; //group;
 	user->usr_node_id = node_id;
 	user->usr_flags = 0;
+	***/
 	
 	if (wheel)
-		user->usr_flags |= USR_locksmith;
+		attachment->userFlags |= USR_locksmith;
 
-	BLK handle = NULL, handle1 = NULL;
+	Request *handle = NULL, *handle1 = NULL;
 
 	if (!create) 
 		{
@@ -748,19 +793,20 @@ void SCL_init(bool create,
 			FIRST 1 REL IN RDB$RELATIONS WITH REL.
 				RDB$RELATION_NAME EQ "RDB$DATABASE" 
 
-            if (!REL.RDB$OWNER_NAME.NULL &&  (p = user->usr_user_name) && *p)
+            if (!REL.RDB$OWNER_NAME.NULL &&  (p = attachment->userData.userName) && *p)
 				{
-				*name = strlen(p);
-				strcpy(name + 1, p);
+				char temp[128];
+				temp[0] = strlen(p);
+				strcpy(temp + 1, p);
 				
-				if (!check_string(name, REL.RDB$OWNER_NAME))
-					user->usr_flags |= USR_owner;
+				if (!check_string(temp, REL.RDB$OWNER_NAME))
+					attachment->userFlags |= USR_owner;
 				}
 		END_FOR;
 		CMP_release(tdbb, (JRD_REQ) handle1);
 		}
 	else
-		user->usr_flags |= USR_owner;
+		attachment->userFlags |= USR_owner;
 
 }
 
@@ -798,7 +844,7 @@ void SCL_move_priv(Generate *acl, USHORT mask)
 }
 
 
-SCL SCL_recompute_class(TDBB tdbb, TEXT* string)
+SecurityClass* SCL_recompute_class(thread_db* tdbb, TEXT* string)
 {
 /**************************************
  *
@@ -811,7 +857,7 @@ SCL SCL_recompute_class(TDBB tdbb, TEXT* string)
  *	can't find it, return NULL.
  *
  **************************************/
-	SCL s_class;
+	SecurityClass* s_class;
 
 	SET_TDBB(tdbb);
 
@@ -831,7 +877,7 @@ SCL SCL_recompute_class(TDBB tdbb, TEXT* string)
 }
 
 
-void SCL_release(TDBB tdbb, SCL s_class)
+void SCL_release(thread_db* tdbb, SecurityClass* s_class)
 {
 /**************************************
  *
@@ -843,9 +889,9 @@ void SCL_release(TDBB tdbb, SCL s_class)
  *	Release an unneeded and unloved security class.
  *
  **************************************/
-	SCL *next;
+	SecurityClass** next;
 
-	ATT attachment = tdbb->tdbb_attachment;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
 	for (next = &attachment->att_security_classes; *next; next = &(*next)->scl_next)
 		if (*next == s_class)
@@ -914,7 +960,7 @@ static bool check_number(const TEXT* acl, USHORT number)
 }
 
 
-static bool check_user_group(TDBB tdbb, const TEXT* acl, USHORT number)
+static bool check_user_group(thread_db* tdbb, const TEXT* acl, USHORT number)
 {
 /**************************************
  *
@@ -1013,9 +1059,9 @@ static bool check_string(const TEXT* acl, const TEXT* string)
 }
 
 
-static SLONG compute_access(TDBB tdbb,
-							scl* s_class,
-							JRD_REL view,
+static SLONG compute_access(thread_db* tdbb,
+							SecurityClass* s_class,
+							Relation* view,
 							const TEXT* trg_name,
 							const TEXT* prc_name)
 {
@@ -1032,8 +1078,10 @@ static SLONG compute_access(TDBB tdbb,
  *
  **************************************/
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync(&dbb->syncSecurityClass, "compute_access");
 	sync.lock(Exclusive);
+#endif
 	SLONG privileges = SCL_scanned;
 	Request *request = CMP_find_request(tdbb, irq_l_security, IRQ_REQUESTS);
 
@@ -1044,7 +1092,7 @@ static SLONG compute_access(TDBB tdbb,
 			REQUEST(irq_l_security) = request;
 
 		privileges |= SCL_exists;
-		BLB blob = BLB_open(tdbb, dbb->dbb_sys_trans, (BID) & X.RDB$ACL);
+		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, &X.RDB$ACL);
 		int length = blob->getLength();
 
 		if (length)
@@ -1096,9 +1144,9 @@ static TEXT* save_string(const TEXT* string, TEXT** ptr)
 }
 
 
-static SLONG walk_acl(TDBB tdbb,
+static SLONG walk_acl(thread_db* tdbb,
 					  const TEXT* acl,
-					  JRD_REL view,
+					  Relation* view,
 					  const TEXT* trg_name,
 					  const TEXT* prc_name)
 {
@@ -1118,11 +1166,14 @@ static SLONG walk_acl(TDBB tdbb,
 	const TEXT* p;
 	Request *request;
 	DBB dbb = tdbb->tdbb_database;
-
+	Attachment *attachment = tdbb->tdbb_attachment;
+	UserData *userData = &attachment->userData;
+	
 	// Munch ACL. If we find a hit, eat up privileges.
 
-	struct usr user = *tdbb->tdbb_attachment->att_user;
-	const TEXT* role_name = user.usr_sql_role_name;
+	//class UserId user = *tdbb->tdbb_attachment->att_user;
+	JString role_name = userData->roleName;
+	JString userName = userData->userName;
 
 	if (view && (view->rel_flags & REL_sql_relation))
 		{
@@ -1132,7 +1183,7 @@ static SLONG walk_acl(TDBB tdbb,
 		// privileges to the base table or (2b) the view must have
 		// sufficient privileges on the base table.
 
-		user.usr_user_name = view->rel_owner_name;
+		userName = view->rel_owner_name;
 		}
 		
 	SLONG privilege = 0;
@@ -1140,7 +1191,7 @@ static SLONG walk_acl(TDBB tdbb,
 	if (*acl++ != ACL_version)
 		BUGCHECK(160);	// msg 160 wrong ACL version
 
-	if (user.usr_flags & USR_locksmith)
+	if (attachment->userFlags & USR_locksmith)
 		return -1 & ~SCL_corrupt;
 
 	while ( (c = *acl++) )
@@ -1154,10 +1205,11 @@ static SLONG walk_acl(TDBB tdbb,
 					switch (c)
 						{
 						case id_person:
-							if (!(p = user.usr_user_name) || check_string(acl, p))
+							if (!(p = userName) || check_string(acl, p))
 								hit = false;
 							break;
 
+						/***
 						case id_project:
 							if (!(p = user.usr_project_name) || check_string(acl, p))
 								hit = false;
@@ -1167,21 +1219,23 @@ static SLONG walk_acl(TDBB tdbb,
 							if (!(p = user.usr_org_name) || check_string(acl, p))
 								hit = false;
 							break;
-
+						***/
+						
 						case id_group:
-							if (check_user_group(tdbb, acl, user.usr_group_id))
+							//if (check_user_group(tdbb, acl, user.usr_group_id))
+							if (check_user_group(tdbb, acl, userData->gid))
 								hit = false;
 							break;
 
 						case id_sql_role:
-							if (role_name == NULL || check_string(acl, role_name))
+							if (role_name == "" || check_string(acl, role_name))
 								hit = false;
 							else
 								{
 								TEXT login_name[129], *p;
 								const TEXT *q;
 								
-								for (p = login_name, q = user.usr_user_name; (*p++ = UPPER7(*q)); q++)
+								for (p = login_name, q = userName; (*p++ = UPPER7(*q)); q++)
 									;
 									
 								hit = false;
@@ -1192,7 +1246,7 @@ static SLONG walk_acl(TDBB tdbb,
 									(U.RDB$USER EQ login_name OR
 									U.RDB$USER EQ "PUBLIC") AND
 										U.RDB$USER_TYPE EQ obj_user AND
-										U.RDB$RELATION_NAME EQ user.usr_sql_role_name AND
+										U.RDB$RELATION_NAME EQ role_name AND
 										U.RDB$OBJECT_TYPE EQ obj_sql_role AND
 										U.RDB$PRIVILEGE EQ "M"
 
@@ -1236,15 +1290,17 @@ static SLONG walk_acl(TDBB tdbb,
 							break;
 
 						case id_user:
-							if (check_number(acl, user.usr_user_id)) 
+							if (check_number(acl, userData->uid)) 
 								hit = false;
 							break;
 
+						/***
 						case id_node:
 							if (check_hex(acl, user.usr_node_id)) 
 								hit = false;
 							break;
-
+						***/
+						
 						default:
 							return SCL_corrupt;
 						}

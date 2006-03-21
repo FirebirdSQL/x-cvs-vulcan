@@ -33,7 +33,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <errno.h>
 #include <string.h>
@@ -56,13 +56,15 @@
 #include "../jrd/thd_proto.h"
 #include "../jrd/vio_proto.h"
 #include "../jrd/dls_proto.h"
-//#include "../common/config/config.h"
-//#include "../common/config/dir_list.h"
-//#include "../jrd/os/path_utils.h"
+#include "CompilerScratch.h"
+#include "Format.h"
 
 #include "DirectoryList.h"
 #include "ConfObject.h"
 #include "Parameters.h"
+#include "RsbExtSequential.h"
+#include "RsbExtIndexed.h"
+#include "RsbExtDbkey.h"
 
 /***
 namespace 
@@ -108,7 +110,7 @@ IB_FILE *ext_fopen(const char *filename, const char *mode)
 
 //static void io_error(EXT, TEXT *, ISC_STATUS, SLONG);
 
-void EXT_close(TDBB tdbb, RSB rsb)
+void EXT_close(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -123,7 +125,7 @@ void EXT_close(TDBB tdbb, RSB rsb)
 }
 
 
-void EXT_erase(tdbb *tdbb, RPB * rpb, int *transaction)
+void EXT_erase(thread_db* tdbb, record_param* rpb, int *transaction)
 {
 /**************************************
  *
@@ -140,7 +142,7 @@ void EXT_erase(tdbb *tdbb, RPB * rpb, int *transaction)
 }
 
 
-EXT EXT_file(tdbb *tdbb, JRD_REL relation, const TEXT * file_name, SLONG * description)
+ExternalFile *EXT_file(thread_db* tdbb, Relation* relation, const TEXT * file_name, SLONG * description)
 {
 /**************************************
  *
@@ -152,7 +154,7 @@ EXT EXT_file(tdbb *tdbb, JRD_REL relation, const TEXT * file_name, SLONG * descr
  *	Create a file block for external file access.
  *
  **************************************/
-	EXT file;
+	ExternalFile *file;
 
 	DBB dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
@@ -187,7 +189,7 @@ EXT EXT_file(tdbb *tdbb, JRD_REL relation, const TEXT * file_name, SLONG * descr
 	DirectoryList directoryList (option, directories);
 	
 	relation->rel_file = file =
-		FB_NEW_RPT(*dbb->dbb_permanent, (strlen(file_name) + 1)) ext();
+		FB_NEW_RPT(*dbb->dbb_permanent, (strlen(file_name) + 1)) ExternalFile();
 	strcpy(reinterpret_cast<char*>(file->ext_filename), file_name);
 	file->ext_flags = 0;
 	file->ext_ifi = NULL;
@@ -224,7 +226,7 @@ EXT EXT_file(tdbb *tdbb, JRD_REL relation, const TEXT * file_name, SLONG * descr
 }
 
 
-void EXT_fini(tdbb *tdbb, JRD_REL relation)
+void EXT_fini(thread_db* tdbb, Relation* relation)
 {
 /**************************************
  *
@@ -236,7 +238,7 @@ void EXT_fini(tdbb *tdbb, JRD_REL relation)
  *	Close the file associated with a relation.
  *
  **************************************/
-	EXT file;
+	ExternalFile *file;
 
 	if (relation->rel_file) {
 		file = relation->rel_file;
@@ -249,7 +251,7 @@ void EXT_fini(tdbb *tdbb, JRD_REL relation)
 }
 
 
-int EXT_get(TDBB tdbb, RSB rsb)
+int EXT_get(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -262,19 +264,19 @@ int EXT_get(TDBB tdbb, RSB rsb)
  *
  **************************************/
 	JRD_REQ request;
-	JRD_REL relation;
-	EXT file;
-	RPB *rpb;
-	REC record;
-	FMT format;
-	LIT literal;
+	Relation* relation;
+	ExternalFile *file;
+	record_param* rpb;
+	Record* record;
+	Format* format;
+	Literal* literal;
 	//JRD_FLD field;
 	DSC desc;
 	SSHORT c, l, offset;
 	UCHAR *p;
 	vec::iterator itr;
 
-	relation = rsb->rsb_relation;
+	relation = ((RsbExtSequential*) rsb)->rsb_relation;
 	file = relation->rel_file;
 	request = tdbb->tdbb_request;
 
@@ -310,8 +312,9 @@ int EXT_get(TDBB tdbb, RSB rsb)
 	/* Loop thru fields setting missing fields to either blanks/zeros
 	   or the missing value */
 
-	fmt::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
-
+	//Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	dsc *desc_ptr = format->fmt_desc;
+	
 	//for (i = 0, itr = relation->rel_fields->begin(); i < format->fmt_count; ++i, ++itr, ++desc_ptr) 
 	for (int i = 0; i < relation->rel_fields.size(); ++i)
 		{
@@ -321,7 +324,7 @@ int EXT_get(TDBB tdbb, RSB rsb)
 		if (!desc_ptr->dsc_length || !field)
 			continue;
 			
-		if ( (literal = (LIT) field->fld_missing_value) ) 
+		if ( (literal = (Literal*) field->fld_missing_value) ) 
 			{
 			desc = *desc_ptr;
 			desc.dsc_address = record->rec_data + (long) desc.dsc_address;
@@ -336,7 +339,7 @@ int EXT_get(TDBB tdbb, RSB rsb)
 }
 
 
-void EXT_modify(tdbb *tdbb, RPB * old_rpb, RPB * new_rpb, int *transaction)
+void EXT_modify(thread_db* tdbb, record_param* old_rpb, record_param* new_rpb, int *transaction)
 {
 /**************************************
  *
@@ -354,7 +357,7 @@ void EXT_modify(tdbb *tdbb, RPB * old_rpb, RPB * new_rpb, int *transaction)
 }
 
 
-void EXT_open(TDBB tdbb, RSB rsb)
+void EXT_open(thread_db* tdbb, RecordSource* rsb)
 {
 /**************************************
  *
@@ -367,11 +370,11 @@ void EXT_open(TDBB tdbb, RSB rsb)
  *
  **************************************/
 
-	Relation *relation = rsb->rsb_relation;
+	Relation *relation = ((RsbExtSequential*) rsb)->rsb_relation;
 	Request *request = tdbb->tdbb_request;
-	RPB *rpb = &request->req_rpb[rsb->rsb_stream];
-	REC record;
-	FMT format;
+	record_param* rpb = &request->req_rpb[rsb->rsb_stream];
+	Record* record;
+	Format* format;
 	
 	if (!(record = rpb->rpb_record) || !(format = record->rec_format)) 
 		{
@@ -383,7 +386,7 @@ void EXT_open(TDBB tdbb, RSB rsb)
 }
 
 
-RSB EXT_optimize(tdbb *tdbb, OPT opt, SSHORT stream, JRD_NOD * sort_ptr)
+RecordSource* EXT_optimize(thread_db* tdbb, OptimizerBlk* opt, SSHORT stream, JRD_NOD * sort_ptr)
 {
 /**************************************
  *
@@ -396,68 +399,66 @@ RSB EXT_optimize(tdbb *tdbb, OPT opt, SSHORT stream, JRD_NOD * sort_ptr)
  *	set of record source blocks (rsb's).
  *
  **************************************/
-	CSB csb;
-	JRD_REL relation;
-	RSB rsb_;
 	
 	/* all these are un refrenced due to the code commented below
 	JRD_NOD		node, inversion;
 	opt::opt_repeat	*tail, *opt_end;
 	SSHORT		i, size;
 	*/
-	SSHORT size;
-	csb_repeat *csb_tail;
+	//SSHORT size;
+	CompilerScratch::csb_repeat *csb_tail;
 
-	csb = opt->opt_csb;
+	CompilerScratch* csb = opt->opt_csb;
 	csb_tail = &csb->csb_rpt[stream];
-	relation = csb_tail->csb_relation;
+	Relation* relation = csb_tail->csb_relation;
 
-/* Time to find inversions.  For each index on the relation
-   match all unused booleans against the index looking for upper
-   and lower bounds that can be computed by the index.  When
-   all unused conjunctions are exhausted, see if there is enough
-   information for an index retrieval.  If so, build up and
-   inversion component of the boolean. */
+	/* Time to find inversions.  For each index on the relation
+	   match all unused booleans against the index looking for upper
+	   and lower bounds that can be computed by the index.  When
+	   all unused conjunctions are exhausted, see if there is enough
+	   information for an index retrieval.  If so, build up and
+	   inversion component of the boolean. */
 
-/*
-inversion = NULL;
-opt_end = opt->opt_rpt + opt->opt_count;
+	/*
+	inversion = NULL;
+	opt_end = opt->opt_rpt + opt->opt_count;
 
-if (opt->opt_count)
-    for (i = 0; i < csb_tail->csb_indices; i++)
-	{
-	clear_bounds (opt, idx);
-	for (tail = opt->opt_rpt; tail < opt_end; tail++)
-	    {
-	    node = tail->opt_conjunct;
-	    if (!(tail->opt_flags & opt_used) &&
-		computable (csb, node, -1))
-		match (opt, stream, node, idx);
-	    if (node->nod_type == nod_starts)
-		compose (&inversion,
-			 make_starts (opt, node, stream, idx), nod_bit_and);
-	    }
-	compose (&inversion, make_index (opt, relation, idx),
-		nod_bit_and);
-	idx = idx->idx_rpt + idx->idx_count;
-	}
-*/
+	if (opt->opt_count)
+		for (i = 0; i < csb_tail->csb_indices; i++)
+		{
+		clear_bounds (opt, idx);
+		for (tail = opt->opt_rpt; tail < opt_end; tail++)
+			{
+			node = tail->opt_conjunct;
+			if (!(tail->opt_flags & opt_used) &&
+			computable (csb, node, -1))
+			match (opt, stream, node, idx);
+			if (node->nod_type == nod_starts)
+			compose (&inversion,
+				make_starts (opt, node, stream, idx), nod_bit_and);
+			}
+		compose (&inversion, make_index (opt, relation, idx),
+			nod_bit_and);
+		idx = idx->idx_rpt + idx->idx_count;
+		}
+	*/
 
 
-	rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) Rsb;
-	rsb_->rsb_type = rsb_ext_sequential;
-	size = sizeof(irsb);
+	//rsb_ = FB_NEW_RPT(*tdbb->tdbb_default,0) RecordSource(opt->opt_csb);
+	RsbExtSequential *rsb = new (tdbb->tdbb_default) RsbExtSequential(csb, stream, relation, NULL);
+	//rsb_->rsb_type = rsb_ext_sequential;
+	//size = sizeof(irsb);
 
-	rsb_->rsb_stream = stream;
-	rsb_->rsb_relation = relation;
-	rsb_->rsb_impure = csb->csb_impure;
-	csb->csb_impure += size;
+	//rsb_->rsb_stream = stream;
+	//rsb_->rsb_relation = relation;
+	//rsb_->rsb_impure = csb->csb_impure;
+	//csb->csb_impure += size;
 
-	return rsb_;
+	return rsb;
 }
 
 
-void EXT_ready(JRD_REL relation)
+void EXT_ready(Relation* relation)
 {
 /**************************************
  *
@@ -472,7 +473,7 @@ void EXT_ready(JRD_REL relation)
 }
 
 
-void EXT_store(DBB dbb, RPB * rpb, int *transaction)
+void EXT_store(DBB dbb, record_param* rpb, int *transaction)
 {
 /**************************************
  *
@@ -484,12 +485,12 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
  *	Update an external file.
  *
  **************************************/
-	JRD_REL relation;
-	REC record;
-	FMT format;
-	EXT file;
+	Relation* relation;
+	Record* record;
+	Format* format;
+	ExternalFile *file;
 	//JRD_FLD field;
-	LIT literal;
+	Literal* literal;
 	DSC desc;
 	UCHAR *p;
 	USHORT i, l, offset;
@@ -519,7 +520,8 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 		}
 
 	//vec::iterator field_ptr = relation->rel_fields->begin();
-	fmt::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	//Format::fmt_desc_iterator desc_ptr = format->fmt_desc.begin();
+	dsc *desc_ptr = format->fmt_desc;
 
 	//for (i = 0; i < format->fmt_count; i++, field_ptr++, desc_ptr++)
 	for (i = 0; i < format->fmt_count; i++, desc_ptr++)
@@ -530,7 +532,7 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 			{
 			p = record->rec_data + (long) desc_ptr->dsc_address;
 			
-			if ( (literal = (LIT) field->fld_missing_value) ) 
+			if ( (literal = (Literal*) field->fld_missing_value) ) 
 				{
 				desc = *desc_ptr;
 				desc.dsc_address = p;
@@ -563,7 +565,7 @@ void EXT_store(DBB dbb, RPB * rpb, int *transaction)
 }
 
 
-void EXT_trans_commit(JRD_TRA transaction)
+void EXT_trans_commit(Transaction* transaction)
 {
 /**************************************
  *
@@ -578,7 +580,7 @@ void EXT_trans_commit(JRD_TRA transaction)
 }
 
 
-void EXT_trans_prepare(JRD_TRA transaction)
+void EXT_trans_prepare(Transaction* transaction)
 {
 /**************************************
  *
@@ -593,7 +595,7 @@ void EXT_trans_prepare(JRD_TRA transaction)
 }
 
 
-void EXT_trans_rollback(JRD_TRA transaction)
+void EXT_trans_rollback(Transaction* transaction)
 {
 /**************************************
  *
@@ -608,7 +610,7 @@ void EXT_trans_rollback(JRD_TRA transaction)
 }
 
 
-void EXT_trans_start(JRD_TRA transaction)
+void EXT_trans_start(Transaction* transaction)
 {
 /**************************************
  *

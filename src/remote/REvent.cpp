@@ -19,7 +19,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "REvent.h"
 #include "remote.h"
 

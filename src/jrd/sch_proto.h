@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access method
  *	MODULE:		sch_proto.h
@@ -24,17 +25,21 @@
 #ifndef JRD_SCH_PROTO_H
 #define JRD_SCH_PROTO_H
 
+#ifdef _AIX
+#define thread aix_thread /* avoid conflict on AIX */
+#endif
+
 #include "../jrd/isc.h"
 
 extern "C" {
 
-int		API_ROUTINE gds__thread_enable(int);
-void	API_ROUTINE gds__thread_enter(void);
-void	API_ROUTINE gds__thread_exit(void);
+//int		API_ROUTINE gds__thread_enable(int);
+//void	API_ROUTINE gds__thread_enter(void);
+//void	API_ROUTINE gds__thread_exit(void);
 #ifdef VMS
 int		API_ROUTINE gds__ast_active(void);
 void	API_ROUTINE gds__completion_ast(void);
-int		API_ROUTINE gds__thread_wait(int (*)(), SLONG);
+int		API_ROUTINE THD_thread_wait(int (*)(), SLONG);
 #endif // VMS
 
 } // extern "C"

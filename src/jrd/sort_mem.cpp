@@ -20,7 +20,7 @@
  *  Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 
 //#include "../common/config/config.h"
 #include "../jrd/gds_proto.h"
@@ -101,7 +101,7 @@ size_t SortMem::MemoryBlock::write(size_t position, char *buffer, size_t length)
  *	File block implementation
  */
 
-SortMem::FileBlock::FileBlock(Block *tail, size_t length, struct sfb *blk, size_t position)
+SortMem::FileBlock::FileBlock(Block *tail, size_t length, SortWorkFile* blk, size_t position)
 	: Block(tail, length), file(blk), offset(position)
 {
 }
@@ -141,7 +141,7 @@ size_t SortMem::FileBlock::write(size_t position, char *buffer, size_t length)
  *	Virtual scratch file implementation
  */
 
-SortMem::SortMem(struct sfb *blk, size_t size)
+SortMem::SortMem(SortWorkFile* blk, size_t size)
 	: internal(blk), logical_size(0), physical_size(0), file_size(0), head(0), tail(0)
 {
 	// Initialize itself
@@ -189,6 +189,7 @@ void SortMem::allocate(size_t size)
 	// Check whether virtual memory should be allocated or file should be used instead
 	
 	if (mem_total_size + smart_size <= mem_upper_limit)
+		{
 		try
 			{
 			block = FB_NEW (*getDefaultMemoryPool()) MemoryBlock(tail, smart_size);
@@ -210,6 +211,7 @@ void SortMem::allocate(size_t size)
 					{
 					}
 				}
+			}
 			
 		if (block)
 			{
@@ -340,7 +342,7 @@ size_t SortMem::write(size_t position, char *address, size_t length)
 	return position + copied;
 }
 
-sfb::sfb (Database *database)
+SortWorkFile::SortWorkFile (Database *database)
 {
 	memset (this, 0, sizeof (*this));
 	configuration = database->configuration;

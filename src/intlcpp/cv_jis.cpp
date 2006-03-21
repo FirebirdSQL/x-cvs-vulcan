@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../intlcpp/ldcommon.h"
 #include "../intlcpp/charsets/cs_sjis.h"
 #include "../intlcpp/kanji.h"

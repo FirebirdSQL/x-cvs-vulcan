@@ -29,11 +29,12 @@
  *
  */
 
+#include "fbdev.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "firebird.h"
 #include "common.h"
+#include "ib_stdio.h"
 #include "../jrd/file_params.h"
 #include "../jrd/jrd.h"
 #include "../jrd/lck.h"
@@ -66,11 +67,17 @@
 #define FPRINTF         fprintf
 #endif
 
+
+#undef BASE
+#define BASE                    ((UCHAR*) LOCK_header)
+#define REL_PTR(item)           (PTR) ((UCHAR*) item - BASE)
+#define ABS_PTR(item)           (BASE + item)
+
 #undef QUE_EMPTY
 #undef QUE_NEXT
 #undef SRQ_LOOP
 #define QUE_EMPTY(que)  (que.srq_forward == REL_PTR (&que))
-#define QUE_NEXT(que)   (SRQ) ABS_PTR (que.srq_forward)
+#define QUE_NEXT(que)   (PSRQ) ABS_PTR (que.srq_forward)
 
 #define SRQ_LOOP(header,que)    for (que = QUE_NEXT (header);\
 	que != &header; que = QUE_NEXT ((*que)))
@@ -564,8 +571,8 @@ int CLIB_ROUTINE main( int argc, char *argv[])
 		 slot++, i++)
 	{
 		SLONG hash_lock_count = 0;
-		for (const srq* que = (SRQ) ABS_PTR(slot->srq_forward); que != slot;
-			 que = (SRQ) ABS_PTR(que->srq_forward))
+		for (const srq* que = (PSRQ) ABS_PTR(slot->srq_forward); que != slot;
+			 que = (PSRQ) ABS_PTR(que->srq_forward))
 		{
 			++hash_total_count;
 			++hash_lock_count;
@@ -662,8 +669,8 @@ int CLIB_ROUTINE main( int argc, char *argv[])
 		for (const srq* slot = LOCK_header->lhb_hash;
 			 i < LOCK_header->lhb_hash_slots; slot++, i++)
 		{
-			for (const srq* que = (SRQ) ABS_PTR(slot->srq_forward); que != slot;
-				 que = (SRQ) ABS_PTR(que->srq_forward))
+			for (const srq* que = (PSRQ) ABS_PTR(slot->srq_forward); que != slot;
+				 que = (PSRQ) ABS_PTR(que->srq_forward))
 			{
 				prt_lock(outfile, LOCK_header,
 						 (LockBlock*) ((UCHAR *) que - OFFSET(LockBlock*, lbl_lhb_hash)),
@@ -971,8 +978,8 @@ static void prt_history(
  **************************************/
 	FPRINTF(outfile, "%s:\n", title);
 
-	for (const his* history = (HIS) ABS_PTR(history_header); true;
-		 history = (HIS) ABS_PTR(history->his_next))
+	for (const LockHistory* history = (LockHistory*) ABS_PTR(history_header); true;
+		 history = (LockHistory*) ABS_PTR(history->his_next))
 	{
 		if (history->his_operation)
 			FPRINTF(outfile,
@@ -1095,9 +1102,8 @@ static void prt_owner(OUTFILE outfile,
 			(const char*) formatFlags(owner->own_flags | owner->own_ast_flags, ownerFlags),
 			owner->own_blocking_event);
 			
-	FPRINTF(outfile, "\tProcess id: %6d, count: %d, UID: 0x%X  %s\n",
+	FPRINTF(outfile, "\tProcess id: %6d, UID: 0x%X  %s\n",
 			owner->own_process_id,
-			owner->own_count,
 			owner->own_process_uid,
 			ISC_check_process_existence(owner->own_process_id,
 										owner->own_process_uid,
@@ -1224,11 +1230,11 @@ static void prt_owner_wait_cycle(
 
 		FPRINTF(outfile, "\n");
 		const LockRequest* owner_request = (LRQ) ((UCHAR*) que - OFFSET(LRQ, lrq_own_pending));
-		fb_assert(owner_request->lrq_type == type_lrq);
+//		fb_assert(owner_request->lrq_type == type_lrq);
 		const bool owner_conversion = (owner_request->lrq_state > LCK_null);
 
 		const LockBlock* lock = (LockBlock*) ABS_PTR(owner_request->lrq_lock);
-		fb_assert(lock->lbl_type == type_lbl);
+//		fb_assert(lock->lbl_type == type_lbl);
 
 		int counter = 0;
 		const srq* que;
@@ -1245,7 +1251,7 @@ static void prt_owner_wait_cycle(
 				}
 
 			const LockRequest* lock_request = (LRQ) ((UCHAR *) que - OFFSET(LRQ, lrq_lbl_requests));
-			fb_assert(lock_request->lrq_type == type_lrq);
+//			fb_assert(lock_request->lrq_type == type_lrq);
 
 			if (LOCK_header->lhb_flags & LHB_lock_ordering && !owner_conversion)
 				{
@@ -1403,7 +1409,12 @@ void printQueuedRequest(OUTFILE outfile, const LockHeader* LOCK_header, const Lo
 			REL_PTR(request), request->lrq_owner, request->lrq_state,
 			request->lrq_requested, 
 			(const char*) formatFlags(request->lrq_flags, requestFlags),
-			request->lrq_thread_id);
+#ifdef SHARED_CACHE
+			request->lrq_thread_id
+#else
+			0
+#endif
+			);
 }
 
 JString formatSeries(int series)

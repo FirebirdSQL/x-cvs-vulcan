@@ -19,7 +19,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "common.h"
 #include "RTransaction.h"
@@ -43,7 +43,7 @@ RTransaction::~RTransaction(void)
 
 	rtr_rdb->releaseTransaction (this);
 	
-	if (rtr_rdb && rtr_id)
+	if (rtr_rdb && rtr_id && rtr_rdb->rdb_port)
 		rtr_rdb->rdb_port->releaseObjectId (rtr_id);
 }
 

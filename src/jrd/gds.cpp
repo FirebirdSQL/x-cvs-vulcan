@@ -37,9 +37,9 @@
 //#define ISC_TIME_SECONDS_PRECISION		10000L
 //#define ISC_TIME_SECONDS_PRECISION_SCALE	-4
 
-#include "firebird.h"
-#include "common.h"
-#include <ibase.h>
+#include "fbdev.h"
+#include "../jrd/common.h"
+#include "ibase.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
@@ -86,13 +86,8 @@
 #include <sys/timeb.h>
 #endif
 
-#ifdef VMS
-#include <file.h>
-#include <ib_perror.h>
-#include <descrip.h>
-#include <types.h>
-#include <stat.h>
-#include <rmsdef.h>
+#ifdef __VMS
+#include <fcntl.h>
 
 #else /* !VMS */
 
@@ -110,7 +105,7 @@
 #if (defined SUPERSERVER) || (defined SOLARIS)
 #include <sys/mman.h>
 #include <sys/resource.h>
-#include "../jrd/err_proto.h"
+#include "err_proto.h"
 #endif
 #endif
 
@@ -212,7 +207,7 @@ typedef struct clean
 static CLEAN		cleanup_handlers = NULL;
 static MsgFile		*defaultMsgFile;
 static bool			initialized = false;
-static Mutex		syncObject;
+static SyncObject	syncObject;
 
 #ifdef DEBUG_GDS_ALLOC
 void* API_ROUTINE gds__alloc_debug(SLONG size_request,
@@ -223,6 +218,12 @@ void* API_ROUTINE gds__alloc_debug(SLONG size_request,
 	return new UCHAR [size_request];
 }
 #else
+void * API_ROUTINE gds__alloc_debug (SLONG size_request,
+									 const TEXT* filename,
+									 ULONG lineno)
+{
+	return new UCHAR [size_request];
+}
 void* API_ROUTINE gds__alloc(SLONG size_request)
 {
 	//return getDefaultMemoryPool()->allocate(size_request);
@@ -265,7 +266,11 @@ static struct
 #define EXPAND_PATH(relative, absolute)		_fullpath(absolute, relative, MAXPATHLEN)
 #define COMPARE_PATH(a,b)			_stricmp(a,b)
 #else
+#ifdef __VMS
+#define EXPAND_PATH(relative, absolute)		strcpy(absolute,relative)
+#else
 #define EXPAND_PATH(relative, absolute)		realpath(relative, absolute)
+#endif
 #define COMPARE_PATH(a,b)			strcmp(a,b)
 #endif
 
@@ -674,6 +679,12 @@ SLONG API_ROUTINE gds__interprete(char* s, ISC_STATUS** vector)
 	return printer.interpretStatus (-1, s, (const ISC_STATUS**) vector);
 }
 
+SLONG API_ROUTINE fb_interpret(char* s, int bufsize, const ISC_STATUS** vector)
+{
+	StatusPrint printer;
+	
+	return printer.interpretStatus (bufsize, s, vector);
+}
 
 /* CVC: This special function for ADA has been restored to non-const vector,
  too, in case its usage was broken. */
@@ -998,8 +1009,8 @@ SSHORT API_ROUTINE gds__msg_format(void*       handle,
 		return -1;
 
 	/* Let's assume that the text to be output will never be shorter
-	than the raw text of the message to be formatted.  Then we can
-	use the caller's buffer to temporarily hold the raw text. */
+	   than the raw text of the message to be formatted.  Then we can
+	   use the caller's buffer to temporarily hold the raw text. */
 
 	const int n = gds__msg_lookup(handle, facility, number, length, buffer, NULL);
 
@@ -1009,24 +1020,29 @@ SSHORT API_ROUTINE gds__msg_format(void*       handle,
 		}
 	else
 		{
-		sprintf(formatted, "can't format message %d:%d -- ", facility,
-				number);
+		sprintf(formatted, "can't format message %d:%d -- ", facility, number);
 		TEXT* p;
+		
 		if (n == -1)
 			strcat(formatted, "message text not found");
-		else if (n == -2) {
+		else if (n == -2) 
+			{
 			strcat(formatted, "message file ");
+			
 			for (p = formatted; *p;)
 				p++;
+				
 			gds__prefix_msg(p, MSG_FILE);
 			strcat(p, " not found");
-		}
-		else {
+			}
+		else 
+			{
 			for (p = formatted; *p;)
 				p++;
+				
 			sprintf(p, "message system code %d", n);
+			}
 		}
-	}
 
 	const USHORT l = strlen(formatted);
 	const TEXT* const end = buffer + length - 1;
@@ -1035,8 +1051,8 @@ SSHORT API_ROUTINE gds__msg_format(void*       handle,
 		*buffer++ = *p++;
 
 	*buffer = 0;
-
 	gds__free((SLONG *) formatted);
+	
 	return ((n > 0) ? l : -l);
 }
 
@@ -1053,6 +1069,14 @@ static MsgFile *getDefaultMsgFile()
  *   Find and/or open default message file.
  *
  **************************************/
+	Sync sync (&syncObject, "getDefaultMsgFile");
+	sync.lock (Shared);
+
+	if (defaultMsgFile)
+		return defaultMsgFile;
+
+	sync.unlock();
+	sync.lock (Exclusive);
 
 	if (defaultMsgFile)
 		return defaultMsgFile;
@@ -1768,10 +1792,13 @@ void API_ROUTINE gds__register_cleanup(FPTR_VOID_PTR routine, void* arg)
  *
  **************************************/
 
-/* 
- * Ifdef out for windows client.  We have not implemented any way of 
- * determining when a task ends, therefore this never gets called.
-*/
+	/* 
+	 * Ifdef out for windows client.  We have not implemented any way of 
+	 * determining when a task ends, therefore this never gets called.
+	 */
+	 
+	Sync sync (&syncObject, "gds__register_cleanup");
+	sync.lock (Exclusive);
 
 	if (!initialized)
 		init();
@@ -2379,7 +2406,8 @@ void gds__cleanup(void)
 
 	gds__msg_close(NULL);
 
-	while (CLEAN clean = cleanup_handlers) 
+        CLEAN clean;
+	while (clean = cleanup_handlers) 
 		{
 		cleanup_handlers = clean->clean_next;
 		FPTR_VOID_PTR routine = clean->clean_routine;

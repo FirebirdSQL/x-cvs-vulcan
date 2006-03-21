@@ -2,7 +2,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef DARWIN
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include <time.h>
 #include "IscDbc.h"
 #include "IscStatement.h"
@@ -298,13 +302,13 @@ void IscStatement::setValue(Value *value, XSQLVAR *var)
 				{
 				int length = *((short*) var->sqldata);
 				char *data = var->sqldata + 2;
-				if (length < var->sqllen)
+				if (length < var->sqllen - 2)
 					{
 					data [length] = 0;
-					value->setString (data, false);
+					value->setString (length, data, false);
 					}
 				else
-					value->setString (length, data, false);
+					value->setString (length, data, true);
 				//printf ("%d '%*s'\n", n, length, data);
 				}
 				break;

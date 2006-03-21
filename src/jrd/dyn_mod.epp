@@ -36,7 +36,7 @@
  * 2002.08.10 Dmitry Yemanov: ALTER VIEW
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 
@@ -48,7 +48,6 @@
 #include "../jrd/scl.h"
 #include "../jrd/drq.h"
 #include "../jrd/flags.h"
-//#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
 #include "../jrd/lls.h"
 #include "../jrd/all.h"
@@ -57,6 +56,7 @@
 #include "../jrd/intl.h"
 #include "../jrd/dyn.h"
 #include "../jrd/ods.h"
+#include "../jrd/blb.h"
 #include "../jrd/all_proto.h"
 #include "../jrd/blb_proto.h"
 #include "../jrd/cmp_proto.h"
@@ -85,27 +85,27 @@ DATABASE DB = STATIC "ODS.RDB";
 #define MAX_CHARS_FLOAT		13	/* 7 digits + 2 signs + E + decimal + 2 digit exp */
 
 static const UCHAR alloc_info[] = { isc_info_allocation, isc_info_end };
-static void drop_cache(TDBB tdbb, GBL);
-static void change_backup_mode(TDBB tdbb, GBL, UCHAR verb);
-static void drop_log(TDBB tdbb, GBL);
+static void drop_cache(thread_db* tdbb, GBL);
+static void change_backup_mode(thread_db* tdbb, GBL, UCHAR verb);
+static void drop_log(thread_db* tdbb, GBL);
 
 // Function not defined in this file MOD 04-July-2002
 // static void modify_lfield_type(GBL, const UCHAR**, TEXT*, TEXT*);
 
-static void modify_lfield_position(TDBB, DBB, GBL, const TEXT*, const TEXT*,
+static void modify_lfield_position(thread_db*, DBB, GBL, const TEXT*, const TEXT*,
 	USHORT, USHORT);
-static bool check_view_dependency(TDBB, DBB, GBL, const TEXT*, const TEXT*);
-static bool check_sptrig_dependency(TDBB, DBB, GBL, const TEXT*, const TEXT*);
-static void modify_lfield_index(TDBB, DBB, GBL, const TEXT*, const TEXT*,
+static bool check_view_dependency(thread_db*, DBB, GBL, const TEXT*, const TEXT*);
+static bool check_sptrig_dependency(thread_db*, DBB, GBL, const TEXT*, const TEXT*);
+static void modify_lfield_index(thread_db*, DBB, GBL, const TEXT*, const TEXT*,
 	const TEXT*);
-static bool field_exists(TDBB, DBB, GBL, const TEXT*, const TEXT*);
-static bool domain_exists(TDBB, DBB, GBL, const TEXT*);
-static void get_domain_type(TDBB, DBB, GBL, DYN_FLD);
+static bool field_exists(thread_db*, DBB, GBL, const TEXT*, const TEXT*);
+static bool domain_exists(thread_db*, DBB, GBL, const TEXT*);
+static void get_domain_type(thread_db*, DBB, GBL, DYN_FLD);
 static ULONG check_update_fld_type(const dyn_fld*, const dyn_fld*);
-static void modify_err_punt(TDBB, ULONG, const dyn_fld*, const dyn_fld*);
+static void modify_err_punt(thread_db*, ULONG, const dyn_fld*, const dyn_fld*);
 
 
-void DYN_modify_database(TDBB tdbb, GBL gbl, const UCHAR** ptr)
+void DYN_modify_database(thread_db* tdbb, GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -259,7 +259,7 @@ void DYN_modify_database(TDBB tdbb, GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_modify_exception(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_modify_exception(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -323,7 +323,7 @@ void DYN_modify_exception(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_modify_global_field(TDBB tdbb, 
+void DYN_modify_global_field(thread_db* tdbb, 
 							 GBL gbl,
 							 const UCHAR** ptr,
 							 const TEXT* relation_name, TEXT* field_name)
@@ -497,11 +497,14 @@ void DYN_modify_global_field(TDBB tdbb,
 			case isc_dyn_fld_length:
 				fldlen = true;
 				new_dom->dyn_dsc.dsc_length = DYN_get_number(ptr);
+				
 				if (++field_adjusted_count > 2)
-				{
-					EXE_unwind(tdbb, (JRD_REQ)request);
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 5, err_one_type_change_only, NULL, NULL, NULL, NULL);
-				}
+					}
+					
 				switch (new_dom->dyn_dtype) {
 				
 				case blr_text:
@@ -521,11 +524,13 @@ void DYN_modify_global_field(TDBB tdbb,
 			case isc_dyn_fld_type:
 				dtype = true;
 				new_dom->dyn_dtype = DYN_get_number(ptr);
+				
 				if (++field_adjusted_count > 2)
-				{
-					EXE_unwind(tdbb, (JRD_REQ)request);
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 5, err_one_type_change_only, NULL, NULL, NULL, NULL);
-				}
+					}
 
 				switch (new_dom->dyn_dtype) {
 
@@ -622,23 +627,27 @@ void DYN_modify_global_field(TDBB tdbb,
 				break;
 
 			case isc_dyn_single_validation:
-				if (single_validate) {
-					EXE_unwind(tdbb, (JRD_REQ)request);
+				if (single_validate) 
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 160, NULL, NULL, NULL, NULL, NULL);
 					/* msg 160: "Only one constraint allowed for a domain" */
 					break;
-				}
+					}
 				else
 					single_validate = true;
 				break;
 
 			case isc_dyn_fld_validation_blr:
-				if (single_validate && (!FLD.RDB$VALIDATION_BLR.NULL)) {
-					EXE_unwind(tdbb, (JRD_REQ)request);
+				if (single_validate && (!FLD.RDB$VALIDATION_BLR.NULL)) 
+					{
+					//EXE_unwind(tdbb, (JRD_REQ)request);
+					request->unwind();
 					DYN_error_punt(tdbb, false, 160, NULL, NULL, NULL, NULL, NULL);
 					/* msg 160: "Only one constraint allowed for a domain" */
 					break;
-				}
+					}
 				else
 					single_validate = true;
 
@@ -874,7 +883,7 @@ void DYN_modify_global_field(TDBB tdbb,
 }
 
 
-void DYN_modify_index(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_modify_index(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -956,7 +965,7 @@ void DYN_modify_index(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_modify_local_field(TDBB tdbb, 
+void DYN_modify_local_field(thread_db* tdbb, 
 							GBL gbl,
 							const UCHAR** ptr,
 							const TEXT* relation_name, TEXT* field_name)
@@ -1148,7 +1157,7 @@ void DYN_modify_local_field(TDBB tdbb,
 }
 
 
-void DYN_modify_procedure(TDBB tdbb, GBL gbl, const UCHAR** ptr)
+void DYN_modify_procedure(thread_db* tdbb, GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1253,7 +1262,7 @@ void DYN_modify_procedure(TDBB tdbb, GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_modify_relation(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_modify_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1350,7 +1359,7 @@ void DYN_modify_relation(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_modify_trigger(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_modify_trigger(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1481,7 +1490,7 @@ void DYN_modify_trigger(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_modify_trigger_msg(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigger_name)
+void DYN_modify_trigger_msg(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigger_name)
 {
 /**************************************
  *
@@ -1550,7 +1559,7 @@ void DYN_modify_trigger_msg(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigge
 }
 
 
-void DYN_modify_view(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_modify_view(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1646,7 +1655,7 @@ void DYN_modify_view(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-static void drop_cache(TDBB tdbb,  GBL gbl)
+static void drop_cache(thread_db* tdbb,  GBL gbl)
 {
 /**************************************
  *
@@ -1692,7 +1701,7 @@ static void drop_cache(TDBB tdbb,  GBL gbl)
 }
 
 
-static void change_backup_mode(TDBB tdbb,  GBL gbl, UCHAR verb)
+static void change_backup_mode(thread_db* tdbb,  GBL gbl, UCHAR verb)
 {
 /**************************************
  *
@@ -1805,7 +1814,7 @@ static void change_backup_mode(TDBB tdbb,  GBL gbl, UCHAR verb)
 }
 
 
-static void drop_log(TDBB tdbb,  GBL gbl)
+static void drop_log(thread_db* tdbb,  GBL gbl)
 {
 /**************************************
  *
@@ -1848,7 +1857,7 @@ static void drop_log(TDBB tdbb,  GBL gbl)
 	}
 }
 
-static void modify_lfield_position(TDBB tdbb,
+static void modify_lfield_position(thread_db* tdbb,
 								   DBB dbb,
 								   GBL gbl,
 								   const TEXT* relation_name,
@@ -1960,7 +1969,7 @@ static void modify_lfield_position(TDBB tdbb,
 	}
 }
 
-static bool check_view_dependency(TDBB tdbb,
+static bool check_view_dependency(thread_db* tdbb,
 									 DBB dbb,
 									 GBL gbl,
 									 const TEXT* relation_name,
@@ -2007,7 +2016,7 @@ static bool check_view_dependency(TDBB tdbb,
 
 }
 
-static bool check_sptrig_dependency(TDBB tdbb,
+static bool check_sptrig_dependency(thread_db* tdbb,
 									   DBB dbb,
 									   GBL gbl,
 									   const TEXT* relation_name,
@@ -2046,7 +2055,7 @@ static bool check_sptrig_dependency(TDBB tdbb,
 	return retval;
 }
 
-static void modify_lfield_index(TDBB	tdbb,
+static void modify_lfield_index(thread_db*	tdbb,
 								DBB		dbb,
 								GBL		gbl,
 								const TEXT*	relation_name,
@@ -2084,7 +2093,7 @@ static void modify_lfield_index(TDBB	tdbb,
 	CMP_release(tdbb, (JRD_REQ)request);
 }
 
-static bool field_exists(TDBB tdbb,
+static bool field_exists(thread_db* tdbb,
 							DBB dbb,
 							GBL gbl,
 							const TEXT* relation_name,
@@ -2112,7 +2121,7 @@ static bool field_exists(TDBB tdbb,
 	return retval;
 }
 
-static bool domain_exists(TDBB tdbb, DBB dbb, GBL gbl, const TEXT* field_name)
+static bool domain_exists(thread_db* tdbb, DBB dbb, GBL gbl, const TEXT* field_name)
 {
 /***********************************************************
  *
@@ -2134,7 +2143,7 @@ static bool domain_exists(TDBB tdbb, DBB dbb, GBL gbl, const TEXT* field_name)
 	return retval;
 }
 
-void DYN_modify_sql_field(TDBB tdbb, GBL		gbl,
+void DYN_modify_sql_field(thread_db* tdbb, GBL		gbl,
 						  const UCHAR**	ptr,
 						  const TEXT*		relation_name,
 						  TEXT*		field_name)
@@ -2616,7 +2625,7 @@ void DYN_modify_sql_field(TDBB tdbb, GBL		gbl,
 	}
 }
 
-void get_domain_type(TDBB tdbb, DBB dbb, GBL gbl, DYN_FLD dom_fld)
+void get_domain_type(thread_db* tdbb, DBB dbb, GBL gbl, DYN_FLD dom_fld)
 {
 /**************************************
  *
@@ -2904,7 +2913,7 @@ static ULONG check_update_fld_type(const dyn_fld* orig_fld,
 	return FB_SUCCESS;
 }
 
-static void modify_err_punt(TDBB tdbb,
+static void modify_err_punt(thread_db* tdbb,
 							ULONG errorcode,
 							const dyn_fld* orig_fld_def,
 							const dyn_fld* new_fld_def)

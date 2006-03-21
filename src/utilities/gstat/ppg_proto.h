@@ -24,12 +24,14 @@
 #ifndef UTILITIES_PPG_PROTO_H
 #define UTILITIES_PPG_PROTO_H
 
+struct hdr;
+
 #ifdef SUPERSERVER
 void	PPG_print_header (const hdr*, SLONG, SVC);
 void	PPG_print_log (const log_info_page*, SLONG, SVC);
 #else
-void	PPG_print_header (const hdr*, SLONG, IB_FILE*);
-void	PPG_print_log (const log_info_page*, SLONG, IB_FILE*);
+void	PPG_print_header (const hdr*, SLONG, FILE*);
+void	PPG_print_log (const log_info_page*, SLONG, FILE*);
 #endif
 
 #endif // UTILITIES_PPG_PROTO_H

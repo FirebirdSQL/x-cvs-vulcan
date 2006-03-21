@@ -27,6 +27,10 @@
 
 #include "Port.h"
 
+#ifndef WIN_NT
+#define SOCKET		int
+#endif
+
 struct slct
 {
 	int		slct_width;
@@ -42,16 +46,16 @@ public:
 	PortInet(int size);
 	virtual ~PortInet(void);
 
-	HANDLE			port_handle;		/* handle for connection (from by OS) */
+	SOCKET			port_handle;		/* handle for connection (from by OS) */
 	struct linger	port_linger;		/* linger value as defined by SO_LINGER */
 	
 	virtual int			accept(struct p_cnct*);
 	virtual void		disconnect();
-	virtual Port*		receive(PACKET*);
-	virtual XDR_INT		sendPacket(PACKET*);
-	virtual XDR_INT		sendPartial(PACKET*);
-	virtual Port*		connect(PACKET*, void(*)(Port*));	// Establish secondary connection 
-	virtual Port*		request(PACKET*);			// Request to establish secondary connection
+	virtual Port*		receive(Packet*);
+	virtual XDR_INT		sendPacket(Packet*);
+	virtual XDR_INT		sendPartial(Packet*);
+	virtual Port*		connect(Packet*, void(*)(Port*));	// Establish secondary connection 
+	virtual Port*		auxRequest(Packet*);			// Request to establish secondary connection
 	//void unhookPort(Port* parent);
 	static void exitHandler(void* arg);
 	PortInet* selectPort(slct* selct);
@@ -61,7 +65,7 @@ public:
 	int error(const char* function, ISC_STATUS operation, int status);
 	void genError(ISC_STATUS status, ...);
 	int xdrCreate(xdr_t* xdrs, UCHAR* buffer, int length, xdr_op x_op);
-	PortInet* auxConnect(PACKET* packet, void (*ast)(Port*));
+	PortInet* auxConnect(Packet* packet, void (*ast)(Port*));
 
 	int receive(UCHAR* buffer, int buffer_length, short* length);
 	bool send(const SCHAR* buffer, int buffer_length);
@@ -73,6 +77,9 @@ public:
 	int parseHosts(char* file_name, char* host_name, char* user_name);
 	int parseLine(char* entry1, char* entry2, char* host_name, char* user_name);
 	static void alarmHandler(int x);
+	static bool_t getBytes(XDR* xdrs, SCHAR* buff, u_int count);
+	static bool_t putBytes(XDR* xdrs, const SCHAR* buff, u_int count);
+	static int closeSocket(SOCKET socket);
 };
 #endif
 

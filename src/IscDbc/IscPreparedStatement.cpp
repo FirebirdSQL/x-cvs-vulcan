@@ -1,8 +1,11 @@
 // IscPreparedStatement.cpp: implementation of the IscPreparedStatement class.
 //
 //////////////////////////////////////////////////////////////////////
-
+#if defined  (DARWIN)
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 #include "IscDbc.h"
 #include "IscPreparedStatement.h"
 #include "SQLError.h"
@@ -91,7 +94,7 @@ int IscPreparedStatement::executeUpdate()
 	return updateCount;
 }
 
-void IscPreparedStatement::setBytes(int index, int length, const void* bytes)
+void IscPreparedStatement::setBytes(uint64 index, uint64 length, const void* bytes)
 {
 	BinaryBlob *blob = new BinaryBlob();
 	getParameter (index - 1)->setValue (blob);

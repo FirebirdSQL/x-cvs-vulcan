@@ -27,7 +27,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../gpre/gpre.h"
@@ -219,7 +219,8 @@ void PATTERN_expand( USHORT column, const TEXT * pattern, PAT * args)
 			break;
 
 		case RI:
-			value = args->pat_request->req_ident;
+			long_value = args->pat_request->req_ident;
+			long_flag = TRUE;
 			sw_ident = TRUE;
 			break;
 
@@ -241,7 +242,8 @@ void PATTERN_expand( USHORT column, const TEXT * pattern, PAT * args)
 			break;
 
 		case PI:
-			value = args->pat_port->por_ident;
+			long_value = args->pat_port->por_ident;
+			long_flag = TRUE;
 			sw_ident = TRUE;
 			break;
 
@@ -254,22 +256,26 @@ void PATTERN_expand( USHORT column, const TEXT * pattern, PAT * args)
 			break;
 
 		case QI:
-			value = args->pat_port2->por_ident;
+			long_value = args->pat_port2->por_ident;
+			long_flag = TRUE;
 			sw_ident = TRUE;
 			break;
 
 		case BH:
-			value = args->pat_blob->blb_ident;
+			long_value = args->pat_blob->blb_ident;
+			long_flag = TRUE;
 			sw_ident = TRUE;
 			break;
 
 		case I1:
-			value = args->pat_ident1;
+			long_value = args->pat_ident1;
+			long_flag = TRUE;
 			sw_ident = TRUE;
 			break;
 
 		case I2:
-			value = args->pat_ident2;
+			long_value = args->pat_ident2;
+			long_flag = TRUE;
 			sw_ident = TRUE;
 			break;
 
@@ -372,7 +378,7 @@ void PATTERN_expand( USHORT column, const TEXT * pattern, PAT * args)
 			continue;
 		}
 		if (sw_ident)
-			sprintf(p, ident_pattern, value);
+			sprintf(p, ident_pattern, long_value);
 		else if (reference) {
 			if (!reference->ref_port)
 				sprintf(p, ident_pattern, reference->ref_ident);

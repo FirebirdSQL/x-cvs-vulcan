@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 //#include "../jrd/ibase.h"
 #include "../qli/dtr.h"

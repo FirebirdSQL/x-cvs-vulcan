@@ -34,9 +34,12 @@
 #include "../jrd/dsc.h"
 #include "../jrd/all.h"
 //#include "../jrd/nbak.h"
+
+/***
 #if defined(UNIX) && defined(SUPERSERVER)
 #include <setjmp.h>
 #endif
+***/
 
 #include "../include/fb_vector.h"
 
@@ -106,7 +109,7 @@ class Procedure;
 
 // fwd. decl.
 class vec;
-struct tdbb;
+struct thread_db;
 
 #include "Database.h"
 typedef Database dbb;
@@ -124,32 +127,32 @@ typedef Database *DBB;
 // Errors during validation - will be returned on info calls
 // CVC: It seems they will be better in a header for val.cpp that's not val.h
 //
-#define VAL_PAG_WRONG_TYPE          0
-#define VAL_PAG_CHECKSUM_ERR        1
-#define VAL_PAG_DOUBLE_ALLOC        2
-#define VAL_PAG_IN_USE              3
-#define VAL_PAG_ORPHAN              4
-#define VAL_BLOB_INCONSISTENT       5
-#define VAL_BLOB_CORRUPT            6
-#define VAL_BLOB_TRUNCATED          7
-#define VAL_REC_CHAIN_BROKEN        8
-#define VAL_DATA_PAGE_CONFUSED      9
-#define VAL_DATA_PAGE_LINE_ERR      10
-#define VAL_INDEX_PAGE_CORRUPT      11
-#define VAL_P_PAGE_LOST             12
-#define VAL_P_PAGE_INCONSISTENT     13
-#define VAL_REC_DAMAGED             14
-#define VAL_REC_BAD_TID             15
-#define VAL_REC_FRAGMENT_CORRUPT    16
-#define VAL_REC_WRONG_LENGTH        17
-#define VAL_INDEX_ROOT_MISSING      18
-#define VAL_TIP_LOST                19
-#define VAL_TIP_LOST_SEQUENCE       20
-#define VAL_TIP_CONFUSED            21
-#define VAL_REL_CHAIN_ORPHANS       22
-#define VAL_INDEX_MISSING_ROWS      23
-#define VAL_INDEX_ORPHAN_CHILD      24
-#define VAL_MAX_ERROR               25
+const int VAL_PAG_WRONG_TYPE			= 0;
+const int VAL_PAG_CHECKSUM_ERR			= 1;
+const int VAL_PAG_DOUBLE_ALLOC			= 2;
+const int VAL_PAG_IN_USE				= 3;
+const int VAL_PAG_ORPHAN				= 4;
+const int VAL_BLOB_INCONSISTENT			= 5;
+const int VAL_BLOB_CORRUPT				= 6;
+const int VAL_BLOB_TRUNCATED			= 7;
+const int VAL_REC_CHAIN_BROKEN			= 8;
+const int VAL_DATA_PAGE_CONFUSED		= 9;
+const int VAL_DATA_PAGE_LINE_ERR		= 10;
+const int VAL_INDEX_PAGE_CORRUPT		= 11;
+const int VAL_P_PAGE_LOST				= 12;
+const int VAL_P_PAGE_INCONSISTENT		= 13;
+const int VAL_REC_DAMAGED				= 14;
+const int VAL_REC_BAD_TID				= 15;
+const int VAL_REC_FRAGMENT_CORRUPT		= 16;
+const int VAL_REC_WRONG_LENGTH			= 17;
+const int VAL_INDEX_ROOT_MISSING		= 18;
+const int VAL_TIP_LOST					= 19;
+const int VAL_TIP_LOST_SEQUENCE			= 20;
+const int VAL_TIP_CONFUSED				= 21;
+const int VAL_REL_CHAIN_ORPHANS			= 22;
+const int VAL_INDEX_MISSING_ROWS		= 23;
+const int VAL_INDEX_ORPHAN_CHILD		= 24;
+const int VAL_MAX_ERROR					= 25;
 
 
 
@@ -157,20 +160,12 @@ typedef Database *DBB;
 // the attachment block; one is created for each attachment to a database
 //
 
-#include "Attachment.h"
-typedef Attachment att;
-typedef Attachment *ATT;
-
-
-
+//#include "Attachment.h"
 
 
 
 #include "Trigger.h"
 
-
-//typedef Trigger trig;
-//typedef Trigger *TRIG;
 //typedef firebird::vector<Trigger*> trig_vec;
 //typedef trig_vec* TRIG_VEC;
 
@@ -179,44 +174,42 @@ typedef Attachment *ATT;
    the relation is scanned */
 
 //#include "Relation.h"
-typedef Relation jrd_rel;
-typedef Relation *JRD_REL;
 
 
 /* Field block, one for each field in a scanned relation */
 
 //#include "Field.h"
 class Field;
-typedef Field jrd_fld;
-typedef Field *JRD_FLD;
+//typedef Field jrd_fld;
+//typedef Field *JRD_FLD;
 
+struct jrd_nod;
 
 /* Index block to cache index information */
 
-class idb : public pool_alloc<type_idb>
+class IndexBlock : public pool_alloc<type_idb>
 {
-    public:
-	struct idb*	idb_next;
-	struct jrd_nod*	idb_expression;			/* node tree for index expression */
+public:
+	IndexBlock	*idb_next;
+	jrd_nod*	idb_expression;			/* node tree for index expression */
 	Request*	idb_expression_request;	/* request in which index expression is evaluated */
-	struct dsc	idb_expression_desc;	/* descriptor for expression result */
-	struct lck*	idb_lock;				/* lock to synchronize changes to index */
-	UCHAR idb_id;
+	dsc			idb_expression_desc;	/* descriptor for expression result */
+	Lock*		idb_lock;				/* lock to synchronize changes to index */
+	USHORT		idb_id;
 };
-typedef idb *IDB;
+
 
 
 /* view context block to cache view aliases */
 
-class vcx: public pool_alloc<type_vcx>
+class ViewContext : public pool_alloc<type_vcx>
 {
     public:
-	class vcx *vcx_next;
-	class str *vcx_context_name;
-	class str *vcx_relation_name;
+	class ViewContext* vcx_next;
+	class str* vcx_context_name;
+	class str* vcx_relation_name;
 	USHORT vcx_context;
 };
-typedef vcx *VCX;
 
 
 #include "JVector.h"
@@ -227,7 +220,7 @@ typedef vcx *VCX;
 /* symbol definitions */
 
 #include "Symb.h"
-typedef Sym *SYM;
+//typedef Sym *SYM;
 
 
 
@@ -267,21 +260,23 @@ typedef str *STR;
 //
 // Transaction element block
 //
-typedef struct teb {
-	ATT *teb_database;
-	int teb_tpb_length;
+
+struct TransElement {
+	Attachment** teb_database;
+	int			 teb_tpb_length;
 	UCHAR *teb_tpb;
-} TEB;
+};
+
+//typedef teb TEB;
 
 /* Blocking Thread Block */
 
-class btb : public pool_alloc<type_btb>
+class BlockingThread : public pool_alloc<type_btb>
 {
     public:
-	btb *btb_next;
+	BlockingThread* btb_next;
 	SLONG btb_thread_id;
 };
-typedef btb *BTB;
 
 /* Lock levels */
 
@@ -314,11 +309,15 @@ typedef btb *BTB;
 // and reside in ods.h, although I watched a place with 1 and others with members
 // of a struct.
 
+class Bdb;
+struct pag;
+struct exp_index_buf;
+
 typedef struct win {
 	SLONG		win_page;
-	struct pag* win_buffer;
-	struct jrd_exp* win_expanded_buffer;
-	class Bdb*	win_bdb;
+	pag*		win_buffer;
+	exp_index_buf* win_expanded_buffer;
+	Bdb*		win_bdb;
 	//class bdb*	win_bdb;
 	SSHORT		win_scans;
 	USHORT		win_flags;
@@ -350,7 +349,6 @@ struct win_for_array: public win
 #define MOD_START_TRAN  100
 
 #include "tdbb.h"
-typedef tdbb *TDBB;
 
 
 /* List of internal database handles */
@@ -369,20 +367,20 @@ typedef struct ihndl
 #endif
 
 #ifdef V4_THREADING
-#define PLATFORM_GET_THREAD_DATA ((TDBB) THD_get_specific(THDD_TYPE_TDBB))
+#define PLATFORM_GET_THREAD_DATA ((thread_db*) THD_get_specific(THDD_TYPE_TDBB))
 #endif
 
 /* RITTER - changed HP10 to HPUX in the expression below */
 #ifdef MULTI_THREAD
 #if (defined SOLARIS_MT || defined WIN_NT || \
 	defined HPUX || defined POSIX_THREADS || defined DARWIN || defined FREEBSD )
-#define PLATFORM_GET_THREAD_DATA ((TDBB) THD_get_specific(THDD_TYPE_TDBB))
+#define PLATFORM_GET_THREAD_DATA ((thread_db*) THD_get_specific(THDD_TYPE_TDBB))
 #endif
 #endif
 
 #ifndef PLATFORM_GET_THREAD_DATA
 
-extern TDBB gdbb;
+//extern TDBB gdbb;
 
 #define PLATFORM_GET_THREAD_DATA (gdbb)
 #endif
@@ -404,15 +402,15 @@ extern TDBB gdbb;
 
 #ifdef DEV_BUILD_XXX
 #define GET_THREAD_DATA (((PLATFORM_GET_THREAD_DATA) && \
-                         (((THDD)(PLATFORM_GET_THREAD_DATA))->thdd_type == THDD_TYPE_TDBB) && \
-			 (((TDBB)(PLATFORM_GET_THREAD_DATA))->tdbb_database)) \
-			 ? ((MemoryPool::blk_type(((TDBB)(PLATFORM_GET_THREAD_DATA))->tdbb_database) == type_dbb) \
+                         (((thread_db*)(PLATFORM_GET_THREAD_DATA))->thdd_type == THDD_TYPE_TDBB) && \
+			 (((thread_db*)(PLATFORM_GET_THREAD_DATA))->tdbb_database)) \
+			 ? ((MemoryPool::blk_type(((thread_db*)(PLATFORM_GET_THREAD_DATA))->tdbb_database) == type_dbb) \
 			    ? (PLATFORM_GET_THREAD_DATA) \
 			    : (BUGCHECK (147), (PLATFORM_GET_THREAD_DATA))) \
 			 : (PLATFORM_GET_THREAD_DATA))
 #define CHECK_DBB(dbb)   fb_assert ((dbb) && (MemoryPool::blk_type(dbb) == type_dbb) && ((dbb)->dbb_permanent->verify_pool()))
 #define CHECK_TDBB(tdbb) fb_assert ((tdbb) && \
-	(((THDD)(tdbb))->thdd_type == THDD_TYPE_TDBB) && \
+	(((thread_db*)(tdbb))->thdd_type == THDD_TYPE_TDBB) && \
 	((!(tdbb)->tdbb_database)||MemoryPool::blk_type((tdbb)->tdbb_database) == type_dbb))
 #else
 /* PROD_BUILD */
@@ -421,7 +419,7 @@ extern TDBB gdbb;
 #define CHECK_DBB(dbb)			/* nothing */
 #endif
 
-#define GET_DBB         (((TDBB) (GET_THREAD_DATA))->tdbb_database)
+#define GET_DBB         (((thread_db*) (GET_THREAD_DATA))->tdbb_database)
 
 /*-------------------------------------------------------------------------*
  * macros used to set tdbb and dbb pointers when there are not set already *
@@ -451,7 +449,7 @@ extern TDBB gdbb;
 #if !defined(REQUESTER)
 
 extern int debug;
-extern IHNDL internal_db_handles;
+//extern IHNDL internal_db_handles;
 
 #endif /* REQUESTER */
 

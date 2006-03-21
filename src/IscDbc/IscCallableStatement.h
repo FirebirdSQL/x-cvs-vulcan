@@ -69,7 +69,7 @@ public:
 	virtual void		setTimestamp (int index, TimeStamp value);
 	virtual void		setTime (int index, Time value);
 	virtual void		setBlob (int index, Blob *value);
-	virtual void		setBytes (int index, int length, const void *bytes);
+	virtual void		setBytes (uint64 index, uint64 length, const void *bytes);
 
 	virtual int			executeUpdate();
 	virtual bool		execute();

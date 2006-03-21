@@ -24,8 +24,14 @@
 #ifndef JRD_LLS_H
 #define JRD_LLS_H
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
+#include "Stack.h"
+
+class Record;
+class jrd_nod;
+class RecordSource;
+class River;
 
 #define LLS_PUSH(object, stack)		(JrdMemoryPool::ALL_push((BLK)object,stack))
 #define LLS_POP(stack)			(JrdMemoryPool::ALL_pop(stack))
@@ -37,5 +43,13 @@ class lls : public pool_alloc<type_lls>
         struct lls *lls_next;
 };
 typedef lls *LLS;
+
+typedef firebird::Stack<Record*> RecordStack;
+typedef firebird::Stack<jrd_nod*> NodeStack;
+typedef firebird::Stack<SLONG> PageStack;
+typedef firebird::Stack<UCHAR*> UCharStack;
+typedef firebird::Stack<RecordSource*> RsbStack;
+typedef firebird::Stack<River*> RiverStack;
+typedef firebird::Stack<UCHAR> StreamStack;
 
 #endif /* JRD_LLS_H */

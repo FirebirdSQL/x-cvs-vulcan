@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 //#include "../jrd/ib_stdio.h"
 #include <string.h>
 #include <stdio.h>
@@ -1298,7 +1298,7 @@ static int print_line( ITM item, TEXT ** ptr)
 								   &item->itm_stream,
 								   &length,
 								   l, (p))) && status != isc_segment) {
-		long *null_status = 0;
+		ISC_STATUS *null_status = 0;
 		isc_close_blob(null_status, &item->itm_stream);
 		if (status != isc_segstr_eof)
 			ERRQ_database_error(0, status_vector);

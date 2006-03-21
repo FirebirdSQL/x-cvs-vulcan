@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include rms
 #include iodef
 #include descrip
@@ -808,7 +808,7 @@ static FIL setup_file(DBB dbb,
  *
  **************************************/
 	FIL file;
-	LCK lock;
+	Lock* lock;
 	UCHAR lock_id[64], devlock[64], *p, *q;
 	USHORT l, iosb[4];
 	ITM items[2];
@@ -816,7 +816,7 @@ static FIL setup_file(DBB dbb,
 
 /* Allocate file block and move in file name */
 
-	file = FB_NEW_RPT(dbb->dbb_permanent, file_length + 1) fil();
+	file = FB_NEW_RPT(dbb->dbb_permanent, file_length + 1) File();
 	file->fil_desc = chan;
 	file->fil_length = file_length;
 	file->fil_max_page = -1;

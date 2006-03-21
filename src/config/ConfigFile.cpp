@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ConfigFile.h"
 #include "ConfObject.h"
 #include "InputFile.h"
@@ -81,6 +81,15 @@ ConfigFile::ConfigFile(const char* configFile, int configFlags) : Lex ("/<>=", c
 		}
 
 	pushStream (inputFile);
+	parse();
+}
+
+
+ConfigFile::ConfigFile(int configFlags, const char* configText) : Lex ("/<>=", configFlags)
+{
+	init (configFlags);
+	InputStream *input = new InputStream(configText);
+	pushStream (input);
 	parse();
 }
 
@@ -259,7 +268,7 @@ const char* ConfigFile::getInstallDirectory(void)
 {
 	if (!installDirectory.IsEmpty())
 		return installDirectory;
-	
+
 	const char *home = getenv ("VULCAN");
 	
 	if (home)
@@ -299,11 +308,29 @@ const char* ConfigFile::getInstallDirectory(void)
 			if (keyString [length - 2] == '\\')
 				keyString [length - 2] = 0;
 			installDirectory = keyString;
+			return installDirectory;
 			}
-		else
-			installDirectory = "c:\\Program Files\\Firebird";
 		}
 
+	HMODULE handle = GetModuleHandle("firebird.dll");
+	char modulePathname[MAXPATHLEN + 1];
+	int len = GetModuleFileName(handle, modulePathname, sizeof(modulePathname) - 1);
+	modulePathname[len] = 0;
+	
+	if (len > 0)
+		{
+		char *p = modulePathname + len;
+		
+		for (int n = 0; n < 2; ++n)
+			while (p > modulePathname && *--p != '\\')
+				;
+		
+		*p = 0;
+		installDirectory = modulePathname;
+		
+		return installDirectory;
+		}
+		
 #else
 	installDirectory = "/opt/firebird";
 

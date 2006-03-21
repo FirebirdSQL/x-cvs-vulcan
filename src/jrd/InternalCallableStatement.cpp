@@ -3,7 +3,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include "firebird.h"
+#ifdef MVS
+#include <strings.h> // for strcasecmp
+#endif
+#include "fbdev.h"
 #include "common.h"
 #include "InternalCallableStatement.h"
 #include "InternalConnection.h"

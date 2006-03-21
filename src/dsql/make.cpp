@@ -31,13 +31,15 @@
  *   trashed RDB$FIELD_LENGTH in the system tables. This change may
  *   potentially interfere with the one made by Claudio one year ago.
  */
+
+/* AB:Sync FB 1.87 */
  
 //This MUST be before any other includes
 #ifdef DARWIN
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <ctype.h>
 #include <string.h>
 #include "../dsql/dsql.h"
@@ -73,6 +75,9 @@ static inline bool is_date_and_time(const dsc& d1, const dsc& d2)
 	((d2.dsc_dtype == dtype_sql_time) && (d1.dsc_dtype == dtype_sql_date));
 }
 
+static void make_null(dsc* const desc);
+static void make_placeholder_null(dsc* const desc);
+
 
 /**
   
@@ -85,7 +90,7 @@ static inline bool is_date_and_time(const dsc& d1, const dsc& d2)
     @param numeric_flag
 
  **/
-dsql_nod* MAKE_constant(tdbb *threadData, dsql_str* constant, dsql_constant_type numeric_flag)
+dsql_nod* MAKE_constant(thread_db* threadData, dsql_str* constant, dsql_constant_type numeric_flag)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -226,7 +231,7 @@ dsql_nod* MAKE_constant(tdbb *threadData, dsql_str* constant, dsql_constant_type
 
 /**
   
- 	MAKE_str-constant
+ 	MAKE_str_constant
   
     @brief	Make a constant node when the 
        character set ID is already known.
@@ -236,7 +241,7 @@ dsql_nod* MAKE_constant(tdbb *threadData, dsql_str* constant, dsql_constant_type
     @param character_set
 
  **/
-dsql_nod* MAKE_str_constant(tdbb *threadData, dsql_str* constant, SSHORT character_set)
+dsql_nod* MAKE_str_constant(thread_db* threadData, dsql_str* constant, SSHORT character_set)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -269,7 +274,7 @@ dsql_nod* MAKE_str_constant(tdbb *threadData, dsql_str* constant, SSHORT charact
     @param str
 
  **/
-dsql_str* MAKE_cstring(tdbb *threadData, const char* str)
+dsql_str* MAKE_cstring(thread_db* threadData, const char* str)
 {
 
 	return MAKE_string(threadData, str, strlen(str));
@@ -287,7 +292,7 @@ dsql_str* MAKE_cstring(tdbb *threadData, const char* str)
     @param node
 
  **/
-void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
+void MAKE_desc(thread_db* threadData, dsc* desc, dsql_nod* node, dsql_nod* null_replacement)
 {
 	dsc desc1, desc2;
 	USHORT dtype, dtype1, dtype2;
@@ -298,7 +303,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 
 	//DEV_BLKCHK(node, dsql_type_nod);
 
-	// If we already know the datatype, don't worry about anything 
+	// If we already know the datatype, don't worry about anything.
+	//
+	// dimitr: But let's re-evaluate descriptors for expression arguments
+	//		   (when a NULL replacement node is provided) to always
+	//		   choose the correct resulting datatype. Example:
+	//		   NULLIF(NULL, 0) => CHAR(1), but
+	//		   1 + NULLIF(NULL, 0) => INT
+	//		   This is required because of MAKE_desc() being called
+	//		   from custom pass1 handlers for some node types and thus
+	//		   causing an incorrect datatype (determined without
+	//		   context) to be cached in nod_desc.
 
 	if (node->nod_desc.dsc_dtype) 
 		{
@@ -308,6 +323,11 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 
 	switch (node->nod_type) 
 		{
+		case nod_constant:
+		case nod_variable:
+			*desc = node->nod_desc;
+			return;
+
 		case nod_agg_count:
 			/* count2
 				case nod_agg_distinct:
@@ -321,17 +341,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 
 		case nod_map:
 			map = (dsql_map*) node->nod_arg[e_map_map];
-			MAKE_desc(threadData, desc, map->map_node);
+			MAKE_desc(threadData, desc, map->map_node, null_replacement);
 			return;
 
 		case nod_agg_min:
 		case nod_agg_max:
-			MAKE_desc(threadData, desc, node->nod_arg[0]);
+			MAKE_desc(threadData, desc, node->nod_arg[0], null_replacement);
 			desc->dsc_flags = DSC_nullable;
 			return;
 
 		case nod_agg_average:
-			MAKE_desc(threadData, desc, node->nod_arg[0]);
+			MAKE_desc(threadData, desc, node->nod_arg[0], null_replacement);
 			desc->dsc_flags = DSC_nullable;
 			dtype = desc->dsc_dtype;
 			if (!DTYPE_CAN_AVERAGE(dtype))
@@ -339,7 +359,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_agg_average2:
-			MAKE_desc(threadData, desc, node->nod_arg[0]);
+			MAKE_desc(threadData, desc, node->nod_arg[0], null_replacement);
 			desc->dsc_flags = DSC_nullable;
 			dtype = desc->dsc_dtype;
 			if (!DTYPE_CAN_AVERAGE(dtype))
@@ -358,7 +378,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_agg_total:
-			MAKE_desc(threadData, desc, node->nod_arg[0]);
+			MAKE_desc(threadData, desc, node->nod_arg[0], null_replacement);
 			if (desc->dsc_dtype == dtype_short) 
 				{
 				desc->dsc_dtype = dtype_long;
@@ -373,7 +393,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_agg_total2:
-			MAKE_desc(threadData, desc, node->nod_arg[0]);
+			MAKE_desc(threadData, desc, node->nod_arg[0], null_replacement);
 			dtype = desc->dsc_dtype;
 			if (DTYPE_IS_EXACT(dtype)) 
 				{
@@ -391,40 +411,47 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 
 		case nod_concatenate:
 			{
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
 			desc->dsc_scale = 0;
 			desc->dsc_dtype = dtype_varying;
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+			{
+				// NULL || NULL = NULL of VARCHAR(1) CHARACTER SET NONE
+				desc->dsc_ttype = 0;
+				desc->dsc_length = sizeof(USHORT) + 1;
+				desc->dsc_flags |= DSC_nullable;
+				return;
+			}
 			
 			if (desc1.dsc_dtype <= dtype_any_text)
 				desc->dsc_ttype = desc1.dsc_ttype;
 			else
 				desc->dsc_ttype = ttype_ascii;
 				
-			ULONG length = sizeof(USHORT) +
-				DSC_string_length(&desc1) + DSC_string_length(&desc2);
-			if (length > MAX_SSHORT) 
-				{
-				length = MAX_SSHORT;
-				/* dimitr: should we post a warning about truncated descriptor length?
-				ERRD_post_warning (isc_sqlwarn,
-									isc_arg_gds, isc_imp_exc, 
-									isc_arg_gds, isc_blktoobig,
-									0);
-				*/
-				}
-			desc->dsc_length = length;
+			//ULONG length = sizeof(USHORT) +
+			//	DSC_string_length(&desc1) + DSC_string_length(&desc2);
+			ULONG length =
+				((node->nod_arg[0]->nod_type == nod_null) ? 0 : DSC_string_length(&desc1)) +
+				((node->nod_arg[1]->nod_type == nod_null) ? 0 : DSC_string_length(&desc2));
+
+			if (length > MAX_COLUMN_SIZE - sizeof(USHORT))
+				length = MAX_COLUMN_SIZE - sizeof(USHORT);
+
+			desc->dsc_length = length + sizeof(USHORT);
 			desc->dsc_flags = (desc1.dsc_flags | desc2.dsc_flags) & DSC_nullable;
 			}
 			return;
 
 		case nod_derived_field:
-			MAKE_desc(threadData, desc, node->nod_arg[e_derived_field_value]);
+			MAKE_desc(threadData, desc, node->nod_arg[e_derived_field_value], null_replacement);
 			return;
 
 		case nod_upcase:
 		case nod_substr:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], null_replacement);
 			if (desc1.dsc_dtype <= dtype_any_text) 
 				{
 				*desc = desc1;
@@ -439,25 +466,25 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			if (node->nod_type == nod_substr && desc1.dsc_dtype == dtype_blob) 
 				{
 				dsql_nod* for_node = node->nod_arg[e_substr_length];
-				fb_assert (for_node->nod_desc.dsc_dtype == dtype_long);
-				
+
 				// Migrate the charset from the blob to the string. 
-				
 				desc->dsc_ttype = desc1.dsc_scale;
-				const SLONG len = *(SLONG *) for_node->nod_desc.dsc_address;
-				
+
+				// Set maximum possible length
+				SLONG length = MAX_COLUMN_SIZE - sizeof(USHORT);
+				if (for_node->nod_type == nod_constant &&
+					for_node->nod_desc.dsc_dtype == dtype_long)
+					{
+					// We have a constant passed as length, so
+					// use the real length
+					length = *(SLONG *) for_node->nod_desc.dsc_address;
+					if (length < 0 || length > MAX_COLUMN_SIZE - sizeof(USHORT))
+						length = MAX_COLUMN_SIZE - sizeof(USHORT);
+					}
+
 				/* For now, our substring() doesn't handle MBCS blobs,
 				neither at the DSQL layer nor at the JRD layer. */
-				
-				if (len <= MAX_COLUMN_SIZE - (SLONG) sizeof (USHORT) && len >= 0) 
-					desc->dsc_length = sizeof (USHORT) + len;
-				else 
-					ERRD_post (isc_sqlerr, isc_arg_number, (SLONG) -204,
-							isc_arg_gds, isc_dsql_datatype_err,
-							isc_arg_gds, isc_imp_exc,
-							isc_arg_gds, isc_field_name,
-							isc_arg_string, "substring()", // field->fld_name
-							0);
+				desc->dsc_length = sizeof(USHORT) + length;
 				}
 			else 
 				{
@@ -471,22 +498,25 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 		case nod_cast:
 			field = (dsql_fld*) node->nod_arg[e_cast_target];
 			MAKE_desc_from_field(threadData, desc, field);
-			MAKE_desc(threadData, &desc1, node->nod_arg[e_cast_source]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[e_cast_source], NULL);
 			desc->dsc_flags = desc1.dsc_flags & DSC_nullable;
 			return;
 
 		case nod_simple_case:
-			MAKE_desc_from_list(threadData, &desc1, node->nod_arg[e_simple_case_results], "CASE");
+			MAKE_desc_from_list(threadData, &desc1, node->nod_arg[e_simple_case_results],
+							null_replacement, "CASE");
 			*desc = desc1;
 			return;
 
 		case nod_searched_case:
-			MAKE_desc_from_list(threadData, &desc1, node->nod_arg[e_searched_case_results], "CASE");
+			MAKE_desc_from_list(threadData, &desc1, node->nod_arg[e_searched_case_results],
+							null_replacement, "CASE");
 			*desc = desc1;
 			return;
 
 		case nod_coalesce:
-			MAKE_desc_from_list(threadData, &desc1, node->nod_arg[0], "COALESCE");
+			MAKE_desc_from_list(threadData, &desc1, node->nod_arg[0],
+							null_replacement, "COALESCE");
 			*desc = desc1;
 			return;
 
@@ -498,8 +528,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 
 		case nod_add:
 		case nod_subtract:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+				{
+				// NULL + NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
+
 			dtype1 = desc1.dsc_dtype;
 			dtype2 = desc2.dsc_dtype;
 
@@ -633,8 +672,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 
 		case nod_add2:
 		case nod_subtract2:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+				{
+				// NULL + NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
+
 			dtype1 = desc1.dsc_dtype;
 			dtype2 = desc2.dsc_dtype;
 
@@ -798,8 +846,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_multiply:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+				{
+				// NULL * NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
+
 			dtype = DSC_multiply_blr4_result[desc1.dsc_dtype][desc2.dsc_dtype];
 
 			if (dtype_unknown == dtype)
@@ -830,8 +887,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_multiply2:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+				{
+				// NULL * NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
+
 			dtype = DSC_multiply_result[desc1.dsc_dtype][desc2.dsc_dtype];
 
 			desc->dsc_flags = (desc1.dsc_flags | desc2.dsc_flags) & DSC_nullable;
@@ -868,8 +934,16 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_divide:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+				{
+				// NULL / NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
 
 			dtype1 = desc1.dsc_dtype;
 			
@@ -894,8 +968,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_divide2:
-			MAKE_desc(threadData, &desc1, node->nod_arg[0]);
-			MAKE_desc(threadData, &desc2, node->nod_arg[1]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[0], node->nod_arg[1]);
+			MAKE_desc(threadData, &desc2, node->nod_arg[1], node->nod_arg[0]);
+
+			if (node->nod_arg[0]->nod_type == nod_null &&
+				node->nod_arg[1]->nod_type == nod_null)
+				{
+				// NULL / NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
+
 			dtype = DSC_multiply_result[desc1.dsc_dtype][desc2.dsc_dtype];
 			desc->dsc_dtype = static_cast<UCHAR>(dtype);
 			desc->dsc_flags = (desc1.dsc_flags | desc2.dsc_flags) & DSC_nullable;
@@ -922,14 +1005,22 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_negate:
-			MAKE_desc(threadData, desc, node->nod_arg[0]);
+			MAKE_desc(threadData, desc, node->nod_arg[0], null_replacement);
+
+			if (node->nod_arg[0]->nod_type == nod_null)
+				{
+				// -NULL = NULL of INT
+				make_null(desc);
+				return;
+				}
+	
 			if (!DTYPE_CAN_NEGATE(desc->dsc_dtype))
 				ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 607,
 						  isc_arg_gds, isc_dsql_no_blob_array, 0);
 			return;
 
 		case nod_alias:
-			MAKE_desc(threadData, desc, node->nod_arg[e_alias_value]);
+			MAKE_desc(threadData, desc, node->nod_arg[e_alias_value], null_replacement);
 			return;
 
 		case nod_dbkey:
@@ -955,7 +1046,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			desc->dsc_length = userFunc->udf_length;
 			desc->dsc_scale = static_cast<SCHAR>(userFunc->udf_scale);
 			***/
-			Function *function = (Function*) node->nod_arg[0];
+			UserFunction *function = (UserFunction*) node->nod_arg[0];
 			*desc = function->fun_rpt[function->fun_return_arg].fun_desc;
 			
 			if (desc->dsc_dtype == dtype_cstring)
@@ -968,6 +1059,9 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			desc->dsc_flags = DSC_nullable;
 			
 			/*** Should be handled by engine
+
+			TODO:AB   What about the functions COALESCE, CASE ?
+
 			if (desc->dsc_dtype <= dtype_any_text) 
 				desc->dsc_ttype = userFunc->udf_character_set_id;
 			else
@@ -1013,8 +1107,11 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_field:
-			ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 203,
-					  isc_arg_gds, isc_dsql_field_ref, 0);
+			if (node->nod_desc.dsc_dtype)
+				*desc = node->nod_desc;
+			else
+				ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 203,
+						isc_arg_gds, isc_dsql_field_ref, 0);
 			return;
 
 		case nod_user_name:
@@ -1058,7 +1155,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			return;
 
 		case nod_extract:
-			MAKE_desc(threadData, &desc1, node->nod_arg[e_extract_value]);
+			MAKE_desc(threadData, &desc1, node->nod_arg[e_extract_value], NULL);
 			desc->dsc_sub_type = 0;
 			desc->dsc_scale = 0;
 			desc->dsc_flags = (desc1.dsc_flags & DSC_nullable);
@@ -1066,7 +1163,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			if (*(ULONG *) node->nod_arg[e_extract_part]->nod_desc.dsc_address
 				== blr_extract_second)
 				{
-				/* QUADDATE - maybe this should be DECIMAL(6,4) */
+				// QUADDATE - maybe this should be DECIMAL(6,4)
 				desc->dsc_dtype = dtype_long;
 				desc->dsc_scale = ISC_TIME_SECONDS_PRECISION_SCALE;
 				desc->dsc_length = sizeof(ULONG);
@@ -1084,6 +1181,10 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			   However, a parameter can appear as part of an expression.
 			   As MAKE_desc is used for both determination of parameter
 			   types and for expression type checking, we just continue. */
+			if (node->nod_desc.dsc_dtype)
+			{
+				*desc = node->nod_desc;
+			}
 			return;
 
 		case nod_null:
@@ -1099,15 +1200,17 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
 			 * as part of the DESCRIBE statement - but I suspect other areas
 			 * of the code would break if this is declared dtype_unknown.
 			 */
-			desc->dsc_dtype = dtype_text;
-			desc->dsc_length = 1;
-			desc->dsc_scale = 0;
-			desc->dsc_ttype = 0;
-			desc->dsc_flags = DSC_nullable;
+			if (null_replacement)
+				{
+				MAKE_desc(threadData, desc, null_replacement, NULL);
+				desc->dsc_flags |= (DSC_nullable | DSC_null);
+				}
+			else
+				make_placeholder_null(desc);
 			return;
 
 		case nod_via:
-			MAKE_desc(threadData, desc, node->nod_arg[e_via_value_1]);
+			MAKE_desc(threadData, desc, node->nod_arg[e_via_value_1], null_replacement);
 		/**
 			Set the descriptor flag as nullable. The
 			select expression may or may not return 
@@ -1146,7 +1249,7 @@ void MAKE_desc(tdbb *threadData, dsc* desc, dsql_nod* node)
     @param field
 
  **/
-void MAKE_desc_from_field(tdbb *threadData, dsc* desc, const dsql_fld* field)
+void MAKE_desc_from_field(thread_db* threadData, dsc* desc, const dsql_fld* field)
 {
 	desc->dsc_dtype = field->fld_dtype;
 	desc->dsc_scale = field->fld_scale;
@@ -1176,12 +1279,13 @@ void MAKE_desc_from_field(tdbb *threadData, dsc* desc, const dsql_fld* field)
 	@param expression_name
 
  **/
-void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT* expression_name)
+void MAKE_desc_from_list(thread_db* threadData, dsc* desc, dsql_nod* node,
+						 dsql_nod* null_replacement, const TEXT* expression_name)
 {
 	//-------------------------------------------------------------------------- 
 	//  [Arno Brinkman] 2003-08-23
 	//  
-	//  This function is made to determine a output descriptor from a give list
+	//  This function is made to determine a output descriptor from a given list
 	//  of expressions according to the latest SQL-standard that was available.
 	//  (ISO/ANSI SQL:200n WG3:DRS-013 H2-2002-358 August, 2002) 
 	//  
@@ -1217,27 +1321,49 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 	// Initialize values.
 	UCHAR max_dtype = 0;
 	SCHAR max_scale = 0;
-	USHORT max_length = 0, max_dtype_length = 0, maxtextlength = 0;
+	USHORT max_length = 0, max_dtype_length = 0, maxtextlength = 0, max_significant_digits = 0;
 	SSHORT max_sub_type = 0, first_sub_type, ttype = ttype_ascii; // default type if all nodes are nod_null.
-	bool firstarg = true, all_same_sub_type = true;
-	bool all_numeric = true, any_numeric = false, any_approx = false;
+	SSHORT max_numeric_sub_type = 0;
+	bool firstarg = true, all_same_sub_type = true, all_equal = true, all_nulls = true;
+	bool all_numeric = true, any_numeric = false, any_approx = false, any_float = false;
 	bool all_text = true, any_text = false, any_varying = false;
 	bool all_date = true, all_time = true, all_timestamp = true, any_datetime = false;
 	bool all_blob = true, any_blob = false, any_text_blob = false;
+	bool nullable = false;
 
 	// Walk through arguments list.
 	const dsql_nod* err_node = NULL;
 	dsql_nod** arg = node->nod_arg;
 	for (dsql_nod** end = arg + node->nod_count; arg < end; arg++) {
-		// ignore NULL and parameter value from walking
 		dsql_nod* tnod = *arg;
-		if (tnod->nod_type == nod_null || tnod->nod_type == nod_parameter) {
+
+		// If this is an alias pick the source datatype
+		if (tnod->nod_type == nod_alias) {
+			tnod = tnod->nod_arg[e_alias_value];
+		}
+
+		// do we have only literal NULLs?
+		if (tnod->nod_type != nod_null) {
+			if (!(tnod->nod_desc.dsc_flags & DSC_null)) {
+				all_nulls = false;
+			}
+		}
+
+		// ignore NULL and parameter value from walking
+		if (tnod->nod_type == nod_null || 
+			tnod->nod_desc.dsc_flags & DSC_null ||
+			tnod->nod_type == nod_parameter) 
+		{
+			nullable = true;
 			continue;
 		}
 
 		// Get the descriptor from current node.
 		dsc desc1;
-		MAKE_desc(threadData, &desc1, tnod);
+		MAKE_desc(threadData, &desc1, tnod, NULL);
+		if (!nullable) {
+			nullable = (desc1.dsc_flags & DSC_nullable);
+		}
 
 		// Check if we support this datatype.
 		if (!(DTYPE_IS_TEXT(desc1.dsc_dtype) || DTYPE_IS_NUMERIC(desc1.dsc_dtype) ||
@@ -1257,6 +1383,15 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 			max_dtype = desc1.dsc_dtype;
 			firstarg = false;
 		}
+		else {
+			if (all_equal) {
+				all_equal = 
+					(max_dtype == desc1.dsc_dtype) &&
+					(max_scale == desc1.dsc_scale) && 
+					(max_length == desc1.dsc_length) && 
+					(max_sub_type == desc1.dsc_sub_type);
+			}
+		}
 
 		// numeric datatypes :
 		if (DTYPE_IS_NUMERIC(desc1.dsc_dtype)) {
@@ -1264,6 +1399,15 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 			// Is there any approximate numeric?
 			if (DTYPE_IS_APPROX(desc1.dsc_dtype)) {
 				any_approx = true;
+				// Dialect 1 NUMERIC and DECIMAL are stored as sub-types 
+				// 1 and 2 from float types dtype_real, dtype_double
+				if (!any_float) {
+					any_float = (desc1.dsc_sub_type == 0);
+				}
+			}
+			//
+			if (desc1.dsc_sub_type > max_numeric_sub_type) {
+				max_numeric_sub_type = desc1.dsc_sub_type;
 			}
 		}
 		else {
@@ -1277,6 +1421,10 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 		}
 		if (desc1.dsc_length > max_length) {
 			max_length = desc1.dsc_length;
+		}
+		// Get max significant bits
+		if (type_significant_bits[desc1.dsc_dtype] > max_significant_digits) {
+			max_significant_digits = type_significant_bits[desc1.dsc_dtype];
 		}
 		// Get max dtype and sub_type
 		if (desc1.dsc_dtype > max_dtype) {
@@ -1364,7 +1512,7 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 			}
 
 			any_blob = true;
-			if (desc1.dsc_sub_type = 1) {
+			if (desc1.dsc_sub_type == 1) {
 				// TEXT BLOB
 				if (!any_text_blob) {
 					// Save first characterset and collation
@@ -1376,6 +1524,30 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 		else {
 			all_blob = false;
 		}
+	}
+
+	// If any type is nullable then the general descriptor is nullable
+	if (nullable) {
+		desc->dsc_flags |= DSC_nullable;
+	}
+	else {
+		desc->dsc_flags &= ~DSC_nullable;
+	}
+
+	// If we have literal NULLs only, let the result be either
+	// CHAR(1) CHARACTER SET NONE or the context-provided datatype
+	if (all_nulls)
+	{
+		if (null_replacement)
+		{
+			MAKE_desc(threadData, desc, null_replacement, NULL);
+		}
+		else
+		{
+			make_placeholder_null(desc);
+		}
+		desc->dsc_flags |= DSC_null;
+		return;
 	}
 
 	// If we haven't had a type at all then all values are NULL and/or parameter nodes.
@@ -1396,7 +1568,15 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 		// "Datatypes %sare not comparable in expression %s"
 	}
 
-	desc->dsc_flags = DSC_nullable;
+	// If all the datatypes we've seen are exactly the same, we're done
+	if (all_equal) {
+		desc->dsc_dtype = max_dtype;
+		desc->dsc_length = max_length;
+		desc->dsc_scale = max_scale;
+		desc->dsc_sub_type = max_sub_type;
+		return;
+	}
+
 	// If all of the arguments are from type text use a text type.
 	// Firebird behaves a little bit different than standard here, because
 	// any datatype (except BLOB) can be converted to a character-type we
@@ -1418,7 +1598,7 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 	else if (all_numeric) {
 		// If all of the arguments are a numeric datatype.
 		if (any_approx) {
-			if (max_length <= type_lengths[dtype_real]) {
+			if (max_significant_digits <= type_significant_bits[dtype_real]) {
 				desc->dsc_dtype = dtype_real;
 				desc->dsc_length = type_lengths[desc->dsc_dtype];
 			}
@@ -1426,13 +1606,19 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 				desc->dsc_dtype = dtype_double;
 				desc->dsc_length = type_lengths[desc->dsc_dtype];
 			}
-			desc->dsc_scale = 0;
-			desc->dsc_sub_type = 0;
+			if (any_float) {
+				desc->dsc_scale = 0;
+				desc->dsc_sub_type = 0;
+			}
+			else {
+				desc->dsc_scale = max_scale;
+				desc->dsc_sub_type = max_numeric_sub_type;
+			}
 		}
 		else {
 			desc->dsc_dtype = max_dtype;
 			desc->dsc_length = max_dtype_length;
-			desc->dsc_sub_type = max_sub_type;
+			desc->dsc_sub_type = max_numeric_sub_type;
 			desc->dsc_scale = max_scale;
 		}
 		return;
@@ -1449,7 +1635,7 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
 		// If all of the arguments are the same BLOB datattype.
 		desc->dsc_dtype  = max_dtype;
 		desc->dsc_sub_type = max_sub_type;
-		if (max_sub_type = 1) {
+		if (max_sub_type == 1) {
 			// TEXT BLOB
 			desc->dsc_scale = ttype;
 		}
@@ -1484,7 +1670,7 @@ void MAKE_desc_from_list(tdbb *threadData, dsc* desc, dsql_nod* node, const TEXT
     @param indices
 
  **/
-dsql_nod* MAKE_field(tdbb *threadData, dsql_ctx* context, dsql_fld* field, dsql_nod* indices)
+dsql_nod* MAKE_field(thread_db* threadData, dsql_ctx* context, dsql_fld* field, dsql_nod* indices)
 {
 	dsql_nod* node = MAKE_node(threadData, nod_field, e_fld_count);
 	node->nod_arg[e_fld_context] = (dsql_nod*) context;
@@ -1534,7 +1720,7 @@ dsql_nod* MAKE_field(tdbb *threadData, dsql_ctx* context, dsql_fld* field, dsql_
     @param stack
 
  **/
-dsql_nod* MAKE_list(tdbb *threadData, Stack *stack)
+dsql_nod* MAKE_list(thread_db* threadData, Stack *stack)
 {
 	//DEV_BLKCHK(stack, dsql_type_lls);
 
@@ -1567,7 +1753,7 @@ dsql_nod* MAKE_list(tdbb *threadData, Stack *stack)
     @param count
 
  **/
-dsql_nod* MAKE_node(tdbb *threadData, NOD_TYPE type, int count)
+dsql_nod* MAKE_node(thread_db* threadData, NOD_TYPE type, int count)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -1622,6 +1808,7 @@ par* MAKE_parameter(CStatement* request, dsql_msg* message, bool sqlda_flag, boo
 	parameter->par_parameter = message->msg_parameter++;
 	parameter->par_rel_name = NULL;
 	parameter->par_owner_name = NULL;
+	parameter->par_rel_alias = NULL;
 
 // If the parameter is used declared, set SQLDA index 
 	if (sqlda_flag) {
@@ -1660,7 +1847,7 @@ par* MAKE_parameter(CStatement* request, dsql_msg* message, bool sqlda_flag, boo
     @param length
 
  **/
-dsql_str* MAKE_string(tdbb *threadData, const char* str, int length)
+dsql_str* MAKE_string(thread_db* threadData, const char* str, int length)
 {
 	return MAKE_tagged_string(threadData, str, length, NULL);
 }
@@ -1680,7 +1867,7 @@ dsql_str* MAKE_string(tdbb *threadData, const char* str, int length)
     @param object
 
  **/
-dsql_sym* MAKE_symbol(tdbb *threadData, DBB database,
+dsql_sym* MAKE_symbol(thread_db* threadData, DBB database,
 				const TEXT* name, USHORT length, SYM_TYPE type, dsql_req* object)
 {
 	//DEV_BLKCHK(database, dsql_type_dbb);
@@ -1720,7 +1907,7 @@ dsql_sym* MAKE_symbol(tdbb *threadData, DBB database,
     @param charset
 
  **/
-dsql_str* MAKE_tagged_string(tdbb *threadData, const char* str_, size_t length, const char* charset)
+dsql_str* MAKE_tagged_string(thread_db* threadData, const char* str_, size_t length, const char* charset)
 {
 	//TSQL tdsql = GET_THREAD_DATA;
 
@@ -1744,7 +1931,7 @@ dsql_str* MAKE_tagged_string(tdbb *threadData, const char* str_, size_t length, 
     @param suffix_node
 
  **/
-dsql_nod* MAKE_trigger_type(tdbb *threadData, dsql_nod* prefix_node, dsql_nod* suffix_node)
+dsql_nod* MAKE_trigger_type(thread_db* threadData, dsql_nod* prefix_node, dsql_nod* suffix_node)
 {
 	JrdMove mover;
 	int prefix = mover.getLong (&prefix_node->nod_desc, 0);
@@ -1770,7 +1957,7 @@ dsql_nod* MAKE_trigger_type(tdbb *threadData, dsql_nod* prefix_node, dsql_nod* s
     @param local_number
 
  **/
-dsql_nod* MAKE_variable(tdbb *threadData, dsql_fld* field,
+dsql_nod* MAKE_variable(thread_db* threadData, dsql_fld* field,
 				  const TEXT* name,
 				  USHORT type,
 				  USHORT msg_number, USHORT item_number, USHORT local_number)
@@ -1788,4 +1975,43 @@ dsql_nod* MAKE_variable(tdbb *threadData, dsql_fld* field,
 
 	return node;
 }
+
+/**
+
+	make_null
+	
+	@brief  Prepare a descriptor to signal SQL NULL
+	
+	@param desc
+	
+**/
+static void make_null(dsc* const desc)
+{
+	desc->dsc_dtype = dtype_long;
+	desc->dsc_sub_type = 0;
+	desc->dsc_length = sizeof(SLONG);
+	desc->dsc_scale = 0;
+	desc->dsc_flags |= DSC_nullable;
+}
+
+
+/**
+
+	make_placeholder_null
+
+	@brief  Prepare a descriptor to signal SQL NULL with a char(1) when
+	    the type is unknown. The descriptor will be a placeholder only.
+
+	@param desc
+
+**/
+static void make_placeholder_null(dsc* const desc)
+{
+	desc->dsc_dtype = dtype_text;
+	desc->dsc_length = 1;
+	desc->dsc_scale = 0;
+	desc->dsc_ttype = 0;
+	desc->dsc_flags = DSC_nullable | DSC_null;
+}
+
 

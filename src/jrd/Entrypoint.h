@@ -29,6 +29,8 @@
 
 #include "JString.h"
 
+START_NAMESPACE
+
 class Entrypoint
 {
 public:
@@ -39,5 +41,7 @@ public:
 	JString		name;
 	void*		entrypoint;
 };
+
+END_NAMESPACE
 
 #endif

@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalResultSet.h"
 #include "InternalResultSetMetaData.h"
 #include "InternalStatement.h"
@@ -43,6 +43,7 @@
 #include "../dsql/dsql.h"
 #include "jrd_proto.h"
 #include "OSRIException.h"
+#include "dsc.h"
 
 #define NOT_YET_IMPLEMENTED	throw SQLError (FEATURE_NOT_YET_IMPLEMENTED, "not yet implemented")
 
@@ -177,8 +178,10 @@ void InternalResultSet::close()
 {
 	if (statement)
 		{
+		/***
 		if (statement->connection->autoCommit)
 			statement->connection->commitAuto();
+		***/
 		statement->deleteResultSet (this);
 		statement->release();
 		statement = NULL;
@@ -435,3 +438,15 @@ int InternalResultSet::objectVersion()
 {
 	return RESULTSET_VERSION;
 }
+
+/***
+dsc InternalResultSet::getDescriptor(int id)
+{
+	return getValue(id)->getDescriptor();
+}
+
+dsc InternalResultSet::getDescriptor(const char* columnName)
+{
+	return getValue(columnName)->getDescriptor();
+}
+***/

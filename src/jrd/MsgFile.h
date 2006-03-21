@@ -1,3 +1,4 @@
+/* $Id$ */
 #ifndef _MSGFILE_H_
 #define _MSGFILE_H_
 
@@ -5,6 +6,11 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "Sync.h"
+#include "SyncObject.h"
+#include "JString.h"
+
+START_NAMESPACE
 
 class MsgFile
 {
@@ -15,11 +21,15 @@ public:
 	int openMsgFile(const char* filename);
 	void	close(void);
 
-	ULONG	msg_top_tree;
-	int		msg_file;
-	USHORT	msg_bucket_size;
-	USHORT	msg_levels;
-	UCHAR	*msg_bucket;
+	SyncObject	syncObject;
+	ULONG		msg_top_tree;
+	int			msg_file;
+	USHORT		msg_bucket_size;
+	USHORT		msg_levels;
+	UCHAR		*msg_bucket;
+	JString		fileName;
 };
+
+END_NAMESPACE
 
 #endif

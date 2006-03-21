@@ -38,7 +38,7 @@
 #undef ASSERT
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "Thread.h"
 #include "Threads.h"
@@ -113,7 +113,7 @@ void Thread::init(const char *desc)
 	//printf ("Thread::init %s %x\n", desc, this);
 	description = desc;
 	useCount = 1;
-	active = false;
+	//active = false;
 	activeLocks = 0;
 	locks = NULL;
 	lockPending = NULL;
@@ -140,6 +140,13 @@ THREAD_RET Thread::thread(void * parameter)
 	return 0;
 }
 
+#ifdef MVS
+extern "C"
+{
+   typedef void *(*start_routine)(void*);
+}
+#endif
+
 void Thread::thread()
 {
 	setThread (this);
@@ -152,21 +159,22 @@ void Thread::thread()
 			lockPending = NULL;
 			if (function)
 				{
-				active = true;
+				//active = true;
 				(*function)(argument);
 				if (!shutdownInProgress)
 					{
 					ASSERT (locks == NULL);
 					ASSERT (javaThread == NULL);
 					}
-				active = false;
+				if (activeLocks)
+					activeLocks = 0;
 				function = NULL;
+				//active = false;
 				}
 			if (shutdownInProgress)
 				break;
-			if (activeLocks)
-				activeLocks = 0;
-			sleep();
+			if (!function)
+				sleep();
 			}
 		}
 	catch (...)
@@ -183,7 +191,6 @@ void Thread::start(const char *desc, void (*fn)(void*), void * arg)
 	description = desc;
 	function = fn;
 	argument = arg;
-	active = true;
 	wake();
 }
 
@@ -263,7 +270,7 @@ void Thread::createThread(void (*fn)(void *), void *arg)
 {
 	function = fn;
 	argument = arg;
-	active = true;
+	//active = true;
 	addRef();
 
 #ifdef _WIN32
@@ -271,7 +278,11 @@ void Thread::createThread(void (*fn)(void *), void *arg)
 #endif
 
 #ifdef _PTHREADS
+#ifdef MVS
+	int ret = pthread_create (&threadId, NULL, (start_routine)(void* (*)(void*))thread, this);
+#else
 	int ret = pthread_create (&threadId, NULL, thread, this);
+#endif
 #endif
 
 #ifdef SOLARIS_MT
@@ -331,7 +342,7 @@ void Thread::findLocks(LinkedList &threads, LinkedList &syncObjects)
 
 void Thread::print()
 {
-/*	
+	/***
 	LOG_DEBUG ("  Thread %x (%d) sleeping=%d, granted=%d, locks=%d, who %d\n",
 				this, threadId, sleeping, lockGranted, activeLocks, lockGranted);
 
@@ -343,7 +354,7 @@ void Thread::print()
 
 	if (syncWait)
 		syncWait->print ("    Waiting");
-*/
+	***/
 }
 
 void Thread::print(const char *label)
@@ -373,7 +384,13 @@ Thread* Thread::findThread()
 #endif
 
 #ifdef _PTHREADS
+#ifdef MVS
+	Thread *thread = NULL;
+	int ret = pthread_getspecific (threadIndex, (void**) &thread);
+	return thread;
+#else
 	return (Thread*) pthread_getspecific (threadIndex);
+#endif
 #endif
 
 #ifdef SOLARIS_MT

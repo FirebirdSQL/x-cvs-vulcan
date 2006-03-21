@@ -29,6 +29,8 @@
 
 #include "SyncObject.h"
 
+START_NAMESPACE
+
 class HandleManager
 {
 public:
@@ -47,5 +49,7 @@ public:
 	void setObject(void* object, int handle);
 	void extend(int number);
 };
+
+END_NAMESPACE
 
 #endif

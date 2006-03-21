@@ -618,15 +618,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\jrd\sbm.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
@@ -848,6 +839,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\YService.cpp">
+			</File>
+			<File
 				RelativePath="YSQLDA.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1066,6 +1060,9 @@
 			</File>
 			<File
 				RelativePath="YRequest.h">
+			</File>
+			<File
+				RelativePath=".\YService.h">
 			</File>
 			<File
 				RelativePath="YSQLDA.h">

@@ -36,19 +36,19 @@
 #include "../include/fb_blk.h"
 #include "../common/classes/tree.h"
 #include "../jrd/SyncObject.h"
+#include "../jrd/sbm.h"
 
 class blb;
-class sbm;
-class sbm;
-class sav;
-class dfw;
-class Rsc;
+class Savepoint;
+class DeferredWork;
+class Resource;
 class traRpbList;
+class ArrayField;
+class Lock;
+class InternalConnection;
 
-struct arr;
-struct lck;
 struct vec;
-struct tdbb;
+struct thread_db;
 
 /* Transaction block */
 
@@ -67,69 +67,77 @@ public:
 	Transaction		*tra_commitGroup;	/* next transaction in group commit */
 	JrdMemoryPool*	tra_pool;			/* pool for transaction */
 	blb				*tra_blobs;			/* Linked list of active blobs */
-	arr				*tra_arrays;		/* Linked list of active arrays */
-	lck				*tra_lock;			/* lock for transaction */
+	ArrayField*		tra_arrays;			/* Linked list of active arrays */
+	Lock			*tra_lock;			/* lock for transaction */
 	vec				*tra_relation_locks;	/* locks for relations */
-	sbm				*tra_commit_sub_trans;	/* commited sub-transactions */
-	sav				*tra_save_point;		/* list of savepoints  */
+	UInt32Bitmap*	tra_commit_sub_trans;	/* commited sub-transactions */
+	Savepoint*		tra_save_point;			/* list of savepoints  */
 	SLONG			tra_save_point_number;	/* next save point number to use */
 	ULONG			tra_flags;
 	
-#ifdef PC_ENGINE
-	SLONG tra_range_id;				/* unique id of cache range within transaction */
-#endif
-
-	dfw				*tra_deferred_work;		/* work deferred to commit time */
-	Rsc				*tra_resources;			/* resource existence list */
+	DeferredWork*	tra_deferred_work;		/* work deferred to commit time */
+	Resource		*tra_resources;			/* resource existence list */
 	traRpbList		*tra_rpblist;			/* active RPB's of given transaction */
 	UCHAR			tra_use_count;			/* use count for safe AST delivery */
 	UCHAR			tra_callback_count;		/* callback count for 'execute statement' */
+	
+#ifdef SHARED_CACHE
 	SyncObject		syncObject;
 	SyncObject		syncInUse;
+#endif
+
+	InternalConnection	*connections;
 	UCHAR			tra_transactions[1];
 	
 	~Transaction(void);
-	Transaction(void);
+	Transaction(Attachment *attachment);
 	
-	blb*		allocateBlob(tdbb *tdbb);
+	blb*		allocateBlob(thread_db* tdbb);
 	void		deleteBlob(blb* blob);
 	void		addPendingRelation(Relation* relation);
-	Relation*	findRelation(tdbb *tdbb, const char* relationName);
+	Relation*	findRelation(thread_db* tdbb, const char* relationName);
 	InternalConnection* getConnection(void);
+	void postResource(Resource* resource);
+	void registerConnection(InternalConnection* connection);
+	void unregisterConnection(InternalConnection* connection);
+	void connectionsCheckout(void);
 };
 
-typedef Transaction jrd_tra;
-typedef Transaction *JRD_TRA;
+//  System transaction is always transaction zero
 
-#define TRA_system		1L		/* system transaction */
-#define TRA_update		2L		/* update is permitted */
-#define TRA_prepared		4L	/* transaction is in limbo */
-#define TRA_reconnected		8L	/* reconnect in progress */
-#define TRA_reserving		16L	/* relations explicityly locked */
-#define TRA_degree3		32L		/* serializeable transaction */
-#define TRA_committing		64L	/* commit in progress */
-#define TRA_write		128L	/* transaction has written */
-#define TRA_readonly		256L	/* transaction is readonly */
-#define TRA_nowait		512L	/* don't wait on relations, give up */
-#define TRA_prepare2		1024L	/* transaction has updated RDB$TRANSACTIONS */
-#define TRA_ignore_limbo	2048L	/* ignore transactions in limbo */
-#define TRA_invalidated 	4096L	/* transaction invalidated by failed write */
-#define TRA_deferred_meta 	8192L	/* deferred meta work posted */
-#define TRA_add_log		16384L	/* write ahead log file was added */
-#define TRA_delete_log		32768L	/* write ahead log file was deleted */
-#define TRA_read_committed	65536L	/* can see latest committed records */
-#define TRA_autocommit		131072L	/* autocommits all updates */
-#define TRA_perform_autocommit	262144L	/* indicates autocommit is necessary */
-#define TRA_rec_version		524288L	/* don't wait for uncommitted versions */
-#define TRA_restart_requests	1048576L	/* restart all requests in attachment */
-#define TRA_no_auto_undo	2097152L	/* don't start a savepoint in TRA_start */
-#define TRA_sweep_at_startup    4194304L	/* sweep done at startup */
-#define TRA_precommitted	8388608L	/* transaction committed at startup */
+const SLONG TRA_system_transaction = 0;
 
-#define TRA_MASK		3
-#define TRA_BITS_PER_TRANS	2
-#define TRA_TRANS_PER_BYTE	4
-#define TRA_SHIFT		2
+// Flag definitions
+
+const ULONG TRA_system			= 1L;		/* system transaction */
+const ULONG TRA_update			= 2L;		/* update is permitted */
+const ULONG TRA_prepared		= 4L;		/* transaction is in limbo */
+const ULONG TRA_reconnected		= 8L;		/* reconnect in progress */
+const ULONG TRA_reserving		= 16L;		/* relations explicityly locked */
+const ULONG TRA_degree3			= 32L;		/* serializeable transaction */
+const ULONG TRA_committing		= 64L;		/* commit in progress */
+const ULONG TRA_write			= 128L;		/* transaction has written */
+const ULONG TRA_readonly		= 256L;		/* transaction is readonly */
+const ULONG TRA_nowait			= 512L;	// don't wait on relations, give up
+const ULONG TRA_prepare2		= 1024L;	/* transaction has updated RDB$TRANSACTIONS */
+const ULONG TRA_ignore_limbo	= 2048L;	/* ignore transactions in limbo */
+const ULONG TRA_invalidated 	= 4096L;	/* transaction invalidated by failed write */
+const ULONG TRA_deferred_meta 	= 8192L;	/* deferred meta work posted */
+const ULONG TRA_add_log		= 16384L;	// write ahead log file was added
+const ULONG TRA_delete_log	= 32768L;	// write ahead log file was deleted
+const ULONG TRA_read_committed	= 65536L;	/* can see latest committed records */
+const ULONG TRA_autocommit		= 131072L;	/* autocommits all updates */
+const ULONG TRA_perform_autocommit	= 262144L;	/* indicates autocommit is necessary */
+const ULONG TRA_rec_version			= 524288L;	/* don't wait for uncommitted versions */
+const ULONG TRA_restart_requests	= 1048576L;	/* restart all requests in attachment */
+const ULONG TRA_no_auto_undo		= 2097152L;	/* don't start a savepoint in TRA_start */
+const ULONG TRA_sweep_at_startup	= 4194304L;	/* sweep done at startup */
+const ULONG TRA_precommitted		= 8388608L;	/* transaction committed at startup */
+
+const int TRA_MASK				= 3;
+const int TRA_BITS_PER_TRANS	= 2;
+const int TRA_TRANS_PER_BYTE	= 4;
+const int TRA_SHIFT				= 2;
 
 #define TRANS_SHIFT(number)	(((number) & TRA_MASK) << 1)
 #define TRANS_OFFSET(number)	((number) >> TRA_SHIFT)
@@ -138,43 +146,44 @@ typedef Transaction *JRD_TRA;
    for "dead" active transactions every so often at transaction
    startup */
 
-#define TRA_ACTIVE_CLEANUP	100
+const int TRA_ACTIVE_CLEANUP	= 100;
 
 /* Transaction states.  The first four are states found
    in the transaction inventory page; the last two are
    returned internally */
 
-#define tra_active	    0		/* Transaction is active */
-#define tra_limbo	    1
-#define tra_dead	    2
-#define tra_committed	    3
-#define tra_us		    4		/* Transaction is us */
-#define tra_precommitted    5	/* Transaction is precommitted */
+const int tra_active		= 0;	/* Transaction is active */
+const int tra_limbo			= 1;
+const int tra_dead			= 2;
+const int tra_committed		= 3;
+const int tra_us			= 4;	/* Transaction is us */
+const int tra_precommitted	= 5;	/* Transaction is precommitted */
 
 /* The highest transaction number possible.  This is 0x7fffffff if SLONG is 32 bits. */
 #define MAX_TRA_NUMBER		 (~(1L << (BITS_PER_LONG - 1)))
 /* Savepoint block */
 
-class sav : public pool_alloc<type_sav>
+class Savepoint : public pool_alloc<type_sav>
 {
     public:
-	struct vct *sav_verb_actions;	/* verb action list */
+	struct VerbAction* sav_verb_actions;	/* verb action list */
 	USHORT sav_verb_count;		/* Active verb count */
 	SLONG sav_number;			/* save point number */
-	struct sav *sav_next;
+	class Savepoint* sav_next;
 	USHORT sav_flags;
 	TEXT sav_name[32]; /* Savepoint name */
 };
-typedef sav *SAV;
 
 /* Savepoint block flags. */
 
-#define SAV_trans_level		1	/* savepoint was started by TRA_start */
-#define SAV_event_post		2	/* event posted in the save point */
-#define SAV_user            4   /* named user savepoint as opposed to system ones */
+const int SAV_trans_level	= 1;	/* savepoint was started by TRA_start */
+const int SAV_event_post	= 2;	/* event posted in the save point */
+const int SAV_user			= 4;	/* named user savepoint as opposed to system ones */
 
-#define SAV_LARGE         500   /* Number of allocated record structs when transaction sweep
-                                  becomes preferred over transaction savepoint undo */
+/* Maximum size in bytes of transaction-level savepoint data.
+   When transaction-level savepoint gets past this size we drop it and use GC
+   mechanisms to clean out changes done in transaction */
+const IPTR SAV_LARGE		= 1024 * 32;
 
 /* Deferred work blocks are used by the meta data handler to keep track
    of work deferred to commit time.  This are usually used to perform
@@ -222,20 +231,19 @@ enum dfw_t {
 	dfw_end_backup
 };
 
-class dfw : public pool_alloc_rpt<SCHAR, type_dfw>
+class DeferredWork : public pool_alloc_rpt<SCHAR, type_dfw>
 {
     public:
-	enum dfw_t dfw_type;		/* type of work deferred */
-	struct dfw *dfw_next;		/* next block in transaction */
-	struct lck *dfw_lock;		/* relation creation lock */
-	struct dfw *dfw_args;		/* arguments */
-	SLONG dfw_sav_number;		/* save point number */
-	USHORT dfw_name_length;		/* length of object name */
-	USHORT dfw_id;				/* object id, if appropriate */
-	USHORT dfw_count;			/* count of block posts */
-	SCHAR dfw_name[2];			/* name of object */
+	enum dfw_t dfw_type;			/* type of work deferred */
+	class DeferredWork* dfw_next;	/* next block in transaction */
+	Lock *dfw_lock;			/* relation creation lock */
+	class DeferredWork* dfw_args;	/* arguments */
+	SLONG dfw_sav_number;			/* save point number */
+	USHORT dfw_name_length;			/* length of object name */
+	USHORT dfw_id;					/* object id, if appropriate */
+	USHORT dfw_count;				/* count of block posts */
+	SCHAR dfw_name[2];				/* name of object */
 };
-typedef dfw *DFW;
 
 /* Verb actions */
 
@@ -243,7 +251,7 @@ class UndoItem
 {
 public:
 	SLONG rec_number;
-	class rec* rec_data;
+	class Record* rec_data;
 
     static const SLONG& generate(void *sender, const UndoItem& item) 
 		{
@@ -252,7 +260,7 @@ public:
 	UndoItem() 
 		{
 		}
-	UndoItem(SLONG number, rec* data) 
+	UndoItem(SLONG number, Record* data) 
 		{
 		this->rec_number = number;
 		this->rec_data = data;
@@ -261,15 +269,13 @@ public:
 
 typedef firebird::BePlusTree<UndoItem, SLONG, MemoryPool, UndoItem> UndoItemTree;
 
-class vct : public pool_alloc<type_vct>
+class VerbAction : public pool_alloc<type_vct>
 {
-    public:
-	struct vct *vct_next;		/* Next action within verb */
-	Relation *vct_relation;	/* Relation involved */
-	class sbm *vct_records;	/* Record involved */
-	UndoItemTree* vct_undo;     /* Data for undo records */
+public:
+	VerbAction* vct_next;		/* Next action within verb */
+	Relation* vct_relation;				/* Relation involved */
+	RecordBitmap* vct_records;			/* Record involved */
+	UndoItemTree* vct_undo;				/* Data for undo records */
 };
-typedef vct *VCT;
-
 
 #endif /* JRD_TRA_H */

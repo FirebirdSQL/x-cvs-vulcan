@@ -24,25 +24,27 @@
 #ifndef JRD_EXT_PROTO_H
 #define JRD_EXT_PROTO_H
 
-class ext;
+class ExternalFile;
 class Transaction;
-struct tdbb;
+class OptimizerBlk;
+struct thread_db;
 
-void	EXT_close(tdbb *tdbb, Rsb*);
-void	EXT_erase(tdbb *tdbb, rpb*, int*);
-ext*	EXT_file(tdbb *tdbb, jrd_rel*, const TEXT*, SLONG*);
-void	EXT_fini(tdbb *tdbb, jrd_rel*);
-int		EXT_get(tdbb *tdbb, Rsb*);
-void	EXT_modify(tdbb *tdbb, rpb*, rpb*, int*);
+void	EXT_close(thread_db* tdbb, RecordSource*);
+void	EXT_erase(thread_db* tdbb, record_param*, int*);
+ExternalFile*	EXT_file(thread_db* tdbb, Relation*, const TEXT*, SLONG*);
+void	EXT_fini(thread_db* tdbb, Relation*);
+int		EXT_get(thread_db* tdbb, RecordSource*);
+void	EXT_modify(thread_db* tdbb, record_param*, record_param*, int*);
 
 #ifdef VMS
-int	EXT_open(tdbb *tdbb, Rsb*);
+int	EXT_open(thread_db* tdbb, RecordSource*);
 #else
-void	EXT_open(tdbb *tdbb, Rsb*);
+void	EXT_open(thread_db* tdbb, RecordSource*);
 #endif
-Rsb*	EXT_optimize(tdbb *tdbb, Opt*, SSHORT, jrd_nod**);
-void	EXT_ready(jrd_rel*);
-void	EXT_store(DBB dbb, rpb*, int*);
+
+RecordSource*	EXT_optimize(thread_db* tdbb, OptimizerBlk*, SSHORT, jrd_nod**);
+void	EXT_ready(Relation*);
+void	EXT_store(DBB dbb, record_param*, int*);
 void	EXT_trans_commit(Transaction*);
 void	EXT_trans_prepare(Transaction*);
 void	EXT_trans_rollback(Transaction*);

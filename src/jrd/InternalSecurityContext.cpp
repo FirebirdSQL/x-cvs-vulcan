@@ -22,45 +22,52 @@
  *  All Rights Reserved.
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "InternalSecurityContext.h"
 #include "jrd.h"
 #include "tra_proto.h"
 #include "tdbb.h"
-//#include "Connection.h"
 #include "InternalConnection.h"
+#include "Attachment.h"
 
-InternalSecurityContext::InternalSecurityContext(tdbb *tdbb)
+InternalSecurityContext::InternalSecurityContext(thread_db* tdbb, Attachment *att)
 {
 	threadData = tdbb;
-	transaction = NULL;
-	connection = NULL;
+	//transaction = NULL;
+	//connection = NULL;
+	attachment = att;
+	//internalTransaction = false;
 }
 
 InternalSecurityContext::~InternalSecurityContext(void)
 {
-	if (transaction)
-		commit();
-
+	/***
 	if (connection)
 		connection->release();
+	***/
 }
 
-Connection* InternalSecurityContext::getConnection(void)
+Connection* InternalSecurityContext::getUserConnection(void)
 {
+	/***
 	if (connection)
 		return connection;
-	
+
 	if (!transaction)
-		transaction = TRA_start(threadData, 0, NULL);
+		{
+		transaction = TRA_start(threadData, threadData->tdbb_attachment, 0, NULL);
+		internalTransaction = true;
+		}
+	***/
 	
-	connection = threadData->tdbb_attachment->getUserConnection(transaction);
-	connection->addRef();
+	InternalConnection *connection = threadData->tdbb_attachment->getUserConnection(NULL);
+	//connection->addRef();
 	
 	return connection;
 }
 
+/***
 void InternalSecurityContext::commit(void)
 {
 	TRA_commit(threadData, transaction, false);
@@ -70,8 +77,38 @@ void InternalSecurityContext::rollback(void)
 {
 	TRA_rollback(threadData, transaction, false);
 }
+***/
 
 const char* InternalSecurityContext::getDatabaseFilename(void)
 {
 	return threadData->tdbb_database->dbb_filename;
+}
+
+Connection* InternalSecurityContext::getNewConnection(void)
+{
+	return threadData->tdbb_database->getNewConnection(threadData);
+}
+
+const char* InternalSecurityContext::getAccount(void)
+{
+	if (attachment)
+		return attachment->userData.userName;
+	
+	return NULL;
+}
+
+const char* InternalSecurityContext::getEncryptedPassword(void)
+{
+	if (attachment)
+		return attachment->userData.encryptedPassword;
+	
+	return NULL;
+}
+
+const char* InternalSecurityContext::getPassword(void)
+{
+	if (attachment)
+		return attachment->userData.password;
+	
+	return NULL;
 }

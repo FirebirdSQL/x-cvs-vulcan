@@ -33,12 +33,12 @@
  * 21-Nov-2001 Ann Harrison: Allow read sharing so gstat works 
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/os/pio.h"
 #include "../jrd/ods.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "gen/iberror.h"
 #include "../jrd/all_proto.h"
@@ -976,7 +976,7 @@ static FIL setup_file(DBB		dbb,
  *	Set up file and lock blocks for a file.
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 	UCHAR lock_string[32];
 	BY_HANDLE_FILE_INFORMATION file_info;
 

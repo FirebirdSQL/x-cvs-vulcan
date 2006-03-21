@@ -1,3 +1,0 @@
-buildgen -p solaris64 -c ThreadTest -f ../../vulcan.build -o makefile ThreadTest.vcproj
-buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  ThreadTest.vcproj
-buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  ThreadTest.vcproj

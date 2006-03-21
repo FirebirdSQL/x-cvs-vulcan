@@ -29,7 +29,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "jrd_proto.h"
 #include "inuse_proto.h"
@@ -81,7 +81,7 @@ ThreadData::~ThreadData()
 void ThreadData::init(ISC_STATUS *statusVector, Database *database)
 {
 	threadData = &thd_context;
-	memset (threadData, 0, sizeof (tdbb));
+	memset (threadData, 0, sizeof (thread_db));
 	threadData->tdbb_status_vector = statusVector;
 	setDatabase (database);
 	JRD_set_context(threadData);
@@ -93,7 +93,7 @@ void ThreadData::setDatabase(Database *database)
 	threadData->tdbb_database = database;
 }
 
-ThreadData::operator tdbb* ()
+ThreadData::operator thread_db* ()
 {
 	return threadData;
 }
@@ -147,7 +147,7 @@ ISC_STATUS ThreadData::getStatus()
 	return threadData->tdbb_status_vector [1];
 }
 
-void tdbb::registerBdb(Bdb* bdb)
+void thread_db::registerBdb(Bdb* bdb)
 {
 	for (int n = 0; n < MAX_THREAD_BDBS; ++n)
 		if (!tdbb_bdbs [n])
@@ -159,7 +159,7 @@ void tdbb::registerBdb(Bdb* bdb)
 	fb_assert (false);
 }
 
-void tdbb::clearBdb(Bdb* bdb)
+void thread_db::clearBdb(Bdb* bdb)
 {
 	for (int n = 0; n < MAX_THREAD_BDBS; ++n)
 		if (tdbb_bdbs [n] == bdb)

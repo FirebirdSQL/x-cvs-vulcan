@@ -27,7 +27,7 @@
 #ifndef _INTERNALPREPAREDSTATEMENT_H_
 #define _INTERNALPREPAREDSTATEMENT_H_
 
-#include "Connection.h"
+//#include "Connection.h"
 #include "InternalStatement.h"
 #include "Values.h"
 
@@ -36,6 +36,7 @@ class InternalStatementMetaData;
 class BinaryBlob;
 class AsciiBlob;
 class SqlTime;
+struct dsc;
 
 class InternalPreparedStatement : public InternalStatement, public PreparedStatement
 {
@@ -83,6 +84,7 @@ public:
 
 	Values		parameters;
 	InternalStatementMetaData	*statementMetaData;
+	virtual void setDescriptor(int index , dsc* value);
 };
 
 #endif

@@ -29,7 +29,7 @@
 
 #ifdef PYXIS
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../gpre/gpre.h"
 #include "../gpre/form.h"
 #include "../gpre/form_proto.h"

@@ -28,7 +28,7 @@
 
 #include "Connection.h"
 #include "LinkedList.h"
-#include "JString.h"
+//#include "JString.h"
 
 class Value;
 class InternalResultSet;

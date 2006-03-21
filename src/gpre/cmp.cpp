@@ -28,7 +28,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../jrd/gds.h"
@@ -86,7 +86,7 @@ static void update_references(REF);
 
 static GPRE_NOD lit0, lit1;
 static GPRE_FLD eof_field, count_field, slack_byte_field;
-static USHORT next_ident;
+static ULONG next_ident;
 
 #define STUFF(blr)	*request->req_blr++ = (UCHAR)(blr)
 #define STUFF_WORD(blr) {STUFF (blr); STUFF ((blr) >> 8);}
@@ -431,7 +431,7 @@ void CMP_init(void)
 //		Give out next identifier.
 //  
 
-USHORT CMP_next_ident(void)
+ULONG CMP_next_ident(void)
 {
 
 	return next_ident++;

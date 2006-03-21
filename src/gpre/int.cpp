@@ -28,7 +28,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"
 #include <stdarg.h>
@@ -712,8 +712,12 @@ static void make_port( POR port, int column)
 			break;
 
 		case dtype_quad:
-		case dtype_blob:
 			ib_fprintf(out_file, "    GDS__QUAD  jrd_%d;\t/* %s */",
+					   reference->ref_ident, name);
+			break;
+
+		case dtype_blob:
+			ib_fprintf(out_file, "    bid  jrd_%d;\t/* %s */",
 					   reference->ref_ident, name);
 			break;
 

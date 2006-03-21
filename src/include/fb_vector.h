@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  fb_vector.h
  *  firebird_test
@@ -13,6 +14,10 @@
 #include "../include/fb_types.h"
 #include "../common/classes/alloc.h"
 
+#ifdef _AIX
+#undef ALIGNMENT
+#endif
+
 #ifdef MEMMGR
 #include "MemoryManager.h"
 /***
@@ -24,6 +29,13 @@ class MemMgr;
 #endif
 
 #include <vector>
+
+#ifdef _AIX
+#define ALIGNMENT 8
+
+
+#endif
+
 
 namespace firebird
 {

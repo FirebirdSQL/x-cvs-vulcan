@@ -31,7 +31,7 @@ EXPORTS
     gds__create_blob=gds__create_blob @13
     gds__create_blob2=gds__create_blob2 @14
     gds__create_database=gds__create_database @15
-    gds__database_cleanup=gds__database_cleanup @16
+    ;gds__database_cleanup=gds__database_cleanup @16
     gds__database_info=gds__database_info @17
     gds__ddl=gds__ddl @18
     gds__declare=gds__declare @19
@@ -40,10 +40,10 @@ EXPORTS
     gds__describe=gds__describe @22
     gds__describe_bind=gds__describe_bind @23
     gds__detach_database=gds__detach_database @24
-    gds__disable_subsystem=gds__disable_subsystem @25
+    ;gds__disable_subsystem=gds__disable_subsystem @25
     gds__dsql_finish=gds__dsql_finish @26
     gds__edit=gds__edit @27
-    gds__enable_subsystem=gds__enable_subsystem @28
+    ;gds__enable_subsystem=gds__enable_subsystem @28
     gds__encode=gds__encode @29
     gds__encode_date=gds__encode_date @30
     gds__event_block=gds__event_block @31
@@ -91,10 +91,10 @@ EXPORTS
     gds__start_multiple=gds__start_multiple @73
     gds__start_request=gds__start_request @74
     gds__start_transaction=gds__start_transaction @75
-    gds__thread_enable=gds__thread_enable @76
-    gds__thread_enter=gds__thread_enter @77
-    gds__thread_exit=gds__thread_exit @78
-    gds__thread_start=gds__thread_start @79
+    ;gds__thread_enable=gds__thread_enable @76
+    ;gds__thread_enter=gds__thread_enter @77
+    ;gds__thread_exit=gds__thread_exit @78
+    ;gds__thread_start=gds__thread_start @79
     gds__to_sqlda=gds__to_sqlda @80
     gds__transaction_info=gds__transaction_info @81
     gds__unwind_request=gds__unwind_request @82
@@ -237,7 +237,7 @@ EXPORTS
     isc_drop_database=isc_drop_database @229
     isc_dsql_exec_immed3_m=isc_dsql_exec_immed3_m @230
     gds__temp_file=gds__temp_file @231
-    gds__transaction_cleanup=gds__transaction_cleanup @235
+    ;gds__transaction_cleanup=gds__transaction_cleanup @235
     isc_blob_gen_bpb=isc_blob_gen_bpb @236
     isc_blob_lookup_desc=isc_blob_lookup_desc @237
     isc_blob_set_desc=isc_blob_set_desc @238
@@ -266,14 +266,19 @@ EXPORTS
     _isc_start_transaction=_isc_start_transaction
     _isc_expand_dpb=_isc_expand_dpb
     _isc_event_block=_isc_event_block
-    ;KEYWORD_stringIsAToken=KEYWORD_stringIsAToken
-    ;KEYWORD_getTokens=KEYWORD_getTokens
-	;gds__alloc_debug=gds__alloc_debug
-    ;gds_alloc_flag_unfreed=gds_alloc_flag_unfreed
-    ;gds_alloc_report=gds_alloc_report
+
     fb_shutdown_connections=fb_shutdown_connections @268
     fb_update_account_info=fb_update_account_info @269
     isc_msg_lookup=isc_msg_lookup @270
     isc_cancel_operation=isc_cancel_operation @271
     fb_authenticate_user=fb_authenticate_user @272
-    
+    fb_interpret=fb_interpret
+    fb_config_text=fb_config_text
+    fb_config_file=fb_config_file
+	gds__parse_bpb2=gds__parse_bpb2
+	gds__trace=gds__trace
+	gds__temp_dir=gds__temp_dir
+	
+	gds__alloc_debug=gds__alloc_debug
+	isc_format_implementation=isc_format_implementation
+	

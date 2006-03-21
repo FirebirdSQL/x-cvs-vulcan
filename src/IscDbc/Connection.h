@@ -13,21 +13,6 @@
 #include "Properties.h"
 #include "SQLException.h"
 
-/***
-#ifndef QUAD
-
-#ifndef _WIN32
-#define __int64			long long
-#define _stdcall
-#endif
-
-typedef unsigned char	UCHAR;
-typedef unsigned long	ULONG;
-typedef __int64			QUAD;
-typedef unsigned __int64			UQUAD;
-#endif
-***/
-
 class Statement;
 class PreparedStatement;
 class CallableStatement;
@@ -297,7 +282,7 @@ public:
 	virtual void		setShort (int index, short value) = 0;
 	virtual void		setInt (int index, long value) = 0;
 	virtual void		setLong (int index, INT64 value) = 0;
-	virtual void		setBytes (int index, int length, const void *bytes) = 0;
+	virtual void		setBytes (uint64 index, uint64 length, const void *bytes) = 0;
 	virtual void		setFloat (int index, float value) = 0;
 	virtual void		setDouble (int index, double value) = 0;
 	virtual void		setNull (int index, int type) = 0;

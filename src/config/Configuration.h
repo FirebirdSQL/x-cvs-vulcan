@@ -44,6 +44,7 @@ public:
 	static void setConfigFile (const char* filename);
 	static ConfObject* getObject(const char* objectType);
 	static ConfObject* getObject(const char* objectType, const char* objectName);
+	static void setConfigText(const char* configText);
 };
 END_NAMESPACE
 

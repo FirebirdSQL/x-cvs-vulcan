@@ -24,17 +24,17 @@
 #ifndef JRD_SQZ_PROTO_H
 #define JRD_SQZ_PROTO_H
 
-#include "../jrd/req.h"
-#include "../jrd/sqz.h"
+class Record;
+class Decompress;
 
-USHORT	SQZ_apply_differences(struct rec*, SCHAR*, SCHAR*);
-USHORT	SQZ_compress(class Dcc*, const SCHAR*, SCHAR*, int);
-USHORT	SQZ_compress_length(class Dcc*, SCHAR*, int);
+USHORT	SQZ_apply_differences(Record*, const UCHAR*, const UCHAR*);
+USHORT	SQZ_compress(Decompress*, const SCHAR*, SCHAR*, int);
+USHORT	SQZ_compress_length(Decompress*, SCHAR*, int);
 SCHAR*	SQZ_decompress(const SCHAR*, USHORT, SCHAR*, const SCHAR*);
 USHORT	SQZ_differences(SCHAR*, USHORT, SCHAR*, USHORT, SCHAR*, int);
 USHORT	SQZ_no_differences(SCHAR*, int);
-void	SQZ_fast(class Dcc*, SCHAR*, SCHAR*);
-USHORT	SQZ_length(TDBB, SCHAR*, int, class Dcc*);
+void	SQZ_fast(Decompress*, SCHAR*, SCHAR*);
+USHORT	SQZ_length(thread_db*, SCHAR*, int, Decompress*);
 
 #endif // JRD_SQZ_PROTO_H
 

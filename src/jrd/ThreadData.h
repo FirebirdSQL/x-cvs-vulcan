@@ -39,7 +39,7 @@
 
 class Database;
 class Attachment;
-struct tdbb;
+struct thread_db;
 class JrdMemoryPool;
 
 class ThreadData  
@@ -60,10 +60,10 @@ public:
 	void init (ISC_STATUS *statusVector, Database *database);
 	ThreadData(ISC_STATUS *statusVector, Attachment *attachment);
 	virtual ~ThreadData();
-	operator tdbb*();
+	operator thread_db*();
 
-	tdbb	thd_context;
-	tdbb	*threadData;
+	thread_db	thd_context;
+	thread_db*	threadData;
 	void setTransaction(Transaction* transaction);
 };
 

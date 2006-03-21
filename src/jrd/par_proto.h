@@ -24,14 +24,14 @@
 #ifndef JRD_PAR_PROTO_H
 #define JRD_PAR_PROTO_H
 
-struct jrd_nod*	PAR_blr(TDBB, Relation*, const UCHAR*, class Csb*,
-					class Csb**, Request**, BOOLEAN, USHORT);
-int				PAR_desc(class Csb*, struct dsc*);
-struct jrd_nod*	PAR_gen_field(TDBB, USHORT, USHORT);
-struct jrd_nod*	PAR_make_field(TDBB, class Csb*, USHORT, const TEXT*);
-struct jrd_nod*	PAR_make_list(TDBB, struct lls*);
-struct jrd_nod*	PAR_make_node(TDBB, int);
-class Csb*		PAR_parse(TDBB, const UCHAR*, USHORT);
+struct jrd_nod*	PAR_blr(thread_db*, Relation*, const UCHAR*, class CompilerScratch*,
+					class CompilerScratch**, Request**, BOOLEAN, USHORT);
+int				PAR_desc(class CompilerScratch*, struct dsc*);
+struct jrd_nod*	PAR_gen_field(thread_db*, USHORT, USHORT);
+struct jrd_nod*	PAR_make_field(thread_db*, class CompilerScratch*, USHORT, const TEXT*);
+struct jrd_nod*	PAR_make_list(thread_db*, struct lls*);
+struct jrd_nod*	PAR_make_node(thread_db*, int);
+class CompilerScratch*	PAR_parse(thread_db*, const UCHAR*, USHORT);
 SLONG			PAR_symbol_to_gdscode(const char*);
 
 #endif // JRD_PAR_PROTO_H

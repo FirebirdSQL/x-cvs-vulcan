@@ -30,9 +30,8 @@
 #include "Connection.h"
 #include "Values.h"
 #include "LinkedList.h"
-#include "Values.h"
-#include "DateTime.h"	// Added by ClassView
-#include "TimeStamp.h"	// Added by ClassView
+//#include "DateTime.h"	// Added by ClassView
+//#include "TimeStamp.h"	// Added by ClassView
 
 class InternalStatement;
 class InternalResultSetMetaData;
@@ -113,6 +112,8 @@ public:
 	dsc				*descriptors;
 	InternalStatement	*statement;
 	InternalResultSetMetaData *metaData;
+	//virtual dsc getDescriptor(int id);
+	//virtual dsc getDescriptor(const char* columnName);
 };
 
 #endif

@@ -28,7 +28,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"
 #include <stdarg.h>
@@ -186,8 +186,8 @@ static void align( int column)
 static void asgn_from( REF reference, int column)
 {
 	TEXT* value;
-	TEXT variable[20];
-	TEXT temp[20];
+	TEXT variable[MAX_REF_SIZE];
+	TEXT temp[MAX_REF_SIZE];
 
 	for (; reference; reference = reference->ref_next)
 	{
@@ -229,7 +229,7 @@ static void asgn_to( REF reference)
 {
 	GPRE_FLD field;
 	REF source;
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 
 	source = reference->ref_friend;
 	field = source->ref_field;
@@ -260,7 +260,7 @@ static void asgn_to( REF reference)
 static void gen_at_end( ACT action, int column)
 {
 	GPRE_REQ request;
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 
 	request = action->act_request;
 	printa(column, "if (!%s) ", gen_name(s, request->req_eof));
@@ -330,7 +330,7 @@ static void gen_emodify( ACT action, int column)
 	UPD modify;
 	REF reference;
 	GPRE_FLD field;
-	TEXT s1[20], s2[20];
+	TEXT s1[MAX_REF_SIZE], s2[MAX_REF_SIZE];
 
 	modify = (UPD) action->act_object;
 
@@ -419,7 +419,7 @@ static void gen_erase( ACT action, int column)
 static void gen_for( ACT action, int column)
 {
 	GPRE_REQ request;
-	TEXT s[20];
+	TEXT s[MAX_REF_SIZE];
 
 	gen_s_start(action, column);
 
@@ -654,7 +654,7 @@ static void gen_type( ACT action, int column)
 
 static void gen_variable( ACT action, int column)
 {
-	char s[20];
+	char s[MAX_REF_SIZE];
 
 	align(column);
 	ib_fprintf(out_file, gen_name(s, action->act_object));
@@ -673,7 +673,7 @@ static void make_port( POR port, int column)
 	REF reference;
 	SYM symbol;
 	const TEXT *name;
-	TEXT s[50];
+	TEXT s[ERROR_LENGTH];
 
 	printa(column, "struct {");
 
@@ -717,8 +717,12 @@ static void make_port( POR port, int column)
 			break;
 
 		case dtype_quad:
-		case dtype_blob:
 			ib_fprintf(out_file, "    GDS__QUAD  jrd_%d;\t/* %s */",
+					   reference->ref_ident, name);
+			break;
+
+		case dtype_blob:
+			ib_fprintf(out_file, "    bid  jrd_%d;\t/* %s */",
 					   reference->ref_ident, name);
 			break;
 

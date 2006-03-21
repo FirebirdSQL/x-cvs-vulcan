@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 //#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
@@ -30,7 +30,7 @@
 #include "../jrd/btr.h"
 #include "../jrd/jrn.h"
 #include "../jrd/sbm.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/rse.h"
 #include "../jrd/all_proto.h"
@@ -43,7 +43,6 @@
 #include "../jrd/mov_proto.h"
 #include "../jrd/pag_proto.h"
 #include "../jrd/rec_proto.h"
-#include "../jrd/sbm_proto.h"
 #include "../jrd/thd_proto.h"
 #include "../wal/walr_proto.h"
 

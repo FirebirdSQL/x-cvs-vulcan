@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Triggers.h"
 #include "Trigger.h"
@@ -33,7 +33,11 @@ Triggers::Triggers(void)
 }
 
 
+#ifdef SHARED_CACHE
 Triggers::Triggers(int initialSize) : SIVector<Trigger*>(initialSize)
+#else
+Triggers::Triggers(int initialSize) : SVector<Trigger*>(initialSize)
+#endif
 {
 }
 

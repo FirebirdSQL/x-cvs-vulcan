@@ -31,7 +31,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 //#include "ibase.h"
 #include "InternalStatement.h"
@@ -108,6 +108,8 @@ void InternalStatement::close()
 	FOR_OBJECTS (InternalResultSet*, resultSet, &resultSets)
 		resultSet->close();
 	END_FOR;
+	
+	delete statement;
 }
 
 bool InternalStatement::execute(const char * sqlString)
@@ -213,6 +215,7 @@ void InternalStatement::prepareStatement(const char * sqlString)
 	reset();
 	ISC_STATUS statusVector [20];
 	ThreadData thread (statusVector, connection->attachment);
+	thread.setTransaction(connection->transaction);
 	clearResults();
 	statement = new CStatement (connection->attachment);
 	thread.setDsqlPool (statement->pool);
@@ -235,8 +238,17 @@ void InternalStatement::prepareStatement(const char * sqlString)
 
 bool InternalStatement::execute()
 {
+	connection->startTransaction();
 	ISC_STATUS statusVector [20];
 	
+	if (statement->req_type == REQ_DDL)
+		{
+		if (jrd8_ddl (statusVector, &connection->attachment, &connection->transaction, statement->blrGen->getLength(), statement->blrGen->buffer))
+			throw OSRIException(statusVector);
+		
+		return false;
+		}
+		
 	dsql_msg *message = statement->sendMessage;
 	
 	if (message)

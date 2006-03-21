@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include "AdminException.h"
@@ -55,6 +55,7 @@ AdminException::AdminException(const char *txt, ...)
 		{
 		int l = sizeof (temp) * 2;
 		char *buffer = new char [l];
+		// Maybe we need to va_end/va_start?
 		vsnprintf (buffer, l, txt, args);
 		text = buffer;
 		delete [] buffer;
@@ -63,15 +64,15 @@ AdminException::AdminException(const char *txt, ...)
 		{
 		int l = ret + 1;
 		char *buffer = new char [l];
+		// Maybe we need to va_end/va_start?
 		vsnprintf (buffer, l, txt, args);
 		text = buffer;
 		delete [] buffer;
 		}
 	else
 		text = temp;
-
-	text = temp;
-	lineNumber;
+		
+	va_end(args);
 }
 
 AdminException::~AdminException()

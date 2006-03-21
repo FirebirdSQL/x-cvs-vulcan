@@ -51,6 +51,11 @@ static const TEXT* const names[] =
 };
 #undef NAME
 
+//******************************
+// fields.h
+//******************************
+const UCHAR BLOB_SIZE		= 8;
+const UCHAR TIMESTAMP_SIZE	= 8;
 
 /* Pick up global ids */
 
@@ -74,7 +79,7 @@ typedef struct gfld
 	UCHAR gfld_type;
 	UCHAR gfld_name;
 	UCHAR gfld_dtype;
-	UCHAR gfld_length;
+	USHORT gfld_length;
 	UCHAR gfld_sub_type;
 	UCHAR gfld_minor;
 	const UCHAR *gfld_dflt_blr;

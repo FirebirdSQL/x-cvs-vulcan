@@ -28,7 +28,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../jrd/gds.h"
@@ -1381,7 +1381,7 @@ static GPRE_NOD cmp_literal( GPRE_NOD node, GPRE_REQ request)
 {
 	REF reference;
 	char *p;
-	char buffer[MAXSYMLEN];
+	char buffer[MAX_SYM_SIZE];
 	char *string;
 	SSHORT length;
 	DSC from, to;

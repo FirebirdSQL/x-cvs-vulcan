@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Dispatch.h"
 #include "iberror.h"
@@ -32,6 +32,7 @@
 //extern Dispatch dispatch;
 static Dispatch	*dispatch;
 static Mutex	mutex;
+
 
 static void initialize()
 {
@@ -43,7 +44,19 @@ static void initialize()
 	mutex.release();
 }
 
+JString truncateName(int fileLength, const TEXT *fileName)
+{
+	const char *p = fileName + fileLength;
+	
+	while (p > fileName && p[-1] == ' ')
+		--p;
+		
+	return JString(fileName, p - fileName);
+}
+
 extern "C" {
+
+ISC_STATUS API_ROUTINE isc_event_wait (ISC_STATUS *status, DbHandle* dbHandle, USHORT eventLength, const UCHAR *events, UCHAR *buffer);
 
 ISC_STATUS API_ROUTINE isc_create_database (ISC_STATUS* userStatus, 
 									   USHORT fileLength, 
@@ -56,17 +69,11 @@ ISC_STATUS API_ROUTINE isc_create_database (ISC_STATUS* userStatus,
 	if (!dispatch)
 		initialize();
 		
-	char temp [256];
+	JString temp;
 	const char *name = fileName;
 	
 	if (fileLength)
-		{
-		memcpy (temp, fileName, fileLength);
-		temp [fileLength] = 0;
-		for (char *p = temp + fileLength; p > temp && p [-1] == ' '; --p)
-			*p = 0;
-		name = temp;
-		}
+		name = temp = truncateName(fileLength, fileName);
 		
 	if (!dispatch)
 		initialize();
@@ -84,17 +91,11 @@ ISC_STATUS API_ROUTINE isc_attach_database(ISC_STATUS* userStatus,
 	if (!dispatch)
 		initialize();
 		
-	char temp [256];
+	JString temp;
 	const char *name = fileName;
 	
 	if (fileLength)
-		{
-		memcpy (temp, fileName, fileLength);
-		temp [fileLength] = 0;
-		for (char *p = temp + fileLength; p > temp && p [-1] == ' '; --p)
-			*p = 0;
-		name = temp;
-		}
+		name = temp = truncateName(fileLength, fileName);
 		
 	return dispatch->attachDatabase (userStatus, name, name, dbHandle, dpbLength, dpb, NULL, NULL);
 	}
@@ -127,7 +128,7 @@ ISC_STATUS API_ROUTINE isc_drop_database (ISC_STATUS* userStatus, DbHandle *dbHa
 	}
 
 
-ISC_STATUS API_ROUTINE isc_start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, teb *stuff)
+ISC_STATUS API_ROUTINE isc_start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, const TransactionElement *stuff)
 	{
 	if (!dispatch)
 		initialize();
@@ -138,11 +139,11 @@ ISC_STATUS API_ROUTINE isc_start_multiple(ISC_STATUS* userStatus, TraHandle *tra
 
 ISC_STATUS API_ROUTINE_VARARG isc_start_transaction (ISC_STATUS* userStatus, TraHandle *traHandle, SSHORT count, ...)
 	{
-	teb vector [32];
+	TransactionElement vector [32];
 	va_list ptr;
 	VA_START(ptr, count);
 
-	for (teb *t = vector, *end = vector + count; t < end; ++t)
+	for (TransactionElement *t = vector, *end = vector + count; t < end; ++t)
 		{
 		t->dbHandle = va_arg(ptr, DbHandle*);
 		t->tpbLength = va_arg(ptr, int);
@@ -523,18 +524,26 @@ ISC_STATUS API_ROUTINE isc_dsql_describe_bind(ISC_STATUS* userStatus,
 
 ISC_STATUS API_ROUTINE isc_dsql_insert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, SSHORT dialect, XSQLDA *sqlda)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, dialect, sqlda);
+	***/
+	
+	return dispatch->entrypointUnavailable(userStatus);
 	}
 
 ISC_STATUS API_ROUTINE isc_dsql_insert_m(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, USHORT blrLength, UCHAR* blr, USHORT msgType, USHORT msgLength, UCHAR* msg)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, blrLength, blr, msgType, msgLength, msg);
+	***/
+	
+	return dispatch->entrypointUnavailable(userStatus);
 	}
 
 
@@ -799,7 +808,7 @@ ISC_STATUS API_ROUTINE isc_cancel_operation (ISC_STATUS* userStatus, DbHandle *d
 
 
 ISC_STATUS API_ROUTINE isc_service_query(ISC_STATUS* userStatus, 
-									DbHandle *dbHandle, 
+									SvcHandle *dbHandle, 
 									ULONG* reserved,
 									USHORT inItemLength, 
 									UCHAR* inItem, 
@@ -819,18 +828,24 @@ ISC_STATUS API_ROUTINE isc_service_query(ISC_STATUS* userStatus,
 ISC_STATUS API_ROUTINE isc_service_attach(ISC_STATUS* userStatus, 
 										  USHORT serviceLength, 
 										  TEXT *service, 
-										  DbHandle *dbHandle, 
+										  SvcHandle *dbHandle, 
 										  USHORT spbLength, 
 										  UCHAR *spb)
 	{
 	if (!dispatch)
 		initialize();
 		
-	return dispatch->serviceAttach (userStatus, serviceLength, service, dbHandle, spbLength, spb);
+	JString temp;
+	const char *name = service;
+	
+	if (serviceLength)
+		name = temp = truncateName(serviceLength, service);
+
+	return dispatch->serviceAttach (userStatus, name, dbHandle, spbLength, spb, NULL, NULL);
 	}
 
 ISC_STATUS API_ROUTINE isc_service_start(ISC_STATUS* userStatus,
-										 DbHandle *dbHandle,
+										 SvcHandle *dbHandle,
 										 ULONG * reserved,
 										 USHORT spbLength, 
 										 UCHAR * spb)
@@ -841,7 +856,7 @@ ISC_STATUS API_ROUTINE isc_service_start(ISC_STATUS* userStatus,
 	return dispatch->serviceStart (userStatus, dbHandle, spbLength, spb);
 	}
 
-ISC_STATUS API_ROUTINE isc_service_detach(ISC_STATUS* userStatus, DbHandle *dbHandle)
+ISC_STATUS API_ROUTINE isc_service_detach(ISC_STATUS* userStatus, SvcHandle *dbHandle)
 	{
 	if (!dispatch)
 		initialize();
@@ -853,9 +868,9 @@ ISC_STATUS API_ROUTINE isc_transact_request(ISC_STATUS* userStatus,
 									   DbHandle *dbHandle, 
 									   TraHandle *traHandle, 
 									   USHORT blrLength, 
-									   UCHAR* blr,
+									   const UCHAR* blr,
 									   USHORT inMsgLength, 
-									   UCHAR* inMsg, 
+									   const UCHAR* inMsg, 
 									   USHORT outMsgLength, 
 									   UCHAR* outMsg)
 	{
@@ -870,7 +885,7 @@ ISC_STATUS API_ROUTINE isc_ddl(ISC_STATUS* userStatus,
 							   DbHandle *dbHandle, 
 							   TraHandle *traHandle, 
 							   USHORT ddlLength, 
-							   UCHAR* ddl)
+							   const UCHAR* ddl)
 	{
 	if (!dispatch)
 		initialize();
@@ -935,22 +950,22 @@ ISC_STATUS API_ROUTINE gds__drop_database (ISC_STATUS* userStatus, DbHandle *dbH
 	}
 
 
-ISC_STATUS API_ROUTINE gds__start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, teb *stuff)
+ISC_STATUS API_ROUTINE gds__start_multiple(ISC_STATUS* userStatus, TraHandle *traHandle, USHORT count, void *stuff)
 	{
 	if (!dispatch)
 		initialize();
 		
-	return dispatch->startMultiple (userStatus, traHandle, count, stuff);
+	return dispatch->startMultiple (userStatus, traHandle, count, (TransactionElement*) stuff);
 	}
 
 
 ISC_STATUS API_ROUTINE_VARARG gds__start_transaction (ISC_STATUS* userStatus, TraHandle *traHandle, SSHORT count, ...)
 	{
-	teb vector [32];
+	TransactionElement vector [32];
 	va_list ptr;
 	VA_START(ptr, count);
 
-	for (teb *t = vector, *end = vector + count; t < end; ++t)
+	for (TransactionElement *t = vector, *end = vector + count; t < end; ++t)
 		{
 		t->dbHandle = va_arg(ptr, DbHandle*);
 		t->tpbLength = va_arg(ptr, int);
@@ -1327,18 +1342,24 @@ ISC_STATUS API_ROUTINE gds__dsql_describe_bind(ISC_STATUS* userStatus,
 
 ISC_STATUS API_ROUTINE gds__dsql_insert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, SSHORT dialect, XSQLDA *sqlda)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, dialect, sqlda);
+	***/
+	return isc_dsql_insert(userStatus, dsqlHandle, dialect, sqlda);
 	}
 
 ISC_STATUS API_ROUTINE gds__dsql_insert_m(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, USHORT blrLength, UCHAR* blr, USHORT msgType, USHORT msgLength, UCHAR* msg)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->dsqlInsert (userStatus, dsqlHandle, blrLength, blr, msgType, msgLength, msg);
+	***/
+	return isc_dsql_insert_m(userStatus, dsqlHandle, blrLength, blr, msgType, msgLength, msg);
 	}
 
 
@@ -1618,10 +1639,11 @@ ISC_STATUS API_ROUTINE gds__service_attach(ISC_STATUS* userStatus,
 										  USHORT spbLength, 
 										  UCHAR *spb)
 	{
-	if (!dispatch)
-		initialize();
+	//if (!dispatch)
+		//initialize();
 		
-	return dispatch->serviceAttach (userStatus, serviceLength, service, dbHandle, spbLength, spb);
+	//return dispatch->serviceAttach (userStatus, service, dbHandle, spbLength, spb);
+	return isc_service_attach(userStatus, serviceLength, service, dbHandle, spbLength, spb);
 	}
 
 ISC_STATUS API_ROUTINE gds__service_start(ISC_STATUS* userStatus,
@@ -1648,16 +1670,22 @@ ISC_STATUS API_ROUTINE gds__transact_request(ISC_STATUS* userStatus,
 									   DbHandle *dbHandle, 
 									   TraHandle *traHandle, 
 									   USHORT blrLength, 
-									   UCHAR* blr,
+									   const UCHAR* blr,
 									   USHORT inMsgLength, 
-									   UCHAR* inMsg, 
+									   const UCHAR* inMsg, 
 									   USHORT outMsgLength, 
 									   UCHAR* outMsg)
 	{
+	/***
 	if (!dispatch)
 		initialize();
 		
 	return dispatch->transactRequest (userStatus, dbHandle, traHandle, blrLength, blr, inMsgLength, inMsg, outMsgLength, outMsg);
+	***/
+	return isc_transact_request(userStatus, dbHandle, traHandle, 
+								blrLength, blr, 
+								inMsgLength, inMsg,
+								outMsgLength, outMsg);
 	}
 
 
@@ -1673,6 +1701,7 @@ ISC_STATUS API_ROUTINE gds__ddl(ISC_STATUS* userStatus,
 	return dispatch->executeDDL (userStatus, dbHandle, traHandle, ddlLength, ddl);
 	}
 
+/***
 int API_ROUTINE gds__thread_enable(int enable_flag)
 	{
 	return true;
@@ -1685,16 +1714,9 @@ void API_ROUTINE gds__thread_enter(void)
 void API_ROUTINE gds__thread_exit(void)
 	{
 	}
-
-/***
-int API_ROUTINE gds__thread_start(FPTR_INT_VOID_PTR entrypoint,
-								  void *arg,
-								  int priority, int flags, void *thd_id)
-	{
-	return 0;
-	}
 ***/
 
+/***
 ISC_STATUS API_ROUTINE gds__database_cleanup(ISC_STATUS* userStatus, 
 											 DbHandle *dbHandle, 
 											 DatabaseCleanupRoutine * routine, 
@@ -1715,7 +1737,9 @@ ISC_STATUS API_ROUTINE gds__transaction_cleanup(ISC_STATUS* userStatus,
 		
 	return dispatch->transactionCleanup (userStatus, traHandle, routine, arg);
 	}
+***/
 
+/***
 int API_ROUTINE gds__disable_subsystem(TEXT * subsystem)
 	{
 	if (!dispatch)
@@ -1731,6 +1755,7 @@ int API_ROUTINE gds__enable_subsystem(TEXT * subsystem)
 		
 	return dispatch->enableSubsystem (subsystem);
 	}
+***/
 
 ISC_STATUS API_ROUTINE gds__seek_blob(ISC_STATUS* userStatus, 
 									 BlbHandle *blbHandle,
@@ -1750,10 +1775,7 @@ ISC_STATUS API_ROUTINE gds__event_wait(ISC_STATUS* userStatus,
 									   UCHAR* events, 
 									   UCHAR *buffer)
 	{
-	if (!dispatch)
-		initialize();
-		
-	return dispatch->eventWait (userStatus, dbHandle, eventsLength, events, buffer);
+	return isc_event_wait(userStatus, dbHandle, eventsLength, events, buffer);
 	}
 
 /***
@@ -1762,7 +1784,7 @@ void CVT_move (void)
 	}
 ***/
 
-
+/***
 ISC_STATUS API_ROUTINE isc_database_cleanup(ISC_STATUS * userStatus,
 											 DbHandle *handle,
 											 DatabaseCleanupRoutine * routine,
@@ -1773,6 +1795,7 @@ ISC_STATUS API_ROUTINE isc_database_cleanup(ISC_STATUS * userStatus,
 		
 	return dispatch->registerCleanupHandler (userStatus, handle, routine, arg);
 	}
+***/
 
 int API_ROUTINE fb_shutdown_connections (int type, int milliseconds)
 	{
@@ -1806,5 +1829,23 @@ ISC_STATUS API_ROUTINE fb_authenticate_user (ISC_STATUS* userStatus,
 									   infoLength, info,
 									   bufferLength, buffer);
 	}
+
+ISC_STATUS ISC_EXPORT fb_config_text (ISC_STATUS* userStatus,
+									  const char *configText)
+{
+	if (!dispatch)
+		initialize();
+	
+	return dispatch->setConfigText(userStatus, configText);
+}
+									  
+ISC_STATUS ISC_EXPORT fb_config_file (ISC_STATUS* userStatus,
+									  const char *configFilename)
+{
+	if (!dispatch)
+		initialize();
+	
+	return dispatch->setConfigFilename(userStatus, configFilename);
+}
 
 } /* extern "C" */

@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include <signal.h>
@@ -1220,15 +1220,13 @@ static int rsb_pretty(RSB rsb, int column)
 	ib_fprintf(dbg_file, "\n");
 
 	if (rsb->rsb_type == rsb_merge)
-		for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count * 2; ptr < end;
-			 ptr += 2)
+		for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count * 2; ptr < end; ptr += 2)
 			DBG_pretty(reinterpret_cast < jrd_nod * >(*ptr), column);
 	else if (rsb->rsb_type != rsb_left_cross)
 		for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count; ptr < end; ptr++)
 			DBG_pretty(reinterpret_cast < jrd_nod * >(*ptr), column);
 	else
-		for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count + 1; ptr < end;
-			 ptr++)
+		for (ptr = rsb->rsb_arg, end = ptr + rsb->rsb_count + 1; ptr < end; ptr++)
 			DBG_pretty(reinterpret_cast < jrd_nod * >(*ptr), column);
 
 	if (rsb->rsb_next)

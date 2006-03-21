@@ -35,6 +35,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+START_NAMESPACE
+
 class RefObject  
 {
 public:
@@ -45,5 +47,7 @@ public:
 
 	int useCount;
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_REFOBJECT_H__B78AA20E_CBF1_4191_B648_177D9CE87E32__INCLUDED_)

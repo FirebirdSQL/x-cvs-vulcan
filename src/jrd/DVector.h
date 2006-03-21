@@ -9,8 +9,8 @@ class DVector : public SVector<E>
 public:
 	virtual ~DVector() 
 		{ 
-		for (int n = 0; n < size(); ++n)
-			delete buffer[n];
+		for (int n = 0; n < this->size(); ++n)
+                  delete this->buffer[n];
 		}
 };
 

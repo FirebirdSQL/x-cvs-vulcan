@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib mpr.lib version.lib"
-				OutputFile="..\..\install\bin\engine8.dll"
+				OutputFile="..\..\install\bin\engine11.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
@@ -111,7 +111,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib mpr.lib version.lib"
-				OutputFile="..\..\install\bin\engine8.dll"
+				OutputFile="..\..\install\bin\engine11.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\install\lib;..\burp\Debug;..\alice\Debug;..\gstat\Debug;..\gsec\Debug"
@@ -280,40 +280,6 @@
 				RelativePath=".\BlrPrint.cpp">
 			</File>
 			<File
-				RelativePath="blrtable.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="bookmark.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="btn.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -392,6 +358,9 @@
 			</File>
 			<File
 				RelativePath=".\CommitManager.cpp">
+			</File>
+			<File
+				RelativePath=".\CompilerScratch.cpp">
 			</File>
 			<File
 				RelativePath="..\config\ConfigFile.cpp">
@@ -771,6 +740,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ExecStatement.cpp">
+			</File>
+			<File
+				RelativePath=".\ExecutionPathInfoGen.cpp">
+			</File>
+			<File
 				RelativePath="ext.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -877,6 +852,9 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Format.cpp">
 			</File>
 			<File
 				RelativePath="fun.cpp">
@@ -1447,6 +1425,9 @@
 				RelativePath=".\MsgFile.cpp">
 			</File>
 			<File
+				RelativePath=".\MsgFormat.cpp">
+			</File>
+			<File
 				RelativePath=".\Mutex.cpp">
 			</File>
 			<File
@@ -1518,6 +1499,23 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="Optimizer.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\OSRIBugcheck.cpp">
 			</File>
 			<File
@@ -1570,6 +1568,23 @@
 				RelativePath=".\PBGen.cpp">
 			</File>
 			<File
+				RelativePath="pcmet.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="perf.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1602,21 +1617,7 @@
 				RelativePath=".\PStatement.cpp">
 			</File>
 			<File
-				RelativePath="pwd.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath=".\RecordSource.cpp">
 			</File>
 			<File
 				RelativePath="RefObject.cpp">
@@ -1656,24 +1657,10 @@
 				RelativePath=".\Request.cpp">
 			</File>
 			<File
-				RelativePath="rlck.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath=".\Resource.cpp">
 			</File>
 			<File
-				RelativePath="rng.cpp">
+				RelativePath="rlck.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -1707,41 +1694,67 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="rse.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath=".\RsbAggregate.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbBoolean.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbCount.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbCross.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbExtDbkey.cpp">
+			</File>
+			<File
+				RelativePath=".\RSbExtIndexed.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbExtSequential.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbFirst.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbIndexed.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbLeftCross.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbMerge.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbNavigate.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbProcedure.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbSequential.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbSingular.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbSkip.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbSort.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbUnion.cpp">
+			</File>
+			<File
+				RelativePath=".\RsbWriteLock.cpp">
 			</File>
 			<File
 				RelativePath=".\RSet.cpp">
 			</File>
 			<File
-				RelativePath="sbm.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
+				RelativePath=".\SafeRefObject.cpp">
 			</File>
 			<File
 				RelativePath="..\config\ScanDir.cpp">
@@ -1990,23 +2003,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="support.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="sym.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -2181,10 +2177,7 @@
 				RelativePath=".\UserData.cpp">
 			</File>
 			<File
-				RelativePath=".\utl.cpp">
-			</File>
-			<File
-				RelativePath="val.cpp">
+				RelativePath="validation.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2240,6 +2233,188 @@
 						Optimization="2"/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="Preprocessed File"
+				Filter="epp">
+				<File
+					RelativePath="dfw.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="dpm.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="dyn.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="dyn_def.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -gds  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="dyn_del.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="dyn_mod.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="dyn_util.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="envelope.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="fun.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="grant.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="ini.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="met.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\dsql\parse.y">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
+move dsql.tab.c  $(InputDir)\parse.cpp
+move dsql.tab.h  $(InputDir)\parse.h
+"
+							Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="pcmet.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="scl.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="stats.epp">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCustomBuildTool"
+							CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
+"
+							Outputs="$(InputDir)$(InputName).cpp"/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -2251,16 +2426,13 @@
 				RelativePath="..\config\AdminException.h">
 			</File>
 			<File
-				RelativePath="ail.h">
-			</File>
-			<File
 				RelativePath="align.h">
 			</File>
 			<File
-				RelativePath="..\dsql\all.h">
+				RelativePath="all.h">
 			</File>
 			<File
-				RelativePath="all.h">
+				RelativePath="..\dsql\all.h">
 			</File>
 			<File
 				RelativePath="all_proto.h">
@@ -2395,6 +2567,9 @@
 				RelativePath="common.h">
 			</File>
 			<File
+				RelativePath=".\CompilerScratch.h">
+			</File>
+			<File
 				RelativePath="..\config\ConfigFile.h">
 			</File>
 			<File
@@ -2441,9 +2616,6 @@
 			</File>
 			<File
 				RelativePath=".\DateTime.h">
-			</File>
-			<File
-				RelativePath="..\utilities\dbaswi.h">
 			</File>
 			<File
 				RelativePath="dbg.h">
@@ -2560,7 +2732,13 @@
 				RelativePath="exe_proto.h">
 			</File>
 			<File
+				RelativePath=".\ExecStatement.h">
+			</File>
+			<File
 				RelativePath="ExecuteStatement.h">
+			</File>
+			<File
+				RelativePath=".\ExecutionPathInfoGen.h">
 			</File>
 			<File
 				RelativePath="ext.h">
@@ -2629,6 +2807,9 @@
 				RelativePath="flu_proto.h">
 			</File>
 			<File
+				RelativePath=".\Format.h">
+			</File>
+			<File
 				RelativePath="fun_proto.h">
 			</File>
 			<File
@@ -2654,12 +2835,6 @@
 			</File>
 			<File
 				RelativePath="grant_proto.h">
-			</File>
-			<File
-				RelativePath="..\utilities\gsec.h">
-			</File>
-			<File
-				RelativePath="..\utilities\gsecswi.h">
 			</File>
 			<File
 				RelativePath="..\dsql\hsh_proto.h">
@@ -2956,6 +3131,9 @@
 				RelativePath=".\MsgFile.h">
 			</File>
 			<File
+				RelativePath=".\MsgFormat.h">
+			</File>
+			<File
 				RelativePath="..\include\gen\msgs.h">
 			</File>
 			<File
@@ -2987,6 +3165,9 @@
 			</File>
 			<File
 				RelativePath="opt_proto.h">
+			</File>
+			<File
+				RelativePath=".\Optimizer.h">
 			</File>
 			<File
 				RelativePath=".\OSRIBugcheck.h">
@@ -3040,9 +3221,6 @@
 				RelativePath="os\pio.h">
 			</File>
 			<File
-				RelativePath="pio_proto.h">
-			</File>
-			<File
 				RelativePath="plugin_manager.h">
 			</File>
 			<File
@@ -3076,9 +3254,6 @@
 				RelativePath="quad_proto.h">
 			</File>
 			<File
-				RelativePath="que.h">
-			</File>
-			<File
 				RelativePath="rdb.h">
 			</File>
 			<File
@@ -3088,10 +3263,10 @@
 				RelativePath="rec_proto.h">
 			</File>
 			<File
-				RelativePath="RefObject.h">
+				RelativePath=".\RecordSource.h">
 			</File>
 			<File
-				RelativePath="..\utilities\registry.h">
+				RelativePath="RefObject.h">
 			</File>
 			<File
 				RelativePath="Relation.h">
@@ -3106,6 +3281,9 @@
 				RelativePath=".\Request.h">
 			</File>
 			<File
+				RelativePath=".\Resource.h">
+			</File>
+			<File
 				RelativePath="rlck_proto.h">
 			</File>
 			<File
@@ -3118,6 +3296,63 @@
 				RelativePath="rpb_chain.h">
 			</File>
 			<File
+				RelativePath=".\RsbAggregate.h">
+			</File>
+			<File
+				RelativePath=".\RsbBoolean.h">
+			</File>
+			<File
+				RelativePath=".\RsbCount.h">
+			</File>
+			<File
+				RelativePath=".\RsbCross.h">
+			</File>
+			<File
+				RelativePath=".\RsbExtDbkey.h">
+			</File>
+			<File
+				RelativePath=".\RsbExtIndexed.h">
+			</File>
+			<File
+				RelativePath=".\RsbExtSequential.h">
+			</File>
+			<File
+				RelativePath=".\RsbFirst.h">
+			</File>
+			<File
+				RelativePath=".\RsbIndexed.h">
+			</File>
+			<File
+				RelativePath=".\RsbLeftCross.h">
+			</File>
+			<File
+				RelativePath=".\RsbMerge.h">
+			</File>
+			<File
+				RelativePath=".\RsbNavigate.h">
+			</File>
+			<File
+				RelativePath=".\RsbProcedure.h">
+			</File>
+			<File
+				RelativePath=".\RsbSequential.h">
+			</File>
+			<File
+				RelativePath=".\RsbSingular.h">
+			</File>
+			<File
+				RelativePath=".\RsbSkip.h">
+			</File>
+			<File
+				RelativePath=".\RsbSort.h">
+			</File>
+			<File
+				RelativePath=".\RsbUnion.h">
+			</File>
+			<File
+				RelativePath=".\RsbWriteLock.h">
+			</File>
+			<File
 				RelativePath="rse.h">
 			</File>
 			<File
@@ -3128,6 +3363,9 @@
 			</File>
 			<File
 				RelativePath="..\common\classes\rwlock.h">
+			</File>
+			<File
+				RelativePath=".\SafeRefObject.h">
 			</File>
 			<File
 				RelativePath="sbm.h">
@@ -3161,9 +3399,6 @@
 			</File>
 			<File
 				RelativePath="sdw_proto.h">
-			</File>
-			<File
-				RelativePath="..\utilities\secur_proto.h">
 			</File>
 			<File
 				RelativePath=".\SecurityDb.h">
@@ -3203,9 +3438,6 @@
 			</File>
 			<File
 				RelativePath="..\include\gen\sql_code.h">
-			</File>
-			<File
-				RelativePath=".\Sqlda.h">
 			</File>
 			<File
 				RelativePath="..\dsql\sqlda.h">
@@ -3310,6 +3542,9 @@
 				RelativePath="ThreadData.h">
 			</File>
 			<File
+				RelativePath=".\ThreadDataState.h">
+			</File>
+			<File
 				RelativePath="Threads.h">
 			</File>
 			<File
@@ -3346,13 +3581,7 @@
 				RelativePath="types.h">
 			</File>
 			<File
-				RelativePath="D:\Program Files\Microsoft Visual Studio\VC98\Include\SYS\TYPES.H">
-			</File>
-			<File
 				RelativePath=".\UserData.h">
-			</File>
-			<File
-				RelativePath="utl_proto.h">
 			</File>
 			<File
 				RelativePath="..\dsql\utld_proto.h">
@@ -3640,6 +3869,10 @@
 						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_MBCS;_USRDLL;JRD_EXPORTS"/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="Dsql Preprocessed Files"
+				Filter="*.epp">
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Dsql  Header Files"
@@ -3655,186 +3888,8 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Dsql Preprocessed Files"
-			Filter="*.epp">
-		</Filter>
-		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-		</Filter>
-		<Filter
-			Name="Preprocessed File"
-			Filter="epp">
-			<File
-				RelativePath="dfw.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="dpm.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="dyn.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="dyn_def.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre  -gds  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="dyn_del.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="dyn_mod.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="dyn_util.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="envelope.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="fun.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="grant.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="ini.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="met.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre  -gds   $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dsql\parse.y">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
-move dsql.tab.c  $(InputDir)\parse.cpp
-move dsql.tab.h  $(InputDir)\parse.h
-"
-						Outputs="$(InputDir)$(InputName).cpp;$(InputDir)$(InputName).h"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="scl.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre  -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\utilities\gsec\security.epp">
-			</File>
-			<File
-				RelativePath="stats.epp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="gpre -gds -raw  $(InputDir)$(InputName).epp  $(InputDir)$(InputName).cpp
-"
-						Outputs="$(InputDir)$(InputName).cpp"/>
-				</FileConfiguration>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

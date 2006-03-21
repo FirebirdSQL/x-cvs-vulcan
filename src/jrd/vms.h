@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		vms.h
@@ -78,5 +79,18 @@ typedef struct fab$ {
 	SSHORT fat$w_not_used;
 	SSHORT fat$w_versions;
 } FAT$;
+
+#define SA_RESTART 0x00
+#define IPC_RMID 0x00
+#define semctl(a,b,c,d)
+#define ftok(a,b)  -1
+
+
+#include <time.h>
+#include <string.h>
+static inline void timerclear(struct timeval * t)
+{
+    memset(t, 0, sizeof(struct timeval));
+}
 
 #endif /* _JRD_VMS_H_ */

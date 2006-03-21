@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  
  *     The contents of this file are subject to the Initial 
@@ -35,7 +36,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-struct dsc;
+//struct dsc;
 
 static const int LOCAL_SQLVARS = 24;
 
@@ -59,6 +60,7 @@ public:
 	int			bufferLength;
 	int			blrLength;
 	int			msgLength;
+	int			dscLength;
 	int			allocLength;
 	int			numberVariables;
 	UCHAR		*buffer;
@@ -66,21 +68,23 @@ public:
 	UCHAR		*msg;
 	UCHAR		localMsg [1024];
 	dsc			*descriptors;
+	dsc			localDescriptors[64];
 	YSQLVAR		localSqlvars[LOCAL_SQLVARS];
 	YSQLVAR		*sqlvars;
 	
 	void populateSqlda(const UCHAR *info, int length);
-	int getNumber(const UCHAR* ptr, int length);
+	static int getNumber(const UCHAR* ptr, int length);
 	void genBlr();
 	void allocateBuffer(int length);
 	void allocateMessage(void);
+	void allocateDescriptors(void);
 	void copyToMessage(void);
 	void copyFromMessage(void);
-	int getDtype(int sqlType);
-	int align(int dtype, int offset);
+	static int getDtype(int sqlType);
+	static int align(int dtype, int offset);
 	YSQLDA(void);
 	void setSqlda(int userDialect, XSQLDA* sqlda);
-	bool validateBlr(void);
+	bool validateBlr(void) const;
 	void init(void);
 };
 

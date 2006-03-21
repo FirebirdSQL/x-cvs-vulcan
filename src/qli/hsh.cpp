@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../qli/dtr.h"
 #include "../qli/parse.h"
 #include "../qli/all_proto.h"

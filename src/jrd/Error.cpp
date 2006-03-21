@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Error.h"
 #include "OSRIBugcheck.h"
@@ -74,6 +74,7 @@ void Error::log(const char* text, ...)
 	if (vsnprintf (buffer, sizeof (buffer) - 1, text, args) < 0)
 		buffer [sizeof (buffer) - 1] = 0;
 
+	va_end(args);
 #ifdef SUPERSERVER
 	gds__log (buffer);
 

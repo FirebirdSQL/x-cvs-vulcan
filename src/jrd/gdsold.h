@@ -263,9 +263,11 @@ int GDS_EXPORT gds__version(FRBRD**,
 							FPTR_VERSION_CALLBACK,
 							void*);
 
+/*** departed earth 9/26/05 by Jim Starkey
 int GDS_EXPORT gds__disable_subsystem(char  *);
 
 int GDS_EXPORT gds__enable_subsystem(char  *);
+***/
 
 ISC_STATUS GDS_EXPORT gds__print_status(const ISC_STATUS*);
 

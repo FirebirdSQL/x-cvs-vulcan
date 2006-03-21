@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalCrossReferenceResultSet.h"
 
 #define SQL_CASCADE                      0

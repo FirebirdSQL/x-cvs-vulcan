@@ -125,6 +125,9 @@
 				RelativePath="..\config\ArgsException.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\AsyncEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\remote\os\win32\chop.cpp">
 			</File>
 			<File
@@ -269,6 +272,9 @@
 				RelativePath="..\remote\RTransaction.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\SafeRefObject.cpp">
+			</File>
+			<File
 				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
@@ -276,6 +282,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\status.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
 			</File>
 			<File
 				RelativePath="..\config\Stream.cpp">
@@ -294,6 +303,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\SyncObject.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\TempSpace.cpp">
 			</File>
 			<File
 				RelativePath="..\jrd\thd.cpp">
@@ -326,6 +338,9 @@
 			</File>
 			<File
 				RelativePath="..\config\ArgsException.h">
+			</File>
+			<File
+				RelativePath="..\jrd\AsyncEvent.h">
 			</File>
 			<File
 				RelativePath="..\remote\os\win32\chop_proto.h">
@@ -478,6 +493,9 @@
 				RelativePath="..\remote\RRequest.h">
 			</File>
 			<File
+				RelativePath="..\jrd\RsbSort.h">
+			</File>
+			<File
 				RelativePath="..\remote\RServer.h">
 			</File>
 			<File
@@ -485,6 +503,9 @@
 			</File>
 			<File
 				RelativePath="..\remote\RTransaction.h">
+			</File>
+			<File
+				RelativePath="..\jrd\SafeRefObject.h">
 			</File>
 			<File
 				RelativePath="..\config\ScanDir.h">
@@ -500,6 +521,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\status.h">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\config\Stream.h">
@@ -518,6 +542,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\SyncObject.h">
+			</File>
+			<File
+				RelativePath="..\jrd\TempSpace.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Thread.h">

@@ -35,7 +35,7 @@
 #include "../jrd/dsc.h"
 #include "../burp/misc_proto.h"
 #include "../jrd/gds_proto.h"
-#include "../jrd/thd.h"
+//#include "../jrd/thd.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -818,9 +818,9 @@ typedef struct tgbl
 	int			exit_code;
 	UCHAR*		head_of_mem_list;
 	pfn_svc_output	output_proc;
-	svc*		output_data;
+	Service		*output_data;
 	IB_FILE*	output_file;
-	SVC			service_blk;
+	Service		*service_blk;
 	/*
 	 * Link list of global fields that were converted from V3 sub_type
 	 * to V4 char_set_id/collate_id. Needed for local fields conversion.

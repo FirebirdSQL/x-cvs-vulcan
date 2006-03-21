@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ConfObject.h"
 #include "Element.h"
@@ -124,11 +124,12 @@ bool ConfObject::match(int position, const char* pattern, const char* string)
 			{
 			if (!*p)
 				{
-				putString (position, string, (int) strlen (string));
+				//putString(position, string, (int) strlen (string));
+				putString(position, s, (int) strlen(s));
 				return true;
 				}
 			for (; *s; ++s)
-				if (match (position + 1,  pattern+1, s))
+				if (match (position + 1,  pattern + 1, s))
 					{
 					putString (position, string, (int) (s - string));
 					return true;
@@ -139,7 +140,7 @@ bool ConfObject::match(int position, const char* pattern, const char* string)
 			return false;
 		else if (c != '%' && c != *s)
 			{
-#ifdef _WIN32
+#ifdef _WIN32xxx
 			if (UPPER (c) == UPPER (*s))
 				continue;
 			if ((c == '/' || c == '\\') && (*s == '/' || *s == '\\'))

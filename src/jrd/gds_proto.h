@@ -84,6 +84,7 @@ SLONG	API_ROUTINE gds_interprete_cpp(char* const, const ISC_STATUS**);
 /* CVC: This non-const signature is needed for compatibility, see gds.cpp. */
 SLONG	API_ROUTINE gds__interprete(char*, ISC_STATUS**);
 void	API_ROUTINE gds__interprete_a(SCHAR*, SSHORT*, ISC_STATUS*, SSHORT*);
+SLONG	API_ROUTINE fb_interpret(char*, int, const ISC_STATUS**);
 
 void	API_ROUTINE gds__log(const TEXT*, ...);
 void	API_ROUTINE gds__trace(const char*);

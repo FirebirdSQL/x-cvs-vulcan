@@ -24,17 +24,12 @@
 #ifndef JRD_ENC_PROTO_H
 #define JRD_ENC_PROTO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define PASSWORD_SALT  "9z"
 
 static const int ENCRYPT_SIZE = 21;
 
-TEXT* ENC_crypt(const TEXT*, const TEXT*, TEXT *cryptresult);
-
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+//TEXT* ENC_crypt(const TEXT*, const TEXT*, TEXT *cryptresult);
+void ENC_crypt(TEXT* buf, size_t bufSize, const TEXT* key, const TEXT* setting);
 
 #endif // JRD_ENC_PROTO_H
 

@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd.h"
 #include "../jrd/req.h"
 #include "../jrd/val.h"
@@ -164,7 +164,7 @@ EXT EXT_file(tdbb *tdbb, REL relation, TEXT * file_name, SLONG * description)
    format. */
 
 	l = strlen(file_name);
-	relation->rel_file = file = FB_NEW_RPT(dbb->dbb_permanent, l) ext();
+	relation->rel_file = file = FB_NEW_RPT(dbb->dbb_permanent, l) ExternalFile();
 	strcpy(file->ext_filename, file_name);
 	//format = file->ext_format = MET_format(tdbb, relation, 0);
 	format = file->ext_format = relation->getFormat(tdbb, 0);
@@ -469,32 +469,35 @@ RSB EXT_optimize(TDBB tdb, OPT opt, SSHORT stream, NOD * sort_ptr)
 			idx = idx->idx_rpt + idx->idx_count;
 		}
 
-/* Depending on whether or not an index was selected build either
-   and external indexed or an external sequential record stream
-   block */
+	/* Depending on whether or not an index was selected build either
+	   and external indexed or an external sequential record stream
+	   block */
 
-	if (dbkey) {
+	if (dbkey) 
+		{
 		rsb = FB_NEW_RPT(tdbb->tdbb_default, 1) rsb();
 		rsb->rsb_type = rsb_ext_dbkey;
 		rsb->rsb_count = 1;
 		size = sizeof(struct irsb_index);
 		rsb->rsb_arg[0] = (RSB) dbkey;
-	}
-	else if (inversion) {
+		}
+	else if (inversion) 
+		{
 		rsb = FB_NEW_RPT(tdbb->tdbb_default, 1) rsb();
 		rsb->rsb_type = rsb_ext_indexed;
 		rsb->rsb_count = 1;
 		size = sizeof(struct irsb_index);
 		rsb->rsb_arg[0] = (RSB) inversion;
-	}
-	else {
+		}
+	else 
+		{
 		rsb = FB_NEW(tdbb->tdbb_default) rsb();
 		rsb->rsb_type = rsb_ext_sequential;
 		size = sizeof(struct irsb);
-	}
+		}
 
-/* Finish filling out the record stream block and allocate some
-   space in the impure area of the request for stream state information */
+	/* Finish filling out the record stream block and allocate some
+	   space in the impure area of the request for stream state information */
 
 	rsb->rsb_stream = stream;
 	rsb->rsb_relation = relation;

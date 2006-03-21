@@ -26,7 +26,7 @@
 #include <windows.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Args.h"
 #include "Relo.h"
@@ -34,8 +34,8 @@
 #include "ScanDir.h"
 #include "AdminException.h"
 
-static char *input;
-static char *output;
+static const char *input;
+static const char *output;
 static bool	swHelp;
 static bool	swSolution;
 static bool	swCreate;
@@ -50,7 +50,7 @@ static const Switches switches [] =
 	NULL
 	};
 
-main (int argc, char **argv)
+main (int argc, const char **argv)
 {
 	Args args;
 	args.parse(switches, argc, argv);
@@ -95,6 +95,14 @@ main (int argc, char **argv)
 		Relo relo(inputPath);
 		JString outputPath;
 		outputPath.Format("%s\\%s\\", output, (const char*) relo.component);
+		
+		if (swCreate)
+			{
+			JString dir;
+			dir.Format("%s\\%s", output, relo.component);
+			CreateDirectory(dir, NULL);
+			}
+						
 		relo.rewrite(outputPath);
 		}
 

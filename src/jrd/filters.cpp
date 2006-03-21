@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../jrd/jrd.h"
@@ -259,25 +259,32 @@ ISC_STATUS filter_format(USHORT action, ctl* control)
  *	Get next segment from a record format blob.
  *
  **************************************/
-/* Unless this is a get segment call, just return success */
+ 
+	/* Unless this is a get segment call, just return success */
 
 	if (action != ACTION_get_segment)
 		return FB_SUCCESS;
 
-/* Loop thru descriptors looking for one with a data type */
-	dsc desc;
-	for (;;) {
+	/* Loop thru descriptors looking for one with a data type */
+	
+	OdsDesc desc;
+	
+	for (;;) 
+		{
         USHORT length;
 		const ISC_STATUS status = caller(ACTION_get_segment,
 						control,
 						sizeof(desc),
 						reinterpret_cast<UCHAR*>(&desc), &length);
+						
 		if (status != FB_SUCCESS && status != isc_segment)
 			return status;
+			
 		if (desc.dsc_dtype)
 			break;
+			
 		++control->ctl_data[0];
-	}
+		}
 
 	int value = desc.dsc_scale;
 	const TEXT* p = dtypes[desc.dsc_dtype];
@@ -286,22 +293,25 @@ ISC_STATUS filter_format(USHORT action, ctl* control)
 		value = desc.dsc_length;
 	else if (desc.dsc_dtype == dtype_varying)
 		value = desc.dsc_length - sizeof(SSHORT);
-	else if (desc.dsc_dtype > dtype_array) {
+	else if (desc.dsc_dtype > dtype_array)
+		{
 		p = "data type %d unknown";
 		value = desc.dsc_dtype;
-	}
+		}
 
     TEXT temp1[64], temp2[64];
-	if ((desc.dsc_dtype <= dtype_any_text) && (desc.dsc_ttype != 0)) {
+    
+	if ((desc.dsc_dtype <= dtype_any_text) && (desc.dsc_ttype != 0)) 
+		{
 		sprintf(temp2, p, value);
 		sprintf(temp1, "%s, sub-type %d", temp2, INTL_TTYPE(&desc));
-	}
+		}
 	else
 		sprintf(temp1, p, value);
 
 	sprintf(temp2, "%ld: %s", control->ctl_data[0]++, temp1);
-
 	USHORT length = strlen(temp2);
+	
 	if (length > control->ctl_buffer_length)
 		length = control->ctl_buffer_length;
 
@@ -486,7 +496,7 @@ ISC_STATUS filter_text(USHORT action, ctl* control)
 	case ACTION_close:
 		if (control->ctl_data[1]) {
 			gds__free((SLONG *) control->ctl_data[1]);
-			control->ctl_data[1] = (IPTR) NULL;
+			control->ctl_data[1] = 0;
 		}
 		return FB_SUCCESS;
 
@@ -570,7 +580,7 @@ ISC_STATUS filter_text(USHORT action, ctl* control)
 				&& (control->ctl_data[0] > control->ctl_data[3]))
 			{
 				gds__free((SLONG *) control->ctl_data[1]);
-				control->ctl_data[1] = (IPTR) NULL;
+				control->ctl_data[1] = 0;
 				control->ctl_data[3] = 0;
 			}
 
@@ -654,7 +664,7 @@ ISC_STATUS filter_transliterate_text(USHORT action, ctl* control)
 		USHORT ctlaux_buffer1_unused;	/* unused bytes in ctlaux_buffer1 */
 	};
 
-	TDBB tdbb = NULL;
+	thread_db* tdbb = NULL;
 /* Note: Cannot pass tdbb without API change to user filters */
 
 #define EXP_SCALE		128		/* to keep expansion non-floating */
@@ -820,7 +830,7 @@ ISC_STATUS filter_transliterate_text(USHORT action, ctl* control)
 		}
 		if (aux) {
 			gds__free(aux);
-			control->ctl_data[0] = (IPTR) NULL;
+			control->ctl_data[0] = 0;
 			aux = NULL;
 		}
 		return FB_SUCCESS;

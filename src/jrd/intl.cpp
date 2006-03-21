@@ -90,7 +90,7 @@
  * copyright (c) 1992, 1993 by Borland International
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/req.h"
@@ -102,6 +102,7 @@
 #include "../jrd/btr.h"
 #include "../intl/charsets.h"
 #include "../intl/country_codes.h"
+#include "Attachment.h"
 
 #ifdef INTL_BUILTIN
 #include "../intl/ld_proto.h"
@@ -149,9 +150,9 @@
 
 typedef unsigned char FILECHAR;
 
-static bool all_spaces(TDBB, CHARSET_ID, const BYTE*, USHORT, USHORT);
-static void pad_spaces(TDBB, CHARSET_ID, BYTE *, USHORT);
-static FPTR_SHORT lookup_init_function(TDBB tdbb, USHORT, SSHORT, SSHORT);
+static bool all_spaces(thread_db*, CHARSET_ID, const BYTE*, USHORT, USHORT);
+static void pad_spaces(thread_db*, CHARSET_ID, BYTE *, USHORT);
+static FPTR_SHORT lookup_init_function(thread_db* tdbb, USHORT, SSHORT, SSHORT);
 static void finish_texttype_init(TEXTTYPE);
 static USHORT nc_to_wc(CSCONVERT, UCS2_CHAR *, USHORT, UCHAR *, USHORT, SSHORT *,
 					   USHORT *);
@@ -207,7 +208,7 @@ public:
 };
 
 #ifdef OBSOLETE
-CharSetContainer* CharSetContainer::lookupCharset(TDBB tdbb, SSHORT ttype, ISC_STATUS *status)
+CharSetContainer* CharSetContainer::lookupCharset(thread_db* tdbb, SSHORT ttype, ISC_STATUS *status)
 {
 /**************************************
  *
@@ -265,7 +266,7 @@ CharSetContainer* CharSetContainer::lookupCharset(TDBB tdbb, SSHORT ttype, ISC_S
 }
 #endif
 
-CharSetContainer::CharSetContainer(tdbb *tdbb, MemoryPool *p, USHORT cs_id) : cs(NULL)
+CharSetContainer::CharSetContainer(thread_db* tdbb, MemoryPool *p, USHORT cs_id) : cs(NULL)
 {
 	typedef USHORT (*CSInitFunc)(CHARSET, SSHORT, SSHORT);
 	
@@ -291,7 +292,7 @@ CharSetContainer::CharSetContainer(void) : cs(NULL)
 	cs = NULL;
 }
 
-CsConvert CharSetContainer::lookupConverter(tdbb* tdbb, int to_cs)
+CsConvert CharSetContainer::lookupConverter(thread_db* tdbb, int to_cs)
 {
 	int pos;
 	if (charset_converters.find(to_cs, pos))
@@ -346,7 +347,7 @@ CsConvert CharSetContainer::lookupConverter(tdbb* tdbb, int to_cs)
 	return cvt;
 }
 
-TextType CharSetContainer::lookupCollation(tdbb *tdbb, USHORT tt_id)
+TextType CharSetContainer::lookupCollation(thread_db* tdbb, USHORT tt_id)
 {
 	USHORT id = TTYPE_TO_COLLATION(tt_id);
 	TEXTTYPE tt;
@@ -445,7 +446,7 @@ static void finish_texttype_init(TEXTTYPE txtobj)
 	txtobj->texttype_flags |= TEXTTYPE_init;
 }
 
-static FPTR_SHORT lookup_init_function(TDBB tdbb, 
+static FPTR_SHORT lookup_init_function(thread_db* tdbb, 
 						USHORT type,
 						SSHORT parm1,
 						SSHORT parm2)
@@ -508,7 +509,7 @@ static FPTR_SHORT lookup_init_function(TDBB tdbb,
 	INTL_TRACE(("INTL: trying %s %s\n", INTL_MODULE1, INTL_LOOKUP_ENTRY1));
 	const char *tempStr = INTL_LOOKUP_ENTRY1;
 
-#ifdef PLUGIN_MANAGER	
+#ifdef PLUGIN_MANAGER
 	if ( intlMod1 && (lookup_fn = (USHORT(*)(USHORT, USHORT(**)(), short, short))
 		(intlMod1.lookupSymbol(tempStr))) ) 
 		{
@@ -516,6 +517,7 @@ static FPTR_SHORT lookup_init_function(TDBB tdbb,
 					INTL_LOOKUP_ENTRY1));
 		if ((*lookup_fn) (type, &function, parm1, parm2) != 0) 
 			function = NULL;
+		}
 	else
 		return function;
 #else
@@ -567,7 +569,7 @@ static FPTR_SHORT lookup_init_function(TDBB tdbb,
 
 	/* Still not found, check if there is a UDF in the database defined the right way */
 
-	FUN function_block;
+	UserFunction* function_block;
 	USHORT argcount;
 	char entry[48];
 
@@ -617,7 +619,7 @@ static FPTR_SHORT lookup_init_function(TDBB tdbb,
 }
 
 
-CHARSET_ID INTL_charset(TDBB tdbb, USHORT ttype, FPTR_ERROR err)
+CHARSET_ID INTL_charset(thread_db* tdbb, USHORT ttype, FPTR_ERROR err)
 {
 /**************************************
  *
@@ -649,7 +651,7 @@ CHARSET_ID INTL_charset(TDBB tdbb, USHORT ttype, FPTR_ERROR err)
 }
 
 
-int INTL_compare(TDBB tdbb,
+int INTL_compare(thread_db* tdbb,
 				const dsc* pText1,
 				const dsc* pText2,
 				FPTR_ERROR err)
@@ -729,7 +731,7 @@ int INTL_compare(TDBB tdbb,
 }
 
 
-USHORT INTL_convert_bytes(TDBB tdbb,
+USHORT INTL_convert_bytes(thread_db* tdbb,
 						CHARSET_ID dest_type,
 						BYTE* dest_ptr,
 						USHORT dest_len,
@@ -863,7 +865,7 @@ USHORT INTL_convert_bytes(TDBB tdbb,
 }
 
 
-CsConvert INTL_convert_lookup(TDBB tdbb,
+CsConvert INTL_convert_lookup(thread_db* tdbb,
 								CHARSET_ID to_cs,
 								CHARSET_ID from_cs)
 {
@@ -926,7 +928,7 @@ int INTL_convert_string(const dsc* to, const dsc* from, FPTR_ERROR err)
 
 /* Note: This function is called from outside the engine as
    well as inside - we likely can't get rid of GET_THREAD_DATA here */
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	if (tdbb == NULL)			/* are we in the Engine? */
 		return (1);				/* no, then can't access intl gah */
 
@@ -936,6 +938,11 @@ int INTL_convert_string(const dsc* to, const dsc* from, FPTR_ERROR err)
 
 	CHARSET_ID from_cs = INTL_charset(tdbb, INTL_TTYPE(from), err);
 	CHARSET_ID to_cs = INTL_charset(tdbb, INTL_TTYPE(to), err);
+
+	if ((INTL_TTYPE(from) == CS_dynamic) && (from_cs == CS_NONE))
+		from_cs = to_cs;
+	else if ((INTL_TTYPE(to) == CS_dynamic) && (to_cs == CS_NONE))
+		to_cs = from_cs;
 
 	UCHAR* p = to->dsc_address;
 
@@ -1073,7 +1080,7 @@ int INTL_data_or_binary(const dsc* pText)
 }
 
 
-int INTL_defined_type(TDBB tdbb, ISC_STATUS * status, SSHORT t_type)
+int INTL_defined_type(thread_db* tdbb, ISC_STATUS * status, SSHORT t_type)
 {
 /**************************************
  *
@@ -1104,7 +1111,7 @@ int INTL_defined_type(TDBB tdbb, ISC_STATUS * status, SSHORT t_type)
 }
 
 
-UCS2_CHAR INTL_getch(TDBB tdbb,
+UCS2_CHAR INTL_getch(thread_db* tdbb,
 							TextType* obj,
 							SSHORT t_type, UCHAR ** ptr, USHORT * count)
 {
@@ -1139,7 +1146,7 @@ UCS2_CHAR INTL_getch(TDBB tdbb,
 }
 
 
-void INTL_init(TDBB tdbb)
+void INTL_init(thread_db* tdbb)
 {
 /**************************************
  *
@@ -1153,7 +1160,7 @@ void INTL_init(TDBB tdbb)
 }
 
 
-USHORT INTL_key_length(TDBB tdbb, USHORT idxType, USHORT iLength)
+USHORT INTL_key_length(thread_db* tdbb, USHORT idxType, USHORT iLength)
 {
 /**************************************
  *
@@ -1195,7 +1202,7 @@ USHORT INTL_key_length(TDBB tdbb, USHORT idxType, USHORT iLength)
 	return (key_length);
 }
 
-CharSet INTL_charset_lookup(TDBB tdbb, SSHORT parm1, ISC_STATUS* status)
+CharSet INTL_charset_lookup(thread_db* tdbb, SSHORT parm1, ISC_STATUS* status)
 {
 /**************************************
  *
@@ -1229,7 +1236,7 @@ CharSet INTL_charset_lookup(TDBB tdbb, SSHORT parm1, ISC_STATUS* status)
 }
 
 
-TextType INTL_texttype_lookup(TDBB tdbb,
+TextType INTL_texttype_lookup(thread_db* tdbb,
 								SSHORT parm1,
 								FPTR_ERROR err,
 								ISC_STATUS* status)
@@ -1270,7 +1277,7 @@ TextType INTL_texttype_lookup(TDBB tdbb,
 	return csc->lookupCollation(tdbb, parm1);
 }
 
-void INTL_pad_spaces(TDBB tdbb, DSC * type, UCHAR * string, USHORT length)
+void INTL_pad_spaces(thread_db* tdbb, DSC * type, UCHAR * string, USHORT length)
 {
 /**************************************
  *
@@ -1296,7 +1303,7 @@ void INTL_pad_spaces(TDBB tdbb, DSC * type, UCHAR * string, USHORT length)
 }
 
 
-USHORT INTL_string_to_key(TDBB tdbb,
+USHORT INTL_string_to_key(thread_db* tdbb,
 						USHORT idxType,
 						const dsc* pString,
 						DSC* pByte,
@@ -1389,7 +1396,7 @@ USHORT INTL_string_to_key(TDBB tdbb,
 }
 
 
-int INTL_str_to_upper(TDBB tdbb, DSC * pString)
+int INTL_str_to_upper(thread_db* tdbb, DSC * pString)
 {
 /**************************************
  *
@@ -1433,7 +1440,7 @@ int INTL_str_to_upper(TDBB tdbb, DSC * pString)
 }
 
 
-UCHAR INTL_upper(TDBB tdbb, USHORT ttype, UCHAR ch)
+UCHAR INTL_upper(thread_db* tdbb, USHORT ttype, UCHAR ch)
 {
 /**************************************
  *
@@ -1467,7 +1474,7 @@ UCHAR INTL_upper(TDBB tdbb, USHORT ttype, UCHAR ch)
 
 
 static bool all_spaces(
-						  TDBB tdbb,
+						  thread_db* tdbb,
 						  CHARSET_ID charset,
 						  const BYTE* ptr, USHORT len, USHORT offset)
 {
@@ -1606,7 +1613,7 @@ static USHORT wc_to_wc(CSCONVERT obj, UCS2_CHAR * pDest, USHORT nDest,	/* byte c
 	return ((pDest - pStart) * sizeof(*pDest));
 }
 
-static void pad_spaces(TDBB tdbb, CHARSET_ID charset, BYTE * ptr, USHORT len)
+static void pad_spaces(thread_db* tdbb, CHARSET_ID charset, BYTE * ptr, USHORT len)
 {								/* byte count */
 /**************************************
  *
@@ -1658,7 +1665,7 @@ bool CharSetContainer::isNamed(const char* name)
 	return cs.isNamed (name);
 }
 
-bool CharSetContainer::loadCharSet(tdbb* tdbb, MemoryPool* p, int cs_id)
+bool CharSetContainer::loadCharSet(thread_db* tdbb, MemoryPool* p, int cs_id)
 {
 	typedef USHORT (*CSInitFunc)(CHARSET, SSHORT, SSHORT);
 	CSInitFunc csInitFunc = 

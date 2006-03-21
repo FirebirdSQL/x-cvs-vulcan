@@ -37,9 +37,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "firebird.h"
+#include <memory.h>
+#include "fbdev.h"
 #include "Args.h"
 #include "ArgsException.h"
+
+#define EXTEND_SIZE		50
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -47,21 +50,36 @@
 
 Args::Args()
 {
-
+	parameters = NULL;
+	lengths = NULL;
+	parametersAllocated = 0;
 }
 
 Args::~Args()
 {
-
+	delete parameters;
+	delete lengths;
 }
 
-void Args::parse(const Switches *switches, int argc, char **argv)
+void Args::parse(const Switches *switches, int argc, const char **argv, Args *args)
 {
-	for (char **arg = argv, **end = arg + argc; arg < end;)
+	
+	for (const char **arg = argv, **end = arg + argc; arg < end;)
 		{
-		char *p = *arg++;
+		const char *p = *arg++;
 		const Switches *parameter = NULL;
 		bool hit = false;
+		
+		if (args && *p == '-')
+			{
+			const char *eq = strchr (p, '=');
+			if (eq)
+				{
+				args->addParameter (p + 1, eq - p - 1);
+				continue;
+				}
+			}
+		
 		for (const Switches *sw = switches; sw->string; ++sw)
 			{
 			if (strcmp (sw->string, p) == 0)
@@ -93,6 +111,13 @@ void Args::parse(const Switches *switches, int argc, char **argv)
 				throw ArgsException ("invalid option \"%s\"", p);
 			}
 		}
+}
+
+
+void Args::parseParameters(const Switches* switches, int argc, const char** argv)
+{
+	parametersUsed = 0;
+	parse(switches, argc, argv, this);
 }
 
 
@@ -238,4 +263,41 @@ bool Args::readPassword(const char *msg, char *pw1, int length)
 	printf ("\n");
 
 	return hit;
+}
+
+void Args::extendParameters(void)
+{
+	const char **oldParameters = parameters;
+	int *oldLengths = lengths;
+	parametersAllocated += EXTEND_SIZE;
+	parameters = new const char* [parametersAllocated];
+	lengths = new int [parametersAllocated];
+	
+	if (parametersUsed)
+		{
+		memcpy (parameters, oldParameters, parametersUsed * sizeof (parameters[0]));
+		memcpy (lengths, oldLengths, parametersUsed * sizeof (lengths[0]));
+		delete oldParameters;
+		delete oldLengths;
+		}
+}
+
+void Args::addParameter(const char* parameter, int length)
+{
+	if (parametersUsed >= parametersAllocated)
+		extendParameters();
+		
+	parameters [parametersUsed] = parameter;
+	lengths [parametersUsed++] = length;
+}
+
+const char* Args::lookupParameter(const char* parameter)
+{
+	int length = (int) strlen (parameter);
+	
+	for (int n = 0; n < parametersUsed; ++n)
+		if (length == lengths [n] && strncmp(parameter, parameters [n], length) == 0)
+			return parameters [n] + length + 1;
+	
+	return NULL;
 }

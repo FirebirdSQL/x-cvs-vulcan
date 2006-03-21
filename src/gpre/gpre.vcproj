@@ -216,6 +216,9 @@
 				RelativePath=".\sql.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\StatusPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\Sync.cpp">
 			</File>
 			<File
@@ -290,6 +293,9 @@
 				RelativePath="..\jrd\isc.h">
 			</File>
 			<File
+				RelativePath="..\jrd\isc_proto.h">
+			</File>
+			<File
 				RelativePath=".\jrdme_proto.h">
 			</File>
 			<File
@@ -348,6 +354,9 @@
 			</File>
 			<File
 				RelativePath=".\sql_proto.h">
+			</File>
+			<File
+				RelativePath="..\jrd\StatusPrint.h">
 			</File>
 			<File
 				RelativePath="..\jrd\Sync.h">

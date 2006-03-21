@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="IscDbc"
+	Name="FbDbc"
 	ProjectGUID="{2ACA2D51-B16E-413F-9E3F-7E6B5DD28A70}"
 	SccProjectName=""
 	SccLocalPath="">
@@ -23,6 +23,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\jrd;..\include;..\include\gen"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -38,10 +39,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Release/IscDbc.dll"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\install\bin\fbdbc.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				ModuleDefinitionFile="..\..\..\OdbcJdbc\IscDbc\IscDbc.def"
+				AdditionalLibraryDirectories="..\..\install\lib"
+				ModuleDefinitionFile="fbdbc.def"
 				ProgramDatabaseFile=".\Release/IscDbc.pdb"
 				ImportLibrary=".\Release/IscDbc.lib"
 				TargetMachine="1"/>
@@ -86,7 +89,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\jrd;..\include;..\include\gen"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS;NAMESPACE=IscDbc"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -103,7 +106,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\install\bin\IscDbc.dll"
+				OutputFile="..\..\install\bin\fbdbc.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\install\lib"
@@ -165,6 +168,9 @@
 			</File>
 			<File
 				RelativePath=".\Error.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\Generate.cpp">
 			</File>
 			<File
 				RelativePath=".\IscBlob.cpp">
@@ -242,6 +248,9 @@
 				RelativePath=".\Parameters.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\PBGen.cpp">
+			</File>
+			<File
 				RelativePath=".\Sqlda.cpp">
 			</File>
 			<File
@@ -289,6 +298,12 @@
 			</File>
 			<File
 				RelativePath=".\Error.h">
+			</File>
+			<File
+				RelativePath="..\jrd\Generate.h">
+			</File>
+			<File
+				RelativePath="..\jrd\ibase.h">
 			</File>
 			<File
 				RelativePath=".\IscArray.h">
@@ -379,6 +394,9 @@
 			</File>
 			<File
 				RelativePath=".\Parameters.h">
+			</File>
+			<File
+				RelativePath="..\jrd\PBGen.h">
 			</File>
 			<File
 				RelativePath=".\Properties.h">

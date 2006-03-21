@@ -22,7 +22,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../jrd/common.h"

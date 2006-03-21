@@ -29,7 +29,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../intlcpp/ldcommon.h"
 #include "../intlcpp/ld_proto.h"
 

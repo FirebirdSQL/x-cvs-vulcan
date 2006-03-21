@@ -3,7 +3,7 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version SO-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version LI-V2.0.0.4154 Vulcan 1.0 Development **********************/
 #line 1 "backup.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
@@ -47,7 +47,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <memory.h>
 #include <string.h>
@@ -83,7 +83,7 @@ static isc_db_handle
 
 static isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-static long
+static ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 static SLONG
@@ -279,8 +279,8 @@ static const char
 	 blr_message, 0, 4,0, 
 	    blr_cstring, 32,0, 
 	    blr_short, 0, 
+	    blr_cstring, 254,3, 
 	    blr_short, 0, 
-	    blr_cstring, 79,0, 
 	 blr_begin, 
 	    blr_for, 
 	       blr_rse, 2, 
@@ -307,10 +307,10 @@ static const char
 			blr_literal, blr_long, 0, 1,0,0,0,
 			blr_parameter, 0, 1,0, 
 		     blr_assignment, 
-			blr_field, 1, 18, 'R','D','B','$','M','E','S','S','A','G','E','_','N','U','M','B','E','R', 
+			blr_field, 1, 11, 'R','D','B','$','M','E','S','S','A','G','E', 
 			blr_parameter, 0, 2,0, 
 		     blr_assignment, 
-			blr_field, 1, 11, 'R','D','B','$','M','E','S','S','A','G','E', 
+			blr_field, 1, 18, 'R','D','B','$','M','E','S','S','A','G','E','_','N','U','M','B','E','R', 
 			blr_parameter, 0, 3,0, 
 		     blr_end, 
 	    blr_send, 0, 
@@ -1886,7 +1886,7 @@ static const char
 	    blr_quad, 0, 
 	    blr_cstring, 32,0, 
 	    blr_short, 0, 
-	    blr_cstring, 79,0, 
+	    blr_cstring, 254,3, 
 	 blr_begin, 
 	    blr_for, 
 	       blr_rse, 1, 
@@ -3642,9 +3642,9 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	tdgbl->relations = NULL;
 	tdgbl->BCK_capabilities = 0;
 
-	gds_trans = NULL;
+	gds_trans = NULL_HANDLE;
 
-	BURP_verbose(130, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose(130);
 	// msg 130 starting transaction 
 
 	if (tdgbl->gbl_sw_ignore_limbo)
@@ -3660,14 +3660,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	{
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_0);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_0);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 281 "backup.epp"
 		if (isc_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 283 "backup.epp"
@@ -3677,14 +3677,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	{
 		/*EXEC SQL SET TRANSACTION NAME gds_trans NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_2);
+		isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_2);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 288 "backup.epp"
 		if (isc_status[1])
 			/*EXEC SQL SET TRANSACTION NAME gds_trans;*/
 			{
-			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
+			isc_start_transaction (isc_status, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 290 "backup.epp"
@@ -3724,7 +3724,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 // Write global fields 
 
-	BURP_verbose(150, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose(150);
 	// msg 150  writing global fields 
 	write_global_fields();
 
@@ -3732,14 +3732,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	{
 		write_field_dimensions();
 
-		BURP_verbose(162, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(162);
 		// msg 162  writing shadow files 
 		write_shadow_files();
 	}
 
 // Write relations 
 
-	BURP_verbose(154, NULL, NULL, NULL, NULL, NULL);
+	BURP_verbose(154);
 	// msg 154 writing relations 
 
 	write_relations();
@@ -3747,23 +3747,23 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ffmptt)
 	{
 		// Write functions 
-		BURP_verbose(148, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(148);
 		// msg 148 writing functions 
 		write_functions();
 
 		// Write types 
-		BURP_verbose(161, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(161);
 		// msg 161  writing types 
 		write_types();
 
 		// Write filters 
-		BURP_verbose(146, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(146);
 		// msg 146 writing filters 
 		write_filters();
 
 		// Write generators 
 
-		BURP_verbose(164, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(164);
 		// msg 164  writing id generators 
 		write_generators();
 	}
@@ -3771,21 +3771,21 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ods8)
 	{
 		// Write procedures 
-		BURP_verbose(192, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(192);
 		// msg 192 writing stored procedures 
 		write_procedures();
 
 		// Write exceptions 
-		BURP_verbose(197, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(197);
 		// msg 197 writing exceptions 
 		write_exceptions();
 
 		// Write Character Sets 
-		BURP_verbose(msgVerbose_write_charsets, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(msgVerbose_write_charsets);
 		write_character_sets();
 
 		// Write Collations 
-		BURP_verbose(msgVerbose_write_collations, NULL, NULL, NULL, NULL,
+		BURP_verbose(msgVerbose_write_collations,
 					 NULL);
 		write_collations();
 
@@ -3812,10 +3812,10 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 /* now for the new triggers in rdb$triggers */
 	if (tdgbl->BCK_capabilities & BCK_ffmptt) {
-		BURP_verbose(159, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(159);
 		// msg 159  writing triggers 
 		write_triggers();
-		BURP_verbose(158, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(158);
 		// msg 158 writing trigger messages 
 		write_trigger_messages();
 		write_user_privileges();
@@ -3825,18 +3825,18 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 	if (tdgbl->BCK_capabilities & BCK_security)
 	{
-		isc_req_handle req_handle1 = NULL;
+		isc_req_handle req_handle1 = NULL_HANDLE;
 		/*FOR (REQUEST_HANDLE req_handle1)
 			X IN RDB$SECURITY_CLASSES WITH X.RDB$SECURITY_CLASS NOT STARTING "SQL$"*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_611), (char *) isc_611);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_611), (char *) isc_611);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 50, &isc_612, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 50, &isc_612, (short) 0);
 		   if (!isc_612.isc_616 || isc_status [1]) break;
 #line 430 "backup.epp"
 			put(tdgbl, rec_security_class);
@@ -3846,7 +3846,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 			MISC_terminate (/*X.RDB$SECURITY_CLASS*/
 					isc_612.isc_615, temp, l, sizeof(temp));
 #line 433 "backup.epp"
-			BURP_verbose (155, temp, NULL, NULL, NULL, NULL);
+			BURP_verbose (155, temp);
 			// msg 155 writing security class %s 
 			put_blr_blob (att_class_acl, (ISC_QUAD *)&/*X.RDB$ACL*/
 								  isc_612.isc_614);
@@ -3876,17 +3876,17 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ods8)
 	{
 		// Write relation constraints  
-		BURP_verbose(206, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(206);
 		// msg 206 writing relation constraints 
 		write_rel_constraints();
 
 		// Write referential constraints  
-		BURP_verbose(209, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(209);
 		// msg 209 writing referential constraints 
 		write_ref_constraints();
 
 		// Write check constraints  
-		BURP_verbose(210, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(210);
 		// msg 210 writing check constraints 
 		write_check_constraints();
 
@@ -3895,7 +3895,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (tdgbl->BCK_capabilities & BCK_ods9)
 	{
 		// Write SQL roles  
-		BURP_verbose(248, NULL, NULL, NULL, NULL, NULL);
+		BURP_verbose(248);
 		// msg 248 writing SQL roles 
 		write_sql_roles();
 	}
@@ -3905,60 +3905,64 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	put(tdgbl, (UCHAR) (rec_end));
 	
 	UINT64 cumul_count = MVOL_fini_write(&tdgbl->io_cnt, &tdgbl->io_ptr);
-	if (cumul_count <= MAX_SLONG) {
+	
+	if (cumul_count <= MAX_SLONG) 
+		{
 		SLONG tempcount = cumul_count;
-		BURP_verbose(176, (void*) tempcount, NULL, NULL, NULL, NULL);
+		BURP_verbose(176, tempcount);
 		// msg 176 closing file, committing, and finishing.  %ld bytes written 
-	}
-	else {
+		}
+	else 
+		{
 		char psz[64];
 		ib_sprintf(psz, "%" QUADFORMAT "d", cumul_count);
-		BURP_verbose(283, psz, NULL, NULL, NULL, NULL);
+		BURP_verbose(283, psz);
 		// msg 283 closing file, committing, and finishing.  %s bytes written 
-	}
+		}
+		
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 491 "backup.epp"
+	isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 495 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 492 "backup.epp"
+#line 496 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 494 "backup.epp"
+#line 498 "backup.epp"
 
 	if (gds_trans)
 		/*COMMIT gds_trans;*/
 		{
-		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
-#line 497 "backup.epp"
+		isc_commit_transaction (isc_status, (FB_API_HANDLE*) &gds_trans);;
+#line 501 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 498 "backup.epp"
+#line 502 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 500 "backup.epp"
+#line 504 "backup.epp"
 
 	/*FINISH*/
 	{
 	if (DB)
 	   isc_detach_database (isc_status, &DB);;
-#line 502 "backup.epp"
+#line 506 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 503 "backup.epp"
+#line 507 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 505 "backup.epp"
+#line 509 "backup.epp"
 
 	return FINI_OK;
 }
@@ -3998,8 +4002,8 @@ namespace // unnamed, private
    struct {
           char  isc_36 [32];	/* RDB$TRIGGER_NAME */
           short isc_37;	/* isc_utility */
-          short isc_38;	/* RDB$MESSAGE_NUMBER */
-          char  isc_39 [79];	/* RDB$MESSAGE */
+          char  isc_38 [1022];	/* RDB$MESSAGE */
+          short isc_39;	/* RDB$MESSAGE_NUMBER */
    } isc_35;
    struct {
           short isc_44;	/* isc_utility */
@@ -4309,7 +4313,7 @@ namespace // unnamed, private
           ISC_QUAD isc_335;	/* RDB$DESCRIPTION */
           char  isc_336 [32];	/* RDB$EXCEPTION_NAME */
           short isc_337;	/* isc_utility */
-          char  isc_338 [79];	/* RDB$MESSAGE */
+          char  isc_338 [1022];	/* RDB$MESSAGE */
    } isc_334;
    struct {
           char  isc_341 [32];	/* RDB$CHARACTER_SET_NAME */
@@ -4604,7 +4608,7 @@ namespace // unnamed, private
    struct {
           char  isc_574 [32];	/* RDB$RELATION_NAME */
    } isc_573;
-#line 511 "backup.epp"
+#line 515 "backup.epp"
 
 void compress(const UCHAR* data, ULONG length)
 {
@@ -4744,103 +4748,103 @@ BURP_FLD get_fields( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_get_fields_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_572), (char *) isc_572);
-		isc_vtov ((char*)relation->rel_name, (char*)isc_573.isc_574, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_572), (char *) isc_572);
+		isc_vtov ((const char*)relation->rel_name, (char*)isc_573.isc_574, 32);
 		if (tdgbl->handles_get_fields_req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_573, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_573, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 404, &isc_575, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 404, &isc_575, (short) 0);
 		   if (!isc_575.isc_587 || isc_status [1]) break;
-#line 648 "backup.epp"
+#line 652 "backup.epp"
 	
 			field = (BURP_FLD) BURP_alloc_zero(sizeof(burp_fld));
 			field->fld_number = count++;
 			field->fld_type = /*Y.RDB$FIELD_TYPE*/
 					  isc_575.isc_610;
-#line 652 "backup.epp"
+#line 656 "backup.epp"
 			field->fld_sub_type = /*Y.RDB$FIELD_SUB_TYPE*/
 					      isc_575.isc_609;
-#line 653 "backup.epp"
+#line 657 "backup.epp"
 			field->fld_length = /*Y.RDB$FIELD_LENGTH*/
 					    isc_575.isc_608;
-#line 654 "backup.epp"
+#line 658 "backup.epp"
 			field->fld_scale = /*Y.RDB$FIELD_SCALE*/
 					   isc_575.isc_607;
-#line 655 "backup.epp"
+#line 659 "backup.epp"
 			field->fld_id = /*X.RDB$FIELD_ID*/
 					isc_575.isc_606;
-#line 656 "backup.epp"
+#line 660 "backup.epp"
 	
 			if (!/*X.RDB$DESCRIPTION.NULL*/
 			     isc_575.isc_605)
-#line 658 "backup.epp"
+#line 662 "backup.epp"
 			{
 				blob_id = &/*X.RDB$DESCRIPTION*/
 					   isc_575.isc_586;
-#line 660 "backup.epp"
+#line 664 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_description = /*X.RDB$DESCRIPTION*/
 								 isc_575.isc_586;
-#line 662 "backup.epp"
+#line 666 "backup.epp"
 			}
 	
 			if (!/*X.RDB$QUERY_HEADER.NULL*/
 			     isc_575.isc_604)
-#line 665 "backup.epp"
+#line 669 "backup.epp"
 			{
 				blob_id = &/*X.RDB$QUERY_HEADER*/
 					   isc_575.isc_585;
-#line 667 "backup.epp"
+#line 671 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_query_header = /*X.RDB$QUERY_HEADER*/
 								  isc_575.isc_585;
-#line 669 "backup.epp"
+#line 673 "backup.epp"
 			}
 
 			if (/*X.RDB$FIELD_POSITION.NULL*/
 			    isc_575.isc_602)
-#line 672 "backup.epp"
+#line 676 "backup.epp"
 				field->fld_flags |= FLD_position_missing;
 			else
 				field->fld_position = /*X.RDB$FIELD_POSITION*/
 						      isc_575.isc_603;
-#line 675 "backup.epp"
+#line 679 "backup.epp"
 			field->fld_view_context = /*X.RDB$VIEW_CONTEXT*/
 						  isc_575.isc_601;
-#line 676 "backup.epp"
+#line 680 "backup.epp"
 			if (/*X.RDB$UPDATE_FLAG.NULL*/
 			    isc_575.isc_599)
-#line 677 "backup.epp"
+#line 681 "backup.epp"
 				field->fld_flags |= FLD_update_missing;
 			else
 				field->fld_update_flag = /*X.RDB$UPDATE_FLAG*/
 							 isc_575.isc_600;
-#line 680 "backup.epp"
+#line 684 "backup.epp"
 
 			COPY (/*X.RDB$FIELD_NAME*/
 			      isc_575.isc_584, field->fld_name);
-#line 682 "backup.epp"
+#line 686 "backup.epp"
 			COPY (/*X.RDB$FIELD_SOURCE*/
 			      isc_575.isc_583, field->fld_source);
-#line 683 "backup.epp"
+#line 687 "backup.epp"
 			COPY (/*X.RDB$BASE_FIELD*/
 			      isc_575.isc_582, field->fld_base);
-#line 684 "backup.epp"
+#line 688 "backup.epp"
 			COPY (/*X.RDB$QUERY_NAME*/
 			      isc_575.isc_581, field->fld_query_name);
-#line 685 "backup.epp"
+#line 689 "backup.epp"
 			COPY (/*X.RDB$EDIT_STRING*/
 			      isc_575.isc_598, field->fld_edit_string);
-#line 686 "backup.epp"
+#line 690 "backup.epp"
 			COPY (/*X.RDB$COMPLEX_NAME*/
 			      isc_575.isc_580, field->fld_complex_name);
-#line 687 "backup.epp"
+#line 691 "backup.epp"
 
 			blob_id = &/*Y.RDB$COMPUTED_BLR*/
 				   isc_575.isc_579;
-#line 689 "backup.epp"
+#line 693 "backup.epp"
 
 			if (blob_id->gds_quad_low || blob_id->gds_quad_high) {
 				field->fld_flags |= FLD_computed;
@@ -4848,22 +4852,22 @@ BURP_FLD get_fields( BURP_REL relation)
 
 			field->fld_system_flag = /*X.RDB$SYSTEM_FLAG*/
 						 isc_575.isc_597;
-#line 695 "backup.epp"
+#line 699 "backup.epp"
 
 			COPY (/*X.RDB$SECURITY_CLASS*/
 			      isc_575.isc_578, field->fld_security_class);
-#line 697 "backup.epp"
+#line 701 "backup.epp"
 
 			// use the fld_flags to mark the field as an array and
 			// to differentiate it from other blobs
 
 			if (/*Y.RDB$DIMENSIONS*/
 			    isc_575.isc_596) {
-#line 702 "backup.epp"
+#line 706 "backup.epp"
 				field->fld_flags |= FLD_array;
 				field->fld_dimensions = /*Y.RDB$DIMENSIONS*/
 							isc_575.isc_596;
-#line 704 "backup.epp"
+#line 708 "backup.epp"
 				if (field->fld_dimensions < 0) {
 					BURP_error_redirect (NULL, 52, field->fld_name, NULL);
 				}
@@ -4873,54 +4877,54 @@ BURP_FLD get_fields( BURP_REL relation)
 
 			if (!/*X.RDB$NULL_FLAG.NULL*/
 			     isc_575.isc_594) {
-#line 712 "backup.epp"
+#line 716 "backup.epp"
 				field->fld_null_flag = /*X.RDB$NULL_FLAG*/
 						       isc_575.isc_595;
-#line 713 "backup.epp"
+#line 717 "backup.epp"
 				field->fld_flags |= FLD_null_flag;
 			}
 
 			if (!/*X.RDB$DEFAULT_VALUE.NULL*/
 			     isc_575.isc_593) {
-#line 717 "backup.epp"
+#line 721 "backup.epp"
 				blob_id = &/*X.RDB$DEFAULT_VALUE*/
 					   isc_575.isc_577;
-#line 718 "backup.epp"
+#line 722 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high) {
 					field->fld_default_value = /*X.RDB$DEFAULT_VALUE*/
 								   isc_575.isc_577;
-#line 720 "backup.epp"
+#line 724 "backup.epp"
 				}
 			}
 
 			if (!/*X.RDB$DEFAULT_SOURCE.NULL*/
 			     isc_575.isc_592) {
-#line 724 "backup.epp"
+#line 728 "backup.epp"
 				blob_id = &/*X.RDB$DEFAULT_SOURCE*/
 					   isc_575.isc_576;
-#line 725 "backup.epp"
+#line 729 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high) {
 					field->fld_default_source = /*X.RDB$DEFAULT_SOURCE*/
 								    isc_575.isc_576;
-#line 727 "backup.epp"
+#line 731 "backup.epp"
 				}
 			}
 
 			if (!(/*Y.RDB$CHARACTER_SET_ID.NULL*/
 			      isc_575.isc_590)) {
-#line 731 "backup.epp"
+#line 735 "backup.epp"
 				field->fld_character_set_id = /*Y.RDB$CHARACTER_SET_ID*/
 							      isc_575.isc_591;
-#line 732 "backup.epp"
+#line 736 "backup.epp"
 				field->fld_flags |= FLD_charset_flag;
 			}
 
 			if (!/*X.RDB$COLLATION_ID.NULL*/
 			     isc_575.isc_588) {
-#line 736 "backup.epp"
+#line 740 "backup.epp"
 				field->fld_collation_id = /*X.RDB$COLLATION_ID*/
 							  isc_575.isc_589;
-#line 737 "backup.epp"
+#line 741 "backup.epp"
 				field->fld_flags |= FLD_collate_flag;
 			}
 	
@@ -4930,16 +4934,16 @@ BURP_FLD get_fields( BURP_REL relation)
 		/*END_FOR;*/
 		   }
 		   };
-#line 744 "backup.epp"
+#line 748 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 745 "backup.epp"
+#line 749 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 747 "backup.epp"
+#line 751 "backup.epp"
 	}
 	else {
 		/*FOR (REQUEST_HANDLE tdgbl->handles_get_fields_req_handle1)
@@ -4948,90 +4952,90 @@ BURP_FLD get_fields( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_get_fields_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_546), (char *) isc_546);
-		isc_vtov ((char*)relation->rel_name, (char*)isc_547.isc_548, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_546), (char *) isc_546);
+		isc_vtov ((const char*)relation->rel_name, (char*)isc_547.isc_548, 32);
 		if (tdgbl->handles_get_fields_req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 336, &isc_549, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 336, &isc_549, (short) 0);
 		   if (!isc_549.isc_558 || isc_status [1]) break;
-#line 753 "backup.epp"
+#line 757 "backup.epp"
 
 			field = (BURP_FLD) BURP_alloc_zero (sizeof(burp_fld));
 			field->fld_number = count++;
 			field->fld_type = /*Y.RDB$FIELD_TYPE*/
 					  isc_549.isc_571;
-#line 757 "backup.epp"
+#line 761 "backup.epp"
 			field->fld_sub_type = /*Y.RDB$FIELD_SUB_TYPE*/
 					      isc_549.isc_570;
-#line 758 "backup.epp"
+#line 762 "backup.epp"
 			field->fld_length = /*Y.RDB$FIELD_LENGTH*/
 					    isc_549.isc_569;
-#line 759 "backup.epp"
+#line 763 "backup.epp"
 			field->fld_scale = /*Y.RDB$FIELD_SCALE*/
 					   isc_549.isc_568;
-#line 760 "backup.epp"
+#line 764 "backup.epp"
 			field->fld_id = /*X.RDB$FIELD_ID*/
 					isc_549.isc_567;
-#line 761 "backup.epp"
+#line 765 "backup.epp"
 			if (!/*X.RDB$DESCRIPTION.NULL*/
 			     isc_549.isc_566) {
-#line 762 "backup.epp"
+#line 766 "backup.epp"
 				blob_id = &/*X.RDB$DESCRIPTION*/
 					   isc_549.isc_557;
-#line 763 "backup.epp"
+#line 767 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_description = /*X.RDB$DESCRIPTION*/
 								 isc_549.isc_557;
-#line 765 "backup.epp"
+#line 769 "backup.epp"
 			}
 			if (!/*X.RDB$QUERY_HEADER.NULL*/
 			     isc_549.isc_565) {
-#line 767 "backup.epp"
+#line 771 "backup.epp"
 				blob_id = &/*X.RDB$QUERY_HEADER*/
 					   isc_549.isc_556;
-#line 768 "backup.epp"
+#line 772 "backup.epp"
 				if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 					field->fld_query_header = /*X.RDB$QUERY_HEADER*/
 								  isc_549.isc_556;
-#line 770 "backup.epp"
+#line 774 "backup.epp"
 			}
 			if (/*X.RDB$FIELD_POSITION.NULL*/
 			    isc_549.isc_563)
-#line 772 "backup.epp"
+#line 776 "backup.epp"
 				field->fld_flags |= FLD_position_missing;
 			else
 				field->fld_position = /*X.RDB$FIELD_POSITION*/
 						      isc_549.isc_564;
-#line 775 "backup.epp"
+#line 779 "backup.epp"
 			field->fld_view_context = /*X.RDB$VIEW_CONTEXT*/
 						  isc_549.isc_562;
-#line 776 "backup.epp"
+#line 780 "backup.epp"
 			if (/*X.RDB$UPDATE_FLAG.NULL*/
 			    isc_549.isc_560)
-#line 777 "backup.epp"
+#line 781 "backup.epp"
 				field->fld_flags |= FLD_update_missing;
 			else
 				field->fld_update_flag = /*X.RDB$UPDATE_FLAG*/
 							 isc_549.isc_561;
-#line 780 "backup.epp"
+#line 784 "backup.epp"
 			COPY (/*X.RDB$FIELD_NAME*/
 			      isc_549.isc_555, field->fld_name);
-#line 781 "backup.epp"
+#line 785 "backup.epp"
 			COPY (/*X.RDB$FIELD_SOURCE*/
 			      isc_549.isc_554, field->fld_source);
-#line 782 "backup.epp"
+#line 786 "backup.epp"
 			COPY (/*X.RDB$BASE_FIELD*/
 			      isc_549.isc_553, field->fld_base);
-#line 783 "backup.epp"
+#line 787 "backup.epp"
 			COPY (/*X.RDB$QUERY_NAME*/
 			      isc_549.isc_552, field->fld_query_name);
-#line 784 "backup.epp"
+#line 788 "backup.epp"
 			COPY (/*X.RDB$EDIT_STRING*/
 			      isc_549.isc_559, field->fld_edit_string);
-#line 785 "backup.epp"
+#line 789 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
 				/*FOR (REQUEST_HANDLE tdgbl->handles_get_fields_req_handle2)
@@ -5039,37 +5043,37 @@ BURP_FLD get_fields( BURP_REL relation)
 					RFR.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle2)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle2, (short) sizeof (isc_539), (char *) isc_539);
-				isc_vtov ((char*)isc_549.isc_551, (char*)isc_540.isc_541, 32);
-				isc_vtov ((char*)isc_549.isc_555, (char*)isc_540.isc_542, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (short) sizeof (isc_539), (char *) isc_539);
+				isc_vtov ((const char*)isc_549.isc_551, (char*)isc_540.isc_541, 32);
+				isc_vtov ((const char*)isc_549.isc_555, (char*)isc_540.isc_542, 32);
 				if (tdgbl->handles_get_fields_req_handle2)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_540, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_540, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle2, (short) 1, (short) 34, &isc_543, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (short) 1, (short) 34, &isc_543, (short) 0);
 				   if (!isc_543.isc_545 || isc_status [1]) break;
-#line 790 "backup.epp"
+#line 794 "backup.epp"
 					COPY (/*RFR.RDB$COMPLEX_NAME*/
 					      isc_543.isc_544, field->fld_complex_name);
-#line 791 "backup.epp"
+#line 795 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 792 "backup.epp"
+#line 796 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 793 "backup.epp"
+#line 797 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 795 "backup.epp"
+#line 799 "backup.epp"
 			}
 			blob_id = &/*Y.RDB$COMPUTED_BLR*/
 				   isc_549.isc_550;
-#line 797 "backup.epp"
+#line 801 "backup.epp"
 			if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 				field->fld_flags |= FLD_computed;
 			if (tdgbl->BCK_capabilities & BCK_rfr_sys_flag)
@@ -5080,33 +5084,33 @@ BURP_FLD get_fields( BURP_REL relation)
 					AND RFR.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle3)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle3, (short) sizeof (isc_532), (char *) isc_532);
-				isc_vtov ((char*)isc_549.isc_555, (char*)isc_533.isc_534, 32);
-				isc_vtov ((char*)relation->rel_name, (char*)isc_533.isc_535, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (short) sizeof (isc_532), (char *) isc_532);
+				isc_vtov ((const char*)isc_549.isc_555, (char*)isc_533.isc_534, 32);
+				isc_vtov ((const char*)relation->rel_name, (char*)isc_533.isc_535, 32);
 				if (tdgbl->handles_get_fields_req_handle3)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_533, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_533, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle3, (short) 1, (short) 4, &isc_536, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (short) 1, (short) 4, &isc_536, (short) 0);
 				   if (!isc_536.isc_537 || isc_status [1]) break;
-#line 805 "backup.epp"
+#line 809 "backup.epp"
 					field->fld_system_flag = /*RFR.RDB$SYSTEM_FLAG*/
 								 isc_536.isc_538;
-#line 806 "backup.epp"
+#line 810 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 807 "backup.epp"
+#line 811 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 808 "backup.epp"
+#line 812 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 810 "backup.epp"
+#line 814 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_security)
 			{
@@ -5116,33 +5120,33 @@ BURP_FLD get_fields( BURP_REL relation)
 					AND RFR.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle4)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle4, (short) sizeof (isc_525), (char *) isc_525);
-				isc_vtov ((char*)isc_549.isc_555, (char*)isc_526.isc_527, 32);
-				isc_vtov ((char*)relation->rel_name, (char*)isc_526.isc_528, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (short) sizeof (isc_525), (char *) isc_525);
+				isc_vtov ((const char*)isc_549.isc_555, (char*)isc_526.isc_527, 32);
+				isc_vtov ((const char*)relation->rel_name, (char*)isc_526.isc_528, 32);
 				if (tdgbl->handles_get_fields_req_handle4)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_526, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_526, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle4, (short) 1, (short) 34, &isc_529, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (short) 1, (short) 34, &isc_529, (short) 0);
 				   if (!isc_529.isc_531 || isc_status [1]) break;
-#line 817 "backup.epp"
+#line 821 "backup.epp"
 					COPY (/*RFR.RDB$SECURITY_CLASS*/
 					      isc_529.isc_530, field->fld_security_class);
-#line 818 "backup.epp"
+#line 822 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 819 "backup.epp"
+#line 823 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 820 "backup.epp"
+#line 824 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 822 "backup.epp"
+#line 826 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
@@ -5150,26 +5154,26 @@ BURP_FLD get_fields( BURP_REL relation)
 					RF IN RDB$FIELDS WITH RF.RDB$FIELD_NAME = X.RDB$FIELD_SOURCE*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle5)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle5, (short) sizeof (isc_519), (char *) isc_519);
-				isc_vtov ((char*)isc_549.isc_554, (char*)isc_520.isc_521, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (short) sizeof (isc_519), (char *) isc_519);
+				isc_vtov ((const char*)isc_549.isc_554, (char*)isc_520.isc_521, 32);
 				if (tdgbl->handles_get_fields_req_handle5)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle5, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_520, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_520, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle5, (short) 1, (short) 4, &isc_522, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (short) 1, (short) 4, &isc_522, (short) 0);
 				   if (!isc_522.isc_523 || isc_status [1]) break;
-#line 827 "backup.epp"
+#line 831 "backup.epp"
 					// use the fld_flags to mark the field as an array and
 					// to differentiate it from other blobs
 					if (/*RF.RDB$DIMENSIONS*/
 					    isc_522.isc_524)
-#line 830 "backup.epp"
+#line 834 "backup.epp"
 					{
 						field->fld_flags |= FLD_array;
 						field->fld_dimensions = /*RF.RDB$DIMENSIONS*/
 									isc_522.isc_524;
-#line 833 "backup.epp"
+#line 837 "backup.epp"
 						if (field->fld_dimensions < 0) {
 							BURP_error_redirect (NULL, 52, field->fld_name, NULL);
 						}
@@ -5179,16 +5183,16 @@ BURP_FLD get_fields( BURP_REL relation)
 				/*END_FOR;*/
 				   }
 				   };
-#line 840 "backup.epp"
+#line 844 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 841 "backup.epp"
+#line 845 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 843 "backup.epp"
+#line 847 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -5199,82 +5203,82 @@ BURP_FLD get_fields( BURP_REL relation)
 					AND X2.RDB$FIELD_SOURCE EQ F2.RDB$FIELD_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle6)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle6, (short) sizeof (isc_503), (char *) isc_503);
-				isc_vtov ((char*)relation->rel_name, (char*)isc_504.isc_505, 32);
-				isc_vtov ((char*)isc_549.isc_555, (char*)isc_504.isc_506, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (short) sizeof (isc_503), (char *) isc_503);
+				isc_vtov ((const char*)relation->rel_name, (char*)isc_504.isc_505, 32);
+				isc_vtov ((const char*)isc_549.isc_555, (char*)isc_504.isc_506, 32);
 				if (tdgbl->handles_get_fields_req_handle6)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle6, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_504, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_504, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle6, (short) 1, (short) 34, &isc_507, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (short) 1, (short) 34, &isc_507, (short) 0);
 				   if (!isc_507.isc_510 || isc_status [1]) break;
-#line 851 "backup.epp"
+#line 855 "backup.epp"
 
 					if (!/*X2.RDB$NULL_FLAG.NULL*/
 					     isc_507.isc_517)
-#line 853 "backup.epp"
+#line 857 "backup.epp"
 					{
 						field->fld_null_flag = /*X2.RDB$NULL_FLAG*/
 								       isc_507.isc_518;
-#line 855 "backup.epp"
+#line 859 "backup.epp"
 						field->fld_flags |= FLD_null_flag;
 					}
 					if (!/*X2.RDB$DEFAULT_VALUE.NULL*/
 					     isc_507.isc_516)
-#line 858 "backup.epp"
+#line 862 "backup.epp"
 					{
 						blob_id = &/*X2.RDB$DEFAULT_VALUE*/
 							   isc_507.isc_509;
-#line 860 "backup.epp"
+#line 864 "backup.epp"
 						if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 							field->fld_default_value = /*X2.RDB$DEFAULT_VALUE*/
 										   isc_507.isc_509;
-#line 862 "backup.epp"
+#line 866 "backup.epp"
 					}
 					if (!/*X2.RDB$DEFAULT_SOURCE.NULL*/
 					     isc_507.isc_515)
-#line 864 "backup.epp"
+#line 868 "backup.epp"
 					{
 						blob_id = &/*X2.RDB$DEFAULT_SOURCE*/
 							   isc_507.isc_508;
-#line 866 "backup.epp"
+#line 870 "backup.epp"
 						if (blob_id->gds_quad_low || blob_id->gds_quad_high)
 							field->fld_default_source = /*X2.RDB$DEFAULT_SOURCE*/
 										    isc_507.isc_508;
-#line 868 "backup.epp"
+#line 872 "backup.epp"
 					}
 					if (!(/*F2.RDB$CHARACTER_SET_ID.NULL*/
 					      isc_507.isc_513))
-#line 870 "backup.epp"
+#line 874 "backup.epp"
 					{
 						field->fld_character_set_id = /*F2.RDB$CHARACTER_SET_ID*/
 									      isc_507.isc_514;
-#line 872 "backup.epp"
+#line 876 "backup.epp"
 						field->fld_flags |= FLD_charset_flag;
 					}
 					if (!/*X2.RDB$COLLATION_ID.NULL*/
 					     isc_507.isc_511)
-#line 875 "backup.epp"
+#line 879 "backup.epp"
 					{
 						field->fld_collation_id = /*X2.RDB$COLLATION_ID*/
 									  isc_507.isc_512;
-#line 877 "backup.epp"
+#line 881 "backup.epp"
 						field->fld_flags |= FLD_collate_flag;
 					}
 				/*END_FOR;*/
 				   }
 				   };
-#line 880 "backup.epp"
+#line 884 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 881 "backup.epp"
+#line 885 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 883 "backup.epp"
+#line 887 "backup.epp"
 			}
 	
 			field->fld_next = fields;
@@ -5283,16 +5287,16 @@ BURP_FLD get_fields( BURP_REL relation)
 		/*END_FOR;*/
 		   }
 		   };
-#line 889 "backup.epp"
+#line 893 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 890 "backup.epp"
+#line 894 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 892 "backup.epp"
+#line 896 "backup.epp"
 	}
 
 	return fields;
@@ -5315,7 +5319,7 @@ SINT64 get_gen_id( const TEXT* name, SSHORT name_len)
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	isc_handle gen_id_reqh = NULL;
+	isc_handle  gen_id_reqh = NULL_HANDLE;
 	UCHAR* blr = blr_buffer;
 
 /* If this is ODS 10 (IB version 6.0) or greater, build BLR to retrieve
@@ -5462,43 +5466,43 @@ void get_ranges( BURP_FLD field)
 		SORTED BY X.RDB$DIMENSION*/
 	{
         if (!tdgbl->handles_get_ranges_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) sizeof (isc_495), (char *) isc_495);
-	isc_vtov ((char*)field->fld_source, (char*)isc_496.isc_497, 32);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) sizeof (isc_495), (char *) isc_495);
+	isc_vtov ((const char*)field->fld_source, (char*)isc_496.isc_497, 32);
 	if (tdgbl->handles_get_ranges_req_handle1)
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_ranges_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_496, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_496, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) 1, (short) 12, &isc_498, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) 1, (short) 12, &isc_498, (short) 0);
 	   if (!isc_498.isc_501 || isc_status [1]) break; 
-#line 1059 "backup.epp"
+#line 1063 "backup.epp"
 	
 		if (count != /*X.RDB$DIMENSION*/
 			     isc_498.isc_502)
-#line 1061 "backup.epp"
+#line 1065 "backup.epp"
 			BURP_error_redirect (NULL, 52, field->fld_name, NULL);
 			// msg 52 array dimension for field %s is invalid 
 		*rp++ = /*X.RDB$LOWER_BOUND*/
 			isc_498.isc_500;
-#line 1064 "backup.epp"
+#line 1068 "backup.epp"
 		*rp++ = /*X.RDB$UPPER_BOUND*/
 			isc_498.isc_499;
-#line 1065 "backup.epp"
+#line 1069 "backup.epp"
 		count++;
 	
 	/*END_FOR;*/
 	   }
 	   };
-#line 1068 "backup.epp"
+#line 1072 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 1069 "backup.epp"
+#line 1073 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 1071 "backup.epp"
+#line 1075 "backup.epp"
 
 	if (count != field->fld_dimensions)
 		BURP_error_redirect(NULL, 52, field->fld_name, NULL);
@@ -5621,23 +5625,29 @@ void put_array( BURP_FLD field, BURP_REL relation, ISC_QUAD * blob_id)
 
 	ISC_STATUS_ARRAY status_vector;
 	ULONG return_length = 0;
+	
 	if (isc_get_slice(status_vector, &DB, &gds_trans, blob_id,
 					  blr_length, (const char*) blr_buffer,
 					  0,	// param length for subset of an array handling
 					  NULL,	// param for subset of an array handling
-					  slice_length, slice, (SLONG*) &return_length))
-	{
-		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
+					  slice_length, slice, (ISC_LONG*) &return_length))
+		{
+		BURP_print(81, field->fld_name);
 		// msg 81 error accessing blob field %s -- continuing 
 		BURP_print_status(status_vector);
+		
 #ifdef DEBUG
 		PRETTY_print_sdl(blr_buffer, NULL, NULL, 0);
 #endif
+
 		// CVC: At this point I would expected calls to deallocate memory
 		// See the end of this function.
+		
 		BURP_free(slice);
+		
 		if (xdr_buffer.lstr_allocated)
 			BURP_free(xdr_buffer.lstr_address);
+			
 		return;
 	}
 
@@ -5732,7 +5742,7 @@ void put_asciz( const SCHAR attribute, const TEXT* string)
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	ULONG l = strlen(string);
+	ULONG l = (ULONG) strlen(string);
 
 	put(tdgbl, (UCHAR) (attribute));
 	put(tdgbl, (UCHAR) (l));
@@ -5765,11 +5775,11 @@ void put_blob( BURP_FLD field, ISC_QUAD * blob_id, ULONG count)
 
 // Open the blob and get it's vital statistics 
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
-		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
+		BURP_print(81, field->fld_name);
 		// msg 81 error accessing blob field %s -- continuing 
 		BURP_print_status(status_vector);
 		return;
@@ -5814,7 +5824,7 @@ void put_blob( BURP_FLD field, ISC_QUAD * blob_id, ULONG count)
 			break;
 
 		default:
-			BURP_error_redirect(NULL, 21, (void*) (ULONG) item, NULL);
+			BURP_error_redirect(NULL, 21, (void*) (IPTR) item, NULL);
 			// msg 21 don't understand blob info item %ld 
 		}
 	}
@@ -5882,7 +5892,7 @@ bool put_blr_blob( SCHAR attribute, ISC_QUAD * blob_id)
 
 // Open the blob and get it's vital statistics 
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
@@ -5920,7 +5930,7 @@ bool put_blr_blob( SCHAR attribute, ISC_QUAD * blob_id)
 			break;
 
 		default:
-			BURP_print(79, (void *) (ULONG) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, (void *) (IPTR) item);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -6099,7 +6109,7 @@ void put_data(BURP_REL relation)
 			break;
 
 		default:
-			BURP_error_redirect(NULL, 26, (void *) (SLONG) field->fld_type, NULL);
+			BURP_error_redirect(NULL, 26, (void *) (IPTR) field->fld_type, NULL);
 			// msg 26 datatype %ld not understood 
 			break;
 		}
@@ -6193,7 +6203,7 @@ void put_data(BURP_REL relation)
 
 // Compile request 
 
-	isc_handle request = NULL;
+	isc_handle  request = NULL_HANDLE;
 	SSHORT blr_length = blr - blr_buffer;
 	if (isc_compile_request(status_vector, &DB, &request,
 							blr_length, (const SCHAR*) blr_buffer))
@@ -6205,7 +6215,7 @@ void put_data(BURP_REL relation)
 
 	BURP_free(blr_buffer);
 	
-	BURP_verbose(142, relation->rel_name, NULL, NULL, NULL, NULL);
+	BURP_verbose(142, relation->rel_name);
 	// msg 142  writing data for relation %s 
 
 	if (isc_start_request(status_vector, &request, &gds_trans, 0))
@@ -6244,7 +6254,7 @@ void put_data(BURP_REL relation)
 		records++;
 		// Verbose records 
 		if ((records % BACKUP_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(108, (void *) (SLONG) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(108, records);
 
 		put(tdgbl, (UCHAR) (rec_data));
 		put_numeric(att_data_length, record_length);
@@ -6295,7 +6305,7 @@ void put_data(BURP_REL relation)
 	if (xdr_buffer.lstr_address)
 		BURP_free(xdr_buffer.lstr_address);
 
-	BURP_verbose(108, (void *) (SLONG) records, NULL, NULL, NULL, NULL);
+	BURP_verbose(108, records);
 // msg 108 %ld records written 
 
 	if (isc_release_request(status_vector, &request))
@@ -6338,16 +6348,16 @@ void put_index( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_put_index_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_478), (char *) isc_478);
-		isc_vtov ((char*)relation->rel_name, (char*)isc_479.isc_480, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_478), (char *) isc_478);
+		isc_vtov ((const char*)relation->rel_name, (char*)isc_479.isc_480, 32);
 		if (tdgbl->handles_put_index_req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_479, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_479, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 104, &isc_481, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 104, &isc_481, (short) 0);
 		   if (!isc_481.isc_487 || isc_status [1]) break;
-#line 1908 "backup.epp"
+#line 1918 "backup.epp"
 	
 			count = 0;
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle2)
@@ -6358,65 +6368,63 @@ void put_index( BURP_REL relation)
 				RFR.RDB$RELATION_NAME = relation->rel_name*/
 			{
                         if (!tdgbl->handles_put_index_req_handle2)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_472), (char *) isc_472);
-			isc_vtov ((char*)relation->rel_name, (char*)isc_473.isc_474, 32);
-			isc_vtov ((char*)isc_481.isc_486, (char*)isc_473.isc_475, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_472), (char *) isc_472);
+			isc_vtov ((const char*)relation->rel_name, (char*)isc_473.isc_474, 32);
+			isc_vtov ((const char*)isc_481.isc_486, (char*)isc_473.isc_475, 32);
 			if (tdgbl->handles_put_index_req_handle2)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_473, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_473, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 2, &isc_476, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 2, &isc_476, (short) 0);
 			   if (!isc_476.isc_477 || isc_status [1]) break; 
-#line 1916 "backup.epp"
+#line 1926 "backup.epp"
 	
 				count++;
 	
 			/*END_FOR;*/
 			   }
 			   };
-#line 1920 "backup.epp"
+#line 1930 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 1921 "backup.epp"
+#line 1931 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 1923 "backup.epp"
+#line 1933 "backup.epp"
 	
 			if (count != (ULONG) /*X.RDB$SEGMENT_COUNT*/
 					     isc_481.isc_494) 
-#line 1925 "backup.epp"
+#line 1935 "backup.epp"
 			{
 				BURP_print(180, /*X.RDB$INDEX_NAME*/
-						isc_481.isc_486, (void*) count,
-#line 1927 "backup.epp"
-							(void*)(ULONG) /*X.RDB$SEGMENT_COUNT*/
-								       isc_481.isc_494, NULL, NULL);
-#line 1928 "backup.epp"
+						isc_481.isc_486, count, /*X.RDB$SEGMENT_COUNT*/
+	 isc_481.isc_494);
+#line 1937 "backup.epp"
 				continue;
 			}
 	
 			put(tdgbl, rec_index);
 			const ULONG l = PUT_TEXT (att_index_name, /*X.RDB$INDEX_NAME*/
 								  isc_481.isc_486);
-#line 1933 "backup.epp"
+#line 1942 "backup.epp"
 			MISC_terminate (/*X.RDB$INDEX_NAME*/
 					isc_481.isc_486, temp, l, sizeof(temp));
-#line 1934 "backup.epp"
-			BURP_verbose (151, temp, NULL, NULL, NULL, NULL);
+#line 1943 "backup.epp"
+			BURP_verbose (151, temp);
 			// msg 151 writing index %s 
 			put_numeric (att_segment_count, /*X.RDB$SEGMENT_COUNT*/
 							isc_481.isc_494);
-#line 1937 "backup.epp"
+#line 1946 "backup.epp"
 			put_numeric (att_index_inactive, /*X.RDB$INDEX_INACTIVE*/
 							 isc_481.isc_493);
-#line 1938 "backup.epp"
+#line 1947 "backup.epp"
 			put_numeric (att_index_unique_flag, /*X.RDB$UNIQUE_FLAG*/
 							    isc_481.isc_492);
-#line 1939 "backup.epp"
+#line 1948 "backup.epp"
 	
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle5)
 				Y IN RDB$INDEX_SEGMENTS WITH 
@@ -6424,78 +6432,78 @@ void put_index( BURP_REL relation)
 				SORTED BY Y.RDB$FIELD_POSITION*/
 			{
                         if (!tdgbl->handles_put_index_req_handle5)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_466), (char *) isc_466);
-			isc_vtov ((char*)isc_481.isc_486, (char*)isc_467.isc_468, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_466), (char *) isc_466);
+			isc_vtov ((const char*)isc_481.isc_486, (char*)isc_467.isc_468, 32);
 			if (tdgbl->handles_put_index_req_handle5)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_467, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_467, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_469, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_469, (short) 0);
 			   if (!isc_469.isc_471 || isc_status [1]) break;
-#line 1944 "backup.epp"
+#line 1953 "backup.epp"
 	
 				PUT_TEXT (att_index_field_name, /*Y.RDB$FIELD_NAME*/
 								isc_469.isc_470);
-#line 1946 "backup.epp"
+#line 1955 "backup.epp"
 	
 			/*END_FOR;*/
 			   }
 			   };
-#line 1948 "backup.epp"
+#line 1957 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 1949 "backup.epp"
+#line 1958 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 1951 "backup.epp"
+#line 1960 "backup.epp"
 	
 			put_source_blob (att_index_description2, att_index_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_481.isc_485);
-#line 1953 "backup.epp"
+#line 1962 "backup.epp"
 			put_numeric (att_index_type, /*X.RDB$INDEX_TYPE*/
 						     isc_481.isc_491);
-#line 1954 "backup.epp"
+#line 1963 "backup.epp"
 	
 			if (!/*X.RDB$EXPRESSION_SOURCE.NULL*/
 			     isc_481.isc_490)
-#line 1956 "backup.epp"
+#line 1965 "backup.epp"
 				put_source_blob (att_index_expression_source,
 								 att_index_expression_source,
 								 (ISC_QUAD *)&/*X.RDB$EXPRESSION_SOURCE*/
 									      isc_481.isc_484);
-#line 1959 "backup.epp"
+#line 1968 "backup.epp"
 			if (!/*X.RDB$EXPRESSION_BLR.NULL*/
 			     isc_481.isc_489)
-#line 1960 "backup.epp"
+#line 1969 "backup.epp"
 				put_blr_blob (att_index_expression_blr,
 							  (ISC_QUAD *)&/*X.RDB$EXPRESSION_BLR*/
 								       isc_481.isc_483);
-#line 1962 "backup.epp"
+#line 1971 "backup.epp"
 			if (!/*X.RDB$FOREIGN_KEY.NULL*/
 			     isc_481.isc_488)
-#line 1963 "backup.epp"
+#line 1972 "backup.epp"
 				PUT_TEXT (att_index_foreign_key, /*X.RDB$FOREIGN_KEY*/
 								 isc_481.isc_482);
-#line 1964 "backup.epp"
+#line 1973 "backup.epp"
 			put(tdgbl, att_end);
 	
 		/*END_FOR;*/
 		   }
 		   };
-#line 1967 "backup.epp"
+#line 1976 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 1968 "backup.epp"
+#line 1977 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 1970 "backup.epp"
+#line 1979 "backup.epp"
 	}
 	else
 	{
@@ -6504,16 +6512,16 @@ void put_index( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_put_index_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_457), (char *) isc_457);
-		isc_vtov ((char*)relation->rel_name, (char*)isc_458.isc_459, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_457), (char *) isc_457);
+		isc_vtov ((const char*)relation->rel_name, (char*)isc_458.isc_459, 32);
 		if (tdgbl->handles_put_index_req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_458, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_458, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 46, &isc_460, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 46, &isc_460, (short) 0);
 		   if (!isc_460.isc_463 || isc_status [1]) break;
-#line 1976 "backup.epp"
+#line 1985 "backup.epp"
 	
 			count = 0;
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle2)
@@ -6521,16 +6529,16 @@ void put_index( BURP_REL relation)
 				I_S.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 			{
                         if (!tdgbl->handles_put_index_req_handle2)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_451), (char *) isc_451);
-			isc_vtov ((char*)isc_460.isc_462, (char*)isc_452.isc_453, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_451), (char *) isc_451);
+			isc_vtov ((const char*)isc_460.isc_462, (char*)isc_452.isc_453, 32);
 			if (tdgbl->handles_put_index_req_handle2)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_452, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_452, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 34, &isc_454, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 34, &isc_454, (short) 0);
 			   if (!isc_454.isc_456 || isc_status [1]) break;
-#line 1981 "backup.epp"
+#line 1990 "backup.epp"
 				bool match = false;
 	
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle3)
@@ -6539,241 +6547,239 @@ void put_index( BURP_REL relation)
 					RFR.RDB$RELATION_NAME = relation->rel_name*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle3)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle3, (short) sizeof (isc_445), (char *) isc_445);
-				isc_vtov ((char*)relation->rel_name, (char*)isc_446.isc_447, 32);
-				isc_vtov ((char*)isc_454.isc_455, (char*)isc_446.isc_448, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (short) sizeof (isc_445), (char *) isc_445);
+				isc_vtov ((const char*)relation->rel_name, (char*)isc_446.isc_447, 32);
+				isc_vtov ((const char*)isc_454.isc_455, (char*)isc_446.isc_448, 32);
 				if (tdgbl->handles_put_index_req_handle3)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_446, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_446, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle3, (short) 1, (short) 2, &isc_449, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (short) 1, (short) 2, &isc_449, (short) 0);
 				   if (!isc_449.isc_450 || isc_status [1]) break; 
-#line 1987 "backup.epp"
+#line 1996 "backup.epp"
 					match = true;
 				/*END_FOR;*/
 				   }
 				   };
-#line 1989 "backup.epp"
+#line 1998 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 1990 "backup.epp"
+#line 1999 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 1992 "backup.epp"
+#line 2001 "backup.epp"
 				if (!match)
 					BURP_print (179, /*I_S.RDB$FIELD_NAME*/
 							 isc_454.isc_455, /*X.RDB$INDEX_NAME*/
-  isc_460.isc_462, NULL, NULL, NULL); 
-#line 1994 "backup.epp"
+  isc_460.isc_462); 
+#line 2003 "backup.epp"
 				else
 					count++;
 			/*END_FOR;*/
 			   }
 			   };
-#line 1997 "backup.epp"
+#line 2006 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 1998 "backup.epp"
+#line 2007 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2000 "backup.epp"
+#line 2009 "backup.epp"
 	
 			if (count != (ULONG) /*X.RDB$SEGMENT_COUNT*/
 					     isc_460.isc_465) 
-#line 2002 "backup.epp"
+#line 2011 "backup.epp"
 			{
 				BURP_print(180, /*X.RDB$INDEX_NAME*/
-						isc_460.isc_462, (void*) count,
-#line 2004 "backup.epp"
-						   (void*)(ULONG) /*X.RDB$SEGMENT_COUNT*/
-								  isc_460.isc_465, NULL, NULL);
-#line 2005 "backup.epp"
+						isc_460.isc_462, count, /*X.RDB$SEGMENT_COUNT*/
+	 isc_460.isc_465);
+#line 2013 "backup.epp"
 				continue; 
 			}
 	
 			put(tdgbl, rec_index);
 			const ULONG l = PUT_TEXT (att_index_name, /*X.RDB$INDEX_NAME*/
 								  isc_460.isc_462);
-#line 2010 "backup.epp"
+#line 2018 "backup.epp"
 			MISC_terminate (/*X.RDB$INDEX_NAME*/
 					isc_460.isc_462, temp, l, sizeof(temp));
-#line 2011 "backup.epp"
-			BURP_verbose (151, temp, NULL, NULL, NULL, NULL);
+#line 2019 "backup.epp"
+			BURP_verbose (151, temp);
 			// msg 151 writing index %s 
 			put_numeric (att_segment_count, /*X.RDB$SEGMENT_COUNT*/
 							isc_460.isc_465);
-#line 2014 "backup.epp"
+#line 2022 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_idx_inactive)
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle4)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle4)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle4, (short) sizeof (isc_439), (char *) isc_439);
-				isc_vtov ((char*)isc_460.isc_462, (char*)isc_440.isc_441, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (short) sizeof (isc_439), (char *) isc_439);
+				isc_vtov ((const char*)isc_460.isc_462, (char*)isc_440.isc_441, 32);
 				if (tdgbl->handles_put_index_req_handle4)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_440, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_440, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle4, (short) 1, (short) 4, &isc_442, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (short) 1, (short) 4, &isc_442, (short) 0);
 				   if (!isc_442.isc_443 || isc_status [1]) break;
-#line 2017 "backup.epp"
+#line 2025 "backup.epp"
 					put_numeric (att_index_inactive, /*I.RDB$INDEX_INACTIVE*/
 									 isc_442.isc_444); 
-#line 2018 "backup.epp"
+#line 2026 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 2019 "backup.epp"
+#line 2027 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 2020 "backup.epp"
+#line 2028 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2022 "backup.epp"
+#line 2030 "backup.epp"
 			put_numeric (att_index_unique_flag, /*X.RDB$UNIQUE_FLAG*/
 							    isc_460.isc_464);
-#line 2023 "backup.epp"
+#line 2031 "backup.epp"
 			/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle5)
 				Y IN RDB$INDEX_SEGMENTS WITH Y.RDB$INDEX_NAME EQ X.RDB$INDEX_NAME
 				SORTED BY Y.RDB$FIELD_POSITION*/
 			{
                         if (!tdgbl->handles_put_index_req_handle5)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_433), (char *) isc_433);
-			isc_vtov ((char*)isc_460.isc_462, (char*)isc_434.isc_435, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_433), (char *) isc_433);
+			isc_vtov ((const char*)isc_460.isc_462, (char*)isc_434.isc_435, 32);
 			if (tdgbl->handles_put_index_req_handle5)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_434, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_434, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_436, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_436, (short) 0);
 			   if (!isc_436.isc_438 || isc_status [1]) break;
-#line 2026 "backup.epp"
+#line 2034 "backup.epp"
 				PUT_TEXT (att_index_field_name, /*Y.RDB$FIELD_NAME*/
 								isc_436.isc_437);
-#line 2027 "backup.epp"
+#line 2035 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2028 "backup.epp"
+#line 2036 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2029 "backup.epp"
+#line 2037 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2031 "backup.epp"
+#line 2039 "backup.epp"
 			put_source_blob (att_index_description2, att_index_description,
 							 (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 								      isc_460.isc_461);
-#line 2033 "backup.epp"
+#line 2041 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle6)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle6)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle6, (short) sizeof (isc_427), (char *) isc_427);
-				isc_vtov ((char*)isc_460.isc_462, (char*)isc_428.isc_429, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (short) sizeof (isc_427), (char *) isc_427);
+				isc_vtov ((const char*)isc_460.isc_462, (char*)isc_428.isc_429, 32);
 				if (tdgbl->handles_put_index_req_handle6)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle6, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_428, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_428, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle6, (short) 1, (short) 4, &isc_430, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (short) 1, (short) 4, &isc_430, (short) 0);
 				   if (!isc_430.isc_431 || isc_status [1]) break;
-#line 2036 "backup.epp"
+#line 2044 "backup.epp"
 					put_numeric (att_index_type, /*I.RDB$INDEX_TYPE*/
 								     isc_430.isc_432);
-#line 2037 "backup.epp"
+#line 2045 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 2038 "backup.epp"
+#line 2046 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 2039 "backup.epp"
+#line 2047 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2041 "backup.epp"
+#line 2049 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 				/*FOR (REQUEST_HANDLE tdgbl->handles_put_index_req_handle7)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle7)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle7, (short) sizeof (isc_416), (char *) isc_416);
-				isc_vtov ((char*)isc_460.isc_462, (char*)isc_417.isc_418, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (short) sizeof (isc_416), (char *) isc_416);
+				isc_vtov ((const char*)isc_460.isc_462, (char*)isc_417.isc_418, 32);
 				if (tdgbl->handles_put_index_req_handle7)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle7, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_417, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_417, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle7, (short) 1, (short) 56, &isc_419, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (short) 1, (short) 56, &isc_419, (short) 0);
 				   if (!isc_419.isc_423 || isc_status [1]) break;
-#line 2044 "backup.epp"
+#line 2052 "backup.epp"
 					if (!/*I.RDB$EXPRESSION_SOURCE.NULL*/
 					     isc_419.isc_426)
-#line 2045 "backup.epp"
+#line 2053 "backup.epp"
 						put_source_blob (att_index_expression_source,
 										 att_index_expression_source,
 										 (ISC_QUAD *)&/*I.RDB$EXPRESSION_SOURCE*/
 											      isc_419.isc_422);
-#line 2048 "backup.epp"
+#line 2056 "backup.epp"
 					if (!/*I.RDB$EXPRESSION_BLR.NULL*/
 					     isc_419.isc_425)
-#line 2049 "backup.epp"
+#line 2057 "backup.epp"
 						put_blr_blob (att_index_expression_blr,
 									  (ISC_QUAD *)&/*I.RDB$EXPRESSION_BLR*/
 										       isc_419.isc_421);
-#line 2051 "backup.epp"
+#line 2059 "backup.epp"
 					if (!/*I.RDB$FOREIGN_KEY.NULL*/
 					     isc_419.isc_424)
-#line 2052 "backup.epp"
+#line 2060 "backup.epp"
 						PUT_TEXT (att_index_foreign_key, /*I.RDB$FOREIGN_KEY*/
 										 isc_419.isc_420);
-#line 2053 "backup.epp"
+#line 2061 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 2054 "backup.epp"
+#line 2062 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 2055 "backup.epp"
+#line 2063 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 2057 "backup.epp"
+#line 2065 "backup.epp"
 			put(tdgbl, att_end);
 	
 		/*END_FOR;*/
 		   }
 		   };
-#line 2060 "backup.epp"
+#line 2068 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2061 "backup.epp"
+#line 2069 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 2063 "backup.epp"
+#line 2071 "backup.epp"
 	}
 }
 
@@ -6955,7 +6961,7 @@ void put_relation( BURP_REL relation)
 		put(tdgbl, (UCHAR) (rec_field));
 		const USHORT l = PUT_TEXT(att_field_name, field->fld_name);
 		MISC_terminate(field->fld_name, temp, l, sizeof(temp));
-		BURP_verbose(144, temp, NULL, NULL, NULL, NULL);
+		BURP_verbose(144, temp);
 		// msg 144  writing field %s 
 		PUT_TEXT(att_field_source, field->fld_source);
 		if (field->fld_query_name[0])
@@ -7020,40 +7026,40 @@ void put_relation( BURP_REL relation)
 				X IN RDB$VIEW_RELATIONS WITH X.RDB$VIEW_NAME EQ relation->rel_name*/
 			{
                         if (!tdgbl->handles_put_relation_req_handle1)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_relation_req_handle1, (short) sizeof (isc_408), (char *) isc_408);
-			isc_vtov ((char*)relation->rel_name, (char*)isc_409.isc_410, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (short) sizeof (isc_408), (char *) isc_408);
+			isc_vtov ((const char*)relation->rel_name, (char*)isc_409.isc_410, 32);
 			if (tdgbl->handles_put_relation_req_handle1)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_409, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_409, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle1, (short) 1, (short) 68, &isc_411, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (short) 1, (short) 68, &isc_411, (short) 0);
 			   if (!isc_411.isc_414 || isc_status [1]) break;
-#line 2307 "backup.epp"
+#line 2315 "backup.epp"
 				put(tdgbl, rec_view);
 				PUT_TEXT (att_view_relation_name, /*X.RDB$RELATION_NAME*/
 								  isc_411.isc_413);
-#line 2309 "backup.epp"
+#line 2317 "backup.epp"
 				put_numeric (att_view_context_id, /*X.RDB$VIEW_CONTEXT*/
 								  isc_411.isc_415);
-#line 2310 "backup.epp"
+#line 2318 "backup.epp"
 				PUT_TEXT (att_view_context_name, /*X.RDB$CONTEXT_NAME*/
 								 isc_411.isc_412);
-#line 2311 "backup.epp"
+#line 2319 "backup.epp"
 				put(tdgbl, att_end);
 			/*END_FOR*/
 			   }
 			   };
-#line 2313 "backup.epp"
+#line 2321 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2314 "backup.epp"
+#line 2322 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2316 "backup.epp"
+#line 2324 "backup.epp"
 		}
 		else
 		{
@@ -7061,37 +7067,37 @@ void put_relation( BURP_REL relation)
 				X IN RDB$VIEW_RELATIONS WITH X.RDB$VIEW_NAME EQ relation->rel_name*/
 			{
                         if (!tdgbl->handles_put_relation_req_handle2)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_relation_req_handle2, (short) sizeof (isc_401), (char *) isc_401);
-			isc_vtov ((char*)relation->rel_name, (char*)isc_402.isc_403, 32);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (short) sizeof (isc_401), (char *) isc_401);
+			isc_vtov ((const char*)relation->rel_name, (char*)isc_402.isc_403, 32);
 			if (tdgbl->handles_put_relation_req_handle2)
-                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_402, (short) 0);
+                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_402, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle2, (short) 1, (short) 36, &isc_404, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (short) 1, (short) 36, &isc_404, (short) 0);
 			   if (!isc_404.isc_406 || isc_status [1]) break;
-#line 2321 "backup.epp"
+#line 2329 "backup.epp"
 				put(tdgbl, rec_view);
 				PUT_TEXT (att_view_relation_name, /*X.RDB$RELATION_NAME*/
 								  isc_404.isc_405);
-#line 2323 "backup.epp"
+#line 2331 "backup.epp"
 				put_numeric (att_view_context_id, /*X.RDB$VIEW_CONTEXT*/
 								  isc_404.isc_407);
-#line 2324 "backup.epp"
+#line 2332 "backup.epp"
 				put(tdgbl, att_end);
 			/*END_FOR;*/
 			   }
 			   };
-#line 2326 "backup.epp"
+#line 2334 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2327 "backup.epp"
+#line 2335 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2329 "backup.epp"
+#line 2337 "backup.epp"
 		}
 	}
 	put(tdgbl, (UCHAR) (rec_relation_end));
@@ -7128,7 +7134,7 @@ bool put_source_blob(SCHAR		attribute,
 
 // Open the blob and get it's vital statistics
 
-	isc_handle blob = NULL;
+	isc_handle blob = NULL_HANDLE;
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
@@ -7170,7 +7176,7 @@ bool put_source_blob(SCHAR		attribute,
 			break;
 
 		default:
-			BURP_print(79, (void *) (ULONG) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, item);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -7269,7 +7275,7 @@ void set_capabilities(void)
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	isc_handle req = NULL;
+	isc_handle  req = NULL_HANDLE;
 
 // Look for desireable fields in system relations
 
@@ -7283,31 +7289,31 @@ void set_capabilities(void)
 			AND x.RDB$FIELD_NAME = field*/
 		{
                 if (!req)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req, (short) sizeof (isc_395), (char *) isc_395);
-		isc_vtov ((char*)field, (char*)isc_396.isc_397, 32);
-		isc_vtov ((char*)relation, (char*)isc_396.isc_398, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req, (short) sizeof (isc_395), (char *) isc_395);
+		isc_vtov ((const char*)field, (char*)isc_396.isc_397, 32);
+		isc_vtov ((const char*)relation, (char*)isc_396.isc_398, 32);
 		if (req)
-                   isc_start_and_send (isc_status, (isc_handle*) &req, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_396, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &req, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_396, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req, (short) 1, (short) 2, &isc_399, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req, (short) 1, (short) 2, &isc_399, (short) 0);
 		   if (!isc_399.isc_400 || isc_status [1]) break;
-#line 2518 "backup.epp"
+#line 2526 "backup.epp"
 			tdgbl->BCK_capabilities |= rel_field_table->bit_mask;
 		/*END_FOR;*/
 		   }
 		   };
-#line 2520 "backup.epp"
+#line 2528 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2521 "backup.epp"
+#line 2529 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 2523 "backup.epp"
+#line 2531 "backup.epp"
 	}
 
 	isc_release_request(isc_status, &req);
@@ -7364,7 +7370,7 @@ void write_character_sets(void)
  *	each user defined character set.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7372,73 +7378,73 @@ void write_character_sets(void)
 		X IN RDB$CHARACTER_SETS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_379), (char *) isc_379);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_379), (char *) isc_379);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 156, &isc_380, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 156, &isc_380, (short) 0);
 	   if (!isc_380.isc_387 || isc_status [1]) break;
-#line 2585 "backup.epp"
+#line 2593 "backup.epp"
 		put(tdgbl, rec_charset);
 		PUT_TEXT (att_charset_name, /*X.RDB$CHARACTER_SET_NAME*/
 					    isc_380.isc_385);
-#line 2587 "backup.epp"
+#line 2595 "backup.epp"
 		if (!/*X.RDB$FORM_OF_USE.NULL*/
 		     isc_380.isc_394)
-#line 2588 "backup.epp"
+#line 2596 "backup.epp"
 			PUT_TEXT (att_charset_form, /*X.RDB$FORM_OF_USE*/
 						    isc_380.isc_384);
-#line 2589 "backup.epp"
+#line 2597 "backup.epp"
 		if (!/*X.RDB$NUMBER_OF_CHARACTERS.NULL*/
 		     isc_380.isc_393)
-#line 2590 "backup.epp"
+#line 2598 "backup.epp"
 			put_numeric (att_charset_numchar, /*X.RDB$NUMBER_OF_CHARACTERS*/
 							  isc_380.isc_386);
-#line 2591 "backup.epp"
+#line 2599 "backup.epp"
 		PUT_TEXT (att_charset_coll, /*X.RDB$DEFAULT_COLLATE_NAME*/
 					    isc_380.isc_383);
-#line 2592 "backup.epp"
+#line 2600 "backup.epp"
 		put_numeric (att_charset_id, /*X.RDB$CHARACTER_SET_ID*/
 					     isc_380.isc_392);
-#line 2593 "backup.epp"
+#line 2601 "backup.epp"
 		if (/*X.RDB$SYSTEM_FLAG*/
 		    isc_380.isc_391)
-#line 2594 "backup.epp"
+#line 2602 "backup.epp"
 			put_numeric (att_charset_sysflag, /*X.RDB$SYSTEM_FLAG*/
 							  isc_380.isc_391);
-#line 2595 "backup.epp"
+#line 2603 "backup.epp"
 		if (!/*X.RDB$DESCRIPTION.NULL*/
 		     isc_380.isc_390)
-#line 2596 "backup.epp"
+#line 2604 "backup.epp"
 			put_source_blob (att_charset_description, att_charset_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													isc_380.isc_382);
-#line 2597 "backup.epp"
+#line 2605 "backup.epp"
 		if (!/*X.RDB$FUNCTION_NAME.NULL*/
 		     isc_380.isc_389)
-#line 2598 "backup.epp"
+#line 2606 "backup.epp"
 			PUT_TEXT (att_charset_funct, /*X.RDB$FUNCTION_NAME*/
 						     isc_380.isc_381);
-#line 2599 "backup.epp"
+#line 2607 "backup.epp"
 		put_numeric (att_charset_bytes_char, /*X.RDB$BYTES_PER_CHARACTER*/
 						     isc_380.isc_388);
-#line 2600 "backup.epp"
+#line 2608 "backup.epp"
 	
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2603 "backup.epp"
+#line 2611 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2604 "backup.epp"
+#line 2612 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2606 "backup.epp"
+#line 2614 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -7457,7 +7463,7 @@ void write_check_constraints(void)
  *	each check constraint. 
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7465,40 +7471,40 @@ void write_check_constraints(void)
 		X IN RDB$CHECK_CONSTRAINTS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_373), (char *) isc_373);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_373), (char *) isc_373);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 68, &isc_374, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 68, &isc_374, (short) 0);
 	   if (!isc_374.isc_377 || isc_status [1]) break;
-#line 2630 "backup.epp"
+#line 2638 "backup.epp"
 		put(tdgbl, rec_chk_constraint);
 	
 		PUT_TEXT (att_chk_constraint_name, /*X.RDB$CONSTRAINT_NAME*/
 						   isc_374.isc_376);
-#line 2633 "backup.epp"
+#line 2641 "backup.epp"
 		if (!(/*X.RDB$TRIGGER_NAME.NULL*/
 		      isc_374.isc_378))
-#line 2634 "backup.epp"
+#line 2642 "backup.epp"
 			PUT_TEXT (att_chk_trigger_name, /*X.RDB$TRIGGER_NAME*/
 							isc_374.isc_375);
-#line 2635 "backup.epp"
+#line 2643 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2637 "backup.epp"
+#line 2645 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2638 "backup.epp"
+#line 2646 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2640 "backup.epp"
+#line 2648 "backup.epp"
 	
 	MISC_release_request_silent(req_handle1);
 }
@@ -7517,7 +7523,7 @@ void write_collations(void)
  *	each user defined collation
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7525,61 +7531,61 @@ void write_collations(void)
 		X IN RDB$COLLATIONS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_361), (char *) isc_361);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_361), (char *) isc_361);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 86, &isc_362, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 86, &isc_362, (short) 0);
 	   if (!isc_362.isc_366 || isc_status [1]) break;
-#line 2664 "backup.epp"
+#line 2672 "backup.epp"
 		put(tdgbl, rec_collation);
 		PUT_TEXT (att_coll_name, /*X.RDB$COLLATION_NAME*/
 					 isc_362.isc_365);
-#line 2666 "backup.epp"
+#line 2674 "backup.epp"
 		put_numeric (att_coll_id, /*X.RDB$COLLATION_ID*/
 					  isc_362.isc_372);
-#line 2667 "backup.epp"
+#line 2675 "backup.epp"
 		put_numeric (att_coll_cs_id, /*X.RDB$CHARACTER_SET_ID*/
 					     isc_362.isc_371);
-#line 2668 "backup.epp"
+#line 2676 "backup.epp"
 		put_numeric (att_coll_attr, /*X.RDB$COLLATION_ATTRIBUTES*/
 					    isc_362.isc_370);
-#line 2669 "backup.epp"
+#line 2677 "backup.epp"
 		if (/*X.RDB$SYSTEM_FLAG*/
 		    isc_362.isc_369)
-#line 2670 "backup.epp"
+#line 2678 "backup.epp"
 			put_numeric (att_coll_sysflag, /*X.RDB$SYSTEM_FLAG*/
 						       isc_362.isc_369);
-#line 2671 "backup.epp"
+#line 2679 "backup.epp"
 		if (!/*X.RDB$DESCRIPTION.NULL*/
 		     isc_362.isc_368)
-#line 2672 "backup.epp"
+#line 2680 "backup.epp"
 			put_source_blob (att_coll_description, att_coll_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												  isc_362.isc_364);
-#line 2673 "backup.epp"
+#line 2681 "backup.epp"
 		if (!/*X.RDB$FUNCTION_NAME.NULL*/
 		     isc_362.isc_367)
-#line 2674 "backup.epp"
+#line 2682 "backup.epp"
 			PUT_TEXT (att_coll_funct, /*X.RDB$FUNCTION_NAME*/
 						  isc_362.isc_363);
-#line 2675 "backup.epp"
+#line 2683 "backup.epp"
 	
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2678 "backup.epp"
+#line 2686 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2679 "backup.epp"
+#line 2687 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2681 "backup.epp"
+#line 2689 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -7600,7 +7606,7 @@ void write_database( const TEXT* dbb_file)
  **************************************/
 	ISC_STATUS_ARRAY status_vector;
 	SCHAR buffer[256];
-	isc_req_handle req_handle1 = NULL, req_handle2 = NULL, req_handle3 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7674,7 +7680,7 @@ void write_database( const TEXT* dbb_file)
 
 	put_asciz(att_file_name, dbb_file);
 
-	BURP_verbose(77, dbb_file, (void *) (ULONG) page_size, NULL, NULL, NULL);
+	BURP_verbose(77, dbb_file, page_size);
 // msg 77 database %s has a page size of %ld bytes. 
 
 	put(tdgbl, (UCHAR) (att_end));
@@ -7695,44 +7701,44 @@ void write_database( const TEXT* dbb_file)
 			D IN RDB$DATABASE*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_353), (char *) isc_353);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_353), (char *) isc_353);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 78, &isc_354, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 78, &isc_354, (short) 0);
 		   if (!isc_354.isc_358 || isc_status [1]) break;
-#line 2794 "backup.epp"
+#line 2802 "backup.epp"
 
 			if (!/*D.RDB$SECURITY_CLASS.NULL*/
 			     isc_354.isc_360)
-#line 2796 "backup.epp"
+#line 2804 "backup.epp"
 				PUT_TEXT (att_database_security_class, /*D.RDB$SECURITY_CLASS*/
 								       isc_354.isc_357);
-#line 2797 "backup.epp"
+#line 2805 "backup.epp"
 			put_source_blob (att_database_description2, att_database_description, (ISC_QUAD *)&/*D.RDB$DESCRIPTION*/
 													   isc_354.isc_356);
-#line 2798 "backup.epp"
+#line 2806 "backup.epp"
 			if (!/*D.RDB$CHARACTER_SET_NAME.NULL*/
 			     isc_354.isc_359)
-#line 2799 "backup.epp"
+#line 2807 "backup.epp"
 				PUT_TEXT (att_database_dfl_charset, /*D.RDB$CHARACTER_SET_NAME*/
 								    isc_354.isc_355);
-#line 2800 "backup.epp"
+#line 2808 "backup.epp"
 		/*END_FOR;*/
 		   }
 		   };
-#line 2801 "backup.epp"
+#line 2809 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 2802 "backup.epp"
+#line 2810 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 2804 "backup.epp"
+#line 2812 "backup.epp"
 	}
 	else
 	{
@@ -7742,34 +7748,34 @@ void write_database( const TEXT* dbb_file)
 				D IN RDB$DATABASE*/
 			{
                         if (!req_handle1)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_348), (char *) isc_348);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_348), (char *) isc_348);
 			if (req_handle1)
-                           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 36, &isc_349, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 36, &isc_349, (short) 0);
 			   if (!isc_349.isc_351 || isc_status [1]) break;
-#line 2811 "backup.epp"
+#line 2819 "backup.epp"
 				if (!/*D.RDB$SECURITY_CLASS.NULL*/
 				     isc_349.isc_352)
-#line 2812 "backup.epp"
+#line 2820 "backup.epp"
 					PUT_TEXT (att_database_security_class, /*D.RDB$SECURITY_CLASS*/
 									       isc_349.isc_350);
-#line 2813 "backup.epp"
+#line 2821 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2814 "backup.epp"
+#line 2822 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2815 "backup.epp"
+#line 2823 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2817 "backup.epp"
+#line 2825 "backup.epp"
 		}
 
 		if (tdgbl->BCK_capabilities & BCK_db_description)
@@ -7778,32 +7784,32 @@ void write_database( const TEXT* dbb_file)
 				D IN RDB$DATABASE*/
 			{
                         if (!req_handle2)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_344), (char *) isc_344);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_344), (char *) isc_344);
 			if (req_handle2)
-                           isc_start_request (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 0, (short) 10, &isc_345, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 10, &isc_345, (short) 0);
 			   if (!isc_345.isc_347 || isc_status [1]) break;
-#line 2823 "backup.epp"
+#line 2831 "backup.epp"
 				put_source_blob (att_database_description2, att_database_description,
 					(ISC_QUAD *)&/*D.RDB$DESCRIPTION*/
 						     isc_345.isc_346);
-#line 2825 "backup.epp"
+#line 2833 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2826 "backup.epp"
+#line 2834 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2827 "backup.epp"
+#line 2835 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2829 "backup.epp"
+#line 2837 "backup.epp"
 		}
 
 		if (tdgbl->BCK_capabilities & BCK_ods8)
@@ -7812,34 +7818,34 @@ void write_database( const TEXT* dbb_file)
 				D IN RDB$DATABASE*/
 			{
                         if (!req_handle3)
-                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_339), (char *) isc_339);
+                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_339), (char *) isc_339);
 			if (req_handle3)
-                           isc_start_request (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 0, (short) 36, &isc_340, (short) 0);
+                           isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 0, (short) 36, &isc_340, (short) 0);
 			   if (!isc_340.isc_342 || isc_status [1]) break;
-#line 2835 "backup.epp"
+#line 2843 "backup.epp"
 				if (!/*D.RDB$CHARACTER_SET_NAME.NULL*/
 				     isc_340.isc_343)
-#line 2836 "backup.epp"
+#line 2844 "backup.epp"
 					PUT_TEXT (att_database_dfl_charset, /*D.RDB$CHARACTER_SET_NAME*/
 									    isc_340.isc_341);
-#line 2837 "backup.epp"
+#line 2845 "backup.epp"
 			/*END_FOR;*/
 			   }
 			   };
-#line 2838 "backup.epp"
+#line 2846 "backup.epp"
 			/*ON_ERROR*/
 			if (isc_status [1])
 			   {
-#line 2839 "backup.epp"
+#line 2847 "backup.epp"
 				general_on_error();
 			/*END_ERROR;*/
 			   }
 			}
-#line 2841 "backup.epp"
+#line 2849 "backup.epp"
 		}
 	}
 
@@ -7865,7 +7871,7 @@ void write_exceptions(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7873,44 +7879,44 @@ void write_exceptions(void)
 		X IN RDB$EXCEPTIONS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_333), (char *) isc_333);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_333), (char *) isc_333);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 121, &isc_334, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 1064, &isc_334, (short) 0);
 	   if (!isc_334.isc_337 || isc_status [1]) break;
-#line 2872 "backup.epp"
+#line 2880 "backup.epp"
 		put(tdgbl, rec_exception);
 		const SSHORT l = PUT_TEXT (att_exception_name, /*X.RDB$EXCEPTION_NAME*/
 							       isc_334.isc_336);
-#line 2874 "backup.epp"
+#line 2882 "backup.epp"
 		MISC_terminate (/*X.RDB$EXCEPTION_NAME*/
 				isc_334.isc_336, temp, l, sizeof(temp));
-#line 2875 "backup.epp"
-		BURP_verbose (198, temp, NULL, NULL, NULL, NULL);
+#line 2883 "backup.epp"
+		BURP_verbose (198, temp);
 		// msg 198 writing exception %s
 		PUT_MESSAGE(att_exception_msg, /*X.RDB$MESSAGE*/
 					       isc_334.isc_338);
-#line 2878 "backup.epp"
+#line 2886 "backup.epp"
 		put_source_blob (att_exception_description2, att_procedure_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_334.isc_335);
-#line 2879 "backup.epp"
+#line 2887 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2881 "backup.epp"
+#line 2889 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2882 "backup.epp"
+#line 2890 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2884 "backup.epp"
+#line 2892 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -7928,7 +7934,7 @@ void write_field_dimensions(void)
  *	each array field dimension.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7936,42 +7942,42 @@ void write_field_dimensions(void)
 		X IN RDB$FIELD_DIMENSIONS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_326), (char *) isc_326);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_326), (char *) isc_326);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 44, &isc_327, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 44, &isc_327, (short) 0);
 	   if (!isc_327.isc_331 || isc_status [1]) break;
-#line 2907 "backup.epp"
+#line 2915 "backup.epp"
 		put(tdgbl, rec_field_dimensions);
 		PUT_TEXT (att_field_name, /*X.RDB$FIELD_NAME*/
 					  isc_327.isc_328);
-#line 2909 "backup.epp"
+#line 2917 "backup.epp"
 		put_numeric (att_field_dimensions, /*X.RDB$DIMENSION*/
 						   isc_327.isc_332);
-#line 2910 "backup.epp"
+#line 2918 "backup.epp"
 		put_numeric (att_field_range_low, /*X.RDB$LOWER_BOUND*/
 						  isc_327.isc_330);
-#line 2911 "backup.epp"
+#line 2919 "backup.epp"
 		put_numeric (att_field_range_high, /*X.RDB$UPPER_BOUND*/
 						   isc_327.isc_329);
-#line 2912 "backup.epp"
+#line 2920 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2914 "backup.epp"
+#line 2922 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2915 "backup.epp"
+#line 2923 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2917 "backup.epp"
+#line 2925 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -7991,7 +7997,7 @@ void write_filters(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7999,53 +8005,53 @@ void write_filters(void)
 		X IN RDB$FILTERS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_317), (char *) isc_317);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_317), (char *) isc_317);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 332, &isc_318, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 332, &isc_318, (short) 0);
 	   if (!isc_318.isc_322 || isc_status [1]) break;
-#line 2942 "backup.epp"
+#line 2950 "backup.epp"
 		put(tdgbl, rec_filter);
 		const SSHORT l = PUT_TEXT (att_filter_name, /*X.RDB$FUNCTION_NAME*/
 							    isc_318.isc_321);
-#line 2944 "backup.epp"
+#line 2952 "backup.epp"
 		MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 				isc_318.isc_321, temp, l, sizeof(temp));
-#line 2945 "backup.epp"
-		BURP_verbose (145, temp, NULL, NULL, NULL, NULL);
+#line 2953 "backup.epp"
+		BURP_verbose (145, temp);
 		// msg 145 writing filter %s
 		put_source_blob (att_filter_description2, att_filter_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 											       isc_318.isc_320);
-#line 2948 "backup.epp"
+#line 2956 "backup.epp"
 		PUT_TEXT (att_filter_module_name, /*X.RDB$MODULE_NAME*/
 						  isc_318.isc_325);
-#line 2949 "backup.epp"
+#line 2957 "backup.epp"
 		PUT_TEXT (att_filter_entrypoint, /*X.RDB$ENTRYPOINT*/
 						 isc_318.isc_319);
-#line 2950 "backup.epp"
+#line 2958 "backup.epp"
 		put_numeric (att_filter_input_sub_type, /*X.RDB$INPUT_SUB_TYPE*/
 							isc_318.isc_324);
-#line 2951 "backup.epp"
+#line 2959 "backup.epp"
 		put_numeric (att_filter_output_sub_type, /*X.RDB$OUTPUT_SUB_TYPE*/
 							 isc_318.isc_323);
-#line 2952 "backup.epp"
+#line 2960 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2954 "backup.epp"
+#line 2962 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2955 "backup.epp"
+#line 2963 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 2957 "backup.epp"
+#line 2965 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -8065,7 +8071,7 @@ void write_functions(void)
  **************************************/
 	GDS_NAME func;
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -8073,61 +8079,61 @@ void write_functions(void)
 		X IN RDB$FUNCTIONS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_307), (char *) isc_307);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_307), (char *) isc_307);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 364, &isc_308, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 364, &isc_308, (short) 0);
 	   if (!isc_308.isc_313 || isc_status [1]) break;
-#line 2982 "backup.epp"
+#line 2990 "backup.epp"
 		put(tdgbl, rec_function);
 		const SSHORT l = PUT_TEXT (att_function_name, /*X.RDB$FUNCTION_NAME*/
 							      isc_308.isc_312);
-#line 2984 "backup.epp"
+#line 2992 "backup.epp"
 		MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 				isc_308.isc_312, temp, l, sizeof(temp));
-#line 2985 "backup.epp"
-		BURP_verbose (147, temp, NULL, NULL, NULL, NULL);
+#line 2993 "backup.epp"
+		BURP_verbose (147, temp);
 		/* msg 147 writing function %.*s */
 		put_source_blob (att_function_description2, att_function_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												   isc_308.isc_311);
-#line 2988 "backup.epp"
+#line 2996 "backup.epp"
 		PUT_TEXT (att_function_module_name, /*X.RDB$MODULE_NAME*/
 						    isc_308.isc_316);
-#line 2989 "backup.epp"
+#line 2997 "backup.epp"
 		PUT_TEXT (att_function_entrypoint, /*X.RDB$ENTRYPOINT*/
 						   isc_308.isc_310);
-#line 2990 "backup.epp"
+#line 2998 "backup.epp"
 		put_numeric (att_function_return_arg, /*X.RDB$RETURN_ARGUMENT*/
 						      isc_308.isc_315);
-#line 2991 "backup.epp"
+#line 2999 "backup.epp"
 		put_numeric (att_function_type, /*X.RDB$FUNCTION_TYPE*/
 						isc_308.isc_314);
-#line 2992 "backup.epp"
+#line 3000 "backup.epp"
 		PUT_TEXT (att_function_query_name, /*X.RDB$QUERY_NAME*/
 						   isc_308.isc_309);
-#line 2993 "backup.epp"
+#line 3001 "backup.epp"
 		put(tdgbl, att_end);
 		COPY (/*X.RDB$FUNCTION_NAME*/
 		      isc_308.isc_312, func);
-#line 2995 "backup.epp"
+#line 3003 "backup.epp"
 		write_function_args (func);
 		put(tdgbl, rec_function_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 2998 "backup.epp"
+#line 3006 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 2999 "backup.epp"
+#line 3007 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3001 "backup.epp"
+#line 3009 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8161,71 +8167,71 @@ void write_function_args( GDS_NAME funcptr)
 			X.RDB$FUNCTION_NAME EQ funcptr*/
 		{
                 if (!tdgbl->handles_write_function_args_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_291), (char *) isc_291);
-		isc_vtov ((char*)funcptr, (char*)isc_292.isc_293, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_291), (char *) isc_291);
+		isc_vtov ((const char*)funcptr, (char*)isc_292.isc_293, 32);
 		if (tdgbl->handles_write_function_args_req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_292, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_292, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 54, &isc_294, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 54, &isc_294, (short) 0);
 		   if (!isc_294.isc_296 || isc_status [1]) break;
-#line 3032 "backup.epp"
+#line 3040 "backup.epp"
 
 			put(tdgbl, rec_function_arg);
 			const SSHORT l = PUT_TEXT (att_functionarg_name, /*X.RDB$FUNCTION_NAME*/
 									 isc_294.isc_295);
-#line 3035 "backup.epp"
+#line 3043 "backup.epp"
 			MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 					isc_294.isc_295, temp, l, sizeof(temp));
-#line 3036 "backup.epp"
-			BURP_verbose (141, temp, NULL, NULL, NULL, NULL);
+#line 3044 "backup.epp"
+			BURP_verbose (141, temp);
 			// msg 141 writing argument for function %s 
 			put_numeric (att_functionarg_position, /*X.RDB$ARGUMENT_POSITION*/
 							       isc_294.isc_306);
-#line 3039 "backup.epp"
+#line 3047 "backup.epp"
 			put_numeric (att_functionarg_mechanism, /*X.RDB$MECHANISM*/
 								isc_294.isc_305);
-#line 3040 "backup.epp"
+#line 3048 "backup.epp"
 			put_numeric (att_functionarg_field_type, /*X.RDB$FIELD_TYPE*/
 								 isc_294.isc_304);
-#line 3041 "backup.epp"
+#line 3049 "backup.epp"
 			put_numeric (att_functionarg_field_scale, /*X.RDB$FIELD_SCALE*/
 								  isc_294.isc_303);
-#line 3042 "backup.epp"
+#line 3050 "backup.epp"
 			put_numeric (att_functionarg_field_length, /*X.RDB$FIELD_LENGTH*/
 								   isc_294.isc_302);
-#line 3043 "backup.epp"
+#line 3051 "backup.epp"
 			put_numeric (att_functionarg_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 								     isc_294.isc_301);
-#line 3044 "backup.epp"
+#line 3052 "backup.epp"
 			if (!(/*X.RDB$CHARACTER_SET_ID.NULL*/
 			      isc_294.isc_299))
-#line 3045 "backup.epp"
+#line 3053 "backup.epp"
 				put_numeric (att_functionarg_character_set, /*X.RDB$CHARACTER_SET_ID*/
 									    isc_294.isc_300);
-#line 3046 "backup.epp"
+#line 3054 "backup.epp"
 			
 			if (!(/*X.RDB$FIELD_PRECISION.NULL*/
 			      isc_294.isc_297))
-#line 3048 "backup.epp"
+#line 3056 "backup.epp"
 				put_numeric (att_functionarg_field_precision, /*X.RDB$FIELD_PRECISION*/
 									      isc_294.isc_298);
-#line 3049 "backup.epp"
+#line 3057 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3051 "backup.epp"
+#line 3059 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3052 "backup.epp"
+#line 3060 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3054 "backup.epp"
+#line 3062 "backup.epp"
 	}
 	else
 	{
@@ -8234,44 +8240,44 @@ void write_function_args( GDS_NAME funcptr)
 			X.RDB$FUNCTION_NAME EQ funcptr*/
 		{
                 if (!tdgbl->handles_write_function_args_req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_279), (char *) isc_279);
-		isc_vtov ((char*)funcptr, (char*)isc_280.isc_281, 32);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_279), (char *) isc_279);
+		isc_vtov ((const char*)funcptr, (char*)isc_280.isc_281, 32);
 		if (tdgbl->handles_write_function_args_req_handle1)
-                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_280, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_280, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 46, &isc_282, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 46, &isc_282, (short) 0);
 		   if (!isc_282.isc_284 || isc_status [1]) break;
-#line 3060 "backup.epp"
+#line 3068 "backup.epp"
 
 			put(tdgbl, rec_function_arg);
 			const SSHORT l = PUT_TEXT (att_functionarg_name, /*X.RDB$FUNCTION_NAME*/
 									 isc_282.isc_283);
-#line 3063 "backup.epp"
+#line 3071 "backup.epp"
 			MISC_terminate (/*X.RDB$FUNCTION_NAME*/
 					isc_282.isc_283, temp, l, sizeof(temp));
-#line 3064 "backup.epp"
-			BURP_verbose (141, temp, NULL, NULL, NULL, NULL);
+#line 3072 "backup.epp"
+			BURP_verbose (141, temp);
 			// msg 141 writing argument for function %s 
 			put_numeric (att_functionarg_position, /*X.RDB$ARGUMENT_POSITION*/
 							       isc_282.isc_290);
-#line 3067 "backup.epp"
+#line 3075 "backup.epp"
 			put_numeric (att_functionarg_mechanism, /*X.RDB$MECHANISM*/
 								isc_282.isc_289);
-#line 3068 "backup.epp"
+#line 3076 "backup.epp"
 			put_numeric (att_functionarg_field_type, /*X.RDB$FIELD_TYPE*/
 								 isc_282.isc_288);
-#line 3069 "backup.epp"
+#line 3077 "backup.epp"
 			put_numeric (att_functionarg_field_scale, /*X.RDB$FIELD_SCALE*/
 								  isc_282.isc_287);
-#line 3070 "backup.epp"
+#line 3078 "backup.epp"
 			put_numeric (att_functionarg_field_length, /*X.RDB$FIELD_LENGTH*/
 								   isc_282.isc_286);
-#line 3071 "backup.epp"
+#line 3079 "backup.epp"
 			put_numeric (att_functionarg_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 								     isc_282.isc_285);
-#line 3072 "backup.epp"
+#line 3080 "backup.epp"
 		
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -8281,24 +8287,24 @@ void write_function_args( GDS_NAME funcptr)
 					X2.RDB$ARGUMENT_POSITION = X.RDB$ARGUMENT_POSITION*/
 				{
                                 if (!tdgbl->handles_write_function_args_req_handle2)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) sizeof (isc_271), (char *) isc_271);
-				isc_vtov ((char*)funcptr, (char*)isc_272.isc_273, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) sizeof (isc_271), (char *) isc_271);
+				isc_vtov ((const char*)funcptr, (char*)isc_272.isc_273, 32);
 				isc_272.isc_274 = isc_282.isc_290;
 				if (tdgbl->handles_write_function_args_req_handle2)
-                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 34, &isc_272, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 34, &isc_272, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) 1, (short) 6, &isc_275, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) 1, (short) 6, &isc_275, (short) 0);
 				   if (!isc_275.isc_276 || isc_status [1]) break;;
-#line 3079 "backup.epp"
+#line 3087 "backup.epp"
 
 					if (!(/*X2.RDB$CHARACTER_SET_ID.NULL*/
 					      isc_275.isc_277))
-#line 3081 "backup.epp"
+#line 3089 "backup.epp"
 						put_numeric (att_functionarg_character_set, /*X2.RDB$CHARACTER_SET_ID*/
 											    isc_275.isc_278);
-#line 3082 "backup.epp"
+#line 3090 "backup.epp"
 				/* Note that BCK_ods10 canNOT be set if we're in this
 				   "else" branch.  Hence there is no need to test that
 				   bit and store the RDB$FIELD_PRECISION. */
@@ -8306,32 +8312,32 @@ void write_function_args( GDS_NAME funcptr)
 				/*END_FOR;*/
 				   }
 				   };
-#line 3087 "backup.epp"
+#line 3095 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3088 "backup.epp"
+#line 3096 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3090 "backup.epp"
+#line 3098 "backup.epp"
 			}
 			put(tdgbl, att_end);
 
 		/*END_FOR;*/
 		   }
 		   };
-#line 3094 "backup.epp"
+#line 3102 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3095 "backup.epp"
+#line 3103 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3097 "backup.epp"
+#line 3105 "backup.epp"
 	}
 }
 
@@ -8348,55 +8354,57 @@ void write_generators(void)
  *	Write any defined generators.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 	TEXT temp[GDS_NAME_LEN];
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
 	/*FOR (REQUEST_HANDLE req_handle1)
-		X IN RDB$GENERATORS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
+		 X IN RDB$GENERATORS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_267), (char *) isc_267);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_267), (char *) isc_267);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 34, &isc_268, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 34, &isc_268, (short) 0);
 	   if (!isc_268.isc_270 || isc_status [1]) break;
-#line 3120 "backup.epp"
+#line 3128 "backup.epp"
 		put(tdgbl, rec_generator);
 		const SSHORT l = PUT_TEXT (att_gen_generator, /*X.RDB$GENERATOR_NAME*/
 							      isc_268.isc_269);
-#line 3122 "backup.epp"
+#line 3130 "backup.epp"
 		SINT64 value = 0;
-		if (!tdgbl->gbl_sw_meta) {
+		
+		if (!tdgbl->gbl_sw_meta) 
+			{
 			value = get_gen_id (/*X.RDB$GENERATOR_NAME*/
 					    isc_268.isc_269, l);
-#line 3125 "backup.epp"
+#line 3135 "backup.epp"
 			put_int64 (att_gen_value_int64, value);
-		}
+			}
+			
 		put(tdgbl, att_end);
 		MISC_terminate (/*X.RDB$GENERATOR_NAME*/
 				isc_268.isc_269, temp, l, sizeof(temp));
-#line 3129 "backup.epp"
-#pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-		BURP_verbose (165, temp, (void*) (SLONG) value, NULL, NULL, NULL);
+#line 3140 "backup.epp"
+		BURP_verbose (165, temp, value);
 		// msg 165 writing generator %s value %ld
 	/*END_FOR;*/
 	   }
 	   };
-#line 3133 "backup.epp"
+#line 3143 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3134 "backup.epp"
+#line 3144 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3136 "backup.epp"
+#line 3146 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8416,8 +8424,8 @@ void write_global_fields(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL, req_handle2 = NULL,
-		req_handle3 = NULL, req_handle4 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE,
+		req_handle3 = NULL_HANDLE, req_handle4 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -8437,169 +8445,169 @@ void write_global_fields(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_229), (char *) isc_229);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_229), (char *) isc_229);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 316, &isc_230, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 316, &isc_230, (short) 0);
 		   if (!isc_230.isc_243 || isc_status [1]) break;
-#line 3174 "backup.epp"
+#line 3184 "backup.epp"
 
 			put(tdgbl, rec_global_field);
 			const SSHORT l = PUT_TEXT (att_field_name, /*X.RDB$FIELD_NAME*/
 								   isc_230.isc_242);
-#line 3177 "backup.epp"
+#line 3187 "backup.epp"
 			MISC_terminate (/*X.RDB$FIELD_NAME*/
 					isc_230.isc_242, temp, l, sizeof(temp));
-#line 3178 "backup.epp"
-			BURP_verbose (149, temp, NULL, NULL, NULL, NULL);
+#line 3188 "backup.epp"
+			BURP_verbose (149, temp);
 			/* msg 149  writing global field %.*s */
 			if (/*X.RDB$QUERY_NAME*/
 			    isc_230.isc_241 [0] != ' ')
-#line 3181 "backup.epp"
+#line 3191 "backup.epp"
 				PUT_TEXT (att_field_query_name, /*X.RDB$QUERY_NAME*/
 								isc_230.isc_241);
-#line 3182 "backup.epp"
+#line 3192 "backup.epp"
 			if (/*X.RDB$EDIT_STRING*/
 			    isc_230.isc_266 [0] != ' ')
-#line 3183 "backup.epp"
+#line 3193 "backup.epp"
 				PUT_TEXT (att_field_edit_string, /*X.RDB$EDIT_STRING*/
 								 isc_230.isc_266);
-#line 3184 "backup.epp"
+#line 3194 "backup.epp"
 			put_source_blob (att_field_query_header, att_field_query_header, (ISC_QUAD *)&/*X.RDB$QUERY_HEADER*/
 												      isc_230.isc_240);
-#line 3185 "backup.epp"
+#line 3195 "backup.epp"
 			put_numeric (att_field_type, /*X.RDB$FIELD_TYPE*/
 						     isc_230.isc_265);
-#line 3186 "backup.epp"
+#line 3196 "backup.epp"
 			put_numeric (att_field_length, /*X.RDB$FIELD_LENGTH*/
 						       isc_230.isc_264);
-#line 3187 "backup.epp"
+#line 3197 "backup.epp"
 			put_numeric (att_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 							 isc_230.isc_263);
-#line 3188 "backup.epp"
+#line 3198 "backup.epp"
 			put_numeric (att_field_scale, /*X.RDB$FIELD_SCALE*/
 						      isc_230.isc_262);
-#line 3189 "backup.epp"
+#line 3199 "backup.epp"
 			put_blr_blob (att_field_missing_value, (ISC_QUAD *)&/*X.RDB$MISSING_VALUE*/
 									    isc_230.isc_239);
-#line 3190 "backup.epp"
+#line 3200 "backup.epp"
 			put_blr_blob (att_field_default_value, (ISC_QUAD *)&/*X.RDB$DEFAULT_VALUE*/
 									    isc_230.isc_238);
-#line 3191 "backup.epp"
+#line 3201 "backup.epp"
 			put_blr_blob (att_field_validation_blr, (ISC_QUAD *)&/*X.RDB$VALIDATION_BLR*/
 									     isc_230.isc_237);
-#line 3192 "backup.epp"
+#line 3202 "backup.epp"
 			put_source_blob (att_field_validation_source2, att_field_validation_source, (ISC_QUAD *)&/*X.RDB$VALIDATION_SOURCE*/
 														 isc_230.isc_236);
-#line 3193 "backup.epp"
+#line 3203 "backup.epp"
 			put_blr_blob (att_field_computed_blr, &/*X.RDB$COMPUTED_BLR*/
 							       isc_230.isc_235);
-#line 3194 "backup.epp"
+#line 3204 "backup.epp"
 			put_source_blob (att_field_computed_source2, att_field_computed_source, (ISC_QUAD *)&/*X.RDB$COMPUTED_SOURCE*/
 													     isc_230.isc_234);
-#line 3195 "backup.epp"
+#line 3205 "backup.epp"
 			if (/*X.RDB$SEGMENT_LENGTH*/
 			    isc_230.isc_261)
-#line 3196 "backup.epp"
+#line 3206 "backup.epp"
 				put_numeric (att_field_segment_length, /*X.RDB$SEGMENT_LENGTH*/
 								       isc_230.isc_261);
-#line 3197 "backup.epp"
+#line 3207 "backup.epp"
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_230.isc_260)
-#line 3198 "backup.epp"
+#line 3208 "backup.epp"
 				put_numeric (att_field_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								    isc_230.isc_260);
-#line 3199 "backup.epp"
+#line 3209 "backup.epp"
 			put_source_blob (att_field_description2, att_field_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_230.isc_233);
-#line 3200 "backup.epp"
+#line 3210 "backup.epp"
 			
 			if (/*X.RDB$EXTERNAL_LENGTH*/
 			    isc_230.isc_259)
-#line 3202 "backup.epp"
+#line 3212 "backup.epp"
 				put_numeric (att_field_external_length, /*X.RDB$EXTERNAL_LENGTH*/
 									isc_230.isc_259);
-#line 3203 "backup.epp"
+#line 3213 "backup.epp"
 			if (/*X.RDB$EXTERNAL_TYPE*/
 			    isc_230.isc_258) 
-#line 3204 "backup.epp"
+#line 3214 "backup.epp"
 				put_numeric (att_field_external_type, /*X.RDB$EXTERNAL_TYPE*/
 								      isc_230.isc_258);
-#line 3205 "backup.epp"
+#line 3215 "backup.epp"
 			if (/*X.RDB$EXTERNAL_SCALE*/
 			    isc_230.isc_257)
-#line 3206 "backup.epp"
+#line 3216 "backup.epp"
 				put_numeric (att_field_external_scale, /*X.RDB$EXTERNAL_SCALE*/
 								       isc_230.isc_257);
-#line 3207 "backup.epp"
+#line 3217 "backup.epp"
 			if (/*X.RDB$DIMENSIONS*/
 			    isc_230.isc_256)
-#line 3208 "backup.epp"
+#line 3218 "backup.epp"
 				put_numeric (att_field_dimensions, /*X.RDB$DIMENSIONS*/
 								   isc_230.isc_256);
-#line 3209 "backup.epp"
+#line 3219 "backup.epp"
 			if (!(/*X.RDB$NULL_FLAG.NULL*/
 			      isc_230.isc_254))
-#line 3210 "backup.epp"
+#line 3220 "backup.epp"
 				put_numeric (att_field_null_flag, /*X.RDB$NULL_FLAG*/
 								  isc_230.isc_255);
-#line 3211 "backup.epp"
+#line 3221 "backup.epp"
 			if (!(/*X.RDB$CHARACTER_LENGTH.NULL*/
 			      isc_230.isc_252))
-#line 3212 "backup.epp"
+#line 3222 "backup.epp"
 				put_numeric (att_field_character_length, /*X.RDB$CHARACTER_LENGTH*/
 									 isc_230.isc_253);
-#line 3213 "backup.epp"
+#line 3223 "backup.epp"
 			if (!(/*X.RDB$DEFAULT_SOURCE.NULL*/
 			      isc_230.isc_251))
-#line 3214 "backup.epp"
+#line 3224 "backup.epp"
 				put_source_blob (att_field_default_source, att_field_default_source, (ISC_QUAD *)&/*X.RDB$DEFAULT_SOURCE*/
 														  isc_230.isc_232);
-#line 3215 "backup.epp"
+#line 3225 "backup.epp"
 			if (!(/*X.RDB$MISSING_SOURCE.NULL*/
 			      isc_230.isc_250))
-#line 3216 "backup.epp"
+#line 3226 "backup.epp"
 				put_source_blob (att_field_missing_source, att_field_missing_source, (ISC_QUAD *)&/*X.RDB$MISSING_SOURCE*/
 														  isc_230.isc_231);
-#line 3217 "backup.epp"
+#line 3227 "backup.epp"
 			if (!(/*X.RDB$CHARACTER_SET_ID.NULL*/
 			      isc_230.isc_248))
-#line 3218 "backup.epp"
+#line 3228 "backup.epp"
 				put_numeric (att_field_character_set, /*X.RDB$CHARACTER_SET_ID*/
 								      isc_230.isc_249);
-#line 3219 "backup.epp"
+#line 3229 "backup.epp"
 			if (!(/*X.RDB$COLLATION_ID.NULL*/
 			      isc_230.isc_246))
-#line 3220 "backup.epp"
+#line 3230 "backup.epp"
 				put_numeric (att_field_collation_id, /*X.RDB$COLLATION_ID*/
 								     isc_230.isc_247);
-#line 3221 "backup.epp"
+#line 3231 "backup.epp"
 			
 			if (!(/*X.RDB$FIELD_PRECISION.NULL*/
 			      isc_230.isc_244))
-#line 3223 "backup.epp"
+#line 3233 "backup.epp"
 				put_numeric (att_field_precision, /*X.RDB$FIELD_PRECISION*/
 								  isc_230.isc_245);
-#line 3224 "backup.epp"
+#line 3234 "backup.epp"
 			
 			put(tdgbl, att_end);
 
 		/*END_FOR;*/
 		   }
 		   };
-#line 3228 "backup.epp"
+#line 3238 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3229 "backup.epp"
+#line 3239 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3231 "backup.epp"
+#line 3241 "backup.epp"
 	}
 	else
 	{
@@ -8609,139 +8617,139 @@ void write_global_fields(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_209), (char *) isc_209);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_209), (char *) isc_209);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 268, &isc_210, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 268, &isc_210, (short) 0);
 		   if (!isc_210.isc_221 || isc_status [1]) break;
-#line 3238 "backup.epp"
+#line 3248 "backup.epp"
 
 			put(tdgbl, rec_global_field);
 			const SSHORT l = PUT_TEXT (att_field_name, /*X.RDB$FIELD_NAME*/
 								   isc_210.isc_220);
-#line 3241 "backup.epp"
+#line 3251 "backup.epp"
 			MISC_terminate (/*X.RDB$FIELD_NAME*/
 					isc_210.isc_220, temp, l, sizeof(temp));
-#line 3242 "backup.epp"
-			BURP_verbose (149, temp, NULL, NULL, NULL, NULL);
+#line 3252 "backup.epp"
+			BURP_verbose (149, temp);
 			/* msg 149  writing global field %.*s */
 			if (/*X.RDB$QUERY_NAME*/
 			    isc_210.isc_219 [0] != ' ')
-#line 3245 "backup.epp"
+#line 3255 "backup.epp"
 				PUT_TEXT (att_field_query_name, /*X.RDB$QUERY_NAME*/
 								isc_210.isc_219);
-#line 3246 "backup.epp"
+#line 3256 "backup.epp"
 			if (/*X.RDB$EDIT_STRING*/
 			    isc_210.isc_228 [0] != ' ')
-#line 3247 "backup.epp"
+#line 3257 "backup.epp"
 				PUT_TEXT (att_field_edit_string, /*X.RDB$EDIT_STRING*/
 								 isc_210.isc_228);
-#line 3248 "backup.epp"
+#line 3258 "backup.epp"
 			put_source_blob (att_field_query_header, att_field_query_header, (ISC_QUAD *)&/*X.RDB$QUERY_HEADER*/
 												      isc_210.isc_218);
-#line 3249 "backup.epp"
+#line 3259 "backup.epp"
 			put_numeric (att_field_type, /*X.RDB$FIELD_TYPE*/
 						     isc_210.isc_227);
-#line 3250 "backup.epp"
+#line 3260 "backup.epp"
 			put_numeric (att_field_length, /*X.RDB$FIELD_LENGTH*/
 						       isc_210.isc_226);
-#line 3251 "backup.epp"
+#line 3261 "backup.epp"
 			put_numeric (att_field_sub_type, /*X.RDB$FIELD_SUB_TYPE*/
 							 isc_210.isc_225);
-#line 3252 "backup.epp"
+#line 3262 "backup.epp"
 			put_numeric (att_field_scale, /*X.RDB$FIELD_SCALE*/
 						      isc_210.isc_224);
-#line 3253 "backup.epp"
+#line 3263 "backup.epp"
 			put_blr_blob (att_field_missing_value, (ISC_QUAD *)&/*X.RDB$MISSING_VALUE*/
 									    isc_210.isc_217);
-#line 3254 "backup.epp"
+#line 3264 "backup.epp"
 			put_blr_blob (att_field_default_value, (ISC_QUAD *)&/*X.RDB$DEFAULT_VALUE*/
 									    isc_210.isc_216);
-#line 3255 "backup.epp"
+#line 3265 "backup.epp"
 			put_blr_blob (att_field_validation_blr, (ISC_QUAD *)&/*X.RDB$VALIDATION_BLR*/
 									     isc_210.isc_215);
-#line 3256 "backup.epp"
+#line 3266 "backup.epp"
 			put_source_blob (att_field_validation_source2, att_field_validation_source, (ISC_QUAD *)&/*X.RDB$VALIDATION_SOURCE*/
 														 isc_210.isc_214);
-#line 3257 "backup.epp"
+#line 3267 "backup.epp"
 			put_blr_blob (att_field_computed_blr, (ISC_QUAD *)&/*X.RDB$COMPUTED_BLR*/
 									   isc_210.isc_213);
-#line 3258 "backup.epp"
+#line 3268 "backup.epp"
 			put_source_blob (att_field_computed_source2, att_field_computed_source, (ISC_QUAD *)&/*X.RDB$COMPUTED_SOURCE*/
 													     isc_210.isc_212);
-#line 3259 "backup.epp"
+#line 3269 "backup.epp"
 			if (/*X.RDB$SEGMENT_LENGTH*/
 			    isc_210.isc_223)
-#line 3260 "backup.epp"
+#line 3270 "backup.epp"
 				put_numeric (att_field_segment_length, /*X.RDB$SEGMENT_LENGTH*/
 								       isc_210.isc_223);
-#line 3261 "backup.epp"
+#line 3271 "backup.epp"
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_210.isc_222)
-#line 3262 "backup.epp"
+#line 3272 "backup.epp"
 				put_numeric (att_field_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								    isc_210.isc_222);
-#line 3263 "backup.epp"
+#line 3273 "backup.epp"
 			put_source_blob (att_field_description2, att_field_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_210.isc_211);
-#line 3264 "backup.epp"
+#line 3274 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
 				/*FOR (REQUEST_HANDLE req_handle2)
 					F IN RDB$FIELDS WITH F.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!req_handle2)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_200), (char *) isc_200);
-				isc_vtov ((char*)isc_210.isc_220, (char*)isc_201.isc_202, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_200), (char *) isc_200);
+				isc_vtov ((const char*)isc_210.isc_220, (char*)isc_201.isc_202, 32);
 				if (req_handle2)
-                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_201, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_201, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 10, &isc_203, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 10, &isc_203, (short) 0);
 				   if (!isc_203.isc_204 || isc_status [1]) break;
-#line 3268 "backup.epp"
+#line 3278 "backup.epp"
 					
 					if (/*F.RDB$EXTERNAL_LENGTH*/
 					    isc_203.isc_208)
-#line 3270 "backup.epp"
+#line 3280 "backup.epp"
 						put_numeric (att_field_external_length, /*F.RDB$EXTERNAL_LENGTH*/
 											isc_203.isc_208);
-#line 3271 "backup.epp"
+#line 3281 "backup.epp"
 					if (/*F.RDB$EXTERNAL_TYPE*/
 					    isc_203.isc_207) 
-#line 3272 "backup.epp"
+#line 3282 "backup.epp"
 						put_numeric (att_field_external_type, /*F.RDB$EXTERNAL_TYPE*/
 										      isc_203.isc_207);
-#line 3273 "backup.epp"
+#line 3283 "backup.epp"
 					if (/*F.RDB$EXTERNAL_SCALE*/
 					    isc_203.isc_206)
-#line 3274 "backup.epp"
+#line 3284 "backup.epp"
 						put_numeric (att_field_external_scale, /*F.RDB$EXTERNAL_SCALE*/
 										       isc_203.isc_206);
-#line 3275 "backup.epp"
+#line 3285 "backup.epp"
 					if (/*F.RDB$DIMENSIONS*/
 					    isc_203.isc_205)
-#line 3276 "backup.epp"
+#line 3286 "backup.epp"
 						put_numeric (att_field_dimensions, /*F.RDB$DIMENSIONS*/
 										   isc_203.isc_205);
-#line 3277 "backup.epp"
+#line 3287 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 3278 "backup.epp"
+#line 3288 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3279 "backup.epp"
+#line 3289 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3281 "backup.epp"
+#line 3291 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -8749,52 +8757,52 @@ void write_global_fields(void)
 					F IN RDB$FIELDS WITH F.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!req_handle3)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_183), (char *) isc_183);
-				isc_vtov ((char*)isc_210.isc_220, (char*)isc_184.isc_185, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_183), (char *) isc_183);
+				isc_vtov ((const char*)isc_210.isc_220, (char*)isc_184.isc_185, 32);
 				if (req_handle3)
-                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_184, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_184, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 1, (short) 38, &isc_186, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 38, &isc_186, (short) 0);
 				   if (!isc_186.isc_189 || isc_status [1]) break;
-#line 3286 "backup.epp"
+#line 3296 "backup.epp"
 					if (!(/*F.RDB$NULL_FLAG.NULL*/
 					      isc_186.isc_198))
-#line 3287 "backup.epp"
+#line 3297 "backup.epp"
 						put_numeric (att_field_null_flag, /*F.RDB$NULL_FLAG*/
 										  isc_186.isc_199);
-#line 3288 "backup.epp"
+#line 3298 "backup.epp"
 					if (!(/*F.RDB$CHARACTER_LENGTH.NULL*/
 					      isc_186.isc_196))
-#line 3289 "backup.epp"
+#line 3299 "backup.epp"
 						put_numeric (att_field_character_length, /*F.RDB$CHARACTER_LENGTH*/
 											 isc_186.isc_197);
-#line 3290 "backup.epp"
+#line 3300 "backup.epp"
 					if (!(/*F.RDB$DEFAULT_SOURCE.NULL*/
 					      isc_186.isc_195))
-#line 3291 "backup.epp"
+#line 3301 "backup.epp"
 						put_source_blob (att_field_default_source, att_field_default_source, (ISC_QUAD *)&/*F.RDB$DEFAULT_SOURCE*/
 																  isc_186.isc_188);
-#line 3292 "backup.epp"
+#line 3302 "backup.epp"
 					if (!(/*F.RDB$MISSING_SOURCE.NULL*/
 					      isc_186.isc_194))
-#line 3293 "backup.epp"
+#line 3303 "backup.epp"
 						put_source_blob (att_field_missing_source, att_field_missing_source, (ISC_QUAD *)&/*F.RDB$MISSING_SOURCE*/
 																  isc_186.isc_187);
-#line 3294 "backup.epp"
+#line 3304 "backup.epp"
 					if (!(/*F.RDB$CHARACTER_SET_ID.NULL*/
 					      isc_186.isc_192))
-#line 3295 "backup.epp"
+#line 3305 "backup.epp"
 						put_numeric (att_field_character_set, /*F.RDB$CHARACTER_SET_ID*/
 										      isc_186.isc_193);
-#line 3296 "backup.epp"
+#line 3306 "backup.epp"
 					if (!(/*F.RDB$COLLATION_ID.NULL*/
 					      isc_186.isc_190))
-#line 3297 "backup.epp"
+#line 3307 "backup.epp"
 						put_numeric (att_field_collation_id, /*F.RDB$COLLATION_ID*/
 										     isc_186.isc_191);
-#line 3298 "backup.epp"
+#line 3308 "backup.epp"
 
 					if (tdgbl->BCK_capabilities & BCK_ods10)
 					{
@@ -8802,64 +8810,64 @@ void write_global_fields(void)
 							K IN RDB$FIELDS WITH K.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 						{
                                                 if (!req_handle4)
-                                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle4, (short) sizeof (isc_176), (char *) isc_176);
-						isc_vtov ((char*)isc_210.isc_220, (char*)isc_177.isc_178, 32);
+                                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle4, (short) sizeof (isc_176), (char *) isc_176);
+						isc_vtov ((const char*)isc_210.isc_220, (char*)isc_177.isc_178, 32);
 						if (req_handle4)
-                                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_177, (short) 0);
+                                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle4, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_177, (short) 0);
 						if (!isc_status [1]) {
 						while (1)
 						   {
-                                                   isc_receive (isc_status, (isc_handle*) &req_handle4, (short) 1, (short) 6, &isc_179, (short) 0);
+                                                   isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 6, &isc_179, (short) 0);
 						   if (!isc_179.isc_180 || isc_status [1]) break;
-#line 3303 "backup.epp"
+#line 3313 "backup.epp"
 							if (!(/*K.RDB$FIELD_PRECISION.NULL*/
 							      isc_179.isc_181))
-#line 3304 "backup.epp"
+#line 3314 "backup.epp"
 								put_numeric (att_field_precision, /*K.RDB$FIELD_PRECISION*/
 												  isc_179.isc_182);
-#line 3305 "backup.epp"
+#line 3315 "backup.epp"
 						/*END_FOR;*/
 						   }
 						   };
-#line 3306 "backup.epp"
+#line 3316 "backup.epp"
 						/*ON_ERROR*/
 						if (isc_status [1])
 						   {
-#line 3307 "backup.epp"
+#line 3317 "backup.epp"
 							general_on_error();
 						/*END_ERROR;*/
 						   }
 						}
-#line 3309 "backup.epp"
+#line 3319 "backup.epp"
 					}
 				/*END_FOR;*/
 				   }
 				   };
-#line 3311 "backup.epp"
+#line 3321 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3312 "backup.epp"
+#line 3322 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3314 "backup.epp"
+#line 3324 "backup.epp"
 			}
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3317 "backup.epp"
+#line 3327 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3318 "backup.epp"
+#line 3328 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3320 "backup.epp"
+#line 3330 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);
@@ -8884,7 +8892,7 @@ void write_procedures(void)
  **************************************/
 	GDS_NAME proc;
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -8892,70 +8900,70 @@ void write_procedures(void)
 		X IN RDB$PROCEDURES*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_164), (char *) isc_164);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_164), (char *) isc_164);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 128, &isc_165, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 128, &isc_165, (short) 0);
 	   if (!isc_165.isc_172 || isc_status [1]) break;
-#line 3350 "backup.epp"
+#line 3360 "backup.epp"
 		put(tdgbl, rec_procedure);
 		const SSHORT l = PUT_TEXT (att_procedure_name, /*X.RDB$PROCEDURE_NAME*/
 							       isc_165.isc_171);
-#line 3352 "backup.epp"
+#line 3362 "backup.epp"
 		MISC_terminate (/*X.RDB$PROCEDURE_NAME*/
 				isc_165.isc_171, temp, l, sizeof(temp));
-#line 3353 "backup.epp"
-		BURP_verbose (193, temp, NULL, NULL, NULL, NULL);
+#line 3363 "backup.epp"
+		BURP_verbose (193, temp);
 		/* msg 193 writing stored procedure %.*s */
 		put_numeric (att_procedure_inputs, /*X.RDB$PROCEDURE_INPUTS*/
 						   isc_165.isc_175);
-#line 3356 "backup.epp"
+#line 3366 "backup.epp"
 		put_numeric (att_procedure_outputs, /*X.RDB$PROCEDURE_OUTPUTS*/
 						    isc_165.isc_174);
-#line 3357 "backup.epp"
+#line 3367 "backup.epp"
 		put_source_blob (att_procedure_description2, att_procedure_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												     isc_165.isc_170);
-#line 3358 "backup.epp"
+#line 3368 "backup.epp"
 		put_source_blob (att_procedure_source2, att_procedure_source, (ISC_QUAD *)&/*X.RDB$PROCEDURE_SOURCE*/
 											   isc_165.isc_169);
-#line 3359 "backup.epp"
+#line 3369 "backup.epp"
 		put_blr_blob (att_procedure_blr, (ISC_QUAD *)&/*X.RDB$PROCEDURE_BLR*/
 							      isc_165.isc_168);
-#line 3360 "backup.epp"
+#line 3370 "backup.epp"
 		if (!/*X.RDB$SECURITY_CLASS.NULL*/
 		     isc_165.isc_173)
-#line 3361 "backup.epp"
+#line 3371 "backup.epp"
 			PUT_TEXT (att_procedure_security_class, /*X.RDB$SECURITY_CLASS*/
 								isc_165.isc_167);
-#line 3362 "backup.epp"
+#line 3372 "backup.epp"
 		if (!/*X.RDB$SECURITY_CLASS.NULL*/
 		     isc_165.isc_173)
-#line 3363 "backup.epp"
+#line 3373 "backup.epp"
 			PUT_TEXT (att_procedure_owner_name, /*X.RDB$OWNER_NAME*/
 							    isc_165.isc_166);
-#line 3364 "backup.epp"
+#line 3374 "backup.epp"
 		put(tdgbl, att_end);
 		COPY(/*X.RDB$PROCEDURE_NAME*/
 		     isc_165.isc_171, proc);
-#line 3366 "backup.epp"
+#line 3376 "backup.epp"
 		write_procedure_prms (proc);
 		put(tdgbl, rec_procedure_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3369 "backup.epp"
+#line 3379 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3370 "backup.epp"
+#line 3380 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3372 "backup.epp"
+#line 3382 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 } 
@@ -8981,51 +8989,51 @@ void write_procedure_prms( GDS_NAME procptr)
 		X IN RDB$PROCEDURE_PARAMETERS WITH X.RDB$PROCEDURE_NAME EQ procptr*/
 	{
         if (!tdgbl->handles_write_procedure_prms_req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
-	isc_vtov ((char*)procptr, (char*)isc_155.isc_156, 32);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
+	isc_vtov ((const char*)procptr, (char*)isc_155.isc_156, 32);
 	if (tdgbl->handles_write_procedure_prms_req_handle1)
-           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_155, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_155, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) 1, (short) 78, &isc_157, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) 1, (short) 78, &isc_157, (short) 0);
 	   if (!isc_157.isc_161 || isc_status [1]) break;
-#line 3395 "backup.epp"
+#line 3405 "backup.epp"
 		put(tdgbl, rec_procedure_prm);
 		const SSHORT l = PUT_TEXT (att_procedureprm_name, /*X.RDB$PARAMETER_NAME*/
 								  isc_157.isc_160);
-#line 3397 "backup.epp"
+#line 3407 "backup.epp"
 		MISC_terminate (/*X.RDB$PARAMETER_NAME*/
 				isc_157.isc_160, temp, l, sizeof(temp));
-#line 3398 "backup.epp"
-		BURP_verbose (194, temp, NULL, NULL, NULL, NULL);
+#line 3408 "backup.epp"
+		BURP_verbose (194, temp);
 		// msg 194 writing parameter %s for stored procedure 
 		put_numeric (att_procedureprm_number, /*X.RDB$PARAMETER_NUMBER*/
 						      isc_157.isc_163);
-#line 3401 "backup.epp"
+#line 3411 "backup.epp"
 		put_numeric (att_procedureprm_type, /*X.RDB$PARAMETER_type*/
 						    isc_157.isc_162);
-#line 3402 "backup.epp"
+#line 3412 "backup.epp"
 		PUT_TEXT (att_procedureprm_field_source, /*X.RDB$FIELD_SOURCE*/
 							 isc_157.isc_159);
-#line 3403 "backup.epp"
+#line 3413 "backup.epp"
 		put_source_blob (att_procedureprm_description2, att_procedureprm_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													   isc_157.isc_158);
-#line 3404 "backup.epp"
+#line 3414 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3406 "backup.epp"
+#line 3416 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3407 "backup.epp"
+#line 3417 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3409 "backup.epp"
+#line 3419 "backup.epp"
 }
 
 
@@ -9042,7 +9050,7 @@ void write_ref_constraints(void)
  *	each referential constraint. 
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9050,45 +9058,45 @@ void write_ref_constraints(void)
 		X IN RDB$REF_CONSTRAINTS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_146), (char *) isc_146);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_146), (char *) isc_146);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 98, &isc_147, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 98, &isc_147, (short) 0);
 	   if (!isc_147.isc_153 || isc_status [1]) break;
-#line 3431 "backup.epp"
+#line 3441 "backup.epp"
 		put(tdgbl, rec_ref_constraint);
 		PUT_TEXT (att_ref_constraint_name, /*X.RDB$CONSTRAINT_NAME*/
 						   isc_147.isc_150);
-#line 3433 "backup.epp"
+#line 3443 "backup.epp"
 		PUT_TEXT (att_ref_unique_const_name, /*X.RDB$CONST_NAME_UQ*/
 						     isc_147.isc_149);
-#line 3434 "backup.epp"
+#line 3444 "backup.epp"
 		PUT_TEXT (att_ref_match_option, /*X.RDB$MATCH_OPTION*/
 						isc_147.isc_148);
-#line 3435 "backup.epp"
+#line 3445 "backup.epp"
 		PUT_MESSAGE (att_ref_update_rule, /*X.RDB$UPDATE_RULE*/
 						  isc_147.isc_152);
-#line 3436 "backup.epp"
+#line 3446 "backup.epp"
 		PUT_MESSAGE (att_ref_delete_rule, /*X.RDB$DELETE_RULE*/
 						  isc_147.isc_151);
-#line 3437 "backup.epp"
+#line 3447 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3439 "backup.epp"
+#line 3449 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3440 "backup.epp"
+#line 3450 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3442 "backup.epp"
+#line 3452 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9107,7 +9115,7 @@ void write_rel_constraints(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9115,56 +9123,56 @@ void write_rel_constraints(void)
 		X IN RDB$RELATION_CONSTRAINTS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_136), (char *) isc_136);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_136), (char *) isc_136);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 120, &isc_137, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 120, &isc_137, (short) 0);
 	   if (!isc_137.isc_144 || isc_status [1]) break;
-#line 3466 "backup.epp"
+#line 3476 "backup.epp"
 		put(tdgbl, rec_rel_constraint);
 		const SSHORT l = PUT_TEXT (att_rel_constraint_name, /*X.RDB$CONSTRAINT_NAME*/
 								    isc_137.isc_140);
-#line 3468 "backup.epp"
+#line 3478 "backup.epp"
 		MISC_terminate (/*X.RDB$CONSTRAINT_NAME*/
 				isc_137.isc_140, temp, l, sizeof(temp));
-#line 3469 "backup.epp"
-		BURP_verbose (207, temp, NULL, NULL, NULL, NULL);
+#line 3479 "backup.epp"
+		BURP_verbose (207, temp);
 		// msg 207 writing constraint %s 
 		PUT_MESSAGE (att_rel_constraint_type, /*X.RDB$CONSTRAINT_TYPE*/
 						      isc_137.isc_143);
-#line 3472 "backup.epp"
+#line 3482 "backup.epp"
 		PUT_TEXT (att_rel_constraint_rel_name, /*X.RDB$RELATION_NAME*/
 						       isc_137.isc_139);
-#line 3473 "backup.epp"
+#line 3483 "backup.epp"
 		PUT_TEXT (att_rel_constraint_defer, /*X.RDB$DEFERRABLE*/
 						    isc_137.isc_142);
-#line 3474 "backup.epp"
+#line 3484 "backup.epp"
 		PUT_TEXT (att_rel_constraint_init, /*X.RDB$INITIALLY_DEFERRED*/
 						   isc_137.isc_141);
-#line 3475 "backup.epp"
+#line 3485 "backup.epp"
 		if (!(/*X.RDB$INDEX_NAME.NULL*/
 		      isc_137.isc_145))
-#line 3476 "backup.epp"
+#line 3486 "backup.epp"
 			PUT_TEXT (att_rel_constraint_index, /*X.RDB$INDEX_NAME*/
 							    isc_137.isc_138);
-#line 3477 "backup.epp"
+#line 3487 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3479 "backup.epp"
+#line 3489 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3480 "backup.epp"
+#line 3490 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3482 "backup.epp"
+#line 3492 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9183,8 +9191,8 @@ void write_relations(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL, req_handle2 = NULL, req_handle3 =
-		NULL, req_handle4 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 =
+		NULL_HANDLE, req_handle4 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9203,25 +9211,25 @@ void write_relations(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_119), (char *) isc_119);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_119), (char *) isc_119);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 396, &isc_120, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 396, &isc_120, (short) 0);
 		   if (!isc_120.isc_128 || isc_status [1]) break;
-#line 3518 "backup.epp"
+#line 3528 "backup.epp"
 
 			SSHORT flags = 0;
 			put(tdgbl, rec_relation);
 			const SSHORT l = PUT_TEXT (att_relation_name, /*X.RDB$RELATION_NAME*/
 								      isc_120.isc_127);
-#line 3522 "backup.epp"
+#line 3532 "backup.epp"
 			MISC_terminate (/*X.RDB$RELATION_NAME*/
 					isc_120.isc_127, temp, l, sizeof(temp));
-#line 3523 "backup.epp"
-			BURP_verbose (153, temp, NULL, NULL, NULL, NULL);
+#line 3533 "backup.epp"
+			BURP_verbose (153, temp);
 		/* msg 153 writing relation %.*s */
 
 		/* RDB$VIEW_BLR must be the first blob field in the backup file.
@@ -9230,48 +9238,48 @@ void write_relations(void)
 
 			if (put_blr_blob (att_relation_view_blr, (ISC_QUAD *)&/*X.RDB$VIEW_BLR*/
 									      isc_120.isc_126))
-#line 3531 "backup.epp"
+#line 3541 "backup.epp"
 				flags |= REL_view;
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_120.isc_135)
-#line 3533 "backup.epp"
+#line 3543 "backup.epp"
 				put_numeric (att_relation_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								       isc_120.isc_135);
-#line 3534 "backup.epp"
+#line 3544 "backup.epp"
 			if (!(/*X.RDB$FLAGS.NULL*/
 			      isc_120.isc_133))
-#line 3535 "backup.epp"
+#line 3545 "backup.epp"
 				put_numeric (att_relation_flags, /*X.RDB$FLAGS*/
 								 isc_120.isc_134);
-#line 3536 "backup.epp"
+#line 3546 "backup.epp"
 			if (!/*X.RDB$SECURITY_CLASS.NULL*/
 			     isc_120.isc_132)
-#line 3537 "backup.epp"
+#line 3547 "backup.epp"
 				PUT_TEXT (att_relation_security_class, /*X.RDB$SECURITY_CLASS*/
 								       isc_120.isc_125);
-#line 3538 "backup.epp"
+#line 3548 "backup.epp"
 			
 			put_source_blob (att_relation_description2, att_relation_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													   isc_120.isc_124);
-#line 3540 "backup.epp"
+#line 3550 "backup.epp"
 			put_source_blob (att_relation_view_source2, att_relation_view_source, (ISC_QUAD *)&/*X.RDB$VIEW_SOURCE*/
 													   isc_120.isc_123);
-#line 3541 "backup.epp"
+#line 3551 "backup.epp"
 			
 			put_source_blob (att_relation_ext_description2, att_relation_ext_description, (ISC_QUAD *)&/*X.RDB$EXTERNAL_DESCRIPTION*/
 														   isc_120.isc_122);
-#line 3543 "backup.epp"
+#line 3553 "backup.epp"
 			PUT_TEXT (att_relation_owner_name, /*X.RDB$OWNER_NAME*/
 							   isc_120.isc_121);
-#line 3544 "backup.epp"
+#line 3554 "backup.epp"
 			if (!/*X.RDB$EXTERNAL_FILE.NULL*/
 			     isc_120.isc_130)
-#line 3545 "backup.epp"
+#line 3555 "backup.epp"
 				if (!tdgbl->gbl_sw_convert_ext_tables)
 				{
 					PUT_TEXT(att_relation_ext_file_name, /*X.RDB$EXTERNAL_FILE*/
 									     isc_120.isc_131); 
-#line 3548 "backup.epp"
+#line 3558 "backup.epp"
 					flags |= REL_external;
 				}
 
@@ -9281,25 +9289,25 @@ void write_relations(void)
 			tdgbl->relations = relation;
 			relation->rel_id = /*X.RDB$RELATION_ID*/
 					   isc_120.isc_129;
-#line 3556 "backup.epp"
+#line 3566 "backup.epp"
 			relation->rel_name_length = COPY(/*X.RDB$RELATION_NAME*/
 							 isc_120.isc_127, relation->rel_name);
-#line 3557 "backup.epp"
+#line 3567 "backup.epp"
 			relation->rel_flags |= flags;
 			put_relation (relation);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3560 "backup.epp"
+#line 3570 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3561 "backup.epp"
+#line 3571 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3563 "backup.epp"
+#line 3573 "backup.epp"
 	}
 	else
 	{
@@ -9308,25 +9316,25 @@ void write_relations(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_110), (char *) isc_110);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_110), (char *) isc_110);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 62, &isc_111, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 62, &isc_111, (short) 0);
 		   if (!isc_111.isc_116 || isc_status [1]) break;
-#line 3569 "backup.epp"
+#line 3579 "backup.epp"
 
 			SSHORT flags = 0;
 			put(tdgbl, rec_relation);
 			const SSHORT l = PUT_TEXT(att_relation_name, /*X.RDB$RELATION_NAME*/
 								     isc_111.isc_115);
-#line 3573 "backup.epp"
+#line 3583 "backup.epp"
 			MISC_terminate (/*X.RDB$RELATION_NAME*/
 					isc_111.isc_115, temp, l, sizeof(temp));
-#line 3574 "backup.epp"
-			BURP_verbose (153, temp, NULL, NULL, NULL, NULL);
+#line 3584 "backup.epp"
+			BURP_verbose (153, temp);
 			/* msg 153 writing relation %.*s */
 			
 			/* RDB$VIEW_BLR must be the first blob field in the backup file.
@@ -9335,49 +9343,49 @@ void write_relations(void)
 
 			if (put_blr_blob (att_relation_view_blr, (ISC_QUAD *)&/*X.RDB$VIEW_BLR*/
 									      isc_111.isc_114))
-#line 3582 "backup.epp"
+#line 3592 "backup.epp"
 				flags |= REL_view;
 			if (/*X.RDB$SYSTEM_FLAG*/
 			    isc_111.isc_118)
-#line 3584 "backup.epp"
+#line 3594 "backup.epp"
 				put_numeric (att_relation_system_flag, /*X.RDB$SYSTEM_FLAG*/
 								       isc_111.isc_118);
-#line 3585 "backup.epp"
+#line 3595 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
 				/*FOR (REQUEST_HANDLE req_handle2)
 					R IN RDB$RELATIONS WITH R.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!req_handle2)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_103), (char *) isc_103);
-				isc_vtov ((char*)isc_111.isc_115, (char*)isc_104.isc_105, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_103), (char *) isc_103);
+				isc_vtov ((const char*)isc_111.isc_115, (char*)isc_104.isc_105, 32);
 				if (req_handle2)
-                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_104, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_104, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 6, &isc_106, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 6, &isc_106, (short) 0);
 				   if (!isc_106.isc_107 || isc_status [1]) break;
-#line 3589 "backup.epp"
+#line 3599 "backup.epp"
 					if (!(/*R.RDB$FLAGS.NULL*/
 					      isc_106.isc_108))
-#line 3590 "backup.epp"
+#line 3600 "backup.epp"
 						put_numeric (att_relation_flags, /*R.RDB$FLAGS*/
 										 isc_106.isc_109);
-#line 3591 "backup.epp"
+#line 3601 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 3592 "backup.epp"
+#line 3602 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3593 "backup.epp"
+#line 3603 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3595 "backup.epp"
+#line 3605 "backup.epp"
 			}
 			if (tdgbl->BCK_capabilities & BCK_security)
 			{
@@ -9385,89 +9393,89 @@ void write_relations(void)
 					R IN RDB$RELATIONS WITH R.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!req_handle3)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_96), (char *) isc_96);
-				isc_vtov ((char*)isc_111.isc_115, (char*)isc_97.isc_98, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_96), (char *) isc_96);
+				isc_vtov ((const char*)isc_111.isc_115, (char*)isc_97.isc_98, 32);
 				if (req_handle3)
-                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_97, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_97, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 1, (short) 36, &isc_99, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 36, &isc_99, (short) 0);
 				   if (!isc_99.isc_101 || isc_status [1]) break;
-#line 3600 "backup.epp"
+#line 3610 "backup.epp"
 					if (!/*R.RDB$SECURITY_CLASS.NULL*/
 					     isc_99.isc_102)
-#line 3601 "backup.epp"
+#line 3611 "backup.epp"
 						PUT_TEXT(att_relation_security_class, /*R.RDB$SECURITY_CLASS*/
 										      isc_99.isc_100);
-#line 3602 "backup.epp"
+#line 3612 "backup.epp"
 				/*END_FOR;*/
 				   }
 				   };
-#line 3603 "backup.epp"
+#line 3613 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3604 "backup.epp"
+#line 3614 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3606 "backup.epp"
+#line 3616 "backup.epp"
 			}
 			put_source_blob (att_relation_description2, att_relation_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 													   isc_111.isc_113);
-#line 3608 "backup.epp"
+#line 3618 "backup.epp"
 			put_source_blob (att_relation_view_source2, att_relation_view_source, (ISC_QUAD *)&/*X.RDB$VIEW_SOURCE*/
 													   isc_111.isc_112);
-#line 3609 "backup.epp"
+#line 3619 "backup.epp"
 			if (tdgbl->BCK_capabilities & BCK_attributes_v3)
 			{
 				/*FOR (REQUEST_HANDLE req_handle4)
 					R IN RDB$RELATIONS WITH R.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!req_handle4)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle4, (short) sizeof (isc_87), (char *) isc_87);
-				isc_vtov ((char*)isc_111.isc_115, (char*)isc_88.isc_89, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle4, (short) sizeof (isc_87), (char *) isc_87);
+				isc_vtov ((const char*)isc_111.isc_115, (char*)isc_88.isc_89, 32);
 				if (req_handle4)
-                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_88, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle4, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_88, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &req_handle4, (short) 1, (short) 298, &isc_90, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 298, &isc_90, (short) 0);
 				   if (!isc_90.isc_93 || isc_status [1]) break;
-#line 3613 "backup.epp"
+#line 3623 "backup.epp"
 					put_source_blob (att_relation_ext_description2, att_relation_ext_description, (ISC_QUAD *)&/*R.RDB$EXTERNAL_DESCRIPTION*/
 																   isc_90.isc_92);
-#line 3614 "backup.epp"
+#line 3624 "backup.epp"
 					PUT_TEXT(att_relation_owner_name, /*R.RDB$OWNER_NAME*/
 									  isc_90.isc_91);
-#line 3615 "backup.epp"
+#line 3625 "backup.epp"
 					if (!/*R.RDB$EXTERNAL_FILE.NULL*/
 					     isc_90.isc_94)
-#line 3616 "backup.epp"
+#line 3626 "backup.epp"
 					{
 						if (!tdgbl->gbl_sw_convert_ext_tables)
 						{
 							PUT_TEXT(att_relation_ext_file_name, /*R.RDB$EXTERNAL_FILE*/
 											     isc_90.isc_95); 
-#line 3620 "backup.epp"
+#line 3630 "backup.epp"
 							flags |= REL_external;
 						}
 					}
 				/*END_FOR;*/
 				   }
 				   };
-#line 3624 "backup.epp"
+#line 3634 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3625 "backup.epp"
+#line 3635 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3627 "backup.epp"
+#line 3637 "backup.epp"
 			}
 			put(tdgbl, att_end);
 			BURP_REL relation = (BURP_REL) BURP_alloc_zero (sizeof(burp_rel));
@@ -9475,25 +9483,25 @@ void write_relations(void)
 			tdgbl->relations = relation;
 			relation->rel_id = /*X.RDB$RELATION_ID*/
 					   isc_111.isc_117;
-#line 3633 "backup.epp"
+#line 3643 "backup.epp"
 			relation->rel_name_length = COPY(/*X.RDB$RELATION_NAME*/
 							 isc_111.isc_115, relation->rel_name);
-#line 3634 "backup.epp"
+#line 3644 "backup.epp"
 			relation->rel_flags |= flags;
 			put_relation (relation);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3637 "backup.epp"
+#line 3647 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3638 "backup.epp"
+#line 3648 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3640 "backup.epp"
+#line 3650 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);
@@ -9516,7 +9524,7 @@ void write_shadow_files(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9526,53 +9534,53 @@ void write_shadow_files(void)
 		AND X.RDB$SHADOW_NUMBER NE 0*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_78), (char *) isc_78);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_78), (char *) isc_78);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 270, &isc_79, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 270, &isc_79, (short) 0);
 	   if (!isc_79.isc_82 || isc_status [1]) break;
-#line 3670 "backup.epp"
+#line 3680 "backup.epp"
 		put(tdgbl, rec_files);
 		const SSHORT l = PUT_TEXT (att_file_filename, /*X.RDB$FILE_NAME*/
 							      isc_79.isc_86);
-#line 3672 "backup.epp"
+#line 3682 "backup.epp"
 		MISC_terminate (/*X.RDB$FILE_NAME*/
 				isc_79.isc_86, temp, l, sizeof(temp));
-#line 3673 "backup.epp"
-		BURP_verbose (163, temp, NULL, NULL, NULL, NULL);
+#line 3683 "backup.epp"
+		BURP_verbose (163, temp);
 		// msg 163 writing shadow file %s
 		put_numeric (att_file_sequence, /*X.RDB$FILE_SEQUENCE*/
 						isc_79.isc_85);
-#line 3676 "backup.epp"
+#line 3686 "backup.epp"
 		put_numeric (att_file_start, /*X.RDB$FILE_START*/
 					     isc_79.isc_81);
-#line 3677 "backup.epp"
+#line 3687 "backup.epp"
 		put_numeric (att_file_length, /*X.RDB$FILE_LENGTH*/
 					      isc_79.isc_80);
-#line 3678 "backup.epp"
+#line 3688 "backup.epp"
 		put_numeric (att_file_flags, /*X.RDB$FILE_FLAGS*/
 					     isc_79.isc_84);
-#line 3679 "backup.epp"
+#line 3689 "backup.epp"
 		put_numeric (att_shadow_number, /*X.RDB$SHADOW_NUMBER*/
 						isc_79.isc_83);
-#line 3680 "backup.epp"
+#line 3690 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3682 "backup.epp"
+#line 3692 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3683 "backup.epp"
+#line 3693 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3685 "backup.epp"
+#line 3695 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9590,7 +9598,7 @@ void write_sql_roles(void)
  *	each SQL roles. 
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 	TEXT temp[GDS_NAME_LEN];
 
 	TGBL tdgbl = GET_THREAD_DATA;
@@ -9599,43 +9607,43 @@ void write_sql_roles(void)
 		X IN RDB$ROLES*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_73), (char *) isc_73);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_73), (char *) isc_73);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 66, &isc_74, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 66, &isc_74, (short) 0);
 	   if (!isc_74.isc_77 || isc_status [1]) break;
-#line 3709 "backup.epp"
+#line 3719 "backup.epp"
 
 		put(tdgbl, rec_sql_roles);
 		const SSHORT l = PUT_TEXT(att_role_name, /*X.RDB$ROLE_NAME*/
 							 isc_74.isc_76);
-#line 3712 "backup.epp"
+#line 3722 "backup.epp"
 		PUT_TEXT (att_role_owner_name, /*X.RDB$OWNER_NAME*/
 					       isc_74.isc_75);
-#line 3713 "backup.epp"
+#line 3723 "backup.epp"
 		put(tdgbl, att_end);
 		MISC_terminate (/*X.RDB$ROLE_NAME*/
 				isc_74.isc_76, temp, l, sizeof(temp));
-#line 3715 "backup.epp"
-		BURP_verbose (249, temp, NULL, NULL, NULL, NULL);
+#line 3725 "backup.epp"
+		BURP_verbose (249, temp);
 	// msg 249 writing SQL role: %s 
 		
 	/*END_FOR;*/
 	   }
 	   };
-#line 3719 "backup.epp"
+#line 3729 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3720 "backup.epp"
+#line 3730 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3722 "backup.epp"
+#line 3732 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9653,7 +9661,7 @@ void write_triggers(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL, req_handle2 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9671,73 +9679,73 @@ void write_triggers(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_59), (char *) isc_59);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_59), (char *) isc_59);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 102, &isc_60, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 102, &isc_60, (short) 0);
 		   if (!isc_60.isc_66 || isc_status [1]) break;
-#line 3755 "backup.epp"
+#line 3765 "backup.epp"
 
 			put(tdgbl, rec_trigger);
 			const SSHORT l = PUT_TEXT (att_trig_name, /*X.RDB$TRIGGER_NAME*/
 								  isc_60.isc_65);
-#line 3758 "backup.epp"
+#line 3768 "backup.epp"
 			MISC_terminate (/*X.RDB$TRIGGER_NAME*/
 					isc_60.isc_65, temp, l, sizeof(temp));
-#line 3759 "backup.epp"
-			BURP_verbose (156, temp, NULL, NULL, NULL, NULL);
+#line 3769 "backup.epp"
+			BURP_verbose (156, temp);
 			// msg 156   writing trigger %s 
 		
 			PUT_TEXT (att_trig_relation_name, /*X.RDB$RELATION_NAME*/
 							  isc_60.isc_64);
-#line 3763 "backup.epp"
+#line 3773 "backup.epp"
 			put_numeric (att_trig_sequence, /*X.RDB$TRIGGER_SEQUENCE*/
 							isc_60.isc_72);
-#line 3764 "backup.epp"
+#line 3774 "backup.epp"
 			put_numeric (att_trig_type, /*X.RDB$TRIGGER_TYPE*/
 						    isc_60.isc_71);
-#line 3765 "backup.epp"
+#line 3775 "backup.epp"
 			put_blr_blob (att_trig_blr, (ISC_QUAD *)&/*X.RDB$TRIGGER_BLR*/
 								 isc_60.isc_63);
-#line 3766 "backup.epp"
+#line 3776 "backup.epp"
 			put_source_blob (att_trig_source2, att_trig_source, (ISC_QUAD *)&/*X.RDB$TRIGGER_SOURCE*/
 											 isc_60.isc_62);
-#line 3767 "backup.epp"
+#line 3777 "backup.epp"
 			put_source_blob (att_trig_description2, att_trig_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												   isc_60.isc_61);
-#line 3768 "backup.epp"
+#line 3778 "backup.epp"
 			put_numeric (att_trig_system_flag, /*X.RDB$SYSTEM_FLAG*/
 							   isc_60.isc_70);
-#line 3769 "backup.epp"
+#line 3779 "backup.epp"
 			put_numeric (att_trig_inactive, /*X.RDB$TRIGGER_INACTIVE*/
 							isc_60.isc_69);
-#line 3770 "backup.epp"
+#line 3780 "backup.epp"
 			
 			if (!(/*X.RDB$FLAGS.NULL*/
 			      isc_60.isc_67))
-#line 3772 "backup.epp"
+#line 3782 "backup.epp"
 				put_numeric (att_trig_flags, /*X.RDB$FLAGS*/
 							     isc_60.isc_68);
-#line 3773 "backup.epp"
+#line 3783 "backup.epp"
 			
 			put(tdgbl, att_end);
 
 		/*END_FOR;*/
 		   }
 		   };
-#line 3777 "backup.epp"
+#line 3787 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3778 "backup.epp"
+#line 3788 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3780 "backup.epp"
+#line 3790 "backup.epp"
 	}
 	else
 	{
@@ -9747,50 +9755,50 @@ void write_triggers(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_47), (char *) isc_47);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_47), (char *) isc_47);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 98, &isc_48, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 98, &isc_48, (short) 0);
 		   if (!isc_48.isc_54 || isc_status [1]) break;
-#line 3787 "backup.epp"
+#line 3797 "backup.epp"
 
 			put(tdgbl, rec_trigger);
 			const SSHORT l = PUT_TEXT (att_trig_name, /*X.RDB$TRIGGER_NAME*/
 								  isc_48.isc_53);
-#line 3790 "backup.epp"
+#line 3800 "backup.epp"
 			MISC_terminate (/*X.RDB$TRIGGER_NAME*/
 					isc_48.isc_53, temp, l, sizeof(temp));
-#line 3791 "backup.epp"
-			BURP_verbose (156, temp, NULL, NULL, NULL, NULL);
+#line 3801 "backup.epp"
+			BURP_verbose (156, temp);
 			// msg 156   writing trigger %s 
 			
 			PUT_TEXT (att_trig_relation_name, /*X.RDB$RELATION_NAME*/
 							  isc_48.isc_52);
-#line 3795 "backup.epp"
+#line 3805 "backup.epp"
 			put_numeric (att_trig_sequence, /*X.RDB$TRIGGER_SEQUENCE*/
 							isc_48.isc_58);
-#line 3796 "backup.epp"
+#line 3806 "backup.epp"
 			put_numeric (att_trig_type, /*X.RDB$TRIGGER_TYPE*/
 						    isc_48.isc_57);
-#line 3797 "backup.epp"
+#line 3807 "backup.epp"
 			put_blr_blob (att_trig_blr, (ISC_QUAD *)&/*X.RDB$TRIGGER_BLR*/
 								 isc_48.isc_51);
-#line 3798 "backup.epp"
+#line 3808 "backup.epp"
 			put_source_blob (att_trig_source2, att_trig_source, (ISC_QUAD *)&/*X.RDB$TRIGGER_SOURCE*/
 											 isc_48.isc_50);
-#line 3799 "backup.epp"
+#line 3809 "backup.epp"
 			put_source_blob (att_trig_description2, att_trig_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 												   isc_48.isc_49);
-#line 3800 "backup.epp"
+#line 3810 "backup.epp"
 			put_numeric (att_trig_system_flag, /*X.RDB$SYSTEM_FLAG*/
 							   isc_48.isc_56);
-#line 3801 "backup.epp"
+#line 3811 "backup.epp"
 			put_numeric (att_trig_inactive, /*X.RDB$TRIGGER_INACTIVE*/
 							isc_48.isc_55);
-#line 3802 "backup.epp"
+#line 3812 "backup.epp"
 
 			if (tdgbl->BCK_capabilities & BCK_ods8)
 			{
@@ -9799,37 +9807,37 @@ void write_triggers(void)
 					X.RDB$TRIGGER_NAME = Y.RDB$TRIGGER_NAME*/
 				{
                                 if (!req_handle2)
-                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_40), (char *) isc_40);
-				isc_vtov ((char*)isc_48.isc_53, (char*)isc_41.isc_42, 32);
+                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_40), (char *) isc_40);
+				isc_vtov ((const char*)isc_48.isc_53, (char*)isc_41.isc_42, 32);
 				if (req_handle2)
-                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_41, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_41, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 6, &isc_43, (short) 0);
+                                   isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 6, &isc_43, (short) 0);
 				   if (!isc_43.isc_44 || isc_status [1]) break;
-#line 3808 "backup.epp"
+#line 3818 "backup.epp"
 
 					if (!(/*Y.RDB$FLAGS.NULL*/
 					      isc_43.isc_45))
-#line 3810 "backup.epp"
+#line 3820 "backup.epp"
 						put_numeric (att_trig_flags, /*Y.RDB$FLAGS*/
 									     isc_43.isc_46);
-#line 3811 "backup.epp"
+#line 3821 "backup.epp"
 
 				/*END_FOR;*/
 				   }
 				   };
-#line 3813 "backup.epp"
+#line 3823 "backup.epp"
 				/*ON_ERROR*/
 				if (isc_status [1])
 				   {
-#line 3814 "backup.epp"
+#line 3824 "backup.epp"
 					general_on_error();
 				/*END_ERROR;*/
 				   }
 				}
-#line 3816 "backup.epp"
+#line 3826 "backup.epp"
 			}
 
 			put(tdgbl, att_end);
@@ -9837,16 +9845,16 @@ void write_triggers(void)
 		/*END_FOR;*/
 		   }
 		   };
-#line 3821 "backup.epp"
+#line 3831 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3822 "backup.epp"
+#line 3832 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3824 "backup.epp"
+#line 3834 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);
@@ -9868,7 +9876,7 @@ void write_trigger_messages(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9878,45 +9886,45 @@ void write_trigger_messages(void)
 		WITH T.RDB$SYSTEM_FLAG NE 1 OR T.RDB$SYSTEM_FLAG MISSING*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_34), (char *) isc_34);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_34), (char *) isc_34);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 115, &isc_35, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 1058, &isc_35, (short) 0);
 	   if (!isc_35.isc_37 || isc_status [1]) break;;
-#line 3853 "backup.epp"
+#line 3863 "backup.epp"
 
 		put(tdgbl, rec_trigger_message);
 		const SSHORT l = PUT_TEXT (att_trigmsg_name, /*X.RDB$TRIGGER_NAME*/
 							     isc_35.isc_36);
-#line 3856 "backup.epp"
+#line 3866 "backup.epp"
 		MISC_terminate (/*X.RDB$TRIGGER_NAME*/
 				isc_35.isc_36, temp, l, sizeof(temp));
-#line 3857 "backup.epp"
-		BURP_verbose (157, temp, NULL, NULL, NULL, NULL);
+#line 3867 "backup.epp"
+		BURP_verbose (157, temp);
 		/* msg 157 writing trigger message for *s */
 		put_numeric (att_trigmsg_number, /*X.RDB$MESSAGE_NUMBER*/
-						 isc_35.isc_38);
-#line 3860 "backup.epp"
+						 isc_35.isc_39);
+#line 3870 "backup.epp"
 		PUT_MESSAGE (att_trigmsg_text, /*X.RDB$MESSAGE*/
-					       isc_35.isc_39);
-#line 3861 "backup.epp"
+					       isc_35.isc_38);
+#line 3871 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3863 "backup.epp"
+#line 3873 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3864 "backup.epp"
+#line 3874 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3866 "backup.epp"
+#line 3876 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -9934,7 +9942,7 @@ void write_types(void)
  *	each type.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9943,53 +9951,53 @@ void write_types(void)
 		X.RDB$SYSTEM_FLAG MISSING*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_26), (char *) isc_26);
+           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_26), (char *) isc_26);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 78, &isc_27, (short) 0);
+           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 78, &isc_27, (short) 0);
 	   if (!isc_27.isc_31 || isc_status [1]) break;
-#line 3890 "backup.epp"
+#line 3900 "backup.epp"
 		put(tdgbl, rec_system_type);
 		PUT_TEXT (att_type_name, /*X.RDB$TYPE_NAME*/
 					 isc_27.isc_30);
-#line 3892 "backup.epp"
+#line 3902 "backup.epp"
 		PUT_TEXT (att_type_field_name, /*X.RDB$FIELD_NAME*/
 					       isc_27.isc_29);
-#line 3893 "backup.epp"
+#line 3903 "backup.epp"
 		BURP_verbose (160, /*X.RDB$TYPE_NAME*/
 				   isc_27.isc_30, /*X.RDB$FIELD_NAME*/
-  isc_27.isc_29, NULL, NULL, NULL);
-#line 3894 "backup.epp"
+  isc_27.isc_29);
+#line 3904 "backup.epp"
 		// msg 160 writing type %s for field %s 
 		put_numeric (att_type_type, /*X.RDB$TYPE*/
 					    isc_27.isc_33);
-#line 3896 "backup.epp"
+#line 3906 "backup.epp"
 		put_source_blob (att_type_description2, att_type_description, (ISC_QUAD *)&/*X.RDB$DESCRIPTION*/
 											   isc_27.isc_28);
-#line 3897 "backup.epp"
+#line 3907 "backup.epp"
 		if (/*X.RDB$SYSTEM_FLAG*/
 		    isc_27.isc_32)
-#line 3898 "backup.epp"
+#line 3908 "backup.epp"
 			put_numeric (att_type_system_flag, /*X.RDB$SYSTEM_FLAG*/
 							   isc_27.isc_32);
-#line 3899 "backup.epp"
+#line 3909 "backup.epp"
 		put(tdgbl, att_end);
 	/*END_FOR;*/
 	   }
 	   };
-#line 3901 "backup.epp"
+#line 3911 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
 	   {
-#line 3902 "backup.epp"
+#line 3912 "backup.epp"
 		general_on_error();
 	/*END_ERROR;*/
 	   }
 	}
-#line 3904 "backup.epp"
+#line 3914 "backup.epp"
 
 	MISC_release_request_silent(req_handle1);
 }
@@ -10009,7 +10017,7 @@ void write_user_privileges(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL;
+	isc_req_handle req_handle1 = NULL_HANDLE;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -10019,62 +10027,62 @@ void write_user_privileges(void)
 			X IN RDB$USER_PRIVILEGES*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_14), (char *) isc_14);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_14), (char *) isc_14);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 145, &isc_15, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 145, &isc_15, (short) 0);
 		   if (!isc_15.isc_20 || isc_status [1]) break;
-#line 3931 "backup.epp"
+#line 3941 "backup.epp"
 			put(tdgbl, rec_user_privilege);
 			const SSHORT l = PUT_TEXT (att_priv_user, /*X.RDB$USER*/
 								  isc_15.isc_19);
-#line 3933 "backup.epp"
+#line 3943 "backup.epp"
 			MISC_terminate (/*X.RDB$USER*/
 					isc_15.isc_19, temp, l, sizeof(temp));
-#line 3934 "backup.epp"
-			BURP_verbose (152, temp, NULL, NULL, NULL, NULL);
+#line 3944 "backup.epp"
+			BURP_verbose (152, temp);
 			// msg 152 writing privilege for user %s
 			PUT_TEXT (att_priv_grantor, /*X.RDB$GRANTOR*/
 						    isc_15.isc_18);
-#line 3937 "backup.epp"
+#line 3947 "backup.epp"
 			PUT_TEXT (att_priv_privilege, /*X.RDB$PRIVILEGE*/
 						      isc_15.isc_25);
-#line 3938 "backup.epp"
+#line 3948 "backup.epp"
 			put_numeric (att_priv_grant_option, /*X.RDB$GRANT_OPTION*/
 							    isc_15.isc_24);
-#line 3939 "backup.epp"
+#line 3949 "backup.epp"
 			PUT_TEXT (att_priv_object_name, /*X.RDB$RELATION_NAME*/
 							isc_15.isc_17);
-#line 3940 "backup.epp"
+#line 3950 "backup.epp"
 			if (!/*X.RDB$FIELD_NAME.NULL*/
 			     isc_15.isc_23)
-#line 3941 "backup.epp"
+#line 3951 "backup.epp"
 			   PUT_TEXT (att_priv_field_name, /*X.RDB$FIELD_NAME*/
 							  isc_15.isc_16);
-#line 3942 "backup.epp"
+#line 3952 "backup.epp"
 			put_numeric (att_priv_user_type, /*X.RDB$USER_TYPE*/
 							 isc_15.isc_22);
-#line 3943 "backup.epp"
+#line 3953 "backup.epp"
 			put_numeric (att_priv_obj_type, /*X.RDB$OBJECT_TYPE*/
 							isc_15.isc_21);
-#line 3944 "backup.epp"
+#line 3954 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR*/
 		   }
 		   };
-#line 3946 "backup.epp"
+#line 3956 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3947 "backup.epp"
+#line 3957 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3949 "backup.epp"
+#line 3959 "backup.epp"
 	}
 	else
 	{
@@ -10082,56 +10090,56 @@ void write_user_privileges(void)
 			X IN RDB$USER_PRIVILEGES*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_4), (char *) isc_4);
+                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_4), (char *) isc_4);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 141, &isc_5, (short) 0);
+                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 141, &isc_5, (short) 0);
 		   if (!isc_5.isc_10 || isc_status [1]) break;
-#line 3954 "backup.epp"
+#line 3964 "backup.epp"
 			put(tdgbl, rec_user_privilege);
 			const SSHORT l = PUT_TEXT (att_priv_user, /*X.RDB$USER*/
 								  isc_5.isc_9);
-#line 3956 "backup.epp"
+#line 3966 "backup.epp"
 			MISC_terminate (/*X.RDB$USER*/
 					isc_5.isc_9, temp, l, sizeof(temp));
-#line 3957 "backup.epp"
-			BURP_verbose (152, temp, NULL, NULL, NULL, NULL);
+#line 3967 "backup.epp"
+			BURP_verbose (152, temp);
 			// msg 152 writing privilege for user %s
 			PUT_TEXT (att_priv_grantor, /*X.RDB$GRANTOR*/
 						    isc_5.isc_8);
-#line 3960 "backup.epp"
+#line 3970 "backup.epp"
 			PUT_TEXT (att_priv_privilege, /*X.RDB$PRIVILEGE*/
 						      isc_5.isc_13);
-#line 3961 "backup.epp"
+#line 3971 "backup.epp"
 			put_numeric (att_priv_grant_option, /*X.RDB$GRANT_OPTION*/
 							    isc_5.isc_12);
-#line 3962 "backup.epp"
+#line 3972 "backup.epp"
 			PUT_TEXT (att_priv_object_name, /*X.RDB$RELATION_NAME*/
 							isc_5.isc_7);
-#line 3963 "backup.epp"
+#line 3973 "backup.epp"
 			if (!/*X.RDB$FIELD_NAME.NULL*/
 			     isc_5.isc_11)
-#line 3964 "backup.epp"
+#line 3974 "backup.epp"
 				PUT_TEXT (att_priv_field_name, /*X.RDB$FIELD_NAME*/
 							       isc_5.isc_6);
-#line 3965 "backup.epp"
+#line 3975 "backup.epp"
 			put(tdgbl, att_end);
 		/*END_FOR;*/
 		   }
 		   };
-#line 3967 "backup.epp"
+#line 3977 "backup.epp"
 		/*ON_ERROR*/
 		if (isc_status [1])
 		   {
-#line 3968 "backup.epp"
+#line 3978 "backup.epp"
 			general_on_error();
 		/*END_ERROR;*/
 		   }
 		}
-#line 3970 "backup.epp"
+#line 3980 "backup.epp"
 	}
 
 	MISC_release_request_silent(req_handle1);

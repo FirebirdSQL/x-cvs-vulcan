@@ -24,16 +24,15 @@
 #ifndef JRD_ISC_PROTO_H
 #define JRD_ISC_PROTO_H
 
-#include "../jrd/isc.h"
-
 void	ISC_ast_enter(void);
 void	ISC_ast_exit(void);
 int		ISC_check_process_existence(SLONG, SLONG, USHORT);
 void	ISC_get_config(TEXT *, struct ipccfg *);
 int		ISC_set_config(TEXT *, struct ipccfg *);
 TEXT*	INTERNAL_API_ROUTINE ISC_get_host(TEXT *, USHORT);
-int		INTERNAL_API_ROUTINE ISC_get_user(TEXT*, int*, int*, TEXT*,
-											 TEXT*, int*, const TEXT*);
+
+bool	INTERNAL_API_ROUTINE ISC_get_user(TEXT*, int*, int*, TEXT*, TEXT*, int*, const TEXT*);
+
 SLONG	ISC_get_user_group_id(const TEXT*);
 void	ISC_set_user(const TEXT*);
 SLONG	API_ROUTINE ISC_get_prefix(const TEXT*);

@@ -31,7 +31,7 @@
 
 /* symbol definitions */
 
-typedef enum sym_t {
+enum sym_t {
 	SYM_rel,					/* relation block */
 	SYM_fld,					/* field block */
 	SYM_fun,					/* UDF function block */
@@ -39,16 +39,17 @@ typedef enum sym_t {
 	SYM_sql,					/* SQL request cache block */
     SYM_blr,					/* BLR request cache block */
     SYM_label					/* CVC: I need to track labels if LEAVE is implemented. */
-} SYM_T;
+};
+typedef sym_t SYM_T;
 
-class Sym : public pool_alloc<type_sym>
+class Symbol : public pool_alloc<type_sym>
 {
     public:
-	TEXT	*sym_string;	/* address of asciz string */
+	TEXT*	sym_string;		/* address of asciz string */
 	SYM_T	sym_type;		/* symbol type */
-	void	*sym_object;	/* general pointer to object */
-	Sym		*sym_collision;	/* collision pointer */
-	Sym		*sym_homonym;	/* homonym pointer */
+	void*	sym_object;		/* general pointer to object */
+	Symbol* sym_collision;	/* collision pointer */
+	Symbol* sym_homonym;	/* homonym pointer */
 };
 
 #endif

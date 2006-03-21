@@ -36,6 +36,7 @@ void Error::error(char * string, ...)
 	va_list	args;
 	va_start (args, string);
 	vsprintf (buffer, string, args);
+	va_end(args);
 	//printf ("%s\n", buffer);
 	throw SQLEXCEPTION (BUG_CHECK, buffer);
 }

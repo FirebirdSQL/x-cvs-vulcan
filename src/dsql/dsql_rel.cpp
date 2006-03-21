@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "dsql_rel.h"
 #include "dsc.h"
@@ -49,6 +49,11 @@ dsql_rel::dsql_rel(void)
 
 void dsql_rel::dropField(dsql_fld* field)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::dropField");
+	sync.lock(Exclusive);
+#endif
+
 	for (dsql_fld **ptr = &rel_fields; *ptr; ptr = &(*ptr)->fld_next)
 		if (*ptr == field)
 			{
@@ -78,6 +83,11 @@ dsql_rel::~dsql_rel(void)
 
 dsql_fld* dsql_rel::addField(int id, JString name)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::addField");
+	sync.lock(Exclusive);
+#endif
+	
 	dsql_fld *field = new dsql_fld;
 	field->fld_name = name;
 	field->fld_id = id;
@@ -105,6 +115,11 @@ void dsql_fld::setType(dsc* desc, int dimensions)
 
 void dsql_rel::addField(dsql_fld *field)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::addField");
+	sync.lock(Exclusive);
+#endif
+	
 	for (dsql_fld **ptr = &rel_fields;; ptr = &(*ptr)->fld_next)
 		if (!*ptr)
 			{
@@ -115,6 +130,11 @@ void dsql_rel::addField(dsql_fld *field)
 
 void dsql_rel::purgeTemporaryFields(void)
 {
+#ifdef SHARED_CACHE
+	Sync sync (&syncFields, "dsql_rel::purgeTemporaryFields");
+	sync.lock(Exclusive);
+#endif
+	
 	for (dsql_fld *field, **ptr = &rel_fields; field = *ptr;)
 		if (field->fld_flags & FLD_temporary)
 			{
@@ -127,12 +147,54 @@ void dsql_rel::purgeTemporaryFields(void)
 
 void dsql_rel::orderFields(void)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncFields, "dsql_rel::orderFields");
 	sync.lock(Exclusive);
+#endif
 	dsql_fld *fields = rel_fields;
+	
+/*
+ * Are the fields even out of order?  Let's check and see. In
+ * many cases they are in proper order (especially true for
+ * (NON)SHARED_CACHE mode.  The cost of doing this initial 
+ * scan is trivial compared to the cost of the bubble sort 
+ * that follows, and the sort is apparantly usually not
+ * necessary.  This is particularly an issue with very large
+ * numbers of fields; on a fast Windows XP box the sort of 32k
+ * fields takes about 40 seconds, so it's worth it to try to 
+ * avoid the sort if possible.  TBC 12/15/2005
+ */
+	long lastFieldPos = -1;
+	bool reSortASC = false;
+    long fieldCount = 0L;	
+	
+	for( ; fields; fields = fields->fld_next ) 
+		if (fields->field) 
+		    {
+			fieldCount++;
+			long currentFieldPos = fields->field->fld_position;
+			
+			if (currentFieldPos < lastFieldPos) 
+				reSortASC = true;
+			else 
+			    lastFieldPos = currentFieldPos;
+			}
+
+	/* If we don't have to sort ascending, we're done! */
+	if( !reSortASC )
+		return;
+
+	/* Now that we're done and it looks like we'll do the sort,  */
+	/* put this value back before continuing.  Note that at this */
+	/* point I have the count of fields in the list, so a future */
+	/* optimization might be to go to the trouble of building an */
+	/* array of the pointers/keys and doing a quicksort, if the  */
+	/* number of fields is greater than several hundred...       */
+
+	fields = rel_fields;	
 	rel_fields = NULL;
 	
-	// Really crud sort, but what hell...
+	// Really crude sort, but what the hell...
 	
 	for (dsql_fld *field; field = fields;)
 		{

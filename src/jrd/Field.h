@@ -37,7 +37,7 @@
 #include "JString.h"
 
 class jrd_nod;
-class arr;
+class ArrayField;
 class dsql_fld;
 
 class Field// : public blk //: public pool_alloc_rpt<SCHAR, type_fld>
@@ -54,7 +54,7 @@ public:
 	jrd_nod*	fld_source;			/* source for view fields */
 	jrd_nod*	fld_default_value;	/* default value, if any */
 	JString		fld_security_name;	/* pointer to security class name for field */
-	arr*		fld_array;			/* array description, if array */
+	ArrayField*	fld_array;			/* array description, if array */
 	JString		fld_name;			/* Field name */
 	Field		*fld_junk;
 	int			fld_dimensions;		/* used by DSQL */

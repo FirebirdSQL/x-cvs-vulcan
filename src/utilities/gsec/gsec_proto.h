@@ -2,7 +2,8 @@
 #define GSEC_PROTO_H
 
 #ifdef SUPERSERVER
-int		GSEC_main(Service* service);
+//int		GSEC_main(Service* service);
+THREAD_ENTRY_DECLARE GSEC_main(THREAD_ENTRY_PARAM arg);
 #endif
 
 // Output reporting utilities

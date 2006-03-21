@@ -42,7 +42,7 @@ $Id$
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include <stdlib.h>
@@ -410,7 +410,7 @@ TEXT *INTERNAL_API_ROUTINE ISC_get_host(TEXT * string, USHORT length)
 #endif
 
 #ifdef UNIX
-int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
+bool INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
 									  int*	id,
 									  int*	group,
 									  TEXT*	project,
@@ -428,7 +428,9 @@ int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
  *      Find out who the user is.
  *
  **************************************/
-/* egid and euid need to be signed, uid_t is unsigned on SUN! */
+	
+	/* egid and euid need to be signed, uid_t is unsigned on SUN! */
+	
 	SLONG egid, euid;
 	TEXT user_name[256];
 	TEXT* p = 0;
@@ -437,11 +439,14 @@ int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
 	if (user_string && *user_string) 
 		{
 		const TEXT* q = user_string;
+		
 		for (p = user_name; (*p = *q++) && *p != '.'; p++)
 			;
+			
 		*p = 0;
 		userName = user_name;
 		egid = euid = -1;
+		
 		if (*q) 
 			{
 			egid = atoi(q);
@@ -458,7 +463,11 @@ int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
 		{
 		euid = (SLONG) geteuid();
 		egid = (SLONG) getegid();
+#ifdef __VMS
+                const struct passwd* password = (struct passwd*) getpwuid(euid);
+#else
 		const struct passwd* password = getpwuid(euid);
+#endif
 		if (password)
 			userName = password->pw_name;
 		else
@@ -490,8 +499,7 @@ int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
 
 
 #ifdef VMS
-int INTERNAL_API_ROUTINE ISC_get_user(
-									  TEXT* name,
+bool INTERNAL_API_ROUTINE ISC_get_user(TEXT* name,
 									  int* id,
 									  int* group,
 									  TEXT* project,
@@ -514,29 +522,42 @@ int INTERNAL_API_ROUTINE ISC_get_user(
 	TEXT user_name[256];
 	TEXT* p = 0;
 
-	if (user_string && *user_string) {
+	if (user_string && *user_string) 
+		{
 		const TEXT* q = user_string;
-		for (p = user_name; (*p = *q++) && *p != '.'; p++);
+		
+		for (p = user_name; (*p = *q++) && *p != '.'; p++)
+			;
+			
 		*p = 0;
 		p = user_name;
 		uic[0] = uic[1] = -1;
-		if (*q) {
+		
+		if (*q) 
+			{
 			uic[1] = atoi(q);
+			
 			while (*q && (*q != '.'))
 				q++;
-			if (*q == '.') {
+				
+			if (*q == '.') 
+				{
 				q++;
 				uic[0] = atoi(q);
+				}
 			}
-		}
+			
 		privileges[0] = 0;
-		if (name) {
+		
+		if (name) 
+			{
 			for (p = user_name; *p && *p != ' ';)
 				*name++ = *p++;
 			*name = 0;
+			}
 		}
-	}
-	else {
+	else 
+		{
 	    ITM items[4];
 		items[0].itm_code = JPI$_UIC;
 		items[0].itm_length = sizeof(uic);
@@ -558,19 +579,21 @@ int INTERNAL_API_ROUTINE ISC_get_user(
 
 		SLONG status = sys$getjpiw(NULL, NULL, NULL, items, NULL, NULL, NULL);
 
-		if (!(status & 1)) {
+		if (!(status & 1)) 
+			{
 			len1 = 0;
 			uic[0] = uic[1] = 0;
-		}
+			}
 
 		user_name[len1] = 0;
 
-		if (name) {
+		if (name) 
+			{
 			for (p = user_name; *p && *p != ' ';)
 				*name++ = *p++;
 			*name = 0;
+			}
 		}
-	}
 
 	if (id)
 		*id = uic[0];
@@ -592,7 +615,7 @@ int INTERNAL_API_ROUTINE ISC_get_user(
 #endif
 
 #ifdef WIN_NT
-int INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
+bool INTERNAL_API_ROUTINE ISC_get_user(TEXT*	name,
 									  int*	id,
 									  int*	group,
 									  TEXT*	project,
@@ -768,7 +791,6 @@ static BOOLEAN check_user_privilege(void)
 }
 #endif
 
-
 #ifdef VMS
 int ISC_make_desc(const TEXT* string, struct dsc$descriptor* desc, USHORT length)
 {
@@ -942,7 +964,7 @@ void ISC_wait(SSHORT * iosb, SLONG event_flag)
 		return;
 	}
 
-	gds__thread_wait(wait_test, iosb);
+	THD_thread_wait(wait_test, iosb);
 }
 #endif
 

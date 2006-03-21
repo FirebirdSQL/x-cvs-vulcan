@@ -24,22 +24,26 @@
 #ifndef JRD_OPT_PROTO_H
 #define JRD_OPT_PROTO_H
 
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/btr.h"
 #include "../jrd/rse.h"
 #include "../jrd/lls.h"
 
+class RecordSource;
+class Request;
 
-BOOLEAN OPT_access_path(TDBB tdbb, const Request*, UCHAR*, SSHORT, USHORT*);
-class Rsb* OPT_compile(TDBB, class Csb *,
-							   struct rse *, struct lls *);
-struct jrd_nod* OPT_make_dbkey(TDBB tdbb, struct opt *, struct jrd_nod *,
-								  USHORT);
-struct jrd_nod* OPT_make_index(TDBB, struct opt *, Relation *,
-								  struct idx *);
-int OPT_match_index(TDBB tdbb, struct opt *, USHORT, struct idx *);
-void OPT_set_index(TDBB, Request *, class Rsb **, Relation *,
-						  struct idx *);
+struct jrd_nod;
+struct OptimizerBlk;
+struct RecordSelExpr;
+struct idx;
+struct index_desc;
+
+bool OPT_access_path(thread_db*, Request*, UCHAR*, SSHORT, USHORT*);
+RecordSource* OPT_compile(thread_db*, CompilerScratch*, RecordSelExpr*, NodeStack*, int flags);
+jrd_nod* OPT_make_dbkey(thread_db*, OptimizerBlk*, jrd_nod*, USHORT);
+jrd_nod* OPT_make_index(thread_db*, OptimizerBlk*, Relation*, idx*);
+int OPT_match_index(thread_db*, OptimizerBlk*, USHORT, const index_desc*);
+void OPT_set_index(thread_db*, Request*, RecordSource**, Relation*, idx*);
 
 #endif // JRD_OPT_PROTO_H
 

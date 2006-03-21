@@ -1,8 +1,10 @@
-#include "firebird.h"
+#include <stdio.h>
+#include "fbdev.h"
 #include "jrd.h"
 #include "../jrd/all.h"
 #include "../jrd/lck.h"
 #include "../jrd/lck_proto.h"
+#include "../dsql/dsql_rel.h"
 
 #include "Procedure.h"
 #include "ProcParam.h"
@@ -12,9 +14,13 @@
 #include "TempSpace.h"
 #include "Request.h"
 #include "blb.h"
+#include "val.h"
 #include "blr.h"
 #include "blb_proto.h"
 #include "par_proto.h"
+#include "CompilerScratch.h"
+#include "Format.h"
+#include "Resource.h"
 
 #define BLR_BYTE        *(csb->csb_running)++
 
@@ -34,13 +40,12 @@ Procedure::Procedure(Database *dbb, int id)
 // Constructor when name and owner are known.
 //
 
-Procedure::Procedure(Database *dbb, const TEXT *name, const TEXT *owner, int id)
+Procedure::Procedure(Database *dbb, const TEXT *name, const TEXT *owner)
 {
 	init();
 	procDatabase = dbb;
 	procName = name;
 	procOwner = owner;
-	procId = id;
 }
 
 //
@@ -76,7 +81,10 @@ void Procedure::init(void)
 Procedure::~Procedure()
 {
 	if (procManager)
+		{
+		procManager->purgeDependencies(this);
 		procManager->remove(this);
+		}
 		
 	while (ProcParam *param = procOutputParams)
 		{
@@ -93,23 +101,26 @@ Procedure::~Procedure()
 	if (procRequest)
 		{
 		procRequest->release();
-		//CMP_release(tdbb, procRequest);
 		procRequest = NULL;
 		}
+	
+	delete procInputFormat;
+	delete procOutputFormat;
 }
 
 //
-//  Add and output parameter
+//  Add an output parameter
 //
 
 void Procedure::setOutputParameter (ProcParam *parameter)
 {
 	ProcParam **ptr;
-	
-	for (ptr = &procOutputParams; *ptr && (*ptr)->paramId < parameter->paramId; ptr = &(*ptr)->paramNext)
+
+	for (ptr = &procOutputParams; *ptr; ptr = &(*ptr)->paramNext)
 		;
-	
+
 	*ptr = parameter;	
+	procOutputCount++;
 }
 
 //
@@ -120,17 +131,18 @@ void Procedure::setInputParameter (ProcParam *parameter)
 {
 	ProcParam **ptr;
 	
-	for (ptr = &procInputParams; *ptr && (*ptr)->paramId < parameter->paramId; ptr = &(*ptr)->paramNext)
+	for (ptr = &procInputParams; *ptr; ptr = &(*ptr)->paramNext)
 		;
-	
-	*ptr = parameter;	
+			
+	*ptr = parameter;
+	procInputCount++;
 }
 
 //
 // Express an interest in a procedure
 //
 
-void Procedure::lockExistence(tdbb * tdbb)
+void Procedure::lockExistence(thread_db*  tdbb)
 {
 	//LCK_lock(tdbb, procExistenceLock, LCK_SR, TRUE);
 }
@@ -139,7 +151,7 @@ void Procedure::lockExistence(tdbb * tdbb)
 // Deny interest in a procedure
 //
 
-void Procedure::releaseExistence(tdbb * tdbb)
+void Procedure::releaseExistence(thread_db*  tdbb)
 {
 	//LCK_release(procExistenceLock);
 }
@@ -238,27 +250,23 @@ bool Procedure::operator != (Procedure *proc)
 void Procedure::setDependencies()
 {
 	/* Walk procedures and calculate internal dependencies */
+	
 	if (Request *request = findRequest() ) 
-		{
-		RSC resource = request->req_resources;
-		for (; resource; resource = resource->rsc_next)
-			{
-			if (resource->rsc_type == rsc_procedure)
+		for (Resource* resource = request->req_resources; resource; resource = resource->next)
+			if (resource->type == Resource::rsc_procedure)
 				{
-				fb_assert(resource->rsc_prc->findInternalUseCount() >= 0);
-				resource->rsc_prc->incrementInternalUseCount();				
+				fb_assert(resource->procedure->findInternalUseCount() >= 0);
+				resource->procedure->incrementInternalUseCount();				
 				}
-			}
-		}
 }
 
-LCK Procedure::getExistenceLock(tdbb *tdbb)
+Lock* Procedure::getExistenceLock(thread_db* tdbb)
 {
 	if (procExistenceLock)
 		return procExistenceLock;
 
 	Database *database = tdbb->tdbb_database;
-	procExistenceLock = FB_NEW_RPT(*database->dbb_permanent, 0) lck;
+	procExistenceLock = FB_NEW_RPT(*database->dbb_permanent, 0) Lock;
 	procExistenceLock->lck_parent = database->dbb_lock;
 	procExistenceLock->lck_dbb = database;
 	procExistenceLock->lck_key.lck_long = findId();
@@ -305,12 +313,12 @@ void Procedure::blockingAst(void)
 
 }
 
-void Procedure::parseBlr(tdbb *tdbb, const bid *blobId)
+void Procedure::parseBlr(thread_db* tdbb, const bid *blobId)
 {
 	DBB dbb = tdbb->tdbb_database;
 	JrdMemoryPool *old_pool = tdbb->tdbb_default;
 	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	Csb csb(*tdbb->tdbb_default, 5);
+	CompilerScratch csb(*tdbb->tdbb_default, 5);
 	
 	//parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
 	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, blobId);
@@ -321,8 +329,8 @@ void Procedure::parseBlr(tdbb *tdbb, const bid *blobId)
 	csb.csb_blr = temp.space;
 	//par_messages(tdbb, temp.space, length, procedure, csb);
 	parseMessages(tdbb, temp.space, length, &csb);
-	Request *req = NULL;
-	Csb *csbPtr = &csb;
+	Request* req = NULL;
+	CompilerScratch* csbPtr = &csb;
 	jrd_nod* node = PAR_blr(tdbb, NULL, temp.space, NULL, &csbPtr, &req, FALSE, 0);
 	setRequest (req);
 	//procRequest->req_procedure = procedure;
@@ -347,7 +355,7 @@ void Procedure::setRequest(Request* request)
 		request->req_procedure = this;
 }
 
-bool Procedure::parseMessages(tdbb *tdbb, const UCHAR* blr, int blrLength, Csb* csb)
+bool Procedure::parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, CompilerScratch* csb)
 {
 	csb->csb_running = blr;
 	const SSHORT version = BLR_BYTE;
@@ -365,16 +373,18 @@ bool Procedure::parseMessages(tdbb *tdbb, const UCHAR* blr, int blrLength, Csb* 
 		const USHORT msg_number = BLR_BYTE;
 		USHORT count = BLR_BYTE;
 		count += (BLR_BYTE) << 8;
-		fmt* format = fmt::newFmt(*tdbb->tdbb_default, count);
-		format->fmt_count = count;
-		// CVC: This offset should be protected against 32K overflow in the future
+		//Format* format = Format::newFmt(*tdbb->tdbb_default, count);
+		Format* format = new Format(count);
 		USHORT offset = 0;
 		
-		for (fmt::fmt_desc_iterator desc = format->fmt_desc.begin(); count; --count, ++desc)
+		//for (Format::fmt_desc_iterator desc = format->fmt_desc.begin(); count; --count, ++desc)
+		for (dsc *desc = format->fmt_desc; count; --count, ++desc)
 			{
 			const USHORT align = PAR_desc(csb, &*desc);
+			
 			if (align)
 				offset = FB_ALIGN(offset, align);
+				
 			desc->dsc_address = (UCHAR *) (long) offset;
 			offset += desc->dsc_length;
 			}

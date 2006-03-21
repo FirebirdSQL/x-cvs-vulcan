@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		blb.h
@@ -27,30 +28,15 @@
 #ifndef JRD_BLB_H
 #define JRD_BLB_H
 
-/* Blob id.  A blob has two states -- temporary and permanent.  In each
-   case, the blob id is 8 bytes (2 longwords) long.  In the case of a
-   temporary blob, the first word is NULL and the second word points to
-   an internal blob block.  In the case of a permanent blob, the first
-   word contains the relation id of the blob and the second the record
-   number of the first segment-clump.  The two types of blobs can be
-   reliably distinguished by a zero or non-zero relation id. */
-
-typedef struct bid {
-	INT32 bid_relation_id;		// Relation id (or null)
-	union {
-		//class blb *bid_blob;	// Pointer to blob block
-		SLONG bid_blob;			// blob handle
-		SLONG bid_number;			// Record number
-	} bid_stuff;
-} *BID;
+#include "BlobID.h"
 
 /* Your basic blob block. */
 
 class blb : public pool_alloc_rpt<UCHAR, type_blb>
 {
     public:
-	att *blb_attachment;	/* database attachment */
-	jrd_rel *blb_relation;	/* Relation, if known */
+	Attachment* blb_attachment;	/* database attachment */
+	Relation* blb_relation;	/* Relation, if known */
 	class Transaction *blb_transaction;	/* Parent transaction block */
 	blb *blb_next;		/* Next blob in transaction */
 	UCHAR *blb_segment;			/* Next segment to be addressed */
@@ -58,6 +44,9 @@ class blb : public pool_alloc_rpt<UCHAR, type_blb>
 	struct bid blb_blob_id;		/* Id of materialized blob */
 	Request *blb_request;	/* request that assigned temporary blob */
 	vcl *blb_pages;		/* Vector of pages */
+#ifdef SHARED_CACHE
+    SyncObject syncBlb_pages;
+#endif
 	USHORT blb_pointers;		/* Max pointer on a page */
 	USHORT blb_level;			/* Storage type */
 	USHORT blb_max_segment;		/* Longest segment */
@@ -78,22 +67,21 @@ class blb : public pool_alloc_rpt<UCHAR, type_blb>
 	SLONG	temporaryId;		/* globally assigned id for temporary blobs */
 	/* blb_data must be longword aligned */
 	UCHAR blb_data[1];			/* A page's worth of blob */
-	blb(tdbb* tdbb, Transaction* transaction);
+	blb(thread_db* tdbb, Transaction* transaction);
 	void release(void);
 	~blb(void);
-	int getData(tdbb *tdbb, int bufferLength, UCHAR* buffer);
+	int getData(thread_db* tdbb, int bufferLength, UCHAR* buffer);
 	int getLength(void);
 };
-typedef blb* BLB;
 
-#define BLB_temporary	1		/* Newly created blob */
-#define BLB_eof		2			/* This blob is exhausted */
-#define BLB_stream	4			/* Stream style blob */
-#define BLB_closed	8			/* Temporary blob has been closed */
-#define BLB_damaged	16			/* Blob is busted */
-#define BLB_seek	32			/* Seek is pending */
-#define BLB_user_def	64		/* Blob is user created */
-#define BLB_large_scan	128		/* Blob is larger than page buffer cache */
+const int BLB_temporary	= 1;			/* Newly created blob */
+const int BLB_eof		= 2;			/* This blob is exhausted */
+const int BLB_stream	= 4;			/* Stream style blob */
+const int BLB_closed	= 8;			/* Temporary blob has been closed */
+const int BLB_damaged	= 16;			/* Blob is busted */
+const int BLB_seek		= 32;			/* Seek is pending */
+const int BLB_user_def	= 64;			/* Blob is user created */
+const int BLB_large_scan	= 128;		/* Blob is larger than page buffer cache */
 
 /* Blob levels are:
 

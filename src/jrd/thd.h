@@ -101,13 +101,15 @@ $Id$
 #endif
 
 #ifdef ANY_THREADING
-#define GET_THREAD_DATA		((THDD) THD_get_specific())
+#define GET_THREAD_DATA		((THDD) THD_get_specific(THDD_TYPE_TDBB))
 #else
 #define GET_THREAD_DATA		gdbb
 #endif
 
 #ifdef SUPERSERVER
-#define SWEEP_THREAD
+#ifdef SHARED_CACHE
+//#define SWEEP_THREAD
+#endif
 #else
 #define AST_THREAD
 #endif
@@ -138,6 +140,30 @@ $Id$
 #define QUANTUM			100	/* Default quantum */
 #define SWEEP_QUANTUM		10	/* Make sweeps less disruptive */
 
+/* Thread specific data */
+
+#if defined(WIN_NT)
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN unsigned int
+#define THREAD_ENTRY_CALL __stdcall
+#elif defined(USE_POSIX_THREADS)
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN void*
+#define THREAD_ENTRY_CALL
+#elif defined(SOLARIS_MT)
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN void *
+#define THREAD_ENTRY_CALL
+#else
+// Define correct types for other platforms
+#define THREAD_ENTRY_PARAM void*
+#define THREAD_ENTRY_RETURN int
+#define THREAD_ENTRY_CALL
+#endif
+
+#define THREAD_ENTRY_DECLARE THREAD_ENTRY_RETURN THREAD_ENTRY_CALL
+
+typedef THREAD_ENTRY_DECLARE ThreadEntryPoint(THREAD_ENTRY_PARAM);
 
 /* Thread specific data */
 
@@ -160,7 +186,7 @@ typedef thdd *THDD;
 #define THDD_TYPE_TALICE 7		/* used by gfix */
 #define THDD_TYPE_TSEC	8		/* used by gsec */
 #define THDD_TYPE_SRVR	9		/* used by server */
-#define THDD_TYPE_MAX	9	
+#define THDD_TYPE_MAX	9
 
 /* General purpose in use object structure */
 

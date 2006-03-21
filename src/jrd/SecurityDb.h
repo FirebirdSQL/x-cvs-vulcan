@@ -36,6 +36,9 @@
 #include "JString.h"
 #include "ibase.h"
 
+class PreparedStatement;
+class Connection;
+
 class SecurityDb : public SecurityPlugin
 {
 public:
@@ -47,8 +50,14 @@ public:
 	JString			databaseName;
 	bool			self;
 	bool			none;
+	bool			haveTable;
 	isc_db_handle	dbHandle;
+	Connection		*connection;
+	PreparedStatement	*authenticate;
+	
 	void attachDatabase(void);
+	bool checkUsersTable(Connection* connection);
+	void close(void);
 };
 
 #endif

@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "PathName.h"
@@ -85,16 +85,14 @@ const char* PathName::getWorkingDirectory(void)
 int PathName::findWorkingDirectory(int dpbLength, const UCHAR* dpb, int bufferLength, char* buffer)
 {
 	const UCHAR *p = dpb, *end = dpb + dpbLength;
-	int length;
 	
 	if (dpbLength <= 0 || *p++ != isc_dpb_version1)
 		return 0;
 	
-	for (; p < end; p += length)
+	for (int length; p < end; p += length)
 		{
 		UCHAR verb = *p++;
 		length = *p++;
-		length += (*p++) << 8;
 		
 		if (verb == isc_dpb_working_directory)
 			{
@@ -258,11 +256,7 @@ bool PathName::hasDirectory(const char* fileName)
 bool PathName::pathsEquivalent(const char* path1, const char* path2)
 {
 #ifdef _WIN32
-	for (const char *p = path1, *q = path2; *p && *q; ++p, ++q)
-		if (UPPER (*p) != UPPER (*q))
-			return false;
-	
-	return *p == *q;
+	return stricmp (path1, path2) == 0;
 #else
 	return strcmp (path1, path2) == 0;
 #endif	

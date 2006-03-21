@@ -39,21 +39,21 @@ class dsql_req;
 class ProcParam;
 class Stack;
 
-dsql_nod*		MAKE_constant(tdbb *threadData, dsql_str*, dsql_constant_type);
-dsql_nod*		MAKE_str_constant(tdbb *threadData, dsql_str*, SSHORT);
-dsql_str*		MAKE_cstring(tdbb *threadData, const char*);
-void			MAKE_desc(tdbb *threadData, dsc*, dsql_nod*);
-void			MAKE_desc_from_field(tdbb *threadData, dsc*, const dsql_fld*);
-void			MAKE_desc_from_list(tdbb *threadData, dsc*, dsql_nod*, const TEXT*);
-dsql_nod*		MAKE_field(tdbb *threadData, dsql_ctx*, dsql_fld*, dsql_nod*);
-dsql_nod*		MAKE_list(tdbb *threadData, Stack*);
-dsql_nod*		MAKE_node(tdbb *threadData, enum nod_t, int);
+dsql_nod*		MAKE_constant(thread_db* threadData, dsql_str*, dsql_constant_type);
+dsql_nod*		MAKE_str_constant(thread_db* threadData, dsql_str*, SSHORT);
+dsql_str*		MAKE_cstring(thread_db* threadData, const char*);
+void			MAKE_desc(thread_db* threadData, dsc*, dsql_nod*, dsql_nod*);
+void			MAKE_desc_from_field(thread_db* threadData, dsc*, const dsql_fld*);
+void			MAKE_desc_from_list(thread_db* threadData, dsc*, dsql_nod*, dsql_nod*, const TEXT*);
+dsql_nod*		MAKE_field(thread_db* threadData, dsql_ctx*, dsql_fld*, dsql_nod*);
+dsql_nod*		MAKE_list(thread_db* threadData, Stack*);
+dsql_nod*		MAKE_node(thread_db* threadData, enum nod_t, int);
 //class par*	MAKE_parameter(CStatement* request, dsql_msg* , bool, bool, USHORT);
-dsql_str*		MAKE_string(tdbb *threadData, const char* , int);
-dsql_sym*		MAKE_symbol(tdbb *threadData, Database*, const TEXT*, USHORT, enum sym_type, dsql_req*);
-dsql_str*		MAKE_tagged_string(tdbb *threadData, const char* str, size_t length, const char* charset);
-dsql_nod*		MAKE_trigger_type(tdbb *threadData, dsql_nod*, dsql_nod*);
-dsql_nod*		MAKE_variable(tdbb *threadData, dsql_fld*, const TEXT*, USHORT, USHORT, USHORT, USHORT);
+dsql_str*		MAKE_string(thread_db* threadData, const char* , int);
+dsql_sym*		MAKE_symbol(thread_db* threadData, Database*, const TEXT*, USHORT, enum sym_type, dsql_req*);
+dsql_str*		MAKE_tagged_string(thread_db* threadData, const char* str, size_t length, const char* charset);
+dsql_nod*		MAKE_trigger_type(thread_db* threadData, dsql_nod*, dsql_nod*);
+dsql_nod*		MAKE_variable(thread_db* threadData, dsql_fld*, const TEXT*, USHORT, USHORT, USHORT, USHORT);
 
 
 #endif // DSQL_MAKE_PROTO_H

@@ -30,6 +30,8 @@ class Service;
 class blb;
 class Transaction;
 class Request;
+struct TransElement;
+
 CLASS(ConfObject);
 
 
@@ -38,20 +40,24 @@ ISC_STATUS jrd8_attach_database(ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  Attachment** dbHandle, 
 									  SSHORT dpb_length, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration);
 ISC_STATUS jrd8_blob_info(ISC_STATUS*, blb**, SSHORT,
 										const UCHAR*, SSHORT, UCHAR*);
 ISC_STATUS jrd8_cancel_blob(ISC_STATUS *, blb **);
 ISC_STATUS jrd8_cancel_events(ISC_STATUS *, Attachment **, SLONG *);
+
 #ifdef CANCEL_OPERATION
+
 #define CANCEL_disable	1
 #define CANCEL_enable	2
 #define CANCEL_raise	3
+
 ISC_STATUS jrd8_cancel_operation(ISC_STATUS *, Attachment **,
 											   USHORT);
 #endif
+
 ISC_STATUS jrd8_close_blob(ISC_STATUS *, blb **);
 ISC_STATUS jrd8_commit_transaction(ISC_STATUS *, Transaction **);
 ISC_STATUS jrd8_commit_retaining(ISC_STATUS *, Transaction **);
@@ -84,13 +90,13 @@ ISC_STATUS jrd8_open_blob2(ISC_STATUS*, Attachment**,
 										 Transaction**, blb**,
 										 struct bid*, USHORT, const UCHAR*);
 ISC_STATUS jrd8_prepare_transaction(ISC_STATUS *, Transaction **,
-												  USHORT, UCHAR *);
+												  USHORT, const UCHAR *);
 ISC_STATUS jrd8_put_segment(ISC_STATUS*, blb**, USHORT,
 										  const UCHAR*);
 ISC_STATUS jrd8_put_slice(ISC_STATUS*, Attachment**,
 										Transaction**, SLONG*, USHORT,
 										const UCHAR*, USHORT, const UCHAR*, SLONG,
-										UCHAR*);
+										const UCHAR*);
 ISC_STATUS jrd8_que_events(ISC_STATUS*, Attachment**, SLONG*,
 										 SSHORT, const UCHAR*,
 										 FPTR_EVENT_CALLBACK, void*);
@@ -123,16 +129,17 @@ ISC_STATUS jrd8_start_and_send(ISC_STATUS *, Request **,
 ISC_STATUS jrd8_start_request(ISC_STATUS *, Request **,
 											Transaction **, SSHORT);
 ISC_STATUS jrd8_start_multiple(ISC_STATUS *, Transaction **, USHORT,
-											 struct teb *);
+											 const  TransElement *);
 ISC_STATUS jrd8_start_transaction(ISC_STATUS *, Transaction **,
 												SSHORT, ...);
 ISC_STATUS jrd8_transaction_info(ISC_STATUS*, Transaction**,
 											   SSHORT, const UCHAR*, SSHORT,
 											   UCHAR*);
 ISC_STATUS jrd8_transact_request(ISC_STATUS*, Attachment**,
-											   Transaction**, USHORT, const SCHAR*,
-											   USHORT, SCHAR*, USHORT,
-											   SCHAR*);
+											   Transaction**, 
+											   USHORT, const UCHAR*,
+											   USHORT, const UCHAR*, 
+											   USHORT, UCHAR*);
 ISC_STATUS jrd8_unwind_request(ISC_STATUS *, Request **, SSHORT);
 ISC_STATUS jrd8_update_account_info(ISC_STATUS *, Attachment**, int apbLength, const UCHAR *apb);
 ISC_STATUS jrd8_user_info(ISC_STATUS*, Attachment**, int dpbLength, const UCHAR *dpb,
@@ -151,23 +158,23 @@ void jrd_vtof(const char*, char*, SSHORT);
 #endif /* SERVER_SHUTDOWN */
 
 //void	JRD_set_cache_default(ULONG *);
-void	JRD_blocked(Attachment *, struct btb **);
+void	JRD_blocked(Attachment *, struct BlockingThread**);
 //void	JRD_mutex_lock(struct mutx_t *);
 //void	JRD_mutex_unlock(struct mutx_t *);
-BOOLEAN	JRD_reschedule(struct tdbb*, SLONG, bool);
+BOOLEAN	JRD_reschedule(struct thread_db*, SLONG, bool);
 void	JRD_restore_context(void);
-void	JRD_set_context(struct tdbb *);
-void	JRD_unblock(struct btb **);
+void	JRD_set_context(struct thread_db*);
+void	JRD_unblock(struct BlockingThread**);
 //void	JRD_wlck_lock(struct mutx_t *);
 //void	JRD_wlck_unlock(struct mutx_t *);
 
 #ifdef SUPERSERVER
 void	JRD_print_all_counters(const TEXT*);
-USHORT	JRD_getdir(TEXT*, USHORT);
+//USHORT	JRD_getdir(TEXT*, USHORT);
 #endif
 
 #ifdef DEBUG_PROCS
-void	JRD_print_procedure_info(TDBB, const char*);
+void	JRD_print_procedure_info(thread_db*, const char*);
 #endif
 
 #endif /* JRD_JRD_PROTO_H */

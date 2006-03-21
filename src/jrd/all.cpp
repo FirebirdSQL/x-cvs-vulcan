@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/ib_stdio.h"
 
@@ -98,11 +98,13 @@ JrdMemoryPool *JrdMemoryPool::createPool(Database *dbb, int *cur_mem, int *max_m
 	JrdMemoryPool* result = (JrdMemoryPool *)internal_create(sizeof(JrdMemoryPool),
 		cur_mem, max_mem);
 #endif
-	result->plb_buckets = NULL;
-	result->plb_segments = NULL;
+	//result->plb_buckets = NULL;
+	//result->plb_segments = NULL;
 	result->plb_dccs = NULL;
 	result->database = dbb;
-	new (&result->lls_cache) BlockCache<lls> (*result);
+	
+	/* Fix memory leak; object create already done via jrd/all.h.  SAS SEK */
+	// new (&result->lls_cache) BlockCache<lls> (*result);
 	
 	if (dbb) 
 		//dbb->dbb_pools.push_back(result);
@@ -124,11 +126,13 @@ JrdMemoryPool *JrdMemoryPool::createPool(Database *dbb)
 #endif
 #endif
 
-	result->plb_buckets = NULL;
-	result->plb_segments = NULL;
+	//result->plb_buckets = NULL;
+	//result->plb_segments = NULL;
 	result->plb_dccs = NULL;
 	result->database = dbb;
-	new (&result->lls_cache) BlockCache<lls> (*result);
+	
+	/* Leak caused by extra new via constructor in all.h.  SAS SEK */
+	// new (&result->lls_cache) BlockCache<lls> (*result);
 	
 	if (dbb) 
 		//dbb->dbb_pools.push_back(result);
@@ -172,7 +176,7 @@ TEXT* ALL_cstring(const TEXT* in_string)
  *	return to the user or where ever.
  *
  **************************************/
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	JrdMemoryPool* pool = tdbb->tdbb_default;
 	if (!pool) {
@@ -219,7 +223,7 @@ void ALL_fini(void)
 }
 
 
-void ALL_init(tdbb *tdbb)
+void ALL_init(thread_db* tdbb)
 {
 /**************************************
  *
@@ -256,7 +260,7 @@ void JrdMemoryPool::ALL_push(BLK object, LLS* stack)
  *	Push an object on an LLS stack.
  *
  **************************************/
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	JrdMemoryPool* pool = tdbb->tdbb_default;
 	lls* node = pool->lls_cache.newBlock();

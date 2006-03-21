@@ -32,6 +32,7 @@
 
 #include "OSRIException.h"
 
+START_NAMESPACE
 
 class OSRIMemException :
 	public OSRIException
@@ -40,6 +41,8 @@ public:
 	OSRIMemException(ISC_STATUS code, ...);
 	virtual ~OSRIMemException(void);
 };
+
+END_NAMESPACE
 
 #endif
 

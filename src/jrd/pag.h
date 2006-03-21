@@ -34,13 +34,13 @@
 #ifndef JRD_PAG_H
 #define JRD_PAG_H
 
-#include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../jrd/jrd_blks.h"
+//#include "../include/fb_blk.h"
 
 /* Page control block -- used by PAG to keep track of critical
    constants */
 
-class pgc : public pool_alloc<type_pgc>
+class PageControl : public pool_alloc<type_pgc>
 {
     public:
 	SLONG pgc_high_water;		/* Lowest PIP with space */
@@ -50,6 +50,5 @@ class pgc : public pool_alloc<type_pgc>
 	ULONG pgc_tpt;				/* Transactions per TIP */
 	ULONG pgc_gpg;				/* Generators per generator page */
 };
-typedef pgc *PGC;
 
 #endif /* JRD_PAG_H */

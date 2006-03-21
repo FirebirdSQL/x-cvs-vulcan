@@ -24,7 +24,7 @@
 #ifndef JRD_CCH_H
 #define JRD_CCH_H
 
-#include "../include/fb_blk.h"
+//#include "../include/fb_blk.h"
 
 /* Page buffer cache size constraints. */
 
@@ -38,29 +38,31 @@ class sbm;
 
 /* BCB -- Buffer control block -- one per system */
 
+/***
 	struct bcb_repeat
 	{
-		bdb*	bcb_bdb;		/* Buffer descriptor block */
-		Que		bcb_page_mod;	/* Que of buffers with page mod n */
+		bdb* bcb_bdb;		// Buffer descriptor block 
+		Que bcb_page_mod;	// Que of buffers with page mod n 
 	};
 
 class bcb : public pool_alloc_rpt<bcb_repeat, type_bcb>
 {
     public:
-	lls*		bcb_memory;			/* Large block partitioned into buffers */
-	Que			bcb_in_use;			/* Que of buffers in use */
-	Que			bcb_empty;			/* Que of empty buffers */
-	bdb*		bcb_btree;			/* root of dirty page btree */
-	pre*		bcb_free;			/* Free precedence blocks */
-	Que	bcb_free_lwt;		/* Free latch wait blocks */
-	SSHORT		bcb_flags;			/* see below */
-	SSHORT		bcb_free_minimum;	/* Threshold to activate cache writer */
-	ULONG		bcb_count;			/* Number of buffers allocated */
-	ULONG		bcb_checkpoint;		/* Count of buffers to checkpoint */
-	sbm*		bcb_prefetch;		/* Bitmap of pages to prefetch */
+	lls*		bcb_memory;			// Large block partitioned into buffers 
+	Que			bcb_in_use;			// Que of buffers in use 
+	Que			bcb_empty;			// Que of empty buffers 
+	bdb*		bcb_btree;			// root of dirty page btree 
+	pre*		bcb_free;			// Free precedence blocks 
+	Que	bcb_free_lwt;		// Free latch wait blocks 
+	SSHORT		bcb_flags;			// see below 
+	SSHORT		bcb_free_minimum;	// Threshold to activate cache writer 
+	ULONG		bcb_count;			// Number of buffers allocated 
+	ULONG		bcb_checkpoint;		// Count of buffers to checkpoint 
+	sbm*		bcb_prefetch;		// Bitmap of pages to prefetch 
 	bcb_repeat bcb_rpt[1];
 };
 typedef bcb *BCB;
+***/
 
 #define BCB_keep_pages		1	/* set during btc_flush(), pages not removed from dirty binary tree */
 #define BCB_cache_writer	2	/* cache writer thread has been started */
@@ -75,43 +77,44 @@ typedef bcb *BCB;
 
 #define BDB_max_shared		20	/* maximum number of shared latch owners per bdb */
 
+/***
 class bdb : public pool_alloc<type_bdb>
 {
     public:
-	Database*	bdb_dbb;				/* Database block (for ASTs) */
-	struct lck*	bdb_lock;				/* Lock block for buffer */
-	struct Que	bdb_que;				/* Buffer Que */
-	struct Que	bdb_in_use;				/* queue of buffers in use */
-	struct pag*	bdb_buffer;				/* Actual buffer */
-	struct jrd_exp*	bdb_expanded_buffer;	/* expanded index buffer */
-	bdb*		bdb_jrn_bdb;			/* BDB containing journal records */
-	struct btb*	bdb_blocked;			/* Blocked attachments block */
-	SLONG		bdb_page;				/* Database page number in buffer */
+	Database*	bdb_dbb;				// Database block (for ASTs) 
+	struct lck*	bdb_lock;				// Lock block for buffer 
+	struct Que	bdb_que;				// Buffer Que 
+	struct Que	bdb_in_use;				// queue of buffers in use 
+	struct pag*	bdb_buffer;				// Actual buffer 
+	struct jrd_exp*	bdb_expanded_buffer;	// expanded index buffer 
+	bdb*		bdb_jrn_bdb;			// BDB containing journal records 
+	struct btb*	bdb_blocked;			// Blocked attachments block 
+	SLONG		bdb_page;				// Database page number in buffer 
 	ULONG		bdb_sequence;
 	SLONG		bdb_incarnation;
-	ULONG		bdb_transactions;		/* vector of dirty flags to reduce commit overhead */
-	//SLONG		bdb_mark_transaction;	/* hi-water mark transaction to defer header page I/O */
-	bdb*		bdb_left;				/* dirty page binary tree link */
-	bdb*		bdb_right;				/* dirty page binary tree link */
-	bdb*		bdb_parent;				/* dirty page binary tree link */
-	struct Que	bdb_lower;				/* lower precedence Que */
-	struct Que	bdb_higher;				/* higher precedence Que */
-	struct Que	bdb_waiters;			/* latch wait Que */
-	struct tdbb*bdb_exclusive;			/* thread holding exclusive latch */
-	struct tdbb*bdb_io;					/* thread holding io latch */
-	UATOM		bdb_ast_flags;			/* flags manipulated at AST level */
+	ULONG		bdb_transactions;		// vector of dirty flags to reduce commit overhead 
+	//SLONG		bdb_mark_transaction;	// hi-water mark transaction to defer header page I/O 
+	bdb*		bdb_left;				// dirty page binary tree link 
+	bdb*		bdb_right;				// dirty page binary tree link 
+	bdb*		bdb_parent;				// dirty page binary tree link 
+	struct Que	bdb_lower;				// lower precedence Que 
+	struct Que	bdb_higher;				// higher precedence Que 
+	struct Que	bdb_waiters;			// latch wait Que 
+	struct thread_db*	bdb_exclusive;	// thread holding exclusive latch 
+	struct thread_db*	bdb_io;			// thread holding io latch 
+	UATOM		bdb_ast_flags;			// flags manipulated at AST level 
 	USHORT		bdb_flags;
-	USHORT		bdb_length;				/* Length of journal records */
-	SSHORT		bdb_use_count;			/* Number of active users */
-	SSHORT		bdb_scan_count;			/* concurrent sequential scans */
-	USHORT		bdb_write_direction;    /* Where to write buffer */
-	ULONG       bdb_difference_page;    /* Number of page in difference file */
-	SLONG       bdb_diff_generation;    /* Number of backup/restore cycle for 
+	USHORT		bdb_length;				// Length of journal records 
+	SSHORT		bdb_use_count;			// Number of active users 
+	SSHORT		bdb_scan_count;			// concurrent sequential scans 
+	USHORT		bdb_write_direction;    // Where to write buffer 
+	ULONG       bdb_difference_page;    // Number of page in difference file 
+	SLONG       bdb_diff_generation;    // Number of backup/restore cycle for 
 										   this database in current process.
-										   Used in CS only. */
-	struct tdbb*bdb_shared[BDB_max_shared];	/* threads holding shared latches */
+										   Used in CS only. 
+	struct tdbb* bdb_shared[BDB_max_shared];	// threads holding shared latches 
 };
-typedef bdb *BDB;
+***/
 
 /* bdb_flags */
 
@@ -147,7 +150,7 @@ typedef bdb *BDB;
 
 /* PRE -- Precedence block */
 
-class pre //: public pool_alloc<type_pre>
+class Precedence //: public pool_alloc<type_pre>
 {
 public:
 	Bdb*		pre_hi;
@@ -157,7 +160,7 @@ public:
 	struct Que	pre_higher;
 	SSHORT		pre_flags;
 };
-typedef pre *PRE;
+//typedef pre *PRE;
 
 #define PRE_cleared	1
 
@@ -201,20 +204,22 @@ typedef enum LatchType
 
 /* LWT -- Latch wait block */
 
+/***
 class lwt : public pool_alloc<type_lwt>
 {
     public:
 	struct tdbb*	lwt_tdbb;
-	LatchType		lwt_latch;		/* latch type requested */
-	struct Que		lwt_waiters;	/* latch queue */
-	AsyncEvent	lwt_event;		/* grant event to wait on */
+	LatchType		lwt_latch;		// latch type requested
+	struct Que		lwt_waiters;	// latch queue
+	AsyncEvent	lwt_event;			// grant event to wait on 
 	USHORT			lwt_flags;
 };
 typedef lwt *LWT;
+***/
 
 #define LWT_pending	1			/* latch request is pending */
 
-#include "../jrd/os/pio.h"
+//#include "../jrd/os/pio.h"
 
 /* Constants used by prefetch mechanism */
 
@@ -223,21 +228,23 @@ typedef lwt *LWT;
 
 /* Prefetch block */
 
+/***
 class prf : public pool_alloc<type_prf>
 {
     public:
-	struct tdbb*prf_tdbb;			/* thread database context */
-	SLONG		prf_start_page;		/* starting page of multipage prefetch */
-	USHORT		prf_max_prefetch;	/* maximum no. of pages to prefetch */
-	USHORT		prf_page_count;		/* actual no. of pages being prefetched */
-	struct		piob prf_piob;		/* physical I/O status block */
-	SCHAR*		prf_aligned_buffer;	/* buffer address aligned for raw (OS cache bypass) I/O */
-	SCHAR*		prf_io_buffer;		/* I/O buffer address */
+	struct thread_db*	prf_tdbb;	// thread database context 
+	SLONG		prf_start_page;		// starting page of multipage prefetch 
+	USHORT		prf_max_prefetch;	// maximum no. of pages to prefetch 
+	USHORT		prf_page_count;		// actual no. of pages being prefetched 
+	struct		piob prf_piob;		// physical I/O status block 
+	SCHAR*		prf_aligned_buffer;	// buffer address aligned for raw (OS cache bypass) I/O 
+	SCHAR*		prf_io_buffer;		// I/O buffer address 
 	UCHAR		prf_flags;
 	bdb*		prf_bdbs[PREFETCH_MAX_TRANSFER / MIN_PAGE_SIZE];
 	SCHAR		prf_unaligned_buffer[PREFETCH_MAX_TRANSFER + MIN_PAGE_SIZE];
 };
 typedef prf *PRF;
+***/
 
 #define PRF_active	1			/* prefetch block currently in use */
 

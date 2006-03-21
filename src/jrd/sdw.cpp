@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/ib_stdio.h"
 
@@ -55,19 +55,20 @@
 #include "PageCache.h"
 #include "Bdb.h"
 
+class File;
 
 
-static void activate_shadow(TDBB tdbb);
-static SDW allocate_shadow(DBB dbb, struct fil *, USHORT, USHORT);
-static BOOLEAN check_for_file(TDBB tdbb, SCHAR *, USHORT);
+static void activate_shadow(thread_db* tdbb);
+static Shadow *allocate_shadow(DBB dbb, File *, USHORT, USHORT);
+static BOOLEAN check_for_file(thread_db* tdbb, SCHAR *, USHORT);
 #ifdef NOT_USED_OR_REPLACED
-static void check_if_got_ast(struct fil *);
+static void check_if_got_ast(File *);
 #endif
-static void copy_header(TDBB tdbb);
+static void copy_header(thread_db* tdbb);
 static void update_dbb_to_sdw(Database *);
 
 
-void SDW_add(TDBB tdbb, TEXT * file_name, USHORT shadow_number, USHORT file_flags)
+void SDW_add(thread_db* tdbb, TEXT * file_name, USHORT shadow_number, USHORT file_flags)
 {
 /**************************************
  *
@@ -80,8 +81,8 @@ void SDW_add(TDBB tdbb, TEXT * file_name, USHORT shadow_number, USHORT file_flag
  *
  **************************************/
 	DBB dbb;
-	FIL shadow_file;
-	SDW shadow;
+	File *shadow_file;
+	Shadow *shadow;
 
 	dbb = tdbb->tdbb_database;
 
@@ -118,7 +119,7 @@ void SDW_add(TDBB tdbb, TEXT * file_name, USHORT shadow_number, USHORT file_flag
 }
 
 
-int SDW_add_file(TDBB tdbb, TEXT * file_name, SLONG start, USHORT shadow_number)
+int SDW_add_file(thread_db* tdbb, TEXT * file_name, SLONG start, USHORT shadow_number)
 {
 /**************************************
  *
@@ -132,10 +133,10 @@ int SDW_add_file(TDBB tdbb, TEXT * file_name, SLONG start, USHORT shadow_number)
  *
  **************************************/
 
-	FIL shadow_file, next, file;
-	SDW shadow;
+	File *shadow_file, *next, *file;
+	Shadow *shadow;
 	Bdb temp_bdb;
-	HDR header;
+	header_page* header;
 	SLONG sequence;
 	SCHAR *spare_buffer = NULL, *spare_page;
 
@@ -195,7 +196,7 @@ int SDW_add_file(TDBB tdbb, TEXT * file_name, SLONG start, USHORT shadow_number)
 
 /* create the header using the spare_buffer */
 
-	header = (HDR) spare_page;
+	header = (header_page*) spare_page;
 	header->hdr_header.pag_type = pag_header;
 	header->hdr_sequence = sequence;
 	header->hdr_page_size = dbb->dbb_page_size;
@@ -292,7 +293,7 @@ else
 }
 
 
-void SDW_check(TDBB tdbb)
+void SDW_check(thread_db* tdbb)
 {
 /**************************************
  *
@@ -305,20 +306,20 @@ void SDW_check(TDBB tdbb)
  *	be deleted or shut down.
  *
  **************************************/
-	SDW shadow, next_shadow;
+	Shadow *shadow, *next_shadow;
 	//BOOLEAN start_conditional = TRUE;
 	DBB dbb;
-	LCK lock;
+	Lock* lock;
 
 	dbb = tdbb->tdbb_database;
 
-/* first get rid of any shadows that need to be 
-   deleted or shutdown; deleted shadows must also
-   be shutdown 
+	/* first get rid of any shadows that need to be 
+	   deleted or shutdown; deleted shadows must also
+	   be shutdown 
 
-   Check to see if there is a valid shadow in the shadow set,
-   if not then it is time to start an conditional shadow (if
-   one has been defined). */
+       Check to see if there is a valid shadow in the shadow set,
+	   if not then it is time to start an conditional shadow (if
+	   one has been defined). */
 
 	for (shadow = dbb->dbb_shadow; shadow; shadow = next_shadow) 
 		{
@@ -327,8 +328,7 @@ void SDW_check(TDBB tdbb)
 		if (shadow->sdw_flags & SDW_delete) 
 			{
 			MET_delete_shadow(tdbb, shadow->sdw_number);
-			gds__log
-				("shadow %s deleted from database %s due to unavailability on write",
+			gds__log ("shadow %s deleted from database %s due to unavailability on write",
 				 shadow->sdw_file->fil_string, dbb->dbb_file->fil_string);
 			}
 
@@ -343,7 +343,7 @@ void SDW_check(TDBB tdbb)
 		{
 		if (SDW_lck_update(dbb,  0)) 
 			{
-			lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) lck();
+			lock = FB_NEW_RPT(*dbb->dbb_permanent, sizeof(SLONG)) Lock();
 			lock->lck_dbb = dbb;
 			lock->lck_attachment = tdbb->tdbb_attachment;
 			lock->lck_length = sizeof(SLONG);
@@ -367,7 +367,7 @@ void SDW_check(TDBB tdbb)
 }
 
 
-BOOLEAN SDW_check_conditional(TDBB tdbb)
+BOOLEAN SDW_check_conditional(thread_db* tdbb)
 {
 /**************************************
  *
@@ -380,7 +380,7 @@ BOOLEAN SDW_check_conditional(TDBB tdbb)
  *	if so update meta data and return true
  *
  **************************************/
-	SDW shadow, next_shadow;
+	Shadow *shadow, *next_shadow;
 	BOOLEAN start_conditional = TRUE;
 	USHORT file_flags;
 	DBB dbb;
@@ -442,14 +442,14 @@ void SDW_close(DBB dbb)
  *	a database.
  *
  **************************************/
-	SDW shadow;
+	Shadow *shadow;
 
 	for (shadow = dbb->dbb_shadow; shadow; shadow = shadow->sdw_next)
 		PIO_close(shadow->sdw_file);
 }
 
 
-void SDW_dump_pages(TDBB tdbb)
+void SDW_dump_pages(thread_db* tdbb)
 {
 /**************************************
  *
@@ -464,7 +464,7 @@ void SDW_dump_pages(TDBB tdbb)
  *
  **************************************/
 	DBB dbb;
-	SDW shadow;
+	Shadow *shadow;
 	SLONG page_number, max;
 
 	dbb = tdbb->tdbb_database;
@@ -527,7 +527,7 @@ void SDW_dump_pages(TDBB tdbb)
 
 
 
-void SDW_get_shadows(TDBB tdbb)
+void SDW_get_shadows(thread_db* tdbb)
 {
 /**************************************
  *
@@ -540,21 +540,21 @@ void SDW_get_shadows(TDBB tdbb)
  *	defined.
  *
  **************************************/
-	HDR header;
+	header_page* header;
 	DBB dbb = tdbb->tdbb_database;
 
 	/* unless we have one, get a shared lock to ensure that we don't miss any
 	   signals */
 
 	dbb->pageCache->getShadows = false;
-	LCK lock = dbb->dbb_shadow_lock;
+	Lock* lock = dbb->dbb_shadow_lock;
 
 	if (lock->lck_physical != LCK_SR) 
 		{
 		/* fb_assert (lock->lck_physical == LCK_none); */
 
 		WIN window(HEADER_PAGE);
-		header = (HDR) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
+		header = (header_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
 		lock->lck_key.lck_long = header->hdr_shadow_count;
 		LCK_lock(tdbb, lock, LCK_SR, TRUE);
 		CCH_RELEASE(tdbb, &window);
@@ -570,7 +570,7 @@ void SDW_get_shadows(TDBB tdbb)
 
 
 
-void SDW_init(TDBB tdbb, bool activate, bool delete_, SBM sbm_rec)
+void SDW_init(thread_db* tdbb, bool activate, bool delete_, PageBitmap* pages)
 {
 /**************************************
  *
@@ -587,8 +587,8 @@ void SDW_init(TDBB tdbb, bool activate, bool delete_, SBM sbm_rec)
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
-	HDR header;
+	Lock* lock;
+	header_page* header;
 	USHORT key_length;
 
 	dbb = tdbb->tdbb_database;
@@ -597,7 +597,7 @@ void SDW_init(TDBB tdbb, bool activate, bool delete_, SBM sbm_rec)
 /* set up the lock block for synchronizing addition of new shadows */
 
 	key_length = sizeof(header->hdr_shadow_count);
-	dbb->dbb_shadow_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, key_length) lck();
+	dbb->dbb_shadow_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, key_length) Lock();
 	lock->lck_type = LCK_shadow;
 	lock->lck_owner_handle = LCK_get_owner_handle(tdbb, LCK_shadow);
 	lock->lck_parent = dbb->dbb_lock;
@@ -613,14 +613,14 @@ void SDW_init(TDBB tdbb, bool activate, bool delete_, SBM sbm_rec)
 
 	WIN window(HEADER_PAGE);
 
-	header = (HDR) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
+	header = (header_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
 	lock->lck_key.lck_long = header->hdr_shadow_count;
 	LCK_lock(tdbb, lock, LCK_SR, TRUE);
 	CCH_RELEASE(tdbb, &window);
 
 	MET_get_shadow_files(tdbb, delete_);
-	//CCH_recover_shadow(tdbb, sbm_rec);
-	dbb->pageCache->recoverShadow(tdbb, sbm_rec);
+
+	//dbb->pageCache->recoverShadow(tdbb, pages);
 }
 
 
@@ -648,7 +648,7 @@ BOOLEAN SDW_lck_update(DBB dbb, SLONG sdw_update_flags)
  *  	Update the data with sdw_update_flag passed to the function
  *
  **************************************/
-	LCK lock;
+	Lock* lock;
 
 	if (!(lock = dbb->dbb_shadow_lock))
 		return FALSE;
@@ -677,7 +677,7 @@ BOOLEAN SDW_lck_update(DBB dbb, SLONG sdw_update_flags)
 }
 
 
-void SDW_notify(TDBB tdbb)
+void SDW_notify(thread_db* tdbb)
 {
 /**************************************
  *
@@ -691,8 +691,8 @@ void SDW_notify(TDBB tdbb)
  *
  **************************************/
 	DBB dbb;
-	LCK lock;
-	HDR header;
+	Lock* lock;
+	header_page* header;
 	dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
 
@@ -701,7 +701,7 @@ void SDW_notify(TDBB tdbb)
    on the shadow count, this is effectively an uninterruptible operation */
 
 	WIN window(HEADER_PAGE);
-	header = (HDR) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
+	header = (header_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
 	CCH_MARK_MUST_WRITE(tdbb, &window);
 
 /* get an exclusive lock on the current shadowing semaphore to
@@ -732,7 +732,7 @@ void SDW_notify(TDBB tdbb)
 }
 
 
-bool SDW_rollover_to_shadow(TDBB tdbb, FIL file, const bool inAst)
+bool SDW_rollover_to_shadow(thread_db* tdbb, File *file, const bool inAst)
 {
 /**************************************
  *
@@ -743,18 +743,18 @@ bool SDW_rollover_to_shadow(TDBB tdbb, FIL file, const bool inAst)
  * Functional description
  *
  **************************************/
-	SDW shadow;
+	Shadow	*shadow;
 	BOOLEAN start_conditional = FALSE;
-	SLONG sdw_update_flags = SDW_rollover;
-	LCK shadow_lock;
-	struct lck temp_lock;
+	SLONG	sdw_update_flags = SDW_rollover;
+	Lock	*shadow_lock;
+	Lock	temp_lock;
 
 	DBB dbb = tdbb->tdbb_database;
 
 	if (file != dbb->dbb_file)
 		return true;
 
-	LCK update_lock = &temp_lock;
+	Lock* update_lock = &temp_lock;
 	update_lock->lck_dbb = dbb;
 	update_lock->lck_attachment = tdbb->tdbb_attachment;
 	update_lock->lck_length = sizeof(SLONG);
@@ -864,7 +864,7 @@ bool SDW_rollover_to_shadow(TDBB tdbb, FIL file, const bool inAst)
 }
 
 
-void SDW_shutdown_shadow(DBB dbb, SDW shadow)
+void SDW_shutdown_shadow(DBB dbb, Shadow *shadow)
 {
 /**************************************
  *
@@ -876,8 +876,8 @@ void SDW_shutdown_shadow(DBB dbb, SDW shadow)
  *	Stop shadowing to a given shadow number.
  *
  **************************************/
-	SDW *ptr;
-	FIL file, free;
+	Shadow **ptr;
+	File *file, *free;
 
 
 /* find the shadow block and delete it from linked list */
@@ -900,7 +900,7 @@ void SDW_shutdown_shadow(DBB dbb, SDW shadow)
 }
 
 
-void SDW_start(TDBB tdbb,
+void SDW_start(thread_db* tdbb,
 			   const TEXT* file_name,
 			   USHORT shadow_number, USHORT file_flags, bool delete_)
 {
@@ -918,12 +918,13 @@ void SDW_start(TDBB tdbb,
  *
  **************************************/
 	DBB dbb;
-	SDW shadow;
+	Shadow *shadow;
 	int length, expanded_length, string_length;
 	SCHAR expanded_name[MAXPATHLEN];
 	UCHAR *p;
-	FIL dbb_file, shadow_file = 0;
-	HDR database_header, shadow_header;
+	File *dbb_file, *shadow_file = 0;
+	header_page* database_header;
+	header_page* shadow_header;
 	volatile USHORT header_fetched = 0;
 	SLONG *spare_buffer = NULL, *spare_page;
 
@@ -995,14 +996,14 @@ void SDW_start(TDBB tdbb,
 
 		window.win_page = HEADER_PAGE;
 		database_header =
-			(HDR) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
+			(header_page*) CCH_FETCH(tdbb, &window, LCK_read, pag_header);
 		header_fetched++;
 
 		if (!PIO_read (shadow_file, window.win_bdb, (PAG) spare_page,
 			 tdbb->tdbb_status_vector)) 
 			ERR_punt();
 
-		shadow_header = (HDR) spare_page;
+		shadow_header = (header_page*) spare_page;
 
 		/* 
 		 *          NOTE ! NOTE! NOTE!
@@ -1095,9 +1096,9 @@ int SDW_start_shadowing(void* ast_object)
  *
  **************************************/
 	DBB new_dbb = reinterpret_cast<DBB>(ast_object);
-	struct tdbb thd_context, *tdbb;
+	struct thread_db thd_context, *tdbb;
 
-	LCK lock = new_dbb->dbb_shadow_lock;
+	Lock* lock = new_dbb->dbb_shadow_lock;
 	
 	if (lock->lck_physical != LCK_SR)
 		return 0;
@@ -1131,7 +1132,7 @@ int SDW_start_shadowing(void* ast_object)
 }
 
 
-static void activate_shadow(TDBB tdbb)
+static void activate_shadow(thread_db* tdbb)
 {
 /**************************************
  *
@@ -1144,7 +1145,7 @@ static void activate_shadow(TDBB tdbb)
  *
  **************************************/
 	DBB dbb;
-	HDR header;
+	header_page* header;
 	//JRNDA record;
 	dbb = tdbb->tdbb_database;
 	CHECK_DBB(dbb);
@@ -1156,15 +1157,15 @@ static void activate_shadow(TDBB tdbb)
 /* clear the shadow bit on the header page */
 
 	WIN window(HEADER_PAGE);
-	header = (HDR) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
+	header = (header_page*) CCH_FETCH(tdbb, &window, LCK_write, pag_header);
 	CCH_MARK_MUST_WRITE(tdbb, &window);
 	header->hdr_flags &= ~hdr_active_shadow;
 	CCH_RELEASE(tdbb, &window);
 }
 
 
-static SDW allocate_shadow(DBB dbb,
-						   FIL shadow_file,
+static Shadow *allocate_shadow(DBB dbb,
+						   File *shadow_file,
 						   USHORT shadow_number, USHORT file_flags)
 {
 /**************************************
@@ -1178,30 +1179,29 @@ static SDW allocate_shadow(DBB dbb,
  *	the fields properly.
  *
  **************************************/
-	SDW shadow, *pShadow;
+	Shadow *shadow, **pShadow;
 
-	shadow = FB_NEW(*dbb->dbb_permanent) sdw();
+	shadow = FB_NEW(*dbb->dbb_permanent) Shadow;
 	shadow->sdw_file = shadow_file;
 	shadow->sdw_number = shadow_number;
+	
 	if (file_flags & FILE_manual)
 		shadow->sdw_flags |= SDW_manual;
+		
 	if (file_flags & FILE_conditional)
 		shadow->sdw_flags |= SDW_conditional;
 
-/* Link the new shadow into the list of shadows according to
- * shadow number position.  This is so we will activate
- * conditional shadows in the order specified by shadow number.
- * Note that the shadow number may not be unique in this list
- * - as could happen when shadow X is dropped, and then X is
- * recreated.
- */
+	/* Link the new shadow into the list of shadows according to
+	 * shadow number position.  This is so we will activate
+	 * conditional shadows in the order specified by shadow number.
+	 * Note that the shadow number may not be unique in this list
+	 * - as could happen when shadow X is dropped, and then X is
+	 * recreated.
+	 */
 
-	for (pShadow = &dbb->dbb_shadow; *pShadow;
-		 pShadow = &((*pShadow)->sdw_next))
-	{
+	for (pShadow = &dbb->dbb_shadow; *pShadow; pShadow = &((*pShadow)->sdw_next))
 		if ((*pShadow)->sdw_number >=shadow_number)
 			break;
-	}
 
 	shadow->sdw_next = *pShadow;
 	*pShadow = shadow;
@@ -1210,7 +1210,7 @@ static SDW allocate_shadow(DBB dbb,
 }
 
 
-static BOOLEAN check_for_file(TDBB tdbb, SCHAR * name, USHORT length)
+static BOOLEAN check_for_file(thread_db* tdbb, SCHAR * name, USHORT length)
 {
 /**************************************
  *
@@ -1232,7 +1232,7 @@ static BOOLEAN check_for_file(TDBB tdbb, SCHAR * name, USHORT length)
 		// parameter. It's not required, because here we only check for presence of
 		// existing file, never really use (or create) it.
 	
-		FIL temp_file = PIO_open(tdbb, name, FALSE, 0, name);
+		File *temp_file = PIO_open(tdbb, name, FALSE, 0, name);
 		PIO_close(temp_file);
 		}
 	catch (OSRIException&) 
@@ -1244,7 +1244,7 @@ static BOOLEAN check_for_file(TDBB tdbb, SCHAR * name, USHORT length)
 }
 
 
-static void copy_header(TDBB tdbb)
+static void copy_header(thread_db* tdbb)
 {
 /**************************************
  *
@@ -1288,8 +1288,8 @@ static void update_dbb_to_sdw(DBB dbb)
  *
  **************************************/
 
-	SDW shadow;
-	FIL file;
+	Shadow *shadow;
+	File *file;
 
 /* find shadow to rollover to */
 

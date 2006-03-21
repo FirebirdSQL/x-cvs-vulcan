@@ -31,7 +31,7 @@ public:
 	AsciiBlob (Blob *blob);
 	virtual void putSegment (int length, const char *data, bool copyFlag);
 	virtual void getSubString (long pos, long length, char *buffer);
-	virtual int length();
+	virtual uint64 length();
 	virtual int release();
 	virtual void addRef();
 	AsciiBlob();

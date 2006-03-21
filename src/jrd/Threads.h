@@ -38,7 +38,9 @@
 #include "SyncObject.h"
 #include "Synchronize.h"
 
-class Thread;
+CLASS (Thread)
+
+START_NAMESPACE
 
 class Threads : public Synchronize
 {
@@ -60,5 +62,7 @@ public:
 	SyncObject		syncObject;
 	volatile INTERLOCK_TYPE	useCount;
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_THREADS_H__84FD1987_A97F_11D2_AB5C_0000C01D2301__INCLUDED_)

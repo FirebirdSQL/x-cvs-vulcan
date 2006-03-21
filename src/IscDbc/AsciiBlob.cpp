@@ -77,7 +77,7 @@ int AsciiBlob::release()
 	return useCount;
 }
 
-int AsciiBlob::length()
+uint64 AsciiBlob::length()
 {
 	if (!populated)
 		populate();

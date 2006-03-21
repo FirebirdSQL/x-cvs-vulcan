@@ -41,8 +41,12 @@ class Connection;
 class SecurityContext
 {
 public:
-	virtual Connection*	getConnection() = 0;
+	virtual Connection*	getUserConnection() = 0;
+	virtual Connection*	getNewConnection() = 0;
 	virtual const char*	getDatabaseFilename() = 0;
+	virtual const char* getAccount(void) = 0;
+	virtual const char* getEncryptedPassword(void) = 0;
+	virtual const char* getPassword(void) = 0;
 };
 
 static const int SecurityPluginVersion1 =		1;
@@ -58,7 +62,8 @@ public:
 	virtual ConfObject* getConfiguration(void);
 	virtual void		authenticateUser(SecurityContext *context, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	virtual void		updateAccountInfo(SecurityContext *context, int apbLength, const UCHAR* apb);
-
+	virtual void		close();
+	
 protected:
 	ConfObj			configuration;
 	SecurityPlugin	*chain;

@@ -26,15 +26,16 @@
  *
  */
 
-#include "firebird.h"
-#include "../jrd/ib_stdio.h"
 #include <string.h>
-#include "../jrd/common.h"
 #include <stdarg.h>
+#include "fbdev.h"
+#include "../jrd/ib_stdio.h"
+#include "../jrd/common.h"
 #include "gen/iberror.h"
 #include "../jrd/iberr.h"
 #include "OSRIException.h"
 #include "PageCache.h"
+#include "Attachment.h"
 
 #if ( !defined( REQUESTER) && !defined( SUPERCLIENT))
 #include "../jrd/jrd.h"
@@ -79,13 +80,10 @@ void ERR_bugcheck(int number)
  *	Things seem to be going poorly today.
  *
  **************************************/
-	DBB dbb;
-
-	dbb = GET_DBB;
+ 
+	DBB dbb = GET_DBB;
 	dbb->dbb_flags |= DBB_bugcheck;
-
 	CCH_SHUTDOWN_DATABASE(GET_THREAD_DATA, dbb);
-
 	internal_error(isc_bug_check, number);
 }
 #endif
@@ -150,12 +148,12 @@ const TEXT* ERR_cstring(const TEXT* in_string)
  *
  **************************************/
 
-	return ERR_string(in_string, strlen(in_string));
+	return ERR_string(in_string, (int) strlen(in_string));
 }
 
 #if ( !defined( REQUESTER) && !defined( SUPERCLIENT))
-void ERR_duplicate_error(IDX_E	code,
-						JRD_REL		relation,
+void ERR_duplicate_error(IDX_E code,
+						Relation* relation,
 						USHORT index_number)
 {
 /**************************************
@@ -168,12 +166,12 @@ void ERR_duplicate_error(IDX_E	code,
  *	Duplicate error during index update.
  *
  **************************************/
-	TEXT  index[32];
-	TEXT  constraint[32];
+	SqlIdentifier index;
+	SqlIdentifier constraint;
 	const TEXT* index_name;
 	const TEXT* constraint_name;
 
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 
 	MET_lookup_index(tdbb, index, relation->rel_name, index_number + 1);
 	if (index[0]) {
@@ -197,11 +195,26 @@ void ERR_duplicate_error(IDX_E	code,
 		ERR_punt();
 		break;
 
-	case idx_e_foreign:
+	case idx_e_foreign_target_doesnt_exist:
 		ERR_post(isc_foreign_key,
 				 isc_arg_string, ERR_cstring(constraint_name),
-				 isc_arg_string, 
-				 (const char*) relation->rel_name, 0);
+				 isc_arg_string, (const char*) relation->rel_name, 0);
+		/* TODO:AB
+		ERR_post(isc_foreign_key, isc_arg_string, constraint_name,
+			 	 isc_arg_string, relation->rel_name, 
+			 	 isc_arg_gds, isc_foreign_key_target_doesnt_exist, 0);
+		*/
+		break;
+
+	case idx_e_foreign_references_present:
+		ERR_post(isc_foreign_key,
+				 isc_arg_string, ERR_cstring(constraint_name),
+				 isc_arg_string, (const char*) relation->rel_name, 0);
+		/* TODO:AB
+		ERR_post(isc_foreign_key, isc_arg_string, constraint_name,
+			 	 isc_arg_string, relation->rel_name,
+			 	 isc_arg_gds, isc_foreign_key_references_present, 0);
+		*/
 		break;
 
 	default:
@@ -277,7 +290,7 @@ void ERR_log(int facility, int number, const TEXT* message)
  *
  **************************************/
 	TEXT errmsg[MAX_ERRMSG_LEN + 1];
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	const char *dbname = "";
 
 	DEBUG;
@@ -317,7 +330,7 @@ BOOLEAN ERR_post_warning(ISC_STATUS status, ...)
 	int indx = 0, warning_indx = 0;
 
 	VA_START(args, status);
-	status_vector = ((TDBB) GET_THREAD_DATA)->tdbb_status_vector;
+	status_vector = ((thread_db*) GET_THREAD_DATA)->tdbb_status_vector;
 
 	if (status_vector[0] != isc_arg_gds ||
 		(status_vector[0] == isc_arg_gds && status_vector[1] == 0 &&
@@ -404,6 +417,7 @@ void ERR_post(ISC_STATUS status, ...)
 	va_list		args;
 	va_start	(args, status);
 	throw OSRIException (args, status);
+//#pragma FB_COMPILER_MESSAGE("No va_end here, maybe create the exception, va_end and throw it?")
 
 #ifdef OBSOLETE
 	ISC_STATUS *status_vector;
@@ -411,7 +425,7 @@ void ERR_post(ISC_STATUS status, ...)
 	int i, tmp_status_len = 0, status_len = 0, err_status_len = 0;
 	int warning_count = 0, warning_indx = 0;
 
-	status_vector = ((TDBB) GET_THREAD_DATA)->tdbb_status_vector;
+	status_vector = ((thread_db*) GET_THREAD_DATA)->tdbb_status_vector;
 
 	/* stuff the status into temp buffer */
 	
@@ -507,7 +521,7 @@ void ERR_punt(void)
  *
  **************************************/
 
-	TDBB tdbb = GET_THREAD_DATA;
+	thread_db* tdbb = GET_THREAD_DATA;
 	DBB dbb = tdbb->tdbb_database;
 
 	if (dbb && (dbb->dbb_flags & DBB_bugcheck))
@@ -592,7 +606,7 @@ void ERR_warning(ISC_STATUS status, ...)
  *	that subsequent errors can supersede this one.
  *
  **************************************/
-	TDBB tdbb;
+	thread_db* tdbb;
 
 	tdbb = GET_THREAD_DATA;
 

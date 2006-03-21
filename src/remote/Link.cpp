@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Link.h"
 
@@ -66,3 +66,16 @@ double Link::getDouble(void)
 {
 	return 0;
 }
+
+void Link::flushBlock()
+{
+}
+
+void Link::flushMessage()
+{
+}
+
+void Link::endBlock()
+{
+}
+

@@ -24,19 +24,23 @@
 #ifndef JRD_SCL_PROTO_H
 #define JRD_SCL_PROTO_H
 
-class Generate;
+class SecurityClass;
+class Attachment;
 
-void SCL_check_access(TDBB tdbb, struct scl*, SLONG, const TEXT*,
+CLASS (Generate);
+
+void SCL_check_access(thread_db* tdbb, struct SecurityClass*, SLONG, const TEXT*,
 					  const TEXT*, USHORT, const TEXT*, const TEXT*);
-void SCL_check_procedure(TDBB tdbb, struct dsc*, USHORT);
-void SCL_check_relation(TDBB tdbb, struct dsc*, USHORT);
-struct scl* SCL_get_class(TDBB tdbb, const TEXT*);
-int SCL_get_mask(TDBB tdbb, const TEXT*, const TEXT*);
-void SCL_init(bool, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*, const TEXT* securityDatabase, TDBB, bool);
+void SCL_check_procedure(thread_db* tdbb, struct dsc*, USHORT);
+void SCL_check_relation(thread_db* tdbb, struct dsc*, USHORT);
+SecurityClass* SCL_get_class(thread_db* tdbb, const TEXT*);
+int SCL_get_mask(thread_db* tdbb, const TEXT*, const TEXT*);
+//void SCL_init(bool, const TEXT*, TEXT*, TEXT*, TEXT*, TEXT*, const TEXT* securityDatabase, thread_db*, bool);
+void SCL_init(bool create, Attachment *attachment, const TEXT *securityDatabase, thread_db* threadData);
 void SCL_move_priv(Generate *acl, USHORT);
-struct scl* SCL_recompute_class(TDBB, TEXT*);
-void SCL_release(TDBB tdbb, struct scl*);
-void SCL_check_index(TDBB, const TEXT*, UCHAR, USHORT);
+SecurityClass* SCL_recompute_class(thread_db*, TEXT*);
+void SCL_release(thread_db* tdbb, struct SecurityClass*);
+void SCL_check_index(thread_db*, const TEXT*, UCHAR, USHORT);
 
 #endif // JRD_SCL_PROTO_H
 

@@ -58,12 +58,13 @@
 #include "Synchronize.h"
 
 CLASS(Sync);
+CLASS(SyncObject);
+CLASS(LinkedList);
+CLASS(Threads);
 
-class Threads;
-class SyncObject;
+START_NAMESPACE
+
 class SyncWait;
-class LinkedList;
-class JavaThread;
 
 struct TimeZone;
 
@@ -71,13 +72,10 @@ class Thread : public Synchronize
 {
 public:
 	static Thread* findThread();
-	//void setTimeZone (const TimeZone *timeZone);
 	const char* getWhere();
 	void print (const char *label);
 	void print();
 	void findLocks (LinkedList &threads, LinkedList& syncObjects);
-	//void clearLock (Sync *sync);
-	//void setLock (Sync *sync);
 	void release();
 	void addRef();
 	void createThread (void (*fn)(void*), void *arg);
@@ -94,7 +92,8 @@ public:
 	Thread(const char *desc, Threads *threads, void (*fn)(void*), void *arg);
 
 	void			*argument;
-	void			(*function)(void*);
+	//void	(*function)(void*);
+	void			(* volatile function)(void*);
 	Threads			*pool;
 	void*			threadHandle;
 
@@ -102,9 +101,8 @@ public:
 	Thread			*next;				// next thread in pool
 	Thread			*que;				// next thread in wait que (see SyncObject)
 	LockType		lockType;			// requested lock type (see SyncObject)
-	bool			active;
+	//volatile bool	active;
 	volatile bool	lockGranted;
-	//volatile bool	licenseWakeup;
 	volatile long	activeLocks;
 	Sync			*locks;
 	Sync			*lockPending;
@@ -112,8 +110,6 @@ public:
 	bool			marked;
 	int				useCount;
 	const char		*description;
-	//const TimeZone	*defaultTimeZone;
-	//JavaThread		*javaThread;
 
 protected:
 	static void setThread (Thread *thread);
@@ -121,5 +117,7 @@ protected:
 public:
 	static THREAD_ID getCurrentThreadId(void);
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_THREAD_H__84FD1988_A97F_11D2_AB5C_0000C01D2301__INCLUDED_)

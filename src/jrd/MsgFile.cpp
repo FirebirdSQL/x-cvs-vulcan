@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <memory.h>
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "MsgFile.h"
 #include "msg.h"
@@ -39,6 +39,8 @@ MsgFile::~MsgFile(void)
 int MsgFile::lookupMsg(int facility, int number, int length, TEXT* buffer, USHORT* flags)
 {
 	int status = -1;
+	Sync sync(&syncObject, "lookupMsg"); 
+	sync.lock(Exclusive); // protect lseeks
 
 	/* Search down index levels to the leaf.  If we get lost, punt */
 
@@ -105,6 +107,7 @@ int MsgFile::lookupMsg(int facility, int number, int length, TEXT* buffer, USHOR
 
 int MsgFile::openMsgFile(const char* filename)
 {
+	fileName = filename;
 	msg_file = ::open(filename, O_RDONLY | O_BINARY, 0);
 	
 	if (msg_file < 0)

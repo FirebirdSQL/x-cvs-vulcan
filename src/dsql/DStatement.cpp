@@ -2,8 +2,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
-#include "common.h"
+#include <stdarg.h>
+#include "fbdev.h"
+//#include "common.h"
 #include "DStatement.h"
 #include "dsql.h"
 #include "CStatement.h"
@@ -28,9 +29,10 @@
 #include "BlrParse.h"
 #include "ibase.h"
 #include "OSRIException.h"
-#include "ddl_proto.h"
+//#include "ddl_proto.h"
 #include "Database.h"
 #include "InfoGen.h"
+#include "../jrd/tra.h"
 
 static const UCHAR recordInfo[] = 
 	{
@@ -87,15 +89,16 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			ERRD_post(isc_sqlerr, isc_arg_number, -104, 
 				isc_arg_gds, isc_command_end_err, 0);
 
-		/*** I don't think this is required by any standard.  jas 10/20/04
-		 *** One second thought, maybe it is required...
 		if (req_flags & REQ_cursor_open)
 			ERRD_post(isc_sqlerr, isc_arg_number, -519,
 				  isc_arg_gds, isc_dsql_open_cursor_request, 0);
-		***/
 		
 		reset();
 		transaction = trans;
+#ifndef SHARED_CACHE
+		trans->tra_attachment->att_database->syncConnection.lock(NULL, Exclusive);
+		trans->tra_attachment->att_database->syncAst.lock(NULL, Exclusive);
+#endif
 		statement = new CStatement (attachment);
 		thread.setDsqlPool (statement->pool);
 		thread.threadData->tdbb_transaction = trans;
@@ -116,20 +119,18 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			{
 			case REQ_SELECT:
 			case REQ_SELECT_UPD: 
+			case REQ_SELECT_BLOCK:
 			case REQ_INSERT: 
 			case REQ_DELETE: 
 			case REQ_UPDATE:
 			case REQ_UPDATE_CURSOR: 
 			case REQ_DELETE_CURSOR:
 			case REQ_EXEC_PROCEDURE:
+			case REQ_EXEC_BLOCK:
 				instantiateRequest (thread);
 				break;
 			
-			case REQ_DDL: 
-				if (statement->ddlNode->nod_type == nod_def_database)
-						ERRD_post(isc_sqlerr, isc_arg_number, -530,
-					  		isc_arg_gds, isc_dsql_crdb_prepare_err, 0);
-			
+			case REQ_DDL: 			
 			case REQ_COMMIT: 
 			case REQ_ROLLBACK: 
 			case REQ_EMBED_SELECT:
@@ -142,16 +143,28 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			default:
 				break;
 			}
+#ifndef SHARED_CACHE
+		trans->tra_attachment->att_database->syncAst.unlock();
+		trans->tra_attachment->att_database->syncConnection.unlock();
+#endif
 
 		return getSqlInfo (statusVector, itemLength, items, bufferLength, buffer);
 		}
 	catch(OSRIException& exception)
 		{
-		reset();
+#ifndef SHARED_CACHE
+		trans->tra_attachment->att_database->syncAst.unlock();
+		trans->tra_attachment->att_database->syncConnection.unlock();
+#endif
+	reset();
 		return exception.copy (statusVector);
 		}
 	
-	return FB_SUCCESS;
+#ifndef SHARED_CACHE
+	trans->tra_attachment->att_database->syncAst.unlock();
+	trans->tra_attachment->att_database->syncConnection.unlock();
+#endif
+return FB_SUCCESS;
 }
 
 void DStatement::reset()
@@ -202,6 +215,7 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 						{
 						case REQ_SELECT:
 						case REQ_EMBED_SELECT:
+						case REQ_SELECT_BLOCK: 
 							number = isc_info_sql_stmt_select;
 							break;
 							
@@ -248,6 +262,7 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 							number = isc_info_sql_stmt_delete;
 							break;
 							
+						case REQ_EXEC_BLOCK: 
 						case REQ_EXEC_PROCEDURE:
 							number = isc_info_sql_stmt_exec_procedure;
 							break;
@@ -425,7 +440,7 @@ UCHAR* DStatement::put_item(UCHAR item, int length, const UCHAR *string, UCHAR *
 	return ptr;
 }
 
-int DStatement::getRequestInfo(tdbb *threadData, int bufferLength, UCHAR *buffer)
+int DStatement::getRequestInfo(thread_db* threadData, int bufferLength, UCHAR *buffer)
 {
 	INF_request_info(threadData, statement->request, recordInfo, sizeof(recordInfo), buffer, bufferLength);
 
@@ -476,7 +491,7 @@ int DStatement::getRequestInfo(tdbb *threadData, int bufferLength, UCHAR *buffer
 	return data - buffer;
 }
 
-int DStatement::getPlanInfo(tdbb *threadData, int bufferLength, UCHAR **bufferPtr)
+int DStatement::getPlanInfo(thread_db* threadData, int bufferLength, UCHAR **bufferPtr)
 {
 	UCHAR explain_buffer[256];
 	int buffer_length = bufferLength;
@@ -737,6 +752,17 @@ UCHAR* DStatement::getVariableInfo(dsql_msg *message, const UCHAR *items, const 
 						else
 							length = 0;
 						break;
+
+					case isc_info_sql_relation_alias:
+						if (name = param->par_rel_alias) 
+							{
+							length = strlen(name);
+							buffer = reinterpret_cast<const UCHAR*>(name);
+							}
+						else
+							length = 0;
+						break;
+
 
 					case isc_info_sql_alias:
 						if (name = param->par_alias) 
@@ -1128,7 +1154,7 @@ bool DStatement::getIndices(int *explain_length_ptr, const UCHAR **explain_ptr, 
 	return true;
 }
 
-void DStatement::instantiateRequest(tdbb* tdsql)
+void DStatement::instantiateRequest(thread_db* tdsql)
 {
 	requestInstantiation = statement->getInstantiation();
 	dsql_msg *message = statement->sendMessage;
@@ -1178,9 +1204,11 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
 			{
 			case REQ_SELECT:
 			case REQ_SELECT_UPD:
+			case REQ_SELECT_BLOCK:
 			case REQ_EMBED_SELECT:
 			case REQ_GET_SEGMENT:
 			case REQ_PUT_SEGMENT:
+			case REQ_EXEC_BLOCK:
 				if (!singleton)
 					needsCursor = true;
 					
@@ -1279,7 +1307,8 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				if (s = jrd8_ddl (statusVector, &attachment, transactionHandle, statement->blrGen->getLength(), statement->blrGen->buffer))
 					return s;
 					
-				DDL_execute (statusVector, statement, transaction);
+//				DDL_execute (statusVector, statement, transaction);
+				statement->completeDDL(thread);
 				return FB_SUCCESS;
 
 			/***
@@ -1356,8 +1385,10 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				// Fall into ... 
 
 			case REQ_EXEC_PROCEDURE:
+			case REQ_EXEC_BLOCK:
 			case REQ_SELECT:
 			case REQ_SELECT_UPD:
+			case REQ_SELECT_BLOCK:
 			case REQ_INSERT:
 			case REQ_DELETE:
 			case REQ_UPDATE:
@@ -1491,69 +1522,46 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 
 void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, const UCHAR* blr, int msgLength, const UCHAR *inMsg, UCHAR* outMsg)
 {
-	if (blrLength == 0)
-		return;
-
-	//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
-	BlrParse parse (blr);
-	parse.getVersion();
-	int begin = parse.getByte();
-	int verb = parse.getByte();
-	int msgNumber = parse.getByte();
-	int count = parse.getWord();
-	int offset = 0;
+	par *parameter;
 	JrdMove mover;
-    int index, parmcount;
-    
-    parmcount = count / 2; /* don't include for nulls */
-    
-    for (index = 1; index <= parmcount; index++)
-		{
-        par *parameter = source->msg_par_ordered;
-        dsc desc, nullDesc;
-        int n;
 
-        parse.getBlrDescriptor (&desc);
-        int alignment = type_alignments[desc.dsc_dtype];
+	if (blrLength != 0)
+	{
 
-  	    for (n = 0; parameter && n < count; ++n, parameter = parameter->par_ordered)
+		//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
+		BlrParse parse (blr);
+		parse.getVersion();
+		int begin = parse.getByte();
+		int verb = parse.getByte();
+		int msgNumber = parse.getByte();
+		int count = parse.getWord();
+		int offset = 0;
+	    int index, parmcount;
+	    
+	    parmcount = count / 2; /* don't include for nulls */
+	    
+	    for (index = 1; index <= parmcount; index++)
 			{
-            if (parameter->par_index == index)
-                {
-                dsc parDesc = parameter->par_desc;
-				parDesc.dsc_address = msgBuffer + (IPTR) parameter->par_desc.dsc_address;
-		
-				if (DTYPE_IS_TEXT(parDesc.dsc_dtype))
-					parDesc.dsc_sub_type = 0;
-					
-				if (alignment)
-					offset = FB_ALIGN (offset, alignment);
-				
-				if (inMsg)
-					{
-					desc.dsc_address = (UCHAR*) inMsg + offset;
-					mover.move (&desc, &parDesc);
-					}
-				else
-					{
-					desc.dsc_address = outMsg + offset;
-					mover.move (&parDesc, &desc);
-					}
-				
-				offset += desc.dsc_length;
-	                    
-				/* handle the null */
-	            
-				if (parameter->par_null)
-					{
-        			parse.getBlrDescriptor (&desc);
-					alignment = type_alignments[desc.dsc_dtype];
-					parDesc = parameter->par_null->par_desc;
-					parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
-	                        
+	        parameter = source->msg_par_ordered;
+	        dsc desc, nullDesc;
+	        int n;
+	
+	        parse.getBlrDescriptor (&desc);
+	        int alignment = type_alignments[desc.dsc_dtype];
+	
+	  	    for (n = 0; parameter && n < count; ++n, parameter = parameter->par_ordered)
+				{
+	            if (parameter->par_index == index)
+	                {
+	                dsc parDesc = parameter->par_desc;
+					parDesc.dsc_address = msgBuffer + (IPTR) parameter->par_desc.dsc_address;
+			
+					if (DTYPE_IS_TEXT(parDesc.dsc_dtype))
+						parDesc.dsc_sub_type = 0;
+						
 					if (alignment)
 						offset = FB_ALIGN (offset, alignment);
-				
+					
 					if (inMsg)
 						{
 						desc.dsc_address = (UCHAR*) inMsg + offset;
@@ -1564,18 +1572,71 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 						desc.dsc_address = outMsg + offset;
 						mover.move (&parDesc, &desc);
 						}
-	                        
+					
 					offset += desc.dsc_length;
+		                    
+					/* handle the null */
+		            
+					if (parameter->par_null)
+						{
+	        			parse.getBlrDescriptor (&desc);
+						alignment = type_alignments[desc.dsc_dtype];
+						parDesc = parameter->par_null->par_desc;
+						parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
+		                        
+						if (alignment)
+							offset = FB_ALIGN (offset, alignment);
+					
+						if (inMsg)
+							{
+							desc.dsc_address = (UCHAR*) inMsg + offset;
+							mover.move (&desc, &parDesc);
+							}
+						else
+							{
+							desc.dsc_address = outMsg + offset;
+							mover.move (&parDesc, &desc);
+							}
+		                        
+						offset += desc.dsc_length;
+						}
+		                
+					break;
 					}
-	                
-				break;
 				}
+				
+	        if (n >= count)
+		        ERRD_bugcheck ("Parameter index not found.");
+			}
+	}
+	    
+   /*
+    * SAS Defect S0263306 - GSF - 24FEB2005
+    *
+    * Observation data was not being copied to the request area when
+    * the value of blrLength was zero.
+    */
+	if (parent)
+		{
+		if (statement->req_dbkey && statement->parentDbkey)
+			{
+			dsc toDesc = statement->req_dbkey->par_desc;
+			toDesc.dsc_address = msgBuffer + (IPTR) toDesc.dsc_address;
+			dsc fromDesc = statement->parentDbkey->par_desc;
+			fromDesc.dsc_address = parent->receiveMessage + (IPTR) fromDesc.dsc_address;
+			mover.move (&fromDesc, &toDesc);
 			}
 			
-        if (n >= count)
-	        ERRD_bugcheck ("Parameter index not found.");
+		if (statement->recordVersion && statement->parentRecordVersion)
+			{
+			dsc toDesc = statement->recordVersion->par_desc;
+			toDesc.dsc_address = msgBuffer + (IPTR) toDesc.dsc_address;
+			dsc fromDesc = statement->parentRecordVersion->par_desc;
+			fromDesc.dsc_address = parent->receiveMessage + (IPTR) fromDesc.dsc_address;
+			mover.move (&fromDesc, &toDesc);
+			}
 		}
-    
+		
     /***
 	par* dbkey;
 	if (request &&
@@ -1590,30 +1651,7 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 			*flag = 0;
 		}
 	}
-	***/
 	
-	if (inMsg && parent)
-		{
-		if (statement->req_dbkey && statement->parentDbkey)
-			{
-			dsc toDesc = statement->req_dbkey->par_desc;
-			toDesc.dsc_address = msgBuffer + (IPTR) toDesc.dsc_address;
-			dsc fromDesc = statement->parentDbkey->par_desc;
-			fromDesc.dsc_address = parent->receiveMessage + (IPTR) fromDesc.dsc_address;
-			mover.move (&fromDesc, &toDesc);
-			}
-			
-		if (inMsg && statement->recordVersion && statement->parentRecordVersion)
-			{
-			dsc toDesc = statement->recordVersion->par_desc;
-			toDesc.dsc_address = msgBuffer + (IPTR) toDesc.dsc_address;
-			dsc fromDesc = statement->parentRecordVersion->par_desc;
-			fromDesc.dsc_address = parent->receiveMessage + (IPTR) fromDesc.dsc_address;
-			mover.move (&fromDesc, &toDesc);
-			}
-		}
-		
-	/***
 	par* rec_version;
 	if (request &&
 		((rec_version = request->req_parent_rec_version) != NULL) &&

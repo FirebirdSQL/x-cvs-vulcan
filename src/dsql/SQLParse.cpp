@@ -24,7 +24,7 @@
  */
  
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "SQLParse.h"
 #include "SQLSyntaxError.h"
@@ -36,11 +36,14 @@
 #include "../dsql/parse_proto.h"
 #include "../dsql/keywords.h"
 #include "../dsql/chars.h"
-#include "../dsql/parse.h"
 #include "iberror.h"
 #include "OSRIException.h"
 #include "gds_proto.h"
 #include "TempSpace.h"
+#if defined _AIX || defined MVS
+#undef PAGE_SIZE
+#endif
+#include "parse.h"
 
 #define CHECK_BOUND(to,string)			if ((to - string) >= MAX_TOKEN_LEN) punt (-104, isc_token_too_long)
 #define CHECK_COPY_INCR(to,ch,string)	{ CHECK_BOUND(to,string); *to++ = ch; }
@@ -59,7 +62,7 @@ SQLParse::~SQLParse(void)
 	deleteNodes();
 }
 
-dsql_nod* SQLParse::parse(tdbb *threadStuff, int sqlLength, const char* sql, int charset)
+dsql_nod* SQLParse::parse(thread_db* threadStuff, int sqlLength, const char* sql, int charset)
 {
 	threadData = threadStuff;
 	deleteNodes();
@@ -262,7 +265,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 
 		return STRING;
 		}
-												 
+
 	/* 
 	 * Check for a numeric constant, which starts either with a digit or with
 	 * a decimal point followed by a digit.
@@ -287,6 +290,12 @@ int SQLParse::yylex(dsql_nod **yylval)
 	 *
 	 * Another note: c is the first character which need to be considered,
 	 *   ptr points to the next character.
+	 *
+	 * YAN: Really long digit strings that contain a decimal point value
+	 *      should be acceptable even if they can't be represented with
+	 *      exact precision - the "." tells us the user expects floating
+	 *      point.  So as long as there's a "." then we don't error out
+	 *      with digit strings that won't fit in a UINT64.
 	 */
 
 	//fb_assert(ptr <= end);
@@ -301,6 +310,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 		bool have_exp	   = false;	/* digit ... [eE]				  */
 		bool have_exp_sign  = false; /* digit ... [eE] {+-]			 */
 		bool have_exp_digit = false; /* digit ... [eE] ... digit		*/
+		bool should_be_float = false; /* Digit string long enough to need float representation? */
 		UINT64	number		 = 0;
 		UINT64	limit_by_10	= MAX_SINT64 / 10;
 
@@ -347,21 +357,16 @@ int SQLParse::yylex(dsql_nod **yylval)
 			else if (classes[c] & CHR_DIGIT)
 				{
 				/* Before computing the next value, make sure there will be
-				   no overflow.  */
+				   no overflow.  If there is, we accept it but note that it
+				   will require downstream conversion as a FLOAT_NUMBER. */
 
 				have_digit = true;
-
+				
 				if (number >= limit_by_10)
-					{
-					/* possibility of an overflow */
-					if ((number > limit_by_10) || (c > '8'))
-						{
-						have_error = true;
-						break;
-						}
-					}
-				number = number * 10 + (c - '0');
-				}
+					should_be_float = true;
+				else
+					number = number * 10 + ( c - '0' );
+			    }	
 			else if ( (('E' == c) || ('e' == c)) && have_digit )
 				have_exp = true;
 			else
@@ -372,11 +377,21 @@ int SQLParse::yylex(dsql_nod **yylval)
 		/* We're done scanning the characters: now return the right kind
 		   of number token, if any fits the bill. */
 
+		/* If we have a really long digit string, then the user must have */
+		/* used floating notation ("." or "e").  If s/he didn't then it's */
+		/* an error since the integer value can't be stored in a UINT64.  */
+
+		if( !have_error )
+			{
+			if( should_be_float && !(have_exp || have_decimal ))
+				have_error = true;
+			}
+		
 		if (!have_error)
 			{
 			//fb_assert(have_digit);
 
-			if (have_exp_digit)
+			if (have_exp_digit || should_be_float)
 				{
 				*yylval = (dsql_nod*) makeString(last_token, ptr - last_token);
 				last_token_bk = last_token;

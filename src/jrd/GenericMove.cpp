@@ -27,7 +27,7 @@
 #include <memory.h>
 #include <string.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "GenericMove.h"
 #include "gen/iberror.h"

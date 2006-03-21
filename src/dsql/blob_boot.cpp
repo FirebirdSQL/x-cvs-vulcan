@@ -35,7 +35,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include <stdarg.h>
 #include "../jrd/ibase.h"
@@ -56,7 +56,7 @@ static isc_db_handle
 
 static isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-static long
+static ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 static SLONG
@@ -289,7 +289,7 @@ ISC_STATUS API_ROUTINE isc_blob_lookup_desc(ISC_STATUS* status,
 	isc_vtov ((char*)desc->blob_desc_field_name, (char*)isc_2.isc_3, 32);
 	isc_vtov ((char*)desc->blob_desc_relation_name, (char*)isc_2.isc_4, 32);
 	if (isc_0)
-           isc_start_and_send (isc_status, (isc_req_handle*) &isc_0, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_2, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &isc_0, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_2, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {

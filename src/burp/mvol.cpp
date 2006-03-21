@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
@@ -45,6 +45,7 @@
 #include "../jrd/gds_proto.h"
 #include "../jrd/gdsassert.h"
 #include "../jrd/thd_proto.h"
+
 #ifndef VMS
 #include <fcntl.h>
 #include <sys/types.h>
@@ -617,9 +618,8 @@ UCHAR MVOL_write(UCHAR c, int *io_cnt, UCHAR ** io_ptr)
 						tdgbl->action->act_file->fil_fd = INVALID_HANDLE_VALUE;
 						BURP_print(272,
 									tdgbl->action->act_file->fil_name,
-									(void*) tdgbl->action->act_file->fil_length,
-									tdgbl->action->act_file->fil_next->fil_name,
-									0, 0);	// msg 272 Warning -- free disk space exhausted for file %s, the rest of the bytes (%d) will be written to file %s 
+									tdgbl->action->act_file->fil_length,
+									tdgbl->action->act_file->fil_next->fil_name);	// msg 272 Warning -- free disk space exhausted for file %s, the rest of the bytes (%d) will be written to file %s 
 						tdgbl->action->act_file->fil_next->fil_length +=
 							tdgbl->action->act_file->fil_length;
 						tdgbl->action->act_file =
@@ -755,7 +755,7 @@ static void bad_attribute(USHORT attribute, USHORT type)
 	TGBL tdgbl = GET_THREAD_DATA;
 
 	gds__msg_format(0, 12, type, sizeof(name), name, 0, 0, 0, 0, 0);
-	BURP_print(80, name, (void*) (ULONG) attribute, NULL, NULL, NULL);
+	BURP_print(80, name, attribute);
 	// msg 80  don't recognize %s attribute %ld -- continuing 
 	SSHORT l = get(tdgbl);
 	if (l)
@@ -889,7 +889,7 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 		if (new_desc < 0)
 #endif // WIN_NT 
 		{
-			BURP_print(222, new_file, 0, 0, 0, 0);
+			BURP_print(222, new_file);
 			// msg 222 \n\nCould not open file name \"%s\"\n 
 			continue;
 		}
@@ -901,40 +901,38 @@ static DESC next_volume( DESC handle, int mode, bool full_buffer)
 #else
 		if ((O_WRONLY == (mode & O_WRONLY)) || (O_RDWR == (mode & O_RDWR)))
 #endif // WIN_NT 
-		{
-			if (!write_header(new_desc, 0L, full_buffer))
 			{
-				BURP_print(223, new_file, 0, 0, 0, 0);
+			if (!write_header(new_desc, 0L, full_buffer))
+				{
+				BURP_print(223, new_file);
 				// msg223 \n\nCould not write to file \"%s\"\n
 				continue;
-			}
+				}
 			else
-			{
-				BURP_msg_put(261, (void*) (SLONG) (tdgbl->mvol_volume_count),
-							 new_file, 0, 0, 0);
+				{
+				BURP_msg_put(261, tdgbl->mvol_volume_count, new_file);
 				// Starting with volume #vol_count, new_file 
-				BURP_verbose(75, new_file, 0, 0, 0, 0);	// msg 75  creating file %s 
+				BURP_verbose(75, new_file);	// msg 75  creating file %s 
+				}
 			}
-		}
 		else
-		{
+			{
 			// File is open for read only.  Read the header. 
 
 			ULONG temp_buffer_size;
 			USHORT format;
 			if (!read_header(new_desc, &temp_buffer_size, &format, false))
-			{
-				BURP_print(224, new_file, 0, 0, 0, 0);
+				{
+				BURP_print(224, new_file);
 				continue;
-			}
+				}
 			else
-			{
-				BURP_msg_put(261, (void*) (SLONG) (tdgbl->mvol_volume_count),
-							 new_file, 0, 0, 0);
+				{
+				BURP_msg_put(261, tdgbl->mvol_volume_count, new_file);
 				// Starting with volume #vol_count, new_file 
-				BURP_verbose(100, new_file, 0, 0, 0, 0);	// msg 100  opened file %s 
+				BURP_verbose(100, new_file);	// msg 100  opened file %s 
+				}
 			}
-		}
 
 		strcpy(tdgbl->mvol_old_file, new_file);
 		return new_desc;
@@ -977,21 +975,20 @@ static void prompt_for_name(SCHAR* name, int length)
 
 		if (strlen(tdgbl->mvol_old_file) > 0)
 		{
-			BURP_msg_get(225, msg, (void*) (SLONG) (tdgbl->mvol_volume_count - 1),
-						 tdgbl->mvol_old_file, 0, 0, 0);
+			BURP_msg_get(225, msg, tdgbl->mvol_volume_count - 1, tdgbl->mvol_old_file);
 			ib_fprintf(term_out, msg);
-			BURP_msg_get(226, msg, 0, 0, 0, 0, 0);
+			BURP_msg_get(226, msg);
 			// \tPress return to reopen that file, or type a new\n\tname 
 			// followed by return to open a different file.\n
 			ib_fprintf(term_out, msg);
 		}
 		else	// First volume 
 		{
-			BURP_msg_get(227, msg, 0, 0, 0, 0, 0);
+			BURP_msg_get(227, msg);
 			// Type a file name to open and hit return 
 			ib_fprintf(term_out, msg);
 		}
-		BURP_msg_get(228, msg, 0, 0, 0, 0, 0);	// "  Name: " 
+		BURP_msg_get(228, msg);	// "  Name: " 
 		ib_fprintf(term_out, msg);
 
 		if (tdgbl->gbl_sw_service_gbak)
@@ -1001,7 +998,7 @@ static void prompt_for_name(SCHAR* name, int length)
 		ib_fflush(term_out);
 		if (ib_fgets(name, length, term_in) == NULL)
 		{
-			BURP_msg_get(229, msg, 0, 0, 0, 0, 0);
+			BURP_msg_get(229, msg);
 			// \n\nERROR: Backup incomplete\n
 			ib_fprintf(term_out, msg);
 			tdgbl->exit_code = FINI_ERROR;
@@ -1154,7 +1151,7 @@ static bool read_header(DESC	handle,
 			if (!init_flag && strcmp(buffer, tdgbl->gbl_backup_start_time))
 			{
 				BURP_msg_get(230, msg,
-							 tdgbl->gbl_backup_start_time, buffer, 0, 0, 0);
+							 tdgbl->gbl_backup_start_time, buffer);
 				// Expected backup start time %s, found %s\n
 				ib_printf(msg);
 				return false;
@@ -1181,7 +1178,7 @@ static bool read_header(DESC	handle,
 			if (!init_flag && strcmp(buffer, tdgbl->gbl_database_file_name))
 			{
 				BURP_msg_get(231, msg,
-							 tdgbl->gbl_database_file_name, buffer, 0, 0, 0);
+							 tdgbl->gbl_database_file_name, buffer);
 				// Expected backup database %s, found %s\n
 				ib_printf(msg);
 				return false;
@@ -1208,15 +1205,14 @@ static bool read_header(DESC	handle,
 
 		case att_backup_volume:
 			temp = get_numeric();
+			
 			if (temp != tdgbl->mvol_volume_count)
-			{
-				BURP_msg_get(232, msg,
-							 (void*) (SLONG) (tdgbl->mvol_volume_count),
-							 (void*) (SLONG) temp, 0, 0, 0);
+				{
+				BURP_msg_get(232, msg, tdgbl->mvol_volume_count, temp);
 				// Expected volume number %d, found volume %d\n
 				ib_printf(msg);
 				return false;
-			}
+				}
 			break;
 
 		default:

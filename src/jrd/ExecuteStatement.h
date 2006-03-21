@@ -40,13 +40,13 @@ private:
 	SCHAR	* Buffer;
 	bool	SingleMode;
 	TEXT	* StartOfSqlOperator;
-	XSQLDA	* MakeSqlda(TDBB tdbb, SSHORT n);
-	ISC_STATUS	ReMakeSqlda(ISC_STATUS *vector, TDBB tdbb);
+	XSQLDA	* MakeSqlda(thread_db* tdbb, SSHORT n);
+	ISC_STATUS	ReMakeSqlda(ISC_STATUS *vector, thread_db* tdbb);
 	ULONG	ParseSqlda(void);
 public:
-	void Open(TDBB tdbb, JRD_NOD sql, SSHORT nVars, bool SingleTon);
-	bool Fetch(TDBB tdbb, JRD_NOD * FirstVar);
-	void Close(TDBB tdbb);
+	void Open(thread_db* tdbb, JRD_NOD sql, SSHORT nVars, bool SingleTon);
+	bool Fetch(thread_db* tdbb, JRD_NOD * FirstVar);
+	void Close(thread_db* tdbb);
 };
 
 #endif // JRD_DynExec_H

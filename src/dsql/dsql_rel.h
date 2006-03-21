@@ -1,3 +1,4 @@
+/* $Id$ */
 #ifndef __DSQL_REL__
 #define __DSQL_REL__
 
@@ -29,7 +30,9 @@ public:
 	USHORT		rel_dbkey_length;
 	USHORT		rel_flags;
 	Relation	*jrdRelation;
+#ifdef SHARED_CACHE
 	SyncObject	syncFields;
+#endif
 	//TEXT		rel_data[3];
 	void dropField(dsql_fld* field);
 	~dsql_rel(void);

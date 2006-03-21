@@ -26,13 +26,15 @@
 #ifndef JRD_DLS_PROTO_H
 #define JRD_DLS_PROTO_H
 
-#include "../jrd/sort.h"
+//#include "../jrd/sort.h"
+class SortWorkFile;
+struct mdls;
 
 CLASS(ConfObject);
 
-BOOLEAN		DLS_get_temp_space(ULONG, SFB);
-void		DLS_put_temp_space(SFB);
+BOOLEAN		DLS_get_temp_space(ULONG, SortWorkFile*);
+void		DLS_put_temp_space(SortWorkFile*);
 BOOLEAN		API_ROUTINE DLS_add_dir(ULONG, const TEXT *);
-MDLS*		DLS_get_access(ConfObject *configuration);
+mdls*		DLS_get_access(ConfObject *configuration);
 
 #endif // JRD_DLS_PROTO_H

@@ -39,11 +39,12 @@
 
 static bool	printHelp;
 static bool	verbose;
-static char *projectFileName;
-static char *configFileName = "vulcan.conf";
-static char *port;
-static char *component;
-static char *outputFileName;
+static const char *projectFileName;
+static const char *configFileName = "vulcan.conf";
+static const char *port;
+static const char *type;
+static const char *component;
+static const char *outputFileName;
 
 static const Switches switches [] =
 	{
@@ -98,9 +99,9 @@ MakeGen::~MakeGen()
 			}
 }
 
-int MakeGen::gen(int argc, char **argv)
+int MakeGen::gen(int argc, const char **argv)
 {
-	Args::parse (switches, argc - 1, argv + 1);
+	args.parseParameters (switches, argc - 1, argv + 1);
 
 	if (printHelp)
 		{
@@ -235,6 +236,8 @@ void MakeGen::processFilter(Element *filter)
 	for (Element *child = filter->children; child; child = child->sibling)
 		if (child->name == "File")
 			processFile (child, folder);
+		else if (child->name == "Filter")
+			processFilter(child);
 }
 
 void MakeGen::processFile(Element *file, const char* folder)
@@ -243,6 +246,15 @@ void MakeGen::processFile(Element *file, const char* folder)
 
 	if (!fileName)
 		throw AdminException ("expected relative path name for file");
+
+	for (Element *child = file->children; child; child = child->sibling)
+		if (child->name == "FileConfiguration")
+			{
+			const char *excluded = child->getAttributeValue("ExcludedFromBuild");
+			
+			if (excluded && strcmp(excluded, "TRUE") == 0)
+				return;
+			}
 
 	ProjectFile *projectFile = *filePtr = new ProjectFile (fileName, folder);
 	filePtr = &projectFile->next;
@@ -293,6 +305,8 @@ void MakeGen::expandTag(Element *tag, Stream *stream)
 {
 	if (tag->name == "files")
 		expandFiles (tag, stream);
+	else if (tag->name == "if")
+		expandIf(tag, stream);
 	else
 		expand (tag, stream);
 }
@@ -329,4 +343,59 @@ TemplateValue* MakeGen::findExtension(const char *extension)
 			return value;
 
 	return NULL;
+}
+
+
+void MakeGen::expandIf(Element* tag, Stream* stream)
+{
+	if (evalBoolean(tag))
+		{
+		const char *p = tag->innerText;
+
+		if (*p == '\n')
+			++p;
+
+		expandText (p, stream);
+
+		for (Element *child = tag->children; child && child->name != "else"; child = child->sibling)
+			{
+			expandTag (child, stream);
+			expandText (child->outerText, stream);
+			}
+		}
+	else
+		{
+		Element *child;
+		
+		for (child = tag->children; child && child->name != "else"; child = child->sibling)
+			;
+		
+		if (!child)
+			return;
+		
+		const char *p = child->outerText;
+
+		if (*p == '\n')
+			++p;
+
+		expandText (p, stream);
+
+		for (child = child->sibling; child; child = child->sibling)
+			{
+			expandTag (child, stream);
+			expandText (child->outerText, stream);
+			}
+		}
+}
+
+bool MakeGen::evalBoolean(Element* tag)
+{
+	for (Element *option = tag->attributes; option; option = option->sibling)
+		{
+		const char *value = args.lookupParameter(option->name);
+		if (!value || option->value != value)
+			return false;
+		}
+	
+	return true;
 }

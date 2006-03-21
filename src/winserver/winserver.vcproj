@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\include\gen;..\jrd;..\config;..\why"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;DEV_BUILD;NAMESPACE=winserver;MEMMGR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_LIB;_X86_;SUPERSERVER;DEV_BUILD;NAMESPACE=winserver;MEMMGR;XNET"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,8 +32,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib"
-				OutputFile="..\..\bin\winserver.exe"
+				AdditionalDependencies="firebird.lib ws2_32.lib comctl32.lib mpr.lib"
+				OutputFile="..\..\install\bin\winserver.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\install\lib"
 				GenerateDebugInformation="TRUE"
@@ -173,6 +173,9 @@
 				RelativePath="..\jrd\isc.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\isc_file.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\os\win32\isc_ipc.cpp">
 			</File>
 			<File
@@ -189,6 +192,9 @@
 			</File>
 			<File
 				RelativePath="..\common\classes\locks.cpp">
+			</File>
+			<File
+				RelativePath="..\jrd\MemMgr.cpp">
 			</File>
 			<File
 				RelativePath="..\remote\merge.cpp">
@@ -216,6 +222,9 @@
 			</File>
 			<File
 				RelativePath="..\remote\PortInet.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\PortXNet.cpp">
 			</File>
 			<File
 				RelativePath="..\remote\os\win32\property.cpp">
@@ -266,6 +275,9 @@
 				RelativePath="..\remote\RTransaction.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\SafeRefObject.cpp">
+			</File>
+			<File
 				RelativePath="..\config\ScanDir.cpp">
 			</File>
 			<File
@@ -296,6 +308,9 @@
 				RelativePath="..\jrd\SyncObject.cpp">
 			</File>
 			<File
+				RelativePath="..\jrd\TempSpace.cpp">
+			</File>
+			<File
 				RelativePath="..\jrd\thd.cpp">
 			</File>
 			<File
@@ -309,6 +324,15 @@
 			</File>
 			<File
 				RelativePath="..\remote\xdr.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\XNetChannel.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\XNetConnection.cpp">
+			</File>
+			<File
+				RelativePath="..\remote\XNetMappedFile.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -337,6 +361,9 @@
 				RelativePath="..\remote\os\win32\cntl_proto.h">
 			</File>
 			<File
+				RelativePath="..\jrd\common.h">
+			</File>
+			<File
 				RelativePath="..\config\Config.h">
 			</File>
 			<File
@@ -359,6 +386,9 @@
 			</File>
 			<File
 				RelativePath="..\jrd\Error.h">
+			</File>
+			<File
+				RelativePath="..\include\fbdev.h">
 			</File>
 			<File
 				RelativePath="..\config\FileName.h">
@@ -406,6 +436,12 @@
 				RelativePath="..\common\classes\locks.h">
 			</File>
 			<File
+				RelativePath="..\jrd\MemMgr.h">
+			</File>
+			<File
+				RelativePath="..\jrd\MemoryManager.h">
+			</File>
+			<File
 				RelativePath="..\remote\merge_proto.h">
 			</File>
 			<File
@@ -434,6 +470,9 @@
 			</File>
 			<File
 				RelativePath="..\remote\PortInet.h">
+			</File>
+			<File
+				RelativePath="..\remote\PortXNet.h">
 			</File>
 			<File
 				RelativePath="..\remote\os\win32\propty_proto.h">
@@ -484,6 +523,9 @@
 				RelativePath="..\remote\RTransaction.h">
 			</File>
 			<File
+				RelativePath="..\jrd\SafeRefObject.h">
+			</File>
+			<File
 				RelativePath="..\config\ScanDir.h">
 			</File>
 			<File
@@ -523,6 +565,9 @@
 				RelativePath="..\jrd\SyncObject.h">
 			</File>
 			<File
+				RelativePath="..\jrd\TempSpace.h">
+			</File>
+			<File
 				RelativePath="..\jrd\thd.h">
 			</File>
 			<File
@@ -549,11 +594,29 @@
 			<File
 				RelativePath="..\remote\xnet_proto.h">
 			</File>
+			<File
+				RelativePath="..\remote\XNetChannel.h">
+			</File>
+			<File
+				RelativePath="..\remote\XNetConnection.h">
+			</File>
+			<File
+				RelativePath="..\remote\XNetMappedFile.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\remote\os\win32\caution.ico">
+			</File>
+			<File
+				RelativePath="..\remote\os\win32\server.ico">
+			</File>
+			<File
+				RelativePath="..\remote\os\win32\window.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "InternalMetaDataResultSet.h"
 #include "InternalDatabaseMetaData.h"
 #include "InternalResultSet.h"

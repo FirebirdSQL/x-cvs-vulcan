@@ -19,7 +19,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "RDatabase.h"
@@ -195,4 +195,19 @@ REvent* RDatabase::findEvent(int eventId)
 void RDatabase::clearPort(void)
 {
 	rdb_port = NULL;
+}
+
+void RDatabase::deleteTransactions(void)
+{
+	Sync sync (&syncObject, "RDatabase::deleteTransactions");
+	sync.lock (Exclusive);
+	ISC_STATUS_ARRAY status_vector;
+	
+	for (RTransaction *transaction; transaction = rdb_transactions;)
+		{
+		if (!(transaction->rtr_flags & RTR_limbo))
+			isc_rollback_transaction(status_vector, &transaction->rtr_handle);
+			
+		delete transaction;
+		}
 }

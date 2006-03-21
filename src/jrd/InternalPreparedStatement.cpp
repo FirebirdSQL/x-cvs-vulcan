@@ -27,7 +27,7 @@
 
 #include <stdlib.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "InternalPreparedStatement.h"
 #include "SQLError.h"
@@ -53,11 +53,6 @@ InternalPreparedStatement::~InternalPreparedStatement()
 
 ResultSet* InternalPreparedStatement::executeQuery()
 {
-	/***
-	if (outputSqlda.sqlda->sqld < 1)
-		throw SQLEXCEPTION (RUNTIME_ERROR, "statement is not a Select");
-	***/
-	
 	execute();
 	getMoreResults();
 
@@ -111,7 +106,6 @@ bool InternalPreparedStatement::execute()
 
 int InternalPreparedStatement::executeUpdate()
 {
-	connection->startTransaction();
 	return InternalStatement::execute();
 }
 
@@ -277,9 +271,14 @@ void InternalPreparedStatement::mapParameters(dsql_msg* message)
 	
 		dsc flag = parameter->par_desc;
 		flag.dsc_address = sendBuffer + (long) flag.dsc_address;
-		*((short*) flag.dsc_address) = 0;
+		*((short*) flag.dsc_address) = (value->type == Null) ? 1 : 0;
 		parameter = parameter->par_ordered;
 		value->getValue(&desc);
 		}
 
+}
+
+void InternalPreparedStatement::setDescriptor(int index , dsc* value)
+{
+	getParameter (index - 1)->setValue (value, this);
 }

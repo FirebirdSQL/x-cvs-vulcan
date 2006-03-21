@@ -29,12 +29,6 @@
 
 /* Descriptor format */
 
-/* WARNING !
-   This run-time structure is stored in RDB$FORMATS.RDB$DESCRIPTORS.
-   Any modification to this structure is tantamount to an ODS change.
-   See MET_format() and make_format() in MET.E for enlightenment.
-*/
-
 struct dsc
 {
 	dsc()

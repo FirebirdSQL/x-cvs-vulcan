@@ -36,6 +36,8 @@
 
 #include "thd.h"
 
+START_NAMESPACE
+
 class AsyncEvent  
 {
 public:
@@ -79,5 +81,7 @@ public:
 #endif
 
 };
+
+END_NAMESPACE
 
 #endif // !defined(AFX_ASYNCEVENT_H__3BA65948_FE95_4A41_B754_C8A554AAFDBC__INCLUDED_)

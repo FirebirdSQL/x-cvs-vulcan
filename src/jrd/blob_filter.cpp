@@ -31,7 +31,7 @@
  * Marco Romanini (27-January-1999) */
 // CVC: This file is really pure CPP now.
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -72,11 +72,11 @@ static const FPTR_BFILTER_CALLBACK filters[] = {
 };
 
 
-static ISC_STATUS open_blob(TDBB, JRD_TRA, CTL*, SLONG*, USHORT, const UCHAR*,
+static ISC_STATUS open_blob(thread_db*, Transaction*, CTL*, bid*, USHORT, const UCHAR*,
 							FPTR_BFILTER_CALLBACK,
-							USHORT, BLF);
+							USHORT, BlobFilter*);
 
-ISC_STATUS BLF_close_blob(TDBB tdbb, CTL * filter_handle)
+ISC_STATUS BLF_close_blob(thread_db* tdbb, CTL * filter_handle)
 {
 /**************************************
  *
@@ -127,14 +127,14 @@ ISC_STATUS BLF_close_blob(TDBB tdbb, CTL * filter_handle)
 }
 
 
-ISC_STATUS BLF_create_blob(TDBB tdbb,
-							JRD_TRA tra_handle,
+ISC_STATUS BLF_create_blob(thread_db* tdbb,
+							Transaction* tra_handle,
 							CTL* filter_handle,
-							SLONG* blob_id,
+							bid* blob_id,
 							USHORT bpb_length,
 							const UCHAR* bpb,
 							FPTR_BFILTER_CALLBACK callback,
-							BLF filter)
+							BlobFilter* filter)
 {
 /**************************************
  *
@@ -154,7 +154,7 @@ ISC_STATUS BLF_create_blob(TDBB tdbb,
 }
 
 
-ISC_STATUS BLF_get_segment(TDBB tdbb,
+ISC_STATUS BLF_get_segment(thread_db* tdbb,
 							CTL * filter_handle,
 							USHORT * length,
 							USHORT buffer_length,
@@ -203,7 +203,7 @@ ISC_STATUS BLF_get_segment(TDBB tdbb,
 }
 
 
-BLF BLF_lookup_internal_filter(TDBB tdbb, SSHORT from, SSHORT to)
+BlobFilter* BLF_lookup_internal_filter(thread_db* tdbb, SSHORT from, SSHORT to)
 {
 /**************************************
  *
@@ -220,7 +220,7 @@ BLF BLF_lookup_internal_filter(TDBB tdbb, SSHORT from, SSHORT to)
 /* Check for system defined filter */
 
 	if (to == BLOB_text && from >= 0 && from < FB_NELEM(filters)) {
-		blf* result = FB_NEW(*dbb->dbb_permanent) blf;
+		BlobFilter* result = FB_NEW(*dbb->dbb_permanent) BlobFilter;
 		result->blf_next = NULL;
 		result->blf_from = from;
 		result->blf_to = to;
@@ -238,14 +238,14 @@ BLF BLF_lookup_internal_filter(TDBB tdbb, SSHORT from, SSHORT to)
 }
 
 
-ISC_STATUS BLF_open_blob(TDBB tdbb,
-						JRD_TRA tra_handle,
+ISC_STATUS BLF_open_blob(thread_db* tdbb,
+						Transaction* tra_handle,
 						CTL* filter_handle,
-						const SLONG* blob_id,
+						const bid* blob_id,
 						USHORT bpb_length,
 						const UCHAR* bpb,
 						FPTR_BFILTER_CALLBACK callback,
-						BLF filter)
+						BlobFilter* filter)
 {
 /**************************************
  *
@@ -262,14 +262,14 @@ ISC_STATUS BLF_open_blob(TDBB tdbb,
 // Therefore, throwing const away is safe because it won't be changed.
 // Someone might create some crazy filter that calls put_slice, though.
 	return open_blob(tdbb, tra_handle, filter_handle,
-					 const_cast<SLONG*>(blob_id),
+					 const_cast<bid*>(blob_id),
 					 bpb_length, bpb,
 					 callback,
 					 ACTION_open, filter);
 }
 
 
-ISC_STATUS BLF_put_segment(TDBB tdbb,
+ISC_STATUS BLF_put_segment(thread_db* tdbb,
 							CTL* filter_handle,
 							USHORT length,
 							const UCHAR* buffer)
@@ -315,15 +315,15 @@ ISC_STATUS BLF_put_segment(TDBB tdbb,
 }
 
 static ISC_STATUS open_blob(
-					TDBB tdbb,
-					JRD_TRA tra_handle,
+					thread_db* tdbb,
+					Transaction* tra_handle,
 					CTL* filter_handle,
-					SLONG* blob_id,
+					bid* blob_id,
 					USHORT bpb_length,
 					const UCHAR* bpb,
 					FPTR_BFILTER_CALLBACK callback,
 					USHORT action,
-					BLF filter)
+					BlobFilter* filter)
 {
 /**************************************
  *

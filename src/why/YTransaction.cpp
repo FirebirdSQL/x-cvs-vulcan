@@ -28,8 +28,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include <string.h>
+#include "fbdev.h"
 #include "common.h"
+#include "ibase.h"
 #include "iberror.h"
 #include "YTransaction.h"
 #include "SubsysHandle.h"
@@ -49,6 +51,8 @@ YTransaction::YTransaction(int dbCount)
 		databases = new TranDb [numberDatabases];
 	else
 		databases = localDatabases;
+
+	memset(databases, 0, dbCount * sizeof(*databases));
 
 	/***
 	for (int n = 0; n < numberDatabases; ++n)
@@ -161,7 +165,7 @@ ISC_STATUS YTransaction::rollbackRetaining(StatusVector& statusVector)
 	return statusVector.getCode();		
 }
 
-void YTransaction::setDatabase(int index, SubsysHandle* handle, int tpbLength, UCHAR* tpb)
+void YTransaction::setDatabase(int index, SubsysHandle* handle, int tpbLength, const UCHAR* tpb)
 {
 	TranDb *db = databases + index;
 	db->element.tpbLength = tpbLength;
@@ -178,7 +182,7 @@ void YTransaction::setTransactionHandle(SubsysHandle* subsystem, TraHandle trans
 	db->handle = transactionHandle;
 }
 
-ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, UCHAR* msg)
+ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, const UCHAR* msg)
 {
 	if (inLimbo)
 		return statusVector.getCode();
@@ -193,5 +197,41 @@ ISC_STATUS YTransaction::prepare(StatusVector& statusVector, int msgLength, UCHA
 	
 	inLimbo = true;
 	
+	return statusVector.getCode();		
+}
+
+ISC_STATUS  YTransaction::transactionInfo(StatusVector& statusVector,int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+{
+	UCHAR *ptr = buffer;
+	const UCHAR *end = buffer + bufferLength;
+	
+	for (int n = 0; n < numberDatabases; ++n)
+		{
+		TranDb *database = databases + n;
+		
+		if (database->subsystem->subsystem->transactionInfo (statusVector, &database->handle, itemsLength, items, end - ptr, ptr))
+			return statusVector.getCode();
+			
+		while (*ptr == isc_info_tra_id)
+			{
+			int len = ptr[1] + (ptr[2] << 8);
+			ptr += 3 + len;
+			}
+			
+		if (*ptr != isc_info_end)
+			return statusVector.getCode();
+		}
+		
+	return statusVector.getCode();		
+}
+
+ISC_STATUS  YTransaction::reconnect(StatusVector& statusVector, SubsysHandle *subsystem, int infoLength, const UCHAR *info)
+{
+	TranDb *database = databases;
+	database->subsystem = subsystem;
+	
+	if (!database->subsystem->subsystem->reconnectTransaction (statusVector, &subsystem->handle, &database->handle, infoLength,  info))
+		database->subsystem->transactionStarted (this);
+		
 	return statusVector.getCode();		
 }

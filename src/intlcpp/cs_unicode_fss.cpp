@@ -23,7 +23,7 @@
 
  /* Note: all routines have cousins in jrd/intl.c */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../intlcpp/ldcommon.h"
 #include "cv_narrow.h"
 #include "cv_unicode_fss.h"

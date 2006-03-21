@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "../jrd/gds_proto.h"
@@ -36,7 +36,7 @@ void API_ROUTINE isc_vtov(const char * string1, char * string2, SSHORT length)
 	gds__vtov(string1, string2, length);
 }
 
-SLONG API_ROUTINE isc_ftof(const char * string1,
+ISC_LONG API_ROUTINE isc_ftof(const char * string1,
 						   USHORT length1, char * string2, USHORT length2)
 {
 	return gds__ftof(string1, length1, string2, length2);

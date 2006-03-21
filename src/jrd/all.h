@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		all.h
@@ -25,35 +26,41 @@
 #define JRD_ALL_H
 
 #include "../common/classes/alloc.h"
-#include "../jrd/jrd.h"
 #include "../jrd/block_cache.h"
-#include "../jrd/lls.h"
 #include "../jrd/MemMgr.h"
+#include "../include/fb_blk.h"
 
 #ifdef MEMMGR
 #include "MemoryManager.h"
 #endif
 
 class Database;
-struct tdbb;
+class lls;
+struct thread_db;
 
 TEXT* ALL_cstring(const TEXT* in_string);
 void ALL_fini(void);
-void ALL_init(tdbb *tdbb);
+void ALL_init(thread_db *tdbb);
 //void ALL_push(BLK , LLS *);
 //BLK ALL_pop(LLS *);
-void ALL_print_memory_pool_info(IB_FILE*, Database*);
+//void ALL_print_memory_pool_info(IB_FILE*, Database*);
 
 #ifdef DEV_BUILD
 void ALL_check_memory(void);
 #endif
+
+class Decompress;
 
 class JrdMemoryPool : public MemoryPool
 {
 protected:
 	// Dummy constructor and destructor. Should never be called
 #ifdef MEMMGR
-	JrdMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384), lls_cache(*this) {}
+#ifdef SHARED_CACHE
+	JrdMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384, true), lls_cache(*this) {}
+#else
+	JrdMemoryPool() : MemoryPool(defaultRounding, defaultCutoff, 16384, false), lls_cache(*this) {}
+#endif
 #else
 	JrdMemoryPool() : MemoryPool(NULL, NULL), lls_cache(*this) {}
 #endif
@@ -64,13 +71,10 @@ public:
 	static void deletePool(JrdMemoryPool* pool);
 	static void noDbbDeletePool(JrdMemoryPool* pool);
 
-	static class blk* ALL_pop(class lls**);
-	static void       ALL_push(class blk*, class lls**);
+	static class blk* ALL_pop(lls**);
+	static void       ALL_push(blk*, lls**);
 
-    class sbm* plb_buckets;   /* available bit map buckets */
-    struct bms* plb_segments;  /* available bit map segments */
-	struct Dcc* plb_dccs;
-
+	Decompress* plb_dccs;
 private:
 	BlockCache<lls> lls_cache;  /* Was plb_lls */
 	Database *database;

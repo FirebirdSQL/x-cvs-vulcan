@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "Database.h"
 #include "all.h"
@@ -62,6 +62,12 @@
 #include "Interlock.h"
 #include "TipCache.h"
 #include "CommitManager.h"
+#include "Attachment.h"
+#include "cmp_proto.h"
+#include "../jrd/nbak.h"
+#include "../jrd/fun_proto.h"
+#include "../jrd/ext_proto.h"
+#include "../jrd/tra_proto.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -85,7 +91,12 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 	pageCache = new PageCache (this);
 	charSetManager = new CharSetManager (this);
 	tipCache = new TipCache(this);
+	sweeperCount = 0;
+	
+#ifdef SHARED_CACHE
 	syncReady.lock (NULL, Exclusive);
+#endif
+
 	int cur_perm = 0, max_perm = 0;
 	dbb_permanent = JrdMemoryPool::createPool(this, &cur_perm, &max_perm);
 	dbb_internal.resize(irq_MAX);
@@ -97,8 +108,14 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 
 	procManager = new ProcManager(this);
 	commitManager = new CommitManager(this);
-	fileShared = configuration->getValue (DatabaseFileShared,DatabaseFileSharedValue);
 	
+#ifdef SHARED_CACHE
+	fileShared = configuration->getValue (DatabaseFileShared, DatabaseFileSharedValue);
+#else
+	fileShared = true; 
+#endif
+	
+	securityDatabase = configuration->getValue (SecurityDatabase, SecurityDatabaseValue);
 	securityPlugin = new SecurityRoot(this);
 	const char *policyName = configuration->getValue(SecurityManager, SecurityManagerValue);
 	
@@ -135,6 +152,26 @@ Database::Database (const char *expandedFilename, ConfObject *configObject)
 
 Database::~Database()
 {
+	int i, j, size;
+	
+	for (i = 0; i < dbb_relations.size(); i++)
+		delete dbb_relations[i];
+
+	for (i = 0; i < dbb_internal.size(); i++)
+		delete dbb_internal[i];
+
+	size = dbb_dyn_req.size();
+	for (i = 0; i < size; i++)
+	{
+		/* some of these appear in two slots. Avoid a double delete */
+		for (j = i+1; j < size; j++)
+			if (dbb_dyn_req[i] == dbb_dyn_req[j])
+				dbb_dyn_req[j] = NULL;
+				
+		delete dbb_dyn_req[i];
+	}
+		
+        
 	delete charSetManager;
 	delete pageCache;
 	delete procManager;
@@ -177,8 +214,6 @@ void Database::init()
 	dbb_pcontrol = NULL;	/* page control */
 	dbb_blob_filters = NULL;	/* known blob filters */
 	dbb_modules = NULL;	/* external function/filter modules */
-	//dbb_mutexes = NULL;		/* DBB block mutexes */
-	//dbb_rw_locks = NULL;		/* DBB block read/write locks */
 	dbb_sort_size = 0;		/* Size of sort space per sort */
 
 	maxUnflushedWrites = 0;
@@ -246,8 +281,6 @@ void Database::init()
 	dbb_log = NULL;						/* log file for REPLAY */
 	
 	pageCache = NULL;
-	//dbb_tip_cache = NULL;				/* cache of latest known state of all transactions in system */
-	//dbb_pc_transactions = NULL;		/* active precommitted transactions */
 	backup_manager = NULL;				/* physical backup manager */
 	defaultCharSet = NULL;
 	systemConnection = NULL;
@@ -260,7 +293,7 @@ ISC_STATUS Database::executeDDL(ISC_STATUS *statusVector, Transaction *transacti
 	return statusVector [1];
 }
 
-Relation* Database::findRelation(TDBB tdbb, const char *relationName)
+Relation* Database::findRelation(thread_db* tdbb, const char *relationName)
 {
 	return MET_lookup_relation (tdbb, relationName);
 }
@@ -270,39 +303,45 @@ bool Database::isFilename(const char* filename)
 	return PathName::pathsEquivalent (dbb_filename, filename);
 }
 
-CharSetContainer* Database::findCharset(tdbb* tdbb, int ttype)
+CharSetContainer* Database::findCharset(thread_db* tdbb, int ttype)
 {
 	return charSetManager->findCharset (tdbb, ttype);
 }
 
-CharSetContainer* Database::findCharset(tdbb* tdbb, const char* name)
+CharSetContainer* Database::findCharset(thread_db* tdbb, const char* name)
 {
 	return charSetManager->findCharset (tdbb, name);
 }
 
-CharSetContainer* Database::findCollation(tdbb* tdbb, const char* name)
+CharSetContainer* Database::findCollation(thread_db* tdbb, const char* name)
 {
 	return charSetManager->findCollation (tdbb, name);
 }
 
 void Database::addPool(JrdMemoryPool* pool)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Database::addPool");
 	sync.lock (Exclusive);
+#endif
 	dbb_pools.append (pool);
 }
 
 void Database::removePool(JrdMemoryPool* pool)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Database::removePool");
 	sync.lock (Exclusive);
+#endif
 	dbb_pools.deleteItem (pool);
 }
 
 Attachment* Database::createAttachment(void)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncAttachments, "Database::createAttachment");
 	sync.lock (Exclusive);
+#endif
 	Attachment *attachment = FB_NEW(*dbb_permanent) Attachment (this);
 
 	attachment->att_next = dbb_attachments;
@@ -313,8 +352,10 @@ Attachment* Database::createAttachment(void)
 
 void Database::deleteAttachment(Attachment* attachment)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncAttachments, "Database::deleteAttachment");
 	sync.lock (Exclusive);
+#endif
 	
 	for (Attachment **ptr = &dbb_attachments; *ptr; ptr = &(*ptr)->att_next)
 		if (*ptr == attachment)
@@ -326,26 +367,32 @@ void Database::deleteAttachment(Attachment* attachment)
 
 void Database::makeReady(void)
 {
+#ifdef SHARED_CACHE
 	syncReady.unlock(NULL, Exclusive);
+#endif
 }
 
 bool Database::isReady(bool waitFlag)
 {
+#ifdef SHARED_CACHE
 	if (!waitFlag)
 		return syncReady.isLocked();
 		
 	Sync sync (&syncReady, "Database::isReady");
 	sync.lock(Shared);
+#endif
 	
 	return true;
 }
 
 
-Relation* Database::lookupRelation(tdbb* tdbb, const char* relationName)
+Relation* Database::lookupRelation(thread_db* tdbb, const char* relationName)
 {
 	int length = strlen(relationName);
+#ifdef SHARED_CACHE
 	Sync sync (&syncRelations, "Database::lookupRelation");
 	sync.lock(Shared);
+#endif
 
 	//for (vec::iterator ptr = dbb_relations->begin(), end = dbb_relations->end(); ptr < end; ptr++)
 	for (int n = 0; n < dbb_relations.size(); ++n)
@@ -370,20 +417,22 @@ Relation* Database::lookupRelation(tdbb* tdbb, const char* relationName)
 	return NULL;
 }
 
-Relation* Database::getRelation(tdbb* tdbb, int id)
+Relation* Database::getRelation(thread_db* tdbb, int id)
 {
 	if (id < 0)
 		return new Relation(this, id);
 		//return FB_NEW(*dbb_permanent) Relation (this, id);
+
+#ifdef SHARED_CACHE
+	Sync sync (&syncRelations, "Database::getRelation");
+	sync.lock(Exclusive);
+#endif
 
 	dbb_relations.checkSize(id, id + 10);
 	Relation *relation = dbb_relations[id];
 	
 	if (relation)
 		return relation;
-	
-	Sync sync (&syncRelations, "Database::getRelation");
-	sync.lock(Exclusive);
 	
 	if (relation = dbb_relations[id])
 		return relation;
@@ -414,12 +463,12 @@ void Database::validate(void)
 {
 }
 
-Procedure* Database::findProcedure(tdbb* tdbb, int id)
+Procedure* Database::findProcedure(thread_db* tdbb, int id)
 {
 	return procManager->findProcedure (tdbb, id);
 }
 
-Procedure* Database::findProcedure(tdbb* tdbb, const TEXT* name, bool noscan)
+Procedure* Database::findProcedure(thread_db* tdbb, const TEXT* name, bool noscan)
 {
 	return procManager->findProcedure (tdbb, name, noscan);
 }
@@ -432,16 +481,29 @@ InternalConnection* Database::getSystemConnection(void)
 	return systemConnection;
 }
 
-void Database::updateAccountInfo(tdbb* tdbb, int apbLength, const UCHAR* apb)
+void Database::updateAccountInfo(thread_db* tdbb, Attachment *attachment, int apbLength, const UCHAR* apb)
 {
-	InternalSecurityContext securityContext (tdbb);
+	InternalSecurityContext securityContext (tdbb, attachment);
 	securityPlugin->updateAccountInfo(&securityContext, apbLength, apb);
 }
 
-void Database::authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+void Database::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
-	InternalSecurityContext securityContext (tdbb);
-	securityPlugin->authenticateUser(&securityContext, dpbLength, dpb, itemsLength, items, bufferLength, buffer);
+	Attachment *attachment = tdbb->tdbb_attachment;
+	InternalSecurityContext securityContext (tdbb, attachment);
+	attachment->userData.authenticating = true;
+	
+	try
+		{
+		securityPlugin->authenticateUser(&securityContext, dpbLength, dpb, itemsLength, items, bufferLength, buffer);
+		}
+	catch (...)
+		{
+		attachment->userData.authenticating = false;
+		throw;
+		}
+		
+	attachment->userData.authenticating = false;
 }
 
 void Database::incrementUseCount(void)
@@ -462,7 +524,84 @@ Relation* Database::findRelation(int relationId)
 	return dbb_relations[relationId];
 }
 
-Relation* Database::findRelation(tdbb* tdbb, int relationId)
+Relation* Database::findRelation(thread_db* tdbb, int relationId)
 {
 	return NULL;
+}
+
+void Database::shutdown(thread_db* tdbb)
+{
+	if (securityPlugin)
+		{
+		securityPlugin->close();
+		securityPlugin = NULL;
+		}
+		
+#ifdef SUPERSERVER_V2
+	TRA_header_write(tdbb, this, 0L);	/* Update transaction info on header page. */
+#endif
+
+#ifdef GARBAGE_THREAD
+	VIO_fini(tdbb);
+#endif
+
+	CMP_fini(tdbb);
+	pageCache->fini(tdbb);
+
+	if (backup_manager)
+		backup_manager->shutdown (tdbb);
+
+	FUN_fini(tdbb);
+
+	if (dbb_shadow_lock)
+		LCK_release(dbb_shadow_lock);
+
+	if (dbb_retaining_lock)
+		LCK_release(dbb_retaining_lock);
+
+	if (dbb_lock)
+		LCK_release(dbb_lock);
+
+	
+#ifdef REPLAY_OSRI_API_CALLS_SUBSYSTEM
+	if (dbb_log)
+		LOG_fini();
+#endif
+
+	/* Shut down any extern relations */
+
+	for (int n = 0; n < dbb_relations.size(); ++n)
+		{
+		Relation *relation = dbb_relations[n];
+		
+		if (relation && relation->rel_file)
+			EXT_fini(tdbb, relation);
+		}
+
+	//databaseManager.remove (this);
+	pageCache->shutdownDatabase(tdbb);
+
+	if (dbb_flags & DBB_lck_init_done) 
+		{
+		LCK_fini(tdbb, LCK_OWNER_database);	/* For the database */
+		dbb_flags &= ~DBB_lck_init_done;
+		}
+}
+
+InternalConnection* Database::getNewConnection(thread_db *tdbb)
+{
+	Attachment *attachment = createAttachment();
+	attachment->att_flags |= ATT_internal;
+	Attachment *source = tdbb->tdbb_attachment;
+
+	if (source)
+		{
+		attachment->userData.authenticating = source->userData.authenticating;
+		attachment->userData.authenticator = source->userData.authenticator;
+		}
+		
+	Transaction *transaction = TRA_start(tdbb, attachment, 0, NULL);
+	InternalConnection *connection = new InternalConnection(attachment, transaction);
+	
+	return connection;
 }

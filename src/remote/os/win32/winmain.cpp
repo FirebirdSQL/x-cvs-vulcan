@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <windows.h>
 #include <string.h>
 #include "../remote/remote.h"

@@ -1,3 +1,4 @@
+/* $Id$ */
 //
 //	Copyright (c) 2001 M. Nordell
 //
@@ -36,7 +37,11 @@ public:
 	:	m_s(s)
 	{}
 	virtual ~status_exception() throw() {}
+#ifdef __VMS
+    	virtual const char* what()
+#else
 	virtual const char* what() const throw()
+#endif
 		{ return "firebird::status_exception"; }
 	ISC_STATUS value() const { return m_s; }
 
@@ -49,7 +54,11 @@ private:
 class red_zone_error : public std::exception
 {
 public:
+#ifdef __VMS
+        virtual const char* what() 
+#else
 	virtual const char* what() const throw()
+#endif
 		{ return "firebird::red_zone_error"; }
 
 	static void raise();
@@ -58,7 +67,11 @@ public:
 class memory_corrupt : public std::exception
 {
 public:
+#ifdef __VMS
+        virtual const char* what() 
+#else
 	virtual const char* what() const throw()
+#endif
 		{ return "firebird::memory_corrupt"; }
 
 	static void raise();
@@ -67,7 +80,11 @@ public:
 class system_call_failed : public std::exception
 {
 public:
+#ifdef __VMS
+    	virtual const char* what() 
+#else
 	virtual const char* what() const throw()
+#endif
 		{ return "firebird::system_call_failed"; }
 
 	static void raise();
@@ -78,7 +95,11 @@ class fatal_exception : public std::exception
 public:
 	explicit fatal_exception(char *message);
 	virtual ~fatal_exception() throw() {}
+#ifdef __VMS
+        virtual const char* what() 
+#else
 	virtual const char* what() const throw()
+#endif
 		{ return txt; }
 
 	static void raise(char *message);

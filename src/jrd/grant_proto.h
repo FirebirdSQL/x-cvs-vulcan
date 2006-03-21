@@ -24,8 +24,8 @@
 #ifndef JRD_GRANT_PROTO_H
 #define JRD_GRANT_PROTO_H
 
-int GRANT_privileges(TDBB, SSHORT, struct dfw *);
-STR GRANT_realloc_acl(STR, UCHAR **, ULONG *);
+int GRANT_privileges(thread_db*, SSHORT, struct DeferredWork*);
+STR GRANT_realloc_acl(STR, UCHAR**, ULONG*);
 
 #endif // JRD_GRANT_PROTO_H
 

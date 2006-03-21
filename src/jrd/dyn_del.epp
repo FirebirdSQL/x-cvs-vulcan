@@ -26,7 +26,7 @@
  * 20-Jun-2001 Claudio Valderrama - Make available DYN_delete_generator.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -39,7 +39,6 @@
 #include "../jrd/scl.h"
 #include "../jrd/drq.h"
 #include "../jrd/flags.h"
-//#include "../jrd/y_ref.h"
 #include "../jrd/ibase.h"
 #include "../jrd/lls.h"
 #include "../jrd/all.h"
@@ -64,19 +63,20 @@
 #include "../jrd/vio_proto.h"
 #include "OSRIException.h"
 #include "Procedure.h"
+#include "Attachment.h"
 
 DATABASE DB = STATIC "ODS.RDB";
 
-static bool delete_constraint_records(TDBB tdbb, GBL, const TEXT*, const TEXT*);
-static bool delete_dimension_records(TDBB tdbb, GBL, const TEXT*);
-static void delete_f_key_constraint(TDBB, GBL, const TEXT*, const TEXT*,
+static bool delete_constraint_records(thread_db* tdbb, GBL, const TEXT*, const TEXT*);
+static bool delete_dimension_records(thread_db* tdbb, GBL, const TEXT*);
+static void delete_f_key_constraint(thread_db*, GBL, const TEXT*, const TEXT*,
 									const TEXT*, const TEXT*);
-static void delete_gfield_for_lfield(TDBB tdbb, GBL, const TEXT*);
-static bool delete_index_segment_records(TDBB tdbb, GBL, const TEXT*);
-static bool delete_security_class2(TDBB tdbb, GBL, const TEXT*);
+static void delete_gfield_for_lfield(thread_db* tdbb, GBL, const TEXT*);
+static bool delete_index_segment_records(thread_db* tdbb, GBL, const TEXT*);
+static bool delete_security_class2(thread_db* tdbb, GBL, const TEXT*);
 
 
-void DYN_delete_constraint(TDBB tdbb, GBL gbl, const UCHAR** ptr, const TEXT* relation)
+void DYN_delete_constraint(thread_db* tdbb, GBL gbl, const UCHAR** ptr, const TEXT* relation)
 {
 /**************************************
  *
@@ -108,7 +108,7 @@ void DYN_delete_constraint(TDBB tdbb, GBL gbl, const UCHAR** ptr, const TEXT* re
 }
 
 
-void DYN_delete_dimensions(TDBB tdbb,
+void DYN_delete_dimensions(thread_db* tdbb,
 						   GBL gbl,
 						   const UCHAR** ptr,
 						   const TEXT* relation_name, TEXT* field_name)
@@ -143,7 +143,7 @@ void DYN_delete_dimensions(TDBB tdbb,
 }
 
 
-void DYN_delete_exception(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_exception(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -195,7 +195,7 @@ void DYN_delete_exception(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_filter(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_filter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -249,7 +249,7 @@ void DYN_delete_filter(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_function(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_function(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -323,7 +323,7 @@ void DYN_delete_function(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_generator(TDBB tdbb, GBL gbl, const UCHAR**ptr)
+void DYN_delete_generator(thread_db* tdbb, GBL gbl, const UCHAR**ptr)
 {
 /**************************************
  *
@@ -380,7 +380,7 @@ void DYN_delete_generator(TDBB tdbb, GBL gbl, const UCHAR**ptr)
 }
 
 
-void DYN_delete_global_field(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_global_field(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -462,7 +462,7 @@ void DYN_delete_global_field(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_index(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_index(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -525,7 +525,7 @@ void DYN_delete_index(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_local_field(TDBB tdbb, 
+void DYN_delete_local_field(thread_db* tdbb, 
 							GBL gbl,
 							const UCHAR** ptr,
 							const TEXT* relation_name, TEXT* field_name)
@@ -777,7 +777,7 @@ void DYN_delete_local_field(TDBB tdbb,
 }
 
 
-void DYN_delete_parameter(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* proc_name)
+void DYN_delete_parameter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, TEXT* proc_name)
 {
 /**************************************
  *
@@ -870,7 +870,7 @@ void DYN_delete_parameter(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* proc_nam
 }
 
 
-void DYN_delete_procedure(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_procedure(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1036,7 +1036,7 @@ void DYN_delete_procedure(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_relation(TDBB tdbb,  GBL gbl, const UCHAR** ptr, const TEXT* relation)
+void DYN_delete_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, const TEXT* relation)
 {
 /**************************************
  *
@@ -1275,7 +1275,7 @@ dyn_punt_61:
 }
 
 
-void DYN_delete_role(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_role(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1310,7 +1310,7 @@ void DYN_delete_role(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 		{
 		TEXT *ptr2 = user;
 		
-		for (const TEXT *cptr1 = tdbb->tdbb_attachment->att_user->usr_user_name; *cptr1; cptr1++)
+		for (const TEXT *cptr1 = tdbb->tdbb_attachment->userData.userName; *cptr1; cptr1++)
 			*ptr2++ = UPPER7(*cptr1);
 
 		*ptr2 = '\0';
@@ -1330,31 +1330,27 @@ void DYN_delete_role(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 			DYN_terminate(XX.RDB$OWNER_NAME, sizeof(XX.RDB$OWNER_NAME));
 			strcpy(role_owner, XX.RDB$OWNER_NAME);
 
-			if ((tdbb->tdbb_attachment->att_user->usr_flags & USR_locksmith) ||
-				(strcmp(role_owner, user) == 0))
-			{
+			if ((tdbb->tdbb_attachment->userFlags & USR_locksmith) || (strcmp(role_owner, user) == 0))
+				{
 				ERASE XX;
-			}
+				}
 			else
-			{
 				del_role_ok = false;
-			}
 
 		END_FOR;
 
-		if (!DYN_REQUEST(drq_drop_role)) {
+		if (!DYN_REQUEST(drq_drop_role)) 
 			DYN_REQUEST(drq_drop_role) = request;
-		}
 
 		if (del_role_ok)
-		{
-			request =
-				CMP_find_request(tdbb, drq_del_role_1, DYN_REQUESTS);
+			{
+			request = CMP_find_request(tdbb, drq_del_role_1, DYN_REQUESTS);
 			id = drq_del_role_1;
 
 
 			/* The first OR clause Finds all members of the role
 			   The 2nd OR clause  Finds all privileges granted to the role */
+			   
 			FOR(REQUEST_HANDLE request TRANSACTION_HANDLE gbl->gbl_transaction)
 				PRIV IN RDB$USER_PRIVILEGES WITH
 					(PRIV.RDB$RELATION_NAME EQ role_name AND
@@ -1362,38 +1358,37 @@ void DYN_delete_role(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
 					OR(PRIV.RDB$USER EQ role_name AND
 					   PRIV.RDB$USER_TYPE = obj_sql_role)
 
-					if (!DYN_REQUEST(drq_del_role_1)) {
+					if (!DYN_REQUEST(drq_del_role_1)) 
 						DYN_REQUEST(drq_del_role_1) = request;
-					}
 
 				ERASE PRIV;
 
 			END_FOR;
 
-			if (!DYN_REQUEST(drq_del_role_1)) {
+			if (!DYN_REQUEST(drq_del_role_1)) 
 				DYN_REQUEST(drq_del_role_1) = request;
-			}
 
-		}
+			}
 		else
-		{
-	/****************************************************
-    **
-    **  only owner of SQL role or USR_locksmith could drop SQL role
-    **
-    *****************************************************/
+			{
+			/****************************************************
+			**
+			**  only owner of SQL role or USR_locksmith could drop SQL role
+			**
+			*****************************************************/
+			
 			DYN_error(tdbb, false, 191, user, role_name, NULL, NULL, NULL);
 			goto do_punt;
+			}
 		}
-
-	}	// try
-	catch (OSRIException &exception) {
+	catch (OSRIException &exception) 
+		{
 		DYN_rundown_request(tdbb, request, -1);
 		const USHORT number = (id == drq_drop_role ? 191 : 62);
 		// msg 191: "ERASE RDB$ROLES failed"
 		// msg  62: "ERASE RDB$USER_PRIVILEGES failed"
 		DYN_error_punt(tdbb, &exception, number, NULL, NULL, NULL, NULL, NULL);
-	}
+		}
 
 	return;
 
@@ -1402,7 +1397,7 @@ do_punt:	// ugly, rethink logic of this function
 }
 
 
-void DYN_delete_security_class(TDBB tdbb, GBL gbl, const UCHAR** ptr)
+void DYN_delete_security_class(thread_db* tdbb, GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1430,7 +1425,7 @@ void DYN_delete_security_class(TDBB tdbb, GBL gbl, const UCHAR** ptr)
 }
 
 
-void DYN_delete_shadow(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_shadow(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1501,7 +1496,7 @@ while (files)
 }
 
 
-void DYN_delete_trigger(TDBB tdbb,  GBL gbl, const UCHAR** ptr)
+void DYN_delete_trigger(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 {
 /**************************************
  *
@@ -1636,7 +1631,7 @@ dyn_punt_67:
 }
 
 
-void DYN_delete_trigger_msg(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigger_name)
+void DYN_delete_trigger_msg(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigger_name)
 {
 /**************************************
  *
@@ -1703,7 +1698,7 @@ void DYN_delete_trigger_msg(TDBB tdbb,  GBL gbl, const UCHAR** ptr, TEXT* trigge
 }
 
 
-static bool delete_constraint_records(TDBB tdbb, GBL	gbl,
+static bool delete_constraint_records(thread_db* tdbb, GBL	gbl,
 										 const TEXT*	constraint_name,
 										 const TEXT*	relation_name)
 {
@@ -1753,7 +1748,7 @@ static bool delete_constraint_records(TDBB tdbb, GBL	gbl,
 }
 
 
-static bool delete_dimension_records(TDBB tdbb, GBL gbl, const TEXT* field_name)
+static bool delete_dimension_records(thread_db* tdbb, GBL gbl, const TEXT* field_name)
 {
 /**************************************
  *
@@ -1799,7 +1794,7 @@ static bool delete_dimension_records(TDBB tdbb, GBL gbl, const TEXT* field_name)
 }
 
 
-static void delete_f_key_constraint(TDBB	tdbb,
+static void delete_f_key_constraint(thread_db*	tdbb,
 									GBL		gbl,
 									const TEXT*	tbl_nm,
 									const TEXT*	col_nm, // unused
@@ -1874,7 +1869,7 @@ static void delete_f_key_constraint(TDBB	tdbb,
 }
 
 
-static void delete_gfield_for_lfield(TDBB tdbb,  GBL gbl, const TEXT* lfield_name)
+static void delete_gfield_for_lfield(thread_db* tdbb,  GBL gbl, const TEXT* lfield_name)
 {
 /**************************************
  *
@@ -1914,7 +1909,7 @@ static void delete_gfield_for_lfield(TDBB tdbb,  GBL gbl, const TEXT* lfield_nam
 }
 
 
-static bool delete_index_segment_records(TDBB tdbb,  GBL gbl, const TEXT* index_name)
+static bool delete_index_segment_records(thread_db* tdbb,  GBL gbl, const TEXT* index_name)
 {
 /**************************************
  *
@@ -1959,7 +1954,7 @@ static bool delete_index_segment_records(TDBB tdbb,  GBL gbl, const TEXT* index_
 }
 
 
-static bool delete_security_class2(TDBB tdbb, GBL gbl, const TEXT* security_class)
+static bool delete_security_class2(thread_db* tdbb, GBL gbl, const TEXT* security_class)
 {
 /**************************************
  *

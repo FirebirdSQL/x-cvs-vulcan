@@ -28,9 +28,13 @@
  * 2002.10.21 Nickolay Samofatov: Added support for explicit pessimistic locks
  * 2002.10.29 Nickolay Samofatov: Added support for savepoints
  * 2003.10.05 Dmitry Yemanov: Added support for explicit cursors in PSQL
+ * 2004.01.16 Vlad Horsun: Added support for default parameters and 
+ *   EXECUTE BLOCK statement
  */
 
-#include "firebird.h"
+/* AB:Sync FB 1.79 */
+
+#include "fbdev.h"
 #include <string.h>
 #include <stdio.h>
 #include "../dsql/dsql.h"
@@ -52,28 +56,28 @@
 #include "../jrd/val.h"
 #include "../jrd/Symb.h"
 
-static void gen_aggregate(CStatement*, dsql_nod*);
-static void gen_cast(CStatement*, dsql_nod*);
-static void gen_coalesce(CStatement*, dsql_nod*);
+static void gen_aggregate(CStatement*, const dsql_nod*);
+static void gen_cast(CStatement*, const dsql_nod*);
+static void gen_coalesce(CStatement*, const dsql_nod*);
 static void gen_constant(CStatement*, dsc*, bool);
-static void gen_descriptor(CStatement*, dsc*, bool);
-static void gen_error_condition(CStatement*, dsql_nod*);
-static void gen_field(CStatement*, dsql_ctx*, dsql_fld*, dsql_nod*);
+static void gen_descriptor(CStatement*, const dsc*, bool);
+static void gen_error_condition(CStatement*, const dsql_nod*);
+static void gen_field(CStatement*, const dsql_ctx*, dsql_fld*, dsql_nod*);
 static void gen_for_select(CStatement*, dsql_nod*);
-static void gen_gen_id(CStatement*, dsql_nod*);
-static void gen_join_rse(CStatement*, dsql_nod*);
+static void gen_gen_id(CStatement*, const dsql_nod*);
+static void gen_join_rse(CStatement*, const dsql_nod*);
 static void gen_map(CStatement*, dsql_map*);
-static void gen_parameter(CStatement*, par*);
-static void gen_plan(CStatement*, dsql_nod*);
+static void gen_parameter(CStatement*, const par*);
+static void gen_plan(CStatement*, const dsql_nod*);
 static void gen_relation(CStatement*, dsql_ctx*);
-static void gen_rse(CStatement*, dsql_nod*);
-static void gen_searched_case(CStatement*, dsql_nod*);
+static void gen_rse(CStatement*, const dsql_nod*);
+static void gen_searched_case(CStatement*, const dsql_nod*);
 static void gen_select(CStatement*, dsql_nod*);
-static void gen_simple_case(CStatement*, dsql_nod*);
+static void gen_simple_case(CStatement*, const dsql_nod*);
 static void gen_sort(CStatement*, dsql_nod*);
-static void gen_table_lock(CStatement*, dsql_nod*, USHORT);
-static void gen_udf(CStatement*, dsql_nod*);
-static void gen_union(CStatement*, dsql_nod*);
+static void gen_table_lock(CStatement*, const dsql_nod*, USHORT);
+static void gen_udf(CStatement*, const dsql_nod*);
+static void gen_union(CStatement*, const dsql_nod*);
 static void stuff_cstring(CStatement*, const char*);
 static void stuff_word(CStatement*, USHORT);
 
@@ -85,49 +89,6 @@ static const SCHAR db_key_name[] = "DB_KEY";
 const bool NEGATE_VALUE = true;
 const bool USE_VALUE    = false;
 
-
-/**
-
-    GEN_expand_buffer
-
-    @brief The blr buffer needs to be expanded.
-    
-
-    @param request
-    @param byte
-
-**/
-#ifdef UNDEF
-UCHAR GEN_expand_buffer( CStatement* request, UCHAR byte)
-{
-	//TSQL tdsql = GET_THREAD_DATA;
-
-	const ULONG length = request->req_blr_string->str_length + 2048;
-	// AB: We must define a maximum length and post an error when exceeded else 
-	// the server can crash with a huge SQL command.
-
-	const bool bIsPermanentPool = MemoryPool::blk_pool(request->req_blr_string) == DSQL_permanent_pool;
-	DsqlMemoryPool* pool = bIsPermanentPool ? DSQL_permanent_pool : tdsql->tsql_default;
-	dsql_str* new_buffer = FB_NEW_RPT(*pool, length) dsql_str;
-	new_buffer->str_length = length;
-
-	// one huge pointer per line for LIBS
-	// TMN: What does that mean???
-
-	char*       p   = new_buffer->str_data;
-	const char* q   = request->req_blr_string->str_data;
-	BLOB_PTR*   end = request->req_blr;
-	const size_t copy_length = (reinterpret_cast<char*>(end) - q);
-	memcpy(p, q, copy_length);
-
-	delete request->req_blr_string;
-	request->req_blr_string = new_buffer;
-	request->req_blr = reinterpret_cast<BLOB_PTR*>(p + copy_length);
-	request->req_blr_yellow = reinterpret_cast<BLOB_PTR*>(new_buffer->str_data + length);
-
-	return (*request->req_blr++ = byte);
-}
-#endif /* UNDEF of obsolete code */
 
 /**
   
@@ -344,6 +305,9 @@ void GEN_expr( CStatement* request, dsql_nod* node)
 	case nod_eql:
 		blr_operator = blr_eql;
 		break;
+	case nod_equiv:
+		blr_operator = blr_equiv;
+		break;
 	case nod_neq_all:
 	case nod_neq_any:
 	case nod_neq:
@@ -520,7 +484,7 @@ void GEN_expr( CStatement* request, dsql_nod* node)
 	stuff(request, blr_operator);
 
 	dsql_nod* const* ptr = node->nod_arg;
-	for (dsql_nod* const* const end = ptr + node->nod_count;
+	for (const dsql_nod* const* const end = ptr + node->nod_count;
 		ptr < end; ptr++)
 	{
 		GEN_expr(request, *ptr);
@@ -542,7 +506,7 @@ void GEN_expr( CStatement* request, dsql_nod* node)
 		const char* s = 0;
 		char message_buf[8];
 
-		MAKE_desc(request->threadData, &desc, node);
+		MAKE_desc(request->threadData, &desc, node, NULL);
 		if ((node->nod_flags & NOD_COMP_DIALECT) &&
 			(request->req_client_dialect == SQL_DIALECT_V6_TRANSITION)) 
 		{
@@ -694,8 +658,18 @@ void GEN_request( CStatement* request, dsql_nod* node)
 		{
 		// Do not generate BEGIN..END block around savepoint statement
 		// to avoid breaking of savepoint logic
-		request->sendMessage = NULL;
-		request->receiveMessage = NULL;
+
+		/* Fix memory leak.  SAS SEK */
+		if( request->sendMessage )
+			{
+			delete request->sendMessage;
+			request->sendMessage = NULL;
+			}
+		if( request->receiveMessage )
+			{
+			delete request->receiveMessage;
+			request->receiveMessage = NULL;
+			}
 		GEN_statement(request, node);
 		} 
 	else 
@@ -706,26 +680,38 @@ void GEN_request( CStatement* request, dsql_nod* node)
 			request->req_type == REQ_SELECT_UPD ||
 			request->req_type == REQ_EMBED_SELECT) 
       	  gen_select(request, node);
+		else if (request->req_type == REQ_EXEC_BLOCK ||
+				 request->req_type == REQ_SELECT_BLOCK )
+			GEN_statement(request, node);
 		else 
 			{
 			dsql_msg* message = request->sendMessage;
 			
 			if (!message->msg_parameter)
-				request->sendMessage = NULL;
+				/* Fix memory leak.  SAS SEK */
+				{
+				if( request->sendMessage )
+					{
+					delete request->sendMessage;
+					request->sendMessage = NULL;
+					}
+				}
 			else 
 				{
 				GEN_port(request, message);
-				//if (request->req_type != REQ_EXEC_PROCEDURE) 
-					{
-					stuff(request, blr_receive);
-					stuff(request, message->msg_number);
-					}
+				stuff(request, blr_receive);
+				stuff(request, message->msg_number);
 				}
 				
 			message = request->receiveMessage;
 			
-			if (!message->msg_parameter)
-				request->receiveMessage = NULL;
+			if (!message->msg_parameter) {
+				if( request->receiveMessage )
+					{
+					delete request->receiveMessage;
+					request->receiveMessage = NULL;
+					}
+				}
 			else
 				GEN_port(request, message);
 				
@@ -753,14 +739,14 @@ void GEN_request( CStatement* request, dsql_nod* node)
     @param tran_node
 
  **/
-void GEN_start_transaction( CStatement* request, dsql_nod* tran_node)
+void GEN_start_transaction( CStatement* request, const dsql_nod* tran_node)
 {
 	SSHORT count = tran_node->nod_count;
 
 	if (!count)
 		return;
 
-	dsql_nod* node = tran_node->nod_arg[0];
+	const dsql_nod* node = tran_node->nod_arg[0];
 
 	if (!node)
 		return;
@@ -772,7 +758,7 @@ void GEN_start_transaction( CStatement* request, dsql_nod* tran_node)
 
 	if (count = node->nod_count) {
 		while (count--) {
-			dsql_nod* ptr = node->nod_arg[count];
+			const dsql_nod* ptr = node->nod_arg[count];
 
 			if ((!ptr) || (ptr->nod_type != nod_isolation))
 				continue;
@@ -791,7 +777,7 @@ void GEN_start_transaction( CStatement* request, dsql_nod* tran_node)
 		stuff(request, isc_tpb_version1);
 
 	while (count--) {
-		dsql_nod* ptr = node->nod_arg[count];
+		const dsql_nod* ptr = node->nod_arg[count];
 
 		if (!ptr)
 			continue;
@@ -855,11 +841,11 @@ void GEN_start_transaction( CStatement* request, dsql_nod* tran_node)
 							  isc_arg_gds, isc_dsql_dup_option, 0);
 
 				sw_reserve = true;
-				dsql_nod* reserve = ptr->nod_arg[0];
+				const dsql_nod* reserve = ptr->nod_arg[0];
 
 				if (reserve) {
-					dsql_nod* const* temp = reserve->nod_arg;
-					for (dsql_nod* const* end = temp + reserve->nod_count;
+					const dsql_nod* const* temp = reserve->nod_arg;
+					for (const dsql_nod* const* end = temp + reserve->nod_count;
 						 temp < end; temp++)
 					{
 						gen_table_lock(request, *temp, lock_level);
@@ -891,7 +877,7 @@ void GEN_statement( CStatement* request, dsql_nod* node)
 {
 	dsql_nod* temp;
 	dsql_nod** ptr;
-	dsql_nod* const* end;
+	const dsql_nod* const* end;
 	dsql_ctx* context;
 	dsql_msg* message;
 	dsql_str* name;
@@ -934,6 +920,10 @@ void GEN_statement( CStatement* request, dsql_nod* node)
 		stuff(request, blr_erase);
 		context = (dsql_ctx*) node->nod_arg[e_erc_context];
 		stuff(request, context->ctx_context);
+		return;
+
+	case nod_exec_block:
+		DDL_gen_block(request, node);
 		return;
 
 	case nod_exec_procedure:
@@ -1082,7 +1072,14 @@ void GEN_statement( CStatement* request, dsql_nod* node)
 		return;
 	
 	case nod_return:
-		GEN_return(request, node->nod_arg[e_rtn_procedure], false);
+		if (temp = node->nod_arg[e_rtn_procedure])
+		{
+			if (temp->nod_type == nod_exec_block)
+				GEN_return(request, temp->nod_arg[e_exe_blk_outputs], false);
+			else 
+				GEN_return(request, temp->nod_arg[e_prc_outputs], false);
+		}
+		//GEN_return(request, node->nod_arg[e_rtn_procedure], false);
 		return;
 
 	case nod_exit:
@@ -1273,7 +1270,7 @@ void GEN_statement( CStatement* request, dsql_nod* node)
     @param 
 
  **/
-static void gen_aggregate( CStatement* request, dsql_nod* node)
+static void gen_aggregate( CStatement* request, const dsql_nod* node)
 {
 	const dsql_ctx* context = (dsql_ctx*) node->nod_arg[e_agg_context];
 	stuff(request, blr_aggregate);
@@ -1288,7 +1285,7 @@ static void gen_aggregate( CStatement* request, dsql_nod* node)
 	if (list != NULL) {
 		stuff(request, list->nod_count);
 		dsql_nod** ptr = list->nod_arg;
-		for (dsql_nod* const* end = ptr + list->nod_count; ptr < end;
+		for (const dsql_nod* const* end = ptr + list->nod_count; ptr < end;
 			 ptr++)
 		{
 			GEN_expr(request, *ptr);
@@ -1314,7 +1311,7 @@ static void gen_aggregate( CStatement* request, dsql_nod* node)
     @param node
 
  **/
-static void gen_cast( CStatement* request, dsql_nod* node)
+static void gen_cast( CStatement* request, const dsql_nod* node)
 {
 	stuff(request, blr_cast);
 	dsql_fld* field = (dsql_fld*) node->nod_arg[e_cast_target];
@@ -1344,14 +1341,14 @@ static void gen_cast( CStatement* request, dsql_nod* node)
     @param node
 
  **/
-static void gen_coalesce( CStatement* request, dsql_nod* node)
+static void gen_coalesce( CStatement* request, const dsql_nod* node)
 {
 	// blr_value_if is used for building the coalesce function
 	dsql_nod* list = node->nod_arg[0];
 	stuff(request, blr_cast);
 	gen_descriptor(request, &node->nod_desc, true);
 	dsql_nod* const* ptr = list->nod_arg;
-	for (dsql_nod* const* const end = ptr + list->nod_count;
+	for (const dsql_nod* const* const end = ptr + list->nod_count;
 		ptr < end; ptr++)
 	{
 		// IF (expression IS NULL) THEN
@@ -1361,7 +1358,7 @@ static void gen_coalesce( CStatement* request, dsql_nod* node)
 	}
 	// Return values
 	list = node->nod_arg[1];
-	dsql_nod* const* const begin = list->nod_arg;
+	const dsql_nod* const* const begin = list->nod_arg;
 	ptr = list->nod_arg + list->nod_count;
 	// if all expressions are NULL return NULL
 	stuff(request, blr_null);
@@ -1438,7 +1435,8 @@ static void gen_constant( CStatement* request, dsc* desc, bool negate_value)
 		   which is transmitted to the engine as a string.
 		 */
 		gen_descriptor(request, desc, true);
-		l = (USHORT) desc->dsc_scale;	// length of string literal 
+		l = (USHORT) (UCHAR) desc->dsc_scale;	// length of string literal, cast
+						   						// because could be >127 chars	
 		if (negate_value) {
 			stuff_word(request, l + 1);
 			stuff(request, '-');
@@ -1538,7 +1536,7 @@ static void gen_constant( CStatement* request, dsc* desc, bool negate_value)
     @param texttype
 
  **/
-static void gen_descriptor( CStatement* request, dsc* desc, bool texttype)
+static void gen_descriptor( CStatement* request, const dsc* desc, bool texttype)
 {
 	switch (desc->dsc_dtype) 
 		{
@@ -1640,7 +1638,7 @@ static void gen_descriptor( CStatement* request, dsc* desc, bool texttype)
     @param node
 
  **/
-static void gen_error_condition( CStatement* request, dsql_nod* node)
+static void gen_error_condition( CStatement* request, const dsql_nod* node)
 {
 	const dsql_str* string;
 
@@ -1687,7 +1685,7 @@ static void gen_error_condition( CStatement* request, dsql_nod* node)
     @param indices
 
  **/
-static void gen_field( CStatement* request, dsql_ctx* context,
+static void gen_field( CStatement* request, const dsql_ctx* context,
 						dsql_fld* field, dsql_nod* indices)
 {
 /* For older clients - generate an error should they try and
@@ -1728,7 +1726,7 @@ static void gen_field( CStatement* request, dsql_ctx* context,
 	if (indices) {
 		stuff(request, indices->nod_count);
 		dsql_nod** ptr = indices->nod_arg;
-		for (dsql_nod* const* end = ptr + indices->nod_count;
+		for (const dsql_nod* const* end = ptr + indices->nod_count;
 			 ptr < end; ptr++)
 		{
 			GEN_expr(request, *ptr);
@@ -1796,7 +1794,7 @@ static void gen_for_select( CStatement* request, dsql_nod* for_select)
 	dsql_nod** ptr = list->nod_arg;
 	dsql_nod** ptr_to = list_to->nod_arg;
 	
-	for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++, ptr_to++) 
+	for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++, ptr_to++) 
 		{
 		stuff(request, blr_assignment);
 		GEN_expr(request, *ptr);
@@ -1821,7 +1819,7 @@ static void gen_for_select( CStatement* request, dsql_nod* for_select)
     @param node
 
  **/
-static void gen_gen_id( CStatement* request, dsql_nod* node)
+static void gen_gen_id( CStatement* request, const dsql_nod* node)
 {
 	stuff(request, blr_gen_id);
 	const dsql_str* string = (dsql_str*) node->nod_arg[e_gen_id_name];
@@ -1842,7 +1840,7 @@ static void gen_gen_id( CStatement* request, dsql_nod* node)
     @param rse
 
  **/
-static void gen_join_rse( CStatement* request, dsql_nod* rse)
+static void gen_join_rse( CStatement* request, const dsql_nod* rse)
 {
 	stuff(request, blr_rs_stream);
 	stuff(request, 2);
@@ -1850,7 +1848,7 @@ static void gen_join_rse( CStatement* request, dsql_nod* rse)
 	GEN_expr(request, rse->nod_arg[e_join_left_rel]);
 	GEN_expr(request, rse->nod_arg[e_join_rght_rel]);
 
-	dsql_nod* node = rse->nod_arg[e_join_type];
+	const dsql_nod* node = rse->nod_arg[e_join_type];
 	if (node->nod_type != nod_join_inner) {
 		stuff(request, blr_join_type);
 		if (node->nod_type == nod_join_left)
@@ -1861,8 +1859,11 @@ static void gen_join_rse( CStatement* request, dsql_nod* rse)
 			stuff(request, blr_full);
 	}
 
-	stuff(request, blr_boolean);
-	GEN_expr(request, rse->nod_arg[e_join_boolean]);
+	if (rse->nod_arg[e_join_boolean])
+	{
+		stuff(request, blr_boolean);
+		GEN_expr(request, rse->nod_arg[e_join_boolean]);
+	}
 
 	stuff(request, blr_end);
 }
@@ -1907,11 +1908,11 @@ static void gen_map( CStatement* request, dsql_map* map)
     @param parameter
 
  **/
-static void gen_parameter( CStatement* request, par* parameter)
+static void gen_parameter( CStatement* request, const par* parameter)
 {
 	const dsql_msg* message = parameter->par_message;
 
-	par* null = parameter->par_null;
+	const par* null = parameter->par_null;
 	if (null != NULL) {
 		stuff(request, blr_parameter2);
 		stuff(request, message->msg_number);
@@ -1938,11 +1939,11 @@ static void gen_parameter( CStatement* request, par* parameter)
     @param plan_expression
 
  **/
-static void gen_plan( CStatement* request, dsql_nod* plan_expression)
+static void gen_plan( CStatement* request, const dsql_nod* plan_expression)
 {
 // stuff the join type 
 
-	dsql_nod* list = plan_expression->nod_arg[1];
+	const dsql_nod* list = plan_expression->nod_arg[1];
 	if (list->nod_count > 1) {
 		if (plan_expression->nod_arg[0])
 			stuff(request, blr_merge);
@@ -1953,11 +1954,11 @@ static void gen_plan( CStatement* request, dsql_nod* plan_expression)
 
 // stuff one or more plan items 
 
-	dsql_nod* const* ptr = list->nod_arg;
-	for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end; 
+	const dsql_nod* const* ptr = list->nod_arg;
+	for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; 
 		ptr++) 
 	{
-		dsql_nod* node = *ptr;
+		const dsql_nod* node = *ptr;
 		if (node->nod_type == nod_plan_expr) {
 			gen_plan(request, node);
 			continue;
@@ -1970,7 +1971,7 @@ static void gen_plan( CStatement* request, dsql_nod* plan_expression)
 		/* stuff the relation--the relation id itself is redundant except 
 		   when there is a need to differentiate the base tables of views */
 
-		dsql_nod* arg = node->nod_arg[0];
+		const dsql_nod* arg = node->nod_arg[0];
 		gen_relation(request, (dsql_ctx*) arg->nod_arg[e_rel_context]);
 
 		// now stuff the access method for this stream 
@@ -1996,8 +1997,8 @@ static void gen_plan( CStatement* request, dsql_nod* plan_expression)
 				arg = (arg->nod_type == nod_index) ?
 					arg->nod_arg[0] : arg->nod_arg[1];
 				stuff(request, arg->nod_count);
-				dsql_nod* const* ptr2 = arg->nod_arg;
-				for (dsql_nod* const* const end2 = ptr2 + arg->nod_count;
+				const dsql_nod* const* ptr2 = arg->nod_arg;
+				for (const dsql_nod* const* const end2 = ptr2 + arg->nod_count;
 					 ptr2 < end2; ptr2++) 
 				{
 					index_string = (dsql_str*) * ptr2;
@@ -2083,7 +2084,7 @@ static void gen_relation( CStatement* request, dsql_ctx* context)
 		if (inputs) 
 			{
 		    dsql_nod* const* ptr = inputs->nod_arg;
-			for (dsql_nod* const* const end = ptr + inputs->nod_count; ptr < end; ptr++)
+			for (const dsql_nod* const* const end = ptr + inputs->nod_count; ptr < end; ptr++)
 				GEN_expr(request, *ptr);
 			}
 		}
@@ -2103,11 +2104,8 @@ static void gen_relation( CStatement* request, dsql_ctx* context)
 
  **/
  
-void GEN_return( CStatement* request, dsql_nod* procedure, bool eos_flag)
+void GEN_return( CStatement* request, const dsql_nod* parameters, bool eos_flag)
 {
-	if (!procedure)
-		return;
-
 	if (!eos_flag)
 		stuff(request, blr_begin);
 		
@@ -2116,16 +2114,14 @@ void GEN_return( CStatement* request, dsql_nod* procedure, bool eos_flag)
 	stuff(request, blr_begin);
 
 	USHORT outputs = 0;
-	dsql_nod* parameters = procedure->nod_arg[e_prc_outputs];
-	
 	if (parameters) 
 		{
-		dsql_nod* const* ptr = parameters->nod_arg;
+		const dsql_nod* const* ptr = parameters->nod_arg;
 		
-		for (dsql_nod* const* const end = ptr + parameters->nod_count; ptr < end; ptr++)
+		for (const dsql_nod* const* const end = ptr + parameters->nod_count; ptr < end; ptr++)
 			{
 			outputs++;
-			dsql_nod* parameter = *ptr;
+			const dsql_nod* parameter = *ptr;
 			const var* variable = (var*) parameter->nod_arg[e_var_variable];
 			stuff(request, blr_assignment);
 			stuff(request, blr_variable);
@@ -2171,9 +2167,9 @@ void GEN_return( CStatement* request, dsql_nod* procedure, bool eos_flag)
     @param rse
 
  **/
-static void gen_rse( CStatement* request, dsql_nod* rse)
+static void gen_rse( CStatement* request, const dsql_nod* rse)
 {
-	if (rse->nod_arg[e_rse_singleton] && !(request->dbb_flags & DBB_v3))
+	if ((rse->nod_flags & NOD_SELECT_EXPR_SINGLETON) && !(request->dbb_flags & DBB_v3))
 		stuff(request, blr_singular);
 
 	stuff(request, blr_rse);
@@ -2192,12 +2188,13 @@ static void gen_rse( CStatement* request, dsql_nod* rse)
 		stuff(request, list->nod_count);
 		dsql_nod* const* ptr = list->nod_arg;
 		
-		for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
+		for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
 			{
 			dsql_nod* node = *ptr;
 			
 			if (node->nod_type == nod_relation ||
-				node->nod_type == nod_aggregate || node->nod_type == nod_join)
+				node->nod_type == nod_aggregate || 
+				node->nod_type == nod_join)
 				GEN_expr(request, node);
 			else if (node->nod_type == nod_derived_table) 
 				GEN_expr(request, node->nod_arg[e_derived_table_rse]);
@@ -2241,7 +2238,7 @@ static void gen_rse( CStatement* request, dsql_nod* rse)
 		stuff(request, list->nod_count);
 		dsql_nod** ptr = list->nod_arg;
 		
-		for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
+		for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
 			GEN_expr(request, *ptr);
 		}
 
@@ -2286,7 +2283,7 @@ static void gen_rse( CStatement* request, dsql_nod* rse)
     @param node
 
  **/
-static void gen_searched_case( CStatement* request, dsql_nod* node)
+static void gen_searched_case( CStatement* request, const dsql_nod* node)
 {
 	// blr_value_if is used for building the case expression
 
@@ -2298,7 +2295,7 @@ static void gen_searched_case( CStatement* request, dsql_nod* node)
 	dsql_nod* results_list = node->nod_arg[e_searched_case_results];
 	dsql_nod* const* bptr = boolean_list->nod_arg;
 	dsql_nod* const* rptr = results_list->nod_arg;
-	for (dsql_nod* const* const end = bptr + count; bptr < end;
+	for (const dsql_nod* const* const end = bptr + count; bptr < end;
 		bptr++, rptr++)
 	{
 		stuff(request, blr_value_if);
@@ -2334,12 +2331,14 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 	dsql_nod* list = rse->nod_arg[e_rse_items];
 	dsql_nod* const* ptr = list->nod_arg;
 	
-	for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++) 
+
+	// TODO:AB   Code below definitly needs refactoring
+	for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++) 
 		{
 		dsql_nod* item = *ptr;
 		par* parameter = request->makeParameter (request->receiveMessage, true, true, 0);
 		parameter->par_node = item;
-		MAKE_desc(request->threadData, &parameter->par_desc, item);
+		MAKE_desc(request->threadData, &parameter->par_desc, item, NULL);
 		const char* name_alias = NULL;
 
 		switch(item->nod_type) 
@@ -2360,6 +2359,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 					parameter->par_owner_name = (const TEXT *)context->ctx_procedure->findOwner();
 					}
 				}
+				parameter->par_rel_alias = context->ctx_alias;
 				break;
 				
 			case nod_dbkey: 
@@ -2367,6 +2367,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 				context = (dsql_ctx*) item->nod_arg[0]->nod_arg[0];
 				parameter->par_rel_name = context->ctx_relation->rel_name;
 				parameter->par_owner_name = context->ctx_relation->rel_owner;
+				parameter->par_rel_alias = context->ctx_alias;
 				break;
 				
 			case nod_alias: 
@@ -2389,6 +2390,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 						parameter->par_rel_name = (const TEXT *)context->ctx_procedure->findName();
 						parameter->par_owner_name = (const TEXT *)context->ctx_procedure->findOwner();
 						}
+					parameter->par_rel_alias = context->ctx_alias;
 					}
 				else if (alias->nod_type == nod_dbkey) 
 					{
@@ -2396,6 +2398,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 					context = (dsql_ctx*) alias->nod_arg[0]->nod_arg[0];
 					parameter->par_rel_name = context->ctx_relation->rel_name;
 					parameter->par_owner_name = context->ctx_relation->rel_owner;
+					parameter->par_rel_alias = context->ctx_alias;
 					}
 				}
 				break;
@@ -2420,6 +2423,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 						parameter->par_rel_name = (const TEXT *)context->ctx_procedure->findName();
 						parameter->par_owner_name = (const TEXT *)context->ctx_procedure->findOwner();
 						}
+					parameter->par_rel_alias = context->ctx_alias;
 					}
 				else if (alias->nod_type == nod_dbkey) 
 					{
@@ -2427,6 +2431,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 					context = (dsql_ctx*) alias->nod_arg[0]->nod_arg[0];
 					parameter->par_rel_name = context->ctx_relation->rel_name;
 					parameter->par_owner_name = context->ctx_relation->rel_owner;
+					parameter->par_rel_alias = context->ctx_alias;
 					}
 				}
 				break;
@@ -2434,7 +2439,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 			case nod_map: 
 				{
 				const dsql_map* map = (dsql_map*) item->nod_arg[e_map_map];
-				dsql_nod* map_node = map->map_node;
+				const dsql_nod* map_node = map->map_node;
 				while (map_node->nod_type == nod_map) 
 					{
 					// skip all the nod_map nodes
@@ -2507,7 +2512,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 				
 			case nod_udf: 
 				{
-				Function* userFunc = (Function*) item->nod_arg[0];
+				UserFunction* userFunc = (UserFunction*) item->nod_arg[0];
 				name_alias = userFunc->fun_symbol->sym_string;
 				break;
 				}
@@ -2596,7 +2601,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 	if (!rse->nod_arg[e_rse_reduced]) 
 		{
 		ptr = list->nod_arg;
-		for (dsql_nod* const* const end2 = ptr + list->nod_count;  ptr < end2; ptr++) 
+		for (const dsql_nod* const* const end2 = ptr + list->nod_count;  ptr < end2; ptr++) 
 			{
 			dsql_nod* item = *ptr;
 			if (item && item->nod_type == nod_relation) 
@@ -2659,8 +2664,12 @@ static void gen_select( CStatement* request, dsql_nod* rse)
 	if (message->msg_parameter)
 		GEN_port(request, message);
 	else
-		request->sendMessage = NULL;
-		
+		/* Fix memory leak.  SAS SEK */
+		if( request->sendMessage ) 
+			{
+			delete request-> sendMessage;
+			request->sendMessage = NULL;
+			}	
 #ifdef SCROLLABLE_CURSORS
 
 	if (request->req_type == REQ_SELECT && request->req_dbb->dbb_base_level >= 5)
@@ -2744,7 +2753,7 @@ static void gen_select( CStatement* request, dsql_nod* rse)
     @param node
 
  **/
-static void gen_simple_case( CStatement* request, dsql_nod* node)
+static void gen_simple_case( CStatement* request, const dsql_nod* node)
 {
 	// blr_value_if is used for building the case expression 
 
@@ -2756,7 +2765,7 @@ static void gen_simple_case( CStatement* request, dsql_nod* node)
 
 	dsql_nod* const* wptr = when_list->nod_arg;
 	dsql_nod* const* rptr = results_list->nod_arg;
-	for (dsql_nod* const* const end = wptr + count; wptr < end;
+	for (const dsql_nod* const* const end = wptr + count; wptr < end;
 		wptr++, rptr++)
 	{
 		stuff(request, blr_value_if);
@@ -2785,28 +2794,34 @@ static void gen_sort( CStatement* request, dsql_nod* list)
 {
 	stuff(request, blr_sort);
 	stuff(request, list->nod_count);
-
 	dsql_nod* const* ptr = list->nod_arg;
-	for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end;
-		ptr++)
-	{
+	
+	for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
+		{
 		dsql_nod* nulls_placement = (*ptr)->nod_arg[e_order_nulls];
-		if (nulls_placement) {
-			switch ((long)nulls_placement->nod_arg[0]) {
+
+		if (nulls_placement) 
+			{
+			/* Fix non-64-bit clean access of argument - SAS S0282759 */
+			UCHAR *p = (UCHAR*)nulls_placement->nod_arg;
+			long constval = (long)*(SLONG*)p;
+			switch (constval) 
+				{
 				case NOD_NULLS_FIRST:
 					stuff(request, blr_nullsfirst);
 					break;
 				case NOD_NULLS_LAST:
 					stuff(request, blr_nullslast);
 					break;
+				}
 			}
-		}
+			
 		if ((*ptr)->nod_arg[e_order_flag])
 			stuff(request, blr_descending);
 		else
 			stuff(request, blr_ascending);
 		GEN_expr(request, (*ptr)->nod_arg[e_order_field]);
-	}
+		}
 }
 
 
@@ -2823,13 +2838,13 @@ static void gen_sort( CStatement* request, dsql_nod* list)
     @param lock_level
 
  **/
-static void gen_table_lock( CStatement* request, dsql_nod* tbl_lock,
+static void gen_table_lock( CStatement* request, const dsql_nod* tbl_lock,
 	USHORT lock_level)
 {
 	if ((!tbl_lock) || (tbl_lock->nod_type != nod_table_lock))
 		return;
 
-	dsql_nod* tbl_names = tbl_lock->nod_arg[e_lock_tables];
+	const dsql_nod* tbl_names = tbl_lock->nod_arg[e_lock_tables];
 	SSHORT flags = 0;
 
 	if (tbl_lock->nod_arg[e_lock_mode])
@@ -2843,8 +2858,8 @@ static void gen_table_lock( CStatement* request, dsql_nod* tbl_lock,
 	const USHORT lock_mode = (flags & NOD_WRITE) ? 
 		isc_tpb_lock_write : isc_tpb_lock_read;
 
-    dsql_nod* const* ptr = tbl_names->nod_arg;
-	for (dsql_nod* const* const end = ptr + tbl_names->nod_count;
+    const dsql_nod* const* ptr = tbl_names->nod_arg;
+	for (const dsql_nod* const* const end = ptr + tbl_names->nod_count;
 		 ptr < end; ptr++)
 	{
 		if ((*ptr)->nod_type != nod_relation_name)
@@ -2872,21 +2887,21 @@ static void gen_table_lock( CStatement* request, dsql_nod* tbl_lock,
     @param node
 
  **/
-static void gen_udf( CStatement* request, dsql_nod* node)
+static void gen_udf( CStatement* request, const dsql_nod* node)
 {
 	//const dsql_udf* userFunc = (dsql_udf*) node->nod_arg[0];
-	Function* userFunc = (Function*) node->nod_arg[0];
+	const UserFunction* userFunc = (UserFunction*) node->nod_arg[0];
 	stuff(request, blr_function);
 	stuff_cstring(request, userFunc->fun_symbol->sym_string);
 
-	dsql_nod* list;
+	const dsql_nod* list;
 	
 	if ((node->nod_count == 2) && (list = node->nod_arg[1])) 
 		{
 		stuff(request, list->nod_count);
 		dsql_nod* const* ptr = list->nod_arg;
 		
-		for (dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
+		for (const dsql_nod* const* const end = ptr + list->nod_count; ptr < end; ptr++)
 			GEN_expr(request, *ptr);
 		}
 	else
@@ -2905,7 +2920,7 @@ static void gen_udf( CStatement* request, dsql_nod* node)
     @param union_node
 
  **/
-static void gen_union( CStatement* request, dsql_nod* union_node)
+static void gen_union( CStatement* request, const dsql_nod* union_node)
 {
 	stuff(request, blr_union);
 
@@ -2923,7 +2938,7 @@ static void gen_union( CStatement* request, dsql_nod* union_node)
 	stuff(request, streams->nod_count);	// number of substreams 
 
     dsql_nod** ptr = streams->nod_arg;
-	for (dsql_nod* const* const end = ptr + streams->nod_count; ptr < end;
+	for (const dsql_nod* const* const end = ptr + streams->nod_count; ptr < end;
 		 ptr++)
 	{
 		dsql_nod* sub_rse = *ptr;
@@ -2933,7 +2948,7 @@ static void gen_union( CStatement* request, dsql_nod* union_node)
 		stuff_word(request, items->nod_count);
 		USHORT count = 0;
 		dsql_nod** iptr = items->nod_arg;
-		for (dsql_nod* const* const iend = iptr + items->nod_count;
+		for (const dsql_nod* const* const iend = iptr + items->nod_count;
 			 iptr < iend; iptr++)
 		{
 			stuff_word(request, count);

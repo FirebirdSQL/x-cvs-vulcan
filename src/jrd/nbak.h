@@ -3,34 +3,26 @@
  *	MODULE:		nbak.h
  *	DESCRIPTION:	New backup interface definitions
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- * You may obtain a copy of the Licence at
- * http://www.gnu.org/licences/lgpl.html
- * 
- * As a special exception this file can also be included in modules
- * with other source code as long as that source code has been 
- * released under an Open Source Initiative certificed licence.  
- * More information about OSI certification can be found at: 
- * http://www.opensource.org 
- * 
- * This module is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public Licence for more details.
- * 
- * This module was created by members of the firebird development 
- * team.  All individual contributions remain the Copyright (C) of 
- * those individuals and all rights are reserved.  Contributors to 
- * this file are either listed below or can be obtained from a CVS 
- * history command.
+ *  The contents of this file are subject to the Initial
+ *  Developer's Public License Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the
+ *  License. You may obtain a copy of the License at
+ *  http://www.ibphoenix.com/main.nfs?a=ibphoenix&page=ibp_idpl.
  *
- *  Created by: Nickolay Samofatov <skidder@bssys.com>
+ *  Software distributed under the License is distributed AS IS,
+ *  WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing rights
+ *  and limitations under the License.
  *
- *  Contributor(s):
- * 
+ *  The Original Code was created by Nickolay Samofatov
+ *  for the Firebird Open Source RDBMS project.
+ *
+ *  Copyright (c) 2004 Nickolay Samofatov <nickolay@broadviewsoftware.com>
+ *  and all contributors signed below.
+ *
+ *  All Rights Reserved.
+ *  Contributor(s): ______________________________________.
+ *
  *
  *  $Id$
  *
@@ -75,13 +67,15 @@ public:
 typedef firebird::BePlusTree<AllocItem, ULONG, MemoryPool, AllocItem> AllocItemTree;
 
 class Database;
+class File;
+struct thread_db;
 
 class BackupManager {
 public:
 	// Subsystem initialization
-	BackupManager(tdbb *tdbb,  Database* _database, int ini_state);
+	BackupManager(thread_db* tdbb,  Database* _database, int ini_state);
 	// Release locks in response to shutdown AST
-	void shutdown_locks(tdbb *tdbb) throw();
+	void shutdown_locks(thread_db* tdbb) throw();
 	// Subsystem finalization
 
 private:
@@ -90,12 +84,12 @@ private:
 public:
 	// Set difference file name in header. 
 	// State must be locked and equal to nbak_state_normal to call this method
-	void set_difference(tdbb *tdbb, const char* filename);
+	void set_difference(thread_db* tdbb, const char* filename);
 	// Prevent backup state from modification by others
 	// You may or may not call unlock_state in case this function fails
-	bool lock_state(tdbb* tdbb, bool thread_exit) throw();
+	bool lock_state(thread_db* tdbb, bool thread_exit) throw();
 	// Remove our interest in consistent backup state
-	void unlock_state(tdbb* tdbb) throw();
+	void unlock_state(thread_db* tdbb) throw();
 	// Return current backup state
 	int get_state() const throw() {
 		return backup_state;
@@ -111,35 +105,35 @@ public:
 	}
 	
 	// Initialize and open difference file for writing
-	void begin_backup(tdbb* tdbb);
+	void begin_backup(thread_db* tdbb);
 	
 	// Merge difference file to main files (if needed) and unlink() difference 
 	// file then. If merge is already in progress method silently returns false and 
 	// does nothing (so it can be used for recovery on database startup). 
-	void end_backup(tdbb* tdbb, bool recover);
+	void end_backup(thread_db* tdbb, bool recover);
 	
 	// Prevent allocation table from modification by other threads/processes
 	// You may or may not call unlock function in case this functions fail
-	bool lock_alloc(tdbb* tdbb, bool thread_exit) throw();
-	bool lock_alloc_write(tdbb* tdbb, bool thread_exit) throw();
+	bool lock_alloc(thread_db* tdbb, bool thread_exit) throw();
+	bool lock_alloc_write(thread_db* tdbb, bool thread_exit) throw();
 	// Remove our interest in static allocation table
-	void unlock_alloc(tdbb* tdbb) throw();
-	void unlock_alloc_write(tdbb* tdbb) throw();
+	void unlock_alloc(thread_db* tdbb) throw();
+	void unlock_alloc_write(thread_db* tdbb) throw();
 	// Return page index in difference file that can be used in 
 	// write_difference call later. 
 	ULONG get_page_index(ULONG db_page) const throw();
 	// Return next page index in the difference file to be allocated
-	ULONG allocate_difference_page(tdbb *tdbb, ULONG db_page) throw();
+	ULONG allocate_difference_page(thread_db* tdbb, ULONG db_page) throw();
 	
 	// Must have ISC_STATUS because it is called from write_page
 	bool write_difference(ISC_STATUS* status, ULONG diff_page, struct pag* page) throw();
 	
-	bool read_difference(tdbb *tdbb, ULONG diff_page, struct pag* page) throw();
+	bool read_difference(thread_db* tdbb, ULONG diff_page, struct pag* page) throw();
 	
 	
 	// Routines to declare and release interest in the main database file
-	bool get_sw_database_lock(tdbb* tdbb, bool enable_signals) throw();
-	void release_sw_database_lock(tdbb* tdbb) throw();
+	bool get_sw_database_lock(thread_db* tdbb, bool enable_signals) throw();
+	void release_sw_database_lock(thread_db* tdbb) throw();
 
 #ifndef SUPERSERVER
 	// Routines to declare and release deferred interest in the difference file
@@ -152,7 +146,7 @@ public:
 #endif
 private:
 	 Database* database;
-	class fil* diff_file;
+	File* diff_file;
 	AllocItemTree* alloc_table; // Cached allocation table of pages in difference file
 	volatile SATOM backup_state;
 	ULONG last_allocated_page; // Last physical page allocated in the difference file
@@ -190,15 +184,15 @@ private:
 	static int alloc_table_ast(void *ast_object) throw();
 	static int backup_database_ast(void *ast_object) throw();
 #endif
-	bool try_lock_state_write(TDBB tdbb);
-	void lock_state_write(TDBB tdbb, bool thread_exit);
-	void unlock_state_write(tdbb* tdbb) throw();
-	void generate_filename(tdbb* tdbb) throw();
+	bool try_lock_state_write(thread_db* tdbb);
+	void lock_state_write(thread_db* tdbb, bool thread_exit);
+	void unlock_state_write(thread_db* tdbb) throw();
+	void generate_filename(thread_db* tdbb) throw();
 	// Make appropriate information up-to-date
-	bool actualize_state(TDBB tdbb) throw();
-	bool actualize_alloc(tdbb* tdbb) throw();
+	bool actualize_state(thread_db* tdbb) throw();
+	bool actualize_alloc(thread_db* tdbb) throw();
 public:
-	void shutdown(tdbb* tdbb);
+	void shutdown(thread_db* tdbb);
 };
 
 // Flags manipulated normally

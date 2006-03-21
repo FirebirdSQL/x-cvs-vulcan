@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		Relation.h
@@ -38,26 +39,28 @@
 #include "JString.h"
 #include "SyncObject.h"
 #include "../jrd/jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "../include/fb_blk.h"
 #include "../include/fb_vector.h"
 #include "SIVector.h"
 #include "SVector.h"
 #include "Interlock.h"
+#include "sbm.h"
 
-#define REL_scanned					1		/* Field expressions scanned (or being scanned) */
-#define REL_system					2
-#define REL_deleted					4		/* Relation known gonzo */
-#define REL_get_dependencies		8		/* New relation needs dependencies during scan */
-#define REL_force_scan				16		/* system relation has been updated since ODS change, force a scan */
-#define REL_check_existence			32		/* Existence lock released pending drop of relation */
-#define REL_blocking				64		/* Blocking someone from dropping relation */
-#define REL_sys_triggers			128		/* The relation has system triggers to compile */
-#define REL_sql_relation			256		/* Relation defined as sql table */
-#define REL_check_partners			512		/* Rescan primary dependencies and foreign references */
-#define	REL_being_scanned			1024	/* relation scan in progress */
-#define REL_sys_trigs_being_loaded	2048	/* System triggers being loaded */
-#define REL_deleting				4096	/* relation delete in progress */
-#define	REL_has_type_info			8192	/* relation has field type information */
+
+const USHORT REL_scanned				= 1;		/* Field expressions scanned (or being scanned) */
+const USHORT REL_system					= 2;
+const USHORT REL_deleted				= 4;		/* Relation known gonzo */
+const USHORT REL_get_dependencies		= 8;			/* New relation needs dependencies during scan */
+const USHORT REL_force_scan				= 16;		/* system relation has been updated since ODS change, force a scan */
+const USHORT REL_check_existence		= 32;		/* Existence lock released pending drop of relation */
+const USHORT REL_blocking				= 64;		/* Blocking someone from dropping relation */
+const USHORT REL_sys_triggers			= 128;		/* The relation has system triggers to compile */
+const USHORT REL_sql_relation			= 256;		/* Relation defined as sql table */
+const USHORT REL_check_partners			= 512;		/* Rescan primary dependencies and foreign references */
+const USHORT REL_being_scanned			= 1024;		/* relation scan in progress */
+const USHORT REL_sys_trigs_being_loaded	= 2048;		/* System triggers being loaded */
+const USHORT REL_deleting				= 4096;		/* relation delete in progress */
+const USHORT REL_has_type_info			= 8192;		/* relation has field type information */
 
 class Trigger;
 class Triggers;
@@ -67,29 +70,28 @@ class Procedure;
 class Connection;
 class Transaction;
 class vec;
-class idl;
-class idb;
-class fmt;
-class rse;
+class IndexLock;
+class IndexBlock;
+class Format;
+class RecordSelExpr;
 class vcl;
-class vcx;
-class ext;
-class sbm;
-class lck;
+class ViewContext;
+class ExternalFile;
+class Lock;
 class dsql_rel;
 
-struct tdbb;
+struct thread_db;
 
 typedef firebird::vector<Trigger> TriggerVector;
 
-struct prim {
+struct PrimaryKeyDependency {
 	vec* prim_reference_ids;
 	vec* prim_relations;
 	vec* prim_indexes;
-	prim(void);
+	PrimaryKeyDependency(void);
 };
 
-typedef prim *PRIM;
+//typedef prim *PRIM;
 
 /* Foreign references to other relations' primary/unique keys */
 
@@ -114,26 +116,32 @@ public:
 	USHORT			rel_flags;
 	USHORT			rel_current_fmt;		/* Current format number */
 	UCHAR			rel_length;				/* length of ascii relation name */
-	fmt				*rel_current_format;	/* Current record format */
+	Format*			rel_current_format;		/* Current record format */
 	JString			rel_name;				/* pointer to ascii relation name */
 	//vec*			rel_formats;			/* Known record formats */
-	SVector<fmt*>	rel_formats;			/* Known record formats */
+	SVector<Format*> rel_formats;			/* Known record formats */
 	JString			rel_owner_name;			/* pointer to ascii owner */
+#ifdef SHARED_CACHE
 	SIVector<SLONG>	rel_pages;				/* vector of pointer page numbers */
-	SVector<Field*>	rel_fields;				/* vector of field blocks */
+	SIVector<Field*>rel_fields;				/* vector of field blocks */
+#else
+	SVector<SLONG>	rel_pages;				/* vector of pointer page numbers */
+	SVector<Field*>rel_fields;				/* vector of field blocks */
+#endif
 
-	rse				*rel_view_rse;			/* view record select expression */
-	vcx				*rel_view_contexts;		/* linked list of view contexts */
+
+	RecordSelExpr*	rel_view_rse;			/* view record select expression */
+	ViewContext*	rel_view_contexts;		/* linked list of view contexts */
 
 	TEXT			*rel_security_name;		/* pointer to security class name for relation */
-	ext				*rel_file;				/* external file name */
+	ExternalFile	*rel_file;				/* external file name */
 	SLONG			rel_index_root;			/* index root page number */
 	SLONG			rel_data_pages;			/* count of relation data pages */
 
 	vec*			rel_gc_rec;				/* vector of records for garbage collection */
 
 //#ifdef GARBAGE_THREAD
-	sbm			*rel_gc_bitmap;			/* garbage collect bitmap of data page sequences */
+	PageBitmap*	rel_gc_bitmap;			/* garbage collect bitmap of data page sequences */
 //#endif
 
 	USHORT		rel_slot_space;			/* lowest pointer page with slot space */
@@ -143,52 +151,55 @@ public:
 	USHORT		rel_sweep_count;		/* sweep and/or garbage collector threads active */
 	SSHORT		rel_scan_count;			/* concurrent sequential scan count */
 	int			rel_dbkey_length;		/* length of dbkey (duh) */
-	lck			*rel_existence_lock;	/* existence lock, if any */
-	lck			*rel_interest_lock;		/* interest lock to ensure compatibility of relation and record locks */
-	lck			*rel_record_locking;	/* lock to start record locking on relation */
+	Lock			*rel_existence_lock;	/* existence lock, if any */
+	Lock			*rel_interest_lock;		/* interest lock to ensure compatibility of relation and record locks */
+	Lock			*rel_record_locking;	/* lock to start record locking on relation */
 
 	ULONG		rel_explicit_locks;		/* count of records explicitly locked in relation */
 	ULONG		rel_read_locks;			/* count of records read locked in relation (implicit or explicit) */
 	ULONG		rel_write_locks;		/* count of records write locked in relation (implicit or explicit) */
 	ULONG		rel_lock_total;			/* count of records locked since database first attached */
 
-	idl				*rel_index_locks;	/* index existence locks */
-	idb *			rel_index_blocks;	/* index blocks for caching index info */
+	IndexLock*		rel_index_locks;	/* index existence locks */
+	IndexBlock*		rel_index_blocks;	/* index blocks for caching index info */
 	Triggers		*rel_pre_erase; 	/* Pre-operation erase trigger */
 	Triggers		*rel_post_erase;	/* Post-operation erase trigger */
 	Triggers		*rel_pre_modify;	/* Pre-operation modify trigger */
 	Triggers		*rel_post_modify;	/* Post-operation modify trigger */
 	Triggers		*rel_pre_store;		/* Pre-operation store trigger */
 	Triggers		*rel_post_store;	/* Post-operation store trigger */
-	prim			rel_primary_dpnds;	/* foreign dependencies on this relation's primary key */
+	PrimaryKeyDependency	rel_primary_dpnds;	/* foreign dependencies on this relation's primary key */
 	frgn			rel_foreign_refs;	/* foreign references to other relations' primary keys */
 	dsql_rel		*dsqlRelation;
 	
+#ifdef SHARED_CACHE
 	SyncObject		syncObject;
 	SyncObject		syncGarbageCollection;
 	SyncObject		syncTriggers;
 	SyncObject		syncFormats;
+#endif
+
 	Field			*junk;
 	
-	void scan(tdbb* tdbb);
-	void getTypeInformation(tdbb* tdbb);
-	int getPrimaryKey(tdbb* tdbb, int maxFields, Field** fields);
-	Field* findField(tdbb* tdbb, const char* fieldName);
-	Field* getField(tdbb* tdbb, const char* fieldName);
+	void scan(thread_db* tdbb);
+	void getTypeInformation(thread_db* tdbb);
+	int getPrimaryKey(thread_db* tdbb, int maxFields, Field** fields);
+	Field* findField(thread_db* tdbb, const char* fieldName);
+	Field* getField(thread_db* tdbb, const char* fieldName);
 	static int blockingAst(void* astObject);
 	int blockingAst(void);
-	void createExistenceLock(tdbb* tdbb);
+	void createExistenceLock(thread_db* tdbb);
 	void fetchFields(Connection* connection);
 	void fetchFields(Transaction* transaction);
-	void dropField(tdbb* tdbb, const char* field);
+	void dropField(thread_db* tdbb, const char* field);
 	Field* addField(int id, const char* name);
 	int incrementUseCount(void);
 	int decrementUseCount(void);
 	Field* findField(int id);
-	fmt* getFormat(tdbb* tdbb, int formatVersion);
-	fmt* getCurrentFormat(tdbb* tdbb);
-	void setFormat(fmt* format);
-	void scanRelation(tdbb *tdbb, int csb_flags);
+	Format* getFormat(thread_db* tdbb, int formatVersion);
+	Format* getCurrentFormat(thread_db* tdbb);
+	void setFormat(Format* format);
+	void scanRelation(thread_db* tdbb, int csb_flags);
 };
 
 #endif // !defined(AFX_RELATION_H__E9A7F451_19FA_468E_8900_7B1CEA851EF4__INCLUDED_)

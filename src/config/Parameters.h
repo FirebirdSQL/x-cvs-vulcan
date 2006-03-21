@@ -1,3 +1,4 @@
+/* $Id$ */
 
 #ifndef STR_PARAMETER
 #define STR_PARAMETER(name, value)	static const char* name = #name; static const char* name##Value = value;
@@ -22,13 +23,17 @@
 	BOOL_PARAMETER (TcpNoNagle,			  false)
 	INT_PARAMETER (IpcMapSize,			  4096)		// bytes
 #ifdef SUPERSERVER
+#ifdef SHARED_CACHE
 	INT_PARAMETER (DefaultDbCachePages,	  2048)		// pages
+#else
+	INT_PARAMETER (DefaultDbCachePages,	  75)		// pages
+#endif
 #else
 	INT_PARAMETER (DefaultDbCachePages,	  75)			// pages
 #endif
 	INT_PARAMETER (ConnectionTimeout,	  180)			// seconds
 	INT_PARAMETER (DummyPacketInterval,	  0)			// seconds
-#if defined(WIN_NT) && !defined(SUPERSERVER)
+#ifdef ONE_LOCK_TABLE
 	INT_PARAMETER (LockMemSize,			  1048576)		// bytes
 #else
 	INT_PARAMETER (LockMemSize,			  262144)		// bytes

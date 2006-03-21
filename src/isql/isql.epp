@@ -48,16 +48,19 @@
 #define _STLP_CCTYPE
 #endif
 
-#include "firebird.h"
-//#include "../jrd/ib_stdio.h"
-#include "../dsql/keywords.h"
+#include <string>
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
 #include <math.h>
 #include <ctype.h>
 #include <errno.h>
+
+#include "fbdev.h"
+//#include "../jrd/ib_stdio.h"
+#include "../dsql/keywords.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -75,7 +78,6 @@
 #include "editline.h"
 #endif
 
-#include <string>
 
 
 #define TIME_ERR	101
@@ -150,6 +152,16 @@ typedef struct indev {
 	FILE *indev_fpointer;
 } *INDEV;
 
+static inline int fb_isspace(const char c)
+{
+	return isspace((int)(UCHAR)c);
+}
+
+static inline int fb_isspace(const SSHORT c)
+{
+	return isspace((int)(UCHAR)c);
+}
+
 typedef struct collist {
 	struct collist *collist_next;
 	TEXT col_name[WORDLENGTH];
@@ -194,7 +206,7 @@ static int process_statement(TEXT *, XSQLDA **);
 static void CLIB_ROUTINE query_abort(void);
 static void strip_quotes(TEXT *, TEXT *);
 static SSHORT do_set_command(const TEXT *, SSHORT *);
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 static UCHAR *sqltype_to_string(USHORT);
 #endif
 
@@ -794,7 +806,7 @@ void ISQL_copy_SQL_id( const TEXT * in_str, TEXT * output_str, TEXT escape_char)
 }
 
 
-void ISQL_errmsg( ISC_STATUS * status)
+void ISQL_errmsg( ISC_STATUS * status, const char *sqlString)
 {
 /**************************************
  *
@@ -806,40 +818,92 @@ void ISQL_errmsg( ISC_STATUS * status)
  *	Report error conditions
  *	Simulate isc_print_status exactly, to control stderr 
  **************************************/
-	TEXT errbuf[MSG_LENGTH];
-	ISC_STATUS *vec;
+	
 #if defined (WIN95)
 #define TRANSLATE_CP if (!fAnsiCP) AnsiToOem(errbuf, errbuf)
 #else
 #define TRANSLATE_CP
 #endif
 
-	vec = status;
+	ISC_STATUS *vec = status;
+	TEXT errbuf[MSG_LENGTH];
+	
 	if (Quiet)
 		Exit_value = FINI_ERROR;
-	else {
+	else 
+		{
 		if (vec[0] != isc_arg_gds ||
 			(vec[0] == isc_arg_gds && vec[1] == 0
 			 && vec[2] != isc_arg_warning) || (vec[0] == isc_arg_gds
 											   && vec[1] == 0
 											   && vec[2] == isc_arg_warning
-											   && !Warnings)) return;
+											   && !Warnings)) 
+			return;
+			
 		gds__msg_format(NULL_PTR, ISQL_MSG_FAC, 0, sizeof(errbuf), errbuf,
 						(TEXT*) (long) isc_sqlcode(status), (TEXT*) NULL_PTR, (TEXT*) NULL_PTR,
 						(TEXT*) NULL_PTR, (TEXT*) NULL_PTR);
 		TRANSLATE_CP;
 		STDERROUT(errbuf, 1);
-		isc_interprete(errbuf, &vec);
-		TRANSLATE_CP;
-		STDERROUT(errbuf, 1);
 
 		/* Continuation of error */
-		errbuf[0] = '-';
-		while (isc_interprete(errbuf + 1, &vec)) {
+		
+		int line = -1;
+		int offset = -1;
+		
+		for (int hack = 0;; hack = 1)		
+			{
+			if (vec[0] == isc_arg_gds && 
+			    vec[1] == isc_dsql_token_unk_err &&
+				vec[2] == isc_arg_number &&
+				vec[4] == isc_arg_number)
+				{
+				line = vec[3];
+				offset = vec[5];
+				break;
+				}
+			
+			errbuf[0] = '-';
+			
+			if (!isc_interprete(errbuf + hack, &vec))
+				break;
+				
 			TRANSLATE_CP;
 			STDERROUT(errbuf, 1);
+			}
+		
+		if (sqlString && line >= 0 && offset >= 0)
+			{
+			const char *p = sqlString;
+			
+			for (int n = 1; n < line; ++n)
+				{
+				const char *start = p;
+				
+				while (*p && *p++ != '\n')
+					;
+				
+				fprintf (Errfp, "%.*s\n", p - start - 1, start);
+				}
+			
+			const char *last = p;
+			char buffer[1024];
+			char *s = buffer;
+			char *end = buffer + sizeof(buffer) - 2;
+			
+			for (int n = 1; *p && *p != '\n' && s < end; ++n, ++p)
+				if (n == offset)
+					{
+					*s++ = '^';
+					*s++ = 0;
+					}
+				else
+				*s++ = (*p == '\t') ? '\t' : ' ';
+			
+			*s = 0;
+			fprintf(Errfp, "%.*s\n%s unknown token\n", p - last, last, buffer);
+			}
 		}
-	}
 }
 
 
@@ -1538,7 +1602,7 @@ void ISQL_print_validation(FILE * fp,
 		if (flag) {
 			/* computed field SQL syntax correction */
 
-			while (isspace(*p))
+			while (fb_isspace(*p))
 				p++;
 			if (*p == '(')
 				issql = TRUE;
@@ -1546,7 +1610,7 @@ void ISQL_print_validation(FILE * fp,
 		else {
 			/* Validation SQL syntax correction */
 
-			while (isspace(*p))
+			while (fb_isspace(*p))
 				p++;
 			if (!strncmp(p, "check", 5) || !strncmp(p, "CHECK", 5))
 				issql = TRUE;
@@ -3071,7 +3135,7 @@ static SSHORT escape( TEXT * cmd)
 	shellcmd += strlen("shell");
 
 /* eat whitespace at beginning of command */
-	while (*shellcmd && isspace(*shellcmd))
+	while (*shellcmd && fb_isspace(*shellcmd))
 		shellcmd++;
 
 /* If no command given just spawn a shell */
@@ -3151,7 +3215,7 @@ static SSHORT frontend( TEXT * statement)
         p += 2;
         while (*p && *p != '\n')
             ++p;
-        while (*p && isspace (*p))
+        while (*p && fb_isspace (*p))
             ++p;
         /* isspace will consume control chars including LF, so
            we need to be sure the previous character was a LF or
@@ -3163,7 +3227,7 @@ static SSHORT frontend( TEXT * statement)
 
 /* Eat any whitespace at the beginning */
 
-	while (*p && isspace(*p))
+	while (*p && fb_isspace(*p))
 		p++;
 
 /* Is this a comment line -- chew until the last comment */
@@ -3187,7 +3251,7 @@ static SSHORT frontend( TEXT * statement)
 			ISQL_FREE(buffer);
 			return FAIL;
 		}
-		while (*p && isspace(*p))
+		while (*p && fb_isspace(*p))
 			p++;
 	}
 
@@ -3226,7 +3290,7 @@ static SSHORT frontend( TEXT * statement)
             }
             else {
                 /*  Prevent overflow */
-                while (*p && !isspace(*p) && j < BUFFER_LENGTH256 - 1) {
+                while (*p && !fb_isspace(*p) && j < BUFFER_LENGTH256 - 1) {
                     j++;
                     *a++ = *p++;
                 }
@@ -3237,7 +3301,7 @@ static SSHORT frontend( TEXT * statement)
             lparms[i] = (TEXT*) ISQL_ALLOC((SLONG) (length + 1));
             strncpy(parms[i], buffer, length);
             parms[i][length] = '\0';
-            while (*p && isspace(*p))
+            while (*p && fb_isspace(*p))
                 p++;
             strcpy(lparms[i], parms[i]);
             if (!role_found)
@@ -3420,7 +3484,7 @@ static SSHORT frontend( TEXT * statement)
 		{
 			ret = do_set_command(parms[2], &Time_display);
 		}
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 		else if (!strcmp(parms[1], "SQLDA_DISPLAY"))
 		{
 			ret = do_set_command(parms[2], &Sqlda_display);
@@ -3750,8 +3814,10 @@ static SSHORT get_statement(TEXT ** statement_ref,
 ** grows throughout the program to the maximum command size
 */
 	if (!bufsize) {
+	
+	/* Fix overflow risk.  Need to allow space for null byte. SAS SEK */
 		bufsize = 512;
-		statement = (TEXT*) ISQL_ALLOC((SLONG) bufsize);
+		statement = (TEXT*) ISQL_ALLOC((SLONG) bufsize+1);
 #ifdef DEBUG_GDS_ALLOC
 		gds_alloc_flag_unfreed((void *) statement);
 #endif
@@ -3856,7 +3922,7 @@ static SSHORT get_statement(TEXT ** statement_ref,
 			/* Eat any white space at the end of a line */
 
 			q = p;
-			while (q > statement && isspace(*(q - 1)))
+			while (q > statement && fb_isspace(*(q - 1)))
 				q--;
 
 			/* Search back past a final comment for a terminator 
@@ -3882,7 +3948,7 @@ static SSHORT get_statement(TEXT ** statement_ref,
 				q -= 2;
 			}
 
-			while ((q > statement) && isspace(*(q - 1)))
+			while ((q > statement) && fb_isspace(*(q - 1)))
 				q--;
 
 			/* 
@@ -4377,7 +4443,7 @@ void ISQL_truncate_term( TEXT * str, USHORT len)
  *
  **************************************/
 	int i;
-	for (i = len - 1; i >= 0 && ((isspace(str[i])) || (str[i] == 0)); i--);
+	for (i = len - 1; i >= 0 && ((fb_isspace(str[i])) || (str[i] == 0)); i--);
 	str[i + 1] = 0;
 }
 
@@ -6267,21 +6333,25 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
 	else
 		prepare_trans = M__trans;
 
-	if (isc_dsql_prepare(isc_status, &prepare_trans, &Stmt, 0, string,
-						 SQL_dialect, sqlda)) {
-		if (SQL_dialect == SQL_DIALECT_V6_TRANSITION && Input_file) {
+	if (isc_dsql_prepare(isc_status, &prepare_trans, &Stmt, 0, string, SQL_dialect, sqlda)) 
+		{
+		if (SQL_dialect == SQL_DIALECT_V6_TRANSITION && Input_file) 
+			{
 			ISQL_printf(Out, (TEXT*) NEWLINE);
 			ISQL_printf(Out, (TEXT*) "**** Error preparing statement:");
 			ISQL_printf(Out, (TEXT*) NEWLINE);
 			ISQL_printf(Out, (TEXT*) NEWLINE);
 			ISQL_printf(Out, string);
 			ISQL_printf(Out, (TEXT*) NEWLINE);
-		}
-		ISQL_errmsg(isc_status);
+			}
+			
+		ISQL_errmsg(isc_status, string);
+		
 		return ERR;
-	}
+		}
 
-/* check for warnings */
+	/* check for warnings */
+	
 	if (isc_status[2] == isc_arg_warning)
 		ISQL_warning(isc_status);
 
@@ -6299,7 +6369,7 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
     }
 
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 	if (Sqlda_display) {
 		XSQLDA *input_sqlda;
 
@@ -6545,7 +6615,7 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
 
 	}
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 
 /* To facilitate debugging, the option 
    SET SQLDA_DISPLAY ON
@@ -6998,7 +7068,7 @@ static void strip_quotes( TEXT * in, TEXT * out)
 
 
 
-#ifdef DEV_BUILD
+#if defined(DEV_BUILD) || defined(SQLDA_DEBUG)
 static UCHAR *sqltype_to_string( USHORT sqltype)
 {
 /**************************************

@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *     The contents of this file are subject to the Initial 
  *     Developer's Public License Version 1.0 (the "License"); 
@@ -42,7 +43,12 @@ public:
 	
 	Database	*databases;
 	SyncObject	syncObject;
-	
+
+#ifndef SHARED_CACHE
+	SyncObject	syncDDL;
+	int countDatabase(const char* expandedFilename);
+#endif
+
 	Database* findDatabase(const char* expandedFilename);
 	Database* getDatabase(const char* expandedFileName, ConfObject *configObject);
 	//Database* createDatabase(const char* expandedFilename, ConfObject* configObject);

@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *  
  *     The contents of this file are subject to the Initial 
@@ -43,34 +44,11 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
+#include "../include/fb_types.h"
 #include "Blob.h"
 #include "Properties.h"
 #include "SQLException.h"
 
-typedef unsigned char	UCHAR;
-
-#if SIZEOF_LONG == 8
-	typedef INT32 SLONG;
-	typedef UINT32 ULONG;
-#else
-	typedef long SLONG;
-	typedef unsigned long ULONG;
-#endif // SIZEOF_LONG == 8
-
-/***
-#ifndef INT64
-
-#ifdef __MINGW32__
-#define __int64			long long
-#elif !defined ( _WIN32 )
-#define __int64			long long
-#define _stdcall
-#endif
-
-typedef __int64			INT64;
-typedef unsigned __int64			UINT64;
-#endif
-***/
 
 class Statement;
 class PreparedStatement;

@@ -23,7 +23,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "CommitManager.h"
 #include "Sync.h"
@@ -53,7 +53,7 @@ void CommitManager::headerWritten(SLONG nextTransaction)
 {
 }
 
-void CommitManager::commit(tdbb *tdbb, Transaction* transaction)
+void CommitManager::commit(thread_db* tdbb, Transaction* transaction)
 {
 	if (transaction->tra_flags & TRA_write)
 		pageCache->flush(tdbb, FLUSH_TRAN, transaction->tra_number);

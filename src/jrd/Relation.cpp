@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "Relation.h"
 #include "all.h"
@@ -47,7 +47,10 @@
 #include "RSet.h"
 #include "tra.h"
 #include "Sync.h"
-
+#include "Triggers.h"
+#include "CompilerScratch.h"
+#include "exe.h"
+#include "Format.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -107,6 +110,14 @@ Relation::~Relation()
 		delete dsqlRelation;
 
 	int n;
+
+	if (rel_pre_erase) delete rel_pre_erase;
+	if (rel_post_erase) delete rel_post_erase;
+	if (rel_pre_modify) delete rel_pre_modify;
+	if (rel_post_modify) delete rel_post_modify;
+	if (rel_pre_store) delete rel_pre_store;
+	if (rel_post_store) delete rel_post_store;
+
 	
 	for (n = 0; n < rel_fields.size(); ++n)
 		delete rel_fields[n];
@@ -123,20 +134,20 @@ Relation::~Relation()
 	delete rel_view_rse;
 	delete rel_gc_bitmap;
 	
-	for (vcx *context; context = rel_view_contexts;)
+	for (ViewContext *context; context = rel_view_contexts;)
 		{
 		rel_view_contexts = context->vcx_next;
 		delete context;
 		}
 }
 
-void Relation::scan(tdbb *tdbb)
+void Relation::scan(thread_db* tdbb)
 {
 	MET_scan_relation (tdbb, this);
 }
 
 
-prim::prim(void)
+PrimaryKeyDependency::PrimaryKeyDependency(void)
 {
 	prim_reference_ids = NULL;
 	prim_relations = NULL;
@@ -150,18 +161,18 @@ frgn::frgn(void)
 	frgn_indexes = NULL;
 }
 
-void Relation::getTypeInformation(tdbb* tdbb)
+void Relation::getTypeInformation(thread_db* tdbb)
 {
 	MET_getTypeInformation (tdbb, this);
 	rel_flags |= REL_has_type_info;
 }
 
-int Relation::getPrimaryKey(tdbb* tdbb, int maxFields, Field** fields)
+int Relation::getPrimaryKey(thread_db* tdbb, int maxFields, Field** fields)
 {
 	return MET_get_primary_key (tdbb, this, maxFields, fields);
 }
 
-Field* Relation::findField(tdbb* tdbb, const char* fieldName)
+Field* Relation::findField(thread_db* tdbb, const char* fieldName)
 {
 	if (!(rel_flags & REL_scanned))
 		MET_scan_relation (tdbb, this);
@@ -193,7 +204,7 @@ Field* Relation::findField(tdbb* tdbb, const char* fieldName)
 	return NULL;
 }
 
-Field* Relation::getField(tdbb* tdbb, const char* fieldName)
+Field* Relation::getField(thread_db* tdbb, const char* fieldName)
 {
 	Field *field = findField (tdbb, fieldName);
 
@@ -211,7 +222,7 @@ int Relation::blockingAst(void* astObject)
 
 int Relation::blockingAst(void)
 {
-	struct tdbb thd_context, *tdbb;
+	struct thread_db thd_context, *tdbb;
 
 	/* Since this routine will be called asynchronously, we must establish
 	   a thread context. */
@@ -241,9 +252,9 @@ int Relation::blockingAst(void)
 	return 0; 
 }
 
-void Relation::createExistenceLock(tdbb* tdbb)
+void Relation::createExistenceLock(thread_db* tdbb)
 {
-	LCK lock = rel_existence_lock = FB_NEW_RPT(*rel_database->dbb_permanent, 0) lck;
+	Lock *lock = rel_existence_lock = FB_NEW_RPT(*rel_database->dbb_permanent, 0) Lock;
 	lock->lck_parent = rel_database->dbb_lock;
 	lock->lck_dbb = rel_database;
 	lock->lck_key.lck_long = rel_id;
@@ -302,10 +313,12 @@ void Relation::fetchFields(Transaction* transaction)
 	fetchFields (connection);
 }
 
-void Relation::dropField(tdbb* tdbb, const char* fieldName)
+void Relation::dropField(thread_db* tdbb, const char* fieldName)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "Relation::dropField");
 	sync.lock(Exclusive);
+#endif
 	Field *field = getField(tdbb, fieldName);
 	
 	if (field)
@@ -321,8 +334,10 @@ void Relation::dropField(tdbb* tdbb, const char* fieldName)
 
 Field* Relation::addField(int id, const char* name)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "Relation::addField");
 	sync.lock(Exclusive);
+#endif
 	Field *field = new Field(name);
 	rel_fields.checkSize(id, id + 1);
 	field->fld_id = id;
@@ -352,18 +367,26 @@ Field* Relation::findField(int id)
 	return rel_fields[id];
 }
 
-fmt* Relation::getFormat(tdbb* tdbb, int formatVersion)
+Format* Relation::getFormat(thread_db* tdbb, int formatVersion)
 {
-	fmt *format;
+	Format* format;
+#ifdef SHARED_CACHE
 	Sync sync(&syncFormats, "Relation::getFormat");
 	sync.lock(Shared);
+#endif
 	
 	if (formatVersion < rel_formats.size() && (format = rel_formats [formatVersion]))
 		return format;
 	
+#ifdef SHARED_CACHE
 	sync.unlock();
+#endif
+
 	format = MET_format(tdbb, this, formatVersion);
+	
+#ifdef SHARED_CACHE
 	sync.lock(Exclusive);
+#endif
 	rel_formats.checkSize(formatVersion, formatVersion+1);
 	
 	if (rel_formats[formatVersion])
@@ -377,7 +400,7 @@ fmt* Relation::getFormat(tdbb* tdbb, int formatVersion)
 	return format;
 }
 
-fmt* Relation::getCurrentFormat(tdbb* tdbb)
+Format* Relation::getCurrentFormat(thread_db* tdbb)
 {
 	if (!rel_current_format)
 		rel_current_format = getFormat(tdbb, rel_current_fmt);
@@ -385,21 +408,36 @@ fmt* Relation::getCurrentFormat(tdbb* tdbb)
 	return rel_current_format;
 }
 
-void Relation::setFormat(fmt* format)
+void Relation::setFormat(Format* format)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncFormats, "Relation::setFormat");
 	sync.lock(Exclusive);
+#endif
 	int formatVersion = format->fmt_version;
 	rel_formats.checkSize(formatVersion, formatVersion+1);
 	rel_formats[formatVersion] = format;
+	
+	if (!rel_current_format || (formatVersion > rel_current_format->fmt_version))
+		{
+		rel_current_fmt = formatVersion;
+		rel_current_format = format;
+		}
 }
 
-void Relation::scanRelation(tdbb *tdbb, int csb_flags)
+void Relation::scanRelation(thread_db* tdbb, int csb_flags)
 {
 	if ((!(rel_flags & REL_scanned) || (rel_flags & REL_being_scanned)) &&
 		((rel_flags & REL_force_scan) || !(csb_flags & csb_internal)))
 		{
+#ifdef SHARED_CACHE
+		Sync sync(&syncObject, "Relation::scanRelation");
+		sync.lock(Exclusive);
+#endif
 		rel_flags &= ~REL_force_scan;
+#ifdef SHARED_CACHE
+		sync.unlock();
+#endif
 		MET_scan_relation(tdbb, this);
 		}
 	else if (rel_flags & REL_sys_triggers)

@@ -26,10 +26,8 @@
 
 #include "../jrd/isc.h"
 
-extern "C" {
-int		API_ROUTINE gds__thread_start(FPTR_INT_VOID_PTR, void*, int, int,
-										 void*);
-}
+int		API_ROUTINE THD_start_thread(FPTR_INT_VOID_PTR, void*, int, int, void*);
+int		API_ROUTINE THD_thread_wait(void*);
 
 struct thdd* THD_get_specific(int subSystem);
 void	THD_init(void);

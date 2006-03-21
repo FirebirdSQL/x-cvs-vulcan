@@ -35,7 +35,7 @@ class Config
 public:
 	Config(void);
 	~Config(void);
-	static int parse(int argc, char ** argv);
+	static int parse(int argc, const char ** argv);
 };
 
 #endif

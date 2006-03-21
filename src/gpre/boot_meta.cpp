@@ -36,7 +36,7 @@
  *	$Id$
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/gds.h"
 #include "../gpre/gpre.h"
@@ -48,7 +48,7 @@
 #include "../gpre/jrdme_proto.h"
 #include "../gpre/gpre_meta.h"
 #include "../gpre/msc_proto.h"
-#include "../gpre/par_proto.h"
+#include "gpre_par_proto.h"
 #include "../jrd/constants.h"
 
 #define MAX_USER_LENGTH		33
@@ -67,7 +67,7 @@ isc_db_handle
 
 isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-long
+ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 SLONG

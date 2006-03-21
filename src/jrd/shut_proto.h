@@ -24,8 +24,8 @@
 #ifndef JRD_SHUT_PROTO_H
 #define JRD_SHUT_PROTO_H
 
-BOOLEAN		SHUT_blocking_ast(TDBB tdbb, Database *);
+BOOLEAN		SHUT_blocking_ast(thread_db* tdbb, Database *);
 BOOLEAN		SHUT_database(Database *, SSHORT, SSHORT);
-BOOLEAN		SHUT_init(TDBB tdbb, Database *);
+BOOLEAN		SHUT_init(thread_db* tdbb, Database *);
 
 #endif // JRD_SHUT_PROTO_H

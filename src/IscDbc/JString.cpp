@@ -158,6 +158,7 @@ va_start (args, stuff);
 char	temp [1024];
 
 vsprintf (temp, stuff, args);
+va_end(args);
 setString (temp);
 }
 

@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Server Code
  *	MODULE:		rpb_chain.h
@@ -27,7 +28,7 @@
 #include <string.h>
 
 #include "../common/classes/array.h"
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/req.h"
 #include "SyncObject.h"
 
@@ -35,9 +36,9 @@ class Relation;
 
 class traRpbListElement {
 public:
-	struct rpb *lr_rpb;
+	struct record_param* lr_rpb;
 	int level;
-	traRpbListElement(struct rpb *r, USHORT l) : 
+	traRpbListElement(struct record_param* r, USHORT l) : 
 			lr_rpb(r), level(l) {}
 	traRpbListElement() {}
 	static inline const bool greaterThan(const traRpbListElement& i1, const traRpbListElement& i2) {
@@ -52,7 +53,8 @@ public:
 	}
 };
 
-typedef firebird::SortedArray<traRpbListElement, traRpbListElement, 
+typedef firebird::SortedArray<traRpbListElement, 
+			firebird::InlineStorage<traRpbListElement, 16>, traRpbListElement, 
 			traRpbListElement, traRpbListElement> traRpbArray;
 			
 class traRpbList : public traRpbArray 
@@ -62,9 +64,11 @@ public:
 	traRpbList(MemoryPool *p) : traRpbArray(p, 16) 
 		{}
 		
-	int PushRpb(struct rpb* value);
-	bool PopRpb(struct rpb* value, int Level);
+	int PushRpb(struct record_param* value);
+	bool PopRpb(struct record_param* value, int Level);
+#ifdef SHARED_CACHE
 	SyncObject	syncObject;
+#endif
 };
 
 #endif	//RPB_CHAIN_H

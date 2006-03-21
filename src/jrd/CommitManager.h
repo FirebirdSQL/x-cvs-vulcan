@@ -31,7 +31,7 @@
 class Database;
 class Transaction;
 class PageCache;
-struct tdbb;
+struct thread_db;
 
 class CommitManager
 {
@@ -46,7 +46,7 @@ public:
 	int			interval;
 	
 	void headerWritten(SLONG nextTransaction);
-	void commit(tdbb *tdbb, Transaction* transaction);
+	void commit(thread_db* tdbb, Transaction* transaction);
 };
 
 #endif

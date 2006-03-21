@@ -41,7 +41,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
@@ -98,15 +98,11 @@ typedef struct itm {
 #endif /* of ifdef VMS */
 
 
-#ifdef SUPERSERVER
-#define GETWD(buf)		JRD_getdir(buf, MAXPATHLEN)
-#else
 #ifdef HAVE_GETCWD
 #define GETWD(buf)		getcwd(buf, MAXPATHLEN)
 #else
 #define GETWD			getwd
 #endif
-#endif /* SUPERSERVER */
 
 
 /* Unix/NFS specific stuff */
@@ -116,6 +112,13 @@ typedef struct itm {
 #endif
 #ifdef HAVE_SYS_MNTTAB_H
 #include <sys/mnttab.h>	/* get MNTTAB/_PATH_MNTTAB */
+#endif
+#if defined(_AIX)
+#include <sys/mntctl.h>
+extern "C"
+{
+     int mntctl (int Command, int Size, char *Buffer);
+}
 #endif
 
 /* EKU: if you get a compiler warning/error about redefinition of MTAB,
@@ -184,7 +187,7 @@ typedef struct mnt {
 #define INET_FLAG	':'
 #endif
 
-#if (!defined NO_NFS || defined FREEBSD || defined NETBSD || defined SINIXZ)
+#if !defined WIN_NT && !defined VMS
 static int expand_filename2(const TEXT*, USHORT, TEXT*);
 #endif
 
@@ -520,7 +523,7 @@ bool ISC_check_if_remote(const TEXT* file_name,
 }
 
 
-#if (!defined NO_NFS || defined FREEBSD || defined NETBSD || defined SINIXZ)
+#if !defined WIN_NT && !defined VMS
 int ISC_expand_filename(const TEXT* from_buff, USHORT length, TEXT* to_buff)
 {
 /**************************************
@@ -812,8 +815,9 @@ int ISC_expand_filename(const TEXT* file_name,
 #ifdef SUPERSERVER
 
 	if (!fully_qualified_path)
-		length = JRD_getdir(expanded_name, MAXPATHLEN);
-	
+		//length = JRD_getdir(expanded_name, MAXPATHLEN);
+		length = GetCurrentDirectory(MAXPATHLEN, expanded_name);
+		
 	// Handle case where case where temp is of the form "c:foo.fdb" and expanded_name is "c:\x\y".
 
 	if (length && length < MAXPATHLEN) {
@@ -966,15 +970,16 @@ int ISC_expand_share(const TEXT* file_name, TEXT* expanded_name)
  *	information.
  *
  **************************************/
-/* see NT reference for WNetEnumResource for the following constants */
+	/* see NT reference for WNetEnumResource for the following constants */
+	
 	DWORD nument = 0xffffffff, size = 16384;
-
 	strcpy(expanded_name, file_name);
 
-/* Look for a drive letter and make sure that it corresponds
-   to a remote disk. */
+	/* Look for a drive letter and make sure that it corresponds
+	   to a remote disk. */
 
 	const TEXT* p = strchr(file_name, ':');
+	
 	if (!p || p - file_name != 1)
 		return strlen(expanded_name);
 
@@ -983,66 +988,63 @@ int ISC_expand_share(const TEXT* file_name, TEXT* expanded_name)
 	strcpy(device + 1, ":\\");
 
 	const USHORT dtype = GetDriveType(device);
+	
 	if (dtype != DRIVE_REMOTE)
 		return strlen(expanded_name);
 		
 	HANDLE handle;
-	if (WNetOpenEnum(RESOURCE_CONNECTED, RESOURCETYPE_DISK, 0, NULL, &handle)
-		!= NO_ERROR)
-	{
+	if (WNetOpenEnum(RESOURCE_CONNECTED, RESOURCETYPE_DISK, 0, NULL, &handle) != NO_ERROR)
 		return strlen(expanded_name);
-	}
-	LPNETRESOURCE resources = (LPNETRESOURCE) gds__alloc((SLONG) size);
-/* FREE: in this routine */
-	if (!resources)				/* NOMEM: don't expand the filename */
-		return strlen(expanded_name);
-		
+
+	LPNETRESOURCE resources = (LPNETRESOURCE) new UCHAR[size]; //gds__alloc((SLONG) size);
 	DWORD ret = WNetEnumResource(handle, &nument, resources, &size);
-	if (ret == ERROR_MORE_DATA) {
-		gds__free((UCHAR *) resources);
-		resources = (LPNETRESOURCE) gds__alloc((SLONG) size);
-		/* FREE: in this routine */
-		if (!resources)			/* NOMEM: don't expand the filename */
-			return strlen(expanded_name);
+	
+	if (ret == ERROR_MORE_DATA) 
+		{
+		//gds__free((UCHAR *) resources);
+		delete [] resources;
+		resources = (LPNETRESOURCE) new UCHAR[size]; //gds__alloc((SLONG) size);
 		ret = WNetEnumResource(handle, &nument, resources, &size);
-	}
+		}
 
 	LPNETRESOURCE res = resources;
 	DWORD i = 0;
-	while (i < nument && (!res->lpLocalName || (*device != *(res->lpLocalName)))) {
+	
+	while (i < nument && (!res->lpLocalName || (*device != *(res->lpLocalName)))) 
+		{
 		i++;
 		res++;
-	}
+		}
+		
 	if (i != nument)			/* i.e. we found the drive in the resources list */
 		share_name_from_resource(expanded_name, file_name, res);
 
 	WNetCloseEnum(handle);
 
-/* Win95 doesn't seem to return shared drives, so the following
-   has been added... */
+	/* Win95 doesn't seem to return shared drives, so the following
+	   has been added... */
 
-	if (i == nument) {
+	if (i == nument) 
+		{
 		device[2] = 0;
 		LPREMOTE_NAME_INFO res2 = (LPREMOTE_NAME_INFO) resources;
-		ret =
-			WNetGetUniversalName(device, REMOTE_NAME_INFO_LEVEL, res2, &size);
-		if (ret == ERROR_MORE_DATA) {
-			gds__free((UCHAR *) resources);
-			resources = (LPNETRESOURCE) gds__alloc((SLONG) size);
-			if (!resources)		/* NOMEM: don't expand the filename */
-				return strlen(expanded_name);
+		ret = WNetGetUniversalName(device, REMOTE_NAME_INFO_LEVEL, res2, &size);
+		
+		if (ret == ERROR_MORE_DATA) 
+			{
+			delete [] resources; //gds__free((UCHAR *) resources);
+			resources = (LPNETRESOURCE) new UCHAR[size]; //gds__alloc((SLONG) size);
 			res2 = (LPREMOTE_NAME_INFO) resources;
-			ret =
-				WNetGetUniversalName(device, REMOTE_NAME_INFO_LEVEL, res2,
-									 &size);
-		}
+			ret = WNetGetUniversalName(device, REMOTE_NAME_INFO_LEVEL, res2, &size);
+			}
+			
 		if (ret == NO_ERROR)
 			share_name_from_unc(expanded_name, file_name, res2);
-	}
+		}
 
 
-	if (resources)
-		gds__free((UCHAR *) resources);
+	delete [] resources;
+
 	return strlen(expanded_name);
 }
 #endif	// WIN_NT
@@ -1089,7 +1091,7 @@ int ISC_strip_extension(TEXT* file_name)
 #endif
 
 
-#if (!defined NO_NFS || defined FREEBSD || defined NETBSD || defined SINIXZ)
+#if !defined WIN_NT && !defined VMS
 static int expand_filename2(const TEXT* from_buff, USHORT length, TEXT* to_buff)
 {
 /**************************************
@@ -1261,73 +1263,74 @@ static void expand_share_name(TEXT* share_name)
  **************************************/
 
 	TEXT workspace[MAXPATHLEN];
-
 	const TEXT* p = share_name;
-	if (*p++ != '\\' || *p++ != '!') {
+	
+	if (*p++ != '\\' || *p++ != '!')
 		return;
-	}
 
 	strcpy(workspace, p);
 	TEXT *q;
-	for (q = workspace; *p && *p != '!'; p++, q++);
+	
+	for (q = workspace; *p && *p != '!'; p++, q++)
+		;
 
 	*q = '\0';
-	if (*p++ != '!' || *p++ != '\\') {
+	
+	if (*p++ != '!' || *p++ != '\\') 
 		return;
-	}
 
 	HKEY hkey;
+	
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
 					 "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Shares",
 					 0, KEY_QUERY_VALUE, &hkey) != ERROR_SUCCESS) 
-	{
 		return;
-	}
 
 	BYTE data_buf[MAXPATHLEN];
 	DWORD d_size = MAXPATHLEN;
 	DWORD type_code;
 	LPBYTE data = data_buf;
 
-	DWORD ret =
-		RegQueryValueEx(hkey, workspace, NULL, &type_code, data, &d_size);
-	if (ret == ERROR_MORE_DATA) {
+	DWORD ret = RegQueryValueEx(hkey, workspace, NULL, &type_code, data, &d_size);
+	
+	if (ret == ERROR_MORE_DATA) 
+		{
 		d_size++;
-		data = (LPBYTE) gds__alloc((SLONG) d_size);
-		/* FREE: unknown */
-		if (!data) {			/* NOMEM: */
-			RegCloseKey(hkey);
-			return;				/* Error not really handled */
+		data = (LPBYTE) new UCHAR[d_size]; //gds__alloc((SLONG) d_size);
+		ret = RegQueryValueEx(hkey, workspace, NULL, &type_code, data, &d_size);
 		}
-		ret =
-			RegQueryValueEx(hkey, workspace, NULL, &type_code, data, &d_size);
-	}
 
-	if (ret == ERROR_SUCCESS) {
+	if (ret == ERROR_SUCCESS) 
+		{
 		for (q = reinterpret_cast<TEXT*>(data); q && *q;
-			 q = (type_code == REG_MULTI_SZ) ? q + strlen(q) + 1 : NULL) {
-			if (!strnicmp(q, "path", 4)) {
-		    /* CVC: Paranoid protection against buffer overrun.
-				    MAXPATHLEN minus NULL terminator, the possible backslash and p==db_name.
-					Otherwise, it's possible to create long share plus long db_name => crash. */
+			 q = (type_code == REG_MULTI_SZ) ? q + strlen(q) + 1 : NULL) 
+			{
+			if (!strnicmp(q, "path", 4)) 
+				{
+				/* CVC: Paranoid protection against buffer overrun.
+						MAXPATHLEN minus NULL terminator, the possible backslash and p==db_name.
+						Otherwise, it's possible to create long share plus long db_name => crash. */
+						
 				size_t idx = strlen(q + 5);
+				
 				if (idx + 1 + (q[4 + idx] == '\\' ? 1 : 0) + strlen(p) >= MAXPATHLEN)
 					break;
 
 				strcpy(workspace, q + 5);	/* step past the "Path=" part */
 			    /* idx = strlen (workspace); Done previously. */
+			    
 				if (workspace[idx - 1] != '\\')
 					workspace[idx++] = '\\';
+					
 				strcpy(workspace + idx, p);
 				strcpy(share_name, workspace);
 				break;
+				}
 			}
 		}
-	}
 
-	if (data != data_buf) {
-		gds__free(data);
-	}
+	if (data != data_buf)
+		delete [] data;  // gds__free(data);
 
 	RegCloseKey(hkey);
 }
@@ -1365,7 +1368,7 @@ static BOOLEAN get_mounts(
 
 		l = *(SLONG *) mnt_buffer;
 		/* FREE: in get_mounts() */
-		if (!(*buffer = gds__alloc((SLONG) l)) ||
+		if (!(*buffer = (char *)gds__alloc((SLONG) l)) ||
 			(*count = mntctl(MCTL_QUERY, l, *buffer)) <= 0)
 			return FALSE;		/* NOMEM: */
 	}
@@ -1409,7 +1412,7 @@ static BOOLEAN get_mounts(
 }
 #endif // (defined AIX || defined AIX_PPC)
 
-#if defined(HAVE_GETMNTENT) && !defined(SOLARIS)
+#if defined(HAVE_GETMNTENT) && !defined(SOLARIS) && !defined(_AIX)
 #define GET_MOUNTS
 #if defined(GETMNTENT_TAKES_TWO_ARGUMENTS) /* SYSV stylish */
 static BOOLEAN get_mounts(MNT * mount, TEXT * buffer, IB_FILE * file)
@@ -1456,7 +1459,7 @@ static BOOLEAN get_mounts(MNT * mount, TEXT * buffer, IB_FILE * file)
 	else
 		return FALSE;
 }
-#else // !GETMNTENT_TAKES_TWO_ARGUMENTS 
+#else // !GETMNTENT_TAKES_TWO_ARGUMENTS
 static BOOLEAN get_mounts(MNT * mount, TEXT * buffer, IB_FILE * file)
 {
 /**************************************

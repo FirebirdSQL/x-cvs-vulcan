@@ -38,7 +38,7 @@
 
  /* $Id$ */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include "../jrd/gdsassert.h"
@@ -377,7 +377,9 @@ static void isc_signal2(
 			 oact.sa_sigaction != signal_handler) ||
 			(!(oact.sa_flags & SA_SIGINFO) &&
 			 oact.sa_handler != SIG_DFL &&
+#ifndef MVS
 			 oact.sa_handler != SIG_HOLD &&
+#endif
 			 oact.sa_handler != SIG_IGN ) 
 		   )
 		{

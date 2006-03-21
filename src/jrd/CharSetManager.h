@@ -39,7 +39,7 @@
 class Database;
 class CharSetContainer;
 class Collation;
-struct tdbb;
+struct thread_db;
 
 class CharSetManager
 {
@@ -53,11 +53,11 @@ public:
 	SyncObject			syncObject;
 	SVector<CharSetContainer*>	charSetVector;
 	
-	CharSetContainer*	findCharset(tdbb* tdbb, int ttype);
+	CharSetContainer*	findCharset(thread_db* tdbb, int ttype);
 
-	CharSetContainer* findCharset(tdbb* tdbb, const char* name);
-	CharSetContainer* loadCharset(tdbb* tdbb, int ttype);
-	CharSetContainer* findCollation(tdbb* tdbb, const char* name);
+	CharSetContainer* findCharset(thread_db* tdbb, const char* name);
+	CharSetContainer* loadCharset(thread_db* tdbb, int ttype);
+	CharSetContainer* findCollation(thread_db* tdbb, const char* name);
 };
 
 #endif

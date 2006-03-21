@@ -38,23 +38,30 @@
 
 class InternalConnection;
 class Transaction;
-class tdbb;
+class thread_db;
+class Attachment;
 
 class InternalSecurityContext : public SecurityContext
 {
 public:
-	InternalSecurityContext(tdbb *tdbb);
+	InternalSecurityContext(thread_db* tdbb, Attachment *attachment);
 	virtual ~InternalSecurityContext(void);
-	Connection* getConnection(void);
+	virtual Connection*		getUserConnection(void);
+	virtual Connection*		getNewConnection(void);
+	//virtual void			commit(void);
+	//virtual void			rollback(void);
+	virtual const char*		getDatabaseFilename(void);
 	
-	Transaction			*transaction;
-	InternalConnection	*connection;
-	tdbb				*threadData;
+	//Transaction		*transaction;
+	Attachment			*attachment;
+	//InternalConnection *connection;
+	thread_db			*threadData;
 	isc_db_handle		dbHandle;
+	//bool				internalTransaction;
 	
-	void commit(void);
-	void rollback(void);
-	const char* getDatabaseFilename(void);
+	virtual const char* getAccount(void);
+	virtual const char* getEncryptedPassword(void);
+	virtual const char* getPassword(void);
 };
 
 #endif

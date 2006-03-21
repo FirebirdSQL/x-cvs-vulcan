@@ -42,7 +42,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/jrd_time.h"
 #include "../jrd/ib_stdio.h"
 #include "../jrd/common.h"
@@ -869,7 +869,7 @@ int LOCK_init(ISC_STATUS * status_vector,
 	owner->own_blocking_hndl = blocking_event[0];
 	AST_ALLOC;
 	
-	if (gds__thread_start
+	if (THD_start_thread
 		(reinterpret_cast < FPTR_INT_VOID_PTR > (blocking_action_thread),
 		 &LOCK_owner_offset, THREAD_critical, 0, &blocking_action_thread_handle)) 
 		{
@@ -911,7 +911,7 @@ int LOCK_init(ISC_STATUS * status_vector,
 	blocking_event[0] = ISC_make_signal(TRUE, FALSE, LOCK_pid, LOCK_block_signal);
 #endif
 
-	ULONG status = gds__thread_start(blocking_action_thread, &LOCK_owner_offset, THREAD_high, 0, 0);
+	ULONG status = THD_start_thread(blocking_action_thread, &LOCK_owner_offset, THREAD_high, 0, 0);
 
 	if (status) 
 		{

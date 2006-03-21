@@ -24,7 +24,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Subsystem.h"
 #include "iberror.h"
 
@@ -78,7 +78,7 @@ ISC_STATUS Subsystem::createDatabase (ISC_STATUS* statusVector,
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
 									  int dpbLength, 
-									  UCHAR* dpb,
+									  const UCHAR* dpb,
 									  int databaseType, 
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
@@ -91,8 +91,8 @@ ISC_STATUS Subsystem::attachDatabase(ISC_STATUS* userStatus,
 									  const TEXT* orgName, 
 									  const TEXT* translatedName, 
 									  DbHandle *dbHandle, 
-									  int dpb_length, 
-									  UCHAR* dpb,
+									  int dpbLength,
+									  const UCHAR* dpb,
 									  ConfObject* databaseConfiguration,
 									  ConfObject* providerConfiguration)
 {
@@ -119,13 +119,13 @@ ISC_STATUS Subsystem::dropDatabase (ISC_STATUS* userStatus, DbHandle *dbHandle)
 
 
 
-ISC_STATUS Subsystem::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int, teb *)
+ISC_STATUS Subsystem::startMultiple(ISC_STATUS *userStatus, TraHandle *traHandle, int transCount, const TransactionElement *)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
-ISC_STATUS Subsystem::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Subsystem::reconnectTransaction(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int tpbLength, const UCHAR*)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -137,7 +137,7 @@ ISC_STATUS Subsystem::transactionInfo(ISC_STATUS* userStatus, TraHandle *traHand
 }
 
 
-ISC_STATUS Subsystem::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int, UCHAR*)
+ISC_STATUS Subsystem::prepareTransaction(ISC_STATUS* userStatus, TraHandle *traHandle, int tpbLength, const UCHAR*)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -266,13 +266,17 @@ ISC_STATUS Subsystem::cancelBlob(ISC_STATUS* userStatus, BlbHandle *blbHandle)
 
 
 
-ISC_STATUS Subsystem::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR* sdl, int paramLength, UCHAR* param, SLONG sliceLength, UCHAR* slice)
+ISC_STATUS Subsystem::putSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							int sdlLength, const UCHAR* sdl, 
+							int paramLength, const UCHAR* param, SLONG sliceLength, const UCHAR* slice)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
-ISC_STATUS Subsystem::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, int sdlLength, UCHAR *sdl, int paramLength, UCHAR *param, SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
+ISC_STATUS Subsystem::getSlice(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, SLONG* arrayId, 
+							   int sdlLength, const UCHAR *sdl, int paramLength, const UCHAR *param, 
+							   SLONG sliceLength, UCHAR *slice, SLONG *returnLength)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -285,7 +289,7 @@ ISC_STATUS Subsystem::cancelEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, S
 }
 
 
-ISC_STATUS Subsystem::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, UCHAR* events, FPTR_VOID ast,void* astArg)
+ISC_STATUS Subsystem::queEvents(ISC_STATUS* userStatus, DbHandle *dbHandle, SLONG* eventId, int eventsLength, const UCHAR* events, FPTR_VOID ast, void* astArg)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -334,23 +338,23 @@ ISC_STATUS Subsystem::dsqlDescribeBind(ISC_STATUS* userStatus, DsqlHandle *dsqlH
 }
 
 
+/***
 ISC_STATUS Subsystem::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	return entrypointUnavailable (userStatus);
 }
 
-
 ISC_STATUS Subsystem::dsqlInsert(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, UCHAR* blr, int msgType, int msgLength, const UCHAR* msg)
 {
 	return entrypointUnavailable (userStatus);
 }
+***/
 
 
 ISC_STATUS Subsystem::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int dialect, XSQLDA *sqlda)
 {
 	return entrypointUnavailable (userStatus);
 }
-
 
 ISC_STATUS Subsystem::dsqlFetch(ISC_STATUS* userStatus, DsqlHandle *dsqlHandle, int blrLength, const UCHAR* blr, int msgType, int msgLength, UCHAR* msg)
 {
@@ -367,9 +371,9 @@ ISC_STATUS Subsystem::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *db
 
 
 ISC_STATUS Subsystem::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle, DsqlHandle *dsqlHandle, 
-								 int inBlrLength, UCHAR *inBlr, 
-								 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-								 int outBlrLength, UCHAR *outBlr, 
+								 int inBlrLength, const UCHAR *inBlr, 
+								 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+								 int outBlrLength, const UCHAR *outBlr, 
 								 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -387,9 +391,9 @@ ISC_STATUS Subsystem::dsqlExecute (ISC_STATUS* userStatus, TraHandle *traHandle,
 
 ISC_STATUS Subsystem::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr, 
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg, 
+										 int outBlrLength, const UCHAR *outBlr, 
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -398,9 +402,9 @@ ISC_STATUS Subsystem::dsqlExecuteImmediate2(ISC_STATUS* userStatus, DbHandle *db
 
 ISC_STATUS Subsystem::dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
 										 int sqlLength, const char* sql, int dialect, 
-										 int inBlrLength, UCHAR *inBlr, 
-										 int inMsgType, int inMsgLength, UCHAR *inMsg, 
-										 int outBlrLength, UCHAR *outBlr, 
+										 int inBlrLength, const UCHAR *inBlr,
+										 int inMsgType, int inMsgLength, const UCHAR *inMsg,
+										 int outBlrLength, const UCHAR *outBlr,
 										 int outMsgType, int outMsgLength, UCHAR *outMsg)
 {
 	return entrypointUnavailable (userStatus);
@@ -408,7 +412,7 @@ ISC_STATUS Subsystem::dsqlExecuteImmediate3(ISC_STATUS* userStatus, DbHandle *db
 
 
 ISC_STATUS Subsystem::dsqlExecuteImmediate (ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, 
-										 int sqlLength, const char* sql, int dialect, int blrLength, UCHAR *blr, 
+										 int sqlLength, const char* sql, int dialect, int blrLength, const UCHAR *blr,
 										 int msgType, int msgLength, UCHAR* msg)
 {
 	return entrypointUnavailable (userStatus);
@@ -424,11 +428,11 @@ ISC_STATUS Subsystem::dsqlFreeStatement(ISC_STATUS* userStatus, DsqlHandle *dsql
 
 //ISC_STATUS Subsystem::cancelOperation(ISC_STATUS* userStatus, DbHandle *dbHandle, int);
 ISC_STATUS Subsystem::serviceQuery(ISC_STATUS *userStatus, 
-								DbHandle *dbHandle, 
+								SvcHandle *dbHandle, 
 								int inItemLength, 
-								UCHAR* inItem, 
+								const UCHAR* inItem, 
 								int outItemLength, 
-								UCHAR* outItem, 
+								const UCHAR* outItem, 
 								int bufferLength, 
 								UCHAR *buffer)
 {
@@ -436,28 +440,28 @@ ISC_STATUS Subsystem::serviceQuery(ISC_STATUS *userStatus,
 }
 
 
-ISC_STATUS Subsystem::serviceDetach(ISC_STATUS *userStatus, DbHandle *dbHandle)
+ISC_STATUS Subsystem::serviceDetach(ISC_STATUS *userStatus, SvcHandle *dbHandle)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Subsystem::serviceAttach(ISC_STATUS *userStatus, 
-								  int serviceLength, 
-								  TEXT *service, 
-								  DbHandle *dbHandle, 
+								  const TEXT *service, 
+								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb, 
-								  const char *providerName)
+								  const UCHAR *spb, 
+								  ConfObject* servicesConfiguration,
+								  ConfObject* providerConfiguration)
 {
 	return entrypointUnavailable (userStatus);
 }
 
 
 ISC_STATUS Subsystem::serviceStart(ISC_STATUS* userStatus,
-								 DbHandle *dbHandle,
+								 SvcHandle *dbHandle,
 								 int spbLength, 
-								 UCHAR * spb)
+								 const UCHAR * spb)
 {
 	return entrypointUnavailable (userStatus);
 }
@@ -467,9 +471,9 @@ ISC_STATUS Subsystem::transactRequest(ISC_STATUS* userStatus,
 								   DbHandle *dbHandle, 
 								   TraHandle *traHandle, 
 								   int blrLength, 
-								   UCHAR* blr,
+								   const UCHAR* blr,
 								   int inMsgLength, 
-								   UCHAR* inMsg, 
+								   const UCHAR* inMsg, 
 								   int outMsgLength, 
 								   UCHAR* outMsg)
 {
@@ -477,12 +481,12 @@ ISC_STATUS Subsystem::transactRequest(ISC_STATUS* userStatus,
 }
 
 
-ISC_STATUS Subsystem::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, UCHAR* ddl)
+ISC_STATUS Subsystem::executeDDL(ISC_STATUS* userStatus, DbHandle *dbHandle, TraHandle *traHandle, int ddlLength, const UCHAR* ddl)
 {
 	return entrypointUnavailable (userStatus);
 }
 
-
+/***
 int Subsystem::enableSubsystem (TEXT* subSystem)
 {
 	return false;
@@ -493,8 +497,9 @@ int Subsystem::disableSubsystem (TEXT* subSystem)
 {
 	return false;
 }
+***/
 
-
+/***
 ISC_STATUS Subsystem::databaseCleanup (ISC_STATUS* userStatus, 
 									 DbHandle *dbHandle, 
 									 DatabaseCleanupRoutine *routine, 
@@ -511,7 +516,7 @@ ISC_STATUS Subsystem::transactionCleanup (ISC_STATUS* userStatus,
 {
 	return entrypointUnavailable (userStatus);
 }
-
+***/
 
 ISC_STATUS Subsystem::seekBlob (ISC_STATUS* userStatus, 
 							 BlbHandle *blbHandle,
@@ -523,15 +528,6 @@ ISC_STATUS Subsystem::seekBlob (ISC_STATUS* userStatus,
 }
 
 
-
-ISC_STATUS Subsystem::eventWait(ISC_STATUS* userStatus,
-							 DbHandle *dbHandle,
-							 int eventsLength,
-							 UCHAR* events, 
-							 UCHAR *buffer)
-{
-	return entrypointUnavailable (userStatus);
-}
 
 
 int Subsystem::shutdownConnections(int type, int milliseconds)

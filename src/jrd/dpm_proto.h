@@ -26,31 +26,32 @@
 
 // fwd. decl.
 class blb;
+class RecordNumber;
+class Relation;
+class Format;
 
-struct pag* DPM_allocate(TDBB, struct win*);
-void	DPM_backout(TDBB, struct rpb *);
-int		DPM_chain(TDBB, struct rpb *, struct rpb *);
-int		DPM_compress(TDBB, struct dpg *);
-void	DPM_create_relation(TDBB, Relation *);
-SLONG	DPM_data_pages(TDBB, Relation *);
-void	DPM_delete(TDBB, struct rpb *, SLONG);
-void	DPM_delete_relation(TDBB, Relation *);
-BOOLEAN	DPM_fetch(TDBB, struct rpb *, USHORT);
-SSHORT	DPM_fetch_back(TDBB, struct rpb *, USHORT, SSHORT);
-void	DPM_fetch_fragment(TDBB, struct rpb *, USHORT);
-SINT64	DPM_gen_id(TDBB, SLONG, USHORT, SINT64);
-int		DPM_get(TDBB, struct rpb *, SSHORT);
-ULONG	DPM_get_blob(TDBB, blb*, ULONG, USHORT, SLONG);
-BOOLEAN	DPM_next(TDBB, struct rpb *, USHORT, BOOLEAN,
-					BOOLEAN);
-void	DPM_pages(TDBB, SSHORT, int, ULONG, SLONG);
-SLONG	DPM_prefetch_bitmap(struct tdbb *, Relation *, class sbm *,
-								 SLONG);
-void	DPM_scan_pages(TDBB);
-void	DPM_store(TDBB, struct rpb *, struct lls **, USHORT);
-SLONG	DPM_store_blob(TDBB, blb*, struct rec *);
-void	DPM_rewrite_header(TDBB, struct rpb *);
-void	DPM_update(TDBB, struct rpb *, struct lls **,
-					   Transaction *);
+struct pag* DPM_allocate(thread_db*, struct win*);
+void	DPM_backout(thread_db*, struct record_param*);
+double	DPM_cardinality(thread_db*, Relation*, const Format*);
+int		DPM_chain(thread_db*, struct record_param* , struct record_param*);
+int		DPM_compress(thread_db*, struct data_page*);
+void	DPM_create_relation(thread_db*, Relation*);
+SLONG	DPM_data_pages(thread_db*, Relation*);
+void	DPM_delete(thread_db*, struct record_param*, SLONG);
+void	DPM_delete_relation(thread_db*, Relation*);
+BOOLEAN	DPM_fetch(thread_db*, struct record_param*, USHORT);
+SSHORT	DPM_fetch_back(thread_db*, struct record_param*, USHORT, SSHORT);
+void	DPM_fetch_fragment(thread_db*, struct record_param*, USHORT);
+SINT64	DPM_gen_id(thread_db*, SLONG, USHORT, SINT64);
+int		DPM_get(thread_db*, struct record_param*, SSHORT);
+ULONG	DPM_get_blob(thread_db*, blb*, RecordNumber, USHORT, SLONG);
+BOOLEAN	DPM_next(thread_db*, struct record_param*, USHORT, BOOLEAN, BOOLEAN);
+void	DPM_pages(thread_db*, SSHORT, int, ULONG, SLONG);
+SLONG	DPM_prefetch_bitmap(struct thread_db*, Relation*, class sbm *, SLONG);
+void	DPM_scan_pages(thread_db*);
+void	DPM_store(thread_db*, struct record_param* , struct lls **, USHORT);
+RecordNumber	DPM_store_blob(thread_db*, blb*, struct Record*);
+void	DPM_rewrite_header(thread_db*, struct record_param* );
+void	DPM_update(thread_db*, struct record_param* , struct lls **, Transaction*);
 
 #endif /* JRD_DPM_PROTO_H */

@@ -26,42 +26,41 @@
 #ifndef JRD_VIO_PROTO_H
 #define JRD_VIO_PROTO_H
 
-class sav;
+class Savepoint;
 class JrdMemory;
+class RecordSource;
+class Format;
+
 struct rec;
+struct record_param;
 
-void	VIO_backout(TDBB, struct rpb *, Transaction *);
-void	VIO_bump_count(TDBB, USHORT, Relation *, bool);
-int		VIO_chase_record_version(TDBB, struct rpb *, class Rsb *,
-									Transaction *, JrdMemoryPool*, BOOLEAN);
-#ifdef PC_ENGINE
-int		VIO_check_if_updated(TDBB, struct rpb *);
-#endif
+void	VIO_backout(thread_db*, record_param* , Transaction *);
+void	VIO_bump_count(thread_db*, USHORT, Relation *, bool);
+int		VIO_chase_record_version(thread_db*, record_param* , Transaction *, JrdMemoryPool*, BOOLEAN);
+void	VIO_data(thread_db*, record_param*, JrdMemoryPool*);
+void	VIO_erase(thread_db*, record_param*, Transaction*);
 
-void	VIO_data(TDBB, struct rpb *, JrdMemoryPool*);
-void	VIO_erase(TDBB, struct rpb *, Transaction *);
-
-bool	VIO_garbage_collect(TDBB, struct rpb *, Transaction *);
-rec*	VIO_gc_record(TDBB, Relation *);
-int		VIO_get(TDBB, struct rpb *, class Rsb *, Transaction *, JrdMemoryPool*);
-int		VIO_get_current(TDBB, struct rpb *, Transaction *, JrdMemoryPool*, USHORT);
+bool	VIO_garbage_collect(thread_db*, record_param*, Transaction*);
+Record*	VIO_gc_record(thread_db*, Relation*);
+int		VIO_get(thread_db*, record_param*, Transaction*, JrdMemoryPool*);
+bool	VIO_get_current(thread_db*, record_param*, record_param*, Transaction*, 
+						JrdMemoryPool*, bool, bool&);
 
 #ifdef GARBAGE_THREAD
-void	VIO_init(TDBB);
-void	VIO_fini(TDBB);
+void	VIO_init(thread_db*);
+void	VIO_fini(thread_db*);
 #endif
 
-void	VIO_merge_proc_sav_points(TDBB, Transaction *, sav **);
-BOOLEAN	VIO_writelock(TDBB, struct rpb *, class Rsb *, Transaction *);
-void	VIO_modify(TDBB, struct rpb *, struct rpb *, Transaction *);
-BOOLEAN	VIO_next_record(TDBB, struct rpb *, class Rsb *, Transaction *,
-							   JrdMemoryPool*, BOOLEAN, BOOLEAN);
-struct rec*	VIO_record(TDBB, struct rpb *, struct fmt *, JrdMemoryPool *);
-void	VIO_start_save_point(TDBB, Transaction *);
-void	VIO_store(TDBB, struct rpb *, Transaction *);
-BOOLEAN	VIO_sweep(TDBB, Transaction *);
-void	VIO_verb_cleanup(TDBB, Transaction *);
-SLONG	VIO_savepoint_large(sav *, SLONG);
+void	VIO_merge_proc_sav_points(thread_db*, Transaction*, Savepoint**);
+BOOLEAN	VIO_writelock(thread_db*, record_param* , RecordSource*, Transaction*);
+void	VIO_modify(thread_db*, record_param* , record_param* , Transaction*);
+BOOLEAN	VIO_next_record(thread_db*, record_param* , Transaction*, JrdMemoryPool*, BOOLEAN, BOOLEAN);
+struct Record*	VIO_record(thread_db*, record_param* , Format*, JrdMemoryPool*);
+void	VIO_start_save_point(thread_db*, Transaction *);
+void	VIO_store(thread_db*, record_param* , Transaction*);
+BOOLEAN	VIO_sweep(thread_db*, Transaction*);
+void	VIO_verb_cleanup(thread_db*, Transaction*);
+SLONG	VIO_savepoint_large(Savepoint*, SLONG);
 
 #endif // JRD_VIO_PROTO_H
 

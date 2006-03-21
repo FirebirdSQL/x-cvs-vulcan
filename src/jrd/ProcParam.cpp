@@ -1,4 +1,4 @@
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "../dsql/dsql_rel.h"
 #include "../jrd/ProcParam.h"
@@ -24,7 +24,6 @@ ProcParam::ProcParam (dsql_fld *field)
 	fld_scale = field->fld_scale;				/* used by DSQL */
 	fld_sub_type = field->fld_sub_type;
 	fld_precision = field->fld_precision;
-//	UCHAR		fld_length;			/* Field name length */
 	dsqlField = field;
 }
 

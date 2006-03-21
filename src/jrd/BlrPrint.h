@@ -8,6 +8,8 @@
 #include "fb_types.h"
 #include "constants.h"
 
+START_NAMESPACE
+
 class BlrPrint
 {
 public:
@@ -38,5 +40,7 @@ public:
 	void print(void);
 	static void defaultPrint(void* arg, SSHORT offset, const TEXT* line);
 };
+
+END_NAMESPACE
 
 #endif

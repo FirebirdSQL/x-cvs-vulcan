@@ -28,8 +28,6 @@
 #ifndef __JString_H
 #define __JString_H
 
-#define ALLOC_FUDGE		100
-
 START_NAMESPACE
 
 class JString 
@@ -66,7 +64,7 @@ public:
 		return (string) ? string : "";
 		}
 
-	inline 	operator const char*()
+	inline 	operator const char*() const
 		{
 		return (string) ? string : "";
 		}
@@ -97,9 +95,9 @@ protected:
 			delete [] stuff;
 		}
 	
-	inline void allocSpace(int length)
+	inline void allocSpace(int len)
 		{
-		string = new char [length + 1 + sizeof (int)];
+		string = new char [len + 1 + sizeof (int)];
 		*((int*) string) = 1;
 		string += sizeof (int);
 		}

@@ -112,7 +112,8 @@ public:
 class MemMgr
 {
 public:
-	MemMgr(int rounding=defaultRounding, int cutoff=defaultCutoff, int minAllocation=defaultAllocation);
+	MemMgr(int rounding=defaultRounding, int cutoff=defaultCutoff, 
+		   int minAllocation=defaultAllocation, bool shared=true);
 	~MemMgr(void);
 	
 	int				roundingSize;
@@ -130,6 +131,7 @@ public:
 	int				currentMemory;
 	int				blocksAllocated;
 	int				blocksActive;
+	bool			threadShared;		// Shared across threads, requires locking
 
 protected:
 	MemBlock* alloc(int size);
@@ -151,6 +153,8 @@ public:
 	static void release(void* block);
 	void releaseRaw(void *block);
 	MemMgr(void* arg1, void* arg2);
+	void init (int rounding=defaultRounding, int cutoff=defaultCutoff, 
+		   int minAllocation=defaultAllocation, bool shared=true);
 	
 	// crap for backward compatility with MemoryPool
 	
@@ -161,6 +165,7 @@ public:
 	static void deallocate(void* block);
 	void* allocate(int size, int type);
 	void* allocate(int size, int type, const char* fileName, int line);
+	void validate(void);
 };
 
 END_NAMESPACE

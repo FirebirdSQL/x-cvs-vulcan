@@ -2,7 +2,7 @@
 #include <setjmp.h>
 #endif
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../dsql/dsql.h"
 #include "../dsql/node.h"

@@ -72,6 +72,7 @@ public:
 	void init(int configFlags);
 	ConfigFile(const char* configFile, int configFlags);
 	void wildCardInclude(const char* fileName);
+	ConfigFile(int configFlags, const char* configText);
 };
 END_NAMESPACE
 

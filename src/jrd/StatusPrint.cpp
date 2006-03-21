@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "StatusPrint.h"
 #include "gds_proto.h"
+#include "ib_stdio.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -45,13 +46,19 @@ ISC_STATUS StatusPrint::printStatus(const ISC_STATUS *statusVector)
 
 void StatusPrint::putError(const char *text)
 {
-	printf ("%s\n", text);
+//	printf ("%s\n", text);
+	ib_fputs(text, ib_stderr);
+	ib_fputc('\n', ib_stderr);
+	ib_fflush(ib_stderr);
 }
 
 ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const ISC_STATUS** vectorPtr)
 {
 	const ISC_STATUS *vector = *vectorPtr;
 	
+	if (vector[0] == isc_arg_tkts_error) 
+		vector += 2;
+
 	if (!*vector)
 		return 0;
 
@@ -92,8 +99,10 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 				int l = (int) *v++;
 				const char *q = (const char*) *v++;
 				*arg++ = p;
+				
 				for (; p < endTemp && l > 0; --l)
 					*p++ = *q++;
+					
 				if (p < endTemp)
 					*p++ = 0;
 				}
@@ -115,6 +124,7 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 			{
 			USHORT fac = 0, class_ = 0;
 			ISC_STATUS decoded = gds__decode(code, &fac, &class_);
+			
 			if (gds__msg_format(0, fac, decoded,
 								128, buffer, args[0], args[1], args[2], args[3],
 								args[4]) < 0)
@@ -131,20 +141,52 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 		case isc_arg_interpreted:
 			{
 			p = buffer;
+			
 			for (const char *q = (const char*) vector[1]; *p++ = *q++;)
 				;
 			}
 			break;
 
 		case isc_arg_unix:
-			/* The  strerror()  function  returns  the appropriate description
-			string, or an unknown error message if the error code is unknown. */
-			p = (TEXT*) strerror(code);
+		case isc_arg_dos:
+		case isc_arg_vms:
+		case isc_arg_win32:
+			getOSText(vector[0], code, bufferLength, buffer);
 			break;
 
-		case isc_arg_dos:
-			sprintf(buffer, "unknown dos error %ld", code);	/* TXNN */
+		default:
+			return 0;
+		}
+		
+	*vectorPtr = v;
+
+	return (int) strlen (buffer);
+}
+
+void StatusPrint::getOSText(int type, int code, int bufferLength, TEXT* buffer)
+{
+	switch (type)
+		{
+#ifdef WIN_NT
+		case isc_arg_win32:
+			if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+								NULL,
+								code,
+								GetUserDefaultLangID(),
+								buffer,
+								bufferLength,
+								NULL) &&
+				!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+								NULL,
+								code,
+								0, // TMN: Fallback to system known language
+								buffer,
+								bufferLength,
+								NULL))
+				snprintf(buffer, bufferLength, "unknown Win32 error %ld", code);	/* TXNN */
+				
 			break;
+#endif
 
 #ifdef VMS
 		case isc_arg_vms:
@@ -157,39 +199,27 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 			desc.dsc$a_pointer = s;
 			TEXT flags[4];
 			ISC_STATUS status = sys$getmsg(code, &l, &desc, 15, flags);
+			
 			if (status & 1)
 				s[l] = 0;
 			else
 				sprintf(s, "uninterpreted VMS code %x", code);	/* TXNN */
+				
 			}
 			break;
 #endif
 
-#ifdef WIN_NT
-		case isc_arg_win32:
-			if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-								NULL,
-								code,
-								GetUserDefaultLangID(),
-								buffer,
-								128,
-								NULL) &&
-				!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-								NULL,
-								code,
-								0, // TMN: Fallback to system known language
-								buffer,
-								128,
-								NULL))
-				sprintf(buffer, "unknown Win32 error %ld", code);	/* TXNN */
+		case isc_arg_unix:
+			/* The  strerror()  function  returns  the appropriate description
+				string, or an unknown error message if the error code is unknown. */
+			snprintf(buffer, bufferLength, "%s", strerror(code));	/* TXNN */
 			break;
-#endif
 
-		default:
-			return 0;
-		}
+		case isc_arg_dos:
+			snprintf(buffer, bufferLength, "unknown dos error %ld", code);	/* TXNN */
+			break;
 		
-	*vectorPtr = v;
-
-	return (int) strlen (buffer);
+		default:
+			snprintf(buffer, bufferLength, "unknown system error code %d/%d", type, code);
+		}
 }

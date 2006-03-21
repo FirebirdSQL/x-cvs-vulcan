@@ -35,7 +35,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 //#include "../jrd/ibase.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
@@ -751,7 +751,7 @@ ISC_STATUS API_ROUTINE isc_embed_dsql_prepare(ISC_STATUS*	user_status,
 
 #ifdef DEBUG_GDS_ALLOC
 		gds_alloc_flag_unfreed((void *) statement);
-#endif	// DEBUG_GDS_ALLOC 
+#endif	// DEBUG_GDS_ALLOC
 
 		statement->stmt_next = statements;
 		statements = statement;
@@ -1406,6 +1406,8 @@ static ISC_STATUS error()
 	gds__print_status(UDSQL_error->dsql_status);
 
 	exit(UDSQL_error->dsql_status[1]);
+	return 0;
+
 }
 
 

@@ -24,7 +24,7 @@
  */
 
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "OSRIMemException.h"
 #include "gen/iberror.h"
 
@@ -33,6 +33,7 @@ OSRIMemException::OSRIMemException(ISC_STATUS code, ...) : OSRIException (osriMe
 	va_list		args;
 	va_start	(args, code);
 	post (NULL, code, args);
+	va_end(args);
 }
 
 OSRIMemException::~OSRIMemException(void)

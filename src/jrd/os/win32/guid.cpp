@@ -41,7 +41,7 @@
 #include <stdio.h>
 
 #include "../jrd/os/guid.h"
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_exception.h"
 
 void GenerateGuid(FB_GUID* guid) {

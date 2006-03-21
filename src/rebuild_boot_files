@@ -1,0 +1,13 @@
+cd burp
+touch *.epp
+make
+
+cd ../dsql
+touch *.epp
+cd ../why
+make
+cd ../dsql
+
+cd ../gpre
+touch *.epp
+make

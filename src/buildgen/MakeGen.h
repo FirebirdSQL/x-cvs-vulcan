@@ -32,6 +32,7 @@
 
 #include "JString.h"
 #include "TemplateExpansion.h"
+#include "Args.h"
 
 class ProjectFile;
 class TemplateValue;
@@ -47,13 +48,16 @@ public:
 	void processFile (Element *file, const char* folder);
 	void processFilter (Element *filter);
 	void processConfiguration (Element *configuration);
-	int gen (int argc, char **argv);
+	int gen (int argc, const char **argv);
 	MakeGen();
 	virtual ~MakeGen();
 
 	ProjectFile		*projectFiles;
 	ProjectFile		**filePtr;
 	TemplateValue	*extensions [hashTableSize];
+	Args			args;
+	void expandIf(Element* tag, Stream* stream);
+	bool evalBoolean(Element* tag);
 };
 
 #endif // !defined(AFX_MAKEGEN_H__5ACD329F_A2E0_4D41_BE11_E835D5351253__INCLUDED_)

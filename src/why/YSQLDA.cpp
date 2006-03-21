@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 //#include "fb_types.h"
 #include "../dsql/sqlda.h"
@@ -103,6 +103,7 @@ void YSQLDA::init(void)
 	blrLength = 0;
 	msgLength = 0;
 	allocLength = 0;
+	dscLength = 0;
 	sqlvars = NULL;
 }
 
@@ -117,7 +118,8 @@ YSQLDA::~YSQLDA()
 	if (sqlvars && sqlvars != localSqlvars)
 		delete [] sqlvars;
 		
-	delete [] descriptors;
+	if (descriptors && descriptors != localDescriptors)
+		delete [] descriptors;
 }
 
 void YSQLDA::allocBuffer()
@@ -175,6 +177,20 @@ void YSQLDA::allocateMessage(void)
 	
 	msg = new UCHAR [msgLength];
 	allocLength = msgLength;
+}
+
+void YSQLDA::allocateDescriptors(void)
+{
+	if (dscLength <= sizeof (localDescriptors) / sizeof(dsc))
+		{
+		descriptors = localDescriptors;
+		return;
+		}
+	
+	if (descriptors && descriptors != localDescriptors)
+		delete [] descriptors;
+	
+	descriptors = new dsc [dscLength];
 }
 
 void YSQLDA::populateSqlda(const UCHAR *info, int infoLength)
@@ -312,8 +328,8 @@ void YSQLDA::genBlr()
 	
 	numberVariables = sqlda->sqld;
 	int parameters = sqlda->sqld * 2;
-	XSQLVAR *variable;
-	XSQLVAR *variableEnd = sqlda->sqlvar + sqlda->sqld;
+	const XSQLVAR *variable;
+	const XSQLVAR *variableEnd = sqlda->sqlvar + sqlda->sqld;
 	blrLength = 8;
 	sqlvars = (sqlda->sqld <= LOCAL_SQLVARS) ? localSqlvars : new YSQLVAR [sqlda->sqld];
 	YSQLVAR *sqlvar = sqlvars;
@@ -355,7 +371,11 @@ void YSQLDA::genBlr()
 	stuff (p, blr_message);
 	stuff (p, 0);
 	stuffWord (p, parameters);
-	descriptors = new dsc [sqlda->sqld * 2];
+	if (sqlda->sqld * 2 > dscLength)
+	{
+		dscLength = sqlda->sqld * 2;
+		allocateDescriptors();
+	}
 	memset (descriptors, 0, sizeof (dsc) * sqlda->sqld * 2);
 	dsc *desc = descriptors;
 	
@@ -449,7 +469,13 @@ void YSQLDA::copyToMessage(void)
 			{
 			case dtype_varying:
 				((vary*) to)->vary_length = ((vary*) from)->vary_length;
-				memcpy (((vary*) to)->vary_string, ((vary*)from)->vary_string, ((vary*)from)->vary_length);
+
+				// this seems to be the check that FB15 uses for NULL 
+				// NULL data. (see null_ind in utld.cpp, near line 628 
+
+				if (!(sqlType & 1) || !*variable->sqlind) 
+					memcpy (((vary*) to)->vary_string, ((vary*)from)->vary_string, ((vary*)from)->vary_length);
+
 				break;
 			
 			default:
@@ -565,14 +591,14 @@ void YSQLDA::setSqlda(int dialect, XSQLDA* userSqlda)
 	allocateMessage();
 }
 
-bool YSQLDA::validateBlr(void)
+bool YSQLDA::validateBlr(void) const
 {
 	if (numberVariables != sqlda->sqld)
 		return false;
 
-	YSQLVAR *sqlvar = sqlvars;
+	const YSQLVAR *sqlvar = sqlvars;
 	
-	for (XSQLVAR *variable = sqlda->sqlvar, *end = variable + sqlda->sqld; variable < end; ++variable, ++sqlvar)
+	for (const XSQLVAR *variable = sqlda->sqlvar, *end = variable + sqlda->sqld; variable < end; ++variable, ++sqlvar)
 		if (sqlvar->sqltype != variable->sqltype ||
 			 sqlvar->sqlscale != variable->sqlscale ||
 			 sqlvar->sqlsubtype != variable->sqlsubtype ||

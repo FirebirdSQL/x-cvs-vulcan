@@ -34,7 +34,7 @@ void SRVR_main(Port *, USHORT);
 
 
 void SRVR_multi_thread(Port *, USHORT);
-bool process_packet(Port*, PACKET *, PACKET *, Port* *);
+bool process_packet(Port*, Packet *, Packet *, Port* *);
 void set_server(Port*, USHORT);
 void THREAD_ROUTINE process_connection_thread(Port*);
 

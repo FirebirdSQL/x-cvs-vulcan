@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "ibase.h"
 #include "common.h"
 #include "RServer.h"
@@ -175,7 +175,7 @@ void RServer::runMultiThreaded(Port* main_port, int flags)
 
 void RServer::processPackets(Port* mainPort, int flags)
 {
-	PACKET send, receive;
+	Packet send, receive;
 	receive.zap (true);
 	send.zap (true);
 	setServer(mainPort, flags);
@@ -188,11 +188,13 @@ void RServer::processPackets(Port* mainPort, int flags)
 bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** result)
 {
 	P_OP op;
-	//STR string;
 	TEXT msg[128];
 	Server *server;
 	Sync sync (&port->syncRequest, "RServer::processPacket");
 	sync.lock(Exclusive);
+	
+	if (result)
+		*result = port;
 	
 	try 
 		{
@@ -214,7 +216,7 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 					else 
 						{
 						gds__log ("SERVER/processPacket: connect reject, server exiting", 0);
-						//THD_restore_specific(THDD_TYPE_SRVR);
+
 						return false;
 						}
 					}
@@ -241,6 +243,7 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 			case op_exit:
 				if (!(server = port->port_server))
 					break;
+					
 				if ((server->srvr_flags & SRVR_multi_client) && port != server->srvr_parent_port) 
 					{
 					sync.unlock();
@@ -248,11 +251,13 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 					port = NULL;
 					break;
 					}
+					
 				if ((server->srvr_flags & SRVR_multi_client) && port == server->srvr_parent_port)
 					gds__log("SERVER/processPacket: Multi-client server shutdown", 0);
+					
 				sync.unlock();
 				port->disconnect(send, receive);
-				//THD_restore_specific(THDD_TYPE_SRVR);
+
 				return false;
 
 			case op_receive:
@@ -291,7 +296,10 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 				break;
 
 			case op_detach:
+				port->addRef();
 				port->end_database(&receive->p_rlse, send);
+				//sync.unlock();
+				port->release();
 				break;
 
 			case op_service_detach:
@@ -406,6 +414,14 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 				port->set_cursor(&receive->p_sqlcur, send);
 				break;
 
+			case op_update_account_info:
+				port->updateAccountInfo(&receive->p_account_update, send);
+				break;
+
+			case op_authenticate_user:
+				port->authenticateUser(&receive->p_authenticate_user, send);
+				break;
+
 			case op_dummy:
 				send->p_operation = op_dummy;
 				port->sendPacket(send);
@@ -424,22 +440,19 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 			if (!port->port_parent) 
 				{
 				gds__log("SERVER/processPacket: broken port, server exiting", 0);
+				
 				if (port->port_type == port_inet)
 					port->disconnect();
 				else
 					port->disconnect(send, receive);
-				//THD_restore_specific(THDD_TYPE_SRVR);
+					
 				return false;
 				}
-			port->disconnect(send, receive);
+				
 			sync.unlock();
+			port->disconnect(send, receive);
 			port = NULL;
 			}
-
-		if (result)
-			*result = port;
-
-		//THD_restore_specific(THDD_TYPE_SRVR);
 		}
 	catch (OSRIException &exception) 
 		{
@@ -448,12 +461,16 @@ bool RServer::processPacket(Port* port, Packet* send, Packet* receive, Port** re
 		gds__log("SERVER/processPacket: out of memory", 0);
 
 		/*  It would be nice to log an error to the user, instead of just terminating them!  */
+		
 		port->send_response(send, 0, 0, exception.statusVector);
 		sync.unlock();
 		port->disconnect(send, receive);	/*  Well, how about this...  */
-		//THD_restore_specific(THDD_TYPE_SRVR);
+
 		return false;
 		}
+
+	if (result)
+		*result = port;
 
 	return true;
 }
@@ -483,27 +500,28 @@ bool RServer::acceptConnection(Port* port, P_CNCT* connect, Packet* send)
 	protocol = connect->p_cnct_versions;
 
 	for (end = protocol + connect->p_cnct_count; protocol < end; protocol++)
-		if ((protocol->p_cnct_version == PROTOCOL_VERSION3 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION4 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION5 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION6 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION7 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION8 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION9 ||
-			 protocol->p_cnct_version == PROTOCOL_VERSION10
-#ifdef SCROLLABLE_CURSORS
-			 || protocol->p_cnct_version == PROTOCOL_SCROLLABLE_CURSORS
-#endif
-			) &&
-			 (protocol->p_cnct_architecture == arch_generic ||
-			 protocol->p_cnct_architecture == ARCHITECTURE) &&
-			protocol->p_cnct_weight >= weight)
+		switch (protocol->p_cnct_version)
 			{
-			weight = protocol->p_cnct_weight;
-			version = protocol->p_cnct_version;
-			architecture = protocol->p_cnct_architecture;
-			type = MIN(protocol->p_cnct_max_type, ptype_out_of_band);
-			send->p_operation = op_accept;
+			case PROTOCOL_VERSION3:
+			case PROTOCOL_VERSION4:
+			case PROTOCOL_VERSION5:
+			case PROTOCOL_VERSION6:
+			case PROTOCOL_VERSION7:
+			case PROTOCOL_VERSION8:
+			case PROTOCOL_VERSION9:
+			case PROTOCOL_VERSION10:
+			case PROTOCOL_VERSION11:
+				if ((protocol->p_cnct_architecture == arch_generic ||
+				      protocol->p_cnct_architecture == ARCHITECTURE) &&
+				     protocol->p_cnct_weight >= weight)
+					{
+					weight = protocol->p_cnct_weight;
+					version = protocol->p_cnct_version;
+					architecture = protocol->p_cnct_architecture;
+					type = MIN(protocol->p_cnct_max_type, ptype_out_of_band);
+					send->p_operation = op_accept;
+					}
+				break;
 			}
 
 	/* Send off out gracious acceptance or flag rejection */
@@ -594,9 +612,7 @@ ISC_STATUS RServer::attachDatabase(Port* port, P_OP operation, P_ATCH* attach, P
 
 	if (!status_vector[1])
 		{
-		//port->port_context = rdb = (RDB) ALLOC(type_rdb);
 		port->port_context = rdb = new RDatabase (port);
-		
 		rdb->rdb_port = port;
 		rdb->rdb_handle = handle;
 		}
@@ -646,7 +662,7 @@ void RServer::auxRequest(Port* port, P_REQ* request, Packet* send)
 	UCHAR buffer[12];
 	CSTRING save_cstring = send->p_resp.p_resp_data;
 	send->p_resp.p_resp_data.cstr_address = buffer;
-	Port *aux_port = port->request(send);
+	Port *aux_port = port->auxRequest(send);
 	RDatabase *rdb = port->port_context;
 	port->send_response(send, rdb->rdb_id,
 				  send->p_resp.p_resp_data.cstr_length, status_vector);
@@ -664,6 +680,7 @@ void RServer::auxRequest(Port* port, P_REQ* request, Packet* send)
 		{
 		aux_port->connect(send, 0);
 		aux_port->port_context = rdb;
+		rdb->addRef();
 		}
 
 	/* restore the port status vector */
@@ -758,6 +775,8 @@ ServerRequest* RServer::getRequest(void)
 
 void RServer::freeRequest(ServerRequest* request)
 {
+	Sync sync (&syncRequestQue, "RServer::freeRequest");
+	sync.lock (Exclusive);
 	request->req_next = freeRequests;
 	freeRequests = request;
 }
@@ -845,7 +864,7 @@ void RServer::processRequest(ServerRequest* request, int flags)
 	
 	if (extraThreads < 0) 
 		{
-		gds__thread_start(	serverThread,
+		THD_start_thread(	serverThread,
 							this, //(void*)(long) flags,
 							THREAD_medium,
 							THREAD_ast,
@@ -913,7 +932,7 @@ int RServer::thread(int flags)
 				if (parent_port == request->req_port)
 					processPacket(parent_port, &request->req_send, &request->req_receive, &port);
 				else
-					for (port = parent_port->port_clients; port; port = port->port_next)
+					for (port = parent_port->port_next; port; port = port->port_next)
 						if (port == request->req_port && port->port_state != state_disconnected) 
 							{
 							processPacket(port, &request->req_send, &request->req_receive, &port);
@@ -1016,8 +1035,7 @@ void RServer::cancelOperation(Port* port)
 	RDatabase *rdb;
 	ISC_STATUS_ARRAY status_vector;
 
-	if ((port->port_flags & (PORT_async | PORT_disconnect)) ||
-		!(rdb = port->port_context))
+	if ((port->port_flags & (PORT_async | PORT_disconnect)) || !(rdb = port->port_context))
 		return;
 
 	if (rdb->rdb_handle)
@@ -1029,12 +1047,12 @@ void RServer::cancelOperation(Port* port)
 void RServer::agent(ServerRequest* request)
 {
 	Port *parent_port = request->req_port->port_server->srvr_parent_port;
-	Port *port;
+	Port *port = NULL;
 	
 	if (parent_port == request->req_port)
 		processPacket(parent_port, &request->req_send, &request->req_receive, &port);
 	else
-		for (port = parent_port->port_clients; port; port = port->port_next)
+		for (port = parent_port->port_next; port; port = port->port_next)
 			if (port == request->req_port && port->port_state != state_disconnected) 
 				{
 				processPacket(port, &request->req_send, &request->req_receive, &port);

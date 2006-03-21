@@ -24,17 +24,17 @@
 #ifndef JRD_DYN_MD_PROTO_H
 #define JRD_DYN_MD_PROTO_H
 
-void DYN_modify_database(TDBB tdbb, GBL, const UCHAR**);
-void DYN_modify_exception(TDBB tdbb, GBL, const UCHAR**);
-void DYN_modify_global_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_modify_index(TDBB tdbb, GBL, const UCHAR**);
-void DYN_modify_local_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_modify_procedure(TDBB tdbb, GBL, const UCHAR**);
-void DYN_modify_relation(TDBB tdbb, GBL, const UCHAR**);
-void DYN_modify_trigger(TDBB tdbb, GBL, const UCHAR**);
-void DYN_modify_trigger_msg(TDBB tdbb, GBL, const UCHAR**, TEXT*);
-void DYN_modify_sql_field(TDBB tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
-void DYN_modify_view(TDBB tdbb, GBL, const UCHAR**);
+void DYN_modify_database(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_modify_exception(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_modify_global_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_modify_index(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_modify_local_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_modify_procedure(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_modify_relation(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_modify_trigger(thread_db* tdbb, GBL, const UCHAR**);
+void DYN_modify_trigger_msg(thread_db* tdbb, GBL, const UCHAR**, TEXT*);
+void DYN_modify_sql_field(thread_db* tdbb, GBL, const UCHAR**, const TEXT*, TEXT*);
+void DYN_modify_view(thread_db* tdbb, GBL, const UCHAR**);
 
 
 #endif // JRD_DYN_MD_PROTO_H

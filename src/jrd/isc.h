@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM: JRD access method
  *	MODULE:  isc.h
@@ -145,6 +146,9 @@ typedef struct sh_mem
 	SLONG	sh_mem_length_mapped;
 	SLONG	sh_mem_mutex_arg;
 	SLONG	sh_mem_handle;
+#ifndef SHARED_CACHE
+	INTERLOCK_TYPE *sh_file_count;
+#endif
 } SH_MEM_T, *SH_MEM;
 #endif /* UNIX */
 

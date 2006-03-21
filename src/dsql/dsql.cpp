@@ -59,7 +59,7 @@ nested FOR loops are added.
     THREAD_ENTER;               // First statement after FOR loop
 ***************************************************************/
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "fb_exception.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
@@ -4207,9 +4207,9 @@ static DBB init(FRBRD** db_handle)
 
 		case isc_info_db_read_only:
 			if ((USHORT) data[0])
-				database->dbb_flags |= DBB_read_only;
+				database->dbb_flags |= DBB_read_only_flag;
 			else
-				database->dbb_flags &= ~DBB_read_only;
+				database->dbb_flags &= ~DBB_read_only_flag;
 			break;
 
 		case frb_info_att_charset:

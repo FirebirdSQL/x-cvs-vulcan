@@ -21,7 +21,7 @@ class MemMgr;
 
 /* general purpose vector */
 template <class T, USHORT TYPE = type_vec>
-class vec_base : protected pool_alloc<TYPE>
+class vec_base //: protected pool_alloc<TYPE>
 {
 public:
 	typedef typename firebird::vector<T>::iterator iterator;
@@ -36,7 +36,7 @@ public:
 		}
 		
 	// CVC: THis should be size_t instead of ULONG for maximum portability.
-	ULONG count() const { return vector.size(); }
+	ULONG count() const { return (ULONG) vector.size(); }
 	T& operator[](size_t index) { return vector[index]; }
 	const T& operator[](size_t index) const { return vector[index]; }
 
@@ -67,7 +67,7 @@ private:
 	firebird::vector<T> vector;
 };
 
-class vec : public vec_base<BlkPtr, type_vec>
+class vec : public vec_base<blk*, type_vec>
 {
 public:
     static vec* newVector(MemoryPool& p, int len)
@@ -84,8 +84,8 @@ public:
 		}
 
 private:
-    vec(MemoryPool& p, int len) : vec_base<BlkPtr, type_vec>(p, len) {}
-    vec(MemoryPool& p, const vec& base) : vec_base<BlkPtr, type_vec>(p, base) {}
+    vec(MemoryPool& p, int len) : vec_base<blk*, type_vec>(p, len) {}
+    vec(MemoryPool& p, const vec& base) : vec_base<blk*, type_vec>(p, base) {}
 };
 typedef vec* VEC;
 

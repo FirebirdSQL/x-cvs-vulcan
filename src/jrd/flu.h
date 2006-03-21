@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		flu.h
@@ -32,7 +33,7 @@
 #  include <dl.h>
 #  include <shl.h>
 typedef shl_t HMOD;
-#elif defined(SOLARIS)
+#elif defined(SOLARIS) || defined(MVS)
 #  include <dlfcn.h>
 typedef void *HMOD;
 #elif defined(WIN_NT)

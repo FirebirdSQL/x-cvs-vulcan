@@ -3,7 +3,7 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version LI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version SO-V2.0.0.4027 Vulcan 1.0 Development **********************/
 #line 1 "backup.epp"
 /*
  *	PROGRAM:	JRD Backup and Restore Program
@@ -47,7 +47,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <memory.h>
 #include <string.h>
@@ -76,7 +76,7 @@ $Id$
 #include <ibase.h>
 #endif
 
-static ISC_QUAD
+static const ISC_QUAD
    isc_blob_null = {0,0};	/* initializer for blobs */
 static isc_db_handle
    DB = 0;		/* database handle */
@@ -89,21 +89,21 @@ static long
 static SLONG
    isc_array_length, 	/* array return size */
    SQLCODE;		/* SQL status code */
-static char
+static const char
    isc_tpb_3 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_2 [5] = {1,9,2,6,20};
 
-static char
+static const char
    isc_tpb_1 [4] = {1,9,2,6};
 
-static char
+static const char
    isc_tpb_0 [5] = {1,9,2,6,20};
 
-static short
+static const short
    isc_4l = 216;
-static char
+static const char
    isc_4 [] = {
       blr_version4,
       blr_begin, 
@@ -154,9 +154,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_4 */
 
-static short
+static const short
    isc_14l = 264;
-static char
+static const char
    isc_14 [] = {
       blr_version4,
       blr_begin, 
@@ -215,9 +215,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_14 */
 
-static short
+static const short
    isc_26l = 222;
-static char
+static const char
    isc_26 [] = {
       blr_version4,
       blr_begin, 
@@ -270,9 +270,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_26 */
 
-static short
+static const short
    isc_34l = 248;
-static char
+static const char
    isc_34 [] = {
       blr_version4,
       blr_begin, 
@@ -322,9 +322,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_34 */
 
-static short
+static const short
    isc_40l = 118;
-static char
+static const char
    isc_40 [] = {
       blr_version4,
       blr_begin, 
@@ -362,9 +362,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_40 */
 
-static short
+static const short
    isc_47l = 352;
-static char
+static const char
    isc_47 [] = {
       blr_version4,
       blr_begin, 
@@ -433,9 +433,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_47 */
 
-static short
+static const short
    isc_59l = 375;
-static char
+static const char
    isc_59 [] = {
       blr_version4,
       blr_begin, 
@@ -509,9 +509,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_59 */
 
-static short
+static const short
    isc_73l = 107;
-static char
+static const char
    isc_73 [] = {
       blr_version4,
       blr_begin, 
@@ -545,9 +545,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_73 */
 
-static short
+static const short
    isc_78l = 261;
-static char
+static const char
    isc_78 [] = {
       blr_version4,
       blr_begin, 
@@ -605,9 +605,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_78 */
 
-static short
+static const short
    isc_87l = 188;
-static char
+static const char
    isc_87 [] = {
       blr_version4,
       blr_begin, 
@@ -653,9 +653,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_87 */
 
-static short
+static const short
    isc_96l = 130;
-static char
+static const char
    isc_96 [] = {
       blr_version4,
       blr_begin, 
@@ -693,9 +693,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_96 */
 
-static short
+static const short
    isc_103l = 120;
-static char
+static const char
    isc_103 [] = {
       blr_version4,
       blr_begin, 
@@ -733,9 +733,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_103 */
 
-static short
+static const short
    isc_110l = 259;
-static char
+static const char
    isc_110 [] = {
       blr_version4,
       blr_begin, 
@@ -792,9 +792,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_110 */
 
-static short
+static const short
    isc_119l = 406;
-static char
+static const char
    isc_119 [] = {
       blr_version4,
       blr_begin, 
@@ -874,9 +874,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_119 */
 
-static short
+static const short
    isc_136l = 248;
-static char
+static const char
    isc_136 [] = {
       blr_version4,
       blr_begin, 
@@ -927,9 +927,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_136 */
 
-static short
+static const short
    isc_146l = 205;
-static char
+static const char
    isc_146 [] = {
       blr_version4,
       blr_begin, 
@@ -975,9 +975,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_146 */
 
-static short
+static const short
    isc_154l = 248;
-static char
+static const char
    isc_154 [] = {
       blr_version4,
       blr_begin, 
@@ -1030,9 +1030,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_154 */
 
-static short
+static const short
    isc_164l = 293;
-static char
+static const char
    isc_164 [] = {
       blr_version4,
       blr_begin, 
@@ -1091,9 +1091,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_164 */
 
-static short
+static const short
    isc_176l = 124;
-static char
+static const char
    isc_176 [] = {
       blr_version4,
       blr_begin, 
@@ -1131,9 +1131,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_176 */
 
-static short
+static const short
    isc_183l = 280;
-static char
+static const char
    isc_183 [] = {
       blr_version4,
       blr_begin, 
@@ -1196,9 +1196,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_183 */
 
-static short
+static const short
    isc_200l = 199;
-static char
+static const char
    isc_200 [] = {
       blr_version4,
       blr_begin, 
@@ -1247,9 +1247,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_200 */
 
-static short
+static const short
    isc_209l = 557;
-static char
+static const char
    isc_209 [] = {
       blr_version4,
       blr_begin, 
@@ -1350,9 +1350,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_209 */
 
-static short
+static const short
    isc_229l = 887;
-static char
+static const char
    isc_229 [] = {
       blr_version4,
       blr_begin, 
@@ -1504,9 +1504,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_229 */
 
-static short
+static const short
    isc_267l = 139;
-static char
+static const char
    isc_267 [] = {
       blr_version4,
       blr_begin, 
@@ -1543,9 +1543,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_267 */
 
-static short
+static const short
    isc_271l = 172;
-static char
+static const char
    isc_271 [] = {
       blr_version4,
       blr_begin, 
@@ -1588,9 +1588,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_271 */
 
-static short
+static const short
    isc_279l = 291;
-static char
+static const char
    isc_279 [] = {
       blr_version4,
       blr_begin, 
@@ -1651,9 +1651,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_279 */
 
-static short
+static const short
    isc_291l = 358;
-static char
+static const char
    isc_291 [] = {
       blr_version4,
       blr_begin, 
@@ -1724,9 +1724,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_291 */
 
-static short
+static const short
    isc_307l = 247;
-static char
+static const char
    isc_307 [] = {
       blr_version4,
       blr_begin, 
@@ -1780,9 +1780,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_307 */
 
-static short
+static const short
    isc_317l = 221;
-static char
+static const char
    isc_317 [] = {
       blr_version4,
       blr_begin, 
@@ -1832,9 +1832,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_317 */
 
-static short
+static const short
    isc_326l = 167;
-static char
+static const char
    isc_326 [] = {
       blr_version4,
       blr_begin, 
@@ -1876,9 +1876,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_326 */
 
-static short
+static const short
    isc_333l = 139;
-static char
+static const char
    isc_333 [] = {
       blr_version4,
       blr_begin, 
@@ -1916,9 +1916,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_333 */
 
-static short
+static const short
    isc_339l = 98;
-static char
+static const char
    isc_339 [] = {
       blr_version4,
       blr_begin, 
@@ -1949,9 +1949,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_339 */
 
-static short
+static const short
    isc_344l = 86;
-static char
+static const char
    isc_344 [] = {
       blr_version4,
       blr_begin, 
@@ -1981,9 +1981,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_344 */
 
-static short
+static const short
    isc_348l = 94;
-static char
+static const char
    isc_348 [] = {
       blr_version4,
       blr_begin, 
@@ -2014,9 +2014,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_348 */
 
-static short
+static const short
    isc_353l = 156;
-static char
+static const char
    isc_353 [] = {
       blr_version4,
       blr_begin, 
@@ -2056,9 +2056,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_353 */
 
-static short
+static const short
    isc_361l = 315;
-static char
+static const char
    isc_361 [] = {
       blr_version4,
       blr_begin, 
@@ -2121,9 +2121,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_361 */
 
-static short
+static const short
    isc_373l = 131;
-static char
+static const char
    isc_373 [] = {
       blr_version4,
       blr_begin, 
@@ -2158,9 +2158,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_373 */
 
-static short
+static const short
    isc_379l = 399;
-static char
+static const char
    isc_379 [] = {
       blr_version4,
       blr_begin, 
@@ -2233,9 +2233,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_379 */
 
-static short
+static const short
    isc_395l = 129;
-static char
+static const char
    isc_395 [] = {
       blr_version4,
       blr_begin, 
@@ -2273,9 +2273,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_395 */
 
-static short
+static const short
    isc_401l = 152;
-static char
+static const char
    isc_401 [] = {
       blr_version4,
       blr_begin, 
@@ -2316,9 +2316,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_401 */
 
-static short
+static const short
    isc_408l = 179;
-static char
+static const char
    isc_408 [] = {
       blr_version4,
       blr_begin, 
@@ -2363,9 +2363,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_408 */
 
-static short
+static const short
    isc_416l = 189;
-static char
+static const char
    isc_416 [] = {
       blr_version4,
       blr_begin, 
@@ -2413,9 +2413,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_416 */
 
-static short
+static const short
    isc_427l = 116;
-static char
+static const char
    isc_427 [] = {
       blr_version4,
       blr_begin, 
@@ -2452,9 +2452,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_427 */
 
-static short
+static const short
    isc_433l = 148;
-static char
+static const char
    isc_433 [] = {
       blr_version4,
       blr_begin, 
@@ -2494,9 +2494,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_433 */
 
-static short
+static const short
    isc_439l = 120;
-static char
+static const char
    isc_439 [] = {
       blr_version4,
       blr_begin, 
@@ -2533,9 +2533,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_439 */
 
-static short
+static const short
    isc_445l = 129;
-static char
+static const char
    isc_445 [] = {
       blr_version4,
       blr_begin, 
@@ -2573,9 +2573,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_445 */
 
-static short
+static const short
    isc_451l = 124;
-static char
+static const char
    isc_451 [] = {
       blr_version4,
       blr_begin, 
@@ -2612,9 +2612,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_451 */
 
-static short
+static const short
    isc_457l = 197;
-static char
+static const char
    isc_457 [] = {
       blr_version4,
       blr_begin, 
@@ -2663,9 +2663,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_457 */
 
-static short
+static const short
    isc_466l = 148;
-static char
+static const char
    isc_466 [] = {
       blr_version4,
       blr_begin, 
@@ -2705,9 +2705,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_466 */
 
-static short
+static const short
    isc_472l = 186;
-static char
+static const char
    isc_472 [] = {
       blr_version4,
       blr_begin, 
@@ -2750,9 +2750,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_472 */
 
-static short
+static const short
    isc_478l = 346;
-static char
+static const char
    isc_478 [] = {
       blr_version4,
       blr_begin, 
@@ -2824,9 +2824,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_478 */
 
-static short
+static const short
    isc_495l = 193;
-static char
+static const char
    isc_495 [] = {
       blr_version4,
       blr_begin, 
@@ -2874,9 +2874,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_495 */
 
-static short
+static const short
    isc_503l = 334;
-static char
+static const char
    isc_503 [] = {
       blr_version4,
       blr_begin, 
@@ -2944,9 +2944,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_503 */
 
-static short
+static const short
    isc_519l = 115;
-static char
+static const char
    isc_519 [] = {
       blr_version4,
       blr_begin, 
@@ -2983,9 +2983,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_519 */
 
-static short
+static const short
    isc_525l = 158;
-static char
+static const char
    isc_525 [] = {
       blr_version4,
       blr_begin, 
@@ -3027,9 +3027,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_525 */
 
-static short
+static const short
    isc_532l = 154;
-static char
+static const char
    isc_532 [] = {
       blr_version4,
       blr_begin, 
@@ -3071,9 +3071,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_532 */
 
-static short
+static const short
    isc_539l = 156;
-static char
+static const char
    isc_539 [] = {
       blr_version4,
       blr_begin, 
@@ -3115,9 +3115,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_539 */
 
-static short
+static const short
    isc_546l = 607;
-static char
+static const char
    isc_546 [] = {
       blr_version4,
       blr_begin, 
@@ -3227,9 +3227,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_546 */
 
-static short
+static const short
    isc_572l = 838;
-static char
+static const char
    isc_572 [] = {
       blr_version4,
       blr_begin, 
@@ -3376,9 +3376,9 @@ static char
       blr_eoc
    };	/* end of blr string for request isc_572 */
 
-static short
+static const short
    isc_611l = 172;
-static char
+static const char
    isc_611 [] = {
       blr_version4,
       blr_begin, 
@@ -3642,7 +3642,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	tdgbl->relations = NULL;
 	tdgbl->BCK_capabilities = 0;
 
-	gds_trans = NULL_HANDLE;
+	gds_trans = NULL;
 
 	BURP_verbose(130, NULL, NULL, NULL, NULL, NULL);
 	// msg 130 starting transaction 
@@ -3660,14 +3660,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	{
 		/*EXEC SQL SET TRANSACTION NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_0);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_0);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 281 "backup.epp"
 		if (isc_status[1])
 			/*EXEC SQL SET TRANSACTION;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_1);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 283 "backup.epp"
@@ -3677,14 +3677,14 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	{
 		/*EXEC SQL SET TRANSACTION NAME gds_trans NO_AUTO_UNDO;*/
 		{
-		isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_2);
+		isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 5, isc_tpb_2);
 		SQLCODE = isc_sqlcode (isc_status);
 		}
 #line 288 "backup.epp"
 		if (isc_status[1])
 			/*EXEC SQL SET TRANSACTION NAME gds_trans;*/
 			{
-			isc_start_transaction (isc_status, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
+			isc_start_transaction (isc_status, (isc_handle*) &gds_trans, (short) 1, &DB, (short) 4, isc_tpb_3);
 			SQLCODE = isc_sqlcode (isc_status);
 			}
 #line 290 "backup.epp"
@@ -3825,18 +3825,18 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 
 	if (tdgbl->BCK_capabilities & BCK_security)
 	{
-		isc_req_handle req_handle1 = NULL_HANDLE;
+		isc_req_handle req_handle1 = NULL;
 		/*FOR (REQUEST_HANDLE req_handle1)
 			X IN RDB$SECURITY_CLASSES WITH X.RDB$SECURITY_CLASS NOT STARTING "SQL$"*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_611), (char *) isc_611);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_611), (char *) isc_611);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 50, &isc_612, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 50, &isc_612, (short) 0);
 		   if (!isc_612.isc_616 || isc_status [1]) break;
 #line 430 "backup.epp"
 			put(tdgbl, rec_security_class);
@@ -3907,7 +3907,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	UINT64 cumul_count = MVOL_fini_write(&tdgbl->io_cnt, &tdgbl->io_ptr);
 	if (cumul_count <= MAX_SLONG) {
 		SLONG tempcount = cumul_count;
-		BURP_verbose(176, (void*) (long) tempcount, NULL, NULL, NULL, NULL);
+		BURP_verbose(176, (void*) tempcount, NULL, NULL, NULL, NULL);
 		// msg 176 closing file, committing, and finishing.  %ld bytes written 
 	}
 	else {
@@ -3918,7 +3918,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	}
 	/*COMMIT;*/
 	{
-	isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+	isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 491 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
@@ -3933,7 +3933,7 @@ int BACKUP_backup(const TEXT* dbb_file, const TEXT* file_name)
 	if (gds_trans)
 		/*COMMIT gds_trans;*/
 		{
-		isc_commit_transaction (isc_status, (isc_tr_handle*) &gds_trans);;
+		isc_commit_transaction (isc_status, (isc_handle*) &gds_trans);;
 #line 497 "backup.epp"
 	/*ON_ERROR*/
 	if (isc_status [1])
@@ -4744,14 +4744,14 @@ BURP_FLD get_fields( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_get_fields_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_572), (char *) isc_572);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_572), (char *) isc_572);
 		isc_vtov ((char*)relation->rel_name, (char*)isc_573.isc_574, 32);
 		if (tdgbl->handles_get_fields_req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_573, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_573, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 404, &isc_575, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 404, &isc_575, (short) 0);
 		   if (!isc_575.isc_587 || isc_status [1]) break;
 #line 648 "backup.epp"
 	
@@ -4948,14 +4948,14 @@ BURP_FLD get_fields( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_get_fields_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_546), (char *) isc_546);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) sizeof (isc_546), (char *) isc_546);
 		isc_vtov ((char*)relation->rel_name, (char*)isc_547.isc_548, 32);
 		if (tdgbl->handles_get_fields_req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_547, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 336, &isc_549, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle1, (short) 1, (short) 336, &isc_549, (short) 0);
 		   if (!isc_549.isc_558 || isc_status [1]) break;
 #line 753 "backup.epp"
 
@@ -5039,15 +5039,15 @@ BURP_FLD get_fields( BURP_REL relation)
 					RFR.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle2)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (short) sizeof (isc_539), (char *) isc_539);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle2, (short) sizeof (isc_539), (char *) isc_539);
 				isc_vtov ((char*)isc_549.isc_551, (char*)isc_540.isc_541, 32);
 				isc_vtov ((char*)isc_549.isc_555, (char*)isc_540.isc_542, 32);
 				if (tdgbl->handles_get_fields_req_handle2)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_540, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_540, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle2, (short) 1, (short) 34, &isc_543, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle2, (short) 1, (short) 34, &isc_543, (short) 0);
 				   if (!isc_543.isc_545 || isc_status [1]) break;
 #line 790 "backup.epp"
 					COPY (/*RFR.RDB$COMPLEX_NAME*/
@@ -5080,15 +5080,15 @@ BURP_FLD get_fields( BURP_REL relation)
 					AND RFR.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle3)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (short) sizeof (isc_532), (char *) isc_532);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle3, (short) sizeof (isc_532), (char *) isc_532);
 				isc_vtov ((char*)isc_549.isc_555, (char*)isc_533.isc_534, 32);
 				isc_vtov ((char*)relation->rel_name, (char*)isc_533.isc_535, 32);
 				if (tdgbl->handles_get_fields_req_handle3)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_533, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_533, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle3, (short) 1, (short) 4, &isc_536, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle3, (short) 1, (short) 4, &isc_536, (short) 0);
 				   if (!isc_536.isc_537 || isc_status [1]) break;
 #line 805 "backup.epp"
 					field->fld_system_flag = /*RFR.RDB$SYSTEM_FLAG*/
@@ -5116,15 +5116,15 @@ BURP_FLD get_fields( BURP_REL relation)
 					AND RFR.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle4)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (short) sizeof (isc_525), (char *) isc_525);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle4, (short) sizeof (isc_525), (char *) isc_525);
 				isc_vtov ((char*)isc_549.isc_555, (char*)isc_526.isc_527, 32);
 				isc_vtov ((char*)relation->rel_name, (char*)isc_526.isc_528, 32);
 				if (tdgbl->handles_get_fields_req_handle4)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_526, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_526, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle4, (short) 1, (short) 34, &isc_529, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle4, (short) 1, (short) 34, &isc_529, (short) 0);
 				   if (!isc_529.isc_531 || isc_status [1]) break;
 #line 817 "backup.epp"
 					COPY (/*RFR.RDB$SECURITY_CLASS*/
@@ -5150,14 +5150,14 @@ BURP_FLD get_fields( BURP_REL relation)
 					RF IN RDB$FIELDS WITH RF.RDB$FIELD_NAME = X.RDB$FIELD_SOURCE*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle5)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (short) sizeof (isc_519), (char *) isc_519);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle5, (short) sizeof (isc_519), (char *) isc_519);
 				isc_vtov ((char*)isc_549.isc_554, (char*)isc_520.isc_521, 32);
 				if (tdgbl->handles_get_fields_req_handle5)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_520, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle5, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_520, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle5, (short) 1, (short) 4, &isc_522, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle5, (short) 1, (short) 4, &isc_522, (short) 0);
 				   if (!isc_522.isc_523 || isc_status [1]) break;
 #line 827 "backup.epp"
 					// use the fld_flags to mark the field as an array and
@@ -5199,15 +5199,15 @@ BURP_FLD get_fields( BURP_REL relation)
 					AND X2.RDB$FIELD_SOURCE EQ F2.RDB$FIELD_NAME*/
 				{
                                 if (!tdgbl->handles_get_fields_req_handle6)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (short) sizeof (isc_503), (char *) isc_503);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_fields_req_handle6, (short) sizeof (isc_503), (char *) isc_503);
 				isc_vtov ((char*)relation->rel_name, (char*)isc_504.isc_505, 32);
 				isc_vtov ((char*)isc_549.isc_555, (char*)isc_504.isc_506, 32);
 				if (tdgbl->handles_get_fields_req_handle6)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_504, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle6, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_504, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_fields_req_handle6, (short) 1, (short) 34, &isc_507, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_fields_req_handle6, (short) 1, (short) 34, &isc_507, (short) 0);
 				   if (!isc_507.isc_510 || isc_status [1]) break;
 #line 851 "backup.epp"
 
@@ -5315,7 +5315,7 @@ SINT64 get_gen_id( const TEXT* name, SSHORT name_len)
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	isc_handle  gen_id_reqh = NULL_HANDLE;
+	isc_handle gen_id_reqh = NULL;
 	UCHAR* blr = blr_buffer;
 
 /* If this is ODS 10 (IB version 6.0) or greater, build BLR to retrieve
@@ -5462,14 +5462,14 @@ void get_ranges( BURP_FLD field)
 		SORTED BY X.RDB$DIMENSION*/
 	{
         if (!tdgbl->handles_get_ranges_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) sizeof (isc_495), (char *) isc_495);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) sizeof (isc_495), (char *) isc_495);
 	isc_vtov ((char*)field->fld_source, (char*)isc_496.isc_497, 32);
 	if (tdgbl->handles_get_ranges_req_handle1)
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_496, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_get_ranges_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_496, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) 1, (short) 12, &isc_498, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_get_ranges_req_handle1, (short) 1, (short) 12, &isc_498, (short) 0);
 	   if (!isc_498.isc_501 || isc_status [1]) break; 
 #line 1059 "backup.epp"
 	
@@ -5620,12 +5620,12 @@ void put_array( BURP_FLD field, BURP_REL relation, ISC_QUAD * blob_id)
 	}
 
 	ISC_STATUS_ARRAY status_vector;
-	ULONG return_length = 0;
+	ISC_LONG return_length = 0;
 	if (isc_get_slice(status_vector, &DB, &gds_trans, blob_id,
 					  blr_length, (const char*) blr_buffer,
 					  0,	// param length for subset of an array handling
 					  NULL,	// param for subset of an array handling
-					  slice_length, slice, (SLONG*) &return_length))
+					  slice_length, slice, &return_length))
 	{
 		BURP_print(81, field->fld_name, NULL, NULL, NULL, NULL);
 		// msg 81 error accessing blob field %s -- continuing 
@@ -5765,7 +5765,7 @@ void put_blob( BURP_FLD field, ISC_QUAD * blob_id, ULONG count)
 
 // Open the blob and get it's vital statistics 
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
@@ -5814,7 +5814,7 @@ void put_blob( BURP_FLD field, ISC_QUAD * blob_id, ULONG count)
 			break;
 
 		default:
-			BURP_error_redirect(NULL, 21, (void*) (long) item, NULL);
+			BURP_error_redirect(NULL, 21, (void*) (ULONG) item, NULL);
 			// msg 21 don't understand blob info item %ld 
 		}
 	}
@@ -5882,7 +5882,7 @@ bool put_blr_blob( SCHAR attribute, ISC_QUAD * blob_id)
 
 // Open the blob and get it's vital statistics 
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
@@ -5920,7 +5920,7 @@ bool put_blr_blob( SCHAR attribute, ISC_QUAD * blob_id)
 			break;
 
 		default:
-			BURP_print(79, (void *) (long) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, (void *) (ULONG) item, NULL, NULL, NULL, NULL);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -6099,7 +6099,7 @@ void put_data(BURP_REL relation)
 			break;
 
 		default:
-			BURP_error_redirect(NULL, 26, (void *) (long) field->fld_type, NULL);
+			BURP_error_redirect(NULL, 26, (void *) (SLONG) field->fld_type, NULL);
 			// msg 26 datatype %ld not understood 
 			break;
 		}
@@ -6193,7 +6193,7 @@ void put_data(BURP_REL relation)
 
 // Compile request 
 
-	isc_handle  request = NULL_HANDLE;
+	isc_handle request = NULL;
 	SSHORT blr_length = blr - blr_buffer;
 	if (isc_compile_request(status_vector, &DB, &request,
 							blr_length, (const SCHAR*) blr_buffer))
@@ -6244,7 +6244,7 @@ void put_data(BURP_REL relation)
 		records++;
 		// Verbose records 
 		if ((records % BACKUP_VERBOSE_INTERVAL) == 0)
-			BURP_verbose(108, (void *) (long) records, NULL, NULL, NULL, NULL);
+			BURP_verbose(108, (void *) (SLONG) records, NULL, NULL, NULL, NULL);
 
 		put(tdgbl, (UCHAR) (rec_data));
 		put_numeric(att_data_length, record_length);
@@ -6295,7 +6295,7 @@ void put_data(BURP_REL relation)
 	if (xdr_buffer.lstr_address)
 		BURP_free(xdr_buffer.lstr_address);
 
-	BURP_verbose(108, (void *) (long) records, NULL, NULL, NULL, NULL);
+	BURP_verbose(108, (void *) (SLONG) records, NULL, NULL, NULL, NULL);
 // msg 108 %ld records written 
 
 	if (isc_release_request(status_vector, &request))
@@ -6338,14 +6338,14 @@ void put_index( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_put_index_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_478), (char *) isc_478);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_478), (char *) isc_478);
 		isc_vtov ((char*)relation->rel_name, (char*)isc_479.isc_480, 32);
 		if (tdgbl->handles_put_index_req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_479, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_479, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 104, &isc_481, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 104, &isc_481, (short) 0);
 		   if (!isc_481.isc_487 || isc_status [1]) break;
 #line 1908 "backup.epp"
 	
@@ -6358,15 +6358,15 @@ void put_index( BURP_REL relation)
 				RFR.RDB$RELATION_NAME = relation->rel_name*/
 			{
                         if (!tdgbl->handles_put_index_req_handle2)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_472), (char *) isc_472);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_472), (char *) isc_472);
 			isc_vtov ((char*)relation->rel_name, (char*)isc_473.isc_474, 32);
 			isc_vtov ((char*)isc_481.isc_486, (char*)isc_473.isc_475, 32);
 			if (tdgbl->handles_put_index_req_handle2)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_473, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_473, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 2, &isc_476, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 2, &isc_476, (short) 0);
 			   if (!isc_476.isc_477 || isc_status [1]) break; 
 #line 1916 "backup.epp"
 	
@@ -6391,10 +6391,10 @@ void put_index( BURP_REL relation)
 #line 1925 "backup.epp"
 			{
 				BURP_print(180, /*X.RDB$INDEX_NAME*/
-						isc_481.isc_486, (void*) (long) count,
+						isc_481.isc_486, (void*) count,
 #line 1927 "backup.epp"
-							(void*)(long) /*X.RDB$SEGMENT_COUNT*/
-								      isc_481.isc_494, NULL, NULL);
+							(void*)(ULONG) /*X.RDB$SEGMENT_COUNT*/
+								       isc_481.isc_494, NULL, NULL);
 #line 1928 "backup.epp"
 				continue;
 			}
@@ -6424,14 +6424,14 @@ void put_index( BURP_REL relation)
 				SORTED BY Y.RDB$FIELD_POSITION*/
 			{
                         if (!tdgbl->handles_put_index_req_handle5)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_466), (char *) isc_466);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_466), (char *) isc_466);
 			isc_vtov ((char*)isc_481.isc_486, (char*)isc_467.isc_468, 32);
 			if (tdgbl->handles_put_index_req_handle5)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_467, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_467, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_469, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_469, (short) 0);
 			   if (!isc_469.isc_471 || isc_status [1]) break;
 #line 1944 "backup.epp"
 	
@@ -6504,14 +6504,14 @@ void put_index( BURP_REL relation)
 			X.RDB$RELATION_NAME EQ relation->rel_name*/
 		{
                 if (!tdgbl->handles_put_index_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_457), (char *) isc_457);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) sizeof (isc_457), (char *) isc_457);
 		isc_vtov ((char*)relation->rel_name, (char*)isc_458.isc_459, 32);
 		if (tdgbl->handles_put_index_req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_458, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_458, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 46, &isc_460, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle1, (short) 1, (short) 46, &isc_460, (short) 0);
 		   if (!isc_460.isc_463 || isc_status [1]) break;
 #line 1976 "backup.epp"
 	
@@ -6521,14 +6521,14 @@ void put_index( BURP_REL relation)
 				I_S.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 			{
                         if (!tdgbl->handles_put_index_req_handle2)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_451), (char *) isc_451);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) sizeof (isc_451), (char *) isc_451);
 			isc_vtov ((char*)isc_460.isc_462, (char*)isc_452.isc_453, 32);
 			if (tdgbl->handles_put_index_req_handle2)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_452, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_452, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 34, &isc_454, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle2, (short) 1, (short) 34, &isc_454, (short) 0);
 			   if (!isc_454.isc_456 || isc_status [1]) break;
 #line 1981 "backup.epp"
 				bool match = false;
@@ -6539,15 +6539,15 @@ void put_index( BURP_REL relation)
 					RFR.RDB$RELATION_NAME = relation->rel_name*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle3)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (short) sizeof (isc_445), (char *) isc_445);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle3, (short) sizeof (isc_445), (char *) isc_445);
 				isc_vtov ((char*)relation->rel_name, (char*)isc_446.isc_447, 32);
 				isc_vtov ((char*)isc_454.isc_455, (char*)isc_446.isc_448, 32);
 				if (tdgbl->handles_put_index_req_handle3)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_446, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_446, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle3, (short) 1, (short) 2, &isc_449, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle3, (short) 1, (short) 2, &isc_449, (short) 0);
 				   if (!isc_449.isc_450 || isc_status [1]) break; 
 #line 1987 "backup.epp"
 					match = true;
@@ -6590,10 +6590,10 @@ void put_index( BURP_REL relation)
 #line 2002 "backup.epp"
 			{
 				BURP_print(180, /*X.RDB$INDEX_NAME*/
-						isc_460.isc_462, (void*) (long) count,
+						isc_460.isc_462, (void*) count,
 #line 2004 "backup.epp"
-						   (void*)(long) /*X.RDB$SEGMENT_COUNT*/
-								 isc_460.isc_465, NULL, NULL);
+						   (void*)(ULONG) /*X.RDB$SEGMENT_COUNT*/
+								  isc_460.isc_465, NULL, NULL);
 #line 2005 "backup.epp"
 				continue; 
 			}
@@ -6615,14 +6615,14 @@ void put_index( BURP_REL relation)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle4)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (short) sizeof (isc_439), (char *) isc_439);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle4, (short) sizeof (isc_439), (char *) isc_439);
 				isc_vtov ((char*)isc_460.isc_462, (char*)isc_440.isc_441, 32);
 				if (tdgbl->handles_put_index_req_handle4)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_440, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_440, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle4, (short) 1, (short) 4, &isc_442, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle4, (short) 1, (short) 4, &isc_442, (short) 0);
 				   if (!isc_442.isc_443 || isc_status [1]) break;
 #line 2017 "backup.epp"
 					put_numeric (att_index_inactive, /*I.RDB$INDEX_INACTIVE*/
@@ -6649,14 +6649,14 @@ void put_index( BURP_REL relation)
 				SORTED BY Y.RDB$FIELD_POSITION*/
 			{
                         if (!tdgbl->handles_put_index_req_handle5)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_433), (char *) isc_433);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) sizeof (isc_433), (char *) isc_433);
 			isc_vtov ((char*)isc_460.isc_462, (char*)isc_434.isc_435, 32);
 			if (tdgbl->handles_put_index_req_handle5)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_434, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_434, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_436, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle5, (short) 1, (short) 34, &isc_436, (short) 0);
 			   if (!isc_436.isc_438 || isc_status [1]) break;
 #line 2026 "backup.epp"
 				PUT_TEXT (att_index_field_name, /*Y.RDB$FIELD_NAME*/
@@ -6684,14 +6684,14 @@ void put_index( BURP_REL relation)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle6)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (short) sizeof (isc_427), (char *) isc_427);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle6, (short) sizeof (isc_427), (char *) isc_427);
 				isc_vtov ((char*)isc_460.isc_462, (char*)isc_428.isc_429, 32);
 				if (tdgbl->handles_put_index_req_handle6)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_428, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle6, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_428, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle6, (short) 1, (short) 4, &isc_430, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle6, (short) 1, (short) 4, &isc_430, (short) 0);
 				   if (!isc_430.isc_431 || isc_status [1]) break;
 #line 2036 "backup.epp"
 					put_numeric (att_index_type, /*I.RDB$INDEX_TYPE*/
@@ -6715,14 +6715,14 @@ void put_index( BURP_REL relation)
 					I IN RDB$INDICES WITH I.RDB$INDEX_NAME = X.RDB$INDEX_NAME*/
 				{
                                 if (!tdgbl->handles_put_index_req_handle7)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (short) sizeof (isc_416), (char *) isc_416);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_index_req_handle7, (short) sizeof (isc_416), (char *) isc_416);
 				isc_vtov ((char*)isc_460.isc_462, (char*)isc_417.isc_418, 32);
 				if (tdgbl->handles_put_index_req_handle7)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_417, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle7, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_417, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_index_req_handle7, (short) 1, (short) 56, &isc_419, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_index_req_handle7, (short) 1, (short) 56, &isc_419, (short) 0);
 				   if (!isc_419.isc_423 || isc_status [1]) break;
 #line 2044 "backup.epp"
 					if (!/*I.RDB$EXPRESSION_SOURCE.NULL*/
@@ -7020,14 +7020,14 @@ void put_relation( BURP_REL relation)
 				X IN RDB$VIEW_RELATIONS WITH X.RDB$VIEW_NAME EQ relation->rel_name*/
 			{
                         if (!tdgbl->handles_put_relation_req_handle1)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (short) sizeof (isc_408), (char *) isc_408);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_relation_req_handle1, (short) sizeof (isc_408), (char *) isc_408);
 			isc_vtov ((char*)relation->rel_name, (char*)isc_409.isc_410, 32);
 			if (tdgbl->handles_put_relation_req_handle1)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_409, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_409, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle1, (short) 1, (short) 68, &isc_411, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle1, (short) 1, (short) 68, &isc_411, (short) 0);
 			   if (!isc_411.isc_414 || isc_status [1]) break;
 #line 2307 "backup.epp"
 				put(tdgbl, rec_view);
@@ -7061,14 +7061,14 @@ void put_relation( BURP_REL relation)
 				X IN RDB$VIEW_RELATIONS WITH X.RDB$VIEW_NAME EQ relation->rel_name*/
 			{
                         if (!tdgbl->handles_put_relation_req_handle2)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (short) sizeof (isc_401), (char *) isc_401);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_put_relation_req_handle2, (short) sizeof (isc_401), (char *) isc_401);
 			isc_vtov ((char*)relation->rel_name, (char*)isc_402.isc_403, 32);
 			if (tdgbl->handles_put_relation_req_handle2)
-                           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_402, (short) 0);
+                           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_402, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_put_relation_req_handle2, (short) 1, (short) 36, &isc_404, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_put_relation_req_handle2, (short) 1, (short) 36, &isc_404, (short) 0);
 			   if (!isc_404.isc_406 || isc_status [1]) break;
 #line 2321 "backup.epp"
 				put(tdgbl, rec_view);
@@ -7128,7 +7128,7 @@ bool put_source_blob(SCHAR		attribute,
 
 // Open the blob and get it's vital statistics
 
-	isc_handle blob = NULL_HANDLE;
+	isc_handle blob = NULL;
 
 	if (isc_open_blob(status_vector, &DB, &gds_trans, &blob, blob_id))
 	{
@@ -7170,7 +7170,7 @@ bool put_source_blob(SCHAR		attribute,
 			break;
 
 		default:
-			BURP_print(79, (void *) (long) item, NULL, NULL, NULL, NULL);
+			BURP_print(79, (void *) (ULONG) item, NULL, NULL, NULL, NULL);
 			// msg 79 don't understand blob info item %ld  
 			return false;
 		}
@@ -7269,7 +7269,7 @@ void set_capabilities(void)
  **************************************/
 	TGBL tdgbl = GET_THREAD_DATA;
 
-	isc_handle  req = NULL_HANDLE;
+	isc_handle req = NULL;
 
 // Look for desireable fields in system relations
 
@@ -7283,15 +7283,15 @@ void set_capabilities(void)
 			AND x.RDB$FIELD_NAME = field*/
 		{
                 if (!req)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req, (short) sizeof (isc_395), (char *) isc_395);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req, (short) sizeof (isc_395), (char *) isc_395);
 		isc_vtov ((char*)field, (char*)isc_396.isc_397, 32);
 		isc_vtov ((char*)relation, (char*)isc_396.isc_398, 32);
 		if (req)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &req, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_396, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &req, (isc_handle*) &gds_trans, (short) 0, (short) 64, &isc_396, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req, (short) 1, (short) 2, &isc_399, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req, (short) 1, (short) 2, &isc_399, (short) 0);
 		   if (!isc_399.isc_400 || isc_status [1]) break;
 #line 2518 "backup.epp"
 			tdgbl->BCK_capabilities |= rel_field_table->bit_mask;
@@ -7364,7 +7364,7 @@ void write_character_sets(void)
  *	each user defined character set.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7372,13 +7372,13 @@ void write_character_sets(void)
 		X IN RDB$CHARACTER_SETS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_379), (char *) isc_379);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_379), (char *) isc_379);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 156, &isc_380, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 156, &isc_380, (short) 0);
 	   if (!isc_380.isc_387 || isc_status [1]) break;
 #line 2585 "backup.epp"
 		put(tdgbl, rec_charset);
@@ -7457,7 +7457,7 @@ void write_check_constraints(void)
  *	each check constraint. 
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7465,13 +7465,13 @@ void write_check_constraints(void)
 		X IN RDB$CHECK_CONSTRAINTS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_373), (char *) isc_373);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_373), (char *) isc_373);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 68, &isc_374, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 68, &isc_374, (short) 0);
 	   if (!isc_374.isc_377 || isc_status [1]) break;
 #line 2630 "backup.epp"
 		put(tdgbl, rec_chk_constraint);
@@ -7517,7 +7517,7 @@ void write_collations(void)
  *	each user defined collation
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7525,13 +7525,13 @@ void write_collations(void)
 		X IN RDB$COLLATIONS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_361), (char *) isc_361);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_361), (char *) isc_361);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 86, &isc_362, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 86, &isc_362, (short) 0);
 	   if (!isc_362.isc_366 || isc_status [1]) break;
 #line 2664 "backup.epp"
 		put(tdgbl, rec_collation);
@@ -7600,7 +7600,7 @@ void write_database( const TEXT* dbb_file)
  **************************************/
 	ISC_STATUS_ARRAY status_vector;
 	SCHAR buffer[256];
-	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL, req_handle2 = NULL, req_handle3 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7674,7 +7674,7 @@ void write_database( const TEXT* dbb_file)
 
 	put_asciz(att_file_name, dbb_file);
 
-	BURP_verbose(77, dbb_file, (void *) (long) page_size, NULL, NULL, NULL);
+	BURP_verbose(77, dbb_file, (void *) (ULONG) page_size, NULL, NULL, NULL);
 // msg 77 database %s has a page size of %ld bytes. 
 
 	put(tdgbl, (UCHAR) (att_end));
@@ -7695,13 +7695,13 @@ void write_database( const TEXT* dbb_file)
 			D IN RDB$DATABASE*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_353), (char *) isc_353);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_353), (char *) isc_353);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 78, &isc_354, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 78, &isc_354, (short) 0);
 		   if (!isc_354.isc_358 || isc_status [1]) break;
 #line 2794 "backup.epp"
 
@@ -7742,13 +7742,13 @@ void write_database( const TEXT* dbb_file)
 				D IN RDB$DATABASE*/
 			{
                         if (!req_handle1)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_348), (char *) isc_348);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_348), (char *) isc_348);
 			if (req_handle1)
-                           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 36, &isc_349, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 36, &isc_349, (short) 0);
 			   if (!isc_349.isc_351 || isc_status [1]) break;
 #line 2811 "backup.epp"
 				if (!/*D.RDB$SECURITY_CLASS.NULL*/
@@ -7778,13 +7778,13 @@ void write_database( const TEXT* dbb_file)
 				D IN RDB$DATABASE*/
 			{
                         if (!req_handle2)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_344), (char *) isc_344);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_344), (char *) isc_344);
 			if (req_handle2)
-                           isc_start_request (isc_status, (isc_req_handle*) &req_handle2, (isc_tr_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 0, (short) 10, &isc_345, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 0, (short) 10, &isc_345, (short) 0);
 			   if (!isc_345.isc_347 || isc_status [1]) break;
 #line 2823 "backup.epp"
 				put_source_blob (att_database_description2, att_database_description,
@@ -7812,13 +7812,13 @@ void write_database( const TEXT* dbb_file)
 				D IN RDB$DATABASE*/
 			{
                         if (!req_handle3)
-                           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_339), (char *) isc_339);
+                           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_339), (char *) isc_339);
 			if (req_handle3)
-                           isc_start_request (isc_status, (isc_req_handle*) &req_handle3, (isc_tr_handle*) &gds_trans, (short) 0);
+                           isc_start_request (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0);
 			if (!isc_status [1]) {
 			while (1)
 			   {
-                           isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 0, (short) 36, &isc_340, (short) 0);
+                           isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 0, (short) 36, &isc_340, (short) 0);
 			   if (!isc_340.isc_342 || isc_status [1]) break;
 #line 2835 "backup.epp"
 				if (!/*D.RDB$CHARACTER_SET_NAME.NULL*/
@@ -7865,7 +7865,7 @@ void write_exceptions(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7873,13 +7873,13 @@ void write_exceptions(void)
 		X IN RDB$EXCEPTIONS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_333), (char *) isc_333);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_333), (char *) isc_333);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 121, &isc_334, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 121, &isc_334, (short) 0);
 	   if (!isc_334.isc_337 || isc_status [1]) break;
 #line 2872 "backup.epp"
 		put(tdgbl, rec_exception);
@@ -7928,7 +7928,7 @@ void write_field_dimensions(void)
  *	each array field dimension.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7936,13 +7936,13 @@ void write_field_dimensions(void)
 		X IN RDB$FIELD_DIMENSIONS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_326), (char *) isc_326);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_326), (char *) isc_326);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 44, &isc_327, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 44, &isc_327, (short) 0);
 	   if (!isc_327.isc_331 || isc_status [1]) break;
 #line 2907 "backup.epp"
 		put(tdgbl, rec_field_dimensions);
@@ -7991,7 +7991,7 @@ void write_filters(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -7999,13 +7999,13 @@ void write_filters(void)
 		X IN RDB$FILTERS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_317), (char *) isc_317);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_317), (char *) isc_317);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 332, &isc_318, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 332, &isc_318, (short) 0);
 	   if (!isc_318.isc_322 || isc_status [1]) break;
 #line 2942 "backup.epp"
 		put(tdgbl, rec_filter);
@@ -8065,7 +8065,7 @@ void write_functions(void)
  **************************************/
 	GDS_NAME func;
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -8073,13 +8073,13 @@ void write_functions(void)
 		X IN RDB$FUNCTIONS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_307), (char *) isc_307);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_307), (char *) isc_307);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 364, &isc_308, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 364, &isc_308, (short) 0);
 	   if (!isc_308.isc_313 || isc_status [1]) break;
 #line 2982 "backup.epp"
 		put(tdgbl, rec_function);
@@ -8161,14 +8161,14 @@ void write_function_args( GDS_NAME funcptr)
 			X.RDB$FUNCTION_NAME EQ funcptr*/
 		{
                 if (!tdgbl->handles_write_function_args_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_291), (char *) isc_291);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_291), (char *) isc_291);
 		isc_vtov ((char*)funcptr, (char*)isc_292.isc_293, 32);
 		if (tdgbl->handles_write_function_args_req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_292, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_292, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 54, &isc_294, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 54, &isc_294, (short) 0);
 		   if (!isc_294.isc_296 || isc_status [1]) break;
 #line 3032 "backup.epp"
 
@@ -8234,14 +8234,14 @@ void write_function_args( GDS_NAME funcptr)
 			X.RDB$FUNCTION_NAME EQ funcptr*/
 		{
                 if (!tdgbl->handles_write_function_args_req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_279), (char *) isc_279);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) sizeof (isc_279), (char *) isc_279);
 		isc_vtov ((char*)funcptr, (char*)isc_280.isc_281, 32);
 		if (tdgbl->handles_write_function_args_req_handle1)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_280, (short) 0);
+                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_280, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 46, &isc_282, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle1, (short) 1, (short) 46, &isc_282, (short) 0);
 		   if (!isc_282.isc_284 || isc_status [1]) break;
 #line 3060 "backup.epp"
 
@@ -8281,15 +8281,15 @@ void write_function_args( GDS_NAME funcptr)
 					X2.RDB$ARGUMENT_POSITION = X.RDB$ARGUMENT_POSITION*/
 				{
                                 if (!tdgbl->handles_write_function_args_req_handle2)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) sizeof (isc_271), (char *) isc_271);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) sizeof (isc_271), (char *) isc_271);
 				isc_vtov ((char*)funcptr, (char*)isc_272.isc_273, 32);
 				isc_272.isc_274 = isc_282.isc_290;
 				if (tdgbl->handles_write_function_args_req_handle2)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_272, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 34, &isc_272, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) 1, (short) 6, &isc_275, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_function_args_req_handle2, (short) 1, (short) 6, &isc_275, (short) 0);
 				   if (!isc_275.isc_276 || isc_status [1]) break;;
 #line 3079 "backup.epp"
 
@@ -8348,7 +8348,7 @@ void write_generators(void)
  *	Write any defined generators.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 	TEXT temp[GDS_NAME_LEN];
 
 	TGBL tdgbl = GET_THREAD_DATA;
@@ -8357,13 +8357,13 @@ void write_generators(void)
 		X IN RDB$GENERATORS WITH X.RDB$SYSTEM_FLAG MISSING OR X.RDB$SYSTEM_FLAG NE 1*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_267), (char *) isc_267);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_267), (char *) isc_267);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 34, &isc_268, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 34, &isc_268, (short) 0);
 	   if (!isc_268.isc_270 || isc_status [1]) break;
 #line 3120 "backup.epp"
 		put(tdgbl, rec_generator);
@@ -8382,7 +8382,7 @@ void write_generators(void)
 				isc_268.isc_269, temp, l, sizeof(temp));
 #line 3129 "backup.epp"
 #pragma FB_COMPILER_MESSAGE("BRS: casting SINT64 to SLONG")
-		BURP_verbose (165, temp, (void*) (long) value, NULL, NULL, NULL);
+		BURP_verbose (165, temp, (void*) (SLONG) value, NULL, NULL, NULL);
 		// msg 165 writing generator %s value %ld
 	/*END_FOR;*/
 	   }
@@ -8416,8 +8416,8 @@ void write_global_fields(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE,
-		req_handle3 = NULL_HANDLE, req_handle4 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL, req_handle2 = NULL,
+		req_handle3 = NULL, req_handle4 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -8437,13 +8437,13 @@ void write_global_fields(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_229), (char *) isc_229);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_229), (char *) isc_229);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 316, &isc_230, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 316, &isc_230, (short) 0);
 		   if (!isc_230.isc_243 || isc_status [1]) break;
 #line 3174 "backup.epp"
 
@@ -8609,13 +8609,13 @@ void write_global_fields(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_209), (char *) isc_209);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_209), (char *) isc_209);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 268, &isc_210, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 268, &isc_210, (short) 0);
 		   if (!isc_210.isc_221 || isc_status [1]) break;
 #line 3238 "backup.epp"
 
@@ -8694,14 +8694,14 @@ void write_global_fields(void)
 					F IN RDB$FIELDS WITH F.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!req_handle2)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_200), (char *) isc_200);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_200), (char *) isc_200);
 				isc_vtov ((char*)isc_210.isc_220, (char*)isc_201.isc_202, 32);
 				if (req_handle2)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_201, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_201, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 10, &isc_203, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 10, &isc_203, (short) 0);
 				   if (!isc_203.isc_204 || isc_status [1]) break;
 #line 3268 "backup.epp"
 					
@@ -8749,14 +8749,14 @@ void write_global_fields(void)
 					F IN RDB$FIELDS WITH F.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 				{
                                 if (!req_handle3)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_183), (char *) isc_183);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_183), (char *) isc_183);
 				isc_vtov ((char*)isc_210.isc_220, (char*)isc_184.isc_185, 32);
 				if (req_handle3)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle3, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_184, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_184, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 38, &isc_186, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 1, (short) 38, &isc_186, (short) 0);
 				   if (!isc_186.isc_189 || isc_status [1]) break;
 #line 3286 "backup.epp"
 					if (!(/*F.RDB$NULL_FLAG.NULL*/
@@ -8802,14 +8802,14 @@ void write_global_fields(void)
 							K IN RDB$FIELDS WITH K.RDB$FIELD_NAME = X.RDB$FIELD_NAME*/
 						{
                                                 if (!req_handle4)
-                                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle4, (short) sizeof (isc_176), (char *) isc_176);
+                                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle4, (short) sizeof (isc_176), (char *) isc_176);
 						isc_vtov ((char*)isc_210.isc_220, (char*)isc_177.isc_178, 32);
 						if (req_handle4)
-                                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle4, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_177, (short) 0);
+                                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_177, (short) 0);
 						if (!isc_status [1]) {
 						while (1)
 						   {
-                                                   isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 6, &isc_179, (short) 0);
+                                                   isc_receive (isc_status, (isc_handle*) &req_handle4, (short) 1, (short) 6, &isc_179, (short) 0);
 						   if (!isc_179.isc_180 || isc_status [1]) break;
 #line 3303 "backup.epp"
 							if (!(/*K.RDB$FIELD_PRECISION.NULL*/
@@ -8884,7 +8884,7 @@ void write_procedures(void)
  **************************************/
 	GDS_NAME proc;
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -8892,13 +8892,13 @@ void write_procedures(void)
 		X IN RDB$PROCEDURES*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_164), (char *) isc_164);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_164), (char *) isc_164);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 128, &isc_165, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 128, &isc_165, (short) 0);
 	   if (!isc_165.isc_172 || isc_status [1]) break;
 #line 3350 "backup.epp"
 		put(tdgbl, rec_procedure);
@@ -8981,14 +8981,14 @@ void write_procedure_prms( GDS_NAME procptr)
 		X IN RDB$PROCEDURE_PARAMETERS WITH X.RDB$PROCEDURE_NAME EQ procptr*/
 	{
         if (!tdgbl->handles_write_procedure_prms_req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) sizeof (isc_154), (char *) isc_154);
 	isc_vtov ((char*)procptr, (char*)isc_155.isc_156, 32);
 	if (tdgbl->handles_write_procedure_prms_req_handle1)
-           isc_start_and_send (isc_status, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_155, (short) 0);
+           isc_start_and_send (isc_status, (isc_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_155, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) 1, (short) 78, &isc_157, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &tdgbl->handles_write_procedure_prms_req_handle1, (short) 1, (short) 78, &isc_157, (short) 0);
 	   if (!isc_157.isc_161 || isc_status [1]) break;
 #line 3395 "backup.epp"
 		put(tdgbl, rec_procedure_prm);
@@ -9042,7 +9042,7 @@ void write_ref_constraints(void)
  *	each referential constraint. 
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9050,13 +9050,13 @@ void write_ref_constraints(void)
 		X IN RDB$REF_CONSTRAINTS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_146), (char *) isc_146);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_146), (char *) isc_146);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 98, &isc_147, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 98, &isc_147, (short) 0);
 	   if (!isc_147.isc_153 || isc_status [1]) break;
 #line 3431 "backup.epp"
 		put(tdgbl, rec_ref_constraint);
@@ -9107,7 +9107,7 @@ void write_rel_constraints(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9115,13 +9115,13 @@ void write_rel_constraints(void)
 		X IN RDB$RELATION_CONSTRAINTS*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_136), (char *) isc_136);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_136), (char *) isc_136);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 120, &isc_137, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 120, &isc_137, (short) 0);
 	   if (!isc_137.isc_144 || isc_status [1]) break;
 #line 3466 "backup.epp"
 		put(tdgbl, rec_rel_constraint);
@@ -9183,8 +9183,8 @@ void write_relations(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE, req_handle3 =
-		NULL_HANDLE, req_handle4 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL, req_handle2 = NULL, req_handle3 =
+		NULL, req_handle4 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9203,13 +9203,13 @@ void write_relations(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_119), (char *) isc_119);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_119), (char *) isc_119);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 396, &isc_120, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 396, &isc_120, (short) 0);
 		   if (!isc_120.isc_128 || isc_status [1]) break;
 #line 3518 "backup.epp"
 
@@ -9308,13 +9308,13 @@ void write_relations(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_110), (char *) isc_110);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_110), (char *) isc_110);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 62, &isc_111, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 62, &isc_111, (short) 0);
 		   if (!isc_111.isc_116 || isc_status [1]) break;
 #line 3569 "backup.epp"
 
@@ -9349,14 +9349,14 @@ void write_relations(void)
 					R IN RDB$RELATIONS WITH R.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!req_handle2)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_103), (char *) isc_103);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_103), (char *) isc_103);
 				isc_vtov ((char*)isc_111.isc_115, (char*)isc_104.isc_105, 32);
 				if (req_handle2)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_104, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_104, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 6, &isc_106, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 6, &isc_106, (short) 0);
 				   if (!isc_106.isc_107 || isc_status [1]) break;
 #line 3589 "backup.epp"
 					if (!(/*R.RDB$FLAGS.NULL*/
@@ -9385,14 +9385,14 @@ void write_relations(void)
 					R IN RDB$RELATIONS WITH R.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!req_handle3)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle3, (short) sizeof (isc_96), (char *) isc_96);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle3, (short) sizeof (isc_96), (char *) isc_96);
 				isc_vtov ((char*)isc_111.isc_115, (char*)isc_97.isc_98, 32);
 				if (req_handle3)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle3, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_97, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle3, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_97, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &req_handle3, (short) 1, (short) 36, &isc_99, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &req_handle3, (short) 1, (short) 36, &isc_99, (short) 0);
 				   if (!isc_99.isc_101 || isc_status [1]) break;
 #line 3600 "backup.epp"
 					if (!/*R.RDB$SECURITY_CLASS.NULL*/
@@ -9427,14 +9427,14 @@ void write_relations(void)
 					R IN RDB$RELATIONS WITH R.RDB$RELATION_NAME = X.RDB$RELATION_NAME*/
 				{
                                 if (!req_handle4)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle4, (short) sizeof (isc_87), (char *) isc_87);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle4, (short) sizeof (isc_87), (char *) isc_87);
 				isc_vtov ((char*)isc_111.isc_115, (char*)isc_88.isc_89, 32);
 				if (req_handle4)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle4, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_88, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle4, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_88, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &req_handle4, (short) 1, (short) 298, &isc_90, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &req_handle4, (short) 1, (short) 298, &isc_90, (short) 0);
 				   if (!isc_90.isc_93 || isc_status [1]) break;
 #line 3613 "backup.epp"
 					put_source_blob (att_relation_ext_description2, att_relation_ext_description, (ISC_QUAD *)&/*R.RDB$EXTERNAL_DESCRIPTION*/
@@ -9516,7 +9516,7 @@ void write_shadow_files(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9526,13 +9526,13 @@ void write_shadow_files(void)
 		AND X.RDB$SHADOW_NUMBER NE 0*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_78), (char *) isc_78);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_78), (char *) isc_78);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 270, &isc_79, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 270, &isc_79, (short) 0);
 	   if (!isc_79.isc_82 || isc_status [1]) break;
 #line 3670 "backup.epp"
 		put(tdgbl, rec_files);
@@ -9590,7 +9590,7 @@ void write_sql_roles(void)
  *	each SQL roles. 
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 	TEXT temp[GDS_NAME_LEN];
 
 	TGBL tdgbl = GET_THREAD_DATA;
@@ -9599,13 +9599,13 @@ void write_sql_roles(void)
 		X IN RDB$ROLES*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_73), (char *) isc_73);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_73), (char *) isc_73);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 66, &isc_74, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 66, &isc_74, (short) 0);
 	   if (!isc_74.isc_77 || isc_status [1]) break;
 #line 3709 "backup.epp"
 
@@ -9653,7 +9653,7 @@ void write_triggers(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE, req_handle2 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL, req_handle2 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9671,13 +9671,13 @@ void write_triggers(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_59), (char *) isc_59);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_59), (char *) isc_59);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 102, &isc_60, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 102, &isc_60, (short) 0);
 		   if (!isc_60.isc_66 || isc_status [1]) break;
 #line 3755 "backup.epp"
 
@@ -9747,13 +9747,13 @@ void write_triggers(void)
 			X.RDB$SYSTEM_FLAG MISSING*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_47), (char *) isc_47);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_47), (char *) isc_47);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 98, &isc_48, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 98, &isc_48, (short) 0);
 		   if (!isc_48.isc_54 || isc_status [1]) break;
 #line 3787 "backup.epp"
 
@@ -9799,14 +9799,14 @@ void write_triggers(void)
 					X.RDB$TRIGGER_NAME = Y.RDB$TRIGGER_NAME*/
 				{
                                 if (!req_handle2)
-                                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle2, (short) sizeof (isc_40), (char *) isc_40);
+                                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle2, (short) sizeof (isc_40), (char *) isc_40);
 				isc_vtov ((char*)isc_48.isc_53, (char*)isc_41.isc_42, 32);
 				if (req_handle2)
-                                   isc_start_and_send (isc_status, (isc_req_handle*) &req_handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_41, (short) 0);
+                                   isc_start_and_send (isc_status, (isc_handle*) &req_handle2, (isc_handle*) &gds_trans, (short) 0, (short) 32, &isc_41, (short) 0);
 				if (!isc_status [1]) {
 				while (1)
 				   {
-                                   isc_receive (isc_status, (isc_req_handle*) &req_handle2, (short) 1, (short) 6, &isc_43, (short) 0);
+                                   isc_receive (isc_status, (isc_handle*) &req_handle2, (short) 1, (short) 6, &isc_43, (short) 0);
 				   if (!isc_43.isc_44 || isc_status [1]) break;
 #line 3808 "backup.epp"
 
@@ -9868,7 +9868,7 @@ void write_trigger_messages(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9878,13 +9878,13 @@ void write_trigger_messages(void)
 		WITH T.RDB$SYSTEM_FLAG NE 1 OR T.RDB$SYSTEM_FLAG MISSING*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_34), (char *) isc_34);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_34), (char *) isc_34);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 115, &isc_35, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 115, &isc_35, (short) 0);
 	   if (!isc_35.isc_37 || isc_status [1]) break;;
 #line 3853 "backup.epp"
 
@@ -9934,7 +9934,7 @@ void write_types(void)
  *	each type.
  *
  **************************************/
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -9943,13 +9943,13 @@ void write_types(void)
 		X.RDB$SYSTEM_FLAG MISSING*/
 	{
         if (!req_handle1)
-           isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_26), (char *) isc_26);
+           isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_26), (char *) isc_26);
 	if (req_handle1)
-           isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
-           isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 78, &isc_27, (short) 0);
+           isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 78, &isc_27, (short) 0);
 	   if (!isc_27.isc_31 || isc_status [1]) break;
 #line 3890 "backup.epp"
 		put(tdgbl, rec_system_type);
@@ -10009,7 +10009,7 @@ void write_user_privileges(void)
  *
  **************************************/
 	TEXT temp[GDS_NAME_LEN];
-	isc_req_handle req_handle1 = NULL_HANDLE;
+	isc_req_handle req_handle1 = NULL;
 
 	TGBL tdgbl = GET_THREAD_DATA;
 
@@ -10019,13 +10019,13 @@ void write_user_privileges(void)
 			X IN RDB$USER_PRIVILEGES*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_14), (char *) isc_14);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_14), (char *) isc_14);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 145, &isc_15, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 145, &isc_15, (short) 0);
 		   if (!isc_15.isc_20 || isc_status [1]) break;
 #line 3931 "backup.epp"
 			put(tdgbl, rec_user_privilege);
@@ -10082,13 +10082,13 @@ void write_user_privileges(void)
 			X IN RDB$USER_PRIVILEGES*/
 		{
                 if (!req_handle1)
-                   isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &req_handle1, (short) sizeof (isc_4), (char *) isc_4);
+                   isc_compile_request (isc_status, (isc_handle*) &DB, (isc_handle*) &req_handle1, (short) sizeof (isc_4), (char *) isc_4);
 		if (req_handle1)
-                   isc_start_request (isc_status, (isc_req_handle*) &req_handle1, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_start_request (isc_status, (isc_handle*) &req_handle1, (isc_handle*) &gds_trans, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
-                   isc_receive (isc_status, (isc_req_handle*) &req_handle1, (short) 0, (short) 141, &isc_5, (short) 0);
+                   isc_receive (isc_status, (isc_handle*) &req_handle1, (short) 0, (short) 141, &isc_5, (short) 0);
 		   if (!isc_5.isc_10 || isc_status [1]) break;
 #line 3954 "backup.epp"
 			put(tdgbl, rec_user_privilege);

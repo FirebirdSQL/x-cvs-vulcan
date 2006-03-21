@@ -134,7 +134,7 @@ typedef struct tsec {
     bool				tsec_service_gsec;
     bool				tsec_service_thd;
     pfn_svc_output		tsec_output_proc;
-    svc*				tsec_output_data;
+    Service*			tsec_output_data;
     IB_FILE*			tsec_output_file;
     SVC					tsec_service_blk;
 } *TSEC;

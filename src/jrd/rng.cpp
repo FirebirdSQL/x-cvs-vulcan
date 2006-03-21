@@ -21,7 +21,7 @@
  * Contributor(s): ______________________________________.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <string.h>
 #include "../jrd/jrd.h"
@@ -31,7 +31,7 @@
 #include "../jrd/exe.h"
 #include "gen/iberror.h"
 #include "../jrd/rse.h"
-#include "../jrd/lck.h"
+//#include "../jrd/lck.h"
 #include "../jrd/cch.h"
 #include "../jrd/rng.h"
 #include "../jrd/sbm.h"
@@ -76,7 +76,7 @@ void RNG_add_page(TDBB tdbb, ULONG page_number)
 	JRD_REQ request;
 	RNG refresh_range, next_refresh_range;
 	VEC page_locks;
-	LCK page_lock;
+	Lock* page_lock;
 	USHORT i, next_range;
 
 	request = tdbb->tdbb_request;
@@ -92,7 +92,7 @@ void RNG_add_page(TDBB tdbb, ULONG page_number)
 		next_range = FALSE;
 		if (page_locks = refresh_range->rng_page_locks)
 			for (i = 0; i < refresh_range->rng_pages; i++) {
-				page_lock = (LCK) page_locks->vec_object[i];
+				page_lock = (Lock*) page_locks->vec_object[i];
 				if (page_lock->lck_key.lck_long == page_number) {
 					next_range = TRUE;
 					break;
@@ -148,7 +148,7 @@ void RNG_add_record(TDBB tdbb, RPB * rpb)
 	JRD_REQ request;
 	RNG refresh_range, next_refresh_range;
 	VEC record_locks;
-	LCK record_lock;
+	Lock* record_lock;
 	USHORT i, next_range;
 
 	request = tdbb->tdbb_request;
@@ -164,7 +164,7 @@ void RNG_add_record(TDBB tdbb, RPB * rpb)
 		next_range = FALSE;
 		if (record_locks = refresh_range->rng_record_locks)
 			for (i = 0; i < refresh_range->rng_records; i++) {
-				record_lock = (LCK) record_locks->vec_object[i];
+				record_lock = (Lock*) record_locks->vec_object[i];
 				if (record_lock->lck_key.lck_long == rpb->rpb_number) {
 					next_range = TRUE;
 					break;
@@ -222,7 +222,7 @@ JRD_NOD RNG_add_relation(TDBB tdbb, JRD_NOD node)
 	RNG refresh_range;
 	JRD_NOD relation_node;
 	JRD_REL relation;
-	LCK relation_lock;
+	Lock* relation_lock;
 	VEC relation_locks;
 
 	request = tdbb->tdbb_request;
@@ -294,7 +294,7 @@ void RNG_add_uncommitted_record(TDBB tdbb, RPB * rpb)
 	JRD_REQ request;
 	RNG refresh_range, next_refresh_range;
 	VEC transaction_locks;
-	LCK transaction_lock;
+	Lock* transaction_lock;
 	USHORT i, next_range;
 
 	request = tdbb->tdbb_request;
@@ -310,7 +310,7 @@ void RNG_add_uncommitted_record(TDBB tdbb, RPB * rpb)
 		next_range = FALSE;
 		if (transaction_locks = refresh_range->rng_transaction_locks)
 			for (i = 0; i < refresh_range->rng_transactions; i++) {
-				transaction_lock = (LCK) transaction_locks->vec_object[i];
+				transaction_lock = (Lock*) transaction_locks->vec_object[i];
 				if (transaction_lock->lck_key.lck_long ==
 					rpb->rpb_transaction) {
 					next_range = TRUE;
@@ -365,7 +365,7 @@ DSC *RNG_begin(TDBB tdbb, JRD_NOD node, VLU impure)
  **************************************/
 	DBB dbb;
 	JRD_REQ request;
-	JRD_TRA transaction;
+	Transaction* transaction;
 	DSC desc, *desc2;
 	RNG refresh_range;
 	USHORT range_number;
@@ -585,14 +585,14 @@ void RNG_release_locks(TDBB tdbb, RNG refresh_range)
  *	Release all locks held by a refresh range.
  *
  **************************************/
-	LCK *lock_ptr;
+	Lock* *lock_ptr;
 	RNG *range_ptr;
 	USHORT i;
 
 /* release all the relation locks */
 
 	if (refresh_range->rng_relation_locks) {
-		lock_ptr = (LCK *) refresh_range->rng_relation_locks->vec_object;
+		lock_ptr = (Lock* *) refresh_range->rng_relation_locks->vec_object;
 		for (i = 0; i < refresh_range->rng_relations; i++) {
 			LCK_release(tdbb, *lock_ptr);
 			ALL_release(*lock_ptr);
@@ -605,7 +605,7 @@ void RNG_release_locks(TDBB tdbb, RNG refresh_range)
 /* release all the record locks */
 
 	if (refresh_range->rng_record_locks) {
-		lock_ptr = (LCK *) refresh_range->rng_record_locks->vec_object;
+		lock_ptr = (Lock* *) refresh_range->rng_record_locks->vec_object;
 		for (i = 0; i < refresh_range->rng_records; i++) {
 			RLCK_unlock_record(*lock_ptr, 0);
 			*lock_ptr = NULL;
@@ -617,7 +617,7 @@ void RNG_release_locks(TDBB tdbb, RNG refresh_range)
 /* release all page locks */
 
 	if (refresh_range->rng_page_locks) {
-		lock_ptr = (LCK *) refresh_range->rng_page_locks->vec_object;
+		lock_ptr = (Lock* *) refresh_range->rng_page_locks->vec_object;
 		for (i = 0; i < refresh_range->rng_pages; i++) {
 			LCK_release(tdbb, *lock_ptr);
 			ALL_release(*lock_ptr);
@@ -630,7 +630,7 @@ void RNG_release_locks(TDBB tdbb, RNG refresh_range)
 /* release all transaction locks */
 
 	if (refresh_range->rng_transaction_locks) {
-		lock_ptr = (LCK *) refresh_range->rng_transaction_locks->vec_object;
+		lock_ptr = (Lock* *) refresh_range->rng_transaction_locks->vec_object;
 		for (i = 0; i < refresh_range->rng_transactions; i++) {
 			LCK_release(tdbb, *lock_ptr);
 			ALL_release(*lock_ptr);
@@ -694,7 +694,7 @@ void RNG_shutdown_attachment(TDBB tdbb, ATT attachment)
 	RNG refresh_range;
 	USHORT range_number, i;
 	JRD_REQ request;
-	LCK *lock_ptr;
+	Lock* *lock_ptr;
 
 	Sync sync(&attachment->syncRequests, "RNG_shutdown_attachment");
 	sync.lock(Shared);
@@ -710,7 +710,7 @@ void RNG_shutdown_attachment(TDBB tdbb, ATT attachment)
 
 					if (refresh_range->rng_page_locks)
 						{
-						lock_ptr = (LCK*) refresh_range->rng_page_locks->vec_object;
+						lock_ptr = (Lock**) refresh_range->rng_page_locks->vec_object;
 						
 						for (i = 0; i < refresh_range->rng_pages; i++) 
 							{
@@ -723,7 +723,7 @@ void RNG_shutdown_attachment(TDBB tdbb, ATT attachment)
 
 					if (refresh_range->rng_transaction_locks) 
 						{
-						lock_ptr = (LCK *) refresh_range-> rng_transaction_locks->vec_object;
+						lock_ptr = (Lock* *) refresh_range-> rng_transaction_locks->vec_object;
 						
 						for (i = 0; i < refresh_range->rng_transactions; i++) 
 							{
@@ -791,7 +791,7 @@ static void post_event(RNG refresh_range)
  *
  **************************************/
 	DBB dbb;
-	LCK dbb_lock;
+	Lock* dbb_lock;
 	ISC_STATUS_ARRAY status;
 
 	dbb = GET_DBB;

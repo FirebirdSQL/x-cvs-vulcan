@@ -22,7 +22,7 @@
  *  All Rights Reserved.
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "UserData.h"
 #include "ibase.h"
@@ -46,6 +46,8 @@ void UserData::init(void)
 	gid = 0;
 	uid = 0;
 	securityAttach = false;
+	authenticator = false;
+	authenticating = false;
 }
 
 UserData::~UserData(void)
@@ -244,7 +246,11 @@ void UserData::processDpbItem(int type, int length, const UCHAR* data)
 		
 		case isc_dpb_sec_attach:
 			securityAttach = getNumber(length, data) != 0;
-			break;				
+			break;
+		
+		case isc_dpb_sql_role_name:
+			roleName = getString(length, data);
+			break;
 		}	
 }
 
@@ -334,6 +340,10 @@ void UserData::processUserInfoItem(int type, int length, const UCHAR* data)
 			gid = getNumber(length, data);
 			break;
 		
+		case fb_info_user_authenticator:
+			authenticator = getNumber(length, data) != 0;
+			break;
+			
 		case isc_infunk:
 			type = *data++;
 			break;
@@ -347,11 +357,12 @@ JString UserData::getOldPasswordHash(void)
 	
 	if (encryptedPassword.IsEmpty())
 		{
-		ENC_crypt(password, PASSWORD_SALT, pw1);
-		ENC_crypt(pw1 + 2, PASSWORD_SALT, pw2);
+		ENC_crypt(pw1, sizeof(pw1), password, PASSWORD_SALT);
+		ENC_crypt(pw2, sizeof(pw2), pw1 + 2, PASSWORD_SALT);
 		}
 	else
-		ENC_crypt(encryptedPassword, PASSWORD_SALT, pw2);
+		//ENC_crypt(pw2, sizeof(pw2), (const char*) encryptedPassword + 2, PASSWORD_SALT);
+		ENC_crypt(pw2, sizeof(pw2), (const char*) encryptedPassword, PASSWORD_SALT);
 		
 	
 	return pw2 + 2;

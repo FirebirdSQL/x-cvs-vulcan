@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *      PROGRAM:        JRD access method
  *      MODULE:         common.h
@@ -55,7 +56,7 @@ $Id$
 #ifndef JRD_COMMON_H
 #define JRD_COMMON_H
 
-#include "firebird.h"
+//#include "fbdev.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -152,8 +153,8 @@ $Id$
 /*****************************************************
 * DEC VAX/VMS and AlphaVMS 
 *****************************************************/
-#ifdef VMS
-#include "vms_common.h"
+#ifdef __VMS
+#include "jrd_vms.h"
 #endif /* VMS */
 
 
@@ -166,6 +167,13 @@ $Id$
 #include "aix.h"
 #endif /* IBM AIX */
 
+/*****************************************************
+* IBM MVS
+*****************************************************/
+
+#ifdef MVS						/* IBM MVS */
+#include "jrd_mvs.h"
+#endif /* IBM MVS */
 
 
 /*****************************************************
@@ -199,6 +207,12 @@ $Id$
 #define NO_CHECKSUM     1
 #define SYS_ARG		isc_arg_unix
 #endif /* UNIX */
+
+
+
+/* Turn off NFS checking everywhere for now */
+#undef NO_NFS
+#define NO_NFS
 
 
 /* various declaration modifiers */
@@ -268,7 +282,7 @@ $Id$
 
 /* sys/paramh.h : compatibility purposes */
 #ifndef NOFILE
-#ifdef VMS
+#ifdef __VMS
 #define NOFILE      32
 #else
 #define NOFILE      20
@@ -280,7 +294,7 @@ $Id$
 
 #ifndef INT64_DEFINED			/* 64 bit */
 typedef long long int SINT64;
-typedef unsigned long long int UINT64;
+// typedef unsigned long long int UINT64; /* already defined in fb_types.h */
 #else
 #undef INT64_DEFINED
 #endif
@@ -393,6 +407,12 @@ typedef struct
 
 #ifndef ODS_ALIGNMENT
 #define ODS_ALIGNMENT           4
+#endif
+
+#ifndef FORMAT_ALIGNMENT
+// Alignment for items in record format. Used for databases after ODS11.
+// Always 64-bit to ensure ODS compatibility with 64-bit versions of the engine
+#define FORMAT_ALIGNMENT           8
 #endif
 
 #ifndef SYSCALL_INTERRUPTED
@@ -542,6 +562,32 @@ typedef struct in_sw_tab_t {
 #ifndef HAVE_WORKING_VFORK
 #define vfork fork
 #endif
+
+static const TEXT FB_SHORT_MONTHS[][4] =
+{
+	"Jan", "Feb", "Mar",
+	"Apr", "May", "Jun",
+	"Jul", "Aug", "Sep",
+	"Oct", "Nov", "Dec",
+	"\0"
+};
+
+static const TEXT* FB_LONG_MONTHS_UPPER[] =
+{
+	"JANUARY",
+	"FEBRUARY",
+	"MARCH",
+	"APRIL",
+	"MAY",
+	"JUNE",
+	"JULY",
+	"AUGUST",
+	"SEPTEMBER",
+	"OCTOBER",
+	"NOVEMBER",
+	"DECEMBER",
+	0
+};
 
 enum LockType {
 	None,

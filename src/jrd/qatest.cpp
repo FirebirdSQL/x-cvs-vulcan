@@ -89,7 +89,7 @@ defined APIs for this function.
 
 
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/ib_stdio.h"
 #include <stdlib.h>
 #include <string.h>
@@ -139,7 +139,7 @@ int QATEST_entrypoint(ULONG * function, void *arg1, void *arg2, void *arg3)
 #ifdef WIN_NT
 	HANDLE desc;
 #endif
-	FIL file;
+	File *file;
 
 
 	switch (*function) {

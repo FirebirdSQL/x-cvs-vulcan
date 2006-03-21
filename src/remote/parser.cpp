@@ -24,7 +24,7 @@
 $Id$
 */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include <stdlib.h>
 #include "../jrd/ib_stdio.h"

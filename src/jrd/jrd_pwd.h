@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		jrd_pwd.h
@@ -30,13 +31,14 @@
 #include "../jrd/ibase.h"
 //#include "../jrd/smp_impl.h"
 #include "../jrd/thd.h"
-#include "SyncObject.h"
+#include "Mutex.h"
+#include "JString.h"
 
-#ifndef MAX_PASSWORD_ENC_LENGTH
-#define MAX_PASSWORD_ENC_LENGTH 12
-#endif
 
-#define PASSWORD_SALT  "9z"
+const int MAX_PASSWORD_ENC_LENGTH = 12;	// passed by remote protocol
+const int MAX_PASSWORD_LENGTH = 64;		// used to store passwords internally
+//static const char* PASSWORD_SALT  = "9z";	// for old ENC_crypt()
+const int SALT_LENGTH = 12;				// measured after base64 coding
 
 class SecurityDatabase
 {
@@ -59,17 +61,12 @@ private:
 	static const UCHAR PWD_REQUEST[256];
 	static const UCHAR TPB[4];
 
-	//V4Mutex mutex;
-	SyncObject		syncObject;
-	
-	ISC_STATUS_ARRAY status;
-
-	isc_db_handle lookup_db;
-	isc_req_handle lookup_req;
-
-	static const bool is_cached;
-
-	int counter;
+	Mutex				syncObject;
+	ISC_STATUS_ARRAY	status;
+	isc_db_handle		lookup_db;
+	isc_req_handle		lookup_req;
+	static const bool	is_cached;
+	int					counter;
 
 	void fini();
 	void init();

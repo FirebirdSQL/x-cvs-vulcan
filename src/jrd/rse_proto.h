@@ -24,25 +24,36 @@
 #ifndef JRD_RSE_PROTO_H
 #define JRD_RSE_PROTO_H
 
-#include "../jrd/jrd.h"
+//#include "../jrd/jrd.h"
 #include "../jrd/rse.h"
 
-void RSE_close(TDBB, class Rsb *);
+class RecordSource;
+
+struct record_param;
+struct Bookmark;
+struct jrd_nod;
+
+/***
+void RSE_open(thread_db*, RecordSource*);
+BOOLEAN RSE_get_record(thread_db*, RecordSource*, RSE_GET_MODE);
+void RSE_close(thread_db*, RecordSource*);
+***/
+
 #ifdef PC_ENGINE
-BOOLEAN RSE_find_dbkey(TDBB, class Rsb *, struct jrd_nod *, struct jrd_nod *);
-BOOLEAN RSE_find_record(TDBB, class Rsb *, USHORT, USHORT,
-							   struct jrd_nod *);
+BOOLEAN RSE_find_dbkey(thread_db*, RecordSource*, jrd_nod *, jrd_nod *);
+BOOLEAN RSE_find_record(thread_db*, RecordSource*, USHORT, USHORT, jrd_nod *);
 #endif
-BOOLEAN RSE_get_record(TDBB, class Rsb *, enum rse_get_mode);
+
+
 #ifdef PC_ENGINE
-struct bkm *RSE_get_bookmark(TDBB, class Rsb *);
-void RSE_mark_crack(TDBB, class Rsb *, USHORT);
+struct Bookmark* RSE_get_bookmark(thread_db*, RecordSource*);
+void RSE_mark_crack(thread_db*, RecordSource*, USHORT);
 #endif
-void RSE_open(TDBB, class Rsb *);
+
+
 #ifdef PC_ENGINE
-BOOLEAN RSE_reset_position(TDBB, class Rsb *, struct rpb *);
-BOOLEAN RSE_set_bookmark(TDBB, class Rsb *, struct rpb *,
-								struct bkm *);
+BOOLEAN RSE_reset_position(thread_db*, RecordSource*, record_param* );
+BOOLEAN RSE_set_bookmark(thread_db*, RecordSource*, record_param* , Bookmark*);
 #endif
 
 #ifdef PC_ENGINE

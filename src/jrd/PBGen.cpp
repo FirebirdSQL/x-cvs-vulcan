@@ -28,11 +28,17 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "PBGen.h"
 
 PBGen::PBGen(void)
 {
+}
+
+
+PBGen::PBGen(UCHAR version)
+{
+	appendUCHAR(version);
 }
 
 PBGen::~PBGen(void)
@@ -49,7 +55,7 @@ void PBGen::putParameter(UCHAR parameter, int value)
 void PBGen::putParameter(UCHAR parameter, const TEXT* string)
 {
 	appendUCHAR(parameter);
-	int length = strlen (string);
+	int length = (int) strlen (string);
 	appendUCHAR(length);
 	appendCharacters(length, string);
 }
@@ -59,4 +65,17 @@ void PBGen::putParameter(UCHAR parameter, int length, const TEXT* string)
 	appendUCHAR(parameter);
 	appendUCHAR(length);
 	appendCharacters(length, string);
+}
+
+void PBGen::putParameter(UCHAR parameter, int length, const UCHAR* string)
+{
+	appendUCHAR(parameter);
+	appendUCHAR(length);
+	appendData(length, string);
+}
+
+void PBGen::putParameter(UCHAR parameter)
+{
+	appendUCHAR(parameter);
+	appendUCHAR(0);
 }

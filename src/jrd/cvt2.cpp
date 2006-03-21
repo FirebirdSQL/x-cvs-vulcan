@@ -25,7 +25,7 @@
  * other datatypes by request from Ann Harrison.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/jrd.h"
 #include "../jrd/val.h"
@@ -47,6 +47,8 @@
 #include "../jrd/constants.h"
 #include "../jrd/tra.h"
 #include "../jrd/req.h"
+#include "../jrd/BlobID.h"
+#include "../jrd/blb.h"
 
 #ifdef VMS
 double MTH$CVT_D_G(), MTH$CVT_G_D();
@@ -98,7 +100,7 @@ static const BYTE compare_priority[] = { dtype_unknown,	/* dtype_unknown through
 };								/* int64 goes right after long       */
 
 
-SSHORT CVT2_compare(tdbb *tdbb, const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
+SSHORT CVT2_compare(thread_db* tdbb, const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 {
 /**************************************
  *
@@ -561,7 +563,7 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
  *
  **************************************/
 	/* CHARSET_ID charset1, charset2; */
-	TDBB tdbb = NULL;
+	thread_db* tdbb = NULL;
 	SSHORT l1, l2;
 	USHORT ttype1, ttype2;
 	SSHORT ret_val = 0;
@@ -579,7 +581,8 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 	/* Is arg2 a blob? */
 	if (arg2->dsc_dtype == dtype_blob)
 	{
-		BLB	blob1, blob2;
+		blb* blob1;
+		blb* blob2;
 		UCHAR buffer1[BUFFER_LARGE], buffer2[BUFFER_LARGE];
 	
 	    /* Same blob id address? */
@@ -588,10 +591,9 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 		else
 		{
 			/* Second test for blob id, checking relation and slot. */
-			BID bid1 = (BID) arg1->dsc_address, bid2 = (BID) arg2->dsc_address;
-			if (bid1->bid_relation_id == bid2->bid_relation_id &&
-				(!bid1->bid_relation_id && bid1->bid_stuff.bid_blob == bid1->bid_stuff.bid_blob ||
-				bid1->bid_relation_id && bid1->bid_stuff.bid_number == bid2->bid_stuff.bid_number))
+			bid* bid1 = (bid*) arg1->dsc_address;
+			bid* bid2 = (bid*) arg2->dsc_address;
+			if (*bid1 == *bid2)
 				return 0;
 		}
 	
@@ -611,8 +613,8 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 		INTL_ASSIGN_TTYPE(&desc1, ttype1);
 		INTL_ASSIGN_TTYPE(&desc2, ttype2);
 
-	    blob1 = BLB_open(tdbb, tdbb->tdbb_request->req_transaction, (BID) arg1->dsc_address);
-		blob2 = BLB_open(tdbb, tdbb->tdbb_request->req_transaction, (BID) arg2->dsc_address);
+	    blob1 = BLB_open(tdbb, tdbb->tdbb_request->req_transaction, (bid*) arg1->dsc_address);
+		blob2 = BLB_open(tdbb, tdbb->tdbb_request->req_transaction, (bid*) arg2->dsc_address);
 
 		/* Can we have a lightweight, binary comparison? */
 		bin_cmp = (arg1->dsc_sub_type != BLOB_text || arg2->dsc_sub_type != BLOB_text);
@@ -750,7 +752,7 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 	/* The second parameter should be a string. */
 	else
 	{
-		BLB blob1;
+		blb* blob1;
 		UCHAR buffer1[BUFFER_LARGE];
 		STR temp_str = 0;
 		UCHAR *dbuf = 0;
@@ -807,7 +809,7 @@ SSHORT CVT2_blob_compare(const dsc* arg1, const dsc* arg2, FPTR_ERROR err)
 			dbuf = buffer1;
 
 		desc1.dsc_address = dbuf;
-		blob1 = BLB_open(tdbb, tdbb->tdbb_request->req_transaction, (BID) arg1->dsc_address);
+		blob1 = BLB_open(tdbb, tdbb->tdbb_request->req_transaction, (bid*) arg1->dsc_address);
 	    l1 = BLB_get_segment(tdbb, blob1, dbuf, arg2->dsc_length);
 		desc1.dsc_length = l1;
 	    ret_val = CVT2_compare(tdbb, &desc1, arg2, err);
@@ -906,7 +908,7 @@ USHORT CVT2_make_string2(const dsc* desc,
 
 	if (desc->dsc_dtype <= dtype_any_text) {
 		USHORT cs1, cs2;
-		TDBB tdbb = NULL;
+		thread_db* tdbb = NULL;
 
 		if (to_interp == from_interp) {
 			*address = from_buf;

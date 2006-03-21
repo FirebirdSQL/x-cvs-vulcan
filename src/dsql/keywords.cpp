@@ -1,39 +1,30 @@
 /*
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- * You may obtain a copy of the Licence at
- * http://www.gnu.org/licences/lgpl.html
- * 
- * This module is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public Licence for more details.
- * 
- * As a special exception the copyright holders of this source file 
- * also give you permission to include this file in a library with 
- * any other source code that has been released under an Open Source 
- * Initiative certificed licence.  More information about OSI certification 
- * can be found at: http://www.opensource.org 
- * 
- * This module was created by members of the firebird development 
- * team.  All individual contributions remain the Copyright (C) of 
- * those individuals and all rights are reserved.  Contributors to 
- * this file are either listed below or can be obtained from a CVS 
- * history command.
+ *  The contents of this file are subject to the Initial
+ *  Developer's Public License Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the
+ *  License. You may obtain a copy of the License at
+ *  http://www.ibphoenix.com/main.nfs?a=ibphoenix&page=ibp_idpl.
  *
- *  Created by:  Mark O'Donohue <mark.odonohue@ludwig.edu.au>
+ *  Software distributed under the License is distributed AS IS,
+ *  WITHOUT WARRANTY OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing rights
+ *  and limitations under the License.
  *
- *  Contributor(s):
- * 
+ *  The Original Code was created by Mark O'Donohue
+ *  for the Firebird Open Source RDBMS project.
  *
- *  $Id$
+ *  Copyright (c) 2002 Mark O'Donohue <skywalker@users.sourceforge.net>
+ *  and all contributors signed below.
  *
+ *  All Rights Reserved.
+ *  Contributor(s): ______________________________________.
+ *
+ *  2005.05.19 Claudio Valderrama: signal tokens that aren't reserved in the
+ *  engine thanks to special handling.
  */
 
 
-#include "firebird.h"
+#include "fbdev.h"
 
 #ifdef HAVE_STRING_H
 #include <string.h>
@@ -75,22 +66,23 @@ static const TOK tokens[] = {
 	{AUTO, "AUTO", 1},
 	{AVG, "AVG", 1},
 	{BACKUP, "BACKUP", 2},
-	{BASENAME, "BASE_NAME", 1},
+//	{BASENAME, "BASE_NAME", 1},
 	{BEFORE, "BEFORE", 1},
 	{BEGIN, "BEGIN", 1},
 	{BETWEEN, "BETWEEN", 1},
 	{BIGINT, "BIGINT", 2},
 	{BLOB, "BLOB", 1},
+	{BLOCK, "BLOCK", 1},
 	{KW_BREAK, "BREAK", 2}, 
 	{BY, "BY", 1},
-	{CACHE, "CACHE", 1},
+//	{CACHE, "CACHE", 1},
 	{CASCADE, "CASCADE", 1},
 	{CASE, "CASE", 2},
 	{CAST, "CAST", 1},
 	{KW_CHAR, "CHAR", 1},
 	{CHARACTER, "CHARACTER", 1},
 	{CHECK, "CHECK", 1},
-	{CHECK_POINT_LEN, "CHECK_POINT_LENGTH", 1},
+//	{CHECK_POINT_LEN, "CHECK_POINT_LENGTH", 1},
 	{CLOSE, "CLOSE", 2},
 	{COALESCE, "COALESCE", 2},
 	{COLLATE, "COLLATE", 1},
@@ -103,6 +95,7 @@ static const TOK tokens[] = {
 	{CONTAINING, "CONTAINING", 1},
 	{COUNT, "COUNT", 1},
 	{CREATE, "CREATE", 1},
+	{CROSS, "CROSS", 2},
 	{CSTRING, "CSTRING", 1},
 	{CURRENT, "CURRENT", 1},
 	{CURRENT_CONNECTION, "CURRENT_CONNECTION", 2},
@@ -158,10 +151,11 @@ static const TOK tokens[] = {
 	{GEN_ID, "GEN_ID", 1},
 	{GRANT, "GRANT", 1},
 	{GROUP, "GROUP", 1},
-	{GROUP_COMMIT_WAIT, "GROUP_COMMIT_WAIT_TIME", 1},
+//	{GROUP_COMMIT_WAIT, "GROUP_COMMIT_WAIT_TIME", 1},
 	{HAVING, "HAVING", 1},
 	{HOUR, "HOUR", 2},
 	{IF, "IF", 1},
+	{IIF, "IIF", 2},
 	{KW_IN, "IN", 1},
 	{INACTIVE, "INACTIVE", 1},
 	{INDEX, "INDEX", 1},
@@ -182,8 +176,8 @@ static const TOK tokens[] = {
 	{LENGTH, "LENGTH", 1},
 	{LEVEL, "LEVEL", 1},
 	{LIKE, "LIKE", 1},
-	{LOGFILE, "LOGFILE", 1},
-	{LOG_BUF_SIZE, "LOG_BUFFER_SIZE", 1},
+//	{LOGFILE, "LOGFILE", 1},
+//	{LOG_BUF_SIZE, "LOG_BUFFER_SIZE", 1},
 	{KW_LONG, "LONG", 1},
 	{MANUAL, "MANUAL", 1},
 	{MAXIMUM, "MAX", 1},
@@ -198,6 +192,7 @@ static const TOK tokens[] = {
 	{NATIONAL, "NATIONAL", 1},
 	{NATURAL, "NATURAL", 1},
 	{NCHAR, "NCHAR", 1},
+	{NEXT, "NEXT", 2},
 	{NO, "NO", 1},
 	{NOT, "NOT", 1},
 	{NULLIF, "NULLIF", 2},
@@ -205,7 +200,7 @@ static const TOK tokens[] = {
 	{NULLS, "NULLS", 2},
 	{LOCK, "LOCK", 2},
 	{KW_NUMERIC, "NUMERIC", 1},
-	{NUM_LOG_BUFS, "NUM_LOG_BUFFERS", 1},
+//	{NUM_LOG_BUFS, "NUM_LOG_BUFFERS", 1},
 	{OF, "OF", 1},
 	{ON, "ON", 1},
 	{ONLY, "ONLY", 1},
@@ -218,7 +213,7 @@ static const TOK tokens[] = {
 	{OVERFLOW, "OVERFLOW", 1},
 	{PAGE, "PAGE", 1},
 	{PAGES, "PAGES", 1},
-	{PAGE_SIZE, "PAGE_SIZE", 1},
+	{KW_PAGE_SIZE, "PAGE_SIZE", 1},
 	{PARAMETER, "PARAMETER", 1},
 	{PASSWORD, "PASSWORD", 1},
 	{PLAN, "PLAN", 1},
@@ -229,7 +224,7 @@ static const TOK tokens[] = {
 	{PRIVILEGES, "PRIVILEGES", 1},
 	{PROCEDURE, "PROCEDURE", 1},
 	{PROTECTED, "PROTECTED", 1},
-	{RAW_PARTITIONS, "RAW_PARTITIONS", 1},
+//	{RAW_PARTITIONS, "RAW_PARTITIONS", 1},
 	{DB_KEY, "RDB$DB_KEY", 1},
 	{READ, "READ", 1},
 	{REAL, "REAL", 1},
@@ -239,6 +234,7 @@ static const TOK tokens[] = {
 	{RELEASE, "RELEASE", 2},
 	{RESERVING, "RESERV", 1},	// Alias of RESERVING 
 	{RESERVING, "RESERVING", 1},
+	{RESTART, "RESTART", 2},
 	{RESTRICT, "RESTRICT", 1},
 	{RETAIN, "RETAIN", 1},
 	{RETURNING_VALUES, "RETURNING_VALUES", 1},
@@ -250,10 +246,12 @@ static const TOK tokens[] = {
 	{ROW_COUNT, "ROW_COUNT", 2},
 	{ROWS, "ROWS", 2},
 	{SAVEPOINT, "SAVEPOINT", 2},
+	{SCALAR_ARRAY, "SCALAR_ARRAY", 2},
 	{DATABASE, "SCHEMA", 1},	// Alias of DATABASE 
 	{SECOND, "SECOND", 2},
 	{SEGMENT, "SEGMENT", 1},
 	{SELECT, "SELECT", 1},
+	{SEQUENCE, "SEQUENCE", 2},
 	{SET, "SET", 1},
 	{SHADOW, "SHADOW", 1},
 	{KW_SHARED, "SHARED", 1},

@@ -4,7 +4,7 @@
 #ifdef MEMMGR
 #include "MemMgr.h"
 #ifndef MemoryPool
-#define MemoryPool		::MemMgr
+#define MemoryPool		NAMESPACE::MemMgr
 #endif
 #endif
 
@@ -17,9 +17,10 @@ struct blk
 };
 typedef blk* BLK;
 
+class JrdMemoryPool;
 
 //typedef PtrWrapper<BLK> BlkPtr;
-typedef blk* BlkPtr;
+//typedef blk* BlkPtr;
 
 template<SSHORT BLOCK_TYPE = 0>
 class pool_alloc : public blk
@@ -27,20 +28,32 @@ class pool_alloc : public blk
     public:
 #ifdef DEBUG_GDS_ALLOC
         void* operator new(size_t s, MemoryPool& p, char* file, int line)
-            { return p.calloc(s, BLOCK_TYPE, file, line); }
+            { 
+            return p.calloc(s, BLOCK_TYPE, file, line); 
+            }
         void* operator new[](size_t s, MemoryPool& p, char* file, int line)
-            { return p.calloc(s, BLOCK_TYPE, file, line); }
+            { 
+            return p.calloc(s, BLOCK_TYPE, file, line); 
+            }
 #else
         void* operator new(size_t s, MemoryPool& p )
-            { return p.calloc(s, BLOCK_TYPE); }
+            { 
+            return p.calloc(s, BLOCK_TYPE); 
+            }
         void* operator new[](size_t s, MemoryPool& p)
-            { return p.calloc(s, BLOCK_TYPE); }
+            { 
+            return p.calloc(s, BLOCK_TYPE); 
+            }
 #endif
 
         void operator delete(void* mem, MemoryPool& p)
-            { if (mem) p.deallocate(mem); }
+            { 
+            if (mem) p.deallocate(mem); 
+            }
         void operator delete[](void* mem, MemoryPool& p)
-            { if (mem) p.deallocate(mem); }
+            {
+             if (mem) p.deallocate(mem);
+              }
 
         void operator delete(void* mem) { if (mem) MemoryPool::globalFree(mem); }
         void operator delete[](void* mem) { if (mem) MemoryPool::globalFree(mem); }
@@ -55,24 +68,51 @@ template<class RPT, SSHORT BLOCK_TYPE = 0>
 class pool_alloc_rpt : public blk
 {
     public:
+		typedef RPT blk_repeat_type;
+		
 #ifdef DEBUG_GDS_ALLOC
         void* operator new(size_t s, MemoryPool& p, int rpt, char* file, int line)
-            { return p.calloc(s + sizeof(RPT) * rpt, BLOCK_TYPE, file, line); }
+            { 
+            return p.calloc(s + sizeof(RPT) * rpt, BLOCK_TYPE, file, line); 
+            }
 #else
         void* operator new(size_t s, MemoryPool& p, int rpt)
-            { return p.calloc(s + sizeof(RPT) * rpt, BLOCK_TYPE); }
+            { 
+            return p.calloc(s + sizeof(RPT) * rpt, BLOCK_TYPE); 
+            }
 #endif
+
         void operator delete(void* mem, MemoryPool& p, int rpt)
-            { if (mem) p.deallocate(mem); }
+            { 
+            if (mem) p.deallocate(mem); 
+            }
+            
         void operator delete(void* mem) { if (mem) MemoryPool::globalFree(mem); }
 
-    private:
+    //private:
         // These operations are not supported on static repeat-base objects
+        
+        //void* operator new(size_t s, JrdMemoryPool *p)
+        void* operator new(size_t s, MemoryPool *p)
+            { 
+            return p->allocate(s); 
+            }
+            
         void* operator new[](size_t s, MemoryPool& p)
-            { return 0; }
+            { return p.calloc(s); }
+            
         void operator delete[](void* mem, MemoryPool& p)
-            { }
-        void operator delete[](void* mem) { }
+            {
+            if (mem) 
+				MemoryPool::globalFree(mem); 
+            }
+            
+        void operator delete[](void* mem) 
+			{
+			if (mem) 
+				//p.deallocate(mem); 
+				MemoryPool::globalFree(mem);
+			}
 
 private:
     /* These operators are off-limits */

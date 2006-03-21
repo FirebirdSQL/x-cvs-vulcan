@@ -28,8 +28,9 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
+#include "../jrd/dsc.h"
 #include "SubsysHandle.h"
 #include "YRequest.h"
 #include "YStatement.h"

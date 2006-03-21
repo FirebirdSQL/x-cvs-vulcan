@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		lck.h
@@ -24,7 +25,10 @@
 #ifndef JRD_LCK_H
 #define JRD_LCK_H
 
+#include "../jrd/jrd_blks.h"
+
 class Attachment;
+class Database;
 
 /* Lock types */
 
@@ -62,10 +66,10 @@ enum lck_owner_t {
 
 void MP_GDB_print(MemoryPool*);
 
-class lck : public pool_alloc_rpt<SCHAR, type_lck>
+class Lock : public pool_alloc_rpt<SCHAR, type_lck>
 {
 public:
-	lck()
+	Lock()
 	:	lck_test_field(666),
 		lck_parent(0),
 		lck_next(0),
@@ -96,19 +100,19 @@ public:
 		}
 
 	int			lck_test_field;
-	lck*		lck_parent;
-	lck*		lck_next;		/* Next lock in chain owned by dbb */
-	lck*		lck_att_next;	/* Next in chain owned by attachment */
-	lck*		lck_prior;
-	lck*		lck_collision;	/* collisions in compatibility table */
-	lck*		lck_identical;	/* identical locks in compatibility table */
-	dbb*		lck_dbb;		/* database object is contained in */
+	Lock*		lck_parent;
+	Lock*		lck_next;		/* Next lock in chain owned by dbb */
+	Lock*		lck_att_next;	/* Next in chain owned by attachment */
+	Lock*		lck_prior;
+	Lock*		lck_collision;	/* collisions in compatibility table */
+	Lock*		lck_identical;	/* identical locks in compatibility table */
+	Database	*lck_dbb;		/* database object is contained in */
 	void*		lck_object;		/* argument to be passed to ast */
 	class blk*	lck_owner;		/* Logical owner block (transaction, etc.) */
 	class blk*	lck_compatible;	/* Enter into internal_enqueue() and treat as compatible */
 	class blk*	lck_compatible2;	/* Sub-level for internal compatibility */
 	Attachment* lck_attachment;	/* Attachment that owns lock */
-	struct btb* lck_blocked_threads;	/* Threads blocked by lock */
+	class BlockingThread* lck_blocked_threads;	/* Threads blocked by lock */
 	lock_ast_t	lck_ast;	        /* Blocking AST routine */
 	SLONG		lck_id;				/* Lock id from lock manager */
 	SLONG		lck_owner_handle;		/* Lock owner handle from the lock manager's point of view */
@@ -117,17 +121,25 @@ public:
 	UCHAR		lck_logical;			/* Logical lock level */
 	UCHAR		lck_physical;			/* Physical lock level */
 	SLONG		lck_data;				/* Data associated with a lock */
+	
+#ifdef SHARED_CACHE
+	SyncObject	syncObject;
+#endif
+
 	bool		lck_long_lock;
 	enum lck_t lck_type;
+	
 	union {
 		SCHAR lck_string[1];
 		SLONG lck_long;
 	} lck_key;
+
 	SCHAR lck_tail[1];			/* Makes the allocater happy */
-	bool equiv(lck* lock);
-	bool compatible(lck* lock, int level);
+	bool equiv(Lock* lock);
+	bool compatible(Lock* lock, int level);
 };
 
-typedef lck *LCK;
+//typedef Lock *LCK;
+//typedef Lock lck;
 
 #endif /* JRD_LCK_H */

@@ -32,8 +32,8 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "jrd_blks.h"
-#include "../include/fb_blk.h"
+//#include "jrd_blks.h"
+//#include "../include/fb_blk.h"
 #include "../common/classes/array.h"
 #include "SVector.h"
 #include "JString.h"
@@ -62,16 +62,19 @@ class vec;
 class Attachment;
 class Transaction;
 class Relation;
-class acc;
-class Rsc;
+class AccessItem;
+class Resource;
 class Procedure;
-class rng;
-class sav;
-class status_xcp;
-struct rpb;
-struct tdbb;
+//class rng;
+class Savepoint;
+class StatusXcp;
+class RecordSource;
+class ExecStatement;
 
-class Request: public pool_alloc <type_req>
+struct record_param;
+struct thread_db;
+
+class Request //: public pool_alloc <type_req>
 {
 public:
 	Request(JrdMemoryPool* pool, int rpbCount, int impureSize);
@@ -85,55 +88,72 @@ public:
 	JrdMemoryPool*	req_pool;
 	vec*			req_sub_requests;	// vector of sub-requests
 	Transaction*	req_transaction;
-	Request*		req_request;		/* next request in dbb */
-	acc*			req_access;			/* Access items to be checked */
-	//SVector<jrd_nod*> req_variables;	/* Vector of variables, if any */
-	Rsc*			req_resources;		/* Resources (relations and indices) */
-	jrd_nod*		req_message;		/* Current message for send/receive */
+	Request*		req_request;		// next request in dbb
+	Request*		req_caller;			// Caller of this request
+	AccessItem*		req_access;			// Access items to be checked
+	//SVector<jrd_nod*> req_variables;	// Vector of variables, if any
+	Resource*		req_resources;		// Resources (relations and indices)
+	jrd_nod*		req_message;		// Current message for send/receive
+	
 #ifdef SCROLLABLE_CURSORS
-	jrd_nod			*req_async_message;	/* Asynchronous message (used in scrolling) */
+	jrd_nod			*req_async_message;	// Asynchronous message (used in scrolling)
 #endif
-	vec*			req_refresh_ranges;	/* Vector of refresh_ranges */
-	rng*			req_begin_ranges;	/* Vector of refresh_ranges */
-	Procedure*		req_procedure;		/* procedure, if any */
-	JString			req_trg_name;		/* name of request (trigger), if any */
-	USHORT			req_length;			/* message length for send/receive */
-	USHORT			req_nmsgs;			/* number of message types */
-	USHORT			req_mmsg;			/* highest message type */
-	USHORT			req_msend;			/* longest send message */
-	USHORT			req_mreceive;		/* longest receive message */
+
+	vec*			req_refresh_ranges;	// Vector of refresh_ranges 
+	//rng*			req_begin_ranges;	// Vector of refresh_ranges 
+	Procedure*		req_procedure;		// procedure, if any 
+	JString			req_trg_name;		// name of request (trigger), if any 
+	USHORT			req_length;			// message length for send/receive 
+	USHORT			req_nmsgs;			// number of message types 
+	USHORT			req_mmsg;			// highest message type 
+	USHORT			req_msend;			// longest send message 
+	USHORT			req_mreceive;		// longest receive message 
 
 	ULONG			req_records_selected;	/* count of records selected by request (meeting selection criteria) */
 	ULONG			req_records_inserted;	/* count of records inserted by request */
 	ULONG			req_records_updated;	/* count of records updated by request */
 	ULONG			req_records_deleted;	/* count of records deleted by request */
 
-	ULONG			req_records_affected; /* count of records affected by the last statement */
+	ULONG			req_records_affected;	/* count of records affected by the last statement */
 
-	USHORT			req_view_flags;		/* special flags for virtual ops on views */
-	Relation*		req_top_view_store;	/* the top view in store(), if any */
+	USHORT			req_view_flags;			/* special flags for virtual ops on views */
+	Relation*		req_top_view_store;		/* the top view in store(), if any */
 	Relation*		req_top_view_modify;	/* the top view in modify(), if any */
-	Relation*		req_top_view_erase;	/* the top view in erase(), if any */
+	Relation*		req_top_view_erase;		/* the top view in erase(), if any */
 
-	jrd_nod*		req_top_node;	/* top of execution tree */
-	jrd_nod*		req_next;		/* next node for execution */
-	vec*			req_fors;		/* Vector of for loops, if any */
-	vec*			req_cursors;	/* Vector of named cursors, if any */
+	jrd_nod*		req_top_node;			/* top of execution tree */
+	jrd_nod*		req_next;				/* next node for execution */
+	firebird::Array<class RecordSource*> req_fors;	/* Vector of for loops, if any */
+	vec*			req_cursors;			/* Vector of named cursors, if any */
 	firebird::Array<struct jrd_nod*> req_invariants;	/* Vector of invariant nodes, if any */
-	USHORT			req_label;			/* label for leave */
-	ULONG			req_flags;			/* misc request flags */
-	sav				*req_proc_sav_point;	/* procedure savepoint list */
-	ULONG			req_timestamp;		/* Start time of request */
+	USHORT			req_label;				/* label for leave */
+	ULONG			req_flags;				/* misc request flags */
+	Savepoint*		req_proc_sav_point;		/* procedure savepoint list */
+	ULONG			req_timestamp;			/* Start time of request */
 	req_ta			req_trigger_action;		/* action that caused trigger to fire */
-	req_s			req_operation;	/* operation for next node */
-    status_xcp		*req_last_xcp;	/* last known exception */
-	rpb				*req_rpb;		/* record parameter blocks */
+	req_s			req_operation;			/* operation for next node */
+    StatusXcp		*req_last_xcp;			/* last known exception */
+	record_param	*req_rpb;				/* record parameter blocks */
 	UCHAR			*req_impure;
+	thread_db		*req_tdbb;
+	RecordSource	*rsbs;
+	ExecStatement	*execStatements;
+	
 	Request* getInstantiatedRequest(int instantiation);
 	Request* findInstantiatedRequest(int instantiation);
-	int getRequestInfo(tdbb* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+
+	int getRequestInfo(thread_db* threadData, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	void release(void);
-	void release(tdbb* tdbb);
+	void release(thread_db* tdbb);
+	void unwind(void);
+	void releaseBlobs(void);
+	void releaseProcedureSavePoints(void);
+	void setThread(thread_db* tdbb);
+	ExecStatement* getExecStatement(void);
+	void init(void);
+	void reset(void);
+	void postResource(Resource* resource);
+	void purgeProcedure(Procedure* procedure);
 };
 
 #endif

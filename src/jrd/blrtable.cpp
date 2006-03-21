@@ -23,8 +23,9 @@
  * 2002.10.29 Nickolay Samofatov: Added support for savepoints
  */
 
-#include "firebird.h"
-#include "../jrd/ib_stdio.h"
+#include <stdio.h>
+#include "fbdev.h"
+//#include "../jrd/ib_stdio.h"
 #include "../jrd/gds.h"
 #include "../jrd/common.h"
 
@@ -90,7 +91,7 @@ static const VERB verbs[] = {
 	PAIR(nod_post, blr_post, 2, 1, STATEMENT, VALUE),
 	PAIR(nod_post, blr_post_arg, 2, 2, STATEMENT, VALUE),
 	PAIR(nod_exec_sql, blr_exec_sql, 1, 1, STATEMENT, VALUE),
-	PAIR(nod_exec_into, blr_exec_into, 0, 0, STATEMENT, OTHER),
+	PAIR(nod_exec_into, blr_exec_into, 3, 3, STATEMENT, OTHER),
 	PAIR(nod_internal_info, blr_internal_info, 1, 1, VALUE, VALUE),
 	PAIR2(nod_add, blr_add, 2, 2, VALUE, VALUE),
 	PAIR(nod_agg_count, blr_agg_count, 1, 0, VALUE, VALUE),
@@ -101,8 +102,7 @@ static const VERB verbs[] = {
 	PAIR2(nod_agg_total, blr_agg_total, 1, 1, VALUE, VALUE),
 	PAIR2(nod_agg_total_distinct, blr_agg_total_distinct, 2, 1, VALUE, VALUE),
 	PAIR2(nod_agg_average, blr_agg_average, 1, 1, VALUE, VALUE),
-	PAIR2(nod_agg_average_distinct, blr_agg_average_distinct, 2, 1, VALUE,
-		  VALUE),
+	PAIR2(nod_agg_average_distinct, blr_agg_average_distinct, 2, 1, VALUE, VALUE),
 	PAIR(nod_argument, blr_parameter, e_arg_length, 0, VALUE, VALUE),
 	PAIR(nod_argument, blr_parameter2, e_arg_length, 0, VALUE, VALUE),
 	PAIR(nod_argument, blr_parameter3, e_arg_length, 0, VALUE, VALUE),
@@ -136,6 +136,7 @@ static const VERB verbs[] = {
 	PAIR2(nod_subtract, blr_subtract, 2, 2, VALUE, VALUE),
 	PAIR2(nod_total, blr_total, e_stat_length, 2, VALUE, VALUE),
 	PAIR(nod_value_if, blr_value_if, 3, 3, VALUE, OTHER),
+	PAIR(nod_equiv, blr_equiv, 2, 2, BOOL, VALUE),
 	PAIR(nod_eql, blr_eql, 2, 2, BOOL, VALUE),
 	PAIR(nod_neq, blr_neq, 2, 2, BOOL, VALUE),
 	PAIR(nod_geq, blr_geq, 2, 2, BOOL, VALUE),
@@ -157,21 +158,21 @@ static const VERB verbs[] = {
 	PAIR(nod_not, blr_not, 1, 1, BOOL, BOOL),
 	PAIR(nod_rse, blr_rse, 0, 0, TYPE_RSE, OTHER),
 	/* nodes for ODAPI support */
-	PAIR(nod_stream, blr_stream, 0, 0, STATEMENT, STATEMENT),
-	PAIR(nod_set_index, blr_set_index, e_index_length, 1, STATEMENT, STATEMENT),
-	PAIR(nod_seek, blr_seek, e_seek_length, 2, STATEMENT, VALUE),
-	PAIR(nod_seek_no_warn, blr_seek_no_warn, e_seek_length, 2, STATEMENT, VALUE),
-	PAIR(nod_find, blr_find, e_find_length, 3, STATEMENT, STATEMENT),
-	PAIR(nod_get_bookmark, blr_get_bookmark, e_getmark_length, 0, VALUE, VALUE),
-	PAIR(nod_set_bookmark, blr_set_bookmark, e_setmark_length, 1, STATEMENT, STATEMENT),
-	PAIR(nod_bookmark, blr_bookmark, e_bookmark_length, 1, VALUE, VALUE),
-	PAIR(nod_lock_relation, blr_lock_relation, e_lockrel_length, 2, VALUE, VALUE),
-	PAIR(nod_lock_record, blr_lock_record, e_lockrec_length, 1, VALUE, VALUE),
-	PAIR(nod_release_lock, blr_release_lock, e_rellock_length, 1, STATEMENT, STATEMENT),
-	PAIR(nod_release_locks, blr_release_locks, 0, 0, STATEMENT, STATEMENT),
-	PAIR(nod_begin_range, blr_begin_range, e_brange_length, 1, VALUE, OTHER),
-	PAIR(nod_end_range, blr_end_range, e_erange_length, 1, STATEMENT, STATEMENT),
-	PAIR(nod_delete_range, blr_delete_range, e_drange_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_stream, blr_stream, 0, 0, STATEMENT, STATEMENT),
+	//PAIR(nod_set_index, blr_set_index, e_index_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_seek, blr_seek, e_seek_length, 2, STATEMENT, VALUE),
+	//PAIR(nod_seek_no_warn, blr_seek_no_warn, e_seek_length, 2, STATEMENT, VALUE),
+	//PAIR(nod_find, blr_find, e_find_length, 3, STATEMENT, STATEMENT),
+	//PAIR(nod_get_bookmark, blr_get_bookmark, e_getmark_length, 0, VALUE, VALUE),
+	//PAIR(nod_set_bookmark, blr_set_bookmark, e_setmark_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_bookmark, blr_bookmark, e_bookmark_length, 1, VALUE, VALUE),
+	//PAIR(nod_lock_relation, blr_lock_relation, e_lockrel_length, 2, VALUE, VALUE),
+	//PAIR(nod_lock_record, blr_lock_record, e_lockrec_length, 1, VALUE, VALUE),
+	//PAIR(nod_release_lock, blr_release_lock, e_rellock_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_release_locks, blr_release_locks, 0, 0, STATEMENT, STATEMENT),
+	//PAIR(nod_begin_range, blr_begin_range, e_brange_length, 1, VALUE, OTHER),
+	//PAIR(nod_end_range, blr_end_range, e_erange_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_delete_range, blr_delete_range, e_drange_length, 1, STATEMENT, STATEMENT),
 	PAIR(nod_map, blr_map, 0, 0, OTHER, OTHER),
 	PAIR(nod_union, blr_union, 0, 0, RELATION, OTHER),
 	PAIR(nod_aggregate, blr_aggregate, e_agg_length, 0, RELATION, OTHER),
@@ -192,8 +193,8 @@ static const VERB verbs[] = {
 	/* more nodes for ODAPI support */
 	PAIR(nod_find_dbkey, blr_find_dbkey, e_find_dbkey_length, 1, STATEMENT, STATEMENT),
 	PAIR(nod_find_dbkey_version, blr_find_dbkey_version, e_find_dbkey_length, 2, STATEMENT, STATEMENT),
-	PAIR(nod_range_relation, blr_range_relation, e_range_relation_length, 1, STATEMENT, STATEMENT),
-	PAIR(nod_delete_ranges, blr_delete_ranges, 0, 0, STATEMENT, STATEMENT),
+	//PAIR(nod_range_relation, blr_range_relation, e_range_relation_length, 1, STATEMENT, STATEMENT),
+	//PAIR(nod_delete_ranges, blr_delete_ranges, 0, 0, STATEMENT, STATEMENT),
 	/* nodes for set plan */
 	PAIR(nod_plan, blr_plan, 1, 1, VALUE, VALUE),
 	PAIR(nod_merge, blr_merge, 0, 0, VALUE, VALUE),
@@ -205,10 +206,10 @@ static const VERB verbs[] = {
 	PAIR(nod_relation, blr_relation2, 0, 0, RELATION, OTHER),
 	PAIR(nod_relation, blr_rid2, 0, 0, RELATION, OTHER),
 	/* yet more nodes for ODAPI */
-	PAIR(nod_crack, blr_crack, 2, 0, VALUE, OTHER),
-	PAIR(nod_force_crack, blr_force_crack, 2, 0, STATEMENT, OTHER),
-	PAIR(nod_reset_stream, blr_reset_stream, e_reset_length, 0, STATEMENT, OTHER),
-	PAIR(nod_release_bookmark, blr_release_bookmark, e_relmark_length, 1, STATEMENT, OTHER),
+	//PAIR(nod_crack, blr_crack, 2, 0, VALUE, OTHER),
+	//PAIR(nod_force_crack, blr_force_crack, 2, 0, STATEMENT, OTHER),
+	//PAIR(nod_reset_stream, blr_reset_stream, e_reset_length, 0, STATEMENT, OTHER),
+	//PAIR(nod_release_bookmark, blr_release_bookmark, e_relmark_length, 1, STATEMENT, OTHER),
 	PAIR2(nod_set_generator, blr_set_generator, e_gen_length, 1, STATEMENT, VALUE),
 	PAIR(nod_ansi_any, blr_ansi_any, e_any_length, 1, BOOL, TYPE_RSE),
 	PAIR(nod_exists, blr_exists, e_any_length, 1, BOOL, TYPE_RSE),
@@ -222,6 +223,8 @@ static const VERB verbs[] = {
 	PAIR(nod_current_time, blr_current_time, e_current_time_length, 0, VALUE, OTHER),
 	PAIR(nod_current_timestamp, blr_current_timestamp, e_current_timestamp_length, 0, VALUE, OTHER),
 	PAIR(nod_current_role, blr_current_role, 1, 0, VALUE, VALUE),
+	PAIR(nod_dcl_cursor, blr_dcl_cursor, e_dcl_cursor_length, 0, STATEMENT, OTHER),
+	PAIR(nod_cursor_stmt, blr_cursor_stmt, e_cursor_stmt_length, 0, STATEMENT, OTHER),
 	0
 };
 
@@ -245,7 +248,8 @@ int main(int argc, char *argv[])
 	const VERB *verb;
 	int max, blr;
 
-	for (blr = 0; blr < FB_NELEM(table); blr++) {
+	for (blr = 0; blr < FB_NELEM(table); blr++) 
+		{
 		table[blr] = NULL;
 		table2[blr] = NULL;
 		lengths[blr] = NULL;
@@ -253,41 +257,45 @@ int main(int argc, char *argv[])
 		counts[blr] = NULL;
 		types[blr] = NULL;
 		sub_types[blr] = NULL;
-	}
-
-	for (max = 0, verb = verbs; verb->internal; ++verb) {
-		blr = verb->blr;
-		if (table[blr]) {
-			ib_fprintf(ib_stderr, "BLRTABLE: duplicate blr %d\n", blr);
-			exit(1);
 		}
+
+	for (max = 0, verb = verbs; verb->internal; ++verb) 
+		{
+		blr = verb->blr;
+		
+		if (table[blr]) 
+			{
+			fprintf(stderr, "BLRTABLE: duplicate blr %d\n", blr);
+			exit(1);
+			}
+			
 		table[blr] = verb->internal;
-		table2[blr] =
-			(verb->internal2 == 0) ? verb->internal : verb->internal2;
+		table2[blr] = (verb->internal2 == 0) ? verb->internal : verb->internal2;
 		lengths[blr] = verb->length;
 		counts[blr] = verb->count;
 		types[blr] = verb->type;
 		sub_types[blr] = verb->sub_type;
+		
 		if (blr > max)
 			max = blr;
-	}
+		}
 
-	ib_printf("static const UCHAR blr_table4 [] = {\n");
+	printf("static const UCHAR blr_table4 [] = {\n");
 	print(table, max, "(UCHAR) ");
 
-	ib_printf("static const UCHAR blr_table [] = {\n");
+	printf("static const UCHAR blr_table [] = {\n");
 	print(table2, max, "(UCHAR) ");
 
-	ib_printf("static const SCHAR length_table [] = {\n");
+	printf("static const SCHAR length_table [] = {\n");
 	print(lengths, max, "");
 
-	ib_printf("static const SCHAR count_table [] = {\n");
+	printf("static const SCHAR count_table [] = {\n");
 	print(counts, max, "");
 
-	ib_printf("static const SCHAR type_table [] = {\n");
+	printf("static const SCHAR type_table [] = {\n");
 	print(types, max, "");
 
-	ib_printf("static const SCHAR sub_type_table [] = {\n");
+	printf("static const SCHAR sub_type_table [] = {\n");
 	print(sub_types, max, "");
 
 	return 0;
@@ -319,11 +327,11 @@ static void print(const SCHAR ** table, int max, const SCHAR * fudge)
 		while (*s)
 			s++;
 		if (s > buffer + 50) {
-			ib_printf("\t%s\n/*%3d*/", buffer, blr + 1);
+			printf("\t%s\n/*%3d*/", buffer, blr + 1);
 			s = buffer;
 			*s = 0;
 		}
 	}
 
-	ib_printf("\t%s 0};\n", buffer);
+	printf("\t%s 0};\n", buffer);
 }

@@ -27,7 +27,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "../jrd/common.h"
 #include "../jrd/ib_stdio.h"
 #include <fcntl.h>
@@ -122,9 +122,9 @@
 #endif
 
 static void close_marker_file(TEXT *);
-static FIL seek_file(FIL, Bdb*, UINT64 *, ISC_STATUS *);
-static FIL setup_file(DBB, const TEXT*, USHORT, int);
-static BOOLEAN unix_error(TEXT *, FIL, ISC_STATUS, ISC_STATUS *);
+static File* seek_file(File*, Bdb*, UINT64 *, ISC_STATUS *);
+static File* setup_file(DBB, const TEXT*, USHORT, int);
+static BOOLEAN unix_error(TEXT *, File*, ISC_STATUS, ISC_STATUS *);
 #if defined PREAD_PWRITE && !(defined HAVE_PREAD && defined HAVE_PWRITE)
 static SLONG pread(int, SCHAR *, SLONG, SLONG);
 static SLONG pwrite(int, SCHAR *, SLONG, SLONG);
@@ -135,15 +135,8 @@ static BOOLEAN  raw_devices_validate_database (int, const TEXT*, USHORT);
 static int  raw_devices_unlink_database (const TEXT*);
 #endif
 
-#ifdef hpux
-union fcntlun {
-	int val;
-	struct flock *lockdes;
-};
-#endif
 
-
-int PIO_add_file(DBB dbb, FIL main_file, const TEXT* file_name, SLONG start)
+int PIO_add_file(DBB dbb, File* main_file, const TEXT* file_name, SLONG start)
 {
 /**************************************
  *
@@ -161,7 +154,7 @@ int PIO_add_file(DBB dbb, FIL main_file, const TEXT* file_name, SLONG start)
  *
  **************************************/
 	USHORT sequence;
-	FIL file, new_file;
+	File* file, *new_file;
 
 	if (!(new_file = PIO_create(dbb, file_name, strlen(file_name), FALSE)))
 		return 0;
@@ -179,7 +172,7 @@ int PIO_add_file(DBB dbb, FIL main_file, const TEXT* file_name, SLONG start)
 }
 
 
-void PIO_close(FIL main_file)
+void PIO_close(File* main_file)
 {
 /**************************************
  *
@@ -193,7 +186,7 @@ void PIO_close(FIL main_file)
  *	have been locked before entry.
  *
  **************************************/
-	FIL file;
+	File* file;
 
 	if (main_file) {
 		TEXT marker_filename[MAXPATHLEN];
@@ -241,7 +234,7 @@ int PIO_connection(const TEXT* file_name, USHORT* file_length)
 }
 
 
-FIL PIO_create(DBB dbb, const TEXT* string, SSHORT length, BOOLEAN overwrite)
+File* PIO_create(DBB dbb, const TEXT* string, SSHORT length, BOOLEAN overwrite)
 {
 /**************************************
  *
@@ -257,7 +250,7 @@ FIL PIO_create(DBB dbb, const TEXT* string, SSHORT length, BOOLEAN overwrite)
  *
  **************************************/
 	int desc, flag;
-	FIL file;
+	File* file;
 	TEXT expanded_name[256], temp[256];
 
 	const TEXT* file_name = string;
@@ -314,7 +307,7 @@ int PIO_expand(const TEXT* file_name, USHORT file_length, TEXT* expanded_name)
 }
 
 
-void PIO_flush(FIL main_file)
+void PIO_flush(File* main_file)
 {
 /**************************************
  *
@@ -326,7 +319,7 @@ void PIO_flush(FIL main_file)
  *	Flush the operating system cache back to good, solid oxide.
  *
  **************************************/
-	FIL file;
+	File* file;
 
 /* Since all SUPERSERVER_V2 database and shadow I/O is synchronous, this
    is a no-op. */
@@ -343,7 +336,7 @@ void PIO_flush(FIL main_file)
 }
 
 
-void PIO_force_write(FIL file, USHORT flag)
+void PIO_force_write(File* file, USHORT flag)
 {
 /**************************************
  *
@@ -355,21 +348,13 @@ void PIO_force_write(FIL file, USHORT flag)
  *	Set (or clear) force write, if possible, for the database.
  *
  **************************************/
-#ifdef hpux
-	union fcntlun control;
-#else
 	int control;
-#endif
 
 /* Since all SUPERSERVER_V2 database and shadow I/O is synchronous, this
    is a no-op. */
 
 #ifndef SUPERSERVER_V2
-#ifdef hpux
-	control.val = (flag) ? SYNC : NULL;
-#else
 	control = (flag) ? SYNC : 0;
-#endif
 
 	if (fcntl(file->fil_desc, F_SETFL, control) == -1)
 	{
@@ -404,7 +389,7 @@ void PIO_header(DBB dbb, SCHAR * address, int length)
  *	repositioned since the file was originally mapped.
  *
  **************************************/
-	FIL file;
+	File* file;
 	SSHORT i;
 	UINT64 bytes;
 
@@ -496,7 +481,7 @@ SLONG PIO_max_alloc(DBB dbb)
  **************************************/
 	struct stat statistics;
 	UINT64 length;
-	FIL file;
+	File* file;
 
 	for (file = dbb->dbb_file; file->fil_next; file = file->fil_next);
 
@@ -540,7 +525,7 @@ SLONG PIO_act_alloc(DBB dbb)
  **************************************/
 	struct stat statistics;
 	UINT64 length;
-	FIL file;
+	File* file;
 	ULONG tot_pages = 0;
 
 /**
@@ -568,7 +553,7 @@ SLONG PIO_act_alloc(DBB dbb)
 }
 
 
-FIL PIO_open(DBB dbb,
+File* PIO_open(DBB dbb,
 			 const TEXT* string,
 			 SSHORT trace_flag,
 			 BLK connection, const TEXT* file_name)
@@ -649,7 +634,7 @@ FIL PIO_open(DBB dbb,
 }
 
 
-int PIO_read(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
+int PIO_read(File* file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -743,7 +728,7 @@ int PIO_read(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 }
 
 
-int PIO_write(FIL file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
+int PIO_write(File* file, Bdb* bdb, PAG page, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -866,7 +851,7 @@ static void close_marker_file(TEXT * marker_filename)
 #endif
 
 
-static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_vector)
+static File* seek_file(File* file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_vector)
 {
 /**************************************
  *
@@ -895,7 +880,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 			break;
 
 	if (file->fil_desc == -1)
-		return (FIL)(ULONG) unix_error("lseek", file, isc_io_access_err,
+		return (File*)(ULONG) unix_error("lseek", file, isc_io_access_err,
 								status_vector);
 
 	page -= file->fil_min_page - file->fil_fudge;
@@ -905,7 +890,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 
 #if _FILE_OFFSET_BITS != 64
     if (lseek_offset > MAX_SLONG) {
-        return (FIL)(ULONG) unix_error ("lseek", file, isc_io_32bit_exceeded_err, status_vector);
+        return (File*)(ULONG) unix_error ("lseek", file, isc_io_32bit_exceeded_err, status_vector);
     }
 #endif
 
@@ -916,7 +901,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 
 	if ((lseek(file->fil_desc, LSEEK_OFFSET_CAST lseek_offset, 0)) == (off_t)-1) {
 		THD_MUTEX_UNLOCK(file->fil_mutex);
-		return (FIL)(ULONG) unix_error("lseek", file, isc_io_access_err,
+		return (File*)(ULONG) unix_error("lseek", file, isc_io_access_err,
 								status_vector);
 	}
 #endif
@@ -925,7 +910,7 @@ static FIL seek_file(FIL file, Bdb* bdb, UINT64 * offset, ISC_STATUS * status_ve
 }
 
 
-static FIL setup_file(DBB dbb, const TEXT* file_name, USHORT file_length, int desc)
+static File* setup_file(DBB dbb, const TEXT* file_name, USHORT file_length, int desc)
 {
 /**************************************
  *
@@ -937,15 +922,15 @@ static FIL setup_file(DBB dbb, const TEXT* file_name, USHORT file_length, int de
  *	Set up file and lock blocks for a file.
  *
  **************************************/
-	FIL file;
-	LCK lock;
+	File* file;
+	Lock* lock;
 	UCHAR *p, *q, lock_string[32];
 	USHORT l;
 	struct stat statistics;
 
 /* Allocate file block and copy file name string */
 
-	file = FB_NEW_RPT(*dbb->dbb_permanent, file_length + 1) fil();
+	file = FB_NEW_RPT(*dbb->dbb_permanent, file_length + 1) File();
 	file->fil_desc = desc;
 	file->fil_length = file_length;
 	file->fil_max_page = -1UL;
@@ -979,7 +964,7 @@ static FIL setup_file(DBB dbb, const TEXT* file_name, USHORT file_length, int de
 
 	l = p - lock_string;
 
-	dbb->dbb_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, l) lck();
+	dbb->dbb_lock = lock = FB_NEW_RPT(*dbb->dbb_permanent, l) Lock();
 	lock->lck_type = LCK_database;
 	lock->lck_owner_handle = LCK_get_owner_handle(NULL, lock->lck_type);
 	lock->lck_object = reinterpret_cast<blk*>(dbb);
@@ -1003,7 +988,7 @@ static FIL setup_file(DBB dbb, const TEXT* file_name, USHORT file_length, int de
 
 static BOOLEAN unix_error(
 						  TEXT * string,
-						  FIL file, ISC_STATUS operation, ISC_STATUS * status_vector)
+						  File* file, ISC_STATUS operation, ISC_STATUS * status_vector)
 {
 /**************************************
  *

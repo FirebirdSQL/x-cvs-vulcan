@@ -35,10 +35,10 @@
 
 #ifdef UNIX
 
-class fil : public pool_alloc_rpt<SCHAR, type_fil>
+class File : public pool_alloc_rpt<SCHAR, type_fil>
 {
-    public:
-	struct fil	*fil_next;		/* Next file in database */
+public:
+	File		*fil_next;		/* Next file in database */
 	ULONG		fil_min_page;			/* Minimum page number in file */
 	ULONG		fil_max_page;			/* Maximum page number in file */
 	USHORT		fil_sequence;		/* Sequence number of file */
@@ -52,17 +52,17 @@ class fil : public pool_alloc_rpt<SCHAR, type_fil>
 	USHORT		fil_length;			/* Length of expanded file name */
 	SCHAR		fil_string[1];		/* Expanded file name */
 };
-typedef fil *FIL;
+//typedef fil *FIL;
 
 #endif
 
 
 #ifdef VMS
 
-class fil : public pool_alloc_rpt<SCHAR, type_fil>
+class File : public pool_alloc_rpt<SCHAR, type_fil>
 {
-    public:
-	struct		fil *fil_next;		/* Next file in database */
+public:
+	File	*fil_next;		/* Next file in database */
 	ULONG		fil_min_page;			/* Minimum page number in file */
 	ULONG		fil_max_page;			/* Maximum page number in file */
 	USHORT		fil_sequence;		/* Sequence number of file */
@@ -78,7 +78,7 @@ class fil : public pool_alloc_rpt<SCHAR, type_fil>
 	USHORT		fil_flags;
 	SCHAR		fil_string[1];		/* Expanded file name */
 };
-tyepdef fil *FIL;
+//tyepdef fil *FIL;
 
 #endif
 
@@ -87,10 +87,10 @@ tyepdef fil *FIL;
 #define MAX_FILE_IO	32			/* Maximum "allocated" overlapped I/O events */
 #endif
 
-class fil : public pool_alloc_rpt<SCHAR, type_fil>
+class File : public pool_alloc_rpt<SCHAR, type_fil>
 {
     public:
-	struct fil	*fil_next;		/* Next file in database */
+	File		*fil_next;		/* Next file in database */
 	ULONG		fil_min_page;			/* Minimum page number in file */
 	ULONG		fil_max_page;			/* Maximum page number in file */
 	USHORT		fil_sequence;		/* Sequence number of file */
@@ -110,7 +110,7 @@ class fil : public pool_alloc_rpt<SCHAR, type_fil>
 	USHORT fil_length;			/* Length of expanded file name */
 	SCHAR fil_string[1];		/* Expanded file name */
 };
-typedef fil *FIL;
+//typedef fil *FIL;
 
 #endif
 
@@ -130,7 +130,7 @@ typedef fil *FIL;
 /* Physical I/O status block */
 
 typedef struct piob {
-	FIL piob_file;				/* File being read/written */
+	File *piob_file;				/* File being read/written */
 	SLONG piob_desc;			/* File descriptor */
 	SLONG piob_io_length;		/* Requested I/O transfer length */
 	SLONG piob_actual_length;	/* Actual I/O transfer length */

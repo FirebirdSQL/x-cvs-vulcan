@@ -113,6 +113,8 @@ public:
 	void setValue (DateTime value);
 	DateTime getDate();
 	INT64 convertToQuad (double& divisor);
+	int convert(INT64 value, int scale, char *string);
+
 	inline void clear()
 		{
 		if (type == String && copyFlag && data.string.string)
@@ -160,6 +162,7 @@ public:
 		} data;
 	void setValue(dsc* desc, InternalStatement *statement);
 	bool getValue(dsc* desc);
+	dsc getDescriptor(void);
 };
 
 #endif // !defined(AFX_VALUE_H__02AD6A4B_A433_11D2_AB5B_0000C01D2301__INCLUDED_)

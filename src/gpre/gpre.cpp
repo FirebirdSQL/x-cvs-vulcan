@@ -47,7 +47,7 @@
 
 #define GPRE_MAIN
 #define PARSER_MAIN
-#include "firebird.h"
+#include "fbdev.h"
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -113,7 +113,7 @@ static SSHORT		skip_white();
 
 /* Program wide globals */
 
-FILE *input_file, *trace_file;
+FILE	*input_file, *trace_file;
 TEXT*	file_name;
 TEXT*	out_file_name;
 TEXT	sanitized_file_name [256];
@@ -124,6 +124,7 @@ ACT last_action, first_action;
 UCHAR classes[256], fortran_labels[1024];
 
 const TEXT	*ident_pattern, 
+		*long_ident_pattern,
 		*utility_name, 
 		*count_name, 
 		*slack_name,
@@ -337,6 +338,7 @@ int main(int argc, char* argv[])
 	comment_start		= "/*";
 	comment_stop		= "*/";
 	ident_pattern		= "gds__%d";
+	long_ident_pattern	= "gds__$ld";
 	transaction_name	= "gds__trans";
 	database_name		= "gds__database";
 	utility_name		= "gds__utility";
@@ -481,6 +483,7 @@ int main(int argc, char* argv[])
 		case IN_SW_GPRE_C:
 			sw_language		= lang_c;
 			ident_pattern	= "isc_%d";
+			long_ident_pattern = "isc_%ld";
 			utility_name	= "isc_utility";
 			count_name		= "isc_count";
 			slack_name		= "isc_slack";
@@ -491,6 +494,7 @@ int main(int argc, char* argv[])
 		case IN_SW_GPRE_CPLUSPLUS:
 			sw_language		= lang_cxx;
 			ident_pattern	= "isc_%d";
+			long_ident_pattern = "isc_%ld";
 			utility_name	= "isc_utility";
 			count_name		= "isc_count";
 			slack_name		= "isc_slack";
@@ -559,6 +563,7 @@ int main(int argc, char* argv[])
 			transaction_name = "gds_trans";
 			database_name = "isc_database";
 			ident_pattern = "isc_%d";
+			long_ident_pattern = "isc_%ld";
 			comment_start = "--";
 			if (db)
 				db->dbb_name->sym_string = "isc_database";
@@ -578,6 +583,7 @@ int main(int argc, char* argv[])
 			transaction_name = "gds_trans";
 			database_name = "isc_database";
 			ident_pattern = "isc_%d";
+			long_ident_pattern = "isc_%ld";
 			comment_start = "--";
 			if (db)
 				db->dbb_name->sym_string = "isc_database";
@@ -603,6 +609,7 @@ int main(int argc, char* argv[])
 			/* Change the patterns for v4.0 */
 
 			ident_pattern = "isc_%d";
+			long_ident_pattern = "isc_%ld";
 			utility_name = "isc_utility";
 			count_name = "isc_count";
 			slack_name = "isc_slack";
@@ -670,6 +677,7 @@ int main(int argc, char* argv[])
 			sw_know_interp = FALSE;
 			sw_interp = 0;
 			ident_pattern = "isc_%d"; 
+			long_ident_pattern = "isc_%ld";
 			utility_name = "isc_utility";
 			count_name = "isc_count";
 			slack_name = "isc_slack";
@@ -776,6 +784,7 @@ int main(int argc, char* argv[])
 				db->dbb_name->sym_string = "isc-database";
 			comment_start = "      *  ";
 			ident_pattern = "isc-%d";
+			long_ident_pattern = "isc-%ld";
 			transaction_name = "isc-trans";
 			database_name = "isc-database";
 			utility_name = "isc-utility";
@@ -1185,7 +1194,7 @@ void CPR_get_text( TEXT * buffer, TXT text)
 void CPR_raw_read()
 {
 	SSHORT c;
-	SCHAR token_string[MAXSYMLEN];
+	SCHAR token_string[MAX_SYM_SIZE];
 	SCHAR *p;
 	BOOLEAN continue_char;
 
@@ -1203,7 +1212,8 @@ void CPR_raw_read()
 		else
 			*p++ = (SCHAR) c;
 
-		if (c = '\n') {
+		/* Fix "=" vs "==" error.  SAS TRT */
+		if (c == '\n') {
 			line++;
 			line_position = 0;
 			if (!continue_char)

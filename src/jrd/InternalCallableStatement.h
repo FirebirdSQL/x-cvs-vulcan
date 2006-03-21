@@ -1,5 +1,4 @@
 /*
- *  
  *     The contents of this file are subject to the Initial 
  *     Developer's Public License Version 1.0 (the "License"); 
  *     you may not use this file except in compliance with the 
@@ -31,13 +30,13 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include "Connection.h"
+//#include "Connection.h"
 #include "InternalPreparedStatement.h"
-#include "Values.h"
-#include "DateTime.h"	// Added by ClassView
-#include "SqlTime.h"
-#include "TimeStamp.h"	// Added by ClassView
-#include "JString.h"	// Added by ClassView
+//#include "Values.h"
+//#include "DateTime.h"	// Added by ClassView
+//#include "SqlTime.h"
+//#include "TimeStamp.h"	// Added by ClassView
+//#include "JString.h"	// Added by ClassView
 
 class InternalCallableStatement : public InternalPreparedStatement, public CallableStatement  
 {

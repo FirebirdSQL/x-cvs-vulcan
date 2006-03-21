@@ -24,7 +24,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "Configuration.h"
 #include "ConfigFile.h"
 
@@ -85,4 +85,11 @@ ConfObject* Configuration::getObject(const char* objectType, const char* objectN
 		object = getObject (objectType);
 	
 	return object;
+}
+
+
+void Configuration::setConfigText(const char* configText)
+{
+	if (!configFile)
+		configFile = new ConfigFile (0, configText);
 }

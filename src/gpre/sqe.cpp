@@ -40,7 +40,7 @@
 //
 //	$Id$
 //
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdio.h>
 #include <string.h>
 #include "../gpre/gpre.h"
@@ -55,10 +55,6 @@
 #include "../gpre/par_proto.h"
 #include "../gpre/sqe_proto.h"
 #include "../gpre/sql_proto.h"
-
-
-
-#define ERROR_LENGTH	256
 
 struct scope {
 	struct gpre_ctx *req_contexts;

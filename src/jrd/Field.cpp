@@ -28,7 +28,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "jrd.h"
 #include "Field.h"
 #include "../dsql/dsql_rel.h"

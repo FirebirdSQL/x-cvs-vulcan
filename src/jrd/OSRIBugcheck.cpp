@@ -24,7 +24,7 @@
  */
 
 #include <stdarg.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "OSRIBugcheck.h"
 #include "gen/iberror.h"
 
@@ -33,6 +33,7 @@ OSRIBugcheck::OSRIBugcheck(ISC_STATUS code, ...) : OSRIException (osriBugcheck)
 	va_list		args;
 	va_start	(args, code);
 	post (NULL, code, args);
+	va_end(args);
 }
 
 
@@ -55,4 +56,5 @@ void OSRIBugcheck::bugcheck(ISC_STATUS code, ...)
 	va_list		args;
 	va_start	(args, code);
 	post (NULL, code, args);
+	va_end(args);
 }

@@ -29,7 +29,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <string.h>
-#include "firebird.h"
+#ifdef MVS
+#include <strings.h> // for strcasecmp
+#endif
+#include "fbdev.h"
 #include "common.h"
 #include "constants.h"
 #include "CStatement.h"
@@ -74,6 +77,7 @@
 #include "CharSet.h"
 //#include "CharSetContainer.h"
 #include "CsConvertArray.h"
+#include "ddl_proto.h"
 
 #ifdef _WIN32
 #define strcasecmp		stricmp
@@ -108,7 +112,7 @@ CStatement::CStatement(Attachment *attach)
 	flags = 0;
 	procedure = NULL;
 	blob = NULL;
-	threadData = NULL;				// used only on "prepare"
+	threadData = NULL;
 	req_in_where_clause = 0;		//!< processing "where clause"
 	req_in_group_by_clause = 0;		//!< processing "group by clause"
 	req_in_having_clause = 0;		//!< processing "having clause"
@@ -133,6 +137,8 @@ CStatement::CStatement(Attachment *attach)
 	pool = DsqlMemoryPool::createPool();
 	oldParameterOrdering = database->configuration->getValue (OldParameterOrdering,OldParameterOrderingValue);
 	transaction = NULL;
+	execBlockNode = NULL;
+	tempCollationName = NULL;
 }
 
 CStatement::~CStatement()
@@ -149,7 +155,7 @@ CStatement::~CStatement()
 	pool->deletePool (pool);
 }
 
-void CStatement::prepare(tdbb *threadStuff, int sqlLength, const TEXT *sqlString, int userDialect)
+void CStatement::prepare(thread_db* threadStuff, int sqlLength, const TEXT *sqlString, int userDialect)
 {
 	threadData = threadStuff;
 	transaction = threadData->tdbb_transaction;
@@ -388,14 +394,18 @@ dsql_rel* CStatement::findRelation(const char *relationName)
 		return NULL;
 		}
 
+#ifdef SHARED_CACHE
 	Sync sync (&jrdRelation->syncObject, "CStatement::findRelation");
 	sync.lock (Shared);
+#endif
 
 	if (jrdRelation->dsqlRelation)
 		return jrdRelation->dsqlRelation;
 
+#ifdef SHARED_CACHE
 	sync.unlock();
 	sync.lock (Exclusive);
+#endif
 	
 	if (jrdRelation->dsqlRelation)
 		return jrdRelation->dsqlRelation;
@@ -499,14 +509,8 @@ dsql_rel* CStatement::findViewRelation(const TEXT *viewName, const TEXT *relatio
 	
 	while (resultSet->next())
 		{
-		const char *contextName = resultSet->getString(1);
-		const char *relationName = resultSet->getString(2);
-
-		const char *p;
-		for (p = contextName; *p && *p != ' '; ++p)
-			;
-		for (p = relationName; *p && *p != ' '; ++p)
-			;
+		JString contextName = stripString (resultSet->getString(1));
+		JString relationName = stripString (resultSet->getString(2));
 
 		if (!strcmp(relationName, relationOrAlias) ||
 			!strcmp(contextName, relationOrAlias))
@@ -523,16 +527,39 @@ dsql_rel* CStatement::findViewRelation(const TEXT *viewName, const TEXT *relatio
 	return NULL;
 }
 
-Function* CStatement::findFunction(const TEXT *functionName)
+UserFunction* CStatement::findFunction(const TEXT *functionName)
 {
-	Function *function = FUN_lookup_function (threadData, functionName, false);
+	UserFunction* function = FUN_lookup_function (threadData, functionName, false);
 
 	return function;
 }
 
+void CStatement::completeDDL(thread_db* threadStuff)
+{
+	threadData = threadStuff;
+	DDL_execute(this);
+}
+
 void CStatement::dropRelation(const TEXT *relationName)
 {
-	//notYetImplemented();
+	Relation *jrdRelation = (transaction) ? transaction->findRelation(threadData, relationName) :
+											database->findRelation (threadData, relationName);
+
+	if (jrdRelation) {
+#ifdef SHARED_CACHE
+		Sync sync (&jrdRelation->syncObject, "CStatement::dropRelation");
+		sync.lock (Exclusive);
+#endif
+		delete jrdRelation->dsqlRelation;
+		jrdRelation->dsqlRelation = NULL;
+		for (int n = 0; n < jrdRelation->rel_fields.size(); ++n)
+		{
+			Field *jrdField = jrdRelation->rel_fields[n];
+			if (jrdField) {
+				jrdField->dsqlField = NULL;
+			}
+		}
+	}
 }
 
 void CStatement::dropProcedure(const TEXT *procedureName)
@@ -612,6 +639,7 @@ dsql_str* CStatement::getDefaultCharset()
 		}
 
 	Connect connection = attachment->getUserConnection(transaction);
+	//Connect connection = database->getSystemConnection();
 	PStatement statement = connection->prepareStatement (
 		"SELECT dbb.RDB$CHARACTER_SET_NAME "		
 		"	FROM RDB$DATABASE dbb ");
@@ -890,8 +918,8 @@ dsql_str* CStatement::getTriggerRelation(const TEXT *triggerName, USHORT *trigge
 		{
 		*triggerType = resultSet->getShort(2);
 		const char *relationName =resultSet->getString(1);
-		stripString (relationName);
-		return MAKE_string(threadData, relationName, strlen(relationName));
+		JString strippedName = stripString (relationName);
+		return MAKE_string(threadData, strippedName, strlen(strippedName));
 		}
 return NULL;
 }
@@ -903,6 +931,7 @@ dsql_nod* CStatement::getPrimaryKey(const TEXT *relationName)
 	if (relation)
 		{
 		Field *fields [MAX_INDEX_SEGMENTS];
+		if (relation->jrdRelation == NULL) return NULL;
 		int count = relation->jrdRelation->getPrimaryKey (threadData, MAX_INDEX_SEGMENTS, fields);
 		dsql_nod *list = MAKE_node(threadData, nod_list, count);
 		
@@ -958,8 +987,8 @@ dsql_nod* CStatement::getPrimaryKey(const TEXT *relationName)
 		if (!list)
 			list = MAKE_node(threadData, nod_list, resultSet->getInt(2));
 		const char *fieldName = resultSet->getString(1);
-		stripString(fieldName);
-		dsql_str* field_name = MAKE_string(threadData, fieldName, strlen(fieldName));
+		JString strippedName = stripString(fieldName);
+		dsql_str* field_name = MAKE_string(threadData, strippedName, strlen(strippedName));
 		dsql_nod* field_node = MAKE_node(threadData, nod_field_name, e_fln_count);
 		field_node->nod_arg[e_fln_name] = (DSQL_NOD) field_name;
 		list->nod_arg[n] = field_node;
@@ -1182,7 +1211,7 @@ dsql_rel* CStatement::getRelation(const TEXT* relationName)
 	return relation;
 }
 
-void CStatement::getRequestInfo(tdbb* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
+void CStatement::getRequestInfo(thread_db* threadData, int instantiation, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer)
 {
 	Request *instance = request->getInstantiatedRequest(instantiation);
 	request->getRequestInfo(threadData, itemsLength, items, bufferLength, buffer);
@@ -1245,4 +1274,24 @@ int CStatement::findColumn(const char *columnName)
 			return parameter->par_index;
 	
 	return -1;
+}
+
+bool CStatement::existsException (const TEXT *exceptionName)
+{
+	if (strlen (exceptionName) > MAX_SQL_IDENTIFIER_SIZE)
+		return false;
+	 		
+	Connect connection = attachment->getUserConnection(transaction);
+	PStatement statement = connection->prepareStatement (
+		"SELECT"
+		"  e.RDB$EXCEPTION_NAME "
+		"FROM"
+		"  RDB$EXCEPTIONS e "
+		"WHERE"
+		"  e.RDB$EXCEPTION_NAME = ? ");
+		
+	statement->setString(1, exceptionName);
+	RSet resultSet = statement->executeQuery();
+	
+	return resultSet->next();
 }

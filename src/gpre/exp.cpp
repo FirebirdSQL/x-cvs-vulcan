@@ -28,7 +28,7 @@
 //	$Id$
 //
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../jrd/gds.h"
@@ -274,7 +274,7 @@ GPRE_FLD EXP_field(GPRE_CTX * rcontext)
 	GPRE_CTX context;
 	GPRE_FLD field;
 	GPRE_REL relation;
-	TEXT s[128];
+	TEXT s[ERROR_LENGTH];
 
 	for (symbol = token.tok_symbol; symbol; symbol = symbol->sym_homonym)
 		if (symbol->sym_type == SYM_context)
@@ -797,7 +797,7 @@ GPRE_REL EXP_relation(void)
 	SYM symbol;
 	GPRE_REL relation, temp;
 	DBB db;
-	TEXT s[256];
+	TEXT s[ERROR_LENGTH];
 
 	if (!isc_databases)
 		PAR_error("no database for operation");

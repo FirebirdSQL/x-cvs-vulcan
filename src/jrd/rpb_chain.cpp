@@ -20,7 +20,7 @@
  * Contributor(s): ______________________________________.
  */
  
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "../common/classes/alloc.h"
 #include "../jrd/Relation.h"
@@ -32,13 +32,15 @@
 #define ExecAssert(x) x
 #endif //DEBUG_GDS_ALLOC
 
-int traRpbList::PushRpb(struct rpb *value) 
+int traRpbList::PushRpb(struct record_param* value) 
 	{
 	if (value->rpb_relation->rel_view_rse || value->rpb_relation->rel_file) 
 		return -1;
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "traRpbList::PushRpb");
 	sync.lock(Exclusive);
+#endif
 	
 	int pos = add(traRpbListElement(value, ~0));
 	int level = -1;
@@ -63,13 +65,15 @@ int traRpbList::PushRpb(struct rpb *value)
 	return level;
 }
 
-bool traRpbList::PopRpb(struct rpb *value, int Level) 
+bool traRpbList::PopRpb(struct record_param* value, int Level) 
 	{
 	if (Level < 0) 
 		return false;
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncObject, "traRpbList::PopRpb");
 	sync.lock(Exclusive);
+#endif
 	int pos = -1;
 	ExecAssert(find(traRpbListElement(value, Level), pos));
 	bool rc = (*this)[pos].lr_rpb->rpb_stream_flags & RPB_s_refetch;

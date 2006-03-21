@@ -3,7 +3,8 @@
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
 /*********** Preprocessed module -- do not edit ***************/
-/***************** gpre version WI-V2.0.0.4027 Vulcan 1.0 Development **********************/
+/***************** gpre version LI-V2.0.0.4154 Vulcan 1.0 Development **********************/
+#line 1 "gpre_meta.epp"
 /*
  * tab=4
  *____________________________________________________________
@@ -35,7 +36,7 @@
  *	$Id$
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include <string.h>
 #include "../jrd/gds.h"
 #include "../gpre/gpre.h"
@@ -66,7 +67,7 @@ isc_db_handle
 
 isc_tr_handle
    gds_trans = 0;		/* default transaction handle */
-long
+ISC_STATUS
    isc_status [20],	/* status vector */
    isc_status2 [20];	/* status vector */
 SLONG
@@ -1916,6 +1917,7 @@ static const char
 
 /**** end of GPRE definitions ****/
 
+#line 51 "gpre_meta.epp"
 
 #ifndef GDS_VAL
 #define GDS_VAL(x)		x
@@ -2246,6 +2248,7 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
    struct {
           char  isc_277 [32];	/* RDB$FIELD_NAME */
    } isc_276;
+#line 353 "gpre_meta.epp"
 	SYM symbol;
 	DBB dbb;
 	SCHAR name[NAME_SIZE];
@@ -2288,23 +2291,28 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 		F IN RDB$FIELDS WITH F.RDB$FIELD_NAME EQ name*/
 		{
                 if (!dbb->dbb_domain_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_275), (char *) isc_275);
-		isc_vtov ((char*)name, (char*)isc_276.isc_277, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_276, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_275), (char *) isc_275);
+		isc_vtov ((const char*)name, (char*)isc_276.isc_277, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_276, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 24, &isc_278, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 24, &isc_278, (short) 0);
 		   if (!isc_278.isc_279) break; found = TRUE;
+#line 393 "gpre_meta.epp"
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_278.isc_290;
+#line 394 "gpre_meta.epp"
 		field->fld_scale = /*F.RDB$FIELD_SCALE*/
 				   isc_278.isc_289;
+#line 395 "gpre_meta.epp"
 		field->fld_sub_type = /*F.RDB$FIELD_SUB_TYPE*/
 				      isc_278.isc_288;
+#line 396 "gpre_meta.epp"
 		field->fld_dtype =
 			MET_get_dtype(/*F.RDB$FIELD_TYPE*/
 				      isc_278.isc_287, /*F.RDB$FIELD_SUB_TYPE*/
   isc_278.isc_288,
+#line 398 "gpre_meta.epp"
 						  &field->fld_length);
 
 		switch (field->fld_dtype) {
@@ -2317,22 +2325,29 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 			field->fld_flags |= FLD_blob;
 			field->fld_seg_length = /*F.RDB$SEGMENT_LENGTH*/
 						isc_278.isc_286;
+#line 409 "gpre_meta.epp"
 			break;
 		}
 
 		if (field->fld_dtype <= dtype_any_text) {
 			if (!/*F.RDB$CHARACTER_LENGTH.NULL*/
 			     isc_278.isc_284)
+#line 414 "gpre_meta.epp"
 				field->fld_char_length = /*F.RDB$CHARACTER_LENGTH*/
 							 isc_278.isc_285;
+#line 415 "gpre_meta.epp"
 			if (!/*F.RDB$CHARACTER_SET_ID.NULL*/
 			     isc_278.isc_282)
+#line 416 "gpre_meta.epp"
 				field->fld_charset_id = /*F.RDB$CHARACTER_SET_ID*/
 							isc_278.isc_283;
+#line 417 "gpre_meta.epp"
 			if (!/*F.RDB$COLLATION_ID.NULL*/
 			     isc_278.isc_280)
+#line 418 "gpre_meta.epp"
 				field->fld_collate_id = /*F.RDB$COLLATION_ID*/
 							isc_278.isc_281;
+#line 419 "gpre_meta.epp"
 		}
 
 		field->fld_ttype =
@@ -2342,29 +2357,35 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 		/*END_FOR;*/
 		   }
 		}
+#line 426 "gpre_meta.epp"
 	}
 	else {
 		/*FOR(REQUEST_HANDLE dbb->dbb_domain_request)
 		F IN RDB$FIELDS WITH F.RDB$FIELD_NAME EQ name*/
 		{
                 if (!dbb->dbb_domain_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_265), (char *) isc_265);
-		isc_vtov ((char*)name, (char*)isc_266.isc_267, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_266, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_265), (char *) isc_265);
+		isc_vtov ((const char*)name, (char*)isc_266.isc_267, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_266, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_268, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_268, (short) 0);
 		   if (!isc_268.isc_269) break; found = TRUE;
+#line 430 "gpre_meta.epp"
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_268.isc_274;
+#line 431 "gpre_meta.epp"
 		field->fld_scale = /*F.RDB$FIELD_SCALE*/
 				   isc_268.isc_273;
+#line 432 "gpre_meta.epp"
 		field->fld_sub_type = /*F.RDB$FIELD_SUB_TYPE*/
 				      isc_268.isc_272;
+#line 433 "gpre_meta.epp"
 		field->fld_dtype =
 			MET_get_dtype(/*F.RDB$FIELD_TYPE*/
 				      isc_268.isc_271, /*F.RDB$FIELD_SUB_TYPE*/
   isc_268.isc_272,
+#line 435 "gpre_meta.epp"
 						  &field->fld_length);
 
 		switch (field->fld_dtype) {
@@ -2377,6 +2398,7 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 			field->fld_flags |= FLD_blob;
 			field->fld_seg_length = /*F.RDB$SEGMENT_LENGTH*/
 						isc_268.isc_270;
+#line 446 "gpre_meta.epp"
 			break;
 		}
 
@@ -2387,6 +2409,7 @@ USHORT MET_domain_lookup(GPRE_REQ request, GPRE_FLD field, const char *string)
 		/*END_FOR;*/
 		   }
 		}
+#line 454 "gpre_meta.epp"
 	}
 
 	return found;
@@ -2410,6 +2433,7 @@ BOOLEAN MET_get_domain_default(DBB dbb,
    struct {
           char  isc_260 [32];	/* RDB$FIELD_NAME */
    } isc_259;
+#line 469 "gpre_meta.epp"
 	isc_handle DB, gds_trans;
 	SCHAR name[NAME_SIZE];
 	SSHORT length;
@@ -2427,10 +2451,10 @@ BOOLEAN MET_get_domain_default(DBB dbb,
 	if (dbb == NULL)
 		return FALSE;
 
-	if ((dbb->dbb_handle == NULL) && !MET_database(dbb, FALSE))
+	if ((dbb->dbb_handle == NULL_HANDLE) && !MET_database(dbb, FALSE))
 		CPR_exit(FINI_ERROR);
 
-	assert(dbb->dbb_transaction == NULL);
+	assert(dbb->dbb_transaction == NULL_HANDLE);
 	gds_trans = NULL_HANDLE;
 
 	DB = dbb->dbb_handle;
@@ -2438,25 +2462,28 @@ BOOLEAN MET_get_domain_default(DBB dbb,
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
+#line 495 "gpre_meta.epp"
 
 	/*FOR(REQUEST_HANDLE dbb->dbb_domain_request)
 	GPRE_FLD IN RDB$FIELDS WITH
 		GPRE_FLD.RDB$FIELD_NAME EQ name*/
 	{
         if (!dbb->dbb_domain_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_258), (char *) isc_258);
-	isc_vtov ((char*)name, (char*)isc_259.isc_260, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_259, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_domain_request, (short) sizeof (isc_258), (char *) isc_258);
+	isc_vtov ((const char*)name, (char*)isc_259.isc_260, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_259, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_261, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_domain_request, (short) 1, (short) 12, &isc_261, (short) 0);
 	   if (!isc_261.isc_263) break; if (!/*GPRE_FLD.RDB$DEFAULT_VALUE.NULL*/
       isc_261.isc_264) {
+#line 499 "gpre_meta.epp"
 		blob_id = &/*GPRE_FLD.RDB$DEFAULT_VALUE*/
 			   isc_261.isc_262;
+#line 500 "gpre_meta.epp"
 
 		/* open the blob */
 		stat = isc_open_blob2(status_vect, &DB, &gds_trans, &blob_handle,
@@ -2507,8 +2534,9 @@ BOOLEAN MET_get_domain_default(DBB dbb,
 	   }
 	} /*COMMIT;*/
  {
- isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+ isc_commit_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans);
  }
+#line 547 "gpre_meta.epp"
 	return (has_default);
 }
 
@@ -2540,6 +2568,7 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
           char  isc_250 [32];	/* RDB$RELATION_NAME */
           char  isc_251 [32];	/* RDB$FIELD_NAME */
    } isc_249;
+#line 567 "gpre_meta.epp"
 	DBB dbb;
 	isc_handle DB, gds_trans;
 	SCHAR name[NAME_SIZE];
@@ -2557,10 +2586,10 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 	if ((dbb = relation->rel_database) == NULL)
 		return FALSE;
 
-	if ((dbb->dbb_handle == NULL) && !MET_database(dbb, FALSE))
+	if ((dbb->dbb_handle == NULL_HANDLE) && !MET_database(dbb, FALSE))
 		CPR_exit(FINI_ERROR);
 
-	assert(dbb->dbb_transaction == NULL);
+	assert(dbb->dbb_transaction == NULL_HANDLE);
 	gds_trans = NULL_HANDLE;
 
 	DB = dbb->dbb_handle;
@@ -2568,9 +2597,10 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
+#line 593 "gpre_meta.epp"
 
 	/*FOR(REQUEST_HANDLE dbb->dbb_field_request)
 	RFR IN RDB$RELATION_FIELDS CROSS F IN RDB$FIELDS WITH
@@ -2579,24 +2609,29 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 		RFR.RDB$RELATION_NAME EQ relation->rel_symbol->sym_string*/
 	{
         if (!dbb->dbb_field_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_248), (char *) isc_248);
-	isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_249.isc_250, 32);
-	isc_vtov ((char*)name, (char*)isc_249.isc_251, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_249, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_248), (char *) isc_248);
+	isc_vtov ((const char*)relation->rel_symbol->sym_string, (char*)isc_249.isc_250, 32);
+	isc_vtov ((const char*)name, (char*)isc_249.isc_251, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_249, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 22, &isc_252, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 22, &isc_252, (short) 0);
 	   if (!isc_252.isc_255) break;
+#line 599 "gpre_meta.epp"
 		if (!/*RFR.RDB$DEFAULT_VALUE.NULL*/
 		     isc_252.isc_257) {
+#line 600 "gpre_meta.epp"
 		blob_id = &/*RFR.RDB$DEFAULT_VALUE*/
 			   isc_252.isc_254;
+#line 601 "gpre_meta.epp"
 		has_default = TRUE;
 	}
 	else if (!/*F.RDB$DEFAULT_VALUE.NULL*/
 		  isc_252.isc_256) {
+#line 604 "gpre_meta.epp"
 		blob_id = &/*F.RDB$DEFAULT_VALUE*/
 			   isc_252.isc_253;
+#line 605 "gpre_meta.epp"
 		has_default = TRUE;
 	}
 
@@ -2649,10 +2684,12 @@ BOOLEAN MET_get_column_default(GPRE_REL relation,
 	/*END_FOR;*/
 	   }
 	}
+#line 655 "gpre_meta.epp"
 	/*COMMIT;*/
 	{
-	isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+	isc_commit_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans);
 	}
+#line 656 "gpre_meta.epp"
 	return (has_default);
 }
 
@@ -2673,6 +2710,7 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
    struct {
           char  isc_244 [32];	/* RDB$RELATION_NAME */
    } isc_243;
+#line 669 "gpre_meta.epp"
 	LLS fields = NULL, *ptr_fields;
 	isc_handle DB, gds_trans;
 	SCHAR name[NAME_SIZE];
@@ -2684,10 +2722,10 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 	if (dbb == NULL)
 		return NULL;
 
-	if ((dbb->dbb_handle == NULL) && !MET_database(dbb, FALSE))
+	if ((dbb->dbb_handle == NULL_HANDLE) && !MET_database(dbb, FALSE))
 		CPR_exit(FINI_ERROR);
 
-	assert(dbb->dbb_transaction == NULL);
+	assert(dbb->dbb_transaction == NULL_HANDLE);
 	gds_trans = NULL_HANDLE;
 
 	DB = dbb->dbb_handle;
@@ -2695,9 +2733,10 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
+#line 689 "gpre_meta.epp"
 
 	ptr_fields = &fields;
 
@@ -2712,15 +2751,17 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 		SORTED BY Y.RDB$FIELD_POSITION*/
 	{
         if (!dbb->dbb_primary_key_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) sizeof (isc_242), (char *) isc_242);
-	isc_vtov ((char*)name, (char*)isc_243.isc_244, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_primary_key_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_243, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) sizeof (isc_242), (char *) isc_242);
+	isc_vtov ((const char*)name, (char*)isc_243.isc_244, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_primary_key_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_243, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) 1, (short) 34, &isc_245, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_primary_key_request, (short) 1, (short) 34, &isc_245, (short) 0);
 	   if (!isc_245.isc_247) break;
+#line 701 "gpre_meta.epp"
 		field_name = (str*) MAKE_STRING(/*Y.RDB$FIELD_NAME*/
 						isc_245.isc_246);
+#line 702 "gpre_meta.epp"
 
 	/* Strip off any trailing spaces from field name */
 	tmp = (TEXT*) field_name;
@@ -2735,8 +2776,9 @@ LLS MET_get_primary_key(DBB dbb, const TEXT * relation_name)
 	   }
 	} /*COMMIT;*/
  {
- isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+ isc_commit_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans);
  }
+#line 713 "gpre_meta.epp"
 
 	return fields;
 }
@@ -2791,6 +2833,7 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
           char  isc_220 [32];	/* RDB$RELATION_NAME */
           char  isc_221 [32];	/* RDB$FIELD_NAME */
    } isc_219;
+#line 726 "gpre_meta.epp"
 	SYM symbol;
 	GPRE_FLD field;
 	DBB dbb;
@@ -2831,32 +2874,39 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 			RFR.RDB$RELATION_NAME EQ relation->rel_symbol->sym_string*/
 		{
                 if (!dbb->dbb_field_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_218), (char *) isc_218);
-		isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_219.isc_220, 32);
-		isc_vtov ((char*)name, (char*)isc_219.isc_221, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_219, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_218), (char *) isc_218);
+		isc_vtov ((const char*)relation->rel_symbol->sym_string, (char*)isc_219.isc_220, 32);
+		isc_vtov ((const char*)name, (char*)isc_219.isc_221, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_219, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 98, &isc_222, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 98, &isc_222, (short) 0);
 		   if (!isc_222.isc_225) break;
+#line 764 "gpre_meta.epp"
 			field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_relation = relation;
 		field->fld_next = relation->rel_fields;
 		relation->rel_fields = field;
 		field->fld_id = /*RFR.RDB$FIELD_ID*/
 				isc_222.isc_241;
+#line 769 "gpre_meta.epp"
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_222.isc_240;
+#line 770 "gpre_meta.epp"
 		field->fld_scale = /*F.RDB$FIELD_SCALE*/
 				   isc_222.isc_239;
+#line 771 "gpre_meta.epp"
 		field->fld_position = /*RFR.RDB$FIELD_POSITION*/
 				      isc_222.isc_238;
+#line 772 "gpre_meta.epp"
 		field->fld_sub_type = /*F.RDB$FIELD_SUB_TYPE*/
 				      isc_222.isc_237;
+#line 773 "gpre_meta.epp"
 		field->fld_dtype =
 			MET_get_dtype(/*F.RDB$FIELD_TYPE*/
 				      isc_222.isc_236, /*F.RDB$FIELD_SUB_TYPE*/
   isc_222.isc_237,
+#line 775 "gpre_meta.epp"
 						  &field->fld_length);
 
 		switch (field->fld_dtype) {
@@ -2869,32 +2919,43 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 			field->fld_flags |= FLD_blob;
 			field->fld_seg_length = /*F.RDB$SEGMENT_LENGTH*/
 						isc_222.isc_235;
+#line 786 "gpre_meta.epp"
 			break;
 		}
 
 		if (/*F.RDB$DIMENSIONS*/
 		    isc_222.isc_234 && !(dbb->dbb_flags & DBB_no_arrays))
+#line 790 "gpre_meta.epp"
 			get_array(dbb, /*F.RDB$FIELD_NAME*/
 				       isc_222.isc_224, field);
+#line 791 "gpre_meta.epp"
 
 		if ((field->fld_dtype <= dtype_any_text)
 			|| (field->fld_dtype == dtype_blob)) {
 			if (!/*F.RDB$CHARACTER_LENGTH.NULL*/
 			     isc_222.isc_232)
+#line 795 "gpre_meta.epp"
 				field->fld_char_length = /*F.RDB$CHARACTER_LENGTH*/
 							 isc_222.isc_233;
+#line 796 "gpre_meta.epp"
 			if (!/*F.RDB$CHARACTER_SET_ID.NULL*/
 			     isc_222.isc_230)
+#line 797 "gpre_meta.epp"
 				field->fld_charset_id = /*F.RDB$CHARACTER_SET_ID*/
 							isc_222.isc_231;
+#line 798 "gpre_meta.epp"
 			if (!/*RFR.RDB$COLLATION_ID.NULL*/
 			     isc_222.isc_228)
+#line 799 "gpre_meta.epp"
 				field->fld_collate_id = /*RFR.RDB$COLLATION_ID*/
 							isc_222.isc_229;
+#line 800 "gpre_meta.epp"
 			else if (!/*F.RDB$COLLATION_ID.NULL*/
 				  isc_222.isc_226)
+#line 801 "gpre_meta.epp"
 				field->fld_collate_id = /*F.RDB$COLLATION_ID*/
 							isc_222.isc_227;
+#line 802 "gpre_meta.epp"
 		}
 
 		field->fld_ttype =
@@ -2906,11 +2967,14 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 		field->fld_global = symbol =
 			MSC_symbol(SYM_field, /*RFR.RDB$FIELD_SOURCE*/
 					      isc_222.isc_223,
+#line 812 "gpre_meta.epp"
 					   symbol_length(/*RFR.RDB$FIELD_SOURCE*/
 							 isc_222.isc_223), (GPRE_CTX) field);
+#line 813 "gpre_meta.epp"
 		/*END_FOR;*/
 		   }
 		}
+#line 814 "gpre_meta.epp"
 	}
 	else {
 		/*FOR(REQUEST_HANDLE dbb->dbb_field_request)
@@ -2920,32 +2984,39 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 			RFR.RDB$RELATION_NAME EQ relation->rel_symbol->sym_string*/
 		{
                 if (!dbb->dbb_field_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_203), (char *) isc_203);
-		isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_204.isc_205, 32);
-		isc_vtov ((char*)name, (char*)isc_204.isc_206, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_204, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_field_request, (short) sizeof (isc_203), (char *) isc_203);
+		isc_vtov ((const char*)relation->rel_symbol->sym_string, (char*)isc_204.isc_205, 32);
+		isc_vtov ((const char*)name, (char*)isc_204.isc_206, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_204, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 80, &isc_207, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_field_request, (short) 1, (short) 80, &isc_207, (short) 0);
 		   if (!isc_207.isc_210) break;
+#line 821 "gpre_meta.epp"
 			field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_relation = relation;
 		field->fld_next = relation->rel_fields;
 		relation->rel_fields = field;
 		field->fld_id = /*RFR.RDB$FIELD_ID*/
 				isc_207.isc_217;
+#line 826 "gpre_meta.epp"
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_207.isc_216;
+#line 827 "gpre_meta.epp"
 		field->fld_scale = /*F.RDB$FIELD_SCALE*/
 				   isc_207.isc_215;
+#line 828 "gpre_meta.epp"
 		field->fld_position = /*RFR.RDB$FIELD_POSITION*/
 				      isc_207.isc_214;
+#line 829 "gpre_meta.epp"
 		field->fld_sub_type = /*F.RDB$FIELD_SUB_TYPE*/
 				      isc_207.isc_213;
+#line 830 "gpre_meta.epp"
 		field->fld_dtype =
 			MET_get_dtype(/*F.RDB$FIELD_TYPE*/
 				      isc_207.isc_212, /*F.RDB$FIELD_SUB_TYPE*/
   isc_207.isc_213,
+#line 832 "gpre_meta.epp"
 						  &field->fld_length);
 		switch (field->fld_dtype) {
 		case dtype_text:
@@ -2957,12 +3028,14 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 			field->fld_flags |= FLD_blob;
 			field->fld_seg_length = /*F.RDB$SEGMENT_LENGTH*/
 						isc_207.isc_211;
+#line 842 "gpre_meta.epp"
 			break;
 		}
 
 		if (!(dbb->dbb_flags & DBB_no_arrays))
 			get_array(dbb, /*F.RDB$FIELD_NAME*/
 				       isc_207.isc_209, field);
+#line 847 "gpre_meta.epp"
 
 		field->fld_ttype =
 			INTL_CS_COLL_TO_TTYPE(field->fld_charset_id,
@@ -2973,11 +3046,14 @@ GPRE_FLD MET_field(GPRE_REL relation, const char *string)
 		field->fld_global = symbol =
 			MSC_symbol(SYM_field, /*RFR.RDB$FIELD_SOURCE*/
 					      isc_207.isc_208,
+#line 856 "gpre_meta.epp"
 					   symbol_length(/*RFR.RDB$FIELD_SOURCE*/
 							 isc_207.isc_208), (GPRE_CTX) field);
+#line 857 "gpre_meta.epp"
 		/*END_FOR;*/
 		   }
 		}
+#line 858 "gpre_meta.epp"
 	}
 
 	return field;
@@ -2998,6 +3074,7 @@ GPRE_NOD MET_fields(GPRE_CTX context)
    struct {
           char  isc_199 [32];	/* RDB$RELATION_NAME */
    } isc_198;
+#line 871 "gpre_meta.epp"
 	DBB dbb;
 	GPRE_FLD field;
 	LLS stack;
@@ -3055,22 +3132,26 @@ GPRE_NOD MET_fields(GPRE_CTX context)
 		SORTED BY RFR.RDB$FIELD_POSITION*/
 	{
         if (!dbb->dbb_flds_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_flds_request, (short) sizeof (isc_197), (char *) isc_197);
-	isc_vtov ((char*)relation->rel_symbol->sym_string, (char*)isc_198.isc_199, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_flds_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_198, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_flds_request, (short) sizeof (isc_197), (char *) isc_197);
+	isc_vtov ((const char*)relation->rel_symbol->sym_string, (char*)isc_198.isc_199, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_flds_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_198, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_flds_request, (short) 1, (short) 34, &isc_200, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_flds_request, (short) 1, (short) 34, &isc_200, (short) 0);
 	   if (!isc_200.isc_202) break;
+#line 926 "gpre_meta.epp"
 		for (p = /*RFR.RDB$FIELD_NAME*/
 			 isc_200.isc_201; *p && *p != ' '; p++);
+#line 927 "gpre_meta.epp"
 	*p = 0;
 	PUSH((GPRE_NOD) MET_field(relation, /*RFR.RDB$FIELD_NAME*/
 					    isc_200.isc_201), &stack);
+#line 929 "gpre_meta.epp"
 	count++;
 	/*END_FOR;*/
 	   }
 	}
+#line 931 "gpre_meta.epp"
 
 	node = MAKE_NODE(nod_list, count);
 
@@ -3101,13 +3182,15 @@ void MET_fini( DBB end)
 			if (gds_trans = dbb->dbb_transaction)
 				/*COMMIT;*/
 				{
-				isc_commit_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans);
+				isc_commit_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans);
 				}
+#line 960 "gpre_meta.epp"
 			/*FINISH*/
 			{
 			if (DB)
-			   isc_detach_database ((long*) 0L, &DB);
+			   isc_detach_database ((ISC_STATUS*) 0L, &DB);
 			};
+#line 961 "gpre_meta.epp"
 			dbb->dbb_handle = NULL_HANDLE;
 			dbb->dbb_transaction = NULL_HANDLE;
 
@@ -3284,6 +3367,7 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
    struct {
           short isc_194;	/* RDB$PROCEDURE_ID */
    } isc_193;
+#line 1104 "gpre_meta.epp"
 	SYM symbol;
 	GPRE_FLD *fld_list, field;
 	GPRE_PRC procedure;
@@ -3312,13 +3396,14 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 	X IN RDB$PROCEDURES WITH X.RDB$PROCEDURE_ID = procedure->prc_id*/
 	{
         if (!dbb->dbb_procedure_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_procedure_request, (short) sizeof (isc_192), (char *) isc_192);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_procedure_request, (short) sizeof (isc_192), (char *) isc_192);
 	isc_193.isc_194 = procedure->prc_id;
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_procedure_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 2, &isc_193, (short) 0);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_procedure_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 2, &isc_193, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_procedure_request, (short) 1, (short) 2, &isc_195, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_procedure_request, (short) 1, (short) 2, &isc_195, (short) 0);
 	   if (!isc_195.isc_196) break;;
+#line 1130 "gpre_meta.epp"
 
 	for (type = 0; type < 2; type++) {
 		count = 0;
@@ -3334,43 +3419,51 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 			SORTED BY DESCENDING Y.RDB$PARAMETER_NUMBER*/
 		{
                 if (!dbb->dbb_proc_prms_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) sizeof (isc_183), (char *) isc_183);
-		isc_vtov ((char*)name, (char*)isc_184.isc_185, 32);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) sizeof (isc_183), (char *) isc_183);
+		isc_vtov ((const char*)name, (char*)isc_184.isc_185, 32);
 		isc_184.isc_186 = type;
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prms_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_184, (short) 0);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_proc_prms_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 34, &isc_184, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) 1, (short) 68, &isc_187, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_proc_prms_request, (short) 1, (short) 68, &isc_187, (short) 0);
 		   if (!isc_187.isc_190) break; count++;
+#line 1143 "gpre_meta.epp"
 
 		/*FOR(REQUEST_HANDLE dbb->dbb_proc_prm_fld_request)
 		F IN RDB$FIELDS WITH
 			Y.RDB$FIELD_SOURCE EQ F.RDB$FIELD_NAME*/
 		{
                 if (!dbb->dbb_proc_prm_fld_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) sizeof (isc_167), (char *) isc_167);
-		isc_vtov ((char*)isc_187.isc_189, (char*)isc_168.isc_169, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_168, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) sizeof (isc_167), (char *) isc_167);
+		isc_vtov ((const char*)isc_187.isc_189, (char*)isc_168.isc_169, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_168, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) 1, (short) 24, &isc_170, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_proc_prm_fld_request, (short) 1, (short) 24, &isc_170, (short) 0);
 		   if (!isc_170.isc_171) break;
+#line 1147 "gpre_meta.epp"
 			field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_procedure = procedure;
 		field->fld_next = *fld_list;
 		*fld_list = field;
 		field->fld_position = /*Y.RDB$PARAMETER_NUMBER*/
 				      isc_187.isc_191;
+#line 1152 "gpre_meta.epp"
 		field->fld_length = /*F.RDB$FIELD_LENGTH*/
 				    isc_170.isc_182;
+#line 1153 "gpre_meta.epp"
 		field->fld_scale = /*F.RDB$FIELD_SCALE*/
 				   isc_170.isc_181;
+#line 1154 "gpre_meta.epp"
 		field->fld_sub_type = /*F.RDB$FIELD_SUB_TYPE*/
 				      isc_170.isc_180;
+#line 1155 "gpre_meta.epp"
 		field->fld_dtype = MET_get_dtype(/*F.RDB$FIELD_TYPE*/
 						 isc_170.isc_179,
+#line 1156 "gpre_meta.epp"
 										 /*F.RDB$FIELD_SUB_TYPE*/
 										 isc_170.isc_180,
+#line 1157 "gpre_meta.epp"
 										 &field->fld_length);
 		switch (field->fld_dtype) {
 		case dtype_text:
@@ -3378,16 +3471,22 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 			field->fld_flags |= FLD_text;
 			if (!/*F.RDB$CHARACTER_LENGTH.NULL*/
 			     isc_170.isc_177)
+#line 1163 "gpre_meta.epp"
 				field->fld_char_length = /*F.RDB$CHARACTER_LENGTH*/
 							 isc_170.isc_178;
+#line 1164 "gpre_meta.epp"
 			if (!/*F.RDB$CHARACTER_SET_ID.NULL*/
 			     isc_170.isc_175)
+#line 1165 "gpre_meta.epp"
 				field->fld_charset_id = /*F.RDB$CHARACTER_SET_ID*/
 							isc_170.isc_176;
+#line 1166 "gpre_meta.epp"
 			if (!/*F.RDB$COLLATION_ID.NULL*/
 			     isc_170.isc_173)
+#line 1167 "gpre_meta.epp"
 				field->fld_collate_id = /*F.RDB$COLLATION_ID*/
 							isc_170.isc_174;
+#line 1168 "gpre_meta.epp"
 			field->fld_ttype =
 				INTL_CS_COLL_TO_TTYPE(field->fld_charset_id,
 									  field->fld_collate_id);
@@ -3397,17 +3496,22 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 			field->fld_flags |= FLD_blob;
 			field->fld_seg_length = /*F.RDB$SEGMENT_LENGTH*/
 						isc_170.isc_172;
+#line 1176 "gpre_meta.epp"
 			if (!/*F.RDB$CHARACTER_SET_ID.NULL*/
 			     isc_170.isc_175)
+#line 1177 "gpre_meta.epp"
 				field->fld_charset_id = /*F.RDB$CHARACTER_SET_ID*/
 							isc_170.isc_176;
+#line 1178 "gpre_meta.epp"
 			break;
 		}
 		field->fld_symbol = MSC_symbol(SYM_field,
 									   /*Y.RDB$PARAMETER_NAME*/
 									   isc_187.isc_188,
+#line 1182 "gpre_meta.epp"
 									   symbol_length(/*Y.RDB$PARAMETER_NAME*/
 											 isc_187.isc_188),
+#line 1183 "gpre_meta.epp"
 									   (GPRE_CTX) field);
 		/* If output parameter, insert in symbol table as a
 		   field. */
@@ -3417,10 +3521,12 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 		/*END_FOR;*/
 		   }
 		}
+#line 1190 "gpre_meta.epp"
 
 		/*END_FOR;*/
 		   }
 		}
+#line 1192 "gpre_meta.epp"
 
 		if (type)
 			procedure->prc_out_count = count;
@@ -3431,6 +3537,7 @@ GPRE_PRC MET_get_procedure(DBB dbb, const TEXT * string, const TEXT * owner_name
 	/*END_FOR;*/
 	   }
 	}
+#line 1200 "gpre_meta.epp"
 	procedure->prc_flags |= PRC_scanned;
 
 /*  Generate a dummy relation to point to the procedure to use when procedure
@@ -3519,6 +3626,7 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
    struct {
           char  isc_159 [32];	/* RDB$FUNCTION_NAME */
    } isc_158;
+#line 1264 "gpre_meta.epp"
 	SYM symbol;
 	GPRE_FLD field;
 	UDF udf;
@@ -3547,13 +3655,14 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 			SORTED BY DESCENDING UDF_ARG.RDB$ARGUMENT_POSITION*/
 		{
                 if (!dbb->dbb_udf_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_157), (char *) isc_157);
-		isc_vtov ((char*)name, (char*)isc_158.isc_159, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_158, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_157), (char *) isc_157);
+		isc_vtov ((const char*)name, (char*)isc_158.isc_159, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_158, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 12, &isc_160, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 12, &isc_160, (short) 0);
 		   if (!isc_160.isc_161) break;;
+#line 1290 "gpre_meta.epp"
 
 		field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_next = udf->udf_inputs;
@@ -3561,16 +3670,22 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 		udf->udf_args++;
 		field->fld_position = /*UDF_ARG.RDB$ARGUMENT_POSITION*/
 				      isc_160.isc_166;
+#line 1296 "gpre_meta.epp"
 		field->fld_length = /*UDF_ARG.RDB$FIELD_LENGTH*/
 				    isc_160.isc_165;
+#line 1297 "gpre_meta.epp"
 		field->fld_scale = /*UDF_ARG.RDB$FIELD_SCALE*/
 				   isc_160.isc_164;
+#line 1298 "gpre_meta.epp"
 		field->fld_sub_type = /*UDF_ARG.RDB$FIELD_SUB_TYPE*/
 				      isc_160.isc_163;
+#line 1299 "gpre_meta.epp"
 		field->fld_dtype = MET_get_dtype(/*UDF_ARG.RDB$FIELD_TYPE*/
 						 isc_160.isc_162,
+#line 1300 "gpre_meta.epp"
 										 /*UDF_ARG.RDB$FIELD_SUB_TYPE*/
 										 isc_160.isc_163,
+#line 1301 "gpre_meta.epp"
 										 &field->fld_length);
 		switch (field->fld_dtype) {
 		case dtype_text:
@@ -3585,6 +3700,7 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 		/*END_FOR;*/
 		   }
 		}
+#line 1313 "gpre_meta.epp"
 	}
 	else {
 		/* Same request as above, but with V4 metadata also fetched */
@@ -3597,13 +3713,14 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 			SORTED BY DESCENDING UDF_ARG.RDB$ARGUMENT_POSITION*/
 		{
                 if (!dbb->dbb_udf_request)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_145), (char *) isc_145);
-		isc_vtov ((char*)name, (char*)isc_146.isc_147, 32);
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_146, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_udf_request, (short) sizeof (isc_145), (char *) isc_145);
+		isc_vtov ((const char*)name, (char*)isc_146.isc_147, 32);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_146, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 16, &isc_148, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_udf_request, (short) 1, (short) 16, &isc_148, (short) 0);
 		   if (!isc_148.isc_149) break;;
+#line 1323 "gpre_meta.epp"
 
 		field = (GPRE_FLD) ALLOC(FLD_LEN);
 		field->fld_next = udf->udf_inputs;
@@ -3611,16 +3728,22 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 		udf->udf_args++;
 		field->fld_position = /*UDF_ARG.RDB$ARGUMENT_POSITION*/
 				      isc_148.isc_156;
+#line 1329 "gpre_meta.epp"
 		field->fld_length = /*UDF_ARG.RDB$FIELD_LENGTH*/
 				    isc_148.isc_155;
+#line 1330 "gpre_meta.epp"
 		field->fld_scale = /*UDF_ARG.RDB$FIELD_SCALE*/
 				   isc_148.isc_154;
+#line 1331 "gpre_meta.epp"
 		field->fld_sub_type = /*UDF_ARG.RDB$FIELD_SUB_TYPE*/
 				      isc_148.isc_153;
+#line 1332 "gpre_meta.epp"
 		field->fld_dtype = MET_get_dtype(/*UDF_ARG.RDB$FIELD_TYPE*/
 						 isc_148.isc_152,
+#line 1333 "gpre_meta.epp"
 										 /*UDF_ARG.RDB$FIELD_SUB_TYPE*/
 										 isc_148.isc_153,
+#line 1334 "gpre_meta.epp"
 										 &field->fld_length);
 		switch (field->fld_dtype) {
 		case dtype_text:
@@ -3628,8 +3751,10 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 			field->fld_flags |= FLD_text;
 			if (!/*UDF_ARG.RDB$CHARACTER_SET_ID.NULL*/
 			     isc_148.isc_150)
+#line 1340 "gpre_meta.epp"
 				field->fld_charset_id = /*UDF_ARG.RDB$CHARACTER_SET_ID*/
 							isc_148.isc_151;
+#line 1341 "gpre_meta.epp"
 			field->fld_ttype =
 				INTL_CS_COLL_TO_TTYPE(field->fld_charset_id,
 									  field->fld_collate_id);
@@ -3639,13 +3764,16 @@ UDF MET_get_udf(DBB dbb, const TEXT * string)
 			field->fld_flags |= FLD_blob;
 			if (!/*UDF_ARG.RDB$CHARACTER_SET_ID.NULL*/
 			     isc_148.isc_150)
+#line 1349 "gpre_meta.epp"
 				field->fld_charset_id = /*UDF_ARG.RDB$CHARACTER_SET_ID*/
 							isc_148.isc_151;
+#line 1350 "gpre_meta.epp"
 			break;
 		}
 		/*END_FOR;*/
 		   }
 		}
+#line 1353 "gpre_meta.epp"
 	}
 
 	udf->udf_flags |= UDF_scanned;
@@ -3673,6 +3801,7 @@ GPRE_REL MET_get_view_relation(GPRE_REQ request,
    struct {
           char  isc_140 [32];	/* RDB$VIEW_NAME */
    } isc_139;
+#line 1372 "gpre_meta.epp"
 	DBB dbb;
 	TEXT *p;
 	GPRE_REL relation;
@@ -3688,37 +3817,45 @@ GPRE_REL MET_get_view_relation(GPRE_REQ request,
 		X.RDB$VIEW_NAME EQ view_name*/
 	{
         if (!dbb->dbb_view_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_view_request, (short) sizeof (isc_138), (char *) isc_138);
-	isc_vtov ((char*)view_name, (char*)isc_139.isc_140, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_view_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_139, (short) level);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_view_request, (short) sizeof (isc_138), (char *) isc_138);
+	isc_vtov ((const char*)view_name, (char*)isc_139.isc_140, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_view_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_139, (short) level);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_view_request, (short) 1, (short) 66, &isc_141, (short) level);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_view_request, (short) 1, (short) 66, &isc_141, (short) level);
 	   if (!isc_141.isc_144) break;
+#line 1385 "gpre_meta.epp"
 		for (p = /*X.RDB$CONTEXT_NAME*/
 			 isc_141.isc_143; *p && *p != ' '; p++);
+#line 1386 "gpre_meta.epp"
 	*p = 0;
 
 	for (p = /*X.RDB$RELATION_NAME*/
 		 isc_141.isc_142; *p && *p != ' '; p++);
+#line 1389 "gpre_meta.epp"
 	*p = 0;
 
 	if (!strcmp(/*X.RDB$RELATION_NAME*/
 		    isc_141.isc_142, relation_or_alias) ||
+#line 1392 "gpre_meta.epp"
 		!strcmp(/*X.RDB$CONTEXT_NAME*/
 			isc_141.isc_143, relation_or_alias))
+#line 1393 "gpre_meta.epp"
 		return MET_get_relation(dbb, /*X.RDB$RELATION_NAME*/
 					     isc_141.isc_142, "");
+#line 1394 "gpre_meta.epp"
 
 	if (relation =
 		MET_get_view_relation(request, /*X.RDB$RELATION_NAME*/
 					       isc_141.isc_142, relation_or_alias,
+#line 1397 "gpre_meta.epp"
 							  level + 1))
 		return relation;
 
 	/*END_FOR;*/
 	   }
 	}
+#line 1401 "gpre_meta.epp"
 
 	return NULL;
 }
@@ -3739,6 +3876,7 @@ IND MET_index(DBB dbb, const TEXT * string)
    struct {
           char  isc_134 [32];	/* RDB$INDEX_NAME */
    } isc_133;
+#line 1414 "gpre_meta.epp"
 	SYM symbol;
 	IND index;
 	SCHAR name[NAME_SIZE];
@@ -3767,22 +3905,25 @@ IND MET_index(DBB dbb, const TEXT * string)
 	X IN RDB$INDICES WITH X.RDB$INDEX_NAME EQ name*/
 	{
         if (!dbb->dbb_index_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_index_request, (short) sizeof (isc_132), (char *) isc_132);
-	isc_vtov ((char*)name, (char*)isc_133.isc_134, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_index_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_133, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_index_request, (short) sizeof (isc_132), (char *) isc_132);
+	isc_vtov ((const char*)name, (char*)isc_133.isc_134, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_index_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_133, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_index_request, (short) 1, (short) 34, &isc_135, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_index_request, (short) 1, (short) 34, &isc_135, (short) 0);
 	   if (!isc_135.isc_137) break;
+#line 1440 "gpre_meta.epp"
 		index = (IND) ALLOC(IND_LEN);
 	index->ind_symbol = symbol = MSC_symbol(SYM_index, name, length, (GPRE_CTX) index);
 	index->ind_relation = MET_get_relation(dbb, /*X.RDB$RELATION_NAME*/
 						    isc_135.isc_136, "");
+#line 1443 "gpre_meta.epp"
 	HSH_insert(symbol);
 
 	/*END_FOR;*/
 	   }
 	}
+#line 1446 "gpre_meta.epp"
 
 	return index;
 }
@@ -3883,6 +4024,7 @@ void MET_load_hash_table( DBB dbb)
    struct {
           short isc_131;	/* isc_utility */
    } isc_130;
+#line 1460 "gpre_meta.epp"
 	GPRE_REL relation;
 	GPRE_PRC procedure;
 	SYM symbol;
@@ -3909,39 +4051,42 @@ void MET_load_hash_table( DBB dbb)
 		/* we must have already loaded this one */
 		return;
 
-	gds_trans = NULL;
+	gds_trans = NULL_HANDLE;
 	DB = dbb->dbb_handle;
 
 	/*START_TRANSACTION;*/
 	{
 	{
-	isc_start_transaction ((long*) 0L, (isc_tr_handle*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
+	isc_start_transaction ((ISC_STATUS*) 0L, (FB_API_HANDLE*) &gds_trans, (short) 1, &DB, (short) 0, (char*) 0);
 	}
 	}
+#line 1490 "gpre_meta.epp"
 
 	dbb->dbb_transaction = gds_trans;
-	handle = handle2 = NULL;
+	handle = handle2 = NULL_HANDLE;
 
 /*  Determine if the database is V3.  */
 
 	post_v3_flag = FALSE;
-	handle = NULL;
+	handle = NULL_HANDLE;
 	/*FOR(REQUEST_HANDLE handle)
 	X IN RDB$RELATIONS WITH
 		X.RDB$RELATION_NAME = 'RDB$PROCEDURES' AND
 		X.RDB$SYSTEM_FLAG = 1*/
 	{
         if (!handle)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_129), (char *) isc_129);
-        isc_start_request ((long*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_129), (char *) isc_129);
+        isc_start_request ((ISC_STATUS*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 2, &isc_130, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 2, &isc_130, (short) 0);
 	   if (!isc_130.isc_131) break; post_v3_flag = TRUE;
+#line 1502 "gpre_meta.epp"
 
 	/*END_FOR;*/
 	   }
 	}
+#line 1504 "gpre_meta.epp"
 	isc_release_request(isc_status, GDS_REF(handle));
 
 	if (!post_v3_flag)
@@ -3954,28 +4099,33 @@ void MET_load_hash_table( DBB dbb)
 		X IN RDB$RELATIONS*/
 		{
                 if (!handle)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_123), (char *) isc_123);
-                isc_start_request ((long*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_123), (char *) isc_123);
+                isc_start_request ((ISC_STATUS*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 38, &isc_124, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 38, &isc_124, (short) 0);
 		   if (!isc_124.isc_126) break; relation = (GPRE_REL) ALLOC(REL_LEN);
+#line 1514 "gpre_meta.epp"
 		relation->rel_database = dbb;
 		relation->rel_next = dbb->dbb_relations;
 		dbb->dbb_relations = relation;
 		relation->rel_id = /*X.RDB$RELATION_ID*/
 				   isc_124.isc_128;
+#line 1518 "gpre_meta.epp"
 		relation->rel_symbol = symbol =
 			MSC_symbol(SYM_relation, /*X.RDB$RELATION_NAME*/
 						 isc_124.isc_125,
+#line 1520 "gpre_meta.epp"
 					   symbol_length(/*X.RDB$RELATION_NAME*/
 							 isc_124.isc_125), (GPRE_CTX) relation);
+#line 1521 "gpre_meta.epp"
 		HSH_insert(symbol);
 		relation->rel_dbkey = dbkey = MET_make_field("rdb$db_key", dtype_text,
 													 (/*X.RDB$DBKEY_LENGTH*/
 													  isc_124.isc_127) ? /*X.
 													 RDB$DBKEY_LENGTH*/
     isc_124.isc_127 : 8,
+#line 1525 "gpre_meta.epp"
 													 FALSE);
 		dbkey->fld_flags |= FLD_dbkey | FLD_text | FLD_charset;
 		dbkey->fld_ttype = ttype_binary;
@@ -3983,49 +4133,59 @@ void MET_load_hash_table( DBB dbb)
 		/*END_FOR;*/
 		   }
 		}
+#line 1530 "gpre_meta.epp"
 	}
 	else {
 		/*FOR(REQUEST_HANDLE handle)
 		X IN RDB$RELATIONS*/
 		{
                 if (!handle)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_115), (char *) isc_115);
-                isc_start_request ((long*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle, (short) sizeof (isc_115), (char *) isc_115);
+                isc_start_request ((ISC_STATUS*) 0L, (isc_req_handle*) &handle, (isc_tr_handle*) &gds_trans, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 72, &isc_116, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &handle, (short) 0, (short) 72, &isc_116, (short) 0);
 		   if (!isc_116.isc_119) break; relation = (GPRE_REL) ALLOC(REL_LEN);
+#line 1534 "gpre_meta.epp"
 		relation->rel_database = dbb;
 		relation->rel_next = dbb->dbb_relations;
 		dbb->dbb_relations = relation;
 		relation->rel_id = /*X.RDB$RELATION_ID*/
 				   isc_116.isc_122;
+#line 1538 "gpre_meta.epp"
 		relation->rel_symbol = symbol =
 			MSC_symbol(SYM_relation, /*X.RDB$RELATION_NAME*/
 						 isc_116.isc_118,
+#line 1540 "gpre_meta.epp"
 					   symbol_length(/*X.RDB$RELATION_NAME*/
 							 isc_116.isc_118), (GPRE_CTX) relation);
+#line 1541 "gpre_meta.epp"
 		HSH_insert(symbol);
 		relation->rel_dbkey = dbkey = MET_make_field("rdb$db_key", dtype_text,
 													 (/*X.RDB$DBKEY_LENGTH*/
 													  isc_116.isc_121) ? /*X.
 													 RDB$DBKEY_LENGTH*/
     isc_116.isc_121 : 8,
+#line 1545 "gpre_meta.epp"
 													 FALSE);
 		dbkey->fld_flags |= FLD_dbkey | FLD_text | FLD_charset;
 		dbkey->fld_ttype = ttype_binary;
 
 		if (!/*X.RDB$OWNER_NAME.NULL*/
 		     isc_116.isc_120
+#line 1550 "gpre_meta.epp"
 			&& (length =
 				symbol_length(/*X.RDB$OWNER_NAME*/
 					      isc_116.isc_117))) relation->rel_owner =
+#line 1552 "gpre_meta.epp"
 				MSC_symbol(SYM_username, /*X.RDB$OWNER_NAME*/
 							 isc_116.isc_117, length, (GPRE_CTX) NULL_PTR);
+#line 1553 "gpre_meta.epp"
 
 		/*END_FOR;*/
 		   }
 		}
+#line 1555 "gpre_meta.epp"
 	}
 
 	isc_release_request(isc_status, GDS_REF(handle));
@@ -4044,32 +4204,40 @@ void MET_load_hash_table( DBB dbb)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle, (short) 0, (short) 70, &isc_109, (short) 0);
 	   if (!isc_109.isc_112 || isc_status [1]) break; procedure = (GPRE_PRC) ALLOC(REL_LEN);
+#line 1563 "gpre_meta.epp"
 	procedure->prc_database = dbb;
 	procedure->prc_next = (GPRE_PRC) dbb->dbb_procedures;
 	dbb->dbb_procedures = (GPRE_REL) procedure;
 	procedure->prc_id = /*X.RDB$PROCEDURE_ID*/
 			    isc_109.isc_114;
+#line 1567 "gpre_meta.epp"
 	procedure->prc_symbol = symbol =
 		MSC_symbol(SYM_procedure, /*X.RDB$PROCEDURE_NAME*/
 					  isc_109.isc_111,
+#line 1569 "gpre_meta.epp"
 				   symbol_length(/*X.RDB$PROCEDURE_NAME*/
 						 isc_109.isc_111), (GPRE_CTX) procedure);
+#line 1570 "gpre_meta.epp"
 	HSH_insert(symbol);
 	if (!/*X.RDB$OWNER_NAME.NULL*/
 	     isc_109.isc_113 && (length = symbol_length(/*X.RDB$OWNER_NAME*/
 			    isc_109.isc_110)))
+#line 1572 "gpre_meta.epp"
 		procedure->prc_owner =
 			MSC_symbol(SYM_username, /*X.RDB$OWNER_NAME*/
 						 isc_109.isc_110, length, (GPRE_CTX) NULL_PTR);
+#line 1574 "gpre_meta.epp"
 	/*END_FOR*/
 	   }
 	   }; /*ON_ERROR*/
  if (isc_status [1])
     {
+#line 1575 "gpre_meta.epp"
 		/* assume pre V4 database, no procedures */
 		/*END_ERROR;*/
 		   }
 		}
+#line 1577 "gpre_meta.epp"
 
 	if (handle)
 		isc_release_request(isc_status, GDS_REF(handle));
@@ -4092,8 +4260,10 @@ void MET_load_hash_table( DBB dbb)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle, (short) 0, (short) 110, &isc_97, (short) 0);
 	   if (!isc_97.isc_101 || isc_status [1]) break;
+#line 1589 "gpre_meta.epp"
 		p = /*FUN.RDB$FUNCTION_NAME*/
 		    isc_97.isc_100;
+#line 1590 "gpre_meta.epp"
 	length = symbol_length(p);
 	p[length] = 0;
 
@@ -4102,11 +4272,14 @@ void MET_load_hash_table( DBB dbb)
 	udf->udf_database = dbb;
 	udf->udf_type = /*FUN.RDB$FUNCTION_TYPE*/
 			isc_97.isc_107;
+#line 1597 "gpre_meta.epp"
 
 	if (length = symbol_length(/*FUN.RDB$QUERY_NAME*/
 				   isc_97.isc_99)) {
+#line 1599 "gpre_meta.epp"
 		p = /*FUN.RDB$QUERY_NAME*/
 		    isc_97.isc_99;
+#line 1600 "gpre_meta.epp"
 		p[length] = 0;
 	}
 	udf->udf_symbol = symbol = MSC_symbol(SYM_udf, p, strlen(p), (GPRE_CTX) udf);
@@ -4114,14 +4287,18 @@ void MET_load_hash_table( DBB dbb)
 
 	udf->udf_length = /*ARG.RDB$FIELD_LENGTH*/
 			  isc_97.isc_106;
+#line 1606 "gpre_meta.epp"
 	udf->udf_scale = /*ARG.RDB$FIELD_SCALE*/
 			 isc_97.isc_105;
+#line 1607 "gpre_meta.epp"
 	udf->udf_sub_type = /*ARG.RDB$FIELD_SUB_TYPE*/
 			    isc_97.isc_104;
+#line 1608 "gpre_meta.epp"
 	udf->udf_dtype =
 		MET_get_dtype(/*ARG.RDB$FIELD_TYPE*/
 			      isc_97.isc_103, /*ARG.RDB$FIELD_SUB_TYPE*/
   isc_97.isc_104,
+#line 1610 "gpre_meta.epp"
 					  &udf->udf_length);
 
 	if (post_v3_flag) {
@@ -4136,24 +4313,28 @@ void MET_load_hash_table( DBB dbb)
 			V4ARG.RDB$ARGUMENT_POSITION EQ ARG.RDB$ARGUMENT_POSITION*/
 		{
                 if (!handle2)
-                   isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle2, (short) sizeof (isc_88), (char *) isc_88);
-		isc_vtov ((char*)isc_97.isc_98, (char*)isc_89.isc_90, 32);
+                   isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &handle2, (short) sizeof (isc_88), (char *) isc_88);
+		isc_vtov ((const char*)isc_97.isc_98, (char*)isc_89.isc_90, 32);
 		isc_89.isc_91 = isc_97.isc_102;
-                isc_start_and_send ((long*) 0L, (isc_req_handle*) &handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_89, (short) 0);
+                isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 34, &isc_89, (short) 0);
 		while (1)
 		   {
-                   isc_receive ((long*) 0L, (isc_req_handle*) &handle2, (short) 1, (short) 6, &isc_92, (short) 0);
+                   isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &handle2, (short) 1, (short) 6, &isc_92, (short) 0);
 		   if (!isc_92.isc_93) break;;
+#line 1622 "gpre_meta.epp"
 
 		udf->udf_charset_id = /*V4ARG.RDB$CHARACTER_SET_ID*/
 				      isc_92.isc_95;
+#line 1624 "gpre_meta.epp"
 		udf->udf_ttype =
 			INTL_CS_COLL_TO_TTYPE(udf->udf_charset_id, /*COLL.RDB$COLLATION_ID*/
 								   isc_92.isc_94);
+#line 1626 "gpre_meta.epp"
 
 		/*END_FOR;*/
 		   }
 		}
+#line 1628 "gpre_meta.epp"
 
 	}
 	/*END_FOR*/
@@ -4163,6 +4344,7 @@ void MET_load_hash_table( DBB dbb)
     { /*END_ERROR;*/
     }
  }
+#line 1631 "gpre_meta.epp"
 
 	isc_release_request(isc_status, GDS_REF(handle));
 	if (handle2)
@@ -4186,9 +4368,11 @@ void MET_load_hash_table( DBB dbb)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle, (short) 0, (short) 42, &isc_81, (short) 0);
 	   if (!isc_81.isc_83 || isc_status [1]) break;;
+#line 1644 "gpre_meta.epp"
 
 	p = /*COLL.RDB$COLLATION_NAME*/
 	    isc_81.isc_82;
+#line 1646 "gpre_meta.epp"
 	length = symbol_length(p);
 	p[length] = 0;
 	iname = (INTLSYM) ALLOC(INTLSYM_LEN + length);
@@ -4201,8 +4385,10 @@ void MET_load_hash_table( DBB dbb)
 	iname->intlsym_flags = 0;
 	iname->intlsym_charset_id = /*COLL.RDB$CHARACTER_SET_ID*/
 				    isc_81.isc_87;
+#line 1657 "gpre_meta.epp"
 	iname->intlsym_collate_id = /*COLL.RDB$COLLATION_ID*/
 				    isc_81.isc_86;
+#line 1658 "gpre_meta.epp"
 	iname->intlsym_ttype =
 		INTL_CS_COLL_TO_TTYPE(iname->intlsym_charset_id,
 							  iname->intlsym_collate_id);
@@ -4211,6 +4397,7 @@ void MET_load_hash_table( DBB dbb)
 		 isc_81.isc_84) ? 1 : (/*CHARSET.
 													  RDB$BYTES_PER_CHARACTER*/
 	 isc_81.isc_85);
+#line 1664 "gpre_meta.epp"
 	iname->intlsym_next = text_subtypes;
 	text_subtypes = iname;
 
@@ -4222,18 +4409,20 @@ void MET_load_hash_table( DBB dbb)
 	{
         if (!handle2)
            isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &handle2, (short) sizeof (isc_73), (char *) isc_73);
-	isc_vtov ((char*)isc_81.isc_82, (char*)isc_74.isc_75, 32);
+	isc_vtov ((const char*)isc_81.isc_82, (char*)isc_74.isc_75, 32);
 	isc_74.isc_76 = isc_81.isc_86;
 	if (handle2)
-           isc_start_and_send (isc_status, (isc_req_handle*) &handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_74, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 34, &isc_74, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle2, (short) 1, (short) 34, &isc_77, (short) 0);
 	   if (!isc_77.isc_79 || isc_status [1]) break;;
+#line 1672 "gpre_meta.epp"
 
 	p = /*TYPE.RDB$TYPE_NAME*/
 	    isc_77.isc_78;
+#line 1674 "gpre_meta.epp"
 	length = symbol_length(p);
 	p[length] = 0;
 	symbol = MSC_symbol(SYM_collate, p, length, (GPRE_CTX) iname);
@@ -4245,16 +4434,19 @@ void MET_load_hash_table( DBB dbb)
     { /*END_ERROR;*/
     }
  }
+#line 1679 "gpre_meta.epp"
 
 	/*END_FOR*/
 	   }
 	   }; /*ON_ERROR*/
  if (isc_status [1])
     {
+#line 1681 "gpre_meta.epp"
 		/* assume pre V4 database, no collations */
 		/*END_ERROR;*/
 		   }
 		}
+#line 1683 "gpre_meta.epp"
 
 	isc_release_request(isc_status, GDS_REF(handle));
 	if (handle2)
@@ -4276,9 +4468,11 @@ void MET_load_hash_table( DBB dbb)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle, (short) 0, (short) 44, &isc_65, (short) 0);
 	   if (!isc_65.isc_67 || isc_status [1]) break;;
+#line 1694 "gpre_meta.epp"
 
 	p = /*CHARSET.RDB$CHARACTER_SET_NAME*/
 	    isc_65.isc_66;
+#line 1696 "gpre_meta.epp"
 	length = symbol_length(p);
 	p[length] = 0;
 	iname = (INTLSYM) ALLOC(INTLSYM_LEN + length);
@@ -4291,8 +4485,10 @@ void MET_load_hash_table( DBB dbb)
 	iname->intlsym_flags = 0;
 	iname->intlsym_charset_id = /*COLL.RDB$CHARACTER_SET_ID*/
 				    isc_65.isc_72;
+#line 1707 "gpre_meta.epp"
 	iname->intlsym_collate_id = /*COLL.RDB$COLLATION_ID*/
 				    isc_65.isc_71;
+#line 1708 "gpre_meta.epp"
 	iname->intlsym_ttype =
 		INTL_CS_COLL_TO_TTYPE(iname->intlsym_charset_id,
 							  iname->intlsym_collate_id);
@@ -4301,6 +4497,7 @@ void MET_load_hash_table( DBB dbb)
 		 isc_65.isc_69) ? 1 : (/*CHARSET.
 													  RDB$BYTES_PER_CHARACTER*/
 	 isc_65.isc_70);
+#line 1714 "gpre_meta.epp"
 
 	/*FOR(REQUEST_HANDLE handle2)
 	TYPE IN RDB$TYPES
@@ -4310,18 +4507,20 @@ void MET_load_hash_table( DBB dbb)
 	{
         if (!handle2)
            isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &handle2, (short) sizeof (isc_57), (char *) isc_57);
-	isc_vtov ((char*)isc_65.isc_66, (char*)isc_58.isc_59, 32);
+	isc_vtov ((const char*)isc_65.isc_66, (char*)isc_58.isc_59, 32);
 	isc_58.isc_60 = isc_65.isc_68;
 	if (handle2)
-           isc_start_and_send (isc_status, (isc_req_handle*) &handle2, (isc_req_handle*) &gds_trans, (short) 0, (short) 34, &isc_58, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &handle2, (isc_tr_handle*) &gds_trans, (short) 0, (short) 34, &isc_58, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle2, (short) 1, (short) 34, &isc_61, (short) 0);
 	   if (!isc_61.isc_63 || isc_status [1]) break;;
+#line 1720 "gpre_meta.epp"
 
 	p = /*TYPE.RDB$TYPE_NAME*/
 	    isc_61.isc_62;
+#line 1722 "gpre_meta.epp"
 	length = symbol_length(p);
 	p[length] = 0;
 	symbol = MSC_symbol(SYM_charset, p, length, (GPRE_CTX) iname);
@@ -4333,16 +4532,19 @@ void MET_load_hash_table( DBB dbb)
     { /*END_ERROR;*/
     }
  }
+#line 1727 "gpre_meta.epp"
 
 	/*END_FOR*/
 	   }
 	   }; /*ON_ERROR*/
  if (isc_status [1])
     {
+#line 1729 "gpre_meta.epp"
 		/* assume pre V4 database, no character sets */
 		/*END_ERROR;*/
 		   }
 		}
+#line 1731 "gpre_meta.epp"
 
 	isc_release_request(isc_status, GDS_REF(handle));
 	if (handle2)
@@ -4363,8 +4565,10 @@ void MET_load_hash_table( DBB dbb)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle, (short) 0, (short) 34, &isc_54, (short) 0);
 	   if (!isc_54.isc_56 || isc_status [1]) break;
+#line 1741 "gpre_meta.epp"
 		p = /*DBB.RDB$CHARACTER_SET_NAME*/
 		    isc_54.isc_55;
+#line 1742 "gpre_meta.epp"
 	length = symbol_length(p);
 	p[length] = 0;
 	dbb->dbb_def_charset = (TEXT *) ALLOC(length + 1);
@@ -4376,10 +4580,12 @@ void MET_load_hash_table( DBB dbb)
 	   }; /*ON_ERROR*/
  if (isc_status [1])
     {
+#line 1749 "gpre_meta.epp"
 		/* Assume V3 Db, no default charset */
 		/*END_ERROR;*/
 		   }
 		}
+#line 1751 "gpre_meta.epp"
 
 	isc_release_request(isc_status, GDS_REF(handle));
 
@@ -4397,10 +4603,13 @@ void MET_load_hash_table( DBB dbb)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &handle, (short) 0, (short) 34, &isc_50, (short) 0);
 	   if (!isc_50.isc_52 || isc_status [1]) break;
+#line 1758 "gpre_meta.epp"
 		symbol = MSC_symbol(SYM_generator, /*X.RDB$GENERATOR_NAME*/
 						   isc_50.isc_51,
+#line 1759 "gpre_meta.epp"
 							symbol_length(/*X.RDB$GENERATOR_NAME*/
 								      isc_50.isc_51), (GPRE_CTX) dbb);
+#line 1760 "gpre_meta.epp"
 	HSH_insert(symbol);
 
 	/*END_FOR*/
@@ -4410,6 +4619,7 @@ void MET_load_hash_table( DBB dbb)
     { /*END_ERROR;*/
     }
  }
+#line 1763 "gpre_meta.epp"
 
 	isc_release_request(isc_status, GDS_REF(handle));
 
@@ -4506,6 +4716,7 @@ BOOLEAN MET_type(GPRE_FLD field, const TEXT* string, SSHORT * ptr)
           char  isc_44 [32];	/* RDB$TYPE_NAME */
           char  isc_45 [32];	/* RDB$FIELD_NAME */
    } isc_43;
+#line 1851 "gpre_meta.epp"
 	GPRE_REL relation;
 	DBB dbb;
 	SYM symbol;
@@ -4537,19 +4748,21 @@ BOOLEAN MET_type(GPRE_FLD field, const TEXT* string, SSHORT * ptr)
 	{
         if (!dbb->dbb_type_request)
            isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_type_request, (short) sizeof (isc_42), (char *) isc_42);
-	isc_vtov ((char*)buffer, (char*)isc_43.isc_44, 32);
-	isc_vtov ((char*)field->fld_global->sym_string, (char*)isc_43.isc_45, 32);
+	isc_vtov ((const char*)buffer, (char*)isc_43.isc_44, 32);
+	isc_vtov ((const char*)field->fld_global->sym_string, (char*)isc_43.isc_45, 32);
 	if (dbb->dbb_type_request)
-           isc_start_and_send (isc_status, (isc_req_handle*) &dbb->dbb_type_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_43, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &dbb->dbb_type_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_43, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &dbb->dbb_type_request, (short) 1, (short) 4, &isc_46, (short) 0);
 	   if (!isc_46.isc_47 || isc_status [1]) break; {
+#line 1879 "gpre_meta.epp"
 		type = (TYP) ALLOC(TYP_LEN);
 		type->typ_field = field;
 		*ptr = type->typ_value = /*X.RDB$TYPE*/
 					 isc_46.isc_48;
+#line 1882 "gpre_meta.epp"
 		type->typ_symbol = symbol =
 			MSC_symbol(SYM_type, string, strlen(string), (GPRE_CTX) type);
 		HSH_insert(symbol);
@@ -4561,6 +4774,7 @@ BOOLEAN MET_type(GPRE_FLD field, const TEXT* string, SSHORT * ptr)
     { /*END_ERROR;*/
     }
  }
+#line 1887 "gpre_meta.epp"
 
 	return FALSE;
 }
@@ -4582,6 +4796,7 @@ BOOLEAN MET_trigger_exists(DBB dbb, const TEXT* trigger_name)
    struct {
           char  isc_39 [32];	/* RDB$TRIGGER_NAME */
    } isc_38;
+#line 1902 "gpre_meta.epp"
 	char name[NAME_SIZE];
 
 	strcpy(name, trigger_name);
@@ -4593,17 +4808,19 @@ BOOLEAN MET_trigger_exists(DBB dbb, const TEXT* trigger_name)
 	TRIG IN RDB$TRIGGERS WITH TRIG.RDB$TRIGGER_NAME EQ name*/
 	{
         if (!dbb->dbb_trigger_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_trigger_request, (short) sizeof (isc_37), (char *) isc_37);
-	isc_vtov ((char*)name, (char*)isc_38.isc_39, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_trigger_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_38, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_trigger_request, (short) sizeof (isc_37), (char *) isc_37);
+	isc_vtov ((const char*)name, (char*)isc_38.isc_39, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_trigger_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_38, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_trigger_request, (short) 1, (short) 2, &isc_40, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_trigger_request, (short) 1, (short) 2, &isc_40, (short) 0);
 	   if (!isc_40.isc_41) break; return TRUE;
+#line 1911 "gpre_meta.epp"
 
 	/*END_FOR;*/
 	   }
 	}
+#line 1913 "gpre_meta.epp"
 
 	return FALSE;
 }
@@ -4653,6 +4870,7 @@ static void get_array( DBB dbb, const TEXT * field_name, GPRE_FLD field)
    struct {
           char  isc_33 [32];	/* RDB$FIELD_NAME */
    } isc_32;
+#line 1946 "gpre_meta.epp"
 	GPRE_FLD sub_field;
 	ARY array_block;
 	DIM dimension_block, last_dimension_block;
@@ -4664,15 +4882,16 @@ static void get_array( DBB dbb, const TEXT * field_name, GPRE_FLD field)
 	{
         if (!dbb->dbb_array_request)
            isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_array_request, (short) sizeof (isc_31), (char *) isc_31);
-	isc_vtov ((char*)field_name, (char*)isc_32.isc_33, 32);
+	isc_vtov ((const char*)field_name, (char*)isc_32.isc_33, 32);
 	if (dbb->dbb_array_request)
-           isc_start_and_send (isc_status, (isc_req_handle*) &dbb->dbb_array_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_32, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &dbb->dbb_array_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_32, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &dbb->dbb_array_request, (short) 1, (short) 4, &isc_34, (short) 0);
 	   if (!isc_34.isc_35 || isc_status [1]) break; if (/*F.RDB$DIMENSIONS*/
      isc_34.isc_36) {
+#line 1954 "gpre_meta.epp"
 		sub_field = (GPRE_FLD) ALLOC(FLD_LEN);
 		*sub_field = *field;
 		field->fld_array = sub_field;
@@ -4682,18 +4901,21 @@ static void get_array( DBB dbb, const TEXT * field_name, GPRE_FLD field)
 		field->fld_array_info = array_block =
 			(ARY) ALLOC(ARY_LEN(/*F.RDB$DIMENSIONS*/
 					    isc_34.isc_36));
+#line 1962 "gpre_meta.epp"
 		array_block->ary_dtype = sub_field->fld_dtype;
 	} /*END_FOR*/
 	     }
 	     }; /*ON_ERROR*/
  if (isc_status [1])
     { {
+#line 1964 "gpre_meta.epp"
 		dbb->dbb_flags |= DBB_no_arrays;
 		return;
 	}
 	/*END_ERROR;*/
 	   }
 	}
+#line 1968 "gpre_meta.epp"
 
 	if (!array_block)
 		return;
@@ -4703,29 +4925,36 @@ static void get_array( DBB dbb, const TEXT * field_name, GPRE_FLD field)
 		SORTED BY ASCENDING D.RDB$DIMENSION*/
 	{
         if (!dbb->dbb_dimension_request)
-           isc_compile_request ((long*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_dimension_request, (short) sizeof (isc_23), (char *) isc_23);
-	isc_vtov ((char*)field_name, (char*)isc_24.isc_25, 32);
-        isc_start_and_send ((long*) 0L, (isc_req_handle*) &dbb->dbb_dimension_request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_24, (short) 0);
+           isc_compile_request ((ISC_STATUS*) 0L, (isc_db_handle*) &DB, (isc_req_handle*) &dbb->dbb_dimension_request, (short) sizeof (isc_23), (char *) isc_23);
+	isc_vtov ((const char*)field_name, (char*)isc_24.isc_25, 32);
+        isc_start_and_send ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_dimension_request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_24, (short) 0);
 	while (1)
 	   {
-           isc_receive ((long*) 0L, (isc_req_handle*) &dbb->dbb_dimension_request, (short) 1, (short) 12, &isc_26, (short) 0);
+           isc_receive ((ISC_STATUS*) 0L, (isc_req_handle*) &dbb->dbb_dimension_request, (short) 1, (short) 12, &isc_26, (short) 0);
 	   if (!isc_26.isc_29) break;
+#line 1975 "gpre_meta.epp"
 		array_block->ary_rpt[/*D.RDB$DIMENSION*/
 				     isc_26.isc_30].ary_lower = /*D.RDB$LOWER_BOUND*/
 	      isc_26.isc_28;
+#line 1976 "gpre_meta.epp"
 	array_block->ary_rpt[/*D.RDB$DIMENSION*/
 			     isc_26.isc_30].ary_upper = /*D.RDB$UPPER_BOUND*/
 	      isc_26.isc_27;
+#line 1977 "gpre_meta.epp"
 	dimension_block = (DIM) ALLOC(DIM_LEN);
 	dimension_block->dim_number = /*D.RDB$DIMENSION*/
 				      isc_26.isc_30;
+#line 1979 "gpre_meta.epp"
 	dimension_block->dim_lower = /*D.RDB$LOWER_BOUND*/
 				     isc_26.isc_28;
+#line 1980 "gpre_meta.epp"
 	dimension_block->dim_upper = /*D.RDB$UPPER_BOUND*/
 				     isc_26.isc_27;
+#line 1981 "gpre_meta.epp"
 
 	if (/*D.RDB$DIMENSION*/
 	    isc_26.isc_30 != 0) {
+#line 1983 "gpre_meta.epp"
 		last_dimension_block->dim_next = dimension_block;
 		dimension_block->dim_previous = last_dimension_block;
 	}
@@ -4735,6 +4964,7 @@ static void get_array( DBB dbb, const TEXT * field_name, GPRE_FLD field)
 	/*END_FOR;*/
 	   }
 	}
+#line 1990 "gpre_meta.epp"
 
 	array_block->ary_dimension_count = last_dimension_block->dim_number + 1;
 	array_block->ary_size = array_size(field);
@@ -4869,8 +5099,9 @@ static int resolve_charset_and_collation(SSHORT * id,
           char  isc_21 [32];	/* RDB$CHARACTER_SET_NAME */
           short isc_22;	/* isc_utility */
    } isc_20;
+#line 2098 "gpre_meta.epp"
 	int found = 0;
-	isc_handle request = NULL;
+	isc_handle request = NULL_HANDLE;
 
 	assert(id != NULL);
 
@@ -4893,19 +5124,23 @@ static int resolve_charset_and_collation(SSHORT * id,
 			   {
                            isc_receive (isc_status, (isc_req_handle*) &request, (short) 0, (short) 34, &isc_20, (short) 0);
 			   if (!isc_20.isc_22 || isc_status [1]) break;;
+#line 2112 "gpre_meta.epp"
 
 			charset = /*DBB.RDB$CHARACTER_SET_NAME*/
 				  isc_20.isc_21;
+#line 2114 "gpre_meta.epp"
 
 			/*END_FOR*/
 			   }
 			   }; /*ON_ERROR*/
  if (isc_status [1])
     {
+#line 2116 "gpre_meta.epp"
 				/* Assume V3 DB, without default character set */
 				/*END_ERROR;*/
 				   }
 				}
+#line 2118 "gpre_meta.epp"
 
 			isc_release_request(isc_status, GDS_REF(request));
 
@@ -4925,18 +5160,20 @@ static int resolve_charset_and_collation(SSHORT * id,
 		{
                 if (!request)
                    isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &request, (short) sizeof (isc_13), (char *) isc_13);
-		isc_vtov ((char*)charset, (char*)isc_14.isc_15, 32);
+		isc_vtov ((const char*)charset, (char*)isc_14.isc_15, 32);
 		if (request)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_14, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_14, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &request, (short) 1, (short) 4, &isc_16, (short) 0);
 		   if (!isc_16.isc_17 || isc_status [1]) break;;
+#line 2134 "gpre_meta.epp"
 
 		found++;
 		*id = MAP_CHARSET_TO_TTYPE(/*CS.RDB$CHARACTER_SET_ID*/
 					   isc_16.isc_18);
+#line 2137 "gpre_meta.epp"
 
 		/*END_FOR*/
 		   }
@@ -4945,6 +5182,7 @@ static int resolve_charset_and_collation(SSHORT * id,
     { /*END_ERROR;*/
     }
  }
+#line 2139 "gpre_meta.epp"
 
 		isc_release_request(isc_status, GDS_REF(request));
 
@@ -4959,18 +5197,20 @@ static int resolve_charset_and_collation(SSHORT * id,
 		{
                 if (!request)
                    isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &request, (short) sizeof (isc_7), (char *) isc_7);
-		isc_vtov ((char*)collation, (char*)isc_8.isc_9, 32);
+		isc_vtov ((const char*)collation, (char*)isc_8.isc_9, 32);
 		if (request)
-                   isc_start_and_send (isc_status, (isc_req_handle*) &request, (isc_req_handle*) &gds_trans, (short) 0, (short) 32, &isc_8, (short) 0);
+                   isc_start_and_send (isc_status, (isc_req_handle*) &request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 32, &isc_8, (short) 0);
 		if (!isc_status [1]) {
 		while (1)
 		   {
                    isc_receive (isc_status, (isc_req_handle*) &request, (short) 1, (short) 4, &isc_10, (short) 0);
 		   if (!isc_10.isc_11 || isc_status [1]) break;;
+#line 2150 "gpre_meta.epp"
 
 		found++;
 		*id = MAP_CHARSET_TO_TTYPE(/*CS.RDB$CHARACTER_SET_ID*/
 					   isc_10.isc_12);
+#line 2153 "gpre_meta.epp"
 		/*END_FOR*/
 		   }
 		   }; /*ON_ERROR*/
@@ -4978,6 +5218,7 @@ static int resolve_charset_and_collation(SSHORT * id,
     { /*END_ERROR;*/
     }
  }
+#line 2154 "gpre_meta.epp"
 
 		isc_release_request(isc_status, GDS_REF(request));
 
@@ -4995,19 +5236,21 @@ static int resolve_charset_and_collation(SSHORT * id,
 	{
         if (!request)
            isc_compile_request (isc_status, (isc_db_handle*) &DB, (isc_req_handle*) &request, (short) sizeof (isc_0), (char *) isc_0);
-	isc_vtov ((char*)charset, (char*)isc_1.isc_2, 32);
-	isc_vtov ((char*)collation, (char*)isc_1.isc_3, 32);
+	isc_vtov ((const char*)charset, (char*)isc_1.isc_2, 32);
+	isc_vtov ((const char*)collation, (char*)isc_1.isc_3, 32);
 	if (request)
-           isc_start_and_send (isc_status, (isc_req_handle*) &request, (isc_req_handle*) &gds_trans, (short) 0, (short) 64, &isc_1, (short) 0);
+           isc_start_and_send (isc_status, (isc_req_handle*) &request, (isc_tr_handle*) &gds_trans, (short) 0, (short) 64, &isc_1, (short) 0);
 	if (!isc_status [1]) {
 	while (1)
 	   {
            isc_receive (isc_status, (isc_req_handle*) &request, (short) 1, (short) 4, &isc_4, (short) 0);
 	   if (!isc_4.isc_5 || isc_status [1]) break;;
+#line 2168 "gpre_meta.epp"
 
 	found++;
 	*id = MAP_CHARSET_TO_TTYPE(/*CS.RDB$CHARACTER_SET_ID*/
 				   isc_4.isc_6);
+#line 2171 "gpre_meta.epp"
 	/*END_FOR*/
 	   }
 	   }; /*ON_ERROR*/
@@ -5015,6 +5258,7 @@ static int resolve_charset_and_collation(SSHORT * id,
     { /*END_ERROR;*/
     }
  }
+#line 2172 "gpre_meta.epp"
 
 	isc_release_request(isc_status, GDS_REF(request));
 

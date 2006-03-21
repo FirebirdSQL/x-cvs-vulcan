@@ -29,7 +29,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <memory.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "ibase.h"
 #include "Attachment.h"
@@ -44,7 +44,12 @@
 #include "lck_proto.h"
 #include "event_proto.h"
 #include "../jrd/met_proto.h"
+#include "CompilerScratch.h"
+#include "../jrd/cmp_proto.h"
+#include "../jrd/scl_proto.h"
 #include "Relation.h"
+#include "scl.h"
+#include "jrd.h"
 
 // User info items
 
@@ -56,7 +61,8 @@ static const UCHAR userInfoItems [] = {
 	fb_info_user_group,
 	fb_info_user_first_name,
 	fb_info_user_middle_name,
-	fb_info_user_last_name
+	fb_info_user_last_name,
+	fb_info_user_authenticator
 	};
 
 
@@ -72,7 +78,6 @@ Attachment::Attachment(Database *database)
 	firstConnection = lastConnection = NULL;
 	att_next = NULL;
 	att_blocking = NULL;
-	att_user = NULL;
 	att_transactions = NULL;
 	att_dbkey_trans = NULL;
 	att_requests = NULL;
@@ -81,9 +86,7 @@ Attachment::Attachment(Database *database)
 	att_security_classes = NULL;
 	att_relation_locks = NULL;
 	att_record_locks = NULL;
-	att_bookmarks = NULL;
-	att_bkm_quick_ref = NULL;
-	att_lck_quick_ref = NULL;
+	att_event_session = 0;
 	att_lc_messages = NULL;
 	att_long_locks = NULL;
 	att_compatibility_table = NULL;
@@ -93,6 +96,7 @@ Attachment::Attachment(Database *database)
 	att_flags = 0;
 	att_charset = 0;
 	att_lock_owner_handle = 0;
+	userFlags = 0;
 }
 
 Attachment::~Attachment()
@@ -118,26 +122,21 @@ DStatement* Attachment::allocateStatement(void)
 InternalConnection* Attachment::getUserConnection(Transaction* transaction)
 {
 	InternalConnection *connection = new InternalConnection (this, transaction);
+	
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Attachment::getUserConnection");
 	sync.lock (Exclusive);
-	
-	connection->prior = lastConnection;
-	
-	if (firstConnection)
-		lastConnection->next = connection;
-	else
-		firstConnection = connection;
-
-	lastConnection = connection;
-	connection->next = NULL;
+#endif
 	
 	return connection;
 }
 
 void Attachment::closeConnection(InternalConnection* connection)
 {
+#ifdef SHARED_CACHE
 	Sync sync (&syncObject, "Attachment::closeConnection");
 	sync.lock (Exclusive);
+#endif
 
 	if (connection->prior)
 		connection->prior->next = connection->next;
@@ -189,20 +188,32 @@ void Attachment::endTransaction(Transaction* transaction)
 			}
 }
 
-void Attachment::updateAccountInfo(tdbb *tdbb, int apbLength, const UCHAR* apb)
+void Attachment::updateAccountInfo(thread_db* tdbb, int apbLength, const UCHAR* apb)
 {
-	att_database->updateAccountInfo(tdbb, apbLength, apb);
+	att_database->updateAccountInfo(tdbb, this, apbLength, apb);
 }
 
-void Attachment::authenticateUser(tdbb* tdbb, int dpbLength, const UCHAR* dpb)
+void Attachment::authenticateUser(thread_db* tdbb, int dpbLength, const UCHAR* dpb)
 {
 	UCHAR buffer[256];
-	att_database->authenticateUser(tdbb,dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
-	UserData userData;
+	att_database->authenticateUser(tdbb, dpbLength, dpb, sizeof(userInfoItems), userInfoItems, sizeof (buffer), buffer);
 	userData.processUserInfo(buffer);
+	const UCHAR *p = dpb;
+	int version = *p++;
+	
+	for (const UCHAR *end = dpb + dpbLength; p < end;)
+		{
+		int type = *p++;
+		int length = *p++;
+		
+		if (type == isc_dpb_sql_role_name)
+			userData.roleName = JString((const char*) p, length);
+
+		p += length;
+		}
 }
 
-void Attachment::shutdown(tdbb *tdbb)
+void Attachment::shutdown(thread_db* tdbb)
 {
 	if (att_event_session)
 		EVENT_delete_session(att_event_session);
@@ -236,25 +247,26 @@ void Attachment::shutdown(tdbb *tdbb)
 			{
 			if (*lock)
 				{
-				LCK_release((LCK)(*lock));
+				LCK_release((Lock*)(*lock));
 				delete *lock;
 				}
 			}
 		delete lock_vector;
 		}
 
-    LCK record_lock;
+    Lock* record_lock;
     
-	for (record_lock = att_record_locks; record_lock;
-		 record_lock = record_lock->lck_att_next)
+	for (record_lock = att_record_locks; record_lock; record_lock = record_lock->lck_att_next)
 		LCK_release(record_lock);
 
 	/* bug #7781, need to null out the attachment pointer of all locks which
 	   were hung off this attachment block, to ensure that the attachment
 	   block doesn't get dereferenced after it is released */
 
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::shutdown");
 	sync.lock(Exclusive);
+#endif
 
 	for (record_lock = att_long_locks; record_lock; record_lock = record_lock->lck_next)
 		record_lock->lck_attachment = NULL;
@@ -264,12 +276,28 @@ void Attachment::shutdown(tdbb *tdbb)
 
 	if (att_compatibility_table)
 		delete att_compatibility_table;
+
+	for (Request* request; request = att_requests;) 
+		CMP_release(tdbb, request);
+	
+	for (SecurityClass* sec_class; sec_class = att_security_classes;)
+		SCL_release(tdbb, sec_class);
 }
 
-void Attachment::addLongLock(lck* lock)
+void Attachment::addLongLock(Lock* lock)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::addLongLock");
 	sync.lock(Exclusive);
+#endif
+	
+	/* check to see if lock is already here ???? */
+
+#ifdef DEV_BUILD
+    for (Lock *t = att_long_locks; t; t = t->lck_next)
+	    if (t == lock) 
+			fb_assert(false);
+#endif
 	
 	if (lock->lck_next = att_long_locks)
 		lock->lck_next->lck_prior = lock;
@@ -279,11 +307,13 @@ void Attachment::addLongLock(lck* lock)
 	lock->lck_long_lock = true;
 }
 
-void Attachment::removeLongLock(lck* lock)
+void Attachment::removeLongLock(Lock* lock)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::removeLockLock");
 	sync.lock(Exclusive);
-	
+#endif
+
 	if (lock->lck_prior)
 		{
 		if (lock->lck_prior->lck_next = lock->lck_next)
@@ -305,12 +335,14 @@ void Attachment::removeLongLock(lck* lock)
 	lock->lck_long_lock = false;
 }
 
-lck* Attachment::findBlock(lck* lock, int level)
+Lock* Attachment::findBlock(Lock* lock, int level)
 {
+#ifdef SHARED_CACHE
 	Sync sync(&syncLongLocks, "Attachment::findBlock");
 	sync.lock(Shared);
+#endif
 
-	for (LCK next = att_long_locks; next; next = next->lck_next)
+	for (Lock* next = att_long_locks; next; next = next->lck_next)
 		if (lock->lck_attachment != next->lck_attachment &&
 			 next->equiv(lock) && !next->compatible(lock, level))
 			return next;
@@ -318,7 +350,7 @@ lck* Attachment::findBlock(lck* lock, int level)
 	return NULL;
 }
 
-Relation* Attachment::findRelation(tdbb* tdbb, int relationId, int csbFlags)
+Relation* Attachment::findRelation(thread_db* tdbb, int relationId, int csbFlags)
 {
 	Relation *relation = MET_lookup_relation_id(tdbb, relationId, FALSE);
 
@@ -328,7 +360,7 @@ Relation* Attachment::findRelation(tdbb* tdbb, int relationId, int csbFlags)
 	return relation;
 }
 
-Relation* Attachment::getRelation(tdbb* tdbb, int relationId)
+Relation* Attachment::getRelation(thread_db* tdbb, int relationId)
 {
 	Relation *relation = findRelation(tdbb, relationId);
 	
@@ -342,7 +374,7 @@ Relation* Attachment::getRelation(tdbb* tdbb, int relationId)
 	return relation;
 }
 
-Relation* Attachment::findRelation(tdbb* tdbb, const char* relationName, int csbFlags)
+Relation* Attachment::findRelation(thread_db* tdbb, const char* relationName, int csbFlags)
 {
 	Relation *relation = MET_lookup_relation(tdbb, relationName);
 
@@ -352,7 +384,7 @@ Relation* Attachment::findRelation(tdbb* tdbb, const char* relationName, int csb
 	return relation;
 }
 
-Relation* Attachment::getRelation(tdbb* tdbb, const char* relationName)
+Relation* Attachment::getRelation(thread_db* tdbb, const char* relationName)
 {
 	Relation *relation = findRelation(tdbb, relationName);
 	
@@ -360,4 +392,23 @@ Relation* Attachment::getRelation(tdbb* tdbb, const char* relationName)
 		throw OSRIException(isc_relnotdef, isc_arg_string, relationName, 0);
 	
 	return relation;
+}
+
+void Attachment::addTransaction(Transaction* transaction)
+{
+	transaction->tra_next = att_transactions;
+	att_transactions = transaction;
+}
+
+void Attachment::addConnection(InternalConnection* connection)
+{
+	connection->prior = lastConnection;
+	
+	if (firstConnection)
+		lastConnection->next = connection;
+	else
+		firstConnection = connection;
+
+	lastConnection = connection;
+	connection->next = NULL;
 }

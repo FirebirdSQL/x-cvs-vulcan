@@ -38,7 +38,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "Move.h"
 //#include "quad.h"
@@ -54,6 +54,14 @@
 
 #ifdef SCO_UNIX
 #define DBL_MAX_10_EXP          308
+#endif
+
+#ifdef MVS  // define so float.h not included from MVA MVS/h
+#ifdef __BFP__
+#define DBL_MAX_10_EXP          308
+#else
+#define DBL_MAX_10_EXP          75
+#endif
 #endif
 
 #ifndef DBL_MAX_10_EXP
@@ -104,7 +112,7 @@ double MTH$CVT_D_G(), MTH$CVT_G_D();
 #define QUAD_MIN_int    quad_min_int	/* min integer value of quad */
 #define QUAD_MAX_int    quad_max_int	/* max integer value of quad */
 
-#define FLOAT_MAX       3.4e38	/* max float (32 bit) value  */
+#define FLOAT_MAX       FLT_MAX			/* 3.4e38 max float (32 bit) value  */
 
 #ifdef NATIVE_QUAD
 static const SQUAD quad_min_int = LONG_MIN;

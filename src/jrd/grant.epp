@@ -24,7 +24,7 @@
  *
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include <stdio.h>
 #include <string.h>
@@ -75,15 +75,15 @@
 
 DATABASE DB = STATIC "yachts.lnk";
 
-static void		define_default_class(TDBB, TEXT *, TEXT *, UCHAR *, USHORT);
+static void		define_default_class(thread_db*, TEXT *, TEXT *, UCHAR *, USHORT);
 static void		finish_security_class(Generate*, USHORT);
-static void		get_object_info(TDBB, TEXT *, SSHORT,
+static void		get_object_info(thread_db*, TEXT *, SSHORT,
 							TEXT *, TEXT *, TEXT *, USHORT *);
-static USHORT	get_public_privs(TDBB, TEXT *, SSHORT);
-static void		get_user_privs(TDBB, Generate*, TEXT *, SSHORT, TEXT *, USHORT);
+static USHORT	get_public_privs(thread_db*, TEXT *, SSHORT);
+static void		get_user_privs(thread_db*, Generate*, TEXT *, SSHORT, TEXT *, USHORT);
 static void		grant_user(Generate *space, TEXT*, SSHORT, USHORT);
-static USHORT	save_field_privileges(TDBB, Generate*, TEXT *, TEXT *, USHORT);
-static void		save_security_class(TDBB, const TEXT*, const UCHAR*, USHORT);
+static USHORT	save_field_privileges(thread_db*, Generate*, TEXT *, TEXT *, USHORT);
+static void		save_security_class(thread_db*, const TEXT*, const UCHAR*, USHORT);
 static USHORT	trans_sql_priv(TEXT *);
 static SLONG	squeeze_acl(Generate *acl, TEXT *, SSHORT);
 static bool		check_string(const UCHAR*, const TEXT*);
@@ -122,7 +122,7 @@ STR GRANT_realloc_acl(STR		start_ptr,
 }
 #endif
 
-int GRANT_privileges( TDBB tdbb, SSHORT phase, DFW work)
+int GRANT_privileges( thread_db* tdbb, SSHORT phase, DeferredWork* work)
 {
 /**************************************
  *
@@ -265,7 +265,7 @@ int GRANT_privileges( TDBB tdbb, SSHORT phase, DFW work)
 
 
 static void define_default_class(
-								 TDBB tdbb,
+								 thread_db* tdbb,
 								 TEXT * relation_name,
 								 TEXT * default_class,
 								 UCHAR * buffer, USHORT length)
@@ -290,8 +290,10 @@ static void define_default_class(
 	DSC desc;
 	DBB dbb = tdbb->tdbb_database;
 
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "define_default_class");
 	sync.lock(Exclusive);
+#endif
 
 	if (!*default_class) 
 		{
@@ -331,7 +333,7 @@ static void define_default_class(
 }
 
 #ifdef NOT_USED_OR_REPLACED
-static void delete_security_class( TDBB tdbb, TEXT * s_class)
+static void delete_security_class( thread_db* tdbb, TEXT * s_class)
 {
 /**************************************
  *
@@ -387,7 +389,7 @@ static void finish_security_class(Generate *acl, USHORT	public_priv)
 }
 
 
-static USHORT get_public_privs(TDBB tdbb, TEXT * object_name, SSHORT obj_type)
+static USHORT get_public_privs(thread_db* tdbb, TEXT * object_name, SSHORT obj_type)
 {
 /**************************************
  *
@@ -424,7 +426,7 @@ static USHORT get_public_privs(TDBB tdbb, TEXT * object_name, SSHORT obj_type)
 }
 
 
-static void get_object_info(TDBB tdbb,
+static void get_object_info(thread_db* tdbb,
 							TEXT *object_name,
 							SSHORT obj_type,
 							TEXT *owner,
@@ -470,8 +472,7 @@ static void get_object_info(TDBB tdbb,
 			strcpy(default_class, REL.RDB$DEFAULT_CLASS);
 			DYN_terminate(REL.RDB$OWNER_NAME, sizeof(REL.RDB$OWNER_NAME));
 			strcpy(owner, REL.RDB$OWNER_NAME);
-			*view = (REL.RDB$VIEW_BLR.gds_quad_high ||
-					 REL.RDB$VIEW_BLR.gds_quad_low) ? TRUE : FALSE;
+			*view = !REL.RDB$VIEW_BLR.isEmpty();
 		END_FOR;
 
 		if (!REQUEST(irq_grant1))
@@ -501,7 +502,7 @@ static void get_object_info(TDBB tdbb,
 }
 
 
-static void get_user_privs(TDBB		tdbb,
+static void get_user_privs(thread_db* tdbb,
 						   Generate *acl,
 						   TEXT*	object_name,
 						   SSHORT	obj_type,
@@ -645,7 +646,7 @@ static void grant_user(Generate *acl,
 }
 
 
-static USHORT save_field_privileges(TDBB tdbb,
+static USHORT save_field_privileges(thread_db* tdbb,
 									Generate *relationAcl,
 									TEXT * relation_name, 
 									TEXT * owner, 
@@ -674,8 +675,10 @@ static USHORT save_field_privileges(TDBB tdbb,
 	Generate	fieldAclStart;
 
 	DBB dbb = tdbb->tdbb_database;
+#ifdef SHARED_CACHE
 	Sync sync (&dbb->syncSysTrans, "save_field_privileges");
 	sync.lock(Exclusive);
+#endif
 
 	/* initialize the field-level acl buffer to include all relation-level privs */
 
@@ -855,7 +858,7 @@ static USHORT save_field_privileges(TDBB tdbb,
 }
 
 
-static void save_security_class(TDBB	tdbb,
+static void save_security_class(thread_db* tdbb,
 								const TEXT*	s_class,
 								const UCHAR*	buffer,
 								USHORT	length)
@@ -873,13 +876,17 @@ static void save_security_class(TDBB	tdbb,
 	DBB dbb;
 	Request *request;
 	USHORT found;
-	ISC_QUAD blob_id;
-	BLB blob;
 
 	SET_TDBB(tdbb);
 	dbb = tdbb->tdbb_database;
 
-	blob = BLB_create(tdbb, dbb->dbb_sys_trans, (BID)&blob_id);
+#ifdef SHARED_CACHE
+	Sync sync(&dbb->syncSysTrans, "save_security_class");
+	sync.lock(Exclusive);
+#endif
+
+	bid blob_id;
+	blb* blob = BLB_create(tdbb, dbb->dbb_sys_trans, &blob_id);
 	BLB_put_segment(tdbb, blob, buffer, length);
 	BLB_close(tdbb, blob);
 

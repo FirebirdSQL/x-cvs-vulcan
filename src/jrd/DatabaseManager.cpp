@@ -22,7 +22,7 @@
  *  All Rights Reserved.
  */
 
-#include "firebird.h"
+#include "fbdev.h"
 #include "common.h"
 #include "DatabaseManager.h"
 #include "Database.h"
@@ -49,12 +49,32 @@ Database* DatabaseManager::findDatabase(const char* expandedFilename)
 	return NULL;
 }
 
-Database* DatabaseManager::getDatabase(const char* expandedFilename, ConfObject *configObject)
+#ifndef SHARED_CACHE
+int DatabaseManager::countDatabase(const char* expandedFilename)
 {
 	Sync sync (&syncObject, "DatabaseManager::getDatabase");
 	sync.lock (Shared);
+
+	int count = 0;
+	for (Database *dbb = databases; dbb; dbb = dbb->dbb_next)
+		if (!(dbb->dbb_flags & (DBB_bugcheck | DBB_not_in_use)) && dbb->isFilename (expandedFilename))
+			{
+			count++;
+			}
 	
-	Database *dbb = findDatabase (expandedFilename);
+	return count;
+}
+#endif
+
+
+Database* DatabaseManager::getDatabase(const char* expandedFilename, ConfObject *configObject)
+{
+	Database *dbb;
+#ifdef SHARED_CACHE
+	Sync sync (&syncObject, "DatabaseManager::getDatabase");
+	sync.lock (Shared);
+	
+	dbb = findDatabase (expandedFilename);
 	
 	if (dbb)
 		{
@@ -74,11 +94,20 @@ Database* DatabaseManager::getDatabase(const char* expandedFilename, ConfObject 
 		dbb->syncExistence.lock(NULL, Shared);
 		return dbb;
 		}
+#else
 	
+	Sync sync (&syncObject, "DatabaseManager::getDatabase");
+	sync.lock (Exclusive);
+#endif
+
 	dbb = new Database (expandedFilename, configObject);
 	dbb->dbb_next = databases;
 	databases = dbb;
+#ifdef SHARED_CACHE
 	dbb->syncExistence.lock(NULL, Exclusive);
+#else
+	dbb->databaseManager = this;
+#endif
 	
 	return dbb;
 }

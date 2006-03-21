@@ -44,20 +44,24 @@ public:
 	UserData(void);
 	virtual ~UserData(void);
 
-	JString	userName;
-	JString	firstName;
-	JString	middleName;
-	JString	lastName;
-	JString	fullName;
-	JString	systemName;
-	JString	groupName;
-	JString	password;
-	JString	encryptedPassword;
-	int		uid;
-	int		gid;
-	int		privilege;
-	int		operation;
-	bool	securityAttach;
+	JString		userName;
+	JString		firstName;
+	JString		middleName;
+	JString		lastName;
+	JString		fullName;
+	JString		systemName;
+	JString		groupName;
+	JString		password;
+	JString		encryptedPassword;
+	JString		roleName;
+	JString		organization;
+	int			uid;
+	int			gid;
+	int			privilege;
+	int			operation;
+	bool		securityAttach;
+	bool		authenticator;
+	bool		authenticating;
 	
 public:
 	virtual const char* getUserName(void);
@@ -81,8 +85,10 @@ public:
 	UserData(const char* user);
 	const char* getPassword(void);
 	UserData(int apbLength, const UCHAR* apb);
+	
 protected:
 	void init(void);
+	
 public:
 	void processApbItem(const UCHAR* item);
 	virtual void parseDpb(int dpbLength, const UCHAR* dpb);
