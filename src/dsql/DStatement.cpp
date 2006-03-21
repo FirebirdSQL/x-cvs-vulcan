@@ -29,7 +29,7 @@
 #include "BlrParse.h"
 #include "ibase.h"
 #include "OSRIException.h"
-#include "ddl_proto.h"
+//#include "ddl_proto.h"
 #include "Database.h"
 #include "InfoGen.h"
 #include "../jrd/tra.h"
@@ -1307,7 +1307,8 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				if (s = jrd8_ddl (statusVector, &attachment, transactionHandle, statement->blrGen->getLength(), statement->blrGen->buffer))
 					return s;
 					
-				DDL_execute (statusVector, statement, transaction);
+//				DDL_execute (statusVector, statement, transaction);
+				statement->completeDDL(thread);
 				return FB_SUCCESS;
 
 			/***

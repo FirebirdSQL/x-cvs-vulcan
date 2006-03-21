@@ -77,6 +77,7 @@
 #include "CharSet.h"
 //#include "CharSetContainer.h"
 #include "CsConvertArray.h"
+#include "ddl_proto.h"
 
 #ifdef _WIN32
 #define strcasecmp		stricmp
@@ -111,7 +112,7 @@ CStatement::CStatement(Attachment *attach)
 	flags = 0;
 	procedure = NULL;
 	blob = NULL;
-	threadData = NULL;				// used only on "prepare"
+	threadData = NULL;
 	req_in_where_clause = 0;		//!< processing "where clause"
 	req_in_group_by_clause = 0;		//!< processing "group by clause"
 	req_in_having_clause = 0;		//!< processing "having clause"
@@ -533,9 +534,32 @@ UserFunction* CStatement::findFunction(const TEXT *functionName)
 	return function;
 }
 
+void CStatement::completeDDL(thread_db* threadStuff)
+{
+	threadData = threadStuff;
+	DDL_execute(this);
+}
+
 void CStatement::dropRelation(const TEXT *relationName)
 {
-	//notYetImplemented();
+	Relation *jrdRelation = (transaction) ? transaction->findRelation(threadData, relationName) :
+											database->findRelation (threadData, relationName);
+
+	if (jrdRelation) {
+#ifdef SHARED_CACHE
+		Sync sync (&jrdRelation->syncObject, "CStatement::dropRelation");
+		sync.lock (Exclusive);
+#endif
+		delete jrdRelation->dsqlRelation;
+		jrdRelation->dsqlRelation = NULL;
+		for (int n = 0; n < jrdRelation->rel_fields.size(); ++n)
+		{
+			Field *jrdField = jrdRelation->rel_fields[n];
+			if (jrdField) {
+				jrdField->dsqlField = NULL;
+			}
+		}
+	}
 }
 
 void CStatement::dropProcedure(const TEXT *procedureName)

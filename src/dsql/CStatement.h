@@ -115,7 +115,8 @@ public:
 	CharSetContainer* findCharset (const TEXT *name);
 	Procedure* findProcedure (const TEXT *procedureName);
 	dsql_rel* findRelation (const char *relationName);
-	void prepare (thread_db* threadDdata, int sqlLength, const TEXT *sql, int userDialect);
+	void prepare (thread_db* threadData, int sqlLength, const TEXT *sql, int userDialect);
+	void completeDDL(thread_db* threadData);
 	CStatement(Attachment *attachment);
 	void convertDType (dsql_fld *field, int blrType);
 	JString stripString (const TEXT *string);

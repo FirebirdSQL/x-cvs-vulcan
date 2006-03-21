@@ -263,7 +263,7 @@ static inline bool hasNewContext(const int value)
 }
 
 
-void DDL_execute(ISC_STATUS *statusVector, CStatement* request, Transaction *transaction)
+void DDL_execute(CStatement* request)
 {
 /**************************************
  *
@@ -277,32 +277,12 @@ void DDL_execute(ISC_STATUS *statusVector, CStatement* request, Transaction *tra
  *	metadata updates.
  *
  **************************************/
-	//TSQL tdsql = GET_THREAD_DATA;
-
-#ifdef DSQL_DEBUG_XXX
-	if (DSQL_debug & 4) {
-		dsql_trace("Output DYN string for DDL:");
-		PRETTY_print_dyn(reinterpret_cast<UCHAR*>(request->req_blr_string->str_data),
-						 gds__trace_printer, NULL, 0);
-	}
-#endif
-
-	//int length = request->blrGen->blrLength();
-
-	//THREAD_EXIT;
-
-	//ISC_STATUS s = request->database->executeDDL (statusVector, transaction, length, request->blrGen->buffer);
-		/***
-		isc_ddl(tdsql->tsql_status, &request->req_dbb->dbb_database_handle,
-				&request->req_trans, length, request->req_blr_string->str_data);
-		***/
-	//THREAD_ENTER;
 
 	// for delete & modify, get rid of the cached relation metadata
 
 	dsql_str* string = NULL;
 	dsql_nod* relation_node;
-	
+
 	switch (request->ddlNode->nod_type)
 		{
 		case nod_mod_relation:
@@ -311,7 +291,7 @@ void DDL_execute(ISC_STATUS *statusVector, CStatement* request, Transaction *tra
 			if (string = (dsql_str*) relation_node->nod_arg[e_rln_name])
 				request->dropRelation (*string);
 			break;
-			
+
 		case nod_mod_view:
 		case nod_replace_view:
 		case nod_redef_view:
@@ -320,7 +300,7 @@ void DDL_execute(ISC_STATUS *statusVector, CStatement* request, Transaction *tra
 			if (string = (dsql_str*) request->ddlNode->nod_arg[e_alt_name])
 				request->dropRelation (*string);
 			break;
-			
+
 		case nod_mod_procedure:
 		case nod_del_procedure:
 		case nod_replace_procedure:
@@ -329,14 +309,13 @@ void DDL_execute(ISC_STATUS *statusVector, CStatement* request, Transaction *tra
 			//METD_drop_procedure(request, string);
 			request->dropProcedure (*string);
 			break;
-		
+
 		case nod_del_udf:
 			string = (dsql_str*) request->ddlNode->nod_arg[e_udf_name];
 			//METD_drop_function (request, string);
 			request->dropFunction (*string);
 			break;
-		}		
-
+		}
 }
 
 void DDL_gen_block(CStatement* request, dsql_nod* node)
