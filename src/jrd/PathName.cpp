@@ -31,11 +31,6 @@
 #include "ibase.h"
 #include "PathName.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#define SEPARATOR		'\\'
-#define IS_SEPARATOR(c)	(c == '/' || c == '\\')
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -45,10 +40,6 @@
 #include <pwd.h>
 #endif
 
-#ifndef SEPARATOR
-#define SEPARATOR		'/'
-#define IS_SEPARATOR(c)	(c == '/')
-#endif
 
 #define IS_LETTER(c)	((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
 //#define UPPER(c)		((c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c)

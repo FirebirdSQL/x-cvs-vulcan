@@ -32,6 +32,18 @@
 
 #include "JString.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#define SEPARATOR		'\\'
+#define IS_SEPARATOR(c)	(c == '/' || c == '\\')
+#endif
+
+#ifndef SEPARATOR
+#define SEPARATOR		'/'
+#define IS_SEPARATOR(c)	(c == '/')
+#endif
+
+
 START_NAMESPACE
 
 class PathName
