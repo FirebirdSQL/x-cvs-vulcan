@@ -1,0 +1,69 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MsgMgr", "..\MsgMgr\MsgMgr.vcproj", "{67857939-CB57-46C5-8183-E800A7937858}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MsgExtract", "..\MsgExtract\MsgExtract.vcproj", "{490FE1B3-41E2-4AA3-BB53-FA89A6B9DBFB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JdbcTest", "..\JdbcTest\JdbcTest.vcproj", "{5535DD92-351B-4786-A5E2-5D2D8C797B2F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "..\test\test.vcproj", "{95D35CDD-4850-438A-A46B-DCF534B4BB53}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThreadTest", "..\ThreadTest\ThreadTest.vcproj", "{8758AFCE-FE13-479D-94C4-03F588657C63}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLoad", "..\XLoad\XLoad.vcproj", "{4E7B72E9-830D-4519-B037-44F8D6C1D823}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "..\server\server.vcproj", "{D5B97044-93E7-4CAA-A944-5FEC249D1699}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{67857939-CB57-46C5-8183-E800A7937858}.Debug.ActiveCfg = Debug|Win32
+		{67857939-CB57-46C5-8183-E800A7937858}.Debug.Build.0 = Debug|Win32
+		{67857939-CB57-46C5-8183-E800A7937858}.Release.ActiveCfg = Release|Win32
+		{67857939-CB57-46C5-8183-E800A7937858}.Release.Build.0 = Release|Win32
+		{490FE1B3-41E2-4AA3-BB53-FA89A6B9DBFB}.Debug.ActiveCfg = Debug|Win32
+		{490FE1B3-41E2-4AA3-BB53-FA89A6B9DBFB}.Debug.Build.0 = Debug|Win32
+		{490FE1B3-41E2-4AA3-BB53-FA89A6B9DBFB}.Release.ActiveCfg = Release|Win32
+		{490FE1B3-41E2-4AA3-BB53-FA89A6B9DBFB}.Release.Build.0 = Release|Win32
+		{5535DD92-351B-4786-A5E2-5D2D8C797B2F}.Debug.ActiveCfg = Debug|Win32
+		{5535DD92-351B-4786-A5E2-5D2D8C797B2F}.Debug.Build.0 = Debug|Win32
+		{5535DD92-351B-4786-A5E2-5D2D8C797B2F}.Release.ActiveCfg = Release|Win32
+		{5535DD92-351B-4786-A5E2-5D2D8C797B2F}.Release.Build.0 = Release|Win32
+		{95D35CDD-4850-438A-A46B-DCF534B4BB53}.Debug.ActiveCfg = Debug|Win32
+		{95D35CDD-4850-438A-A46B-DCF534B4BB53}.Debug.Build.0 = Debug|Win32
+		{95D35CDD-4850-438A-A46B-DCF534B4BB53}.Release.ActiveCfg = Release|Win32
+		{95D35CDD-4850-438A-A46B-DCF534B4BB53}.Release.Build.0 = Release|Win32
+		{8758AFCE-FE13-479D-94C4-03F588657C63}.Debug.ActiveCfg = Debug|Win32
+		{8758AFCE-FE13-479D-94C4-03F588657C63}.Debug.Build.0 = Debug|Win32
+		{8758AFCE-FE13-479D-94C4-03F588657C63}.Release.ActiveCfg = Release|Win32
+		{8758AFCE-FE13-479D-94C4-03F588657C63}.Release.Build.0 = Release|Win32
+		{4E7B72E9-830D-4519-B037-44F8D6C1D823}.Debug.ActiveCfg = Debug|Win32
+		{4E7B72E9-830D-4519-B037-44F8D6C1D823}.Debug.Build.0 = Debug|Win32
+		{4E7B72E9-830D-4519-B037-44F8D6C1D823}.Release.ActiveCfg = Release|Win32
+		{4E7B72E9-830D-4519-B037-44F8D6C1D823}.Release.Build.0 = Release|Win32
+		{D5B97044-93E7-4CAA-A944-5FEC249D1699}.Debug.ActiveCfg = Debug|Win32
+		{D5B97044-93E7-4CAA-A944-5FEC249D1699}.Debug.Build.0 = Debug|Win32
+		{D5B97044-93E7-4CAA-A944-5FEC249D1699}.Release.ActiveCfg = Release|Win32
+		{D5B97044-93E7-4CAA-A944-5FEC249D1699}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
