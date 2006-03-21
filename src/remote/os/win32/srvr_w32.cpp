@@ -90,7 +90,8 @@
 #include "../jrd/license.h"
 #include "../jrd/thd.h"
 #include "../jrd/license.h"
-#include "../utilities/install/install_nt.h"
+//#include "../utilities/install/install_nt.h"
+#include "../utilities/SystemServices/SystemServices.h"
 #include "../remote/os/win32/cntl_proto.h"
 #include "../remote/inet_proto.h"
 //#include "../remote/serve_proto.h"
@@ -144,7 +145,7 @@ static const char *configServer = "winserver";
 
 static const SERVICE_TABLE_ENTRY service_table[] =
 {
-	{REMOTE_SERVICE, CNTL_main_thread},
+	{ (LPSTR)SYS_SERVICE_NAME, CNTL_main_thread},
 	{NULL, NULL}
 };
 
@@ -263,6 +264,7 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 		LoadLibrary(FBCLIENTDLL);
 	}
 	***/
+
 	
 	if (connection_handle != INVALID_HANDLE_VALUE) 
 		{
@@ -283,7 +285,7 @@ int WINAPI WinMain(HINSTANCE	hThisInst,
 		}
 	else if (!(server_flag & SRVR_non_service)) 
 		{
-		CNTL_init((FPTR_VOID) start_connections_thread, REMOTE_SERVICE);
+		CNTL_init((FPTR_VOID) start_connections_thread, (TEXT *) SYS_SERVICE_NAME);
 		
 		//
 		// BRS There is a error in MinGW (3.1.0) headers 
@@ -398,6 +400,9 @@ static int inet_connect_wait_thread( void* dummy)
 	if (!(server_flag & SRVR_non_service))
 		thread = CNTL_insert_thread();
 
+#ifdef DEBUG_SERVICES
+//	DebugBreak();
+#endif
 	Port *port = INET_connect(protocol_inet, configuration, 0, status_vector, server_flag, 0, 0);
 	
 	if (port)
@@ -498,12 +503,16 @@ static void THREAD_ROUTINE xnet_connect_wait_thread(void *dummy)
 	void *thread;
 	ISC_STATUS_ARRAY status_vector;
 	
+#ifdef DEBUG_SERVICES
+	DebugBreak();
+#endif
+
 	if (!(server_flag & SRVR_non_service))
 		thread = CNTL_insert_thread();
-
 	//XNET_srv(server_flag);
 	PortXNet *port = PortXNet::connect(server_flag, status_vector);
-	port->configuration = (ConfObject*) dummy;
+//	port->configuration = (ConfObject*) dummy;
+	port->configuration = configuration;
 	
 	if (port)
 		{

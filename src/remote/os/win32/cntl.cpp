@@ -29,7 +29,9 @@
 #include "../remote/remote.h"
 #include "../jrd/os/thd_priority.h"
 #include "../jrd/thd.h"
-#include "../utilities/install/install_nt.h"
+//#include "../utilities/install/install_nt.h"
+#include "../utilities/SystemServices/SystemServices.h"
+
 #include "../remote/os/win32/cntl_proto.h"
 //#include "../jrd/gds_proto.h"
 #include "../jrd/isc_proto.h"
@@ -302,7 +304,9 @@ static void WINAPI control_thread( DWORD action)
 			break;
 
 #if (defined SUPERCLIENT || defined SUPERSERVER)
-		case SERVICE_CREATE_GUARDIAN_MUTEX:
+#pragma FB_COMPILER_MESSAGE("References to the guardian mutex need to be fixed.")
+
+/*		case SERVICE_CREATE_GUARDIAN_MUTEX:
 			hMutex = OpenMutex(SYNCHRONIZE, FALSE, GUARDIAN_MUTEX);
 			
 			if (hMutex) 
@@ -314,6 +318,7 @@ static void WINAPI control_thread( DWORD action)
 				WaitForSingleObject(hMutex, INFINITE);
 				}
 			break;
+*/
 #endif
 
 		default:

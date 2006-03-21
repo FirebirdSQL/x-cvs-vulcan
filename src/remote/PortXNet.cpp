@@ -1166,6 +1166,10 @@ void PortXNet::genError(ISC_STATUS status, ...)
 
 PortXNet* PortXNet::reconnect(int client_pid, ISC_STATUS *status_vector)
 {
+#ifdef DEBUG_SERVICES
+	DebugBreak();
+#endif
+
 	PortXNet *port = NULL;
 	XNetMappedFile *xpm = NULL;
 	slots_per_map = 1;

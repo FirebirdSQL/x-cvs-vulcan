@@ -28,10 +28,10 @@
 #define APP_VSIZE			150
 
 /* This is the title used by the hidden msgs window in the engine.
-   Both fbclient.dll and fbserver.exe should use the same. */
+   Both firebird.dll and fbserver.exe should use the same. */
 
-#define APP_NAME			"Firebird Server"
-#define APP_LABEL			"Firebird Server"
+#define APP_NAME			"Firebird (Vulcan) Server"
+#define APP_LABEL			"Firebird (Vulcan) Server"
 
 #define ON_NOTIFYICON		WM_USER + 2
 
@@ -44,9 +44,9 @@
 #define CHECK_USAGE(a)		((a)->dbcv_unitmask & ulInUseMask)
 
 /* This is the class name used by the hidden msgs window in the engine.
-   Both fbclient.dll and fbserver.exe should use the same. */
+   Both firebird.dll and fb_inet_server.exe should use the same. */
 
-static char *szClassName = "FB_Server";
-static char *szWindowName = "Firebird Server";
+static char *szClassName = "FBV_Server";
+static char *szWindowName = "Firebird (Vulcan) Server";
 
 #endif // WINDOW_H

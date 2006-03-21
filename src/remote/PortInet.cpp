@@ -125,7 +125,8 @@ extern int h_errno;
 #include <fcntl.h>
 #include <process.h>
 #include <signal.h>
-#include "../utilities/install/install_nt.h"
+//#include "../utilities/install/install_nt.h"
+#include "../utilities/SystemServices/SystemServices.h"
 
 #define ERRNO		WSAGetLastError()
 #define H_ERRNO		WSAGetLastError()
@@ -2726,7 +2727,9 @@ Port* INET_reconnect(HANDLE handle, ConfObject *configuration, ISC_STATUS* statu
  *	a port block.
  *
  **************************************/
-
+#ifdef DEBUG_SERVICES
+	DebugBreak();
+#endif
 	PortInet *port = PortInet::allocPort(configuration, 0);
 	port->port_status_vector = status_vector;
 	port->configuration = configuration;
