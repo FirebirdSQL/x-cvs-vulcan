@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../include/gen/autoconfig.h"
 #include "ibase.h"
 #include "common.h"
 #include "perf.h"
