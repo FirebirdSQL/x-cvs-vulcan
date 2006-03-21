@@ -42,6 +42,7 @@ enum Operation {
 	opIncludeFile,
 	opModuleDefFile,
 	opOutputs,
+	opCommandLine,
 	};
 
 //CLASS(InputStream);
@@ -55,6 +56,8 @@ public:
 	JString rewriteFilename(const char *original);
 	void map(Operation op, const char **nodes, Element *tree);
 	void rewrite(const char *filename);
+//	char* canonizeFilename(const char* fileName);
+	char* canonizeFilename(const char* fileName, char* inBuffer, char* endBuffer);
 	Relo(const char *filename);
 	virtual ~Relo();
 

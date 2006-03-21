@@ -1,19 +1,19 @@
 /*
- *  
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.ibphoenix.com/idpl.html. 
  *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
+ *     The contents of this file are subject to the Initial
+ *     Developer's Public License Version 1.0 (the "License");
+ *     you may not use this file except in compliance with the
+ *     License. You may obtain a copy of the License at
+ *     http://www.ibphoenix.com/idpl.html.
+ *
+ *     Software distributed under the License is distributed on
+ *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either
+ *     express or implied.  See the License for the specific
  *     language governing rights and limitations under the License.
  *
  *     The contents of this file or any work derived from this file
- *     may not be distributed under any other license whatsoever 
- *     without the express prior written permission of the original 
+ *     may not be distributed under any other license whatsoever
+ *     without the express prior written permission of the original
  *     author.
  *
  *
@@ -40,9 +40,17 @@
 
 #define UPPER(c)	((c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c)
 
+#ifdef _WIN32
+#define PLATFORM_SEPARATOR '\\'
+#define WRONG_SEPARATOR '/'
+#else
+#define PLATFORM_SEPARATOR '/'
+#define WRONG_SEPARATOR '\\'
+#endif
+
 static const char *filterFiles [] =
 	{ "VisualStudioProject", "Files", "Filter", "File", NULL };
-	
+
 static const char *filterFilterFiles [] =
 	{ "VisualStudioProject", "Files", "Filter", "Filter", "File", NULL };
 
@@ -51,6 +59,9 @@ static const char *filterOutputs [] =
 
 static const char *looseFiles [] =
 	{ "VisualStudioProject", "Files", "File", NULL };
+
+static const char *otherStuff [] =
+	{ "VisualStudioProject", "Files", "File", "FileConfiguration", "Tool", NULL };
 
 static const char *tools [] =
 	{ "VisualStudioProject", "Configurations", "Configuration", "Tool", NULL };
@@ -65,12 +76,11 @@ Relo::Relo(const char *filename)
 	const char *name = NULL;
 
 	for (const char *p = filename; *p;)
-		if (*p++ == '\\')
+		if (*p++ == SEPARATOR)
 			{
 			prior = name;
 			name = p;
 			}
-
 	projectFile = name;
 	component = JString(prior, name - prior - 1);
 	sourceDirectory = JString(filename, name - filename);
@@ -89,17 +99,20 @@ void Relo::rewrite(const char *filename)
 {
 	JString path = PathName::expandFilename(filename);
 	const char *p = path;
-	const char *end = strrchr(p, '\\');
+	const char *end = strrchr(p, SEPARATOR);
 	targetDirectory = JString(p, end - p);
+
+	map(opOutputs, otherStuff, project);
 
 	map(opOutputs, filterOutputs, project);
 
 	map(opRelativePath, filterFilterFiles, project);
 	map(opRelativePath, filterFiles, project);
-	
 
 	map(opRelativePath, looseFiles, project);
+
 	map(opOutputFile, tools, project);
+	map(opCommandLine, tools, project);
 	map(opModuleDefFile, tools, project);
 	//map(opIncludeFile, tools, project);
 
@@ -108,10 +121,13 @@ void Relo::rewrite(const char *filename)
 	stream.putCharacter('\n');
 	project->genXML(0, &stream);
 	JString outputPath;
+#ifdef _WIN32
 	outputPath.Format("%s\\%s", filename, (const char*) projectFile);
-
+#else
+	outputPath.Format("%s/%s", filename, (const char*) projectFile);
+#endif
 	FILE *file = fopen(outputPath, "w");
-	
+
 	if (!file)
 		{
 		fprintf(stderr, "couldn't open file \"%s\" for write\n", (const char*) outputPath);
@@ -120,7 +136,7 @@ void Relo::rewrite(const char *filename)
 
 	for (Segment *segment = stream.segments; segment; segment = segment->next)
 		fwrite(segment->address, 1, segment->length, file);
-	
+
 	fclose(file);
 }
 
@@ -141,6 +157,10 @@ void Relo::map(Operation op, const char **names, Element *element)
 
 			case opOutputFile:
 				mapFile("OutputFile", element);
+				break;
+
+			case opCommandLine:
+				mapFile("CommandLine", element);
 				break;
 
 			case opOutputs:
@@ -167,9 +187,14 @@ void Relo::mapFile(const char *attributeName, Element *element)
 	if (!attribute)
 		return;
 
-	const char *filename = attribute->value;
+	char inBuffer [MAXPATHLEN];
+	int inBufferLength = sizeof (inBuffer);
+	char *endBuffer = inBuffer + inBufferLength - 1;
+	const char *filename = canonizeFilename(attribute->value, inBuffer, endBuffer);
 
 	if (*filename == '$')
+		return;
+	if ((filename[0] == ' ') && (filename[1] == '$'))
 		return;
 
 	JString newPath = rewriteFilename(filename);
@@ -184,7 +209,7 @@ JString Relo::rewriteFilename(const char *original)
 	const char *p, *q;
 
 	for (p = start1, q = start2; *p && UPPER(*p) == UPPER(*q); ++p, ++q)
-		if (*p == '\\')
+		if (*p == SEPARATOR)
 			{
 			start1 = p;
 			start2 = q;
@@ -194,11 +219,11 @@ JString Relo::rewriteFilename(const char *original)
 	char *out = buffer;
 
 	for (q = start2; *q;)
-		if (*q++ == '\\')
+		if (*q++ == SEPARATOR)
 			{
 			*out++ = '.';
 			*out++ = '.';
-			*out++ = '\\';
+			*out++ = SEPARATOR;
 			}
 
 	strcpy(out, start1 + 1);
@@ -213,10 +238,16 @@ void Relo::mapFileList(const char *attributeName, Element *element)
 	if (!attribute)
 		return;
 
+	char inBuffer [MAXPATHLEN];
+	int inBufferLength = sizeof (inBuffer);
+	char *endBuffer = inBuffer + inBufferLength - 1;
+	const char* filename = canonizeFilename(attribute->value, inBuffer, endBuffer);
+
 	char buffer [1024];
+	for (int i=0 ;i<1024;i++) buffer[i] = 0;
 	char *out = buffer;
 
-	for (const char *p = attribute->value; *p; ++p)
+	for (const char *p = filename; *p; ++p)
 		{
 		char *start = out;
 
@@ -228,6 +259,7 @@ void Relo::mapFileList(const char *attributeName, Element *element)
 		if (*start == '.')
 			{
 			*out = 0;
+
 			JString newPath = rewriteFilename(start);
 			out = start;
 
@@ -236,7 +268,38 @@ void Relo::mapFileList(const char *attributeName, Element *element)
 			}
 
 		*out++ = *p;
+		if (*p==0)
+		  break;
 		}
 
 	attribute->value = JString(buffer);
+}
+
+
+//char* Relo::canonizeFilename(char* fileName)
+char* Relo::canonizeFilename(const char* fileName, char* inBuffer, char* endBuffer)
+/**
+  Make sure that the filename or path that we are processing is in
+  consistent canonical form for the current platform.
+*/
+{
+
+	char *q = inBuffer;
+	const char *p = fileName;
+
+	while (*p && q < endBuffer)
+		{
+		char c = *p++;
+		if (c == WRONG_SEPARATOR)
+			{
+			c = PLATFORM_SEPARATOR;
+			while (*p == WRONG_SEPARATOR)
+				++p;
+			}
+		*q++ = c;
+		}
+
+	*q = 0;
+
+	return inBuffer;
 }
