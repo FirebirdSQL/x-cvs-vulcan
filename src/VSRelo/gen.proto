@@ -1,0 +1,3 @@
+$VULCAN_SCRIPT_DIR/buildgen -p proto -c VSRelo -f $VULCAN_SCRIPT_DIR/VSRelo.build -o makefile VSRelo.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c modules -f $VULCAN_SCRIPT_DIR/VSRelo.build -o modules.mak  VSRelo.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c dependencies -f $VULCAN_SCRIPT_DIR/VSRelo.build -o dependencies.mak  VSRelo.vcproj $*

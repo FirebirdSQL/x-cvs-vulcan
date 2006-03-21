@@ -1,3 +1,3 @@
-buildgen -p proto -c qli -f ../../vulcan.build -o makefile qli.vcproj $*
-buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  qli.vcproj $*
-buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  qli.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p proto -c qli -f $VULCAN_SCRIPT_DIR/vulcan.build -o makefile qli.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c modules -f $VULCAN_SCRIPT_DIR/vulcan.build -o modules.mak  qli.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c dependencies -f $VULCAN_SCRIPT_DIR/vulcan.build -o dependencies.mak  qli.vcproj $*

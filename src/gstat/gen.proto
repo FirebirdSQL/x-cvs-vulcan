@@ -1,3 +1,3 @@
-buildgen -p proto -c gstat -f ../../vulcan.build -o makefile gstat.vcproj $*
-buildgen -p Generic -c modules -f ../../vulcan.build -o modules.mak  gstat.vcproj $*
-buildgen -p Generic -c dependencies -f ../../vulcan.build -o dependencies.mak  gstat.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p proto -c gstat -f $VULCAN_SCRIPT_DIR/vulcan.build -o makefile gstat.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c modules -f $VULCAN_SCRIPT_DIR/vulcan.build -o modules.mak  gstat.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c dependencies -f $VULCAN_SCRIPT_DIR/vulcan.build -o dependencies.mak  gstat.vcproj $*

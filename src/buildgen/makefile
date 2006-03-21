@@ -19,7 +19,7 @@ INTDIR = .
 SRCDIR = ..
 LIBDIR = .
 BINDIR = .
-INSTALLDIR = $(SRCDIR)/../install
+INSTALLDIR = $(SRCDIR)/../builds/posix
 
 DIRS = $(SRCDIR)/buildgen \
 		$(SRCDIR)/XLoad \
@@ -61,7 +61,7 @@ buildgen:	$(MODULES)
  -o buildgen
 
 install: buildgen
-	cp buildgen $(INSTALLDIR)/bin
+	cp buildgen $(INSTALLDIR)
 
 
 clean: 
