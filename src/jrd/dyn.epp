@@ -272,7 +272,7 @@ void DYN_error_punt(thread_db* tdbb, bool	status_flag,
 
 	if (!number)
 		throw OSRIException (isc_no_meta_update, 0);
-		
+
 	gds__msg_format(NULL, DYN_MSG_FAC, number, sizeof (error_buffer), error_buffer, 
 					arg1, arg2, arg3, arg4, arg5);
 	throw OSRIException (isc_no_meta_update, 
@@ -302,7 +302,10 @@ void DYN_error_punt(thread_db* tdbb, OSRIException *exception,
 
 	if (!number)
 		throw OSRIException (exception, isc_no_meta_update, 0);
-		
+
+	if (exception->statusVector[1] == isc_no_meta_update)
+		throw OSRIException (*exception);
+
 	gds__msg_format(NULL, DYN_MSG_FAC, number, sizeof (error_buffer), error_buffer, 
 					arg1, arg2, arg3, arg4, arg5);
 	throw OSRIException (exception, isc_no_meta_update, 
