@@ -1,203 +1,70 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject
-	ProjectType="Visual C++"
-	Version="7.10"
-	Name="instsvc"
-	ProjectGUID="{1E953E14-73B7-44EF-B220-8E1E43CA3B21}"
-	SccProjectName=""
-	SccLocalPath="">
-	<Platforms>
-		<Platform
-			Name="Win32"/>
-	</Platforms>
-	<Configurations>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\install\bin"
-			IntermediateDirectory=".\release\instsvc"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/EHsc-"
-				Optimization="4"
-				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="TRUE"
-				ImproveFloatingPointConsistency="TRUE"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="TRUE"
-				AdditionalIncludeDirectories="../../../src/config;../../../src/include;../../../src/include/gen;../../../src/jrd"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,SUPERCLIENT"
-				ExceptionHandling="FALSE"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="0"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="comctl32.lib ws2_32.lib mpr.lib version.lib shlwapi.lib"
-				OutputFile="..\..\..\install\bin\instsvc.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="..\..\..\temp\release\instsvc\instsvc.tlb"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="2057"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\install\bin"
-			IntermediateDirectory=".\debug\instsvc"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/EHsc-"
-				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/config;../../../src/include;../../../src/jrd;../../../src/include/gen"
-				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE,SUPERCLIENT,DEV_BUILD"
-				ExceptionHandling="FALSE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="0"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="comctl32.lib ws2_32.lib mpr.lib version.lib shlwapi.lib"
-				OutputFile="..\..\..\install\bin\instsvc.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName="..\..\..\temp\debug\instsvc\instsvc.tlb"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="2057"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-		</Configuration>
-	</Configurations>
-	<References>
-	</References>
-	<Files>
-		<Filter
-			Name="UTILITIES files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
-			<File
-				RelativePath="..\..\..\src\config\Args.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\config\ArgsException.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\SystemServices\instsvc.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\JString.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\SystemServices\SystemServices.cpp">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\SystemServices\SystemServicesException.cpp">
-			</File>
-		</Filter>
-		<Filter
-			Name="Header files"
-			Filter="h;hpp;hxx;hm;inl">
-			<File
-				RelativePath="..\..\..\src\config\Args.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\config\ArgsException.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\jrd\JString.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\SystemServices\SystemServices.h">
-			</File>
-			<File
-				RelativePath="..\..\..\src\utilities\SystemServices\SystemServicesException.h">
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource files"
-			Filter="">
-			<File
-				RelativePath="..\..\..\src\jrd\version.rc">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\..\..\src\jrd;$(NoInherit)"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="..\..\..\src\jrd;$(NoInherit)"/>
-				</FileConfiguration>
-			</File>
-		</Filter>
-	</Files>
-	<Globals>
-		<Global
-			Name="RESOURCE_FILE"
-			Value="\vulcan_dev\frs_vulcan_cpl\vulcan\src\jrd\version.rc"/>
-	</Globals>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="instsvc" ProjectGUID="{1E953E14-73B7-44EF-B220-8E1E43CA3B21}" SccProjectName="" SccLocalPath="">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Release|Win32" OutputDirectory="..\..\..\..\install\bin" IntermediateDirectory=".\release\instsvc" ConfigurationType="1" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" AdditionalOptions="/EHsc-" Optimization="4" GlobalOptimizations="TRUE" InlineFunctionExpansion="1" EnableIntrinsicFunctions="TRUE" ImproveFloatingPointConsistency="TRUE" FavorSizeOrSpeed="1" OmitFramePointers="TRUE" AdditionalIncludeDirectories="../../../src/config;../../../src/include;../../../src/include/gen;../../../src/jrd" PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,SUPERCLIENT" ExceptionHandling="FALSE" RuntimeLibrary="2" RuntimeTypeInfo="TRUE" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalOptions="/MACHINE:I386" AdditionalDependencies="comctl32.lib ws2_32.lib mpr.lib version.lib shlwapi.lib" OutputFile="..\..\..\install\bin\instsvc.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" GenerateDebugInformation="TRUE" SubSystem="1"/>
+         <Tool Name="VCMIDLTool" TypeLibraryName="..\..\..\temp\release\instsvc\instsvc.tlb"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="2057"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Debug|Win32" OutputDirectory="..\..\..\..\install\bin" IntermediateDirectory=".\debug\instsvc" ConfigurationType="1" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" AdditionalOptions="/EHsc-" Optimization="0" AdditionalIncludeDirectories="../../../src/config;../../../src/include;../../../src/jrd;../../../src/include/gen" PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE,SUPERCLIENT,DEV_BUILD" ExceptionHandling="FALSE" BasicRuntimeChecks="3" RuntimeLibrary="3" RuntimeTypeInfo="TRUE" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalOptions="/MACHINE:I386" AdditionalDependencies="comctl32.lib ws2_32.lib mpr.lib version.lib shlwapi.lib" OutputFile="..\..\..\install\bin\instsvc.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" GenerateDebugInformation="TRUE" SubSystem="1"/>
+         <Tool Name="VCMIDLTool" TypeLibraryName="..\..\..\temp\debug\instsvc\instsvc.tlb"/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="2057"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="UTILITIES files" Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+         <File RelativePath="..\..\..\src\config\Args.cpp"/>
+         <File RelativePath="..\..\..\src\config\ArgsException.cpp"/>
+         <File RelativePath="..\..\..\src\utilities\SystemServices\instsvc.cpp"/>
+         <File RelativePath="..\..\..\src\jrd\JString.cpp"/>
+         <File RelativePath="..\..\..\src\utilities\SystemServices\SystemServices.cpp"/>
+         <File RelativePath="..\..\..\src\utilities\SystemServices\SystemServicesException.cpp"/>
+      </Filter>
+      <Filter Name="Header files" Filter="h;hpp;hxx;hm;inl">
+         <File RelativePath="..\..\..\src\config\Args.h"/>
+         <File RelativePath="..\..\..\src\config\ArgsException.h"/>
+         <File RelativePath="..\..\..\src\jrd\JString.h"/>
+         <File RelativePath="..\..\..\src\utilities\SystemServices\SystemServices.h"/>
+         <File RelativePath="..\..\..\src\utilities\SystemServices\SystemServicesException.h"/>
+      </Filter>
+      <Filter Name="Resource files" Filter="">
+         <File RelativePath="..\..\..\src\jrd\version.rc">
+            <FileConfiguration Name="Release|Win32">
+               <Tool Name="VCResourceCompilerTool" AdditionalIncludeDirectories="..\..\..\src\jrd;$(NoInherit)"/>
+            </FileConfiguration>
+            <FileConfiguration Name="Debug|Win32">
+               <Tool Name="VCResourceCompilerTool" AdditionalIncludeDirectories="..\..\..\src\jrd;$(NoInherit)"/>
+            </FileConfiguration>
+         </File>
+      </Filter>
+   </Files>
+   <Globals>
+      <Global Name="RESOURCE_FILE" Value="\vulcan_dev\frs_vulcan_cpl\vulcan\src\jrd\version.rc"/>
+   </Globals>
 </VisualStudioProject>

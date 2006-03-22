@@ -1,162 +1,48 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject
-	ProjectType="Visual C++"
-	Version="7.10"
-	Name="test"
-	ProjectGUID="{95D35CDD-4850-438A-A46B-DCF534B4BB53}"
-	SccProjectName=""
-	SccLocalPath="">
-	<Platforms>
-		<Platform
-			Name="Win32"/>
-	</Platforms>
-	<Configurations>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="1"
-				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="TRUE"
-				OptimizeForProcessor="1"
-				AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;c:\Firebird\include;../../../src/common/classes;../../../src/include/gen;../../../src/config"
-				PreprocessorDefinitions="WIN32;_CONSOLE;NAMESPACE=Test;MEMMGR;FIREBIRD_ENGINE;MEMTEST"
-				StringPooling="TRUE"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Release/test.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="..\..\..\src\test\Release\test.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Release/test.pdb"
-				SubSystem="1"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Release/test.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="2">
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;c:\Firebird\include;../../../src/common/classes;../../../src/include/gen;../../../src/config"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Test;MEMMGR;FIREBIRD_ENGINE"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\Debug/test.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="0"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="firebird.lib"
-				OutputFile="..\..\..\src\test\Debug\test.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\..\src\test\&quot;C:\Program Files\Firebird\lib&quot;;..\..\install\lib"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/test.pdb"
-				SubSystem="1"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\Debug/test.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-		</Configuration>
-	</Configurations>
-	<References>
-	</References>
-	<Files>
-		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
-			<File
-				RelativePath="..\..\..\src\test\locktest.c">
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-		</Filter>
-	</Files>
-	<Globals>
-	</Globals>
+
+<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="test" ProjectGUID="{95D35CDD-4850-438A-A46B-DCF534B4BB53}" SccProjectName="" SccLocalPath="">
+   <Platforms>
+      <Platform Name="Win32"/>
+   </Platforms>
+   <Configurations>
+      <Configuration Name="Release|Win32" OutputDirectory=".\Release" IntermediateDirectory=".\Release" ConfigurationType="1" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="1" GlobalOptimizations="TRUE" InlineFunctionExpansion="1" EnableIntrinsicFunctions="TRUE" OptimizeForProcessor="1" AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;c:\Firebird\include;../../../src/common/classes;../../../src/include/gen;../../../src/config" PreprocessorDefinitions="WIN32;_CONSOLE;NAMESPACE=Test;MEMMGR;FIREBIRD_ENGINE;MEMTEST" StringPooling="TRUE" RuntimeLibrary="2" EnableFunctionLevelLinking="TRUE" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Release/test.pch" AssemblerListingLocation=".\Release/" ObjectFile=".\Release/" ProgramDataBaseFileName=".\Release/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" OutputFile="..\..\..\src\test\Release\test.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" GenerateDebugInformation="TRUE" ProgramDatabaseFile=".\Release/test.pdb" SubSystem="1" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" TypeLibraryName=".\Release/test.tlb" HeaderFileName=""/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="NDEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+      <Configuration Name="Debug|Win32" OutputDirectory=".\Debug" IntermediateDirectory=".\Debug" ConfigurationType="1" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
+         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;c:\Firebird\include;../../../src/common/classes;../../../src/include/gen;../../../src/config" PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;NAMESPACE=Test;MEMMGR;FIREBIRD_ENGINE" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="2" PrecompiledHeaderFile=".\Debug/test.pch" AssemblerListingLocation=".\Debug/" ObjectFile=".\Debug/" ProgramDataBaseFileName=".\Debug/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
+         <Tool Name="VCCustomBuildTool"/>
+         <Tool Name="VCLinkerTool" AdditionalDependencies="firebird.lib" OutputFile="..\..\..\src\test\Debug\test.exe" LinkIncremental="1" SuppressStartupBanner="TRUE" AdditionalLibraryDirectories="..\..\..\src\test\&quot;C:\Program Files\Firebird\lib&quot;;..\..\install\lib" GenerateDebugInformation="TRUE" ProgramDatabaseFile=".\Debug/test.pdb" SubSystem="1" TargetMachine="1"/>
+         <Tool Name="VCMIDLTool" TypeLibraryName=".\Debug/test.tlb" HeaderFileName=""/>
+         <Tool Name="VCPostBuildEventTool"/>
+         <Tool Name="VCPreBuildEventTool"/>
+         <Tool Name="VCPreLinkEventTool"/>
+         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="1033"/>
+         <Tool Name="VCWebServiceProxyGeneratorTool"/>
+         <Tool Name="VCXMLDataGeneratorTool"/>
+         <Tool Name="VCWebDeploymentTool"/>
+         <Tool Name="VCManagedWrapperGeneratorTool"/>
+         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+      </Configuration>
+   </Configurations>
+   <References/>
+   <Files>
+      <Filter Name="Source Files" Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+         <File RelativePath="..\..\..\src\test\locktest.c"/>
+      </Filter>
+      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl"/>
+      <Filter Name="Resource Files" Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+   </Files>
+   <Globals/>
 </VisualStudioProject>

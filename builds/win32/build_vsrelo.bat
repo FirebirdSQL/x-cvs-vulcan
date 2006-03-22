@@ -39,7 +39,9 @@ mkdir %VULCAN_BUILD_DIR% 2>nul
 ::  CommandLine="bison -y -l -d -b dsql $(InputDir)$(InputName).y
 ren %VULCAN_BUILD_DIR%\jrd\jrd.vcproj jrd.temp1
 ::sed s/CommandLine=\".*MasterBuildConfig\\jrd\\bison/CommandLine=\"bison/ %VULCAN_BUILD_DIR%\jrd\jrd.temp0 > %VULCAN_BUILD_DIR%\jrd\jrd.temp1
-sed s/ImportLibrary=\".*MasterBuildConfig\\jrd/ImportLibrary=\"\./p %VULCAN_BUILD_DIR%\jrd\jrd.temp1 > %VULCAN_BUILD_DIR%\jrd\jrd.vcproj
+::sed s/ImportLibrary=\".*MasterBuildConfig\\jrd/ImportLibrary=\"\./p %VULCAN_BUILD_DIR%\jrd\jrd.temp1 > %VULCAN_BUILD_DIR%\jrd\jrd.vcproj
+sed s/ImportLibrary=\'.*MasterBuildConfig\\jrd/ImportLibrary=\'\./p %VULCAN_BUILD_DIR%\jrd\jrd.temp1 > %VULCAN_BUILD_DIR%\jrd\jrd.vcproj
+
 del %VULCAN_BUILD_DIR%\jrd\jrd.temp*
 
 
