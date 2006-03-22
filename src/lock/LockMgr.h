@@ -556,7 +556,7 @@ private:
 	int			LOCK_trace_stop;
 
 	bool		shutdown;
-	AsyncEvent	shutdownComplete;
+	//AsyncEvent	blockingThreadStarted;
 	int			shutdownCount;
 
 	LRQ			debugRequest;

@@ -78,7 +78,6 @@ Database* DatabaseManager::getDatabase(const char* expandedFilename, ConfObject 
 	
 	if (dbb)
 		{
-		dbb->addRef();
 		sync.unlock();
 		dbb->syncExistence.lock(NULL, Shared);
 		return dbb;
@@ -89,7 +88,6 @@ Database* DatabaseManager::getDatabase(const char* expandedFilename, ConfObject 
 	
 	if (dbb = findDatabase (expandedFilename))
 		{
-		dbb->addRef();
 		sync.unlock();
 		dbb->syncExistence.lock(NULL, Shared);
 		return dbb;
@@ -103,10 +101,11 @@ Database* DatabaseManager::getDatabase(const char* expandedFilename, ConfObject 
 	dbb = new Database (expandedFilename, configObject);
 	dbb->dbb_next = databases;
 	databases = dbb;
+	dbb->databaseManager = this;
+	dbb->addRef();
+	
 #ifdef SHARED_CACHE
 	dbb->syncExistence.lock(NULL, Exclusive);
-#else
-	dbb->databaseManager = this;
 #endif
 	
 	return dbb;
@@ -145,4 +144,18 @@ void DatabaseManager::remove(Database* database)
 			*ptr = database->dbb_next;
 			break;
 			}
+}
+
+bool DatabaseManager::shutdown(Database* database)
+{
+	Sync syncDatabase (&database->syncExistence, "DatabaseManager::shutdown");
+	syncDatabase.lock (Exclusive);
+	
+	if (database->useCount > 2)
+		return false;
+	
+	remove(database);
+	database->release();
+	
+	return true;
 }

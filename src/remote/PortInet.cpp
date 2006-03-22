@@ -386,10 +386,17 @@ Port* INET_analyze(	ConfObject *configuration,
 	
 	/* Try connection using first set of protocols.  punt if error */
 
+	rdb->addRef();
 	PortInet* port = inet_try_connect(configuration, packet, rdb, *file_length, file_name,
 								 node_name, status_vector, dpb, dpb_length);
-	if (!port) 
+	if (!port)
+		{
+		sync.unlock();
+		rdb->release();
 		return NULL;
+		}
+	
+	rdb->release();
 
 	if (packet->p_operation == op_reject && !uv_flag)
 		{

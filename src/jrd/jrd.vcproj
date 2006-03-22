@@ -2774,6 +2774,9 @@ move dsql.tab.h  $(InputDir)\parse.h
 				RelativePath="..\include\fb_vector.h">
 			</File>
 			<File
+				RelativePath="..\include\fbdev.h">
+			</File>
+			<File
 				RelativePath="os\fbsyslog.h">
 			</File>
 			<File

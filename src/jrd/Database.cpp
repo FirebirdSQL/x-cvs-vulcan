@@ -202,19 +202,19 @@ int Database::getSqlDialect()
 void Database::init()
 {
 	initialized = false;
-	dbb_attachments = NULL;	/* Active attachments */
-	dbb_lock = NULL;		/* granddaddy lock */
-	dbb_sys_trans = NULL;	/* system transaction */
-	dbb_file = NULL;		/* files for I/O operations */
-	dbb_shadow = NULL;		/* shadow control block */
-	dbb_shadow_lock = NULL;	/* lock for synchronizing addition of shadows */
+	dbb_attachments = NULL;		/* Active attachments */
+	dbb_lock = NULL;			/* granddaddy lock */
+	dbb_sys_trans = NULL;		/* system transaction */
+	dbb_file = NULL;			/* files for I/O operations */
+	dbb_shadow = NULL;			/* shadow control block */
+	dbb_shadow_lock = NULL;		/* lock for synchronizing addition of shadows */
 	dbb_shadow_sync_count = 0;	/* to synchronize changes to shadows */
 	dbb_retaining_lock = NULL;	/* lock for preserving commit retaining snapshot */
-	dbb_connection = NULL;	/* connection block */
-	dbb_pcontrol = NULL;	/* page control */
+	dbb_connection = NULL;		/* connection block */
+	dbb_pcontrol = NULL;		/* page control */
 	dbb_blob_filters = NULL;	/* known blob filters */
-	dbb_modules = NULL;	/* external function/filter modules */
-	dbb_sort_size = 0;		/* Size of sort space per sort */
+	dbb_modules = NULL;			/* external function/filter modules */
+	dbb_sort_size = 0;			/* Size of sort space per sort */
 
 	maxUnflushedWrites = 0;
 	maxUnflushedWriteTime = 0;

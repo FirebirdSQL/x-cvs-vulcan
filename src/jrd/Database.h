@@ -42,7 +42,7 @@
 #include "JVector.h"
 #include "JString.h"
 #include "ConfObj.h"
-#include "RefObject.h"
+#include "SafeRefObject.h"
 #include "LinkedList.h"
 #include "SyncObject.h"
 #include "DVector.h"
@@ -124,7 +124,7 @@ class Transaction;
 class Request;
 class str;
 class BlockingThread;	/* Attachments waiting for update */
-class map;	/* mapping of blobs for REPLAY */
+class map;				/* mapping of blobs for REPLAY */
 class Symbol;
 class log;
 class Lock;
@@ -139,19 +139,21 @@ class SecurityPlugin;
 class TipCache;
 class CommitManager;
 
-class File;		/* files for I/O operations */
-class Shadow;		/* shadow control block */
-struct plc;		/* connection block */
-struct PageControl;	/* page control */
+class File;				/* files for I/O operations */
+class Shadow;			/* shadow control block */
+struct plc;				/* connection block */
+struct PageControl;		/* page control */
 struct BlobFilter;		/* known blob filters */
 struct lls;
-struct jrn;		/* journal block */
+struct jrn;				/* journal block */
 struct thread_db;
 
-class Database : public RefObject //public pool_alloc<type_dbb>
+class Database : public SafeRefObject //public pool_alloc<type_dbb>
 {
-public:
+protected:
 	virtual ~Database();
+
+public:
 	Relation*	findRelation (thread_db* tdbb, const char *relationName);
 	ISC_STATUS	executeDDL (ISC_STATUS *statusVector, Transaction *transaction, int length, const UCHAR *ddl);
 	void		init();
@@ -208,7 +210,7 @@ public:
 	USHORT				dbb_dp_per_pp;			/* data pages per pointer page */
 	USHORT				dbb_max_records;		/* max record per data page */
 	USHORT				dbb_max_idx;			/* max number of indexes on a root page */
-	volatile INTERLOCK_TYPE		dbb_use_count;			/* active count of threads */
+	volatile INTERLOCK_TYPE		dbb_use_count;	/* active count of threads */
 	USHORT				dbb_shutdown_delay;		/* seconds until forced shutdown */
 	USHORT				dbb_refresh_ranges;		/* active count of refresh ranges */
 	USHORT				dbb_prefetch_sequence;	/* sequence to pace frequency of prefetch requests */
@@ -278,6 +280,7 @@ public:
 	JVector				dbb_charsets;
 
 	PageCache			*pageCache;
+	DatabaseManager		*databaseManager;
 
 #ifdef SHARED_CACHE
 	SyncObject			syncObject;
@@ -301,7 +304,6 @@ public:
 #else
 	SyncObject			syncAst;
 	SyncObject			syncConnection;				/* Enforce 1 thread per connection */
-	DatabaseManager		*databaseManager;
 	SVector<SLONG>		dbb_pc_transactions;		/* active precommitted transactions */
 	LockMgr				lockMgr;
 #endif

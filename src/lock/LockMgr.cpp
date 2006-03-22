@@ -253,7 +253,9 @@ static int			LOCK_trace_stop = 80;
 
 static bool			shutdown;
 static AsyncEvent	shutdownComplete;
+static AsyncEvent	blockingThreadStarted;
 static int			shutdownCount;
+static int			startupCount;
 
 //static SLONG		LOCK_block_signal;
 
@@ -798,10 +800,13 @@ void LockMgr::LOCK_fini( ISC_STATUS *status_vector, PTR *owner_offset)
  **************************************/
 	LOCK_TRACE(("LOCK_fini(%ld)\n", *owner_offset));
 	PTR offset = *owner_offset;
-
+	
 	if (!LOCK_table || !offset)
 		return;
-		
+
+	if (startupCount)
+		blockingThreadStarted.wait(startupCount, INFINITE);
+
 	//if (LOCK_table->lhb_active_owner != offset)
 		acquire(offset);
 
@@ -983,6 +988,9 @@ int LockMgr::LOCK_init(Database *dbb, ISC_STATUS * status_vector,
 		shutdownCount = shutdownComplete.clear();
 		LockEvent *event = allocEvent(owner);
 		owner->own_blocking_event = REL_PTR(event);
+		blockingThreadStarted.init();
+		startupCount = blockingThreadStarted.clear();
+
 #ifdef SHARED_CACHE
 		ULONG status = THD_start_thread(blocking_action_thread, &LOCK_owner_offset, THREAD_high, 0, 
 										&blocking_action_thread_handle);
@@ -1005,6 +1013,7 @@ int LockMgr::LOCK_init(Database *dbb, ISC_STATUS * status_vector,
 			*status_vector++ = isc_arg_end;
 			return FB_FAILURE;
 			}
+		
 		blocking_action_thread_initialized = true;
 		}
 	else
@@ -1820,7 +1829,10 @@ int LockMgr::blocking_action_thread(void *arg)
 	if (!(LOCK_header2 = (LHB) ISC_map_file(status_vector, lock_buffer,
 										   lock_initialize2, this,
 										   LOCK_shm_size, &LOCK_data2))) 
+		{
+		blockingThreadStarted.post();
 		return status_vector[1];
+		}
 
 	LOCK_table2 = LOCK_header2;
 #endif
@@ -1834,6 +1846,7 @@ int LockMgr::blocking_action_thread(void *arg)
 		PTR ownerOffset = LOCK_owner_offset;
 #endif
 		acquire(ownerOffset);
+		blockingThreadStarted.post();
 		LockOwner *owner = LOCK_OWNER(ownerOffset);
 
 		if (!owner->own_blocking_event)
@@ -4090,6 +4103,11 @@ void LockMgr::shutdown_blocking_thread(LockOwner *owner)
  *	memory.
  *
  **************************************/
+
+#ifdef SHARED_CACHE
+	Sync sync (&lockManagerMutex, "LockMgr::shutdown_blocking_thread");
+	sync.lock (Exclusive);
+#endif
 
 	if (!blocking_action_thread_initialized || !owner->own_blocking_event)
 		return;

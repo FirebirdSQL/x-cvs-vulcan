@@ -53,6 +53,7 @@ public:
 	Database* getDatabase(const char* expandedFileName, ConfObject *configObject);
 	//Database* createDatabase(const char* expandedFilename, ConfObject* configObject);
 	void remove(Database* database);
+	bool shutdown(Database* database);
 };
 
 #endif

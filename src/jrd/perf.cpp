@@ -219,6 +219,7 @@ void API_ROUTINE perf_get_info(isc_handle* handle, PERF* perf)
  **************************************/
 	SSHORT buffer_length, item_length;
 	ISC_STATUS_ARRAY jrd_status;
+	
 #ifdef HAVE_GETTIMEOFDAY
 	struct timeval tp;
 #else

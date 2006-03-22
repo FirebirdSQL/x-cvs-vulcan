@@ -589,18 +589,31 @@ int ThreadFn(Threadargs args)
 // pass in the database to connect to ...
 int main(int argc, char* argv[])
 {
-   ThreadArgs        args[NUM_THREADS] = {0};
+   //ThreadArgs        args[NUM_THREADS] = {0};
+   ThreadArgs		*args = 0;
    fbLock            lock = {0};
    int               thread;
    long              start;
    long              end;
+   int				numThreads = NUM_THREADS;
 
    if (argc < 2)
    {
-       printf("Usage:\t%s <full-path-to-database-file.ext>\n\n", argv[0]);
+       printf("Usage:\t%s <full-path-to-database-file.ext> [<number threads>]\n\n", argv[0]);
        exit(1);
    }
 
+	if (argc >= 3)
+		{
+		numThreads = atoi(argv[2]);
+		if (numThreads < 1 || numThreads > 256)
+			{
+			printf("Too many threads (%d).  Try again with threads between 1 and 256\n", numThreads);
+			exit(1);
+			}
+		}
+   
+   args = new ThreadArgs[numThreads];
    fbInitLock(&lock);
 
    // If all of the threads share the same table,
@@ -632,7 +645,7 @@ int main(int argc, char* argv[])
    start = GetTickCount();
 
    // Start requested number of threads
-   for (thread = 0; thread < NUM_THREADS; thread++)
+   for (thread = 0; thread < numThreads; thread++)
    {   
        // Do the Fetch operation
        args[thread].doFetch = 1;
@@ -670,7 +683,7 @@ int main(int argc, char* argv[])
    printf("\nStarted %d threads ...\n", thread);
 
    // Wait for completion ...
-   for (thread = 0; thread < NUM_THREADS; thread++)
+   for (thread = 0; thread < numThreads; thread++)
    {
        while (!args[thread].done)
             Sleep(1);
@@ -683,10 +696,10 @@ int main(int argc, char* argv[])
    // Print statistics
    // We only count the creates/inserts if they are done in parallel
    if (!SAME_TABLE)
-        printf("\n%d rows inserted and ", NUM_ROWS, NUM_THREADS);
+        printf("\n%d rows inserted and ", NUM_ROWS, numThreads);
 
    printf("%d rows selected from each of %d tables in %f seconds.\n\n", 
-          NUM_ROWS * NUM_LOOPS, NUM_THREADS, (end-start)/1000.0);
+          NUM_ROWS * NUM_LOOPS, numThreads, (end-start)/1000.0);
 
    fbDestroyLock(&lock);
 

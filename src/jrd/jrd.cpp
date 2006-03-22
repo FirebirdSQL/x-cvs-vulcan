@@ -2172,9 +2172,10 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 		{
 		/* Check if same process has more attachments */
 		
-		if ((attach = dbb->dbb_attachments) && (attach->att_next))
-			ERR_post(isc_no_meta_update, isc_arg_gds, isc_obj_in_use,
-					isc_arg_string, "DATABASE", 0);
+		for (Attachment *att = dbb->dbb_attachments; att; att = att->att_next)
+			if (att != attach && !(att->att_flags & ATT_internal))
+				ERR_post(isc_no_meta_update, isc_arg_gds, isc_obj_in_use,
+						isc_arg_string, "DATABASE", 0);
 
 #ifdef CANCEL_OPERATION
 		attachment->att_flags |= ATT_cancel_disable;
@@ -2238,7 +2239,8 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 #ifdef SHARED_CACHE
 	sync.unlock();	
 #endif
-	delete dbb;
+	//delete dbb;
+	dbb->release();
 		
 	if (err) 
 		{
@@ -5246,19 +5248,16 @@ static DBB init(thread_db* tdbb,
  *	Initialize for database access.  First call from both CREATE and
  *	OPEN.
  *
- **************************************/
-	//MUTX_T temp_mutx[DBB_MUTX_max];
-	//WLCK_T temp_wlck[DBB_WLCK_max];
-	//SET_TDBB(tdbb);
 
 	/* If this is the first time through, initialize local mutexes and set
-	up a cleanup handler.  Regardless, then lock the database mutex. */
+	   up a cleanup handler.  Regardless, then lock the database mutex. */
+	   
 	Sync sync(&init_mutex, "init");
 	sync.lock(Exclusive);
+	
 	if (!initialized) 
 		{
 		THD_INIT;
-		//THD_GLOBAL_MUTEX_LOCK;
 
 #ifdef PLUGIN_MANAGER
 		PluginManager::load_engine_plugins();
@@ -5272,11 +5271,9 @@ static DBB init(thread_db* tdbb,
 			setup_NT_handlers();
 #endif
 			}
-		//THD_GLOBAL_MUTEX_UNLOCK;
 		}
+		
 	sync.unlock();
-
-	//JRD_SS_MUTEX_LOCK;
 
 	/* Check to see if the database is already actively attached */
 
@@ -5300,31 +5297,11 @@ static DBB init(thread_db* tdbb,
 
 	/* Clean up temporary DBB */
 
-	//THD_MUTEX_INIT_N(temp_mutx, DBB_MUTX_max);
-	
-
-	/* set up the temporary database block with fields that are
-	   required for doing the ALL_init() */
-
-	//tdbb->tdbb_database = NULL;
-
 	try 
 		{
-		//dbb->dbb_mutexes = temp_mutx;
-		//dbb->dbb_rw_locks = temp_wlck;
 		dbb->initialized = true;
 		tdbb->tdbb_database = dbb;
 		ALL_init(tdbb);
-
-		//THD_MUTEX_DESTROY_N(temp_mutx, DBB_MUTX_max);
-
-		//str* string = FB_NEW_RPT(*dbb->dbb_permanent, THREAD_STRUCT_SIZE(MUTX_T, DBB_MUTX_max)) str();
-
-		//dbb->dbb_mutexes = (MUTX) THREAD_STRUCT_ALIGN(string->str_data);
-		//THD_MUTEX_INIT_N(dbb->dbb_mutexes, DBB_MUTX_max);
-		//string = FB_NEW_RPT(*dbb->dbb_permanent, THREAD_STRUCT_SIZE(WLCK_T, DBB_WLCK_max)) str();
-		//dbb->dbb_rw_locks = (WLCK) THREAD_STRUCT_ALIGN(string->str_data);
-		
 		dbb->dbb_flags |= DBB_exclusive;
 		dbb->dbb_sweep_interval = SWEEP_INTERVAL;
 
@@ -5348,7 +5325,6 @@ static DBB init(thread_db* tdbb,
 #endif
 
 		INTL_init(tdbb);
-		//SecurityDatabase::initialize();
 		
 		if (attach_flag)
 			dbb->makeReady();
@@ -5357,11 +5333,11 @@ static DBB init(thread_db* tdbb,
 		}
 	catch (OSRIException& exception) 
 		{
-		exception;
+		exception;		// for debugging purposes
 		
 		if (dbb)
 			{
-			databaseManager.remove(dbb);
+			databaseManager.shutdown(dbb);
 #ifdef SHARED_CACHE
 			dbb->syncExistence.unlock();
 #endif
@@ -5591,12 +5567,13 @@ static void shutdown_database(thread_db* tdbb, const bool release_pools)
  **************************************/
 
 	Database *dbb = tdbb->tdbb_database;
-	databaseManager.remove (dbb);
-	dbb->shutdown(tdbb);
+	
+	if (databaseManager.shutdown(dbb))
+		dbb->shutdown(tdbb);
 
 	if (release_pools) 
 		{
-		delete dbb;
+		dbb->release();
 		tdbb->tdbb_database = NULL;
 		}
 }
@@ -6041,12 +6018,14 @@ static void purge_attachment(thread_db* tdbb,
 			SCL_release(tdbb, sec_class);
 		
 		delete attachment;
+		dbb->release();
 		}
 	else
 		{
 		delete attachment;
 		shutdown_database(tdbb, true);
 		}
+	
 }
 
 
