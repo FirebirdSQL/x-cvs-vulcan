@@ -1,0 +1,195 @@
+The Vulcan Build System
+=======================
+
+Contents
+--------
+
+o Overview
+o Getting Help
+o Preparing the build environment
+o Building Vulcan
+o Useful Options
+o Architecture of the build system
+o Updating the MBC
+o Platform Specific issues
+o Known Problems
+
+
+Overview
+--------
+Builds are driven from builds/$platform/masterbuildscript. The name of this
+master build script will differ from platform to platform. Functionally,
+however, each script behaves similarly. This document will use the
+really_make_all.bat from windows as an example.
+
+
+Getting Help
+------------
+
+Something like:
+
+  really_make_all.bat HELP
+
+will generate a help screen outlining your options.
+
+
+Preparing the build environment
+-------------------------------
+
+Each master build script checks your build environment and reports any problems
+found. If a required component is missing you will soon find out.
+
+
+Building Vulcan
+---------------
+
+Running the master script without options will do a fully automated build.
+An option will be added later to automate creating the install kits after the
+build completes.
+
+
+Useful Options
+--------------
+
+CLEAN      - will clear out debris from a previous build.
+
+DEBUG      - will create a debug build. This option is intended for engine
+             developers. You don't need this if all you want to do is step
+             through the source code while running the server in the debugger.
+
+PREPAREGUI - (Win) will prepare the build environment and open the vulcan
+             solution in Visual Studio.
+
+
+
+Architecture of the build system
+--------------------------------
+
+(The vulcan build system is yet another attempt to resolve the age old conundrum
+- how do we keep windows and posix builds in sync. In this case windows (and in
+particular Visual Studio) have been chosen as the driver of this process. Time
+will tell whether this approach is successful.)
+
+Build configurations are stored in builds/MasterBuildConfig (MBC). These files
+are intended to be platform and build environment neutral. They are in XML
+format. They are not intended to be used to build Vulcan directly.
+
+Each platform has a master build script which configures its build environment.
+Part of this process includes building and running a utility called VSRelo. This
+generates the correct xml files for the specific build environment. In practice
+it just copies the vcproj files and alters the relative paths. For example this:
+
+  ..\..\..\install\bin
+
+will become this:
+
+  ..\..\..\..\install\bin
+
+when VSRelo copies a project file for building with MSVC7. This is because
+'builds\win32\MSVC7' is one level deeper than 'builds\MasterBuildConfig'.
+
+Platforms that use the gnu toolchain require another step after running VSRElo.
+A separate tool 'buildgen' must be built and executed. This tool generates
+makefiles from vcproj files.
+
+
+Updating the MBC
+----------------
+
+Changes to the MBC files need to be made by an appropriate XML editor that
+understands the config file format. The only known editor is in fact the MS
+Visual Studio IDE for VS2003. No tests have yet been made with VS2005, but it
+is anticipated that is will work.
+
+DO NOT UPDATE THE MBC DIRECTLY unless you know what you are doing. Generate the
+a windows build environment and edit and test that. Then use
+
+  build_vsrelo.bat MAPBACK
+
+to write your changes back to the MBC.
+
+Before committing these changes it would be wise to verify them via a cvs diff.
+Unfortunately VSRelo removes the carriage returns and linefeeds. These need to
+be put back by opening the solution in the MBC and saving each project. This
+process can be speeded up with the macro in SaveProjects.vb.
+
+Platform Specific issues
+========================
+
+Windows
+-------
+There are currently two solution file templates available in the MBC\Vulcan
+directory. They are automatically copied into the build dir and renamed.
+
+  o Vulcan.sln
+    This contains all the projects required to build the engine.
+    It makes sense to build the contents as a solution.
+
+  o Devtools.sln
+    This is just a ragbag collection of everything else.
+    It doesn't make much sense to build these projects as a solution.
+
+
+Posix
+-----
+
+(To be written)
+
+
+Mac OSX
+-------
+
+(To be written)
+
+
+Known Problems
+==============
+
+Windows
+-------
+
+o devenv not found.
+
+  Well, we will assume you have installed Visual Studio. You probably need to
+  run a batch file named like this (for VS7):
+
+    "%VS71COMNTOOLS%vsvars32.bat"
+
+  This will set up your environment correctly for the particular version of VS
+  that you wish to run.
+
+  Note - MS tend to be a bit loose in the name of this file. VS6 called it
+  vcvars32.bat and the VS7 version refers to itself with the file as
+  vcvars32.bat.
+
+
+o Windows.h not found
+
+  This probably means that the %INCLUDE% environment variable doesn't contain
+  a path like this:
+    C:\Program Files\Microsoft Visual Studio .NET 2003\VC7\PlatformSDK\include;
+  You need to search for Windows.h on your system and update your environment
+  accordingly.
+
+o sed fails to process jrd.vcproj correctly (and jrd.vcproj has 0 bytes as a
+  consequence of this.)
+
+  Upgrade your Gnu toolchain from sourceforge. See:
+
+    http://gnuwin32.sourceforge.net/packages.html
+
+
+Posix
+-----
+
+The new build process is partially broken - building libfbdbc fails
+(as of 22-Mar-2006).
+
+
+Mac OSX
+-------
+
+Build process has not been updated to use the MBC.
+
+
+

@@ -1,0 +1,190 @@
+<html><body>
+<!-- Converted by Netfrastructure Word Converter X2.4-46 -->
+<center><b><font style="font-size:16pt;">Vulcan Rules
+<br></font><font style="font-size:12pt;">Version 1.0
+<br>
+<ol type=1><li value=1></font></b></center><font style="font-size:12pt;">Procedure
+<ol type=1><li value=1>New code
+<ol type=1><li value=1>Major or global changes will be discussed 
+on the developer list prior to implementation and again prior 
+to checkin.
+<li value=2>Developers are responsible for fixing all down stream 
+references and procedures affected by their changes.
+</ol></ol><ol type=1><li value=2>Code cleanup 
+<ol type=1><li value=1>All developers are responsible for general 
+cleanup of code in areas in which they work. 
+<li value=2>All developers are responsible for the paragraphing 
+of code in areas in which they work.
+<li value=3>All developers will remove artificial integer types 
+USHORT, SHORT, etc. in areas in which they work.
+<li value=4>Pragmas, deliberate errors in platform conditional 
+code, etc. will not be used as placeholders for missing cleanup. 
+</ol></ol><ol type=1><li value=3>Project architect
+<ol type=1><li value=1>The project architect has veto power 
+over all code checkin. 
+<li value=2>The project architect must explain all exercises 
+of this power to the developer list.
+</ol></ol></ol><ol type=1><li value=2>Licenses
+<ol type=1><li value=1>All modules currently licensed under 
+IPL must continue to be licensed under IPL
+<li value=2>New modules must be licensed under IDPL
+<li value=3>No restrictions beyond those of the IDPL may be 
+applied to any modules.
+</ol></ol><ol type=1><li value=3>Classes
+<ol type=1><li value=1>Encapsulation
+<ol type=1><li value=1>All new code is encapsulated in classes
+<li value=2>Existing code will be encapsulated when it is modified
+</ol></ol><ol type=1><li value=2>Names
+<ol type=1><li value=1>Class names begin with a capital letter. 
+<li value=2>Class member names begin with a lower case letter. 
+<li value=3>Underscores are not used in new names
+<li value=4>Names use internal capitalization to indicate word 
+boundaries, e.g.DatabaseMetaData.   
+</ol></ol><ol type=1><li value=3>Declaration files
+<ol type=1><li value=1>A class is declared in a file called 
+&lt;ClassName&gt;.h.  
+<li value=2>A class declaration file contains only one class. 
+<li value=3>A class declaration file also defines all constants 
+required for that class.  
+<li value=4>A class declaration file must contain abstract declarations 
+for classes referenced in the declaration
+<li value=5>A class declaration file includes class declaration 
+files for classes included as members.
+</ol></ol><ol type=1><li value=4>Implementation files
+<ol type=1><li value=1>A class is implemented in a file called 
+&lt;ClassName&gt;.cpp.
+<li value=2>A class implementation file contains only one class 
+implementation
+</ol></ol></ol><ol type=1><li value=4>C++ usage
+<ol type=1><li value=1>Deprecated
+<ol type=1><li value=1>Use of the C++ std library is deprecated 
+and will be phased out.
+<li value=2>C++ template use is discouraged
+<li value=3>Use of language features not generally and uniformly 
+implemented across the industry is prohibited.
+<li value=4>Multiple inheritance is strongly discouraged except 
+for classes that inherit from the class &#147;RefObject&#148;
+</ol></ol><ol type=1><li value=2>All casting is discouraged 
+and should be avoided by consistent type declarations.
+<li value=3>Function or class method declarations will not use 
+pass by reference
+<li value=4>Macros
+<ol type=1><li value=1>The use of macros is generally discouraged, 
+but permitted when necessary to encapsulate commonly used code 
+sequences
+<li value=2>Use &#147;static const&#148; to name constant values 
+rather than macros
+</ol></ol><ol type=1><li value=5>Prefer switch statements to 
+multiple if statements.
+</ol></ol><ol type=1><li value=5>Conditional Compilation
+<ol type=1><li value=1>Conditional compilation of specific features 
+is prohibited
+<li value=2>Conditional compilation of debugging routines is 
+permitted when appropriate.
+<li value=3>Conditional code required for platform specific 
+features will be restricted to modules dedicated to platform 
+services.
+<li value=4>Classes should not have conditional compilations 
+for different environments.
+</ol></ol><ol type=1><li value=6>Data declarations
+<ol type=1><li value=1>The use of 8 and 16 bit integer data 
+is strongly discouraged except where required by ODS and API 
+specifications.
+<li value=2>Local variables
+<ol type=1><li value=1>Local variables are declared at first 
+use,
+<li value=2>Local variables are generally be initialized in 
+their declaration
+</ol></ol><ol type=1><li value=3>Character data
+<ol type=1><li value=1>Character data will be declared as &#147;char&#148; 
+or &#147;TEXT&#148;. 
+<li value=2>Characters strings will normally be passed as &#147;const 
+char*&#148; or &#147;const TEXT*&#148;.
+<li value=3>Character strings as class members will normally 
+be declared as instances of the string class JString.
+<li value=4>No character string declared as &#147;const char*&#148; 
+may be cast to &#147;char*&#148; for the purposed of passing 
+it to a incorrectly declared function for method.
+</ol></ol><ol type=1><li value=4>Numeric data
+<ol type=1><li value=1>Byte array data will be declared as  
+&#147;UCHAR&#148;.
+<li value=2>Numeric values that can be accommodated in 31 bits 
+or fewer will be declared as type &quot;int&quot; unless they 
+are stored in the database or used in the API , 
+<li value=3>Signed numeric values that are architecturally constrained 
+to 32 bits will be declared as &#147;SLONG&#148; (deprecated) 
+or &#147;INT32&#148;
+<li value=4>Unsigned numeric values that are architecturally 
+constrained to 32 bits will be declared as &#147;ULONG&#148; 
+(deprecated) and &#147;UINT32&#148;.
+<li value=5>Signed and unsigned 64 bit numeric values will be 
+declared as &#147;INT64&#148; and &#147;UINT64&#148; respectively.
+</ol></ol><ol type=1><li value=5>Pointer to objects will normally 
+not be declared as &#147;const&#148;.
+</ol></ol><ol type=1><li value=7>Memory Allocation
+<ol type=1><li value=1>Allocation
+<ol type=1><li value=1>Objects will be created, in general, 
+with the operator &#147;new&#148;.
+<li value=2>Objects are responsible for clearing memory they 
+allocate.
+</ol></ol><ol type=1><li value=2>Deletion
+<ol type=1><li value=1>All objects will be formally deleted
+<li value=2>Objects are responsible for releasing memory and 
+other resources they allocate or control.
+</ol></ol><ol type=1><li value=3>Memory pools
+<ol type=1><li value=1>The existing memory pool mechanism is 
+deprecated and will be phased out.  
+<li value=2>Memory pools for placement control will be re-introduced 
+at a future date.
+</ol></ol></ol><ol type=1><li value=8>Coding conventions
+<ol type=1><li value=1>Developers may use whatever coding conventions 
+they prefer in their working areas, but checked in code must 
+follow these conventions
+<li value=2>Indentation
+<ol type=1><li value=1>Indentation is four spaces which may 
+be represented by four space characters or a tab character with 
+a width of four spaces
+<li value=2>Sub-statements of for, while, if, try, catch, and 
+switch are indented.
+<li value=3>Braces are indented with the code they enclose except 
+at the top level.
+</ol></ol><ol type=1><li value=3>Comments 
+<ol type=1><li value=1>Comments will be at the same indentation 
+level as surrounding code.
+<li value=2>Block comments at the top of methods and functions 
+will describe the general purpose and algorithm of the method 
+or function
+<li value=3>Comments within a method or function will occur 
+before the statement(s) they describe.
+<li value=4>If you feel the need to insert a comment inside 
+the condition of a for/while/if/switch statement, reconsider 
+and simplify the condition. 
+</ol></ol><ol type=1><li value=4>Braces
+<ol type=1><li value=1>Matching braces are vertically aligned
+<li value=2>Braces are not normally used around single statements, 
+but may be used for clarity 
+</ol></ol><ol type=1><li value=5>Blank lines
+<ol type=1><li value=1>For, while, if, try, and switch statements 
+will normally be preceded and followed by blank lines.  
+<li value=2>Very simple for and if statements used in inner 
+statement blocks may have blank lines omitted.
+<li value=3>Comments will be preceded and followed by blank 
+lines
+</ol></ol></ol><br>
+<ol type=1><li value=9>Proposing extensions to Vulcan
+<ol type=1><li value=1>Provide background
+<ol type=1><li value=1>Problem to be solved 
+<li value=2>Applicability any known standards 
+<li value=3>Solutions used by other products address the problem 
+</ol></ol><ol type=1><li value=2>Describe solution
+<ol type=1><li value=1>Syntax and semantics of proposal
+<li value=2>Proposed implementation 
+<li value=3>Components affected
+<li value=4>Backward and forward compatibility
+</ol></ol></ol><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9.3 Analyze 
+impact on changes on
+<ol type=1><li value=5>External API 
+<li value=6>Provider API 
+<li value=7>Wire protocols 
+<br></ol><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</font></body></html>
