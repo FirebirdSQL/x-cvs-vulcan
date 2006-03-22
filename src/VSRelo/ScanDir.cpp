@@ -1,19 +1,19 @@
 /*
- *  
- *     The contents of this file are subject to the Initial 
- *     Developer's Public License Version 1.0 (the "License"); 
- *     you may not use this file except in compliance with the 
- *     License. You may obtain a copy of the License at 
- *     http://www.ibphoenix.com/idpl.html. 
  *
- *     Software distributed under the License is distributed on 
- *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either 
- *     express or implied.  See the License for the specific 
+ *     The contents of this file are subject to the Initial
+ *     Developer's Public License Version 1.0 (the "License");
+ *     you may not use this file except in compliance with the
+ *     License. You may obtain a copy of the License at
+ *     http://www.ibphoenix.com/idpl.html.
+ *
+ *     Software distributed under the License is distributed on
+ *     an "AS IS" basis, WITHOUT WARRANTY OF ANY KIND, either
+ *     express or implied.  See the License for the specific
  *     language governing rights and limitations under the License.
  *
  *     The contents of this file or any work derived from this file
- *     may not be distributed under any other license whatsoever 
- *     without the express prior written permission of the original 
+ *     may not be distributed under any other license whatsoever
+ *     without the express prior written permission of the original
  *     author.
  *
  *
@@ -108,7 +108,7 @@ const char* ScanDir::getFilePath()
 #ifdef _WIN32
 	filePath = directory + "\\" + data.cFileName;
 #else
-	filePath.Format("%s/%s", directory, data->d_name);
+	filePath.Format("%s/%s", (const char*) directory, data->d_name);
 //	filePath = directory + "/" + data->d_name;
 #endif
 
@@ -143,10 +143,10 @@ bool ScanDir::isDirectory()
 #else
 	if ( data->d_type == DT_DIR)
 		return true;
-	
+
 	struct stat buf;
 
-    if (stat (getFilePath(), &buf))
+	if (stat (getFilePath(), &buf))
 		return false;
 
 	return S_ISDIR (buf.st_mode);
