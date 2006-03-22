@@ -466,8 +466,9 @@ dsql_rel* CStatement::findRelation(const char *relationName)
 		}
 	//END_FOR
 
+	relation->jrdRelation->getTypeInformation(threadData);
 	relation->orderFields();
-	
+
 	return relation;
 }
 
