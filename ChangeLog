@@ -1,3 +1,113 @@
+2006-03-22 19:31  dimitr
+
+	* vulcan/src/dsql/CStatement.cpp:
+	
+	Fixed the found regression.
+
+2006-03-22 18:14  dimitr
+
+	* vulcan/src/jrd/dyn.epp:
+	
+	Restored the original logic of the error handling.
+
+2006-03-22 17:07  paul_reeves
+
+	* vulcan/doc/: BuildSystem.txt, Firebird_conf.txt,
+	README.NTSecurity, README.VulcanWin32,
+	README.Win32LibraryInstallation.txt, README.build.mingw.html,
+	README.build.msvc.html, README.instsvc, README.makefiles,
+	README.user, README.user.embedded, README.user.troubleshooting,
+	VulcanRules.html, WhatsNew, buildgen.license, fb2-todo.txt,
+	install_win32.txt, sql.extensions/README.aggregate_tracking,
+	sql.extensions/README.case, sql.extensions/README.coalesce,
+	sql.extensions/README.context_variables,
+	sql.extensions/README.data_types,
+	sql.extensions/README.exception_handling,
+	sql.extensions/README.execute_statement,
+	sql.extensions/README.explicit_locks, sql.extensions/README.nullif,
+	sql.extensions/README.order_by_expressions_nulls,
+	sql.extensions/README.savepoints,
+	sql.extensions/README.universal_triggers:
+	
+	Add notes on revised build system.  Move buildgen.license and
+	VulcanRules.html to doc dir.  Remove developer written notes that
+	were written for Fb 1.5.
+
+2006-03-22 16:58  paul_reeves
+
+	* vulcan/src/VSRelo/ScanDir.cpp:
+	
+	Add cast to prevent segfault while executing under Linux
+
+2006-03-22 16:15  jimstarkey
+
+	* vulcan/: builds/MasterBuildConfig/Databases/Databases.vcproj,
+	builds/MasterBuildConfig/FbDbc/FbDbc.vcproj,
+	builds/MasterBuildConfig/JdbcTest/JdbcTest.vcproj,
+	builds/MasterBuildConfig/MsgExtract/MsgExtract.vcproj,
+	builds/MasterBuildConfig/MsgMgr/MsgMgr.vcproj,
+	builds/MasterBuildConfig/SecurityDatabase/SecurityDatabase.vcproj,
+	builds/MasterBuildConfig/Services/Services.vcproj,
+	builds/MasterBuildConfig/ThreadTest/ThreadTest.vcproj,
+	builds/MasterBuildConfig/VSRelo/VSRelo.vcproj,
+	builds/MasterBuildConfig/XLoad/XLoad.vcproj,
+	builds/MasterBuildConfig/alice/alice.vcproj,
+	builds/MasterBuildConfig/buildgen/buildgen.vcproj,
+	builds/MasterBuildConfig/burp/burp.vcproj,
+	builds/MasterBuildConfig/config/config.vcproj,
+	builds/MasterBuildConfig/gateway/gateway.vcproj,
+	builds/MasterBuildConfig/gpre/gpre.vcproj,
+	builds/MasterBuildConfig/gsec/gsec.vcproj,
+	builds/MasterBuildConfig/gstat/gstat.vcproj,
+	builds/MasterBuildConfig/instreg/instreg.vcproj,
+	builds/MasterBuildConfig/instsvc/instsvc.vcproj,
+	builds/MasterBuildConfig/intlcpp/intlcpp.vcproj,
+	builds/MasterBuildConfig/isql/isql.vcproj,
+	builds/MasterBuildConfig/jrd/jrd.vcproj,
+	builds/MasterBuildConfig/lock/lock.vcproj,
+	builds/MasterBuildConfig/msgs/msgs.vcproj,
+	builds/MasterBuildConfig/qli/qli.vcproj,
+	builds/MasterBuildConfig/remote/remote.vcproj,
+	builds/MasterBuildConfig/server/server.vcproj,
+	builds/MasterBuildConfig/test/test.vcproj,
+	builds/MasterBuildConfig/why/why.vcproj,
+	builds/MasterBuildConfig/winserver/winserver.vcproj,
+	builds/win32/build_vsrelo.bat, install/databases.conf,
+	install/server.conf:
+	
+	[no log message]
+
+2006-03-22 15:54  paul_reeves
+
+	* vulcan/src/utilities/install/win32/: install_reg.cpp,
+	regis_proto.h, registry.cpp:
+	
+	Add files needed by instreg
+
+2006-03-22 15:16  paul_reeves
+
+	* vulcan/src/jrd/met.epp:
+	
+	fix (non-)reference to intlcpp
+
+2006-03-22 13:24  jimstarkey
+
+	* vulcan/src/: ThreadTest/ThreadTest.cpp,
+	ThreadTest/ThreadTest.vcproj, jrd/Database.cpp, jrd/Database.h,
+	jrd/DatabaseManager.cpp, jrd/DatabaseManager.h, jrd/jrd.cpp,
+	jrd/jrd.vcproj, jrd/met.epp, jrd/perf.cpp, lock/LockMgr.cpp,
+	lock/LockMgr.h, remote/PortInet.cpp:
+	
+	Fixed a number of bugs having to do with multi-thread attach
+	failures.  Among them was a race condition between lock manager
+	startup and shutdown where shutdown happened before the blocking
+	thread was up and running.  Other bugs were in the relationship
+	between jrd.cpp and Database manager.
+	
+	I'm not at all sure that everything is completely working, but I'm
+	reasonably sure that I haven't broken anything new and have fixed a
+	reasonable class of bugs.
+
 2006-03-21 17:45  paul_reeves
 
 	* vulcan/builds/win32/: Vulcan.sln.template, blrtable.bat,
