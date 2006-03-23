@@ -40,6 +40,10 @@ echo "                    - build and run VSRelo                             "
 echo "                    - build and run buildgen                           "
 echo "                  Default is to prepare and build (no params reqd.)    "
 echo ""
+echo "  --skipautoconf  Skip running the autoconf/configure code         OPT."
+echo "                    This switch is ignored if autoconf                 "
+echo "                    has not yet been run.                              "
+echo ""
 echo "  --build         Skip preparation and only do a build             OPT."
 echo "                  Default is to prepare and build (no params reqd.)    "
 echo ""
@@ -47,8 +51,8 @@ echo "  --quiet         Disable script commentary in execution           OPT."
 echo ""
 echo "  --clean         Clean source tree                                OPT."
 echo ""
-#echo "  --cleanonly     Clean source tree and do nothing else            OPT."
-#echo ""
+echo "  --cleanonly     Clean source tree and do nothing else            OPT."
+echo ""
 echo "  --help          This help screen"
 echo ""
 
@@ -58,8 +62,9 @@ exit 1
 
 ClearEnv() {
 unset VULCAN_SOURCE VULCAN_DEBUG VULCAN_ROOT VULCAN VULCAN_QUIET
-unset VULCAN_PREPARE VULCAN_BUILD_ONLY VULCAN_PLATFORM VULCAN_CLEAN
-unset VULCAN_START_BUILD VULCAN_END_BUILD
+unset VULCAN_PREPARE VULCAN_SKIP_AUTOCONF VULCAN_BUILD_ONLY VULCAN_PLATFORM 
+unset VULCAN_CLEAN VULCAN_CLEAN_ONLY VULCAN_START_BUILD VULCAN_END_BUILD
+
 }
 
 GetTime(){
@@ -103,6 +108,10 @@ do
 		--clean)
 			VULCAN_CLEAN="1"
 			;;
+		--cleanonly)
+			VULCAN_CLEAN="1"
+			VULCAN_CLEAN_ONLY="1"
+			;;
 
 		--mapback)
 			echo
@@ -113,6 +122,10 @@ do
 
 		--quiet)
 			VULCAN_QUIET="1"
+			;;
+			
+		--skipautoconf)
+			VULCAN_SKIP_AUTOCONF="1"
 			;;
 #		--string)
 #			ASTRING=$OptionValue ;;
@@ -175,6 +188,10 @@ SetEnv() {
 	main_module_list="why config gpre remote jrd burp msgs qli isql server intlcpp IscDbc lock alice gsec gstat Services "
 
 	support_module_list="XLoad ThreadTest"
+	
+	if [ ! -f $VULCAN_ROOT/config.status ]; then
+	  unset VULCAN_SKIP_AUTOCONF
+	fi
 }
 
 
@@ -375,6 +392,7 @@ Build() {
 }
 
 RealClean(){
+echo RealClean is currently disabled.
 return 0
 	if [ -z $VULCAN_QUIET ]; then
 		echo "Cleaning parts that others don\'t reach..."
@@ -460,11 +478,17 @@ Main(){
 		echo Cleaning build tree...
 		MakeClean
 		RealClean
+		if [ $VULCAN_CLEAN_ONLY ]; then
+		    return 0
+		fi
+		
 	fi
 
 	if [ -z $VULCAN_BUILD_ONLY ]; then
 		echo Preparing Vulcan build environment
-		RunConfigure
+		if [ -z $VULCAN_SKIP_AUTOCONF ]; then
+		    RunConfigure
+		fi
 		BuildVSRelo
 		RunVSRelo
 		Buildbuildgen
