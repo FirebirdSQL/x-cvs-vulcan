@@ -191,6 +191,6 @@
 
 #undef VULCAN
 
-#define FB_PREFIX "/usr/local/firebird"
+#define FB_PREFIX "/usr/local/vulcan"
 
 #endif
