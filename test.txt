@@ -1,3 +1,0 @@
-CVS test file.
-Modified by Dimitrios.
-Testing the build number inc.

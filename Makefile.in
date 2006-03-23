@@ -1,6 +1,0 @@
-@SET_MAKE@
-
-all: firebird
-
-firebird install package packages dist clean clobber:
-	$(MAKE) -C src $@
