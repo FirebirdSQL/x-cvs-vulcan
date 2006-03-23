@@ -781,7 +781,7 @@ DIRS = $(SRCDIR)/lock \
 <!--	Generic / ThreadTest		-->
 
 <component name="ThreadTest">
-<template name="target">threadtext</template>
+<template name="target">threadtest</template>
 
 <template name="namespace"> -DNAMESPACE=threadtest </template>
 
