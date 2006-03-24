@@ -180,17 +180,26 @@ Element* Element::findAttribute(int seq)
 	return NULL;
 }
 
-void Element::genXML(int level, Stream *stream)
+void Element::genXML(int level, Stream *stream, int format)
 {
 	indent (level, stream);
 	stream->putCharacter ('<');
 	stream->putSegment (name);
-
+	++level;
+	
 	for (Element *attribute = attributes; attribute; attribute = attribute->sibling)
 		{
-		stream->putCharacter (' ');
+		if (format & singleAttributeLine)
+			stream->putCharacter (' ');
+		else
+			{
+			stream->putCharacter ('\n');
+			indent(level, stream);
+			}
+			
 		stream->putSegment (attribute->name);
 		stream->putSegment ("=\"");
+		
 		for (const char *p = attribute->value; *p; ++p)
 			switch (*p)
 				{
@@ -201,16 +210,26 @@ void Element::genXML(int level, Stream *stream)
 				case '>':	stream->putSegment ("&gt;"); break;
 				default:	stream->putCharacter (*p); break;
 				}
-		//stream->putSegment (attribute->value);
+
 		stream->putCharacter ('"');
 		}
 
+	bool term = children == NULL;
+	
+	if (term && (format & visualStudio) != 0)
+		{
+		if (name == "File" || name == "Filter")
+			term = false;
+		else if (attributes == NULL)
+			term = false;
+		}
+		
 	if (!innerText.IsEmpty())
 		{
 		stream->putCharacter('>');
 		putQuotedText(innerText, stream);
 		}
-	else if (!children)
+	else if (term)
 		{
 		if (*name.getString() == '?')
 			stream->putSegment ("?>\n");
@@ -221,10 +240,10 @@ void Element::genXML(int level, Stream *stream)
 	else
 		stream->putSegment (">\n");
 		
-	++level;
+	//++level;
 
 	for (Element *child = children; child; child = child->sibling)
-		child->genXML (level, stream);
+		child->genXML (level, stream, format);
 
 	if (innerText.IsEmpty())
 		indent (level - 1, stream);
@@ -236,10 +255,15 @@ void Element::genXML(int level, Stream *stream)
 
 void Element::indent(int level, Stream *stream)
 {
+	/***
 	int count = level * 3;
 
 	for (int n = 0; n < count; ++n)
 		stream->putCharacter (' ');
+	***/
+	
+	for (int n = 0; n < level; ++n)
+		stream->putCharacter('\t');
 }
 
 Element* Element::addAttribute(JString attributeName, JString attributeValue)

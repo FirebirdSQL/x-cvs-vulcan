@@ -38,7 +38,7 @@
 #include "InputFile.h"
 #include "PathName.h"
 
-#define UPPER(c)	((c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c)
+//#define UPPER(c)	((c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c)
 
 #ifdef _WIN32
 #define PLATFORM_SEPARATOR '\\'
@@ -116,16 +116,21 @@ void Relo::rewrite(const char *filename)
 	map(opModuleDefFile, tools, project);
 	//map(opIncludeFile, tools, project);
 
+	/***
 	Stream stream;
 	header->genXML(0, &stream);
 	stream.putCharacter('\n');
 	project->genXML(0, &stream);
+	***/
 	JString outputPath;
 #ifdef _WIN32
 	outputPath.Format("%s\\%s", filename, (const char*) projectFile);
 #else
 	outputPath.Format("%s/%s", filename, (const char*) projectFile);
 #endif
+
+	write(outputPath);
+	/***
 	FILE *file = fopen(outputPath, "w");
 
 	if (!file)
@@ -138,6 +143,7 @@ void Relo::rewrite(const char *filename)
 		fwrite(segment->address, 1, segment->length, file);
 
 	fclose(file);
+	***/
 }
 
 void Relo::map(Operation op, const char **names, Element *element)
@@ -302,4 +308,24 @@ char* Relo::canonizeFilename(const char* fileName, char* inBuffer, char* endBuff
 	*q = 0;
 
 	return inBuffer;
+}
+
+void Relo::write(const char* filename)
+{
+	Stream stream;
+	header->genXML(0, &stream, singleAttributeLine);
+	//stream.putCharacter('\n');
+	project->genXML(0, &stream, visualStudio);
+	FILE *file = fopen(filename, "w");
+
+	if (!file)
+		{
+		fprintf(stderr, "couldn't open file \"%s\" for write\n", filename);
+		return;
+		}
+
+	for (Segment *segment = stream.segments; segment; segment = segment->next)
+		fwrite(segment->address, 1, segment->length, file);
+
+	fclose(file);
 }

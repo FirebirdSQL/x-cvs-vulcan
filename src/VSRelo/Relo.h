@@ -67,6 +67,7 @@ public:
 	JString	targetDirectory;
 	JString	projectFile;
 	JString	component;
+	void write(const char* filename);
 };
 
 #endif // !defined(AFX_RELO_H__D2616D17_A822_4FFC_A4C1_6AE22793FAB4__INCLUDED_)

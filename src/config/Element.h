@@ -39,6 +39,9 @@
 
 START_NAMESPACE
 
+static const int singleAttributeLine	= 1;
+static const int visualStudio			= 2;
+	
 class Stream;
 class InputStream;
 
@@ -58,7 +61,7 @@ public:
 	Element* addChild (JString name);
 	Element* addAttribute (JString name, JString value);
 	void indent (int level, Stream *stream);
-	void genXML (int level, Stream *stream);
+	void genXML (int level, Stream *stream, int format=0);
 	Element* findAttribute (int seq);
 	Element* findAttribute (const char *name);
 	Element* findChild (const char *name);

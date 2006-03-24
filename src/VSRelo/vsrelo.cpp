@@ -49,6 +49,7 @@ static const char *output;
 static bool	swHelp;
 static bool	swSolution;
 static bool	swCreate;
+static bool	swTest;
 
 #define HELP_TEXT	"Need help? Try this:\n"
 
@@ -59,6 +60,7 @@ static const Switches switches [] =
 	"-s",	&swSolution,NULL,	NULL,		"Do whole solution",
 	"-c",	&swCreate,	NULL,	NULL,		"Create project directories",
 	"-h",	&swHelp,	NULL,	NULL,		"Print this text",
+	"-t",	&swTest,	NULL,	NULL,		"Internal Test",
 	NULL
 	};
 
@@ -70,6 +72,14 @@ int main (int argc, const char **argv)
 	if (swHelp)
 		{
 		Args::printHelp (HELP_TEXT, switches);
+		return 0;
+		}
+	
+	if (swTest)
+		{
+		JString inputPath = PathName::expandFilename(input);
+		Relo relo(inputPath);
+		relo.write(output);
 		return 0;
 		}
 
