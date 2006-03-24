@@ -118,8 +118,9 @@ Platform Specific issues
 
 Windows
 -------
-There are currently two solution file templates available in the MBC\Vulcan
-directory. They are automatically copied into the build dir and renamed.
+o There are currently two solution file templates available in the
+  MBC\Vulcan directory. They are automatically copied into the build dir
+  and renamed.
 
   o Vulcan.sln
     This contains all the projects required to build the engine.
@@ -128,6 +129,14 @@ directory. They are automatically copied into the build dir and renamed.
   o Devtools.sln
     This is just a ragbag collection of everything else.
     It doesn't make much sense to build these projects as a solution.
+
+o Windows builds rely on tools from the GnuWin32 project. You are
+  recommended to download the whole toolchain, but if time or diskspace
+  is at a premium you should be able to get away with downloading the
+  following:
+    - coreutils
+    - bison
+    - sed
 
 
 Posix
@@ -162,7 +171,17 @@ o devenv not found.
   vcvars32.bat and the VS7 version refers to itself with the file as
   vcvars32.bat.
 
+o Visual Studio Express installed
+  This free compiler from Microsoft does have a few limitations. One of
+  them is that it doesn't include a devenv executable. Currently you will
+  need to open the VSRelo.vcproj in MBC and build it manually before
+  then running 'really_make_all.bat PREPAREGUI'
 
+  The build process will be updated in due course to detect VSExpress.
+
+o Visual Studio 2005 (aka VS8) installed
+  No tests have been made with this environment yet. It _should_ work.
+  
 o Windows.h not found
 
   This probably means that the %INCLUDE% environment variable doesn't contain
