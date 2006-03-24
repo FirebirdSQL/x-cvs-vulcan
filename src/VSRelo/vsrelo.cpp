@@ -62,7 +62,7 @@ static const Switches switches [] =
 	NULL
 	};
 
-main (int argc, const char **argv)
+int main (int argc, const char **argv)
 {
 	Args args;
 	args.parse(switches, argc, argv);
