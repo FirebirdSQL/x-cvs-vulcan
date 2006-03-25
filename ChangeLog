@@ -1,3 +1,50 @@
+2006-03-24 18:21  jimstarkey
+
+	* vulcan/src/: VSRelo/Relo.cpp, VSRelo/Relo.h, VSRelo/vsrelo.cpp,
+	config/Element.cpp, config/Element.h:
+	
+	Mimiced Visual Studio xml formatting for VSRelo.
+
+2006-03-24 17:00  paul_reeves
+
+	* vulcan/doc/BuildSystem.txt:
+	
+	Updated notes on the Win32 build process
+
+2006-03-24 16:41  paul_reeves
+
+	* vulcan/src/VSRelo/vsrelo.cpp:
+	
+	Add return type to main()
+
+2006-03-23 15:32  paul_reeves
+
+	* vulcan/builds/posix/config/config.h.in:
+	
+	Keep config.h.in in sync with configure.in
+
+2006-03-23 13:06  paul_reeves
+
+	* vulcan/builds/posix/vulcan.build:
+	
+	Fix  typo.
+
+2006-03-23 12:59  paul_reeves
+
+	* vulcan/builds/posix/build_vulcan.sh:
+	
+	Add --cleanonly option to generic posix build script.
+
+2006-03-23 12:31  paul_reeves
+
+	* vulcan/: Makefile.in, README.VulcanWin32.txt,
+	Vulcan.sln.template, VulcanRules.html, autogen.sh, boot_copy.bat,
+	clean.sh, configure, configure.in, configure.solaris64, test.txt,
+	vulcan.build:
+	
+	Remove files made redundant by new build system. They are now in
+	their appropriate builds/$platform directories or in the doc dir.
+
 2006-03-22 19:31  dimitr
 
 	* vulcan/src/dsql/CStatement.cpp:
