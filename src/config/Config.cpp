@@ -63,7 +63,7 @@ static const Switches switches [] =
 
 static const char* HELP_TEXT =	"Usage: config [-t] [-l] [-f file] [database]\n";
 
-main (int argc, const char **argv)
+int main (int argc, const char **argv)
 {
 	return Config::parse (argc, argv);
 }
