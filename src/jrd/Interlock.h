@@ -54,10 +54,7 @@ void asm_sync(void);
 
 #ifdef DARWIN
 #define __DEBUGGING__
-//#include "/Developer/Headers/FlatCarbon/DriverSynchronization.h"
 #include <CoreServices/CoreServices.h>
-//#define UInt32 ULONG
-//#define SInt32 SLONG
 extern "C"
 {
 static inline int COMPARE_EXCHANGE(volatile int * target, int compare, int exchange)
