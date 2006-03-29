@@ -204,6 +204,17 @@ DIRS = $(SRCDIR)/buildgen \
 
 </configuration>
 
+<!--    Darwin  32     -->
+<configuration name="darwin">
+
+<component name ="Generic">
+<template name="Libraries">
+    -lpthread -lm -ldl -lfirebird \
+</template>
+</component>
+</configuration>
+
+
 <!--	Solaris64		-->
 
 <configuration name="solaris64">
