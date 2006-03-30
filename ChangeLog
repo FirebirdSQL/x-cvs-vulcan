@@ -1,3 +1,28 @@
+2006-03-30 00:52  awharrison
+
+	* vulcan/builds/posix/buildgen.build:
+	
+	Add a darwin conditional that leaves out lcrypt
+
+2006-03-29 22:16  awharrison
+
+	* vulcan/src/jrd/Interlock.h:
+	
+	Get rid of several hundred unwanted blank lines, apparently created
+	by a bad copy from Darwin to Windows
+
+2006-03-29 16:23  paulbeach
+
+	* vulcan/src/gsec/security.epp:
+	
+	Allow GSEC to add, modify, delete users etc
+
+2006-03-29 11:13  paul_reeves
+
+	* vulcan/src/config/Config.cpp:
+	
+	Add return type to main(). It seems to keep VSExpress happy.
+
 2006-03-24 18:21  jimstarkey
 
 	* vulcan/src/: VSRelo/Relo.cpp, VSRelo/Relo.h, VSRelo/vsrelo.cpp,
