@@ -20,7 +20,7 @@ case "$VER" in
   ;;
 esac
 
-VER=`libtool --version|grep ' libtool)'|sed 's/.*) \([0-9][0-9.]*\) .*/\1/'`
+VER=`libtool --version|grep ' libtool)'|sed 's/.*) \([0-9][0-9.]*\).*/\1/'`
 case "$VER" in
  0* | 1\.[0-2] | 1\.[0-2][a-z]* | \
  1\.3\.[0-2] | 1\.3\.[0-2][a-z]* )

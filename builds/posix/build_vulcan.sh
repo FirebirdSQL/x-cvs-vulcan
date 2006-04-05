@@ -2,7 +2,6 @@
 #
 # Copyright Paul Reeves 2006
 #
-# To Do - Add clean, cleanonly and realclean
 #
 
 
@@ -27,8 +26,9 @@ echo ""
 #echo ""
 echo "  --platform      Build platform                                   OPT."
 echo "                    Defaults to linux32                                "
-echo "                    Support for other platforms is incomplete          "
 echo "                    e.g. --platform=linux32                            "
+echo "                    Support for other platforms is incomplete          "
+echo "                    Possible values are darwin darwin64 linux64 solaris64 "
 echo ""
 echo "  --debug         Do a debug build                                 OPT."
 echo "                    Defaults to false                                  "
@@ -62,7 +62,8 @@ exit 1
 
 ClearEnv() {
 unset VULCAN_SOURCE VULCAN_DEBUG VULCAN_ROOT VULCAN VULCAN_QUIET
-unset VULCAN_PREPARE VULCAN_SKIP_AUTOCONF VULCAN_BUILD_ONLY VULCAN_PLATFORM 
+unset VULCAN_PREPARE VULCAN_SKIP_AUTOCONF VULCAN_BUILD_ONLY
+unset VULCAN_PLATFORM VULCAN_PLATFORM_DIR
 unset VULCAN_CLEAN VULCAN_CLEAN_ONLY VULCAN_START_BUILD VULCAN_END_BUILD
 
 }
@@ -171,18 +172,32 @@ SetEnv() {
 
 	export ISC_USER ISC_PASSWORD
 
-	VULCAN_ROOT=$PWD
-	VULCAN=$VULCAN_ROOT/install
-	VULCAN_SCRIPT_DIR=$VULCAN_ROOT/builds/posix
-	VULCAN_BUILD_DIR=$VULCAN_ROOT/src
 	if [ -z $VULCAN_PLATFORM ]; then
 		VULCAN_PLATFORM=linux32
+	fi
+
+	VULCAN_ROOT=$PWD
+	VULCAN=$VULCAN_ROOT/install
+	VULCAN_BUILD_DIR=$VULCAN_ROOT/src
+	VULCAN_SCRIPT_DIR=$VULCAN_ROOT/builds
+
+	if [ "$VULCAN_PLATFORM"="darwin" -o "$VULCAN_PLATFORM"="darwin64" ]; then
+		VULCAN_PLATFORM_DIR=mac_os_x
+	fi
+
+	if [ "$VULCAN_PLATFORM"="linux32" -o "$VULCAN_PLATFORM"="linux64" ]; then
+		VULCAN_PLATFORM_DIR=posix
+	fi
+
+	#symlink gmake if not exists
+    if [ ! -L /usr/bin/gmake ]; then
+		cp 	-l /usr/bin/make /usr/bin/gmake
 	fi
 
 	PATH=$VULCAN/bin:$PATH
 	LD_LIBRARY_PATH=$VULCAN/bin:$VULCAN/bin64:$LD_LIBRARY_PATH
 
-	export VULCAN_ROOT VULCAN VULCAN_BUILD_DIR VULCAN_SCRIPT_DIR
+	export VULCAN_ROOT VULCAN VULCAN_BUILD_DIR VULCAN_SCRIPT_DIR VULCAN_PLATFORM_DIR VULCAN_PLATFORM
 	export PATH LD_LIBRARY_PATH
 
 	main_module_list="why config gpre remote jrd burp msgs qli isql server intlcpp IscDbc lock alice gsec gstat Services "
@@ -201,9 +216,12 @@ RunConfigure() {
 	echo Running autogen.sh and configure...
 	fi
 	cd $VULCAN_ROOT
+
 	if [ ! -f autogen.sh ]; then
-		cp $VULCAN_SCRIPT_DIR/autogen.sh $VULCAN_ROOT
-		cp $VULCAN_SCRIPT_DIR/configure.in $VULCAN_ROOT
+		cp $VULCAN_SCRIPT_DIR/$VULCAN_PLATFORM_DIR/autogen.sh $VULCAN_ROOT
+#Warning - path to configure.in is hardcoded to posix directory.
+#As the posix build sub-system evolves this _may_ lead to complications.
+		cp $VULCAN_SCRIPT_DIR/posix/configure.in $VULCAN_ROOT
 		chmod +x $VULCAN_ROOT/autogen.sh
 	fi
 	source autogen.sh $VULCAN_DEBUG
@@ -318,7 +336,6 @@ end
 }
 
 CleanLastBuildOutput() {
-
 	rm -f $VULCAN/bin/*.so \
 		$VULCAN/bin/config \
 		$VULCAN/bin/gpre \
@@ -341,7 +358,7 @@ MakeClean() {
 	cd $VULCAN_BUILD_DIR
 	for x in $main_module_list $support_module_list
 	do
-			cd $x
+		cd $x
 		if [ -f gen ]; then
 		if [ -z $VULCAN_QUIET ]; then
 					echo Cleaning $x
@@ -352,6 +369,7 @@ MakeClean() {
 		cd ..
 		done
 
+    cd $VULCAN_ROOT
 }
 
 PrintBuildTime() {
@@ -392,10 +410,10 @@ Build() {
 }
 
 RealClean(){
-echo RealClean is currently disabled.
-return 0
+#echo RealClean is currently disabled.
+#return 0
 	if [ -z $VULCAN_QUIET ]; then
-		echo "Cleaning parts that others don\'t reach..."
+		echo "Cleaning parts that others don't reach..."
 	fi
 
 	if [ -z $VULCAN_QUIET ]; then
@@ -415,7 +433,7 @@ rm Makefile 2>/dev/null
 
 rm src/include/gen/autoconfig.h 2>/dev/null
 
-	if [ -z $VULCAN_QUIET ]; then
+if [ -z $VULCAN_QUIET ]; then
 		echo Removing files in src directory
 	fi
 
@@ -465,6 +483,8 @@ rm src/qli/meta.cpp 2>/dev/null
 rm src/qli/proc.cpp 2>/dev/null
 rm src/qli/show.cpp 2>/dev/null
 
+rm $VULCAN_SCRIPT_DIR/VSRelo
+rm $VULCAN_SCRIPT_DIR/buildgen
 }
 
 
