@@ -48,6 +48,7 @@ dsql_fld* ProcParam::getDsqlField(void)
 		dsqlField->fld_dimensions = 0;		
 		dsqlField->fld_name = fld_name;
 		dsqlField->fld_id = paramId;
+		dsqlField->fld_flags |= (desc->dsc_flags & DSC_nullable)? FLD_nullable : 0;
 		
 		if (dsqlField->fld_dtype <= dtype_any_text)  
 			{
