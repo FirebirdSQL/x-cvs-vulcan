@@ -138,6 +138,11 @@ o Windows builds rely on tools from the GnuWin32 project. You are
     - bison
     - sed
 
+o cygwin is unsupported and untested. If you have cygwin installed and it
+  appears earlier on your path than 'native' win32 tools then the results
+  may be unexpected.
+
+
 
 Posix
 -----
