@@ -2894,7 +2894,7 @@ static ULONG check_update_fld_type(const dyn_fld* orig_fld,
 			{
 				USHORT maxflen = DSC_string_length(&orig_fld->dyn_dsc);
 
-				if (new_fld->dyn_dsc.dsc_length < maxflen)
+				if (DSC_string_length(&new_fld->dyn_dsc) < maxflen)
 					return isc_dyn_char_fld_too_small;
 				/* New size specified for column %s must be greater than %d characters. */
 			}

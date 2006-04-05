@@ -5994,6 +5994,8 @@ static void modify_field(CStatement*	request,
  **************************************/
 	dsql_fld* field = (dsql_fld*) element->nod_arg[e_dfl_field];
 	request->appendDynString(isc_dyn_mod_sql_fld, field->fld_name);
+    // Set temporary flag for parsed field.
+    field->fld_flags |= FLD_temporary;
 
 	// add the field to the relation being defined for parsing purposes
 
