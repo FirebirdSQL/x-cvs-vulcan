@@ -1,141 +1,439 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-
-<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="FbDbc" ProjectGUID="{2ACA2D51-B16E-413F-9E3F-7E6B5DD28A70}" SccProjectName="" SccLocalPath="">
-   <Platforms>
-      <Platform Name="Win32"/>
-   </Platforms>
-   <Configurations>
-      <Configuration Name="Release|Win32" OutputDirectory=".\Release" IntermediateDirectory=".\Release" ConfigurationType="2" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
-         <Tool Name="VCCLCompilerTool" Optimization="2" InlineFunctionExpansion="1" AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;../../../src/include/gen" PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS" StringPooling="TRUE" RuntimeLibrary="0" EnableFunctionLevelLinking="TRUE" UsePrecompiledHeader="2" AssemblerListingLocation=".\Release/" ObjectFile=".\Release/" ProgramDataBaseFileName=".\Release/" WarningLevel="3" SuppressStartupBanner="TRUE"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool" AdditionalDependencies="firebird.lib" OutputFile="..\..\..\install\bin\fbdbc.dll" LinkIncremental="1" SuppressStartupBanner="TRUE" AdditionalLibraryDirectories="..\..\..\install\lib" ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def" GenerateDebugInformation="TRUE" ImportLibrary="..\..\..\install\lib\fbdbc.lib" TargetMachine="1"/>
-         <Tool Name="VCMIDLTool" PreprocessorDefinitions="NDEBUG" MkTypLibCompatible="TRUE" SuppressStartupBanner="TRUE" TargetEnvironment="1" TypeLibraryName=".\Release/IscDbc.tlb" HeaderFileName=""/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="NDEBUG" Culture="1033"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-      <Configuration Name="Debug|Win32" OutputDirectory=".\Debug" IntermediateDirectory=".\Debug" ConfigurationType="2" UseOfMFC="0" ATLMinimizesCRunTimeLibraryUsage="FALSE" CharacterSet="2">
-         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;../../../src/include/gen" PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="2" AssemblerListingLocation=".\Debug/" ObjectFile=".\Debug/" ProgramDataBaseFileName=".\Debug/" WarningLevel="3" SuppressStartupBanner="TRUE" DebugInformationFormat="3" CompileAs="0"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool" AdditionalDependencies="firebird.lib" OutputFile="..\..\..\install\bin\fbdbc.dll" LinkIncremental="1" SuppressStartupBanner="TRUE" AdditionalLibraryDirectories="..\..\..\install\lib" ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def" GenerateDebugInformation="TRUE" ImportLibrary="..\..\..\install\lib\fbdbc.lib" TargetMachine="1"/>
-         <Tool Name="VCMIDLTool" PreprocessorDefinitions="_DEBUG" MkTypLibCompatible="TRUE" SuppressStartupBanner="TRUE" TargetEnvironment="1" TypeLibraryName=".\Debug/IscDbc.tlb" HeaderFileName=""/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool" PreprocessorDefinitions="_DEBUG" Culture="1033"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-   </Configurations>
-   <References/>
-   <Files>
-      <Filter Name="Source Files" Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
-         <File RelativePath="..\..\..\src\IscDbc\AsciiBlob.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Attachment.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\BinaryBlob.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Blob.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\DateTime.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Error.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\Generate.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscBlob.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscCallableStatement.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscColumnsResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscConnection.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscCrossReferenceResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscDatabaseMetaData.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscDbc.def"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscIndexInfoResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscMetaDataResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscPreparedStatement.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscPrimaryKeysResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscProcedureColumnsResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscProceduresResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscResultSetMetaData.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscSqlType.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscStatement.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscStatementMetaData.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscTablesResultSet.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\JString.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\LinkedList.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Mutex.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Parameter.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Parameters.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\PBGen.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Sqlda.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\SQLError.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Stream.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\TimeStamp.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Value.cpp"/>
-         <File RelativePath="..\..\..\src\IscDbc\Values.cpp"/>
-      </Filter>
-      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl">
-         <File RelativePath="..\..\..\src\IscDbc\AsciiBlob.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Attachment.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\BinaryBlob.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\BinToHexStr.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Blob.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Connection.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\DateTime.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Engine.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Error.h"/>
-         <File RelativePath="..\..\..\src\jrd\Generate.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscArray.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscBlob.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscCallableStatement.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscColumnPrivilegesResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscColumnsResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscConnection.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscCrossReferenceResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscDatabaseMetaData.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscDbc.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscIndexInfoResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscMetaDataResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscPreparedStatement.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscPrimaryKeysResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscProcedureColumnsResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscProceduresResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscResultSetMetaData.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscSpecialColumnsResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscSqlType.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscStatement.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscStatementMetaData.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscTablePrivilegesResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\IscTablesResultSet.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\JavaType.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\JString.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\LinkedList.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Mutex.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Parameter.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Parameters.h"/>
-         <File RelativePath="..\..\..\src\jrd\PBGen.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Properties.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\resource.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\SetupAttributes.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Sqlda.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\SQLError.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\SQLException.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\SqlTime.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Stream.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\TimeStamp.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Types.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Value.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\Values.h"/>
-         <File RelativePath="..\..\..\src\IscDbc\WriteBuildNo.h"/>
-      </Filter>
-      <Filter Name="Resource Files" Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-         <File RelativePath="..\..\..\src\jrd\version.rc"/>
-      </Filter>
-   </Files>
-   <Globals/>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="FbDbc"
+	ProjectGUID="{2ACA2D51-B16E-413F-9E3F-7E6B5DD28A70}"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\Release"
+			IntermediateDirectory=".\Release"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;../../../src/include/gen"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="TRUE"
+				UsePrecompiledHeader="2"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\install\bin\fbdbc.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
+				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
+				GenerateDebugInformation="TRUE"
+				ImportLibrary="..\..\..\install\lib\fbdbc.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/IscDbc.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory=".\Debug"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="../../../src/jrd;../../../src/include;../../../src/include/gen"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISCDBC_EXPORTS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="2"
+				AssemblerListingLocation=".\Debug/"
+				ObjectFile=".\Debug/"
+				ProgramDataBaseFileName=".\Debug/"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
+				CompileAs="0"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="firebird.lib"
+				OutputFile="..\..\..\install\bin\fbdbc.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\..\..\install\lib"
+				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
+				GenerateDebugInformation="TRUE"
+				ImportLibrary="..\..\..\install\lib\fbdbc.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Debug/IscDbc.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\..\..\src\IscDbc\AsciiBlob.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Attachment.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\BinaryBlob.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Blob.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\DateTime.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Error.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Generate.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscBlob.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscCallableStatement.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscColumnsResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscConnection.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscCrossReferenceResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscDatabaseMetaData.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscDbc.def">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscIndexInfoResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscMetaDataResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscPreparedStatement.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscPrimaryKeysResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscProcedureColumnsResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscProceduresResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscResultSetMetaData.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscSqlType.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscStatement.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscStatementMetaData.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscTablesResultSet.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\JString.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\LinkedList.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Mutex.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Parameter.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Parameters.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PBGen.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Sqlda.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\SQLError.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Stream.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\TimeStamp.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Value.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Values.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\..\..\src\IscDbc\AsciiBlob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Attachment.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\BinaryBlob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\BinToHexStr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Blob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Connection.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\DateTime.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Engine.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Error.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Generate.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscArray.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscBlob.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscCallableStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscColumnPrivilegesResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscColumnsResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscConnection.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscCrossReferenceResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscDatabaseMetaData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscDbc.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscIndexInfoResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscMetaDataResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscPreparedStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscPrimaryKeysResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscProcedureColumnsResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscProceduresResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscResultSetMetaData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscSpecialColumnsResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscSqlType.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscStatement.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscStatementMetaData.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscTablePrivilegesResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\IscTablesResultSet.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\JavaType.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\JString.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\LinkedList.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Mutex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Parameter.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Parameters.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\PBGen.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Properties.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\resource.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\SetupAttributes.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Sqlda.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\SQLError.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\SQLException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\SqlTime.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Stream.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\TimeStamp.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Types.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Value.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\Values.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\IscDbc\WriteBuildNo.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath="..\..\..\src\jrd\version.rc">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

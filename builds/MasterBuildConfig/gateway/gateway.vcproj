@@ -1,72 +1,200 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-
-<VisualStudioProject ProjectType="Visual C++" Version="7.10" Name="gateway" ProjectGUID="{F3C2A7C4-BE77-468F-8908-9F63D2B1BA4B}" Keyword="Win32Proj">
-   <Platforms>
-      <Platform Name="Win32"/>
-   </Platforms>
-   <Configurations>
-      <Configuration Name="Debug|Win32" OutputDirectory="Debug" IntermediateDirectory="Debug" ConfigurationType="2" CharacterSet="2">
-         <Tool Name="VCCLCompilerTool" Optimization="0" AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/why;../../../src/jrd;../../../src/config" PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NAMESPACE=GateWay;MEMMGR" MinimalRebuild="TRUE" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="FALSE" DebugInformationFormat="3"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool" OutputFile="..\..\..\install\bin\gateway.dll" LinkIncremental="2" ModuleDefinitionFile="..\..\..\src\gateway\gateway.def" GenerateDebugInformation="TRUE" ProgramDatabaseFile="$(OutDir)/gateway.pdb" SubSystem="2" TargetMachine="1"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-      <Configuration Name="Release|Win32" OutputDirectory="Release" IntermediateDirectory="Release" ConfigurationType="2" CharacterSet="2">
-         <Tool Name="VCCLCompilerTool" AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/why;../../../src/jrd;../../../src/config" PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NAMESPACE=GateWay;MEMMGR" RuntimeLibrary="2" UsePrecompiledHeader="2" WarningLevel="3" Detect64BitPortabilityProblems="FALSE" DebugInformationFormat="3"/>
-         <Tool Name="VCCustomBuildTool"/>
-         <Tool Name="VCLinkerTool" OutputFile="..\..\..\install\bin\gateway.dll" LinkIncremental="1" ModuleDefinitionFile="..\..\..\src\gateway\gateway.def" GenerateDebugInformation="TRUE" SubSystem="2" TargetMachine="1"/>
-         <Tool Name="VCMIDLTool"/>
-         <Tool Name="VCPostBuildEventTool"/>
-         <Tool Name="VCPreBuildEventTool"/>
-         <Tool Name="VCPreLinkEventTool"/>
-         <Tool Name="VCResourceCompilerTool"/>
-         <Tool Name="VCWebServiceProxyGeneratorTool"/>
-         <Tool Name="VCXMLDataGeneratorTool"/>
-         <Tool Name="VCWebDeploymentTool"/>
-         <Tool Name="VCManagedWrapperGeneratorTool"/>
-         <Tool Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-      </Configuration>
-   </Configurations>
-   <References/>
-   <Files>
-      <Filter Name="Source Files" Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
-         <File RelativePath="..\..\..\src\config\AdminException.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\ExternalLibrary.cpp"/>
-         <File RelativePath="..\..\..\src\gateway\Gateway.cpp"/>
-         <File RelativePath="..\..\..\src\gateway\gateway.def"/>
-         <File RelativePath="..\..\..\src\jrd\JString.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\MemMgr.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\Mutex.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIException.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIMemException.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\Subsystem.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\Sync.cpp"/>
-         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp"/>
-      </Filter>
-      <Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl;inc;xsd" UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
-         <File RelativePath="..\..\..\src\config\AdminException.h"/>
-         <File RelativePath="..\..\..\src\jrd\ExternalLibrary.h"/>
-         <File RelativePath="..\..\..\src\gateway\Gateway.h"/>
-         <File RelativePath="..\..\..\src\jrd\JString.h"/>
-         <File RelativePath="..\..\..\src\jrd\MemMgr.h"/>
-         <File RelativePath="..\..\..\src\jrd\Mutex.h"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIException.h"/>
-         <File RelativePath="..\..\..\src\jrd\OSRIMemException.h"/>
-         <File RelativePath="..\..\..\src\jrd\Sync.h"/>
-         <File RelativePath="..\..\..\src\jrd\SynchronizationObject.h"/>
-      </Filter>
-      <Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx" UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-         <File RelativePath="..\..\..\src\jrd\version.rc"/>
-      </Filter>
-   </Files>
-   <Globals/>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="gateway"
+	ProjectGUID="{F3C2A7C4-BE77-468F-8908-9F63D2B1BA4B}"
+	Keyword="Win32Proj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="Debug"
+			ConfigurationType="2"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/why;../../../src/jrd;../../../src/config"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NAMESPACE=GateWay;MEMMGR"
+				MinimalRebuild="TRUE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="..\..\..\install\bin\gateway.dll"
+				LinkIncremental="2"
+				ModuleDefinitionFile="..\..\..\src\gateway\gateway.def"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/gateway.pdb"
+				SubSystem="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="2"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../../src/include/gen;../../../src/include;../../../src/why;../../../src/jrd;../../../src/config"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NAMESPACE=GateWay;MEMMGR"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="..\..\..\install\bin\gateway.dll"
+				LinkIncremental="1"
+				ModuleDefinitionFile="..\..\..\src\gateway\gateway.def"
+				GenerateDebugInformation="TRUE"
+				SubSystem="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath="..\..\..\src\config\AdminException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExternalLibrary.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\gateway\Gateway.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\gateway\gateway.def">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JString.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Mutex.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIMemException.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Subsystem.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\..\..\src\config\AdminException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\ExternalLibrary.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\gateway\Gateway.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\JString.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\MemMgr.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Mutex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\OSRIMemException.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Sync.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\SynchronizationObject.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\..\..\src\jrd\version.rc">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>
