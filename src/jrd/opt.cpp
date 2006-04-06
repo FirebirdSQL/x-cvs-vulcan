@@ -5485,9 +5485,11 @@ static RsbSort* gen_sort(thread_db* tdbb,
 		// Put nulls at the tail for ODS10 and earlier
 		// but have SQL-compliant nulls ordering for ODS11+
 
-		if (tdbb->tdbb_database->dbb_ods_version < ODS_VERSION11) 
+		if (tdbb->tdbb_database->dbb_ods_version < ODS_VERSION11)
+			{
 			if ((long)*(node_ptr + sort->nod_count*2) == rse_nulls_first)
 				sort_key->skd_flags |= SKD_descending;
+			}
 		else 
 			{
 			if (((long)*(node_ptr + sort->nod_count*2) == rse_nulls_default && !*(node_ptr + sort->nod_count)) ||
