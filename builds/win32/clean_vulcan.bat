@@ -36,11 +36,14 @@ goto :EOF
 ::for %%a in ( Release Debug ) do ( devenv %VULCAN_BUILD_DIR%\Vulcan\Vulcan.sln /clean %%a )
 devenv %VULCAN_BUILD_DIR%\Vulcan\Vulcan.sln /clean %VULCAN_BUILDCONFIG%
 @echo Now removing *.ilk files from %VULCAN%...
+del /q %VULCAN%\bin\*.ilk
+for %%a in ( "firebird.msg" "security.fdb" "vulcan.lck" ) do (del /q %VULCAN%\%%~a 2>nul )
+
+::Do we want to removed all the old binaries too?
+::del /q %VULCAN%\bin\*.*
 ::del /q %VULCAN%\help\*.*
 ::del /q %VULCAN%\databases\*.*
 ::del /q %VULCAN%\lib\*.*
-del /q %VULCAN%\bin\*.ilk
-for %%a in ( "firebird.msg" "security.fdb" "vulcan.lck" ) do (del /q %VULCAN%\%%~a 2>nul )
 
 goto :EOF
 
@@ -91,8 +94,6 @@ del %VULCAN_ROOT%\src\qli\show.cpp
 
 @echo Removing autoconfig.h...
 del %VULCAN_ROOT%\src\include\gen\autoconfig.h
-
-
 
 
 :: Do we want to do this?

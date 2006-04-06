@@ -20,6 +20,7 @@ goto :EOF
 :: Set defaults
 :SET_DEFAULTS
 set VULCAN_CLEAN=0
+set VULCAN_CLEANONLY=0
 set VULCAN_ENGINE=1
 set VULCAN_EXAMPLES=0
 set VULCAN_INSTALL_KITS=0
@@ -44,6 +45,8 @@ for %%v in ( %* )  do (
   ( @if /I "%%v"=="BAT_DEBUG" (@set VULCAN_BAT_DEBUG=1) )
   ( @if /I "%%v"=="-C" (@set VULCAN_CLEAN=1) )
   ( @if /I "%%v"=="CLEAN" (@set VULCAN_CLEAN=1) )
+  ( @if /I "%%v"=="-CO" ((@set VULCAN_CLEANONLY=1) & (@set VULCAN_CLEAN=1) ))
+  ( @if /I "%%v"=="CLEANONLY" ((@set VULCAN_CLEANONLY=1) & (@set VULCAN_CLEAN=1) ))
   ( @if /I "%%v"=="-D" ( (@set VULCAN_DEBUG=1) & (set VULCAN_BUILDCONFIG=Debug) & (set DEBUG=1) ) )
   ( @if /I "%%v"=="DEBUG" ( (@set VULCAN_DEBUG=1) & (set VULCAN_BUILDCONFIG=Debug) & (set DEBUG=1) ) )
   ( @if /I "%%v"=="-E" (@set VULCAN_EXAMPLES=1) )
@@ -70,6 +73,7 @@ for %%v in ( %* )  do (
 @echo  The following components for Firebird Vulcan will be run:
 @echo.
 @if %VULCAN_CLEAN% equ 1      (@echo    Cleaning previous build) else (@echo    NOT Cleaning previous build)
+@if %VULCAN_CLEANONLY% equ 1  (@echo    and then terminating. Any other parameters will be ignored.)
 @if %VULCAN_ENGINE% equ 1     (
   (@if  %VULCAN_AUTO_BUILD% equ 1 ((@echo    Building engine)
   (@if %VULCAN_REBUILD% equ 1      (@echo      and rebuilding all object files))
@@ -222,6 +226,8 @@ EXIT /B 1
 @echo.
 @echo      CLEAN      Run clean_vulcan.bat
 @echo.
+@echo      CLEANONLY  Run clean_vulcan.bat and exit
+@echo.
 @echo      NOENGINE   Don't build the engine
 @echo.
 @echo      REBUILD    Recompile object files
@@ -233,7 +239,7 @@ EXIT /B 1
 @echo.
 ::@echo      EXAMPLES   Run make_examples.bat  (Not Yet Implemented)
 ::@echo.
-@echo      INSTALL       Run BuildInstallKits.bat
+@echo      INSTALL    Run BuildInstallKits.bat
 @echo.
 @echo      DEBUG      Do a debug build
 @echo.
@@ -258,22 +264,24 @@ EXIT /B 1
 call :SET_DEFAULTS
 call :GET_TIME
 call :CHECK_COMMANDLINE %*
-call :CHECK_ENV  || (@echo Error checking environment & @goto :EOF)
-@if %VULCAN_CLEAN% equ 1   ((@echo Cleaning previous build...) & (@call clean_vulcan.bat %VULCAN_DEBUG% BUILD ))
-call :BUILD_VSRELO || (@echo Error building vsrelo & @goto :EOF)
+call :CHECK_ENV  || (@echo Error checking environment & @goto :FINISH)
+@if %VULCAN_CLEAN% equ 1   ((@echo Cleaning previous build...) & (@call clean_vulcan.bat %VULCAN_DEBUG% BUILD GEN ))
+if %VULCAN_CLEANONLY% equ 1 (@goto :FINISH)
+call :BUILD_VSRELO || (@echo Error building vsrelo & @goto :FINISH)
 call :RUN_VSRELO
 ::|| (@echo errorlevel is %ERRORLEVEL% & @echo Error running vsrelo & @goto :EOF)
-if %VULCAN_ENGINE% equ 1 (call :BUILD_VULCAN || (@echo Error building vulcan & @goto :EOF))
+if %VULCAN_ENGINE% equ 1 (call :BUILD_VULCAN || (@echo Error building vulcan & @goto :FINISH))
 call :GET_TIME
 call :PRINT_TIME
-if %VULCAN_INSTALL_KITS% equ 1 (call :BUILD_INSTALL_KITS || (@echo Error building install kits & @goto :EOF))
+if %VULCAN_INSTALL_KITS% equ 1 (call :BUILD_INSTALL_KITS || (@echo Error building install kits & @goto :FINISH))
 goto :FINISH
-
+goto :EOF
 
 
 :FINISH
 ::Clear variables
 @set VULCAN_CLEAN=
+@set VULCAN_CLEANONLY=
 @set VULCAN_ENGINE=
 @set VULCAN_EXAMPLES=
 @set VULCAN_INSTALL_KITS=
