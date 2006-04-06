@@ -1,3 +1,0 @@
-cd ../dsql
-cp array_boot.cpp array.cpp
-cp blob_boot.cpp blob.cpp

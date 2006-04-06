@@ -1,2 +1,0 @@
-../msgs/msgs -f ../../install/firebird.msg
-gbak -r ../misc/help.gbak ../../install/help/help.fdb
