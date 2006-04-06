@@ -179,14 +179,14 @@ SetEnv() {
 	VULCAN_ROOT=$PWD
 	VULCAN=$VULCAN_ROOT/install
 	VULCAN_BUILD_DIR=$VULCAN_ROOT/src
-	VULCAN_SCRIPT_DIR=$VULCAN_ROOT/builds
+	VULCAN_SCRIPT_DIR=$VULCAN_ROOT/builds/posix
 
 	if [ "$VULCAN_PLATFORM"="darwin" -o "$VULCAN_PLATFORM"="darwin64" ]; then
-		VULCAN_PLATFORM_DIR=mac_os_x
+		VULCAN_PLATFORM_DIR=$VULCAN_ROOT/builds/mac_os_x
 	fi
 
 	if [ "$VULCAN_PLATFORM"="linux32" -o "$VULCAN_PLATFORM"="linux64" ]; then
-		VULCAN_PLATFORM_DIR=posix
+		VULCAN_PLATFORM_DIR=$VULCAN_ROOT/builds/posix
 	fi
 
 	#symlink gmake if not exists
@@ -218,10 +218,10 @@ RunConfigure() {
 	cd $VULCAN_ROOT
 
 	if [ ! -f autogen.sh ]; then
-		cp $VULCAN_SCRIPT_DIR/$VULCAN_PLATFORM_DIR/autogen.sh $VULCAN_ROOT
+		cp $VULCAN_PLATFORM_DIR/autogen.sh $VULCAN_ROOT
 #Warning - path to configure.in is hardcoded to posix directory.
 #As the posix build sub-system evolves this _may_ lead to complications.
-		cp $VULCAN_SCRIPT_DIR/posix/configure.in $VULCAN_ROOT
+		cp $VULCAN_SCRIPT_DIR/configure.in $VULCAN_ROOT
 		chmod +x $VULCAN_ROOT/autogen.sh
 	fi
 	source autogen.sh $VULCAN_DEBUG
@@ -246,7 +246,7 @@ RunVSRelo() {
 		where  VULCAN_BUILD_DIR is in relation to VULCAN_SCRIPT_DIR
 		./VSRelo ../../builds/MasterBuildConfig -s -o ../../src -c "
 	fi
-	cd $VULCAN_SCRIPT_DIR
+	cd $VULCAN_SCRIPT_DIR/posix
 	./VSRelo ../../builds/MasterBuildConfig -s -o ../../src -c
 
 # Now walk the $VULCAN_ROOT/builds/MasterConfig tree and
