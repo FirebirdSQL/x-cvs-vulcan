@@ -3621,8 +3621,13 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 			}
 		}
 
-	fb_assert(offset <= MAX_USHORT);
-	format->fmt_length = (USHORT)offset;
+	/*
+	 * This assert isn't needed, we test for this just below and issue a
+	 * nice message if the row width has grown too large.   Let's move the
+	 * format->fmt_length assignment to after the test, though.
+	 */
+	
+	//fb_assert(offset <= MAX_USHORT);
 
 	/* Release the temporary field blocks */
 
@@ -3643,6 +3648,9 @@ static Format* make_format(thread_db* tdbb, Relation* relation, USHORT * version
 				 0);
 		/* Msg361: new record size of %ld bytes is too big */
 		}
+
+	
+	format->fmt_length = (USHORT)offset;
 
 	if ((format->fmt_version) &&
 		 //(old_format = MET_format(tdbb, relation, (format->fmt_version - 1))) &&
