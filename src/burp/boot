@@ -1,0 +1,2 @@
+cp backup.boot backup.cpp
+cp restore.boot restore.cpp
