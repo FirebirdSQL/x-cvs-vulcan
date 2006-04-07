@@ -24,9 +24,9 @@ set CLEAN_BUILD=0
 set CLEAN_GEN=0
 
 for %%v in ( %* )  do (
-  ( if /I "%%v"=="ALL" ((set CLEAN_BUILD=1) & (set CLEAN_GEN=1) & goto :EOF) )
-  ( if /I "%%v"=="BUILD" ((set CLEAN_BUILD=1) & goto :EOF) )
-  ( if /I "%%v"=="GEN" ((set CLEAN_GEN=1) & goto :EOF) )
+  ( if /I "%%v"=="ALL" ((set CLEAN_BUILD=1) & (set CLEAN_GEN=1)) )
+  ( if /I "%%v"=="BUILD" ((set CLEAN_BUILD=1)) )
+  ( if /I "%%v"=="GEN" ((set CLEAN_GEN=1)) )
 )
 goto :EOF
 
@@ -51,15 +51,15 @@ goto :EOF
 ::========================
 :CLEAN_GEN
 @echo Removing gpre generated files...
-del %VULCAN_ROOT%\src\burp\backup.cpp
-del %VULCAN_ROOT%\src\burp\restore.cpp
+del /F %VULCAN_ROOT%\src\burp\backup.cpp
+del /F %VULCAN_ROOT%\src\burp\restore.cpp
 
-del %VULCAN_ROOT%\src\dsql\array.cpp
-del %VULCAN_ROOT%\src\dsql\blob.cpp
+del /F %VULCAN_ROOT%\src\dsql\array.cpp
+del /F %VULCAN_ROOT%\src\dsql\blob.cpp
 del %VULCAN_ROOT%\src\dsql\parse.cpp
 del %VULCAN_ROOT%\src\dsql\parse.h
 
-del %VULCAN_ROOT%\src\gpre\gpre_meta.cpp
+del /F %VULCAN_ROOT%\src\gpre\gpre_meta.cpp
 
 del %VULCAN_ROOT%\src\gsec\security.cpp
 
@@ -93,7 +93,7 @@ del %VULCAN_ROOT%\src\qli\proc.cpp
 del %VULCAN_ROOT%\src\qli\show.cpp
 
 @echo Removing autoconfig.h...
-del %VULCAN_ROOT%\src\include\gen\autoconfig.h
+del /F %VULCAN_ROOT%\src\include\gen\autoconfig.h
 
 
 :: Do we want to do this?
@@ -140,8 +140,8 @@ setlocal
 @if not defined VULCAN_CHECK_ENV ( @call check_env.bat "..\..\..\vulcan" ) || (@echo Error checking environment & @goto :EOF)
 
 call :CHECK_COMMANDLINE %*
-if %CLEAN_BUILD% equ 1 (call :CLEAN_BUILD)
 if %CLEAN_GEN% equ 1 (call :CLEAN_GEN)
+if %CLEAN_BUILD% equ 1 (call :CLEAN_BUILD)
 endlocal
 
 goto :EOF

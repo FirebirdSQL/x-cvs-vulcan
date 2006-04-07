@@ -58,6 +58,7 @@ for %%v in ( DevTools Vulcan ) do (
 :: need to touch the datestamp. Copy preserves the datestamp.
 ::======================
 :: copy autoconfig.h
+del /F %VULCAN_ROOT%\src\include\gen\autoconfig.h
 cp %VULCAN_ROOT%\src\include\gen\autoconfig_msvc.h %VULCAN_ROOT%\src\include\gen\autoconfig.h
 
 @echo Copy gpre generated boot files...
