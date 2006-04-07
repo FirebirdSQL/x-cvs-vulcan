@@ -1525,89 +1525,116 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 	par *parameter;
 	JrdMove mover;
 
-	if (blrLength != 0)
-	{
+	//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
+	BlrParse parse (blr);
+	int count = 0;
 
-		//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
-		BlrParse parse (blr);
+	if (blrLength)
+	{
 		parse.getVersion();
-		int begin = parse.getByte();
-		int verb = parse.getByte();
-		int msgNumber = parse.getByte();
-		int count = parse.getWord();
-		int offset = 0;
-	    int index, parmcount;
-	    
-	    parmcount = count / 2; /* don't include for nulls */
-	    
-	    for (index = 1; index <= parmcount; index++)
+		parse.getByte();	// begin
+		parse.getByte();	// verb
+		parse.getByte();	// msg number
+		count = parse.getWord();
+	}
+	else
+	{
+		// If there's no blr length, then the format of the current message
+		// buffer is identical to the format of the previous one
+		for (parameter = source->msg_parameters;
+			parameter; parameter = parameter->par_next)
+		{
+			if (parameter->par_index)
+				count++;
+		}
+	}
+
+	int offset = 0;
+    int index, parmcount;
+
+	parmcount = count / 2; /* don't include for nulls */
+
+	for (index = 1; index <= parmcount; index++)
+	{
+		parameter = source->msg_par_ordered;
+		int n;
+
+		for (n = 0; parameter && n < count; ++n, parameter = parameter->par_ordered)
+		{
+			if (parameter->par_index == index)
 			{
-	        parameter = source->msg_par_ordered;
-	        dsc desc, nullDesc;
-	        int n;
-	
-	        parse.getBlrDescriptor (&desc);
-	        int alignment = type_alignments[desc.dsc_dtype];
-	
-	  	    for (n = 0; parameter && n < count; ++n, parameter = parameter->par_ordered)
+				dsc desc;
+
+				if (blrLength)
+					parse.getBlrDescriptor (&desc);
+				else
+					desc = parameter->par_desc;
+				int alignment = type_alignments[desc.dsc_dtype];
+				dsc parDesc = parameter->par_desc;
+				parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
+
+				if (DTYPE_IS_TEXT(parDesc.dsc_dtype))
+					parDesc.dsc_sub_type = 0;
+
+				if (alignment)
+					offset = FB_ALIGN (offset, alignment);
+
+				if (inMsg)
 				{
-	            if (parameter->par_index == index)
-	                {
-	                dsc parDesc = parameter->par_desc;
-					parDesc.dsc_address = msgBuffer + (IPTR) parameter->par_desc.dsc_address;
-			
-					if (DTYPE_IS_TEXT(parDesc.dsc_dtype))
-						parDesc.dsc_sub_type = 0;
-						
+					desc.dsc_address = (UCHAR*) inMsg + offset;
+					mover.move (&desc, &parDesc);
+				}
+				else if (outMsg)
+				{
+					desc.dsc_address = outMsg + offset;
+					mover.move (&parDesc, &desc);
+				}
+				else
+				{
+					fb_assert(false);
+				}
+
+				offset += desc.dsc_length;
+
+				// handle the null
+
+				if (parameter->par_null)
+				{
+					if (blrLength)
+						parse.getBlrDescriptor (&desc);
+					else
+						desc = parameter->par_null->par_desc;
+					alignment = type_alignments[desc.dsc_dtype];
+					parDesc = parameter->par_null->par_desc;
+					parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
+
 					if (alignment)
 						offset = FB_ALIGN (offset, alignment);
-					
+
 					if (inMsg)
-						{
+					{
 						desc.dsc_address = (UCHAR*) inMsg + offset;
 						mover.move (&desc, &parDesc);
-						}
-					else
-						{
+					}
+					else if (outMsg)
+					{
 						desc.dsc_address = outMsg + offset;
 						mover.move (&parDesc, &desc);
-						}
-					
-					offset += desc.dsc_length;
-		                    
-					/* handle the null */
-		            
-					if (parameter->par_null)
-						{
-	        			parse.getBlrDescriptor (&desc);
-						alignment = type_alignments[desc.dsc_dtype];
-						parDesc = parameter->par_null->par_desc;
-						parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
-		                        
-						if (alignment)
-							offset = FB_ALIGN (offset, alignment);
-					
-						if (inMsg)
-							{
-							desc.dsc_address = (UCHAR*) inMsg + offset;
-							mover.move (&desc, &parDesc);
-							}
-						else
-							{
-							desc.dsc_address = outMsg + offset;
-							mover.move (&parDesc, &desc);
-							}
-		                        
-						offset += desc.dsc_length;
-						}
-		                
-					break;
 					}
+					else
+					{
+						fb_assert(false);
+					}
+
+					offset += desc.dsc_length;
 				}
-				
-	        if (n >= count)
-		        ERRD_bugcheck ("Parameter index not found.");
+
+				break;
 			}
+		}
+
+		if (n >= count)
+	        ERRD_bugcheck ("Parameter index not found.");
 	}
 	    
    /*
