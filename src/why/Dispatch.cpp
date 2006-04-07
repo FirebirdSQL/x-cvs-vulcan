@@ -342,7 +342,7 @@ ISC_STATUS Dispatch::attachDatabase(ISC_STATUS* userStatus,
 
 	if (haveError)
 		{
-		memcpy (localStatus, statusVector->statusVector, sizeof(localStatus));
+		memcpy (statusVector->statusVector, localStatus, sizeof(localStatus));
 		return statusVector->getReturn();
 		}
 		
