@@ -1,3 +1,99 @@
+2006-04-06 22:03  tomcole
+
+	* vulcan/src/jrd/dfw.epp:
+	
+	Remove assert, allow normal error handling.  FieldTest bugtrack
+	1465885.
+
+2006-04-06 16:53  tomcole
+
+	* vulcan/src/jrd/opt.cpp:
+	
+	Fix NULLS FIRST issue with ODS11, FieldTest bug tracker 1465728.
+
+2006-04-06 16:03  paul_reeves
+
+	* vulcan/builds/posix/build_vulcan.sh:
+	
+	Second attempt at accommodating darwin. This time it shouldn't
+	break the posix build.
+
+2006-04-06 16:01  paul_reeves
+
+	* vulcan/src/why/boot:
+	
+	Make sure we try and copy the correct filenames
+
+2006-04-06 15:53  paul_reeves
+
+	* vulcan/src/: burp/boot, gpre/boot, msgs/boot, qli/boot, why/boot:
+	
+	Add posix boot scripts back temporarily, until such time as they
+	are propery integrated into build_vulcan.sh
+
+2006-04-06 15:22  paul_reeves
+
+	* vulcan/builds/win32/: clean_vulcan.bat, really_make_all.bat:
+	
+	Add cleanonly option to really_make_all.bat Extend clean to do a
+	really clean by default
+
+2006-04-06 15:17  paul_reeves
+
+	* vulcan/builds/MasterBuildConfig/: Databases/Databases.vcproj,
+	FbDbc/FbDbc.vcproj, JdbcTest/JdbcTest.vcproj,
+	MsgExtract/MsgExtract.vcproj, MsgMgr/MsgMgr.vcproj,
+	SecurityDatabase/SecurityDatabase.vcproj, Services/Services.vcproj,
+	ThreadTest/ThreadTest.vcproj, VSRelo/VSRelo.vcproj,
+	XLoad/XLoad.vcproj, alice/alice.vcproj, buildgen/buildgen.vcproj,
+	burp/burp.vcproj, config/config.vcproj, gateway/gateway.vcproj,
+	gpre/gpre.vcproj, gsec/gsec.vcproj, gstat/gstat.vcproj,
+	instreg/instreg.vcproj, instsvc/instsvc.vcproj,
+	intlcpp/intlcpp.vcproj, isql/isql.vcproj, jrd/jrd.vcproj,
+	lock/lock.vcproj, msgs/msgs.vcproj, qli/qli.vcproj,
+	remote/remote.vcproj, server/server.vcproj, test/test.vcproj,
+	why/why.vcproj, winserver/winserver.vcproj:
+	
+	Fix file format to be consistent with VS.  (VSRelo now produces
+	output that matches VS, so we should no longer see this problem.)
+
+2006-04-06 12:03  paul_reeves
+
+	* vulcan/: builds/win32/boot_copy.bat,
+	src/Databases/Databases.vcproj, src/Databases/vulcan.conf,
+	src/IscDbc/IscDbc.vcproj, src/JdbcTest/JdbcTest.vcproj,
+	src/JdbcTest/vulcan.conf, src/MsgExtract/MsgExtract.vcproj,
+	src/MsgExtract/vulcan.conf, src/MsgMgr/MsgMgr.vcproj,
+	src/MsgMgr/vulcan.conf,
+	src/SecurityDatabase/SecurityDatabase.vcproj,
+	src/SecurityDatabase/vulcan.conf, src/Services/Services.vcproj,
+	src/Services/vulcan.conf, src/ThreadTest/ThreadTest.vcproj,
+	src/XLoad/XLoad.vcproj, src/boot_build, src/build, src/build.conf,
+	src/build_boot, src/clean, src/dependencies, src/make_boot_files,
+	src/rebuild_boot_files, src/set_platform, src/alice/alice.vcproj,
+	src/alice/vulcan.conf, src/buildgen/buildgen.vcproj,
+	src/burp/backup_boot.cpp, src/burp/boot, src/burp/burp.vcproj,
+	src/burp/restore_boot.cpp, src/burp/vulcan.conf,
+	src/config/config.vcproj, src/dsql/array_boot.cpp,
+	src/dsql/blob_boot.cpp, src/events/events.vcproj,
+	src/events/vulcan.conf, src/gateway/gateway.vcproj,
+	src/gateway/vulcan.conf, src/gpre/boot, src/gpre/boot.cmd,
+	src/gpre/gpre.vcproj, src/gpre/gpre_meta_boot.cpp,
+	src/gpre/vulcan.conf, src/gsec/gsec.vcproj, src/gsec/vulcan.conf,
+	src/gstat/gstat.vcproj, src/gstat/vulcan.conf,
+	src/intlcpp/intlcpp.vcproj, src/isql/isql.vcproj,
+	src/isql/vulcan.conf, src/jrd/blrtable/blrtable.vcproj,
+	src/jrd/jrd.vcproj, src/jrd/vulcan.conf, src/lock/lock.vcproj,
+	src/msgs/boot, src/msgs/msgs.vcproj, src/msgs/vulcan.conf,
+	src/qli/boot, src/qli/boot.cmd, src/qli/qli.vcproj,
+	src/qli/vulcan.conf, src/remote/remote.vcproj,
+	src/server/server.vcproj, src/test/test.vcproj, src/why/boot,
+	src/why/boot.cmd, src/why/vulcan.conf, src/why/why.vcproj,
+	src/winserver/winserver.vcproj:
+	
+	Remove files duplicated in the build process Remove files rendered
+	extraneous by the new build system
+
 2006-04-05 22:05  verbguy
 
 	* vulcan/src/: dsql/ddl.cpp, jrd/dyn_mod.epp:
