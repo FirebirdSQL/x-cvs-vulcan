@@ -165,6 +165,8 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 
 void StatusPrint::getOSText(int type, int code, int bufferLength, TEXT* buffer)
 {
+	buffer[0] = '\0';
+
 	switch (type)
 		{
 #ifdef WIN_NT

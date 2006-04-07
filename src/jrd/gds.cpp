@@ -676,7 +676,7 @@ SLONG API_ROUTINE gds__interprete(char* s, ISC_STATUS** vector)
  
 	StatusPrint printer;
 	
-	return printer.interpretStatus (-1, s, (const ISC_STATUS**) vector);
+	return printer.interpretStatus (1024, s, (const ISC_STATUS**) vector);
 }
 
 SLONG API_ROUTINE fb_interpret(char* s, int bufsize, const ISC_STATUS** vector)
