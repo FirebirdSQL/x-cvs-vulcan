@@ -107,7 +107,6 @@ CStatement::CStatement(Attachment *attach)
 	contextNumber = 0;
 	scopeLevel = 0;
 	loopLevel = 0;
-	inOuterJoin = false;
 	aliasRelationPrefix = NULL;
 	flags = 0;
 	procedure = NULL;

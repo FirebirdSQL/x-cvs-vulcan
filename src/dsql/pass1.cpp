@@ -379,7 +379,7 @@ dsql_ctx* PASS1_make_context(CStatement* request, dsql_nod* relation_node)
 
 	// When we're in a outer-join part mark context for it.
 
-	if (request->inOuterJoin)
+	if (request->req_in_outer_join)
 		context->ctx_flags |= CTX_outer_join;
 
 	// find the context alias name, if it exists.

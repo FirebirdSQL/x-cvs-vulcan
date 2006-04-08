@@ -171,7 +171,6 @@ public:
 	int			loopLevel;
 	int			flags;
 	int			dbb_flags;
-	bool		inOuterJoin;
 	dsql_str	*aliasRelationPrefix;
 	Stack		context;
 	Stack		unionContext;
