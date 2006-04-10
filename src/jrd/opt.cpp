@@ -7454,12 +7454,23 @@ static jrd_nod* optimize_like(thread_db* tdbb, jrd_nod* like_node)
 	// Same than above, but worse, since it will enter an infinite loop. 
 	// Example: Spanish Ñ against unicode.
 	// Reported also on Portuguese characters that aren't ASCII < 128.
+	// TBC: Added tests for infinite loop.  These may be replaced/updated
+	//      when updated INTL support comes to Vulcan.
 
 	for (const UCHAR* const end = p + search_desc->dsc_length; p < end;)
 		{
 		const UCHAR* p_start = p;
 		ch = INTL_getch(tdbb, &text_obj, INTL_TTYPE(search_desc), 
 						&p, &p_count);
+
+		/*
+		 * Check for transcoding error that would result in a hang.
+		 */
+		if (p == p_start)
+			{
+			delete node;
+			ERR_post(isc_arith_except, isc_arg_gds, isc_transliteration_failed, 0 );
+			}
 
 		// Check for Escape character at end of string 
 
@@ -7471,6 +7482,11 @@ static jrd_nod* optimize_like(thread_db* tdbb, jrd_nod* like_node)
 			p_start = p;
 			ch = INTL_getch(tdbb, &text_obj, INTL_TTYPE(search_desc), 
 							&p, &p_count);
+			if (p == p_start)
+				{ /* Transcode error check again */
+				delete node;
+				ERR_post(isc_arith_except, isc_arg_gds, isc_transliteration_failed, 0 );
+				}
 			}
 		else if (ch == SQL_MATCH_1_CHAR || ch == SQL_MATCH_ANY_CHARS)
 			break;
