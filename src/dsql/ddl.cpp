@@ -6262,6 +6262,10 @@ static void set_nod_value_attributes( dsql_nod* node, const dsql_fld* field)
 					break;
 				
 				case nod_field_name:
+				case nod_rel_proc_name:
+					// TBC: Added rel_proc_name so error conditions don't attempt
+					// recursive set calls.  Do we also need nod_procedure_name 
+					// and nod_relation_name here as well?
 					break;
 					
 				default:
