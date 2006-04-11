@@ -31,6 +31,7 @@ set VULCAN_REBUILD=0
 set VULCAN_BUILDCONFIG=Release
 set VULCAN_AUTO_BUILD=1
 set VULCAN_PREPAREGUI=0
+set VULCAN_CLIENTDIR=
 set VULCAN_START_TIME=0
 set VULCAN_END_TIME=0
 set VULCAN_BAT_DEBUG=
@@ -59,6 +60,8 @@ for %%v in ( %* )  do (
   ( @if /I "%%v"=="NOENGINE" (@set VULCAN_ENGINE=0) )
   ( @if /I "%%v"=="-P" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1))
   ( @if /I "%%v"=="PREPAREGUI" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1))
+  ( @if /I "%%v"=="-PC" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1) & (set VULCAN_CLIENTDIR=client))
+  ( @if /I "%%v"=="PREPAREGUICLIENT" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1) & (set VULCAN_CLIENTDIR=client))
   ( @if /I "%%v"=="-R" (@set VULCAN_REBUILD=1) )
   ( @if /I "%%v"=="REBUILD" (@set VULCAN_REBUILD=1) )
   ( @if /I "%%v"=="-S" (@set VULCAN_SNAPSHOT=1) )
@@ -77,7 +80,7 @@ for %%v in ( %* )  do (
 @if %VULCAN_ENGINE% equ 1     (
   (@if  %VULCAN_AUTO_BUILD% equ 1 ((@echo    Building engine)
   (@if %VULCAN_REBUILD% equ 1      (@echo      and rebuilding all object files))
-) else (@echo    Preparing GUI) )
+  ) else (@echo    Preparing GUI) )
 ) else (@echo    NOT building engine)
 ::@if %VULCAN_EXAMPLES% equ 1   (@echo    Building examples kit) else (@echo    NOT building examples kit)
 @if %VULCAN_INSTALL_KITS% equ 1       (@echo    Building install kits) else (@echo    NOT building install kits)
@@ -237,6 +240,11 @@ EXIT /B 1
 @echo      PREPAREGUI Prepare build environment and open Visual Studio
 @echo                 Don't start build.
 @echo.
+@echo      PREPCLIENT Prepare build environment and open Visual Studio
+@echo                 Don't start build.
+@echo                 This option is intended to create a second environment
+@echo                 to aid testing and debugging from the client side.
+@echo.
 ::@echo      EXAMPLES   Run make_examples.bat  (Not Yet Implemented)
 ::@echo.
 @echo      INSTALL    Run BuildInstallKits.bat
@@ -294,6 +302,7 @@ goto :EOF
 @set VULCAN_BUILDCONFIG=
 @set VULCAN_AUTO_BUILD=
 @set VULCAN_PREPAREGUI=
+@set VULCAN_CLIENTDIR=
 @set VULCAN_BAT_DEBUG=
 
 

@@ -156,7 +156,7 @@ EXIT /B 999
 :MAIN
 
 :: First check our environment
-@if not defined VULCAN_CHECK_ENV ( @call check_env.bat "..\vulcan" )
+@if not defined VULCAN_CHECK_ENV ( @call check_env.bat "..\..\..\vulcan" )
 
 :: See what else we have on the command line
 for %%v in ( %* )  do (

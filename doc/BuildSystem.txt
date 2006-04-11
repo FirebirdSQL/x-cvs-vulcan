@@ -60,7 +60,11 @@ DEBUG      - will create a debug build. This option is intended for engine
 PREPAREGUI - (Win) will prepare the build environment and open the vulcan
              solution in Visual Studio.
 
-
+PREPCLIENT - (Win) will prepare a secondary gui build environment. It is 
+             intended for testing and debugging problems from the client side
+			 while simultaneously working with a server running in the 
+			 environment created by PREPAREGUI.
+			 
 
 Architecture of the build system
 --------------------------------

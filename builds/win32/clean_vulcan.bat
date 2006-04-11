@@ -140,8 +140,8 @@ setlocal
 @if not defined VULCAN_CHECK_ENV ( @call check_env.bat "..\..\..\vulcan" ) || (@echo Error checking environment & @goto :EOF)
 
 call :CHECK_COMMANDLINE %*
-if %CLEAN_GEN% equ 1 (call :CLEAN_GEN)
 if %CLEAN_BUILD% equ 1 (call :CLEAN_BUILD)
+if %CLEAN_GEN% equ 1 (call :CLEAN_GEN)
 endlocal
 
 goto :EOF

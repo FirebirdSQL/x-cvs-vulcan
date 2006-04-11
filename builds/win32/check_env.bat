@@ -43,7 +43,8 @@ if not defined MSVC_VERSION (
 if errorlevel 1 (call :ERROR "A working version of visual studio cannot be found on " "your current path. You need MS Visual Studio 7 or 8 to " "build Firebird from these batch files.") & (goto :EOF)
 )
 
-set VULCAN_BUILD_DIR=%VULCAN_SCRIPT_DIR%\msvc%MSVC_VERSION%
+
+set VULCAN_BUILD_DIR=%VULCAN_SCRIPT_DIR%\msvc%MSVC_VERSION%%VULCAN_CLIENTDIR%
 mkdir %VULCAN_BUILD_DIR% 2>nul
 
 ::==========
@@ -65,6 +66,7 @@ set VULCAN_CHECK_ENV=1
 @echo.
 @echo     msvc_version=Visual Studio Version %MSVC_VERSION%
 @echo     VULCAN_ROOT=%VULCAN_ROOT%
+@echo     VULCAN_BUILD_DIR=%VULCAN_BUILD_DIR%
 @echo     VULCAN=%VULCAN%
 @echo     Located bison
 @echo.
