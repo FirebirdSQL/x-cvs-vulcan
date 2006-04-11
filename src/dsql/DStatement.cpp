@@ -89,6 +89,9 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			ERRD_post(isc_sqlerr, isc_arg_number, -104, 
 				isc_arg_gds, isc_command_end_err, 0);
 
+                /*
+		 * Determine whether a cursor is currently open.
+                 */
 		if (req_flags & REQ_cursor_open)
 			ERRD_post(isc_sqlerr, isc_arg_number, -519,
 				  isc_arg_gds, isc_dsql_open_cursor_request, 0);
@@ -114,6 +117,7 @@ ISC_STATUS DStatement::prepare(ISC_STATUS *statusVector, Transaction *trans, int
 			
 			cursor->statement->addChild(this);
 			}
+			
 			
 		switch (statement->req_type)
 			{
@@ -1183,21 +1187,24 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
     try
 		{
 		sing_status = 0;
-		REQ_TYPE requestType = statement->req_type;
+		REQ_TYPE requestType;
 		
 		if ((SSHORT) inMsgType == -1) 
 			requestType = REQ_EMBED_SELECT;
+		else
+			requestType = statement->req_type;
 
 		// Only allow NULL trans_handle if we're starting a transaction 
 
-		if (transaction == NULL && statement->req_type != REQ_START_TRANS)
+		if (transaction == NULL && requestType != REQ_START_TRANS &&
+			requestType != REQ_EMBED_SELECT)
 			ERRD_post(isc_sqlerr, isc_arg_number, -901,
 				  	isc_arg_gds, isc_bad_trans_handle, 0);
 
 		/* If the request is a SELECT or blob statement then this is an open.
 		   Make sure the cursor is not already open. */
 
-		bool singleton = (statement->req_type == REQ_SELECT && outMsgLength != 0);
+		bool singleton = (requestType == REQ_SELECT && outMsgLength != 0);
 		bool needsCursor = false;
 		
 		switch (requestType)
@@ -1208,7 +1215,6 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
 			case REQ_EMBED_SELECT:
 			case REQ_GET_SEGMENT:
 			case REQ_PUT_SEGMENT:
-			case REQ_EXEC_BLOCK:
 				if (!singleton)
 					needsCursor = true;
 					
@@ -1234,16 +1240,13 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
 		* a singleton SELECT.  In that event, we don't add the cursor
 		* to the list of open cursors (it's not really open).
 		*/
-
-		/***
-		if (needsCursor && !cursor)
-			cursor = attachment->allocateCursor (this, transaction);
-		***/
-			/***
+		if ((!sing_status) && (needsCursor))
 			{
-			request->req_flags |= REQ_cursor_open |
-				((statement->req_type == REQ_EMBED_SELECT) ? REQ_embedded_sql_cursor : 0);
-
+                	if (!cursor)
+			cursor = attachment->allocateCursor (this, transaction);
+			req_flags |= REQ_cursor_open |
+				((requestType == REQ_EMBED_SELECT) ? REQ_embedded_sql_cursor : 0);
+			/***
             opn* open_cursor = FB_NEW(*DSQL_permanent_pool) opn;
 			request->req_open_cursor = open_cursor;
 			open_cursor->opn_request = request;
@@ -1258,8 +1261,8 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
 								 trans_handle,
 								 cleanup_transaction, 0);
 			THREAD_ENTER;
-			}
 			***/
+			}
 
 		if (!sing_status)
 			return FB_SUCCESS;
@@ -1281,6 +1284,7 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 									   bool singleton)
 {
 	ISC_STATUS s;
+	ISC_STATUS_ARRAY local_status;
 	ThreadData thread (statusVector, attachment);
 
 	try
@@ -1307,8 +1311,9 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				if (s = jrd8_ddl (statusVector, &attachment, transactionHandle, statement->blrGen->getLength(), statement->blrGen->buffer))
 					return s;
 					
-//				DDL_execute (statusVector, statement, transaction);
-				statement->completeDDL(thread);
+				if (statement->threadData == NULL)
+					statement->threadData = thread;					
+				// DDL_execute (statusVector, statement, transaction);
 				return FB_SUCCESS;
 
 			/***
@@ -1418,11 +1423,34 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				return s;
 			
 		singletonFetched = false;
-		
-		if (outMsgLength && (message = statement->receiveMessage)) 
+		// REQ_EXEC_BLOCK has no outputs so there are no out_msg 
+		// supplied from client side, but REQ_EXEC_BLOCK requires
+		// 2-byte message for EOS synchronization
+		const bool isBlock = (statement->req_type == REQ_EXEC_BLOCK);
+		message = statement->receiveMessage;
+		if ((outMsgLength && message ) ||isBlock ) 
 			{
 			/* Insure that the blr for the message is parsed, regardless of
 			   whether anything is found by the call to receive. */
+//			char		temp_buffer[DOUBLE_ALIGN * 2];
+			dsql_msg	temp_msg;
+
+#if 0
+			if (outMsgLength && outBlrLength) {
+			parse_blr(outBlrLength, outBlr, outMsgLength,
+					  message->msg_parameters);
+			} 
+			else if (!outMsgLength && isBlock) {
+#else
+			if (message == NULL) 
+#endif
+			{
+				message = &temp_msg;
+
+				message->msg_number = 1;
+				message->msg_length = 2;
+//				message->msg_buffer = (UCHAR*)FB_ALIGN((U_IPTR) temp_buffer, DOUBLE_ALIGN);
+			}
 
 			if (s = jrd8_receive (statusVector, &statement->request, 
 							      message->msg_number, message->msg_length, receiveMessage, requestInstantiation))
@@ -1714,7 +1742,7 @@ ISC_STATUS DStatement::fetch(ISC_STATUS* statusVector, int blrLength, const UCHA
 									receiveMessage, 
 									requestInstantiation);
 		
-		if (statement->req_eof &&
+		if (!s && statement->req_eof &&
 			  !*(short*)(receiveMessage + (IPTR) statement->req_eof->par_desc.dsc_address))
 			return 100;
 			
@@ -1738,13 +1766,13 @@ ISC_STATUS DStatement::freeStatement(ISC_STATUS* statusVector, int options)
 
 	try
 		{
-		if (statement)
-			if (options & DSQL_close)
+		if (options & (DSQL_close))
 				closeCursor();
 
-		if (options & DSQL_drop)
+		if (options & (DSQL_drop))
 			{
 			closeStatement();
+			if (options & DSQL_drop)
 			delete this;
 			}
 		}
@@ -1767,7 +1795,7 @@ ISC_STATUS DStatement::setCursor(ISC_STATUS* statusVector, const TEXT* cursorNam
 			ERRD_post(isc_sqlerr, isc_arg_number, -502,
 					  isc_arg_gds, isc_dsql_decl_err, 0);
 
-		if (cursor)
+		if ((cursor) && ((bool) cursor->name))
 			{
 			if (cursor->name == name)
 				return returnSuccess(statusVector);
@@ -1794,6 +1822,8 @@ ISC_STATUS DStatement::setCursor(ISC_STATUS* statusVector, const TEXT* cursorNam
 
 void DStatement::closeCursor(void)
 {
+	if (cursor)
+		clearCursor();
 }
 
 void DStatement::closeStatement(void)
@@ -1873,11 +1903,15 @@ ISC_STATUS DStatement::executeDDL(ISC_STATUS* statusVector)
 
 void DStatement::clearCursor(void)
 {
-	if (cursor)
+	while (cursor != NULL)
 		{
+		Cursor *next = cursor->next;
+		if (this == cursor->statement)
 		attachment->deleteCursor(cursor);
-		cursor = NULL;
+		cursor = next;
 		}
+
+	req_flags &= ~(REQ_cursor_open | REQ_embedded_sql_cursor);	
 }
 
 void DStatement::addChild(DStatement* child)

@@ -55,6 +55,7 @@ SQLParse::SQLParse(int client_dialect, int db_dialect, int parser_version)
 	parserVersion = parser_version;
 	yydebug = 0;
 	nodes = NULL;
+	last_token = NULL;
 }
 
 SQLParse::~SQLParse(void)
@@ -100,7 +101,7 @@ dsql_nod* SQLParse::parse(thread_db* threadStuff, int sqlLength, const char* sql
 	catch (SQLSyntaxError& exception)
 		{
 		exception;
-		if (ptr >= end)
+		if ((ptr > end) || (last_token == NULL))
 			throw OSRIException (isc_sqlerr, isc_arg_number, (SLONG) -104,
 				isc_arg_gds, isc_command_end_err,	/* Unexpected end of command */
 				0);
