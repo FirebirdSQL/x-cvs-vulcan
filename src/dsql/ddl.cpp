@@ -6260,14 +6260,23 @@ static void set_nod_value_attributes( dsql_nod* node, const dsql_fld* field)
 					fb_assert(field->fld_scale <= MAX_SCHAR);
 					child->nod_desc.dsc_scale = (SCHAR) field->fld_scale;
 					break;
-				
+
 				case nod_field_name:
 				case nod_rel_proc_name:
-					// TBC: Added rel_proc_name so error conditions don't attempt
-					// recursive set calls.  Do we also need nod_procedure_name 
-					// and nod_relation_name here as well?
 					break;
-					
+
+				case nod_cast:
+				case nod_collate:
+				case nod_gen_id:
+				case nod_gen_id2:
+				case nod_udf:
+					set_nod_value_attributes(child->nod_arg[1], field);
+					break;
+
+				case nod_derived_table:
+					set_nod_value_attributes(child->nod_arg[e_derived_table_rse], field);
+					break;
+
 				default:
 					set_nod_value_attributes(child, field);
 				}
