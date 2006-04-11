@@ -1545,53 +1545,54 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 {
 	par *parameter;
 	JrdMove mover;
-	int parmcount = 0;
 
-	/*
-	 * SAS Defect S0249874 - GSF 26MAY2005
-	 * Firebird returns an error when you try to use a parameter with an invalid
-	 * sqllen, but vulcan goes ahead and inserts null.
-	 *
-	 * Take into account any unused portion of the message.
-	 */
-	if (blrLength == 0)
+	//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
+	BlrParse parse (blr);
+	int count = 0;
+
+	if (blrLength)
 	{
-	    for (parameter = source->msg_parameters; parameter;
-		 parameter = parameter->par_next)
-		{
-			if (parameter->par_index)
-		    parmcount++;
-		}
+		parse.getVersion();
+		parse.getByte();	// begin
+		parse.getByte();	// verb
+		parse.getByte();	// msg number
+		count = parse.getWord();
 	}
 	else
 	{
-		//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
-		BlrParse parse (blr);
-		parse.getVersion();
-		int begin = parse.getByte();
-		int verb = parse.getByte();
-		int msgNumber = parse.getByte();
-		int count = parse.getWord();
+		// If there's no blr length, then the format of the current message
+		// buffer is identical to the format of the previous one
+		for (parameter = source->msg_parameters;
+			parameter; parameter = parameter->par_next)
+		{
+			if (parameter->par_index)
+				count++;
+		}
+	}
+
 	int offset = 0;
-	    int index;
+    int index, parmcount;
 
 	parmcount = count / 2; /* don't include for nulls */
 
 	for (index = 1; index <= parmcount; index++)
 	{
 		parameter = source->msg_par_ordered;
-	        dsc desc, nullDesc;
 		int n;
 
-	        parse.getBlrDescriptor (&desc);
-	        int alignment = type_alignments[desc.dsc_dtype];
-	
 		for (n = 0; parameter && n < count; ++n, parameter = parameter->par_ordered)
 		{
 			if (parameter->par_index == index)
 			{
+				dsc desc;
+
+				if (blrLength)
+					parse.getBlrDescriptor (&desc);
+				else
+					desc = parameter->par_desc;
+				int alignment = type_alignments[desc.dsc_dtype];
 				dsc parDesc = parameter->par_desc;
-					parDesc.dsc_address = msgBuffer + (IPTR) parameter->par_desc.dsc_address;
+				parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
 
 				if (DTYPE_IS_TEXT(parDesc.dsc_dtype))
 					parDesc.dsc_sub_type = 0;
@@ -1604,19 +1605,26 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 					desc.dsc_address = (UCHAR*) inMsg + offset;
 					mover.move (&desc, &parDesc);
 				}
-					else
+				else if (outMsg)
 				{
 					desc.dsc_address = outMsg + offset;
 					mover.move (&parDesc, &desc);
 				}
+				else
+				{
+					fb_assert(false);
+				}
 
 				offset += desc.dsc_length;
 
-					/* handle the null */
+				// handle the null
 
 				if (parameter->par_null)
 				{
+					if (blrLength)
 						parse.getBlrDescriptor (&desc);
+					else
+						desc = parameter->par_null->par_desc;
 					alignment = type_alignments[desc.dsc_dtype];
 					parDesc = parameter->par_null->par_desc;
 					parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
@@ -1629,10 +1637,14 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 						desc.dsc_address = (UCHAR*) inMsg + offset;
 						mover.move (&desc, &parDesc);
 					}
-						else
+					else if (outMsg)
 					{
 						desc.dsc_address = outMsg + offset;
 						mover.move (&parDesc, &desc);
+					}
+					else
+					{
+						fb_assert(false);
 					}
 
 					offset += desc.dsc_length;
@@ -1646,19 +1658,6 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 	        ERRD_bugcheck ("Parameter index not found.");
 	}
 	    
-	    parmcount = parmcount - (index - 1);
-	}
-	    
-   /*
-    * If we got here because the loop exited early or if part of the message
-    * given to us hasn't been used, complain.
-    */
-	if (parmcount)
-		{
-		ERRD_post(isc_sqlerr, isc_arg_number, -804,
-		   isc_arg_gds, isc_dsql_sqlda_err, 0);
-		}
-
    /*
     * SAS Defect S0263306 - GSF - 24FEB2005
     *
