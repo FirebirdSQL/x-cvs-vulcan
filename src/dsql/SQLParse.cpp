@@ -361,11 +361,18 @@ int SQLParse::yylex(dsql_nod **yylval)
 				   will require downstream conversion as a FLOAT_NUMBER. */
 
 				have_digit = true;
-				
-				if (number >= limit_by_10)
+				/* Test for multiply overflow predictively */
+				if (number > limit_by_10)
 					should_be_float = true;
 				else
-					number = number * 10 + ( c - '0' );
+				        {
+					UINT64 overflow_guard;
+					overflow_guard = number = number * 10;
+					/* now test for add overflow, empirically */
+					number = number + ( c - '0' );
+					if( number < overflow_guard )
+						should_be_float = true;
+					}
 			    }	
 			else if ( (('E' == c) || ('e' == c)) && have_digit )
 				have_exp = true;
