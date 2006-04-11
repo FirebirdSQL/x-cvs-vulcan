@@ -1460,7 +1460,6 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 
 			// if this is a singleton select, make sure there's in fact one record 
 
-#ifdef WORK_PENDING
 			if (singleton)
 				{
 				USHORT counter;
@@ -1474,14 +1473,11 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				s = 0;
 				
 				for (counter = 0; counter < 2 && !s; counter++)
-					s = isc_receive(local_status,
-									&request->req_handle,
-									message->msg_number,
-									message->msg_length,
-									message_buffer,
-									0);
+					s = jrd8_receive (local_status, &statement->request, 
+						message->msg_number, message->msg_length, receiveMessage,
+						requestInstantiation);
 
-				delete[] message_buffer);
+				delete[] message_buffer;
 
 				/* two successful receives means more than one record
 				a req_sync error on the first pass above means no records
@@ -1489,22 +1485,19 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 
 				if (!s)
 					{
-					tdsql->tsql_status[0] = isc_arg_gds;
-					tdsql->tsql_status[1] = isc_sing_select_err;
-					tdsql->tsql_status[2] = isc_arg_end;
-					return_status = isc_sing_select_err;
+					ERRD_post(isc_sqlerr, isc_arg_number, -811,
+						isc_arg_gds, isc_sing_select_err, isc_arg_end);
 					}
 				else if (s == isc_req_sync && counter == 1)
 					{
-					tdsql->tsql_status[0] = isc_arg_gds;
-					tdsql->tsql_status[1] = isc_stream_eof;
-					tdsql->tsql_status[2] = isc_arg_end;
-					return_status = isc_stream_eof;
+					ERRD_post(isc_sqlerr, isc_arg_number, 100,
+						isc_arg_gds, isc_stream_eof, isc_arg_end);
 					}
 				else if (s != isc_req_sync)
-					punt();
+					{
+					return(s);
+					}
 				}
-#endif
 			}
 
 		/***
