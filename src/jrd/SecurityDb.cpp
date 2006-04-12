@@ -193,10 +193,8 @@ void SecurityDb::updateAccountInfo(SecurityContext *context, int apbLength, cons
 			}
 		
 		connection->commit();
-		
-		if (this->connection)
-			this->connection->commit();
 		}
+	
 	catch (...)
 		{
 		connection->rollback();
