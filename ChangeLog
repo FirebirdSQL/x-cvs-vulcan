@@ -1,3 +1,76 @@
+2006-04-11 17:33  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	restoring dimitr's fix for SF#1186810, which I rudely over-wrote.
+
+2006-04-11 16:25  paul_reeves
+
+	* vulcan/: builds/win32/build_vsrelo.bat,
+	builds/win32/check_env.bat, builds/win32/clean_vulcan.bat,
+	builds/win32/really_make_all.bat, doc/BuildSystem.txt:
+	
+	Add PREPCLIENT option to really_make_all.bat
+
+2006-04-11 15:56  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	field tracker down, vulcan not validating sqlda properly. sas
+	defect S0249874
+
+2006-04-11 08:39  dimitr
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	More complete implementation of Tom's patch.
+
+2006-04-11 05:59  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	field tracker 1468172, vulcan api, fb15 errors with multiple rows
+	in singleton select but Vulcan passes, defect S0282322
+
+2006-04-11 05:36  verbguy
+
+	* vulcan/src/dsql/: DStatement.cpp, SQLParse.cpp:
+	
+	field tracker 1468162, FBTCS C_SQL_BLOB_001. defects s0330398,
+	s0283619, s0326693.
+
+2006-04-11 04:19  verbguy
+
+	* vulcan/src/dsql/SQLParse.cpp:
+	
+	field tracker 1468140, defect S0305596, vulcan doesn't parse
+	integers very close to 2^63 correctly.
+
+2006-04-10 15:42  tomcole
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	SF # 1467695.  Some domain errors resulted in abend due to
+	recursion in ddl.cpp set_nod_value_attributes().  This stops the
+	recursion so the domain error gets a chance to be reported
+	normally.
+
+2006-04-10 14:13  tomcole
+
+	* vulcan/src/jrd/opt.cpp:
+	
+	SF field test tracker entry 1465971.  Prevent infinite loop hang in
+	server when some kinds of transcoding errors occur in LIKE()
+	function.  Thanks to Adriano for suggestions on how to refine the
+	draft of the fix.
+
+2006-04-10 14:05  arnobrinkman
+
+	* vulcan/src/jrd/: btr.cpp, opt.cpp:
+	
+	Backported from FB2-HEAD: Fixed SF #223060 Slow processing of
+	GREATER-THEN operator
+
 2006-04-08 08:35  dimitr
 
 	* vulcan/src/dsql/: CStatement.cpp, CStatement.h, pass1.cpp:
