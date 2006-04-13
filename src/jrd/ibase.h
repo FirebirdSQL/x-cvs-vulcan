@@ -65,6 +65,8 @@ typedef	unsigned char	ISC_UCHAR;
 
 #define  DSQL_close     1
 #define  DSQL_drop      2
+#define  DSQL_unprepare 4
+
 
 
 /********************************/

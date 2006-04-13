@@ -33,6 +33,7 @@
 
 #define DSQL_close	1
 #define DSQL_drop	2
+#define DSQL_unprepare	4
 
 #ifndef JRD_IBASE_H
 

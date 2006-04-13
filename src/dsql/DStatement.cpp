@@ -1759,10 +1759,10 @@ ISC_STATUS DStatement::freeStatement(ISC_STATUS* statusVector, int options)
 
 	try
 		{
-		if (options & (DSQL_close))
+		if (options & (DSQL_close | DSQL_unprepare))
 				closeCursor();
 
-		if (options & (DSQL_drop))
+		if (options & (DSQL_drop | DSQL_unprepare))
 			{
 			closeStatement();
 			if (options & DSQL_drop)
