@@ -87,29 +87,49 @@ public:
 			records [r] = records [j];
 			records [j] = key;
 			//Debug.print (" midpoint " + j + ": " +  range (r, i));
-			if ((j - 1) - r >= 2)
+			const int loSize = (j - 1) - r;
+			const int hiSize = i - (j + 1);
+			if (loSize > hiSize) 
 				{
-				low [stack] = r;
-				SORT_ASSERT (stack < stackSize);
-				high [stack++] = j - 1;
-				}
-			if (i - (j + 1) >= 2)
+				if (loSize >= 2)
+					{
+					low [stack] = r;
+					SORT_ASSERT (stack < stackSize);
+					high [stack++] = j - 1;
+					}
+				if (hiSize >= 2)
+					{
+					low [stack] = j + 1;
+					SORT_ASSERT (stack < stackSize);
+					high [stack++] = i;
+					}
+				} 
+			else
 				{
-				low [stack] = j + 1;
-				SORT_ASSERT (stack < stackSize);
-				high [stack++] = i;
+				if (hiSize >= 2)
+					{
+					low [stack] = j + 1;
+					SORT_ASSERT (stack < stackSize);
+					high [stack++] = i;
+					}
+				if (loSize >= 2)
+					{
+					low [stack] = r;
+					SORT_ASSERT (stack < stackSize);
+					high [stack++] = j - 1;
+					}
 				}
 			}
 
 		for (int n = 1; n < size; ++n)
 			if (compare (records [n - 1], records [n]) > 0)
-				{
+			{
 				//Debug.print ("Flipping");
 				temp = records [n - 1];
 				records [n - 1] = records [n];
 				records [n] = temp;
-				}
-		}
+			}
+	}
 	
 	T	*records;
 	int	size;
