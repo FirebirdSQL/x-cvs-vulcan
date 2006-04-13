@@ -1735,12 +1735,12 @@ ISC_STATUS DStatement::fetch(ISC_STATUS* statusVector, int blrLength, const UCHA
 									receiveMessage, 
 									requestInstantiation);
 		
-		if (!s && statement->req_eof &&
+		if (!s)
+			{
+			if (statement->req_eof &&
 			  !*(short*)(receiveMessage + (IPTR) statement->req_eof->par_desc.dsc_address))
 			return 100;
 			
-		if (!s)
-			{
 			singletonFetched = true;
 			copyData (message, receiveMessage, blrLength, blr, msgLength, NULL, msg);
 			}
@@ -1900,7 +1900,7 @@ void DStatement::clearCursor(void)
 		{
 		Cursor *next = cursor->next;
 		if (this == cursor->statement)
-		attachment->deleteCursor(cursor);
+			attachment->deleteCursor(cursor);
 		cursor = next;
 		}
 
