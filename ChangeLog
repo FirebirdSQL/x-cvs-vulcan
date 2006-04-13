@@ -1,3 +1,30 @@
+2006-04-13 09:15  dimitr
+
+	* vulcan/src/jrd/QSort.h:
+	
+	Fixed SF#1469229. Credits belong to Vlad.
+
+2006-04-13 04:23  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	code inspection changes suggested by claudio to DStatement::fetch
+	and indentation fix
+
+2006-04-13 04:10  verbguy
+
+	* vulcan/src/: dsql/DStatement.cpp, dsql/sqlda.h,
+	include/firebird.h, jrd/ibase.h:
+	
+	field tracker 1469591 - add efficient unprepare to Vulcan. defect
+	s0280454.
+
+2006-04-12 17:00  paulbeach
+
+	* vulcan/src/jrd/SecurityDb.cpp:
+	
+	Fix AV in Vulcan when adding/deleting more than 1 user via GSEC
+
 2006-04-11 17:33  verbguy
 
 	* vulcan/src/dsql/DStatement.cpp:
