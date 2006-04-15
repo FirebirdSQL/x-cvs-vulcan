@@ -1562,7 +1562,7 @@ static bool create_index(	thread_db* tdbb,
 					   that the previous fixed definition of MAX_IDX (64) has been
 					   dropped in favor of a computed value saved in the dbb */
 					
-					if (relation->rel_index_root)
+					if (relation && relation->rel_index_root)
 						{
 						if (work->dfw_id != dbb->dbb_max_idx)
 							{
