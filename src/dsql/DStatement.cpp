@@ -1766,7 +1766,7 @@ ISC_STATUS DStatement::freeStatement(ISC_STATUS* statusVector, int options)
 			{
 			closeStatement();
 			if (options & DSQL_drop)
-			delete this;
+				delete this;
 			}
 		}
 	catch (OSRIException& exception)

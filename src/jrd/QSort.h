@@ -38,7 +38,7 @@ public:
 	virtual int	compare(T rec1, T rec2) = 0;
 	
 	void sort()
-		{
+	{
 		int iteration = 0;
 		int i, j, r, stack = 0;
 		int low [stackSize];

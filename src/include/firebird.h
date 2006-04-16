@@ -33,9 +33,6 @@
  * 2005.09.27 Jim Starkey - Cloned from ibase.h
  *
  */
-/*
-$Id$
- */
 
 #ifndef FIREBIRD_H
 #define FIREBIRD_H

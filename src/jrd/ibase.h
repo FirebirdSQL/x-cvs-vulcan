@@ -32,9 +32,6 @@
  * 2002.10.29 Sean Leyne - Removed support for obsolete IPX/SPX Protocol
  *
  */
-/*
-$Id$
- */
 
 #ifndef JRD_IBASE_H
 #define JRD_IBASE_H
