@@ -1,3 +1,17 @@
+2006-04-16 03:09  asfernandes
+
+	* vulcan/src/: dsql/DStatement.cpp, include/firebird.h,
+	jrd/QSort.h, jrd/ibase.h:
+	
+	Misc
+
+2006-04-15 03:58  verbguy
+
+	* vulcan/src/jrd/dfw.epp:
+	
+	field tracker 1470656 - RECREATE TABLE WITH PRIMARY KEY CAUSES
+	EXCEPTION, defect S0311923.
+
 2006-04-13 09:15  dimitr
 
 	* vulcan/src/jrd/QSort.h:
