@@ -31,13 +31,15 @@
 #include "gdsassert.h"
 #include "RecordNumber.h"
 
-/* Blob id.  A blob has two states -- temporary and permanent.  In each
-   case, the blob id is 8 bytes (2 longwords) long.  In the case of a
-   temporary blob, the first word is NULL and the second word points to
-   an internal blob block.  In the case of a permanent blob, the first
-   word contains the relation id of the blob and the second the record
-   number of the first segment-clump.  The two types of blobs can be
-   reliably distinguished by a zero or non-zero relation id. */
+/* 
+  Blob id.  A blob has two states -- temporary and permanent.  In each
+  case, the blob id is 8 bytes (2 longwords) long.  In the case of a
+  temporary blob, the first word is NULL and the second word points to
+  an internal blob block.  In the case of a permanent blob, the first
+  short contains the relation id, the next byte is unused, and the next
+  five bytes are the record id.  However, the last four bytes are stored
+  as a native format longword. 
+*/
 
 // This structure must occupy 8 bytes
 struct bid {
