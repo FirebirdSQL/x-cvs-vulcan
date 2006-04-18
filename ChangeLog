@@ -1,3 +1,9 @@
+2006-04-18 00:05  awharrison
+
+	* vulcan/src/jrd/BlobID.h:
+	
+	Fixed a comment to reflect the new structure of a blob id
+
 2006-04-16 03:09  asfernandes
 
 	* vulcan/src/: dsql/DStatement.cpp, include/firebird.h,
