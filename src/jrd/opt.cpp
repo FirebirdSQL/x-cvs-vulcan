@@ -5829,7 +5829,7 @@ static bool gen_sort_merge(thread_db* tdbb,
 	USHORT lowestRiverPosition = 0;
 	int n = 0;
 	
-	for (RiverStack::iterator stack3(org_rivers); stack3.hasData(); ++stack3, ++n) 
+	for (RiverStack::iterator stack3(org_rivers); stack3.hasData(); ++stack3) 
 		{
 		River* river1 = stack3.object();
 		
@@ -5860,6 +5860,7 @@ static bool gen_sort_merge(thread_db* tdbb,
 
 		merge_rsb->sortRsbs[n] = rsb;
 		merge_rsb->sortNodes[n] = sort;
+		n++;
 		}
 
 	// Finally, merge selected rivers into a single river, and rebuild 
