@@ -171,6 +171,8 @@ void ERR_duplicate_error(IDX_E code,
 	const TEXT* index_name;
 	const TEXT* constraint_name;
 
+	constraint[0] = '\0';
+
 	thread_db* tdbb = GET_THREAD_DATA;
 
 	MET_lookup_index(tdbb, index, relation->rel_name, index_number + 1);
