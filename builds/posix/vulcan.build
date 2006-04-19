@@ -581,7 +581,7 @@ GPRE_FLAGS = -manual
 
 <template name="SourceDirectories">
 DIRS = $(SRCDIR)/JdbcTest \
-		$(SRCDIR)/IscDbc \
+		$(SRCDIR)/FbDbc \
 </template>
 
 <template name="Production">
@@ -600,7 +600,7 @@ CPPFLAGS = <buildopt/> -I. \
 </template>
 
 <template name="Includes">-I$(SRCDIR)/include \
-	-I$(SRCDIR)/IscDbc \
+	-I$(SRCDIR)/FbDbc \
 </template>
 
 </component>
@@ -674,9 +674,9 @@ install: <value name="file"/>
 
 </component>
 
-<!--	Generic / IscDbc		-->
+<!--	Generic / FbDbc		-->
 
-<component name="IscDbc">
+<component name="FbDbc">
 <template name="target">libfbdbc.so</template>
 <template name="namespace"> -DNAMESPACE=fbdbc </template>
 
@@ -727,7 +727,7 @@ DIRS = $(SRCDIR)/xload \
 	-I$(SRCDIR)/include \
 	-I$(SRCDIR)/include/gen \
 	-I$(SRCDIR)/config \
-	-I$(SRCDIR)/IscDbc \
+	-I$(SRCDIR)/FbDbc \
 </template>
 
 <template name="Libraries">
@@ -766,7 +766,7 @@ DIRS = $(SRCDIR)/lock \
 	-I$(SRCDIR)/include \
 	-I$(SRCDIR)/include/gen \
 	-I$(SRCDIR)/config \
-	-I$(SRCDIR)/IscDbc \
+	-I$(SRCDIR)/FbDbc \
 </template>
 
 <template name="Libraries">
@@ -803,7 +803,7 @@ DIRS = $(SRCDIR)/ThreadTest \
 	-I$(SRCDIR)/include \
 	-I$(SRCDIR)/include/gen \
 	-I$(SRCDIR)/config \
-	-I$(SRCDIR)/IscDbc \
+	-I$(SRCDIR)/FbDbc \
 </template>
 
 <template name="Libraries">
@@ -1043,9 +1043,9 @@ CPPFLAGS = <buildopt/> -I. \
 </component>
 
 
-<!--	Darwin32 / IscDbc	-->
+<!--	Darwin32 / FbDbc	-->
 
-<component name="IscDbc">
+<component name="FbDbc">
 <template name="target">libfbdbc.dylib</template>
 
 <template name="CFlags">
@@ -1315,14 +1315,14 @@ libfirebird.so:	$(MODULES)
 
 </component>
 
-<!--	Solaris64 / IscDbc		-->
+<!--	Solaris64 / FbDbc		-->
 
-<component name="IscDbc">
+<component name="FbDbc">
 
 <template name="Production">
-libiscdbc.so:	$(MODULES) 
-	CC $(CPPFLAGS) -ldl -lCrun -lCstd -G $(MODULES) -o libiscdbc.so
-<Install file="libiscdbc.so"/>
+libfbdbc.so:	$(MODULES)
+	CC $(CPPFLAGS) -ldl -lCrun -lCstd -G $(MODULES) -o libfbdbc.so
+<Install file="libfbdbc.so"/>
 </template>
 
 <template name="memmgr">

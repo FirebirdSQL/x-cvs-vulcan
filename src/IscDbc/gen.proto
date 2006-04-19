@@ -1,3 +1,3 @@
-$VULCAN_SCRIPT_DIR/buildgen -p proto -c IscDbc  -f $VULCAN_SCRIPT_DIR/vulcan.build -o makefile IscDbc.vcproj $*
-$VULCAN_SCRIPT_DIR/buildgen -p Generic -c modules -f $VULCAN_SCRIPT_DIR/vulcan.build -o modules.mak  IscDbc.vcproj $*
-$VULCAN_SCRIPT_DIR/buildgen -p Generic -c dependencies -f $VULCAN_SCRIPT_DIR/vulcan.build -o dependencies.mak  IscDbc.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p proto -c FbDbc  -f $VULCAN_SCRIPT_DIR/vulcan.build -o makefile FbDbc.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c modules -f $VULCAN_SCRIPT_DIR/vulcan.build -o modules.mak  FbDbc.vcproj $*
+$VULCAN_SCRIPT_DIR/buildgen -p Generic -c dependencies -f $VULCAN_SCRIPT_DIR/vulcan.build -o dependencies.mak  FbDbc.vcproj $*
