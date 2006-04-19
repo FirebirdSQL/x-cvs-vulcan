@@ -430,6 +430,8 @@ rm config.status 2>/dev/null
 rm configure 2>/dev/null
 rm libtool 2>/dev/null
 rm Makefile 2>/dev/null
+rm autogen.sh 2>/dev/null
+rm configure.in 2>/dev/null
 
 rm src/include/gen/autoconfig.h 2>/dev/null
 
