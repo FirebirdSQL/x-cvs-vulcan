@@ -156,19 +156,22 @@ Procedure * ProcManager::findProcedure (thread_db* tdbb, const TEXT *name, bool 
 
 	sync.unlock();
 	Procedure *newProcedure = MET_lookup_procedure(tdbb, name);
-	sync.lock(Exclusive);
-	
-	if (procedure = findKnownProcedure(name))
-		delete newProcedure;
-		
 	if (!newProcedure)
 		return NULL;
-		
-	addProcedure (newProcedure);
-	procedure = newProcedure;
+
+	sync.lock(Exclusive);
+	if (procedure = findKnownProcedure(name)) 
+	{
+		delete newProcedure;
+	}
+	else 
+	{		
+		addProcedure (newProcedure);
+		procedure = newProcedure;
+		procedure->parseBlr(tdbb, (bid*) &newProcedure->procBlobId);
+	}
 	sync.unlock();
-	newProcedure->parseBlr(tdbb, (bid*) &newProcedure->procBlobId);
-	
+
 	if (procedure->checkActive (noscan) && !(procedure->findFlags() & PRC_check_existence)) 
 		return procedure;
 
