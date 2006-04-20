@@ -96,6 +96,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "instsvc", "..\instsvc\insts
 		{C10A1AB7-657D-478F-9343-A70253EE223C} = {C10A1AB7-657D-478F-9343-A70253EE223C}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ib_udf", "..\ib_udf\ib_udf.vcproj", "{A098176F-E210-4EBC-9692-6FCC12161043}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2781D093-4198-4845-94E6-BB26245B5ED4} = {2781D093-4198-4845-94E6-BB26245B5ED4}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ib_util", "..\ib_util\ib_util.vcproj", "{2781D093-4198-4845-94E6-BB26245B5ED4}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -190,6 +199,14 @@ Global
 		{1E953E14-73B7-44EF-B220-8E1E43CA3B21}.Debug.Build.0 = Debug|Win32
 		{1E953E14-73B7-44EF-B220-8E1E43CA3B21}.Release.ActiveCfg = Release|Win32
 		{1E953E14-73B7-44EF-B220-8E1E43CA3B21}.Release.Build.0 = Release|Win32
+		{A098176F-E210-4EBC-9692-6FCC12161043}.Debug.ActiveCfg = Debug|Win32
+		{A098176F-E210-4EBC-9692-6FCC12161043}.Debug.Build.0 = Debug|Win32
+		{A098176F-E210-4EBC-9692-6FCC12161043}.Release.ActiveCfg = Release|Win32
+		{A098176F-E210-4EBC-9692-6FCC12161043}.Release.Build.0 = Release|Win32
+		{2781D093-4198-4845-94E6-BB26245B5ED4}.Debug.ActiveCfg = Debug|Win32
+		{2781D093-4198-4845-94E6-BB26245B5ED4}.Debug.Build.0 = Debug|Win32
+		{2781D093-4198-4845-94E6-BB26245B5ED4}.Release.ActiveCfg = Release|Win32
+		{2781D093-4198-4845-94E6-BB26245B5ED4}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 	EndGlobalSection

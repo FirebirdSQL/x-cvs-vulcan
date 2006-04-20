@@ -19,7 +19,7 @@
  *   changes to substr and added substrlen 
  * 
  */
-#include "firebird.h"
+#include "ibase.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
