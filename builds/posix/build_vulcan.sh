@@ -180,12 +180,12 @@ SetEnv() {
 	VULCAN=$VULCAN_ROOT/install
 	VULCAN_BUILD_DIR=$VULCAN_ROOT/src
 	VULCAN_SCRIPT_DIR=$VULCAN_ROOT/builds/posix
-
-	if [ "$VULCAN_PLATFORM"="darwin" -o "$VULCAN_PLATFORM"="darwin64" ]; then
+set -x
+	if [ "$VULCAN_PLATFORM" = "darwin" -o "$VULCAN_PLATFORM" = "darwin64" ]; then
 		VULCAN_PLATFORM_DIR=$VULCAN_ROOT/builds/mac_os_x
 	fi
 
-	if [ "$VULCAN_PLATFORM"="linux32" -o "$VULCAN_PLATFORM"="linux64" ]; then
+	if [ "$VULCAN_PLATFORM" = "linux32" -o "$VULCAN_PLATFORM" = "linux64" ]; then
 		VULCAN_PLATFORM_DIR=$VULCAN_ROOT/builds/posix
 	fi
 
@@ -499,7 +499,7 @@ Main(){
 	GetTime
 	EvaluateCommandLine $*
 	SetEnv $0
-
+return 0
 	if [ $VULCAN_CLEAN ]; then
 		echo Cleaning build tree...
 		MakeClean
