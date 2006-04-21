@@ -16,7 +16,7 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  */
-#include "ibase.h"
+#include "fbdev.h"
 #include <stdlib.h>
 #include "ib_udf.h"
 
