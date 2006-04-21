@@ -1,3 +1,31 @@
+2006-04-21 00:20  hvlad
+
+	* vulcan/src/jrd/ProcManager.cpp:
+	
+	Fixed SF #1473562 : Vulcan metadata cache crashed under high load
+	(when some threads loads same stored procedure simultaneously)
+
+2006-04-20 15:30  paul_reeves
+
+	* vulcan/builds/posix/build_vulcan.sh:
+	
+	And remember to remove the script debugging code. :-(
+
+2006-04-20 15:29  paul_reeves
+
+	* vulcan/builds/posix/build_vulcan.sh:
+	
+	Satisfy bash's need for whitespace
+
+2006-04-20 12:17  dchri
+
+	* vulcan/: builds/MasterBuildConfig/Vulcan/Vulcan.sln.template,
+	src/extlib/ib_udf.c, src/extlib/ib_util.c,
+	builds/MasterBuildConfig/ib_udf/ib_udf.vcproj,
+	builds/MasterBuildConfig/ib_util/ib_util.vcproj:
+	
+	Added ib_util and ib_udf dll's projects for win32 builds
+
 2006-04-19 14:24  paul_reeves
 
 	* vulcan/: builds/posix/build_vulcan.sh, builds/posix/vulcan.build,
