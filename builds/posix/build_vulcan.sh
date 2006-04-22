@@ -365,13 +365,13 @@ MakeClean() {
 		cd $x
 		if [ -f gen ]; then
 			if [ -z $VULCAN_QUIET ]; then
-					echo Cleaning $x
+				echo Cleaning $x
 			fi
 			./gen $*
 			gmake clean
 		fi
 		cd ..
-		done
+	done
 
     cd $VULCAN_ROOT
 }
