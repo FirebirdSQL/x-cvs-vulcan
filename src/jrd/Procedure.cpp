@@ -313,7 +313,7 @@ void Procedure::blockingAst(void)
 
 }
 
-void Procedure::parseBlr(thread_db* tdbb, const bid *blobId)
+void Procedure::parseBlr(thread_db* tdbb)
 {
 	DBB dbb = tdbb->tdbb_database;
 	JrdMemoryPool *old_pool = tdbb->tdbb_default;
@@ -321,7 +321,7 @@ void Procedure::parseBlr(thread_db* tdbb, const bid *blobId)
 	CompilerScratch csb(*tdbb->tdbb_default, 5);
 	
 	//parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
-	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, blobId);
+	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, &procBlobId);
 	const SLONG length = blob->blb_length + 10;
 	
 	TempSpace temp(length);
@@ -402,7 +402,8 @@ bool Procedure::parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, 
 	return TRUE;
 }
 
-void Procedure::setBlrBlobId(const void* blobId)
+void Procedure::setBlrBlobId(const bid& blobId)
 {
-	memcpy(&procBlobId, blobId, sizeof(procBlobId));
+	// memcpy(&procBlobId, blobId, sizeof(procBlobId));
+	procBlobId = blobId;
 }

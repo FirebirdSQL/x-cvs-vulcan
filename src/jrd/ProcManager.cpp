@@ -163,6 +163,7 @@ Procedure * ProcManager::findProcedure (thread_db* tdbb, const TEXT *name, bool 
 	if (procedure = findKnownProcedure(name)) 
 	{
 		delete newProcedure;
+		newProcedure = 0;
 	}
 	else 
 	{		
@@ -172,7 +173,7 @@ Procedure * ProcManager::findProcedure (thread_db* tdbb, const TEXT *name, bool 
 	sync.unlock();
 
 	if (newProcedure) {
-		newProcedure->parseBlr(tdbb, (bid*) &newProcedure->procBlobId);
+		newProcedure->parseBlr(tdbb);
 	}
 
 	if (procedure->checkActive (noscan) && !(procedure->findFlags() & PRC_check_existence)) 

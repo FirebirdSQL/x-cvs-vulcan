@@ -34,6 +34,7 @@
 #endif // _MSC_VER > 1000
 
 #include "JString.h"
+#include "BlobID.h"
 
 class dsql_sym;
 class Format;
@@ -252,9 +253,9 @@ protected:
 												procedure  no code should rely on value of this field 
 												(it will usually be 0)
 											*/
-	Lock				*procExistenceLock;		/* existence lock, if any */
+	Lock			*procExistenceLock;		/* existence lock, if any */
 	USHORT			procAlterCount;			/* No. of times the procedure was altered */
-	GDS_QUAD		procBlobId;
+	bid				procBlobId;
 	
 public:
 	Procedure(Database *dbb, int id);
@@ -262,10 +263,10 @@ public:
 	Lock* getExistenceLock(thread_db* tdbb);
 	static int blockingAst(void* object);
 	void blockingAst(void);
-	void parseBlr(thread_db* tdbb, const bid *blobId);
+	void parseBlr(thread_db* tdbb);
 	void setRequest(Request* request);
 	bool parseMessages(thread_db* tdbb, const UCHAR* blr, int blrLength, CompilerScratch* csb);
-	void setBlrBlobId(const void* blobId);
+	void setBlrBlobId(const bid& blobId);
 #ifdef SHARED_CACHE
 	SyncObject	syncOutputs;
 #endif

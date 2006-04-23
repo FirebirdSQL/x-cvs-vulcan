@@ -1988,7 +1988,7 @@ Procedure * MET_lookup_procedure(thread_db* tdbb, const TEXT* name)
 			//delete csb;
 			tdbb->tdbb_default = old_pool;
 			***/
-			procedure->setBlrBlobId(&P.RDB$PROCEDURE_BLR);
+			procedure->setBlrBlobId(P.RDB$PROCEDURE_BLR);
 		END_FOR;
 
 		if (!REQUEST(irq_l_procedure))
