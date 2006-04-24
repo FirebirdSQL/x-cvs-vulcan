@@ -38,7 +38,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/alice.pdb"
+				ProgramDatabaseFile=""
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -86,6 +86,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile=""
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

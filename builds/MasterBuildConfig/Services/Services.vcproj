@@ -38,8 +38,9 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\services\services.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/Services.pdb"
+				ProgramDatabaseFile="$(TargetDir)/$(ProjectName).pdb"
 				SubSystem="1"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -87,9 +88,11 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\services\services.def"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(TargetDir)/$(ProjectName).pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

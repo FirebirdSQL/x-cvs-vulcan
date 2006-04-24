@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="why"
 	ProjectGUID="{F937E904-287A-40C2-B1BB-8CE46D6E48AE}"
+	RootNamespace="why"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -44,7 +45,7 @@
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile="..\..\win32\defs\gds32.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/why.pdb"
+				ProgramDatabaseFile="$(TargetDir)/$(TargetName).pdb"
 				GenerateMapFile="TRUE"
 				MapFileName=".\debug\firebird.map"
 				ImportLibrary="..\..\..\install\lib\firebird.lib"
@@ -112,6 +113,7 @@
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile="..\..\win32\defs\gds32.def"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(TargetDir)/$(TargetName).pdb"
 				ImportLibrary="..\..\..\install\lib\firebird.lib"
 				TargetMachine="1"/>
 			<Tool

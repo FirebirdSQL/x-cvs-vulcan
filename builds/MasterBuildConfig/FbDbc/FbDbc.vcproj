@@ -45,6 +45,7 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(TargetDir)/$(ProjectName).pdb"
 				ImportLibrary="..\..\..\install\lib\fbdbc.lib"
 				TargetMachine="1"/>
 			<Tool
@@ -110,6 +111,7 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\IscDbc\IscDbc.def"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(TargetDir)/$(ProjectName).pdb"
 				ImportLibrary="..\..\..\install\lib\fbdbc.lib"
 				TargetMachine="1"/>
 			<Tool

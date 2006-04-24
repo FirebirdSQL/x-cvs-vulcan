@@ -38,7 +38,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\install\bin/ib_util.dll"
+				OutputFile="..\..\..\install\bin\ib_util.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile="..\..\win32\defs\ib_util.def"
@@ -47,7 +47,7 @@
 				GenerateMapFile="TRUE"
 				MapFileName=".\debug\ib_util.map"
 				SubSystem="0"
-				ImportLibrary="..\..\..\install\lib/ib_util.lib"
+				ImportLibrary="..\..\..\install\lib\ib_util.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -105,7 +105,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\..\install\bin/ib_util.dll"
+				OutputFile="..\..\..\install\bin\ib_util.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile="..\..\win32\defs\ib_util.def"
@@ -113,7 +113,7 @@
 				SubSystem="0"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
-				ImportLibrary="..\..\..\install\lib/ib_util.lib"
+				ImportLibrary="..\..\..\install\lib\ib_util.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

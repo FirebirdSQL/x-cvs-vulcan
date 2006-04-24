@@ -53,7 +53,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"/>
+				Name="VCLinkerTool"
+				LinkIncremental="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

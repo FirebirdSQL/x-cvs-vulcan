@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="jrd"
 	ProjectGUID="{3B0AA984-28E6-4217-8FBC-0A7B55FF2B1D}"
+	RootNamespace="jrd"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -49,8 +50,8 @@
 				IgnoreDefaultLibraryNames="nafxcwd.lib"
 				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/engine8.pdb"
-				ImportLibrary="..\..\win32\msvc7\jrd\Debug\engine11.lib"
+				ProgramDatabaseFile="$(TargetDir)/$(TargetName).pdb"
+				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -119,8 +120,8 @@
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				ModuleDefinitionFile="..\..\..\src\jrd\Engine8.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Release/jrd.pdb"
-				ImportLibrary="..\..\win32\msvc7\jrd\Release\engine11.lib"
+				ProgramDatabaseFile="$(TargetDir)/$(TargetName).pdb"
+				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"

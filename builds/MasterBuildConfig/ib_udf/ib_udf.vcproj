@@ -38,7 +38,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ib_util.lib"
-				OutputFile="..\..\..\install\bin/ib_udf.dll"
+				OutputFile="..\..\..\install\UDF\ib_udf.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
@@ -100,7 +100,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ib_util.lib"
-				OutputFile="..\..\..\install\bin/ib_udf.dll"
+				OutputFile="..\..\..\install\UDF\ib_udf.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
@@ -109,7 +109,7 @@
 				SubSystem="0"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
-				ImportLibrary="..\..\..\install\lib/udf.lib"
+				ImportLibrary="..\..\..\install\lib\udf.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

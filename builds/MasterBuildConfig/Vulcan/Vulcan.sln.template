@@ -96,12 +96,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "instsvc", "..\instsvc\insts
 		{C10A1AB7-657D-478F-9343-A70253EE223C} = {C10A1AB7-657D-478F-9343-A70253EE223C}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ib_udf", "..\ib_udf\ib_udf.vcproj", "{A098176F-E210-4EBC-9692-6FCC12161043}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ib_udf","..\ib_udf\ib_udf.vcproj", "{A098176F-E210-4EBC-9692-6FCC12161043}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2781D093-4198-4845-94E6-BB26245B5ED4} = {2781D093-4198-4845-94E6-BB26245B5ED4}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ib_util", "..\ib_util\ib_util.vcproj", "{2781D093-4198-4845-94E6-BB26245B5ED4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ib_util","..\ib_util\ib_util.vcproj", "{2781D093-4198-4845-94E6-BB26245B5ED4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject

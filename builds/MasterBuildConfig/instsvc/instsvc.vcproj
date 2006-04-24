@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="instsvc"
 	ProjectGUID="{1E953E14-73B7-44EF-B220-8E1E43CA3B21}"
+	RootNamespace="instsvc"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -14,7 +15,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\..\..\install\bin"
-			IntermediateDirectory=".\release\instsvc"
+			IntermediateDirectory=".\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -48,6 +49,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
 				SubSystem="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -76,7 +78,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\..\..\install\bin"
-			IntermediateDirectory=".\debug\instsvc"
+			IntermediateDirectory=".\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -105,6 +107,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"
 				SubSystem="1"/>
 			<Tool
 				Name="VCMIDLTool"

@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="winserver"
 	ProjectGUID="{BBF6D9C1-BFE1-48B4-A88C-01E0B2E82938}"
+	RootNamespace="winserver"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -37,7 +38,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/winserver.pdb"
+				ProgramDatabaseFile="$(TargetDir)/$(TargetName).pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -85,6 +86,7 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(TargetDir)/$(TargetName).pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

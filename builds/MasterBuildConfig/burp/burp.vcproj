@@ -43,7 +43,8 @@
 				AdditionalDependencies="firebird.lib ws2_32.lib"
 				OutputFile="..\..\..\install\bin\gbak.exe"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
-				GenerateDebugInformation="TRUE"/>
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -97,8 +98,10 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="firebird.lib ws2_32.lib"
 				OutputFile="..\..\..\install\bin\gbak.exe"
+				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\..\install\lib"
-				GenerateDebugInformation="TRUE"/>
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(IntDir)/$(ProjectName).pdb"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

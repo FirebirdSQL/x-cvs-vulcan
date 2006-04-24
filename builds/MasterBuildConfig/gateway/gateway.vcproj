@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="gateway"
 	ProjectGUID="{F3C2A7C4-BE77-468F-8908-9F63D2B1BA4B}"
+	RootNamespace="gateway"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -36,8 +37,9 @@
 				LinkIncremental="2"
 				ModuleDefinitionFile="..\..\..\src\gateway\gateway.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/gateway.pdb"
+				ProgramDatabaseFile="$(TargetDir)/$(ProjectName).pdb"
 				SubSystem="2"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -83,7 +85,9 @@
 				LinkIncremental="1"
 				ModuleDefinitionFile="..\..\..\src\gateway\gateway.def"
 				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(TargetDir)/$(ProjectName).pdb"
 				SubSystem="2"
+				ImportLibrary="$(IntDir)/$(TargetName).lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
