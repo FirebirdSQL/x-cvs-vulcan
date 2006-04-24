@@ -1,6 +1,7 @@
 Vulcan Source Code
 ==================
 
-See doc/BuildSystem.txt for instructions on building vulcan
+See doc/building_and_installation/BuildSystem.txt for 
+instructions on building vulcan
 
 
