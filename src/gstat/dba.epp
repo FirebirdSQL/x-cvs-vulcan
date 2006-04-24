@@ -479,6 +479,7 @@ int dba_main(int argc, char** argv, Service *service)
 			minorVersion > ODS_CURRENT || 
 			!DECODE_FIREBIRD_FLAG(header->hdr_ods_version))
 			{
+			tddba->global_buffer = NULL; // clear the pointer to the local used memory.
 			throw OSRIException(isc_gstat_wrong_ods,
 								isc_arg_number, ODS_VERSION,
 								isc_arg_number, header->hdr_ods_version & ~ODS_FIREBIRD_FLAG,
