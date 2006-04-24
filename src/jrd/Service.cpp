@@ -79,4 +79,9 @@ TEXT* Service::setArgvStrings(const TEXT* string)
 
 void Service::svc_started(void)
 {
+	if (!(svc_flags & SVC_evnt_fired)) 
+	{
+		svc_flags |= SVC_evnt_fired;
+		svc_start_event->post();
+	}
 }
