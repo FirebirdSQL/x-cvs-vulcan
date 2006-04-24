@@ -1,3 +1,11 @@
+2006-04-23 23:13  hvlad
+
+	* vulcan/src/jrd/: ProcManager.cpp, Procedure.cpp, Procedure.h,
+	met.epp:
+	
+	1. Let use bid for blob id instead of void* and GDS_QUAD 2.
+	Correction, thanks Claudio
+
 2006-04-22 05:06  asfernandes
 
 	* vulcan/builds/posix/build_vulcan.sh:
