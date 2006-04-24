@@ -544,9 +544,9 @@ static void dmp_data(data_page* page)
  *	Dump a data page in a semi-readable format.
  *
  **************************************/
-	SCHAR*	p;
+	UCHAR*	p;
 	SCHAR*	q;
-	SCHAR*	end;
+	UCHAR*	end;
 	SSHORT	length;
 	SSHORT	expanded_length;
 	USHORT	i;
@@ -554,7 +554,7 @@ static void dmp_data(data_page* page)
 	RHDF	fragment;
 	BLH		blob;
 	data_page::dpg_repeat* index;
-	SCHAR	buffer[8096 + 1];
+	UCHAR	buffer[8096 + 1];
 
 	ib_fprintf(dbg_file,
 			   "DATA PAGE\t checksum %d\t generation %ld\n\tRelation: %d, Sequence: %d, Count: %d, Flags: %x\n",
@@ -598,20 +598,23 @@ static void dmp_data(data_page* page)
 				if (header->rhd_flags & rhd_incomplete)
 				{
 					length = index->dpg_length - OFFSETA(RHDF, rhdf_data);
-					p = (SCHAR *) ((RHDF) header)->rhdf_data;
+					p = (UCHAR *) ((RHDF) header)->rhdf_data;
 				}
 				else
 				{
 					length = index->dpg_length - OFFSETA(RHD, rhd_data);
-					p = (SCHAR *) header->rhd_data;
+					p = (UCHAR *) header->rhd_data;
 				}
-				for (q = p, end = p + length; q < end;)
+
+				for (q = (SCHAR *)p, end = p + length; (UCHAR *)q < end;)
 				{
-					if (*q > 0) {
+					if (*q > 0) 
+					{
 						expanded_length += *q;
 						q += *q + 1;
 					}
-					else {
+					else 
+					{
 						expanded_length += -(*q);
 						q += 2;
 					}
@@ -642,7 +645,7 @@ static void dmp_data(data_page* page)
 				}
 				else if (length)
 				{
-					SCHAR *p_save = p;
+					UCHAR *p_save = p;
 					int length_save = length;
 					int compress_value = 0;
 					int cnt;
@@ -662,8 +665,9 @@ static void dmp_data(data_page* page)
 					ib_fprintf(dbg_file, "\n\t");
 
 					buffer[0] = 0;
-					end = SQZ_decompress(p_save, length_save, &buffer[1],
-										 &buffer[sizeof(buffer)]);
+
+					end = (UCHAR *)SQZ_decompress((SCHAR *)p_save, length_save, (SCHAR *)(&(buffer[1])),
+										 (SCHAR *)&(buffer[sizeof(buffer)]));
 					cnt = 0;
 					p = &buffer[1];
 					ib_fprintf(dbg_file,
