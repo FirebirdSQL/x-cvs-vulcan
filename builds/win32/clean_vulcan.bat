@@ -3,6 +3,8 @@
 :: This script cleans stuff that can't be cleaned by MSVC such as the install
 :: directory. It also runs MSVC and does a clean.
 
+:: To Do: Test cleaning out the install dir tree.
+
 @echo off
 
 :: See if we have a request for help on the command line
@@ -37,12 +39,13 @@ goto :EOF
 devenv %VULCAN_BUILD_DIR%\Vulcan\Vulcan.sln /clean %VULCAN_BUILDCONFIG%
 @echo Now removing *.ilk files from %VULCAN%...
 del /q %VULCAN%\bin\*.ilk
-for %%a in ( "firebird.msg" "security.fdb" "vulcan.lck" ) do (del /q %VULCAN%\%%~a 2>nul )
+for %%a in ( "firebird.msg" "security.fdb" "vulcan.lck" "readme.txt" ) do (del /q %VULCAN%\%%~a 2>nul )
 
 ::Do we want to removed all the old binaries too?
 ::del /q %VULCAN%\bin\*.*
-::del /q %VULCAN%\help\*.*
 ::del /q %VULCAN%\databases\*.*
+::del /q %VULCAN%\help\*.*
+::del /q %VULCAN%\include\*.*
 ::del /q %VULCAN%\lib\*.*
 
 goto :EOF

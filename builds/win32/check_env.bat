@@ -30,7 +30,8 @@ popd
 
 ::=============
 :CHECK_COMPILER
-set errorlevel=
+::clear errorlevel
+cd > nul
 :: Attention - version 8 (VS .Net 2005) not tested
 if not defined MSVC_VERSION (
 @devenv /? | find "Version 7" >nul 2>nul
