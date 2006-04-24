@@ -145,7 +145,6 @@ THREAD_ENTRY_DECLARE main_gstat(THREAD_ENTRY_PARAM arg)
 	
 	try
 		{
-		service->svc_started();
 		dba_main(service->svc_argc, service->svc_argv, service);
 		}
 	catch (OSRIException& exception)
@@ -461,10 +460,6 @@ int dba_main(int argc, char** argv, Service *service)
 		tddba->page_number = -1;
 		const header_page* header = (const header_page*) tddba->read(0); //db_read(tddba, (SLONG) 0);
 
-#ifdef SERVICE_THREAD
-		service->svc_started();
-#endif
-
 		int majorVersion = header->hdr_ods_version & ~ODS_FIREBIRD_FLAG;
 		int minorVersion = header->hdr_ods_minor;
 		
@@ -511,6 +506,10 @@ int dba_main(int argc, char** argv, Service *service)
 		tddba->buffer2 = (pag*) new UCHAR[tddba->page_size]; //alloc(tddba->page_size);
 		tddba->global_buffer = (pag*) new UCHAR[tddba->page_size]; //alloc(tddba->page_size);
 		tddba->page_number = -1;
+
+#ifdef SERVICE_THREAD
+		service->svc_started();
+#endif
 
 		/* gather continuation files */
 
@@ -819,10 +818,14 @@ int dba_main(int argc, char** argv, Service *service)
 		return 0;
 		}
 	catch(...)
-		{
+		{	
 		FINISH
 			ON_ERROR
 			END_ERROR;
+			
+#ifdef SERVICE_THREAD
+		service->svc_started();
+#endif
 
 		throw;
 		}

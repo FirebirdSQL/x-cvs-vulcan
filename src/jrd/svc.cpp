@@ -1981,10 +1981,6 @@ void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
 		
 		if (serv->serv_thd)
 			 {
-			SLONG count;
-#pragma FB_COMPILER_MESSAGE("Fix! Probable bug!")
-			AsyncEvent* evnt_ptr = reinterpret_cast<AsyncEvent*> (&(service->svc_start_event));
-
 			THREAD_EXIT;
 			
 			/* create an event for the service.  The event will be signaled once the
@@ -1994,9 +1990,9 @@ void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
 			* start.  This is needed since THD_start_thread will almost always
 			* succeed.
 			*/
-			
-			ISC_event_init(evnt_ptr, 0, 0);
-			count = ISC_event_clear(evnt_ptr);
+
+			service->svc_start_event->init(0, 0);
+			SLONG count = service->svc_start_event->clear();		
 
 			THD_start_thread(reinterpret_cast<FPTR_INT_VOID_PTR>(serv->serv_thd), 
 							  service, THREAD_medium, 0,
@@ -2007,10 +2003,11 @@ void SVC_start(Service* service, USHORT spb_length, const UCHAR* spb)
 			*/
 			
 			while (!(service->svc_flags & SVC_detached)) 
-				if (!ISC_event_wait(1, &evnt_ptr, &count, 60 * 1000, NULL, 0))
+				if (!service->svc_start_event->wait(count, 60 * 1000))
 					break;
 
-			ISC_event_fini(evnt_ptr);
+			service->svc_start_event->fini();
+			
 			THREAD_ENTER;
 			}
 		else
