@@ -789,15 +789,13 @@ IndexScratch::IndexScratch(MemoryPool& p, thread_db* tdbb, index_desc* idx,
 
 	segments.grow(idx->idx_count);
 
-	int length = 0;
-	const Format* format = csb_tail->csb_format;
-	const index_desc::idx_repeat* idx_desc = idx->idx_rpt;
 	IndexScratchSegment** segment = segments.begin();
+
 	for (int i = 0; i < segments.getCount(); i++) 
-		{
 		segment[i] = FB_NEW(p) IndexScratchSegment(p);
-		length += format->fmt_desc[idx_desc->idx_field].dsc_length;
-		}	
+
+	const int length =
+		ROUNDUP(BTR_key_length(tdbb, csb_tail->csb_relation, idx), sizeof(SLONG));
 
 	// AB: Calculate the cardinality which should reflect the total number 
 	// of index pages for this index.
@@ -1461,11 +1459,13 @@ InversionCandidate* OptimizerRetrieval::getCost()
 	invCandidate->indexes = 0;
 	invCandidate->selectivity = MAXIMUM_SELECTIVITY;
 	invCandidate->cost = csb->csb_rpt[stream].csb_cardinality;
+/*
 	OptimizerBlk::opt_conjunct* tail = optimizer->opt_conjuncts.begin();
 	for (; tail < optimizer->opt_conjuncts.end(); tail++) {
 		findDependentFromStreams(tail->opt_conjunct_node,
 									&invCandidate->dependentFromStreams);
 	}
+*/
 	return invCandidate;
 }
 
