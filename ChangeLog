@@ -1,3 +1,78 @@
+2006-04-25 01:26  arnobrinkman
+
+	* vulcan/src/: gstat/dba.epp, jrd/svc.cpp:
+	
+	Fix statistics service
+
+2006-04-24 23:14  arnobrinkman
+
+	* vulcan/src/gstat/dba.epp:
+	
+	Fix AV on exception with connecting to wrong ODS
+
+2006-04-24 23:13  arnobrinkman
+
+	* vulcan/src/jrd/Service.cpp:
+	
+	Fix statistics service
+	
+	Return status still not working (with wrong ODS f.e.)
+
+2006-04-24 22:10  awharrison
+
+	* vulcan/src/jrd/dmp.cpp:
+	
+	make it work with new database - at least a bit
+
+2006-04-24 14:51  paul_reeves
+
+	* vulcan/readme.txt:
+	
+	Formatting
+
+2006-04-24 14:50  paul_reeves
+
+	* vulcan/doc/: BuildSystem.txt, VulcanRules.html, WhatsNew,
+	buildgen.license, building_and_installation/BuildSystem.txt,
+	building_and_installation/win32_installation_scripted.txt,
+	development_guidelines/VulcanRules.html, licensing/IDPLicense.txt,
+	licensing/IPLicense.txt, licensing/LGPL_w_exception.txt,
+	licensing/README.license.usage.txt, licensing/buildgen.license:
+	
+	Re-organise vulcan doc directory.
+
+2006-04-24 14:46  paul_reeves
+
+	* vulcan/builds/win32/: check_env.bat, clean_vulcan.bat:
+	
+	Minor modifications to two supplementary windows build scripts
+
+2006-04-24 14:45  paul_reeves
+
+	* vulcan/builds/win32/install/: BuildInstallKits.bat,
+	FirebirdInstallEnvironmentChecks.inc,
+	FirebirdInstallSupportFunctions.inc, VulcanInstall.iss,
+	custom_messages.inc, installation_readme.txt, readme.txt,
+	vulcan_install_logo1.bmp:
+	
+	Add Win32 install scripts
+
+2006-04-24 14:41  paul_reeves
+
+	* vulcan/builds/MasterBuildConfig/: Databases/Databases.vcproj,
+	FbDbc/FbDbc.vcproj, Services/Services.vcproj,
+	Vulcan/Vulcan.sln.template, alice/alice.vcproj, burp/burp.vcproj,
+	dsql/dsql.vcproj, fbcpl/fbcpl.vcproj, gateway/gateway.vcproj,
+	ib_udf/ib_udf.vcproj, ib_util/ib_util.vcproj,
+	instreg/instreg.vcproj, instsvc/instsvc.vcproj,
+	ipserver/ipserver.vcproj, jrd/jrd.vcproj, lock/lock.vcproj,
+	remote/remote.vcproj, utilities/utilities.vcproj, why/why.vcproj,
+	winserver/winserver.vcproj:
+	
+	Clean up output so that the right files end up with names
+	appropriate for installaltion and are in the correct place.  Fix
+	some formatting issues.
+
 2006-04-23 23:13  hvlad
 
 	* vulcan/src/jrd/: ProcManager.cpp, Procedure.cpp, Procedure.h,
