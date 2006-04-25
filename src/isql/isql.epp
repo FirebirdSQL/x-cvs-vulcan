@@ -2591,7 +2591,7 @@ static SSHORT create_db( TEXT * statement, TEXT * d_name)
 		if (isc_dsql_execute_immediate(isc_status, &DB, &M__trans, 0,
 									   local_statement, requested_SQL_dialect, NULL)) 
 			{
-			ISQL_errmsg(isc_status);
+			ISQL_errmsg(isc_status, local_statement);
 			if (!DB)
 				ret = FAIL;
 			}
@@ -2601,7 +2601,7 @@ static SSHORT create_db( TEXT * statement, TEXT * d_name)
 		if (isc_dsql_execute_immediate(isc_status, &DB, &M__trans, 0,
 									   local_statement, SQL_dialect, NULL)) 
 			{
-			ISQL_errmsg(isc_status);
+			ISQL_errmsg(isc_status, local_statement);
 			if (!DB)
 				ret = FAIL;
 			}
@@ -5375,7 +5375,7 @@ static SSHORT newtrans( TEXT * statement)
 
 	if (isc_dsql_execute_immediate(isc_status, &DB, &M__trans, 0, statement,
 								   SQL_dialect, (XSQLDA *) 0)) {
-		ISQL_errmsg(isc_status);
+		ISQL_errmsg(isc_status, statement);
 		return FAIL;
 	}
 
@@ -6480,7 +6480,7 @@ static int process_statement( TEXT * string, XSQLDA ** sqldap)
 		if (Autocommit && (statement_type == isc_info_sql_stmt_ddl)) {
 			if (isc_dsql_execute_immediate
 				(isc_status, &DB, &D__trans, 0, string, SQL_dialect, NULL)) {
-				ISQL_errmsg(isc_status);
+				ISQL_errmsg(isc_status, string);
 				ret = ERR;
 			}
 			COMMIT_TRANS(&D__trans);
