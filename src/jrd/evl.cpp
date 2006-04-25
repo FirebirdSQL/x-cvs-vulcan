@@ -672,10 +672,13 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 			   the unoptimized boolean expression must be used, since the
 			   processing of these clauses is order dependant (see rse.cpp) */
 
-			RsbBoolean* select = (RsbBoolean*) (node->nod_arg[e_any_rsb]);
-			
+			RecordSource* rsb = (RecordSource*) node->nod_arg[e_any_rsb];
+
 			if (node->nod_type != nod_any)
 				{
+				fb_assert(rsb->rsb_type == rsb_counter);
+				RsbBoolean* select = (RsbBoolean*) rsb->rsb_next;
+				fb_assert(select->rsb_type == rsb_boolean);
 				select->rsb_any_boolean = ((RecordSelExpr*) (node->nod_arg[e_any_rse]))->rse_boolean;
 				
 				if (node->nod_type == nod_ansi_any)
@@ -685,11 +688,11 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 				}
 				
 			//RSE_open(tdbb, select);
-			select->open(request);
+			rsb->open(request);
 			//value = RSE_get_record(tdbb, select, g_RSE_get_mode);
-			value = select->get(request, g_RSE_get_mode);
+			value = rsb->get(request, g_RSE_get_mode);
 			//RSE_close(tdbb, select);
-			select->close(request);
+			rsb->close(request);
 			
 			if (node->nod_type == nod_any)
 				request->req_flags &= ~req_null;
