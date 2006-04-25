@@ -1036,19 +1036,23 @@ static void dmp_root(thread_db* tdbb, index_root_page* page)
 		ib_fprintf(dbg_file,
 				   "\t%d -- root: %ld, number of keys: %d, flags: %x\n", i,
 				   desc->irt_root, desc->irt_keys, desc->irt_flags);
-		ib_fprintf(dbg_file, "\t     keys (field, type): ");
+		ib_fprintf(dbg_file, "\t     keys (field, type");
+
+		if (ods11plus)
+			ib_fprintf (dbg_file, ", selectivity) ");
+		else
+			ib_fprintf (dbg_file, ") ");
 
 		const SCHAR* ptr = (SCHAR *) page + desc->irt_desc;
 		for (USHORT j = 0; j < desc->irt_keys; j++) 
 			{
+			const irtd* stuff = (irtd*)ptr;
+			ib_fprintf(dbg_file, "(%d, %d", stuff->irtd_field, stuff->irtd_itype);
 
 			if (ods11plus)
-				ptr += sizeof(irtd);
+				ib_fprintf(dbg_file, ", %e),", stuff->irtd_selectivity);
 			else
-				ptr += sizeof(irtd_ods10);
-
-			const irtd* stuff = (irtd*)ptr;
-			ib_fprintf(dbg_file, "(%d, %d),", stuff->irtd_field, stuff->irtd_itype);
+				ib_fprintf(dbg_file, ") ");
 			}
 
 		ib_fprintf(dbg_file, "\n");
