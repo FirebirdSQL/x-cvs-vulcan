@@ -3312,6 +3312,22 @@ static JRD_NOD pass1(thread_db* tdbb,
 			break;
 
 		case nod_ansi_all:
+		{
+			// Deoptimize the conjunct, not the ALL node itself
+			jrd_nod* boolean =
+				((RecordSelExpr*) (node->nod_arg[e_any_rse]))->rse_boolean;
+			fb_assert(boolean);
+			if (boolean->nod_type == nod_and)
+			{
+				boolean = boolean->nod_arg[1];
+			}
+			// Deoptimize the injected boolean of a quantified predicate
+			// when it's necessary. ALL predicate does not require an index scan.
+			// This fixes bug SF #543106.
+			boolean->nod_flags |= nod_deoptimize;
+		}
+		// fall into
+
 		case nod_ansi_any:
 		case nod_any:
 		case nod_exists:

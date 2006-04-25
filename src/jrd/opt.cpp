@@ -752,25 +752,25 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 			}
 
 		// Deoptimize some conjuncts in advance
-		
+
 		for (i = 0; i < opt->opt_conjuncts.getCount(); i++)
 			if (opt->opt_conjuncts[i].opt_conjunct_node->nod_flags & nod_deoptimize)
 				opt->opt_conjuncts[i].opt_conjunct_flags |= opt_conjunct_matched;
 
 		// attempt to optimize aggregates via an index, if possible
-		
+
 		if (aggregate && !sort && !project) 
 			sort = aggregate;
 		else 
 			rse->rse_aggregate = aggregate = NULL;
 
 		// AB: Mark the previous used streams (sub-RecordSelExpr's) as active
-		
+
 		for (i = 1; i <= sub_streams[0]; i++) 
 			csb->csb_rpt[sub_streams[i]].csb_flags |= csb_active;			
 
 		// outer joins require some extra processing
-		
+
 		if (rse->rse_jointype != blr_inner) 
 			rsb = gen_outer(tdbb, opt, rse, rivers_stack, &sort, &project);
 		else 
@@ -5197,6 +5197,7 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 			jrd_nod* node = tail->opt_conjunct_node;
 			
 			if (!(tail->opt_conjunct_flags & opt_conjunct_used)
+					&& !(node->nod_flags & nod_deoptimize)
 					&& OPT_computable(csb, node, -1, false, false))
 				{
 				compose(tdbb, return_boolean, node, nod_and);
@@ -5239,12 +5240,19 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 			if ((inversion && expression_contains_stream(csb, node, stream, NULL)) ||
 				(!inversion && OPT_computable(csb, node, stream, false, true))) 
 				{
-				compose(tdbb, &opt_boolean, node, nod_and);
-				tail->opt_conjunct_flags |= opt_conjunct_used;
-			
-				if (!outer_flag && !(tail->opt_conjunct_flags & opt_conjunct_matched)) 
-					csb_tail->csb_flags |= csb_unmatched;
-				}				
+				// ANY/ALL boolean should always be left as a residual one
+				if (!(node->nod_flags & nod_deoptimize))
+					{
+					compose(tdbb, &opt_boolean, node, nod_and);
+					tail->opt_conjunct_flags |= opt_conjunct_used;
+				
+					if (!outer_flag &&
+						!(tail->opt_conjunct_flags & opt_conjunct_matched))
+						{
+						csb_tail->csb_flags |= csb_unmatched;
+						}
+					}				
+				}
 			}
 		}
 
@@ -5951,6 +5959,7 @@ static bool gen_sort_merge(thread_db* tdbb,
 		jrd_nod* node1 = tail->opt_conjunct_node;
 		
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used)
+				&& !(node1->nod_flags & nod_deoptimize)
 				&& OPT_computable(opt->opt_csb, node1, -1, false, false))
 			{
 			compose(tdbb, &node, node1, nod_and);
