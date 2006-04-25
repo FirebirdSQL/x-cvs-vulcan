@@ -29,6 +29,7 @@
 #include "rse.h"
 #include "Request.h"
 #include "CompilerScratch.h"
+#include "req.h"
 
 RsbCount::RsbCount(CompilerScratch *csb, RecordSource *next) : RecordSource(csb, rsb_counter)
 {
@@ -46,11 +47,16 @@ void RsbCount::open(Request* request)
 
 bool RsbCount::get(Request* request, RSE_GET_MODE mode)
 {
+	const bool count = (request->req_flags & req_count_records) != 0;
+	request->req_flags &= ~req_count_records;
+
 	if (!rsb_next->get(request, mode))
 		return false;
 
-	request->req_records_selected++;
-	request->req_records_affected++;
+	if (count) {
+		request->req_records_selected++;
+		request->req_records_affected++;
+	}
 		
 	return true;
 }
