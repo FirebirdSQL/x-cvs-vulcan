@@ -191,6 +191,278 @@ int SQLParse::yylex(dsql_nod **yylval)
 
 	last_token = ptr - 1;
 
+	/*
+	 * Hexadecimal string constant.  This is treated the same as a
+	 * string constant, but is defined as:
+	 *
+	 * 	X'bbbb'
+	 *
+	 * Where the X is a literal 'x' or 'X' character, followed
+	 * by a set of nibble values in single quotes.  The nibble
+	 * can be 0-9, a-f, or A-F, and is converted from the hex.
+	 * If an odd number of nibbles is given, a leading '0' is
+	 * assumed. 
+	 *
+	 * The resulting value is stored in a string descriptor and
+	 * returned to the parser as a string.  This can be stored
+	 * in a character or binary item.
+	 */
+	
+	if(( c == 'x' || c == 'X' ) && *ptr == '\'' )
+		{
+		bool hexerror=false;
+		UCHAR byte;
+		int nibble;
+
+		/*
+		 * Remember where we start from, to rescan later.
+		 * Also we'll need to know the length of the buffer.
+		 */
+		
+		char * hexstring = (char*) ++ptr;
+		int charlen = 0;
+
+		/*
+		 * Time to scan the string. Make sure the
+		 * characters are legal, and find out how long
+		 * the hex digit string is.
+		 */
+		
+		for (;;)
+			{
+			if (ptr >= end)    		// Unexpected EOS
+				{
+				hexerror = true;
+				break;
+				}
+			
+			c = *ptr;
+			
+			if (c == '\'')			// Trailing quote, done
+				{
+				++ptr;			// Skip the quote
+				break;
+				}
+			if( !(classes[c] & CHR_HEX ))	// Illegal character
+				{
+				hexerror = true;
+				break;
+				}
+			++charlen;			// Okay, just count 'em
+			++ptr;				// and advance...
+			}
+
+		/*
+		 * If we made it this far with no error, then convert the string.
+		 */
+
+		if( !hexerror )
+			{
+			/*
+			 * At this point, see if the string length is odd.  If so, 
+			 * we'll assume a leading zero.  Then figure out the length
+			 * of the actual resulting hex string.  Allocate a second 
+			 * temporary buffer for it.
+			 */
+		
+			nibble = ( charlen & 1 );  // IS_ODD(charlen)
+			int hexlen = charlen / 2 + nibble;
+			TempSpace temp(sizeof(string), string);
+
+			/*
+			 * Re-scan over the hex string we got earlier, converting 
+			 * adjacent bytes into nibble values.  Every other nibble, 
+			 * write the saved byte to the temp space.  At the end of 
+			 * this, the temp.space area will contain the binary 
+			 * representation of the hex constant.
+			 */
+			
+			byte = 0;
+			int i;
+			for( i = 0; i < charlen; i++ ) 
+				{
+				c =hexstring[i];
+
+				/* Poor-man's toupper() */
+				if( c >= 'a' && c <= 'f' )
+					c = c - 32;
+
+				/* Now convert the character to a nibble */
+			
+				if( c >= 'A' )
+					c = (c-'A')+10;
+				else
+					c = (c-'0');
+			
+				if( nibble ) 
+					{
+					byte = (byte << 4) + (UCHAR) c;
+					nibble = 0;
+					temp.addByte(byte);
+					}
+				else 
+					{
+					byte = c;
+					nibble = 1;
+					}
+				}
+
+			*yylval = (dsql_nod*) makeString((char*) temp.space, temp.length );
+			
+			/* 
+			 * Thought for the future:  Do we need to look into the dsql_nod 
+			 * to set the descriptor type to something that indicates a hex
+			 * string constant stored here?  - Tom
+			 */
+			
+			return STRING;	
+			}  // if (!hexerror)...
+		
+		/*
+		 * If we got here, there was a parsing error.  Set the
+		 * position back to where it was before we messed with
+		 * it.  Then fall through to the next thing we might parse.
+		 */
+
+		c = *last_token;
+		ptr = last_token + 1;
+		
+		}
+
+	/*
+	 * Hexadecimal constants.
+	 *
+	 * 0Xbbbbbb
+	 *
+	 * where the '0' and the 'X' (or 'x') are literal, followed
+	 * by a set of nibbles, using 0-9, a-f, or A-F.  Odd numbers
+	 * of nibbles assume a leading '0'.  The result is converted
+	 * to an integer, and the result returned to the caller.  The
+	 * token is identified as a NUMBER if it's a 32-bit or less
+	 * value, or a NUMBER64INT if it requires a 64-bit number.
+	 */
+
+	if(( c == '0') && ( *ptr == 'x' || *ptr == 'X' ) && (classes[ptr[1]] & CHR_HEX ))
+		{
+		bool hexerror=false;
+		UCHAR byte;
+		int nibble;
+		UINT64 value = 0;
+		
+		/*
+		 * Remember where we start from, to rescan later.
+		 * Also we'll need to know the length of the buffer.
+		 */
+		
+		ptr = ptr + 1;  /* Skip the 'X' and point to the first digit */
+		char * hexstring = (char*)ptr;
+		int charlen = 0;
+
+		/*
+		 * Time to scan the string. Make sure the
+		 * characters are legal, and find out how long
+		 * the hex digit string is.
+		 */
+		
+		for (;;)
+			{
+			if (ptr >= end)    		// Unexpected EOS
+				{
+				hexerror = true;
+				break;
+				}
+			
+			c = *ptr;
+			
+			if( !(classes[c] & CHR_HEX ))	// End of digit string
+				{
+				break;
+				}
+			charlen++;			// Okay, just count 'em
+			++ptr;				// and advance...
+			
+			if( charlen > 8 )		// Too many digits...
+				{
+				hexerror = true;
+				break;
+				}
+			}
+
+		/*
+		 * If we made it this far with no error, then convert the string.
+		 */
+
+		if( !hexerror )
+			{
+			/*
+			 * At this point, see if the string length is odd.  If so, 
+			 * we'll assume a leading zero.  Then figure out the length
+			 * of the actual resulting hex string.  Allocate a second 
+			 * temporary buffer for it.
+			 */
+		
+			nibble = ( charlen & 1 );  // IS_ODD(temp.length)
+			int hexlen = charlen / 2 + nibble;
+			TempSpace temp(hexlen, string);
+
+			/*
+			 * Re-scan over the hex string we got earlier, converting 
+			 * adjacent bytes into nibble values.  Every other nibble, 
+			 * write the saved byte to the temp space.  At the end of 
+			 * this, the temp.space area will contain the binary 
+			 * representation of the hex constant.
+			 */
+
+			for( int i = 0; i < charlen; i++ ) 
+				{
+				c =hexstring[i];
+
+				/* Poor-man's toupper() */
+				if( c >= 'a' && c <= 'f' )
+					c = c - 32;
+
+				/* Now convert the character to a nibble */
+			
+				if( c >= 'A' )
+					c = (c-'A')+10;
+				else
+					c = (c-'0');
+			
+				if( nibble ) 
+					{
+					byte = (byte << 4) + (UCHAR) c;
+					nibble = 0;
+					value = (value << 8) + byte;
+					}
+				else 
+					{
+					byte = c;
+					nibble = 1;
+					}
+				}
+
+			/*
+			 * At this point, value is a 64-bit integer with the value.  But
+			 * we want to report it as a 32-bit integer.
+			 */
+			
+			*yylval = (dsql_nod*) (long) value;
+			return NUMBER;
+
+			}  // if (!hexerror)...
+		
+		/*
+		 * If we got here, there was a parsing error.  Set the
+		 * position back to where it was before we messed with
+		 * it.  Then fall through to the next thing we might parse.
+		 */
+
+		c = *last_token;
+		ptr = last_token + 1;
+		
+		}
+
+	
 	if (tok_class & CHR_INTRODUCER)
 		{
 		/* The Introducer (_) is skipped, all other idents are copied

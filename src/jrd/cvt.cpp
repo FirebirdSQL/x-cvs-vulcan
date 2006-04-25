@@ -1668,10 +1668,13 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 						character sets which use ASCII for the SPACE
 						character. */
 
+						/* We allow trailing nulls as well as spaces in the truncated string */
 						do {
-							if (*q++ != ASCII_SPACE)
+							char ch = *q++;
+							if (ch && (ch != ASCII_SPACE))
 								(*err) (isc_arith_except, 0);
 						} while (--l);
+
 						}
 						
 					return;
