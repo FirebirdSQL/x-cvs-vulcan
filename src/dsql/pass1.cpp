@@ -7775,6 +7775,13 @@ static bool set_parameter_type(CStatement* request, dsql_nod* in_node, dsql_nod*
 		{
 		case nod_parameter:
 			{
+			if (node->nod_type == nod_dom_value)
+				{
+				/* Error on value = ?, where value is not quoted */
+				ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 901,
+							isc_arg_gds, isc_dsql_domain_err, 0);    
+				
+				}
 			MAKE_desc(request->threadData, &in_node->nod_desc, node, NULL);
 			par* parameter = (par*) in_node->nod_arg[e_par_parameter];
 			DEV_BLKCHK(parameter, dsql_type_par);
