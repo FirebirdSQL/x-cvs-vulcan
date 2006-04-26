@@ -170,11 +170,11 @@ Procedure * ProcManager::findProcedure (thread_db* tdbb, const TEXT *name, bool 
 		addProcedure (newProcedure);
 		procedure = newProcedure;
 	}
-	sync.unlock();
 
 	if (newProcedure) {
 		newProcedure->parseBlr(tdbb);
 	}
+	sync.unlock();
 
 	if (procedure->checkActive (noscan) && !(procedure->findFlags() & PRC_check_existence)) 
 		return procedure;
