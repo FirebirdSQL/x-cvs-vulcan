@@ -1,3 +1,61 @@
+2006-04-25 23:16  awharrison
+
+	* vulcan/src/jrd/dmp.cpp:
+	
+	print index nodes correctly
+
+2006-04-25 19:39  tomcole
+
+	* vulcan/src/isql/isql.epp:
+	
+	There were a couple of cases where ISQL didn't report the
+	unrecognized token case completely because the source string wasn't
+	always provided to the error reporting routine.  For example, enter
+	SET TRANSACTION W1; as the first command after connecting to a
+	database.
+
+2006-04-25 19:34  dimitr
+
+	* vulcan/src/jrd/: RsbBoolean.cpp, evl.cpp:
+	
+	Fixed reason #2 of the bug reported by Bill Oliver + yet another
+	fix from FB2.
+
+2006-04-25 19:32  dimitr
+
+	* vulcan/src/jrd/: cmp.cpp, opt.cpp:
+	
+	Fixed reason #1 of the bug reported by Bill Oliver. Ported the fix
+	from FB2.
+
+2006-04-25 19:30  dimitr
+
+	* vulcan/src/jrd/RsbCount.cpp:
+	
+	Fixed incorrectly reported select counters.
+
+2006-04-25 18:59  verbguy
+
+	* vulcan/src/: dsql/SQLParse.cpp, jrd/cvt.cpp:
+	
+	SF #1476235, add support for hex literals to Vulcan. defect
+	S0321453.
+
+2006-04-25 14:44  arnobrinkman
+
+	* vulcan/src/jrd/btr.cpp:
+	
+	Backport fix from VH in FB2 head:
+	
+	Bug fix: don't use page buffer after page was released - it can be
+	replaced by another page and may lead to serious corruptions
+
+2006-04-25 14:11  arnobrinkman
+
+	* vulcan/src/jrd/: Optimizer.cpp, opt.cpp:
+	
+	Sync Vulcan optimizer with FB2 head
+
 2006-04-25 01:26  arnobrinkman
 
 	* vulcan/src/: gstat/dba.epp, jrd/svc.cpp:
