@@ -1,3 +1,18 @@
+2006-04-26 23:33  arnobrinkman
+
+	* vulcan/src/jrd/ProcManager.cpp:
+	
+	Fix bug with multiple threads calling the same uncompiled
+	procedure.  Which result in multiple calls for parseBlr for the
+	same procedure.
+
+2006-04-26 04:33  verbguy
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	SF #1476595, vulcan asset on unquoted use of value. defect
+	S0326246.
+
 2006-04-25 23:16  awharrison
 
 	* vulcan/src/jrd/dmp.cpp:
