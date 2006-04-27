@@ -56,6 +56,7 @@ bool RsbCount::get(Request* request, RSE_GET_MODE mode)
 	if (count) {
 		request->req_records_selected++;
 		request->req_records_affected++;
+		request->req_flags |= req_count_records;
 	}
 		
 	return true;
