@@ -315,38 +315,44 @@ void Procedure::blockingAst(void)
 
 void Procedure::parseBlr(thread_db* tdbb)
 {
-	DBB dbb = tdbb->tdbb_database;
-	JrdMemoryPool *old_pool = tdbb->tdbb_default;
-	tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
-	CompilerScratch csb(*tdbb->tdbb_default, 5);
-	
-	//parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
-	blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, &procBlobId);
-	const SLONG length = blob->blb_length + 10;
-	
-	TempSpace temp(length);
-	BLB_get_data(tdbb, blob, temp.space, length);
-	csb.csb_blr = temp.space;
-	//par_messages(tdbb, temp.space, length, procedure, csb);
-	parseMessages(tdbb, temp.space, length, &csb);
-	Request* req = NULL;
-	CompilerScratch* csbPtr = &csb;
-	jrd_nod* node = PAR_blr(tdbb, NULL, temp.space, NULL, &csbPtr, &req, FALSE, 0);
-	setRequest (req);
-	//procRequest->req_procedure = procedure;
+	Sync sync(&syncParseBlr, "Procedure::parseBlr");
+	sync.lock(Exclusive);
 
-	for (int i = 0; i < csb.csb_rpt.getCount(); i++)
+	if (!procRequest)
 		{
-		JRD_NOD node = csb.csb_rpt[i].csb_message;
+		DBB dbb = tdbb->tdbb_database;
+		JrdMemoryPool *old_pool = tdbb->tdbb_default;
+		tdbb->tdbb_default = JrdMemoryPool::createPool(dbb);
+		CompilerScratch csb(*tdbb->tdbb_default, 5);
 		
-		if (node)
-			if ((IPTR) node->nod_arg[e_msg_number] == 0)
-				procInputMsg = node; //setInputMsg (node);
-			else if ((IPTR) node->nod_arg[e_msg_number] == 1)
-				procOutputMsg = node; //setOutputMsg (node);
-		}
+		//parse_procedure_blr(tdbb, procedure, (SLONG*)&P.RDB$PROCEDURE_BLR, &csb);
+		blb* blob = BLB_open(tdbb, dbb->dbb_sys_trans, &procBlobId);
+		const SLONG length = blob->blb_length + 10;
+		
+		TempSpace temp(length);
+		BLB_get_data(tdbb, blob, temp.space, length);
+		csb.csb_blr = temp.space;
+		//par_messages(tdbb, temp.space, length, procedure, csb);
+		parseMessages(tdbb, temp.space, length, &csb);
+		Request* req = NULL;
+		CompilerScratch* csbPtr = &csb;
+		jrd_nod* node = PAR_blr(tdbb, NULL, temp.space, NULL, &csbPtr, &req, FALSE, 0);
+		setRequest (req);
+		//procRequest->req_procedure = procedure;
 
-	tdbb->tdbb_default = old_pool;
+		for (int i = 0; i < csb.csb_rpt.getCount(); i++)
+			{
+			JRD_NOD node = csb.csb_rpt[i].csb_message;
+			
+			if (node)
+				if ((IPTR) node->nod_arg[e_msg_number] == 0)
+					procInputMsg = node; //setInputMsg (node);
+				else if ((IPTR) node->nod_arg[e_msg_number] == 1)
+					procOutputMsg = node; //setOutputMsg (node);
+			}
+
+		tdbb->tdbb_default = old_pool;
+		}
 }
 
 void Procedure::setRequest(Request* request)

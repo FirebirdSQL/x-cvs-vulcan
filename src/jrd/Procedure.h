@@ -256,6 +256,7 @@ protected:
 	Lock			*procExistenceLock;		/* existence lock, if any */
 	USHORT			procAlterCount;			/* No. of times the procedure was altered */
 	bid				procBlobId;
+	SyncObject		syncParseBlr;
 	
 public:
 	Procedure(Database *dbb, int id);

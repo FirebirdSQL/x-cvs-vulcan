@@ -50,15 +50,28 @@ void	ProcManager::dropProcedure (int id)
 	sync.lock(Exclusive);
 	Procedure *prev_procedure = procList;
 
-	for (Procedure *procedure = findFirst(); procedure; procedure->findNext())
+	for (Procedure *procedure = findFirst(); procedure;)
 		{
 		if (procedure->findId() == id)
 			{
-			prev_procedure->setNext(procedure->findNext());
+			Procedure* next_procedure = procedure->findNext();
+
+			if (procedure == procList)
+				procList = next_procedure;
+
+			if (procedure == prev_procedure)
+				prev_procedure = next_procedure;
+			else
+				prev_procedure->setNext(next_procedure);
+
 			delete procedure;
+			procedure = next_procedure;
 			}
 		else
+			{
 			prev_procedure = procedure;
+			procedure = procedure->findNext();
+			}
 		}
 }
 
@@ -171,10 +184,9 @@ Procedure * ProcManager::findProcedure (thread_db* tdbb, const TEXT *name, bool 
 		procedure = newProcedure;
 	}
 
-	if (newProcedure) {
-		newProcedure->parseBlr(tdbb);
-	}
 	sync.unlock();
+
+	procedure->parseBlr(tdbb);
 
 	if (procedure->checkActive (noscan) && !(procedure->findFlags() & PRC_check_existence)) 
 		return procedure;
@@ -278,7 +290,7 @@ bool ProcManager::clearCache(thread_db* tdbb, Procedure *proc)
 	Procedure *procedure = findFirst();
 
 	/* Walk procedures and calculate internal dependencies */
-	for (; procedure; procedure->findNext()) 
+	for (; procedure; procedure = procedure->findNext()) 
 		{
 		if ( procedure->hasRequest() &&
 			!(procedure->checkFlags (PRC_obsolete))) 
@@ -288,7 +300,7 @@ bool ProcManager::clearCache(thread_db* tdbb, Procedure *proc)
 		}
 	
 	/* Walk procedures again and adjust dependencies for procedures which will not be removed */
-	for (procedure = findFirst(); procedure; procedure->findNext()) 
+	for (procedure = findFirst(); procedure; procedure = procedure->findNext()) 
 		{
 		if (procedure->hasRequest() &&
 				!(procedure->checkFlags (PRC_obsolete)) && 
@@ -307,7 +319,7 @@ bool ProcManager::clearCache(thread_db* tdbb, Procedure *proc)
 		}
 	
 	/* Deallocate all used requests */		
-	for (procedure = findFirst(); procedure; procedure->findNext()) 
+	for (procedure = findFirst(); procedure; procedure = procedure->findNext()) 
 		{
 		if ( procedure->findRequest() && 
 				!(procedure->checkFlags(PRC_obsolete)) && 
@@ -329,7 +341,7 @@ bool ProcManager::clearCache(thread_db* tdbb, Procedure *proc)
 		}
 	
 	/* Remove deallocated procedures from cache */
-	for (procedure = findFirst(); procedure; procedure->findNext()) 
+	for (procedure = findFirst(); procedure; procedure = procedure->findNext()) 
 		{
 		if ((procedure->checkFlags (PRC_obsolete)) && (procedure != proc) ) 
 			{
@@ -371,7 +383,7 @@ bool ProcManager::procedureInUse (thread_db* tdbb, Procedure *proc)
 	/* Walk procedures and calculate internal dependencies */
 
 	Procedure *procedure = findFirst();
-	for (; procedure; procedure->findNext())
+	for (; procedure; procedure = procedure->findNext())
 		{
 		if (procedure->hasRequest() &&
 			 !(procedure->checkFlags (PRC_obsolete))) 
@@ -387,7 +399,7 @@ bool ProcManager::procedureInUse (thread_db* tdbb, Procedure *proc)
 
 	/* Walk procedures again and adjust dependencies for procedures which will not be removed */
 
-	for (procedure = findFirst(); procedure; procedure->findNext())
+	for (procedure = findFirst(); procedure; procedure = procedure->findNext())
 		{
 		if (procedure->hasRequest() &&
 			 !(procedure->checkFlags (PRC_obsolete))&& 
@@ -401,7 +413,7 @@ bool ProcManager::procedureInUse (thread_db* tdbb, Procedure *proc)
 	const BOOLEAN result = proc->findUseCount() != proc->findInternalUseCount();
 		
 	/* Fix back int_use_count */
-	for (procedure = findFirst(); procedure; procedure->findNext())
+	for (procedure = findFirst(); procedure; procedure = procedure->findNext())
 		{				
 		procedure->setInternalUseCount(0);
 		}
