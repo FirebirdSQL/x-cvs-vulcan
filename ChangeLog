@@ -1,3 +1,17 @@
+2006-04-28 00:33  arnobrinkman
+
+	* vulcan/src/jrd/: ProcManager.cpp, Procedure.cpp, Procedure.h:
+	
+	Fix again procedure compile and thread problems and other many
+	procedure related problems.  Has the procedure code ever been
+	tested?
+
+2006-04-27 08:25  dimitr
+
+	* vulcan/src/jrd/RsbCount.cpp:
+	
+	Fixed the bug I introduced, thanks to Claudio.
+
 2006-04-26 23:33  arnobrinkman
 
 	* vulcan/src/jrd/ProcManager.cpp:
