@@ -46,8 +46,8 @@ public:
 	Element* parseCreateDatabase(void);
 	Element* parse(void);
 	int genDPB(PBGen* gen);
-	JString	SpecialSql::genAlterStatement (void);
-	JString SpecialSql::getCharSetName(void);
+	JString	genAlterStatement (void);
+	JString getCharSetName(void);
 };
 
 #endif

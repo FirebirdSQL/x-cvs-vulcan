@@ -39,7 +39,7 @@ public:
 	~Connect(void);
 	Connect(InternalConnection* connect);
 	
-	inline InternalConnection* Connect::operator ->()
+	inline InternalConnection* operator ->()
 		{
 		return connection;
 		}

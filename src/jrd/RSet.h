@@ -44,9 +44,9 @@ public:
 	RSet (ResultSet *results);
 	RSet();
 	virtual ~RSet();
-	void RSet::operator =(ResultSet *results);
+	void operator =(ResultSet *results);
 
-	inline ResultSet* RSet::operator ->() { return resultSet; }
+	inline ResultSet* operator ->() { return resultSet; }
 	inline operator ResultSet* () { return resultSet; }
 
 	ResultSet	*resultSet;

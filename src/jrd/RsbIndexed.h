@@ -49,7 +49,7 @@ class RsbIndexed : public RsbSequential
 {
 public:
 	RsbIndexed(CompilerScratch *csb, int stream, Relation *relation, str *alias, jrd_nod *inversion);
-	RsbIndexed::RsbIndexed(CompilerScratch* csb, RSB_T type, int stream, Relation* relation, str* alias, jrd_nod *node);
+	RsbIndexed(CompilerScratch* csb, RSB_T type, int stream, Relation* relation, str* alias, jrd_nod *node);
 
 	virtual ~RsbIndexed(void);
 	virtual void open(Request* request);

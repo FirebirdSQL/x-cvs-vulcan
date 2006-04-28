@@ -396,6 +396,7 @@ Build() {
 		if [ -z $VULCAN_QUIET ]; then
 			echo
 			echo "Building module $x in directory \`$PWD'"
+			echo "build_vulcan.sh: Entering directory \`$PWD'"
 			echo
 		fi
 

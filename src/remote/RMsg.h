@@ -30,7 +30,7 @@ public:
 	RMsg(void);
 	~RMsg(void);
 
-	inline RMessage* RMsg::operator ->()
+	inline RMessage* operator ->()
 		{
 		return message;
 		}

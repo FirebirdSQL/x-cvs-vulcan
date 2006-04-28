@@ -30,7 +30,7 @@ public:
 	RFmt(RFormat *rFormat);
 	~RFmt(void);
 
-	inline RFormat* RFmt::operator ->()
+	inline RFormat* operator ->()
 		{
 		return format;
 		}

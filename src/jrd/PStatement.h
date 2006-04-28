@@ -43,9 +43,9 @@ public:
 	PStatement (PreparedStatement *stmt);
 	PStatement();
 	virtual ~PStatement();
-	void PStatement::operator =(PreparedStatement *stmt);
+	void operator =(PreparedStatement *stmt);
 
-	inline PreparedStatement* PStatement::operator ->()
+	inline PreparedStatement* operator ->()
 		{
 		return statement;
 		}
