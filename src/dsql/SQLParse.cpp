@@ -210,7 +210,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 	
 	if(( c == 'x' || c == 'X' ) && *ptr == '\'' )
 		{
-		bool hexerror=false;
+		bool hexerror = false;
 		UCHAR byte;
 		int nibble;
 
@@ -243,11 +243,13 @@ int SQLParse::yylex(dsql_nod **yylval)
 				++ptr;			// Skip the quote
 				break;
 				}
+
 			if( !(classes[c] & CHR_HEX ))	// Illegal character
 				{
 				hexerror = true;
 				break;
 				}
+
 			++charlen;			// Okay, just count 'em
 			++ptr;				// and advance...
 			}
@@ -290,9 +292,9 @@ int SQLParse::yylex(dsql_nod **yylval)
 				/* Now convert the character to a nibble */
 			
 				if( c >= 'A' )
-					c = (c-'A')+10;
+					c = (c - 'A') + 10;
 				else
-					c = (c-'0');
+					c = (c - '0');
 			
 				if( nibble ) 
 					{
@@ -344,7 +346,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 
 	if(( c == '0') && ( *ptr == 'x' || *ptr == 'X' ) && (classes[ptr[1]] & CHR_HEX ))
 		{
-		bool hexerror=false;
+		bool hexerror = false;
 		UCHAR byte;
 		int nibble;
 		UINT64 value = 0;
@@ -378,6 +380,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 				{
 				break;
 				}
+
 			charlen++;			// Okay, just count 'em
 			++ptr;				// and advance...
 			
@@ -401,7 +404,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 			 * temporary buffer for it.
 			 */
 		
-			nibble = ( charlen & 1 );  // IS_ODD(temp.length)
+			nibble = (charlen & 1);  // IS_ODD(temp.length)
 			int hexlen = charlen / 2 + nibble;
 			TempSpace temp(hexlen, string);
 
@@ -415,7 +418,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 
 			for( int i = 0; i < charlen; i++ ) 
 				{
-				c =hexstring[i];
+				c = hexstring[i];
 
 				/* Poor-man's toupper() */
 				if( c >= 'a' && c <= 'f' )
@@ -424,9 +427,9 @@ int SQLParse::yylex(dsql_nod **yylval)
 				/* Now convert the character to a nibble */
 			
 				if( c >= 'A' )
-					c = (c-'A')+10;
+					c = (c - 'A') + 10;
 				else
-					c = (c-'0');
+					c = (c - '0');
 			
 				if( nibble ) 
 					{
