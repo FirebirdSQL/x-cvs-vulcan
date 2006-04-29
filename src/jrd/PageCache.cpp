@@ -3239,66 +3239,91 @@ void PageCache::declarePrecedence(thread_db * tdbb, win* window, SLONG page)
 	Sync syncPrec(&syncPrecedence, "PageCache::declarePrecedence");
 #endif
 
-	if (QUE_NOT_EMPTY(high->bdb_lower)) 
-		{
-#ifdef SHARED_CACHE
-		syncPrec.lock(Shared);
-#endif
-		int relationship = related(low, high, PRE_SEARCH_LIMIT);
-#ifdef SHARED_CACHE
-		syncPrec.unlock();
-#endif
-		
-		if (relationship == PRE_EXISTS) 
-			return;
-			
-		if (relationship == PRE_UNKNOWN) 
+	while(true)
+	{
+		if (QUE_NOT_EMPTY(high->bdb_lower)) 
 			{
-			SLONG high_page = high->bdb_page;
-			
-			if (!writeBuffer (tdbb, high, high_page, false, tdbb->tdbb_status_vector, true))
-				unwind(tdbb, TRUE);
+#ifdef SHARED_CACHE
+			syncPrec.lock(Shared);
+#endif
+			int relationship = related(low, high, PRE_SEARCH_LIMIT);
+#ifdef SHARED_CACHE
+			syncPrec.unlock();
+#endif
+
+			if (relationship == PRE_EXISTS) 
+				return;
 				
-			return;
+			if (relationship == PRE_UNKNOWN) 
+				{
+				SLONG high_page = high->bdb_page;
+				
+				if (!writeBuffer (tdbb, high, high_page, false, tdbb->tdbb_status_vector, true))
+					unwind(tdbb, TRUE);
+					
+				return;
+				}
 			}
-		}
 
-	/* Check to see if we're going to create a cycle or the precedence search
-	   was too complex to complete.  If so, force a write of the "after"
-	   (currently fetched) page.  Assuming everyone obeys the rules and calls
-	   precedence before marking the buffer, everything should be ok */
+		/* Check to see if we're going to create a cycle or the precedence search
+		was too complex to complete.  If so, force a write of the "after"
+		(currently fetched) page.  Assuming everyone obeys the rules and calls
+		precedence before marking the buffer, everything should be ok */
 
-	if (QUE_NOT_EMPTY(low->bdb_lower)) 
-		{
-#ifdef SHARED_CACHE
-		syncPrec.lock(Shared);
-#endif
-		int relationship = related(high, low, PRE_SEARCH_LIMIT);
-#ifdef SHARED_CACHE
-		syncPrec.unlock();
-#endif
-		
-		if (relationship == PRE_EXISTS || relationship == PRE_UNKNOWN) 
+		if (QUE_NOT_EMPTY(low->bdb_lower)) 
 			{
-			SLONG low_page = low->bdb_page;
-			
-			if (!writeBuffer (tdbb, low, low_page, false, tdbb->tdbb_status_vector, true))
-				unwind(tdbb, TRUE);
-			}
-		}
+#ifdef SHARED_CACHE
+			syncPrec.lock(Shared);
+#endif
+			int relationship = related(high, low, PRE_SEARCH_LIMIT);
+#ifdef SHARED_CACHE
+			syncPrec.unlock();
+#endif
 
-	/* We're going to establish a new precedence relationship.  Get a block,
-	   fill in the appropriate fields, and insert it into the various ques */
+			if (relationship == PRE_EXISTS || relationship == PRE_UNKNOWN) 
+				{
+				SLONG low_page = low->bdb_page;
+				
+				if (!writeBuffer (tdbb, low, low_page, false, tdbb->tdbb_status_vector, true))
+					unwind(tdbb, TRUE);
+				}
+			}
+
+		/* We're going to establish a new precedence relationship.  Get a block,
+		fill in the appropriate fields, and insert it into the various ques */
 
 #ifdef SHARED_CACHE
-	syncPrec.lock(Exclusive);
+		syncPrec.lock(Exclusive);
+
+		if (QUE_NOT_EMPTY(high->bdb_lower))
+		{
+			const int relationship = related(low, high, PRE_SEARCH_LIMIT);
+			if (relationship == PRE_EXISTS) {
+				return;
+			}
+			if (relationship == PRE_UNKNOWN) {
+				syncPrec.unlock();
+				continue;
+			}
+		}
+		if (QUE_NOT_EMPTY(low->bdb_lower))
+		{
+			const int relationship = related(high, low, PRE_SEARCH_LIMIT);
+			if (relationship == PRE_EXISTS || relationship == PRE_UNKNOWN) {
+				syncPrec.unlock();
+				continue;
+			}
+		}
 #endif
-	Precedence *precedence = new Precedence;
-	precedence->pre_low = low;
-	precedence->pre_hi = high;
-	precedence->pre_flags = 0;
-	QUE_INSERT(low->bdb_higher, precedence->pre_higher);
-	QUE_INSERT(high->bdb_lower, precedence->pre_lower);
+		Precedence *precedence = new Precedence;
+		precedence->pre_low = low;
+		precedence->pre_hi = high;
+		precedence->pre_flags = 0;
+		QUE_INSERT(low->bdb_higher, precedence->pre_higher);
+		QUE_INSERT(high->bdb_lower, precedence->pre_lower);
+
+		return;
+	}
 }
 
 /**************************************
