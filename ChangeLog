@@ -1,3 +1,11 @@
+2006-04-28 05:46  paulkent
+
+	* vulcan/: builds/posix/build_vulcan.sh, src/jrd/Connect.h,
+	src/jrd/PStatement.h, src/jrd/RSet.h, src/jrd/RsbIndexed.h,
+	src/remote/RFmt.h, src/remote/RMsg.h, src/why/SpecialSql.h:
+	
+	changes to build on FC5/gcc4.1
+
 2006-04-28 00:33  arnobrinkman
 
 	* vulcan/src/jrd/: ProcManager.cpp, Procedure.cpp, Procedure.h:
