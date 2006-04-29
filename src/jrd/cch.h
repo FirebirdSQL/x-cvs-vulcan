@@ -29,7 +29,7 @@
 /* Page buffer cache size constraints. */
 
 #define MIN_PAGE_BUFFERS	50L
-#define MAX_PAGE_BUFFERS	65535L
+#define MAX_PAGE_BUFFERS	131071L
 
 class bdb;
 class lls;
