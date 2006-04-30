@@ -1848,11 +1848,12 @@ JRD_REQ CMP_make_request(thread_db* tdbb, CompilerScratch* csb)
 
 		for (record_param* rpb = request->req_rpb; tail < streams_end; rpb++, tail++)
 			{
-			// fetch input stream for update if all booleans matched against indices
+/* hvlad: disabled it as it seems it can lead to deadlocks in page cache
 
+			// fetch input stream for update if all booleans matched against indices
 			if (tail->csb_flags & csb_update && !(tail->csb_flags & csb_unmatched))
 				 rpb->rpb_stream_flags |= RPB_s_update;
-		
+*/		
 			rpb->rpb_relation = tail->csb_relation;
 
 			delete tail->csb_fields;
