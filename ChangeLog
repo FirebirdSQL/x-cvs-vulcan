@@ -1,3 +1,21 @@
+2006-04-29 20:19  asfernandes
+
+	* vulcan/src/dsql/SQLParse.cpp:
+	
+	Misc
+
+2006-04-29 17:14  hvlad
+
+	* vulcan/src/jrd/cch.h:
+	
+	Enlarged maximum page buffers count to 128K-1 (same as in FB2)
+
+2006-04-29 17:12  hvlad
+
+	* vulcan/src/jrd/PageCache.cpp:
+	
+	Fixed incorrect tracking of cyclic dependencies in precedence graph
+
 2006-04-28 05:46  paulkent
 
 	* vulcan/: builds/posix/build_vulcan.sh, src/jrd/Connect.h,
