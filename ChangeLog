@@ -1,3 +1,10 @@
+2006-04-30 10:10  hvlad
+
+	* vulcan/src/jrd/cmp.cpp:
+	
+	Disable RPB_s_update flag as it seems it can lead to deadlocks in
+	page cache
+
 2006-04-29 20:19  asfernandes
 
 	* vulcan/src/dsql/SQLParse.cpp:
