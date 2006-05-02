@@ -167,7 +167,7 @@ SetEnv() {
 	fi
 
 	if [ -z $ISC_PASSWORD ]; then
-		ISC_PASWORD=masterkey
+		ISC_PASSWORD=masterkey
 	fi
 
 	export ISC_USER ISC_PASSWORD
@@ -198,7 +198,7 @@ SetEnv() {
 		ln -s $VULCAN_ROOT/src/IscDbc $VULCAN_ROOT/src/FbDbc
 	fi
 
-	PATH=$VULCAN/bin:$PATH
+	PATH=$VULCAN/bin:$VULCAN/bin64:$PATH
 	LD_LIBRARY_PATH=$VULCAN/bin:$VULCAN/bin64:$LD_LIBRARY_PATH
 
 	export VULCAN_ROOT VULCAN VULCAN_BUILD_DIR VULCAN_SCRIPT_DIR VULCAN_PLATFORM_DIR VULCAN_PLATFORM
@@ -250,13 +250,16 @@ RunVSRelo() {
 		where  VULCAN_BUILD_DIR is in relation to VULCAN_SCRIPT_DIR
 		./VSRelo ../../builds/MasterBuildConfig -s -o ../../src -c "
 	fi
-	cd $VULCAN_SCRIPT_DIR/posix
+	cd $VULCAN_SCRIPT_DIR
 	./VSRelo ../../builds/MasterBuildConfig -s -o ../../src -c
 
 # Now walk the $VULCAN_ROOT/builds/MasterConfig tree and
 # symlink the conf files $VULCAN_BUILD_DIR
+	if [ -z $VULCAN_QUIET ]; then
+	echo Linking Config and boot files...
+	fi
 	ln -s $VULCAN_ROOT/builds/MasterBuildConfig/*.conf $VULCAN_BUILD_DIR
-	for adir in `find $VULCAN_ROOT/builds/MasterBuildConfig/ -type d -print`
+	for adir in `find $VULCAN_ROOT/builds/MasterBuildConfig/ -type d -print | grep -v CVS`
 	do
 		apath=`basename $adir`
 		if [ -f $VULCAN_ROOT/builds/MasterBuildConfig/$apath/vulcan.conf ]; then
