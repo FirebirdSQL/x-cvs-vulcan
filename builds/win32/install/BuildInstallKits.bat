@@ -1,5 +1,6 @@
+
 ::=============================================================================
-if not defined VULCAN_SCRIPT_DEBUG (@echo off)
+@if not defined VULCAN_SCRIPT_DEBUG (@echo off) else (@echo on)
 
 @goto :MAIN
 @goto :FINISH
@@ -368,6 +369,30 @@ cancel_script > nul 2>&1
 
 @goto :EOF
 ::End of WARNING
+::------------------------------------------------------------------------------
+
+::------------------------------------------------------------------------------
+:HELP
+::====
+@echo.
+@echo    The following parameters may be passed:
+@echo.
+@echo        ISX    Create installable binary kit
+@echo.
+@echo        ZIP    Create zip kit
+@echo.
+@echo        ALL    Create installable binary and a zip kit
+@echo.
+@echo      DEBUG    Create install kits from DEBUG target
+@echo.
+@echo        PDB    Include PDB files to aid debugging
+@echo.
+@echo    Running this script without parameters will prepare
+@echo    the installation tree. (Copying extra files etc.)
+@echo.
+
+@goto :EOF
+::End of HELP
 ::------------------------------------------------------------------------------
 
 
