@@ -256,7 +256,7 @@ RunVSRelo() {
 # Now walk the $VULCAN_ROOT/builds/MasterConfig tree and
 # symlink the conf files $VULCAN_BUILD_DIR
 	if [ -z $VULCAN_QUIET ]; then
-	echo Linking Config and boot files...
+		echo Linking Config and boot files...
 	fi
 	ln -s $VULCAN_ROOT/builds/MasterBuildConfig/*.conf $VULCAN_BUILD_DIR
 	for adir in `find $VULCAN_ROOT/builds/MasterBuildConfig/ -type d -print | grep -v CVS`
