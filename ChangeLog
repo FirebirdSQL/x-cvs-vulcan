@@ -1,3 +1,10 @@
+2006-05-02 03:29  paulkent
+
+	* vulcan/builds/posix/: build_vulcan.sh, vulcan.build:
+	
+	enable linux64 to build out-of-the-box; add a common place to
+	specify the GCC warnings you want when building linux
+
 2006-04-30 10:10  hvlad
 
 	* vulcan/src/jrd/cmp.cpp:
