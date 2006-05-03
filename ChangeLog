@@ -1,3 +1,17 @@
+2006-05-02 18:59  asfernandes
+
+	* vulcan/: builds/posix/build_vulcan.sh, src/jrd/cmp.cpp:
+	
+	Misc
+
+2006-05-02 11:47  paul_reeves
+
+	* vulcan/builds/win32/install/: BuildInstallKits.bat,
+	VulcanInstall.iss:
+	
+	Add help screen to batch file.	Minor tweaks to support service
+	install/uninstall
+
 2006-05-02 03:29  paulkent
 
 	* vulcan/builds/posix/: build_vulcan.sh, vulcan.build:
