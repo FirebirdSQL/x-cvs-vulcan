@@ -24,6 +24,8 @@
  */
  
 #include <stdarg.h>
+#include <string.h>
+#include <stdio.h>
 #include "fbdev.h"
 #include "../jrd/common.h"
 #include "SQLParse.h"
@@ -208,18 +210,16 @@ int SQLParse::yylex(dsql_nod **yylval)
 	 * in a character or binary item.
 	 */
 	
-	if(( c == 'x' || c == 'X' ) && *ptr == '\'' )
+	if (( c == 'x' || c == 'X' ) && *ptr == '\'' )
 		{
 		bool hexerror = false;
-		UCHAR byte;
-		int nibble;
 
 		/*
 		 * Remember where we start from, to rescan later.
 		 * Also we'll need to know the length of the buffer.
 		 */
 		
-		char * hexstring = (char*) ++ptr;
+		const char* hexstring = (char*) ++ptr;
 		int charlen = 0;
 
 		/*
@@ -243,13 +243,11 @@ int SQLParse::yylex(dsql_nod **yylval)
 				++ptr;			// Skip the quote
 				break;
 				}
-
-			if( !(classes[c] & CHR_HEX ))	// Illegal character
+			if ( !(classes[c] & CHR_HEX ))	// Illegal character
 				{
 				hexerror = true;
 				break;
 				}
-
 			++charlen;			// Okay, just count 'em
 			++ptr;				// and advance...
 			}
@@ -258,7 +256,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 		 * If we made it this far with no error, then convert the string.
 		 */
 
-		if( !hexerror )
+		if ( !hexerror )
 			{
 			/*
 			 * At this point, see if the string length is odd.  If so, 
@@ -267,9 +265,9 @@ int SQLParse::yylex(dsql_nod **yylval)
 			 * temporary buffer for it.
 			 */
 		
-			nibble = ( charlen & 1 );  // IS_ODD(charlen)
-			int hexlen = charlen / 2 + nibble;
-			TempSpace temp(sizeof(string), string);
+			int nibble = ( charlen & 1 );  // IS_ODD(charlen)
+			int hexlen = charlen / 2 + nibble + 1;
+			TempSpace temp(hexlen, string);
 
 			/*
 			 * Re-scan over the hex string we got earlier, converting 
@@ -279,24 +277,19 @@ int SQLParse::yylex(dsql_nod **yylval)
 			 * representation of the hex constant.
 			 */
 			
-			byte = 0;
-			int i;
-			for( i = 0; i < charlen; i++ ) 
+			UCHAR byte = 0;
+			for ( int i = 0; i < charlen; i++ )
 				{
-				c =hexstring[i];
-
-				/* Poor-man's toupper() */
-				if( c >= 'a' && c <= 'f' )
-					c = c - 32;
+				c = UPPER7(hexstring[i]);
 
 				/* Now convert the character to a nibble */
 			
-				if( c >= 'A' )
+				if ( c >= 'A' )
 					c = (c - 'A') + 10;
 				else
 					c = (c - '0');
 			
-				if( nibble ) 
+				if ( nibble )
 					{
 					byte = (byte << 4) + (UCHAR) c;
 					nibble = 0;
@@ -344,20 +337,17 @@ int SQLParse::yylex(dsql_nod **yylval)
 	 * value, or a NUMBER64INT if it requires a 64-bit number.
 	 */
 
-	if(( c == '0') && ( *ptr == 'x' || *ptr == 'X' ) && (classes[ptr[1]] & CHR_HEX ))
+	if (( c == '0') && ( *ptr == 'x' || *ptr == 'X' ) && (classes[ptr[1]] & CHR_HEX ))
 		{
 		bool hexerror = false;
-		UCHAR byte;
-		int nibble;
-		UINT64 value = 0;
-		
+
 		/*
 		 * Remember where we start from, to rescan later.
 		 * Also we'll need to know the length of the buffer.
 		 */
 		
 		ptr = ptr + 1;  /* Skip the 'X' and point to the first digit */
-		char * hexstring = (char*)ptr;
+		const char* hexstring = (char*) ptr;
 		int charlen = 0;
 
 		/*
@@ -376,15 +366,14 @@ int SQLParse::yylex(dsql_nod **yylval)
 			
 			c = *ptr;
 			
-			if( !(classes[c] & CHR_HEX ))	// End of digit string
+			if ( !(classes[c] & CHR_HEX ))	// End of digit string
 				{
 				break;
 				}
-
 			charlen++;			// Okay, just count 'em
 			++ptr;				// and advance...
 			
-			if( charlen > 8 )		// Too many digits...
+			if ( charlen > 16 )		// Too many digits...
 				{
 				hexerror = true;
 				break;
@@ -395,7 +384,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 		 * If we made it this far with no error, then convert the string.
 		 */
 
-		if( !hexerror )
+		if ( !hexerror )
 			{
 			/*
 			 * At this point, see if the string length is odd.  If so, 
@@ -404,7 +393,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 			 * temporary buffer for it.
 			 */
 		
-			nibble = (charlen & 1);  // IS_ODD(temp.length)
+			int nibble = ( charlen & 1 );  // IS_ODD(temp.length)
 			int hexlen = charlen / 2 + nibble;
 			TempSpace temp(hexlen, string);
 
@@ -416,22 +405,20 @@ int SQLParse::yylex(dsql_nod **yylval)
 			 * representation of the hex constant.
 			 */
 
-			for( int i = 0; i < charlen; i++ ) 
+			UCHAR byte = 0;
+			UINT64 value = 0;
+			for ( int i = 0; i < charlen; i++ )
 				{
-				c = hexstring[i];
-
-				/* Poor-man's toupper() */
-				if( c >= 'a' && c <= 'f' )
-					c = c - 32;
+				c = UPPER7(hexstring[i]);
 
 				/* Now convert the character to a nibble */
 			
-				if( c >= 'A' )
+				if ( c >= 'A' )
 					c = (c - 'A') + 10;
 				else
 					c = (c - '0');
 			
-				if( nibble ) 
+				if (nibble)
 					{
 					byte = (byte << 4) + (UCHAR) c;
 					nibble = 0;
@@ -445,10 +432,24 @@ int SQLParse::yylex(dsql_nod **yylval)
 				}
 
 			/*
-			 * At this point, value is a 64-bit integer with the value.  But
-			 * we want to report it as a 32-bit integer.
+			 * At this point, value is a 64-bit integer containing
+			 * the value of our hext literal. We report it back as a
+			 * 32-bit integer, or, if > 8 characters hex, a NUMBER64BIT.
 			 */
-			
+			if (charlen > 8)
+			{
+				char cbuff[32];
+				// char cbuff[32] = "-9223372036854775808"; // min bigint
+				// char cbuff[32] = "9223372036854775807"; // max bigint
+				sprintf(cbuff, "%" UQUADFORMAT, value);
+
+				//if (value < 0)
+				//{
+					// TODO: Insert a node with minus sign
+				//}
+				*yylval = (dsql_nod*) makeString(cbuff, strlen(cbuff));
+				return NUMBER64BIT;
+			}
 			*yylval = (dsql_nod*) (long) value;
 			return NUMBER;
 
@@ -646,7 +647,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 					overflow_guard = number = number * 10;
 					/* now test for add overflow, empirically */
 					number = number + ( c - '0' );
-					if( number < overflow_guard )
+					if (number < overflow_guard)
 						should_be_float = true;
 					}
 			    }	
@@ -664,9 +665,9 @@ int SQLParse::yylex(dsql_nod **yylval)
 		/* used floating notation ("." or "e").  If s/he didn't then it's */
 		/* an error since the integer value can't be stored in a UINT64.  */
 
-		if( !have_error )
+		if ( !have_error )
 			{
-			if( should_be_float && !(have_exp || have_decimal ))
+			if ( should_be_float && !(have_exp || have_decimal ))
 				have_error = true;
 			}
 		

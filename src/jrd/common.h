@@ -480,6 +480,10 @@ void routine(const char* message, ...) { \
 	gds__trace(buffer); \
 }
 
+// Shortcuts to make it easier to convert code using SLONGFORMAT/ULONGFORMAT
+#define UQUADFORMAT QUADFORMAT"u"
+#define SQUADFORMAT QUADFORMAT"d"
+
 #ifdef DEV_BUILD
 
 /* Define any debugging symbols and macros here.  This
