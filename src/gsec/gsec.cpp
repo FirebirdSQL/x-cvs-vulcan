@@ -260,9 +260,15 @@ int common_main(int argc,
 			databaseName = user_data->database_name;
 		else
 			{
+			databaseName = "security.fdb";
 			ConfigFile *configFile = new ConfigFile(0);
-			Element *globalName = configFile->findGlobalAttribute(SecurityDatabase);
-			databaseName = (globalName) ? globalName->value : "security.fdb";
+			Element *securityDBElement = configFile->findGlobalAttribute(SecurityDatabase);
+			if (securityDBElement)
+				{
+				Element *securityDBAttribute = securityDBElement->findAttribute(0);
+				if (securityDBAttribute)
+					databaseName = configFile->expand(securityDBAttribute->name);
+				}
 			}
 
 		const TEXT* serverName = "";
