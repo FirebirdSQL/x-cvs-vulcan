@@ -243,11 +243,13 @@ int SQLParse::yylex(dsql_nod **yylval)
 				++ptr;			// Skip the quote
 				break;
 				}
+
 			if ( !(classes[c] & CHR_HEX ))	// Illegal character
 				{
 				hexerror = true;
 				break;
 				}
+
 			++charlen;			// Okay, just count 'em
 			++ptr;				// and advance...
 			}
@@ -370,6 +372,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 				{
 				break;
 				}
+
 			charlen++;			// Okay, just count 'em
 			++ptr;				// and advance...
 			

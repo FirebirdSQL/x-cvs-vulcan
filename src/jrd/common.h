@@ -1,4 +1,3 @@
-/* $Id$ */
 /*
  *      PROGRAM:        JRD access method
  *      MODULE:         common.h
@@ -49,9 +48,6 @@
  * 2002.10.30 Sean Leyne - Removed support for obsolete "PC_PLATFORM" define
  *
  */
-/*
-$Id$
-*/
 
 #ifndef JRD_COMMON_H
 #define JRD_COMMON_H
