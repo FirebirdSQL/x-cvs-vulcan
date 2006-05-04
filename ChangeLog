@@ -1,3 +1,27 @@
+2006-05-03 16:28  verbguy
+
+	* vulcan/src/: dsql/SQLParse.cpp, jrd/common.h:
+	
+	code inspection from claudio - revisions for hex literal push. 2
+	known problems with hex literals at this time:
+	
+	Problem #1: -- -- test cases suggested by adriano --
+	
+	recreate table testy (i integer) ; insert into testy values ('01')
+	;
+	
+	-- insert should pass, just like previous insert insert into testy
+	values ('0x0101') ;
+	
+	-- select should return 2 rows select * from testy;
+	
+	Problem #2: -- negative numbers > 32 bits (bigint) fail -- min
+	bigint recreate table HEXTEST2 (b bigint, i integer ) ; insert into
+	HEXTEST2 (b) values (-9223372036854775808); insert into HEXTEST2
+	(b) values (0x8000000000000000);
+	
+	-- values should match select b from HEXTEST2; rollback;
+
 2006-05-02 18:59  asfernandes
 
 	* vulcan/: builds/posix/build_vulcan.sh, src/jrd/cmp.cpp:
