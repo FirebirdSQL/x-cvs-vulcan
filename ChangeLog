@@ -1,3 +1,15 @@
+2006-05-05 00:05  arnobrinkman
+
+	* vulcan/src/gsec/gsec.cpp:
+	
+	Fix gsec attach service
+
+2006-05-04 05:00  asfernandes
+
+	* vulcan/src/: dsql/SQLParse.cpp, jrd/common.h:
+	
+	Misc
+
 2006-05-03 16:28  verbguy
 
 	* vulcan/src/: dsql/SQLParse.cpp, jrd/common.h:
