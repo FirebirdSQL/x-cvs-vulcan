@@ -86,7 +86,9 @@ int EXE_action(AliceGlobals* tdgbl, const TEXT* database, const ULONG switches)
 	isc_attach_database(tdgbl->status, 0, database, &handle, 
 		dpb.getLength(), (const char*) dpb.buffer);
 
+#ifdef SUPERSERVER
 	tdgbl->service_blk->svc_started();
+#endif
 
 	if (tdgbl->status[1] && 
 		// Ignore isc_shutdown error produced when we switch to full shutdown mode. It is expected.
@@ -142,7 +144,9 @@ int EXE_two_phase(AliceGlobals* tdgbl, const TEXT* database, const ULONG switche
 	isc_attach_database(tdgbl->status, 0, database, &handle,
 		dpb.getLength(), (const char*) dpb.buffer);
 
+#ifdef SUPERSERVER
 	tdgbl->service_blk->svc_started();
+#endif
 
 	if (tdgbl->status[1])
 		error = true;

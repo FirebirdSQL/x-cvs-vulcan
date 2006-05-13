@@ -612,7 +612,9 @@ int common_main(int			argc,
 		{
 		// All "calls" to exit_local(), normal and error exits, wind up here
 
+#ifdef SUPERSERVER
 		tdgbl->service_blk->svc_started();
+#endif
 		int exit_code = tdgbl->exit_code;
 
 		// Close the status output file
