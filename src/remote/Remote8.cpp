@@ -530,11 +530,12 @@ ISC_STATUS Remote8::serviceAttach(ISC_STATUS *statusVector,
 								  const TEXT *service, 
 								  SvcHandle *dbHandle, 
 								  int spbLength, 
-								  UCHAR *spb, 
+								  const UCHAR *spb, 
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration)
 {
-	return REM_service_attach(statusVector, service, (RDatabase**) dbHandle, spbLength, spb);
+	return REM_service_attach(statusVector, service, (RDatabase**) dbHandle, spbLength, spb,
+							  servicesConfiguration, providerConfiguration);
 }
 
 

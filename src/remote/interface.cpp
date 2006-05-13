@@ -3570,7 +3570,9 @@ ISC_STATUS GDS_SEND(ISC_STATUS * user_status,
 
 ISC_STATUS GDS_SERVICE_ATTACH(ISC_STATUS* user_status,
 								const TEXT* service_name,
-								RDatabase** handle, USHORT spb_length, const UCHAR* spb)
+								RDatabase** handle, USHORT spb_length, const UCHAR* spb, 
+                                ConfObject* servicesConfiguration,
+								ConfObject* providerConfiguration)
 {
 /**************************************
  *
@@ -3583,7 +3585,10 @@ ISC_STATUS GDS_SERVICE_ATTACH(ISC_STATUS* user_status,
  *
  **************************************/
 	char expanded_name[MAXPATHLEN];
-	ConfObj configuration = Configuration::findObject ("provider", "remote8");
+	//ConfObj configuration = Configuration::findObject ("provider", "remote8");
+	ConfObj configuration = servicesConfiguration;
+	if (servicesConfiguration)
+		servicesConfiguration->setChain (providerConfiguration);
 	NULL_CHECK(handle, isc_bad_svc_handle);
 	strcpy((char *) expanded_name, (char *) service_name);
 	USHORT length = strlen((char *) expanded_name);

@@ -135,7 +135,7 @@ public:
 									  const TEXT *service, 
 									  SvcHandle *dbHandle, 
 									  int spbLength, 
-									  UCHAR *spb,
+									  const UCHAR *spb,
 								  ConfObject* servicesConfiguration,
 								  ConfObject* providerConfiguration);
 	virtual ISC_STATUS serviceStart(ISC_STATUS* userStatus,

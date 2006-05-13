@@ -105,7 +105,9 @@ ISC_STATUS	REM_transaction_info(ISC_STATUS*, RTransaction**, SSHORT,
 ISC_STATUS	REM_unwind_request(ISC_STATUS *, RRequest **, USHORT);
 
 ISC_STATUS	REM_rollback_retaining(ISC_STATUS *, RTransaction* *);
-ISC_STATUS	REM_service_attach(ISC_STATUS*,const TEXT*, RDatabase**, USHORT, const UCHAR*);
+ISC_STATUS	REM_service_attach(ISC_STATUS*,const TEXT*, RDatabase**, USHORT, const UCHAR*, 
+                                ConfObject* servicesConfiguration,
+								ConfObject* providerConfiguration);
 ISC_STATUS	REM_service_detach(ISC_STATUS *, RDatabase* *);
 ISC_STATUS	REM_service_query(ISC_STATUS*, RDatabase**, ULONG*, USHORT, const UCHAR*,
 									  USHORT, const UCHAR*, USHORT, UCHAR*);
