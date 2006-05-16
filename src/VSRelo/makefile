@@ -53,7 +53,7 @@ MODULES = \
 
 
 VSRelo:	$(MODULES) 
-	$(LINK.cpp)  $(CPPFLAGS) -ldl $(MODULES) -L../../install/bin     -lpthread -lm -ldl -lcrypt \
+	$(LINK.cpp)  $(CPPFLAGS) -ldl $(MODULES) -L../../install/bin     -lpthread -lm -ldl \
  -o VSRelo
 
 install: VSRelo
