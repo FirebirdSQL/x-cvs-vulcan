@@ -1196,9 +1196,8 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 
 	for (; tail < opt_end; tail++) 
 		{
-		if (tail->opt_conjunct_flags & opt_conjunct_matched) {
+		if (tail->opt_conjunct_flags & opt_conjunct_matched)
 			continue;
-		}
 		jrd_nod* node = tail->opt_conjunct_node;
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used) 
 				&& node && (node->nod_type != nod_or)) 
@@ -1220,9 +1219,8 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 
 	for (; tail < opt_end; tail++) 
 		{
-		if (tail->opt_conjunct_flags & opt_conjunct_matched) {
+		if (tail->opt_conjunct_flags & opt_conjunct_matched)
 			continue;
-		}
 		jrd_nod* node = tail->opt_conjunct_node;
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used) 
 				&& node && (node->nod_type == nod_or)) 
