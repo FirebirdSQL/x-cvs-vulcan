@@ -137,7 +137,7 @@ public:
 	UCHAR			*req_impure;
 	thread_db		*req_tdbb;
 	RecordSource	*rsbs;
-	ExecStatement	*execStatements;
+	ExecStatement	**execStatements;
 	
 	Request* getInstantiatedRequest(int instantiation);
 	Request* findInstantiatedRequest(int instantiation);
@@ -149,7 +149,7 @@ public:
 	void releaseBlobs(void);
 	void releaseProcedureSavePoints(void);
 	void setThread(thread_db* tdbb);
-	ExecStatement* getExecStatement(void);
+	void getExecStatement(ExecStatement**);
 	void init(void);
 	void reset(void);
 	void postResource(Resource* resource);

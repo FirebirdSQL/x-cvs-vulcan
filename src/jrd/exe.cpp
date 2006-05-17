@@ -2258,7 +2258,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 				node = receive_msg(tdbb, node);
 				break;
 				
-#ifdef NOT_YET_IMPLEMENTED
+#if 0
 			case nod_exec_sql:
 				if (request->req_operation == req_unwind) 
 					{
@@ -2273,19 +2273,18 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 					
 				node = node->nod_parent;
 				break;
-#endif //NOT_YET_IMPLEMENTED
+#endif
 
 			case nod_exec_into: 
 				{
-				ExecStatement *exec = *(ExecStatement**)  IMPURE (request, node->nod_impure);
-				
-				if (!exec)
-					*(ExecStatement**) IMPURE (request, node->nod_impure) = exec = request->getExecStatement();
+				ExecStatement **pExec = (ExecStatement**)  IMPURE (request, node->nod_impure);
+				if (!*pExec)
+					request->getExecStatement(pExec);
+				ExecStatement *exec = *pExec;
 				
 				switch (request->req_operation) 
 					{
 					case req_evaluate:
-						//impure->Open(tdbb, node->nod_arg[0], node->nod_count - 2,  (!node->nod_arg[1]));
 						exec->prepare(node->nod_arg[0], !node->nod_arg[1]);
 						exec->execute(node->nod_arg[2]);
 					case req_return:

@@ -33,6 +33,7 @@
 #endif // _MSC_VER > 1000
 
 #include "JString.h"
+#include "InternalConnection.h"
 
 class Request;
 class PreparedStatement;
@@ -42,11 +43,13 @@ struct jrd_nod;
 
 class ExecStatement
 {
+private:
+	void reset();
 public:
 	ExecStatement(Request *request);
 	~ExecStatement(void);
 	
-	ExecStatement	*next;
+	ExecStatement	**next;
 	Request			*request;
 	JString			sqlString;
 	PreparedStatement	*statement;
@@ -55,11 +58,11 @@ public:
 	int				numberColumns;
 	bool			singleton;
 	bool			first;
+	InternalConnection	*connection;
 	
 	void prepare(jrd_nod *sqlNode, bool singleton);
 	void close(void);
 	bool fetch(jrd_nod* valueList);
-	void reset(void);
 	void execute(jrd_nod* list);
 };
 

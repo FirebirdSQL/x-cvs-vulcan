@@ -45,18 +45,22 @@
 ExecStatement::ExecStatement(Request *req)
 {
 	request = req;
-	statement = NULL;
-	resultSet = NULL;
+	statement = 0;
+	resultSet = 0;
+	connection = 0;
 }
 
 ExecStatement::~ExecStatement(void)
 {
 	reset();
+
+	if (connection)
+		request->req_attachment->closeConnection(connection);
 }
 
 void ExecStatement::prepare(jrd_nod *sqlNode, bool singletonFlag)
 {
-	reset();
+//	reset();
 	singleton = singletonFlag;
 	dsc *desc = EVL_expr(request->req_tdbb, sqlNode);
 	const char *p = (const char*) desc->dsc_address;
@@ -77,11 +81,12 @@ void ExecStatement::prepare(jrd_nod *sqlNode, bool singletonFlag)
 			break;
 		}
 	
-	if (statement && sqlString == string)
+	if (statement && (sqlString == string))
 		return;
 	
 	reset();
-	Connection *connection = request->req_attachment->getUserConnection(request->req_transaction);
+	if (!connection)
+		connection = request->req_attachment->getUserConnection(request->req_transaction);
 	statement = connection->prepareStatement(string);
 	sqlString = string;
 	StatementMetaData *metaData = statement->getStatementMetaData();
@@ -146,8 +151,14 @@ void ExecStatement::close(void)
 void ExecStatement::reset(void)
 {
 	if (resultSet)
+	{
 		resultSet->close();
+		resultSet = 0;
+	}
 		
 	if (statement)
+	{
 		statement->close();
+		statement = 0;
+	}
 }

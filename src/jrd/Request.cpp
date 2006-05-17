@@ -241,13 +241,11 @@ void Request::setThread(thread_db* tdbb)
 	req_attachment = tdbb->tdbb_attachment;
 }
 
-ExecStatement* Request::getExecStatement(void)
+void Request::getExecStatement(ExecStatement **pExec)
 {
-	ExecStatement *exec = new ExecStatement(this);
-	exec->next = execStatements;
-	execStatements = exec;
-	
-	return exec;
+	*pExec = new ExecStatement(this);
+	(*pExec)->next = execStatements;
+	execStatements = pExec;
 }
 
 void Request::init(void)
@@ -306,10 +304,11 @@ void Request::init(void)
 
 void Request::reset(void)
 {
-	for (ExecStatement *exec; exec = execStatements;)
+	for (ExecStatement **pExec; pExec = execStatements;)
 		{
-		execStatements = exec->next;
-		delete exec;
+		execStatements = (*pExec)->next;
+		delete *pExec;
+		*pExec = 0;
 		}
 }
 
