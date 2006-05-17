@@ -1196,9 +1196,13 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 
 	for (; tail < opt_end; tail++) 
 		{
+		if (tail->opt_conjunct_flags & opt_conjunct_matched) {
+			continue;
+		}
+		jrd_nod* node = tail->opt_conjunct_node;
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used) 
-				&& tail->opt_conjunct_node && (tail->opt_conjunct_node->nod_type != nod_or)) 
-			matchOnIndexes(&indexScratches, tail->opt_conjunct_node, 1);
+				&& node && (node->nod_type != nod_or)) 
+			matchOnIndexes(&indexScratches, node, 1);
 		}
 
 	getInversionCandidates(&inversions, &indexScratches, 1);
@@ -1216,13 +1220,17 @@ InversionCandidate* OptimizerRetrieval::generateInversion(RecordSource** rsb)
 
 	for (; tail < opt_end; tail++) 
 		{
+		if (tail->opt_conjunct_flags & opt_conjunct_matched) {
+			continue;
+		}
+		jrd_nod* node = tail->opt_conjunct_node;
 		if (!(tail->opt_conjunct_flags & opt_conjunct_used) 
-				&& tail->opt_conjunct_node && (tail->opt_conjunct_node->nod_type == nod_or)) 
+				&& node && (node->nod_type == nod_or)) 
 			{
-			invCandidate = matchOnIndexes(&indexScratches, tail->opt_conjunct_node, 1);
+			invCandidate = matchOnIndexes(&indexScratches, node, 1);
 			if (invCandidate) 
 				{
-				invCandidate->boolean = tail->opt_conjunct_node;
+				invCandidate->boolean = node;
 				inversions.add(invCandidate);
 				}
 			}
