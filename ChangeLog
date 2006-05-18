@@ -1,3 +1,43 @@
+2006-05-17 21:18  dimitr
+
+	* vulcan/src/jrd/Optimizer.cpp:
+	
+	A small stylish adjustment to make Tom happy :-)
+
+2006-05-17 20:52  dimitr
+
+	* vulcan/src/jrd/Optimizer.cpp:
+	
+	Fixed wrong ALL results in the ODS11 optimizer.
+
+2006-05-17 14:59  alexpeshkoff
+
+	* vulcan/src/jrd/: ExecStatement.cpp, ExecStatement.h, Request.cpp,
+	Request.h, exe.cpp:
+	
+	Fixed access violations in execute statement
+
+2006-05-16 23:30  awharrison
+
+	* vulcan/src/VSRelo/makefile:
+	
+	lcrpyt is not used and does not exist on Darwin, so omitting it is
+	a goodness
+
+2006-05-13 23:18  arnobrinkman
+
+	* vulcan/src/remote/: Remote8.cpp, Remote8.h, inter_proto.h,
+	interface.cpp:
+	
+	Fix remote serviceAttach call.	Overriding in c++ seems to be
+	pretty sensisive. const was missing in the overriding method.
+
+2006-05-13 23:12  arnobrinkman
+
+	* vulcan/src/alice/: alice.cpp, exe.cpp:
+	
+	fix gfix
+
 2006-05-05 00:05  arnobrinkman
 
 	* vulcan/src/gsec/gsec.cpp:
