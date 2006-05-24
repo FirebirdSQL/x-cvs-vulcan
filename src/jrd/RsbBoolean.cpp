@@ -132,10 +132,6 @@ bool RsbBoolean::getAny(Request* request, RSE_GET_MODE mode)
 			}
 		else
 			select_node = NULL;
-
-		EVL_expr(tdbb, column_node->nod_arg[0]);
-		if (request->req_flags & req_null)
-			return false;
 		}
 
 	if (request->req_flags & req_ansi_any)
