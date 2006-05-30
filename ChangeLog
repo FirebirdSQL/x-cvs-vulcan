@@ -1,3 +1,9 @@
+2006-05-24 15:22  dimitr
+
+	* vulcan/src/jrd/: cmp.cpp, RsbBoolean.cpp:
+	
+	Fixed the NOT IN / ALL issue.
+
 2006-05-17 21:18  dimitr
 
 	* vulcan/src/jrd/Optimizer.cpp:
