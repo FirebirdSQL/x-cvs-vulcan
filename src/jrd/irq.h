@@ -114,7 +114,8 @@
 #define irq_l_primary_key	77	/* load primary key for table */
 
 #define irq_l_params	78		/* lookup procedure parameters */
+#define irq_c_relation2	79		/* create new relation */
 
-#define irq_MAX		79
+#define irq_MAX		80
 
 #endif /* JRD_IRQ_H */

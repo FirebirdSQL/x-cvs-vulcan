@@ -459,6 +459,26 @@ Relation* Database::getRelation(thread_db* tdbb, int id)
 	return relation;
 }
 
+void Database::dropRelation(thread_db* tdbb, int id)
+{
+#ifdef SHARED_CACHE
+	Sync sync (&syncRelations, "Database::dropRelation");
+	sync.lock(Exclusive);
+#endif
+
+	if (id < 0)
+		return;
+
+	Relation *relation = dbb_relations[id];
+	if (relation && relation->rel_existence_lock)
+	{
+		LCK_release(relation->rel_existence_lock);
+		relation->rel_existence_lock = NULL;
+	}
+
+	dbb_relations[id] = NULL;
+}
+
 void Database::validate(void)
 {
 }

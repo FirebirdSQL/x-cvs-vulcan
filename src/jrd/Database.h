@@ -334,6 +334,7 @@ public:
 	Relation*			getRelation(thread_db* tdbb, int id);
 	Relation*			findRelation(int relationId);
 	Relation*			findRelation(thread_db* tdbb, int relationId);
+	void				dropRelation(thread_db* tdbb, int id);
 	
 	void				validate(void);
 	Procedure*			findProcedure(thread_db* tdbb, int id);

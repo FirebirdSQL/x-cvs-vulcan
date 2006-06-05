@@ -2030,6 +2030,24 @@ static bool create_relation(thread_db* tdbb,
 				delete work->dfw_lock;
 				work->dfw_lock = NULL;
 				}
+
+			request = CMP_find_request(tdbb, irq_c_relation2, IRQ_REQUESTS);
+
+			FOR(REQUEST_HANDLE request)
+				X IN RDB$RELATIONS WITH
+					X.RDB$RELATION_NAME EQ work->dfw_name
+
+				if (!REQUEST(irq_c_relation2))
+					REQUEST(irq_c_relation2) = request;
+
+				rel_id = X.RDB$RELATION_ID;
+				dbb->dropRelation(tdbb, rel_id);
+
+			END_FOR;
+
+			if (!REQUEST(irq_c_relation2))
+				REQUEST(irq_c_relation2) = request;
+
 			break;
 
 		case 1:
@@ -2128,24 +2146,41 @@ static bool create_relation(thread_db* tdbb,
 			if (!REQUEST(irq_c_relation))
 				REQUEST(irq_c_relation) =  request;
 
-			/* If relation wasn't found, don't do anymore. This can happen
-			   when the relation is created and deleted in the same transaction. */
-
-			if (!rel_id)
-				break;
-
-			/* get the relation and flag it to check for dependencies
-			   in the view blr (if it exists) and any computed fields */
-
-			relation = dbb->getRelation(tdbb, rel_id);
-			relation->rel_flags |= REL_get_dependencies;
-
 			/* if this is not a view, create the relation */
 
-			if (blob_id.isEmpty())
-				if (!external_flag)
-					DPM_create_relation(tdbb, relation);
+			if (rel_id && blob_id.isEmpty() && !external_flag)
+			{
+				relation = dbb->getRelation(tdbb, rel_id);
+				DPM_create_relation(tdbb, relation);
+			}
 				
+			return true;
+
+		case 4:
+			/* get the relation and flag it to check for dependencies
+			in the view blr (if it exists) and any computed fields */
+
+			request = CMP_find_request(tdbb, irq_c_relation2, IRQ_REQUESTS);
+
+			FOR(REQUEST_HANDLE request)
+				X IN RDB$RELATIONS WITH
+					X.RDB$RELATION_NAME EQ work->dfw_name
+
+				if (!REQUEST(irq_c_relation2))
+					REQUEST(irq_c_relation2) = request;
+
+				rel_id = X.RDB$RELATION_ID;
+				relation = dbb->getRelation(tdbb, rel_id);
+				relation->rel_flags |= REL_get_dependencies;
+
+				relation->rel_flags &= ~REL_scanned;
+				DFW_post_work(transaction, dfw_scan_relation, NULL, rel_id);
+
+			END_FOR;
+
+			if (!REQUEST(irq_c_relation2))
+				REQUEST(irq_c_relation2) = request;
+
 			break;
 		}
 
@@ -2819,6 +2854,7 @@ static bool delete_relation(thread_db* tdbb, SSHORT phase, DeferredWork* work, T
 				}
 
 			relation->rel_flags &= ~REL_deleting;
+			relation->rel_flags &= ~REL_scanned;
 			return false;
 
 		case 1:
@@ -3010,6 +3046,14 @@ static bool delete_rfr(thread_db* tdbb, SSHORT phase, DeferredWork* work, Transa
 
 	switch (phase)
 		{
+		case 0:
+			{
+			Relation *relation = MET_lookup_relation_id(tdbb, work->dfw_id, FALSE);
+			if (relation)
+				relation->rel_flags &= ~REL_scanned;
+			}
+			return false;
+
 		case 1:
 			{
 			/* first check if there are any fields used explicitly by the view */
@@ -4432,6 +4476,10 @@ static bool scan_relation(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tra
 		return true;
 
 	case 3:
+		MET_scan_relation(tdbb, tdbb->tdbb_database->getRelation(tdbb, work->dfw_id));
+		return true;
+
+	case 4:
 		MET_scan_relation(tdbb, tdbb->tdbb_database->getRelation(tdbb, work->dfw_id));
 		break;
 	}
