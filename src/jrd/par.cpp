@@ -170,13 +170,13 @@ JRD_NOD PAR_blr(thread_db* tdbb,
 
 	if (trigger) 
 		{
-		stream = csb->csb_n_stream++;
+		stream = csb->nextStream();
 		t1 = CMP_csb_element(csb, 0);
 		t1->csb_flags |= csb_used | csb_active | csb_trigger;
 		t1->csb_relation = relation;
 		t1->csb_stream = (UCHAR) stream;
 
-		stream = csb->csb_n_stream++;
+		stream = csb->nextStream();
 		t1 = CMP_csb_element(csb, 1);
 		t1->csb_flags |= csb_used | csb_active | csb_trigger;
 		t1->csb_relation = relation;
@@ -185,7 +185,7 @@ JRD_NOD PAR_blr(thread_db* tdbb,
 	else if (relation) 
 		{
 		t1 = CMP_csb_element(csb, 0);
-		t1->csb_stream = csb->csb_n_stream++;
+		t1->csb_stream = csb->nextStream();
 		t1->csb_relation = relation;
 		t1->csb_flags = csb_used | csb_active;
 		}
@@ -905,7 +905,7 @@ static SSHORT par_context(CompilerScratch* csb, SSHORT* context_ptr)
  *
  **************************************/
 
-	const SSHORT stream = csb->csb_n_stream++;
+	const SSHORT stream = csb->nextStream(false);
 	
 	if (stream > MAX_STREAMS) 
 		// TMN: Someone please review this to verify that
@@ -1509,7 +1509,11 @@ static JRD_NOD par_modify(thread_db* tdbb, CompilerScratch* csb)
 		error(csb, isc_ctxnotdef, 0);
 	}
 	const SSHORT org_stream = csb->csb_rpt[context].csb_stream;
-	const SSHORT new_stream = csb->csb_n_stream++;
+	const SSHORT new_stream = csb->nextStream(false);
+	if (new_stream > MAX_STREAMS)
+	{
+		error(csb, isc_too_many_contexts, 0);
+	}
 	context = (unsigned int) BLR_BYTE;
 
 /* Make sure the compiler scratch block is big enough to hold

@@ -139,12 +139,11 @@ public:
 		RecordSource** csb_rsb_ptr;			// point to rsb for nod_stream 
 	};
 
-
 	typedef csb_repeat* rpt_itr;
 	typedef const csb_repeat* rpt_const_itr;
 	firebird::HalfStaticArray<csb_repeat, 5> csb_rpt;
 	
-	int nextStream(bool check);
+	int nextStream(bool check = true);
 	static CompilerScratch* newCsb(MemoryPool & p, size_t len);
 	void addRsb(RecordSource* rsb);
 	RecordSource* stealRsbs(void);
