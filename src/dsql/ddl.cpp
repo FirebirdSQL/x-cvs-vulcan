@@ -824,6 +824,7 @@ static bool is_array_or_blob(const dsql_nod* node)
 		case nod_via:
 		case nod_substr:
 		case nod_internal_info:
+		case nod_coalesce:
 			return false;
 
 		case nod_map:

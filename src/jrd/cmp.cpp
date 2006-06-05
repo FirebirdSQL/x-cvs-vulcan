@@ -2541,7 +2541,6 @@ static JRD_NOD copy(thread_db* tdbb,
 
 			const int relative_stream = (stream) ? remap[stream - 1] : stream;
 			new_stream = csb->csb_n_stream++;
-			fb_assert(new_stream <= MAX_STREAMS);
 			node->nod_arg[e_rel_stream] = (JRD_NOD) (long) new_stream;
 			remap[stream] = (UCHAR) new_stream;
 
@@ -3135,18 +3134,23 @@ static JRD_NOD pass1(thread_db* tdbb,
 			// the substitution.
 			// Comment 1994-August-08 David Schnepper
 
-			if (tail->csb_flags & (csb_view_update | csb_trigger)) 
-				{
-				// dimitr:	this code is rollbacked to its previous state
-				//			to allow computed fields in views to be updatable
-				//			via triggers
-				//												2003.11.05
-				//	if (!(field->fld_computation))
+			if (tail->csb_flags & (csb_view_update | csb_trigger)) {
+				// dimitr:	added an extra check for views, because we don't
+				//			want their old/new contexts to be substituted
+				if (relation->rel_view_rse || !field->fld_computation)
 					break;
 				}
 
-			if (!(map = tail->csb_map)) 
-				{
+			// dimitr:	if we reference view columns, we need to pass them
+			//			as belonging to a view (in order to compute the access
+			//			permissions properly).
+			if (relation->rel_view_rse) {
+				view = relation;
+				view_stream = stream;
+			}
+
+			map = tail->csb_map;
+			if (!map) {
 				map = local_map;
 				fb_assert(stream + 2 <= MAX_STREAMS);
 				local_map[0] = (UCHAR) stream;
