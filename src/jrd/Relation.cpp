@@ -319,7 +319,7 @@ void Relation::dropField(thread_db* tdbb, const char* fieldName)
 	Sync sync(&syncObject, "Relation::dropField");
 	sync.lock(Exclusive);
 #endif
-	Field *field = getField(tdbb, fieldName);
+	Field *field = findField(tdbb, fieldName);
 	
 	if (field)
 		{
