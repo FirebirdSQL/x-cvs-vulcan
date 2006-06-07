@@ -6022,6 +6022,8 @@ static void purge_attachment(thread_db* tdbb,
 		}
 	else
 		{
+		// delete dbb->procManager;
+		dbb->procManager = NULL;
 		delete attachment;
 		shutdown_database(tdbb, true);
 		}

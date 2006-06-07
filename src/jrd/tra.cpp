@@ -1576,6 +1576,7 @@ Transaction* TRA_start(thread_db* tdbb, Attachment *attachment, int tpb_length, 
 
 	trans->tra_pool = temp->tra_pool;
 	trans->tra_relation_locks = temp->tra_relation_locks;
+	temp->tra_relation_locks = NULL; // to avoid freeing memory
 	trans->tra_flags = temp->tra_flags;
 	trans->tra_number = number;
 	trans->tra_top = number;
@@ -3035,6 +3036,9 @@ void Transaction::deleteBlob(blb* blob)
 
 Transaction::~Transaction(void)
 {
+	if (proc_request && proc_request->req_transaction == this)
+		proc_request->req_transaction = NULL; // avoid free memory twice
+
 	connectionsCheckout();
 	
 	if (tra_attachment)
@@ -3064,6 +3068,8 @@ Transaction::~Transaction(void)
 Transaction::Transaction(Attachment *attachment)
 {
 	pendingRelations = NULL;
+	proc_request = NULL;
+
 	connections = NULL;
 	
 	if (tra_attachment = attachment)

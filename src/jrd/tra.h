@@ -85,7 +85,7 @@ public:
 	SyncObject		syncObject;
 	SyncObject		syncInUse;
 #endif
-
+	Request         *proc_request;
 	InternalConnection	*connections;
 	UCHAR			tra_transactions[1];
 	
