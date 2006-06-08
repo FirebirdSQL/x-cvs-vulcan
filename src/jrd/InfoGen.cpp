@@ -67,6 +67,11 @@ bool InfoGen::putInt(UCHAR item, int value)
 	return putInt(value);
 }
 
+int InfoGen::size()
+{
+	return ptr - buffer;
+}
+
 int InfoGen::fini()
 {
 	if (!full)
@@ -125,4 +130,20 @@ void InfoGen::forceTruncation(void)
 {
 	full = true;
 	*ptr++ = isc_info_truncated;
+}
+
+bool InfoGen::putItem(UCHAR item)
+{
+	if (full)
+		return false;
+
+	if (ptr + 5 >= yellow)
+		{
+		full = true;
+		*ptr++ = isc_info_truncated;
+		return false;
+		}
+
+	*ptr++ = item;
+	return true;
 }

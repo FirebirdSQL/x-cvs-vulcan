@@ -157,6 +157,7 @@
 #include "Connect.h"
 #include "PStatement.h"
 #include "RSet.h"
+#include "EngineInfo.h"
 
 #ifdef GARBAGE_THREAD
 #include "vio_proto.h"
@@ -352,6 +353,7 @@ static ISC_STATUS	handle_error(ISC_STATUS*, ISC_STATUS, thread_db*);
 //static void		verify_request_synchronization(Request*& request, SSHORT level);
 static bool		verify_database_name(const TEXT*, ISC_STATUS*);
 
+
 #if defined (WIN_NT)
 #ifdef SERVER_SHUTDOWN
 static void		ExtractDriveLetter(const TEXT*, ULONG*);
@@ -521,6 +523,7 @@ BOOLEAN invalid_client_SQL_dialect = FALSE;
 #define GDS_DDL					jrd8_ddl
 #define GDS_DETACH				jrd8_detach_database
 #define GDS_DROP_DATABASE		jrd8_drop_database
+#define GDS_ENGINE_INFO			jrd8_engine_info
 #define GDS_GET_SEGMENT			jrd8_get_segment
 #define GDS_GET_SLICE			jrd8_get_slice
 #define GDS_OPEN_BLOB2			jrd8_open_blob2
@@ -2252,6 +2255,28 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 
 	//return return_success(threadData);
 	return user_status[1];
+}
+
+
+ISC_STATUS GDS_ENGINE_INFO(ISC_STATUS* userStatus, const TEXT* engineName,
+						   int itemsLength, const UCHAR *items, 
+						   int bufferLength, UCHAR *buffer)
+{
+/**************************************
+ *
+ *	g d s _ $ e n g i n e _ i n f o
+ *
+ **************************************
+ *
+ * Functional description
+ *	Retrieve engine information as requested
+ *	by info items.
+ *
+ **************************************/
+ 
+	EngineInfo engineInfo(&databaseManager);
+
+	return engineInfo.getInfo(userStatus, itemsLength, items, bufferLength, buffer);
 }
 
 
@@ -5637,8 +5662,8 @@ void JRD_set_cache_default(ULONG* num_ptr)
 
 #ifdef SERVER_SHUTDOWN
 #ifdef OBSOLETE
-TEXT* JRD_num_attachments(TEXT* const buf, USHORT buf_len, USHORT flag,
-						USHORT* atts, USHORT* dbs)
+ISC_STATUS number_of_attachments(TEXT* const buf, USHORT buf_len, USHORT flag,
+						USHORT* atts, USHORT* dbs, TEXT** returned_buf)
 {
 /**************************************
  *
@@ -5687,13 +5712,13 @@ TEXT* JRD_num_attachments(TEXT* const buf, USHORT buf_len, USHORT flag,
 	 * connections.  If buf is not NULL then copy all the database names
 	 * that will fit into it. */
 
-	for (DBB dbb = databases; dbb; dbb = dbb->dbb_next) 
+	for (Database* dbb = databaseManager.databases; dbb; dbb = dbb->dbb_next) 
 		{
 #ifdef WIN_NT
 		File* files;
-		struct dls* dirs;
-		struct scb* scb;
-		struct sfb* sfb;
+		struct DirectoryList* dirs;
+		struct SortContext* scb;
+		struct SortWorkFile* sfb;
 
 		/* Get drive letters for db files */
 
@@ -5824,7 +5849,9 @@ TEXT* JRD_num_attachments(TEXT* const buf, USHORT buf_len, USHORT flag,
 		lbuf = NULL;
 	}
 
-	return lbuf;
+	*(returned_buf) = lbuf;
+
+	return FB_SUCCESS;
 }
 #endif //OBSOLETE
 

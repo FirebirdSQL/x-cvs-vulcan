@@ -88,20 +88,10 @@ ISC_STATUS Services::serviceStart(ISC_STATUS *userStatus, SvcHandle* svcHandle, 
 	try
 		{
 		SVC_start(service, spbLength, spb);
+
+		if (service->svc_status[1])
+			throw OSRIException(service->svc_status);
 	
-		/***
-		if (service->svc_status[1]) 
-			{
-			ISC_STATUS* svc_status = service->svc_status;
-			ISC_STATUS* tdbb_status = threadData.getStatusVector();
-	
-			while (*svc_status) 
-				*tdbb_status++ = *svc_status++;
-				
-			*tdbb_status = isc_arg_end;
-			}
-		***/
-		
 		return returnSuccess(userStatus);
 		}
 	catch (OSRIException& exception)

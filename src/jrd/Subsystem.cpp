@@ -550,3 +550,9 @@ ISC_STATUS Subsystem::authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandl
 {
 	return entrypointUnavailable (userStatus);
 }
+
+ISC_STATUS Subsystem::engineInfo(ISC_STATUS* userStatus, const TEXT* engineName, int itemsLength, const UCHAR *items, int bufferLength, UCHAR *buffer)
+{
+	return entrypointUnavailable (userStatus);
+}
+

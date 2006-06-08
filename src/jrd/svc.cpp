@@ -60,6 +60,9 @@
 #include "OSRIException.h"
 #include "Sync.h"
 #include "gdsassert.h"
+#include "EngineInfoGen.h"
+#include "ConfObject.h"
+#include "../jrd/Stack.h"
 
 #ifdef SERVER_SHUTDOWN
 #include "../jrd/jrd_proto.h"
@@ -557,7 +560,7 @@ Service* SVC_attach(ConfObject* configuration,
 				
 			ISC_STATUS statusVector[ISC_STATUS_LENGTH];
 			isc_db_handle dbHandle = 0;
-			TEXT *databaseName = "security.fdb";
+			JString databaseName = configuration->getValue("SecurityDatabase", "security.fdb");
 
 			try
 				{			
@@ -568,8 +571,13 @@ Service* SVC_attach(ConfObject* configuration,
 				{
 				if (dbHandle)
 					isc_detach_database(statusVector, &dbHandle);
+				throw;
 				}
-			
+
+			// AB: detach immediately, for the moment we don't need it anymore.
+			if (dbHandle)
+				isc_detach_database(statusVector, &dbHandle);
+
 			/* Check that the validated user has the authority to access this service */
 
 			if (strcasecmp(options.spb_user_name, SYSDBA_USER_NAME))
@@ -989,375 +997,542 @@ ISC_STATUS SVC_query2(Service* service,
 
 	/* Process the receive portion of the query now. */
 
-	//const UCHAR* const end = info + buffer_length;
-	InfoGen infoGen(info, buffer_length);
+
 	items = recv_items;
 	const UCHAR* const end_items2 = items + recv_item_length;
 	
+	/* Build request info specific for engine */
+	UCHAR requestBuffer[MAXPATHLEN];
+	EngineInfoGen requestEngineInfo(requestBuffer, sizeof(requestBuffer));
+
 	while (items < end_items2 && *items != isc_info_end)
 		{
-		/*
-		   if we attached to the "anonymous" service we allow only following queries:
-
-		   isc_info_svc_get_config     - called from within remote/ibconfig.cpp
-		   isc_info_svc_dump_pool_info - called from within utilities/print_pool.cpp
-		   isc_info_svc_user_dbpath    - called from within utilities/security.cpp
-		 */
-		 
-		if (service->svc_user_flag == SVC_user_none)
-			switch (*items)
-				{
-				case isc_info_svc_get_config:
-				case isc_info_svc_dump_pool_info:
-				case isc_info_svc_user_dbpath:
-					break;
-					
-				default:
-					SVC_post(isc_bad_spb_form, 0);
-					break;
-				}
-
 		switch ((item = *items++))
 			{
 			case isc_info_end:
 				break;
 
-#ifdef SERVER_SHUTDOWN
 			case isc_info_svc_svr_db_info:
-				{
-				UCHAR dbbuf[1024];
-				USHORT num_dbs = 0, num = 0;
-				USHORT num_att = 0;
-				UCHAR *ptr, *ptr2;
-
-				*info++ = item;
-				ptr = JRD_num_attachments(reinterpret_cast<char*>(dbbuf),
-										sizeof(dbbuf), JRD_info_dbnames,
-										&num_att, &num_dbs);
-										
-				/* Move the number of attachments into the info buffer */
-				
-				if (!ck_space_for_numeric(info, end))
-					return 0;
-					
-				*info++ = isc_spb_num_att;
-				ADD_SPB_NUMERIC(info, num_att);
-
-				/* Move the number of databases in use into the info buffer */
-				
-				if (!ck_space_for_numeric(info, end))
-					return 0;
-					
-				*info++ = isc_spb_num_db;
-				ADD_SPB_NUMERIC(info, num_dbs);
-
-				/* Move db names into the info buffer */
-				
-				if (ptr2 = ptr) 
-					{
-					num = (USHORT) isc_vax_integer((const char*) ptr2, sizeof(USHORT));
-					fb_assert(num == num_dbs);
-					ptr2 += sizeof(USHORT);
-					
-					for (; num; num--) 
-						{
-						length = (USHORT) isc_vax_integer((const char*) ptr2, sizeof(USHORT));
-						ptr2 += sizeof(USHORT);
-						
-						if (! (info = INF_put_item(isc_spb_dbname, length, ptr2, info, end))) 
-							{
-							THREAD_ENTER;
-							return 0;
-							}
-							
-						ptr2 += length;
-						}
-
-					//if (ptr != reinterpret_cast < TEXT * >(dbbuf))
-					if (ptr != dbbuf)
-						gds__free(ptr);	/* memory has been allocated by
-											JRD_num_attachments() */
-				}
-
-				if (info < end)
-					*info++ = isc_info_flag_end;
-				}
-
-				break;
-
-			case isc_info_svc_svr_online:
-				*info++ = item;
-				
-				if (service->svc_user_flag & SVC_user_dba) 
-					{
-					service->svc_do_shutdown = FALSE;
-					WHY_set_shutdown(FALSE);
-					}
-				else
-					need_admin_privs(&status, "isc_info_svc_svr_online");
-				break;
-
-			case isc_info_svc_svr_offline:
-				*info++ = item;
-				
-				if (service->svc_user_flag & SVC_user_dba) 
-					{
-					service->svc_do_shutdown = TRUE;
-					WHY_set_shutdown(TRUE);
-					}
-				else
-					need_admin_privs(&status, "isc_info_svc_svr_offline");
-					
-				break;
-#endif /* SERVER_SHUTDOWN */
-
-			/* The following 3 service commands (or items) stuff the response
-			buffer 'info' with values of environment variable INTERBASE,
-			INTERBASE_LOCK or INTERBASE_MSG. If the environment variable
-			is not set then default value is returned.
-			*/
-				 
-			case isc_info_svc_get_env:
-			case isc_info_svc_get_env_lock:
-			case isc_info_svc_get_env_msg:
-				switch (item) 
-					{
-					case isc_info_svc_get_env:
-						gds__prefix(buffer, "");
-						break;
-						
-					case isc_info_svc_get_env_lock:
-						gds__prefix_lock(buffer, "");
-						break;
-						
-					case isc_info_svc_get_env_msg:
-						gds__prefix_msg(buffer, "");
-					}
-
-				/* Note: it is safe to use strlen to get a length of "buffer"
-				  because gds_prefix[_lock|_msg] return a zero-terminated
-				   string
-				*/
-				 
-				//info = INF_put_item(item, buffer, info, end);
-				infoGen.putString(item, buffer);
-				break;
-
-#ifdef SUPERSERVER
-			case isc_info_svc_dump_pool_info:
-				{
-				char fname[MAXPATHLEN];
-				int length = isc_vax_integer((char*) items, sizeof(USHORT));
-				
-				if (length >= sizeof(fname))
-					length = sizeof(fname) - 1; // truncation
-					
-				items += sizeof(USHORT);
-				strncpy(fname, (const char*) items, length);
-				fname[length] = 0;
-				//JRD_print_all_counters(fname);		// It's a no-op anyway (jas)
-				break;
-				}
-#endif
-	/*
-			case isc_info_svc_get_config:
-				// TODO: iterate through all integer-based config values
-				//		 and return them to the client
-				break;
-
-			case isc_info_svc_default_config:
-				*info++ = item;
-				if (service->svc_user_flag & SVC_user_dba) {
-					THREAD_ENTER;
-					// TODO: reset the config values to defaults
-					THREAD_EXIT;
-				}
-				else
-					need_admin_privs(&status, "isc_info_svc_default_config");
-				break;
-
-			case isc_info_svc_set_config:
-				*info++ = item;
-				if (service->svc_user_flag & SVC_user_dba) {
-					THREAD_ENTER;
-					// TODO: set the config values
-					THREAD_EXIT;
-				}
-				else {
-					need_admin_privs(&status, "isc_info_svc_set_config");
-				}
-				break;
-	*/
-			case isc_info_svc_version:
-				/* The version of the service manager */
-				/***
-				if (!ck_space_for_numeric(info, end))
-					return 0;
-				*info++ = item;
-				ADD_SPB_NUMERIC(info, SERVICE_VERSION);
-				***/
-				infoGen.putInt(item, SERVICE_VERSION);
-				break;
-
-			case isc_info_svc_capabilities:
-				/* bitmask defining any specific architectural differences */
-				/***
-				if (!ck_space_for_numeric(info, end))
-					return 0;
-				*info++ = item;
-				ADD_SPB_NUMERIC(info, SERVER_CAPABILITIES_FLAG);
-				***/
-				infoGen.putInt(item, SERVER_CAPABILITIES_FLAG);
-				break;
-
-			case isc_info_svc_running:
-				/* Returns the status of the flag SVC_thd_running */
-				/***
-				if (!ck_space_for_numeric(info, end))
-					return 0;
-				*info++ = item;
-				***/
-				
-				if (service->svc_flags & SVC_thd_running)
-					//ADD_SPB_NUMERIC(info, TRUE)
-					infoGen.putInt(item, TRUE);
-				else
-					//ADD_SPB_NUMERIC(info, FALSE)
-					infoGen.putInt(item, FALSE);
-
+				requestEngineInfo.putItem(isc_info_engine_req_database_paths);
+				requestEngineInfo.putItem(isc_info_engine_req_num_attachments);
+				requestEngineInfo.putItem(isc_info_engine_req_num_databases);
 				break;
 
 			case isc_info_svc_server_version:
-				/* The version of the server engine */
-				//info = INF_put_item(item, GDS_VERSION, info, end);
-				infoGen.putString(item, GDS_VERSION);
+				requestEngineInfo.putItem(isc_info_engine_req_engine_version);
 				break;
-
-			case isc_info_svc_implementation:
-				/* The server implementation - e.g. Interbase/sun4 */
-				isc_format_implementation(IMPLEMENTATION, sizeof(buffer), buffer, 0, 0, NULL);
-				//info = INF_put_item(item, buffer, info, end);
-				infoGen.putString(item, buffer);
-				break;
-
-
-			case isc_info_svc_user_dbpath:
-				/* The path to the user security database (security.fdb) */
-				//SecurityDatabase::getPath(buffer);
-				infoGen.putString(item, service->getSecurityDatabase());
-				break;
-
-			case isc_info_svc_response:
-				service_put(service, &item, 1);
-				service_get(service, &item, 1, GET_BINARY, 0, &length);
-				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
-				l = (USHORT) gds__vax_integer(infoBuffer, 2);
-				service->responseBuffer.resize(l);
-				service_get(service, service->responseBuffer.space, l, GET_BINARY, 0, &length);
-				service->responseLength = length;
-				//info = INF_put_item(item, length, info + 3, info, end);
-				l = infoGen.maxRemaining();
-				
-				if (length < l)
-					{
-					infoGen.put(item, length, service->responseBuffer.space);
-					service->responseOffset = length;
-					}
-				else
-					{
-					infoGen.put(item, l, service->responseBuffer.space);
-					service->responseOffset = l;
-					infoGen.forceTruncation();
-					}
-				
-				break;
-
-			case isc_info_svc_response_more:
-				length = service->responseLength - service->responseOffset;
-				l = infoGen.maxRemaining();
-				
-				if (length < l)
-					{
-					infoGen.put(item, length, service->responseBuffer.space + service->responseOffset);
-					service->responseOffset = 0;
-					service->responseLength = 0;
-					}
-				else
-					{
-					infoGen.put(item, l, service->responseBuffer.space + service->responseOffset);
-					service->responseOffset += l;
-					infoGen.forceTruncation();
-					}
-					
-				/***
-				if ( (l = length = service->svc_resp_len) )
-					length = MIN(end - (info + 5), l);
-					
-				if (!(info = INF_put_item(item, length, service->svc_resp_ptr, info, end))) 
-					{
-					THREAD_ENTER;
-					return 0;
-					}
-					
-				service->svc_resp_ptr += length;
-				service->svc_resp_len -= length;
-				
-				if (length != l)
-					*info++ = isc_info_truncated;
-				***/
-				break;
-
-			case isc_info_svc_total_length:
-				service_put(service, &item, 1);
-				service_get(service, &item, 1, GET_BINARY, 0, &length);
-				service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
-				l = (USHORT) gds__vax_integer(infoBuffer, 2);
-				service_get(service, infoBuffer, l, GET_BINARY, 0, &length);
-				infoGen.put(item, length, infoBuffer);
-				break;
-
-			case isc_info_svc_line:
-			case isc_info_svc_to_eof:
-			case isc_info_svc_limbo_trans:
-			case isc_info_svc_get_users:
-				if (item == isc_info_svc_line)
-					get_flags = GET_LINE;
-				else if (item == isc_info_svc_to_eof)
-					get_flags = GET_EOF;
-				else
-					get_flags = GET_BINARY;
-
-				TempSpace tempSpace(sizeof(infoBuffer), infoBuffer);
-				l = infoGen.maxRemaining();
-				tempSpace.resize(l);
-				service_get(service, tempSpace.space, l, get_flags, timeout, &length);
-				infoGen.put(item, length, tempSpace.space);
-				
-				/* If the read timed out, return the data, if any, & a timeout
-				   item.  If the input buffer was not large enough
-				   to store a read to eof, return the data that was read along
-				   with an indication that more is available. */
-
-				if (service->svc_flags & SVC_timeout)
-					*info++ = isc_info_svc_timeout;
-				else
-					{
-					if (!length && !(service->svc_flags & SVC_finished))
-						*info++ = isc_info_data_not_ready;
-					else
-						if (item == isc_info_svc_to_eof && !(service->svc_flags & SVC_finished))
-							*info++ = isc_info_truncated;
-					}
-					
-				break;
-				}
-
-		if (service->svc_user_flag == SVC_user_none)
-			break;
+			}
 		}
 
-	infoGen.fini();
-	THREAD_ENTER;
+	/* Get engine information if we have an engine info request */
+	int nrOfAttachments = 0;
+	JString engineVersion = "";
+	Stack databasePaths;
+	try
+		{
+		if (requestEngineInfo.size() >= 0)
+			{
+			requestEngineInfo.putItem(isc_info_end);
+
+			ISC_STATUS statusVector[ISC_STATUS_LENGTH];
+			UCHAR infoBuffer[32000];
+			if (fb_engine_info(statusVector, NULL, sizeof(requestBuffer), requestBuffer,
+					sizeof(infoBuffer), infoBuffer))				
+				throw OSRIException(statusVector);
+
+			EngineInfoReader readInfo(infoBuffer, sizeof(infoBuffer));
+
+			while (!readInfo.eof())
+				{
+				UCHAR engineItem = readInfo.getItem();
+				if (engineItem == isc_info_end)
+					break;
+
+				switch (engineItem)
+					{
+					case isc_info_engine_engine_version:
+						{
+						engineVersion = readInfo.getValueString();
+						break;
+						}
+
+					case isc_info_engine_databases:
+						{
+						engineItem = readInfo.getItem();
+						if (engineItem != isc_info_engine_list_begin)
+							{
+							readInfo.skipItem();
+							break;
+							}
+
+						while (!readInfo.eof() && (engineItem != isc_info_engine_list_end))
+							{
+							engineItem = readInfo.getItem();
+							switch (engineItem)
+								{
+								case isc_info_engine_db_attachments:
+									nrOfAttachments += readInfo.getValueInt();
+									readInfo.skipItem();
+									break;
+
+								case isc_info_engine_db_path:
+									if (readInfo.getItem() == isc_info_engine_value)
+										{
+										int strLength = readInfo.getShort();
+										JString* value = new JString;
+										value->setString((char*) readInfo.getBuffer(strLength), strLength);
+										databasePaths.push(value);
+										}
+									break;
+
+								default:
+									readInfo.skipItem();
+									break;
+								}
+							}
+						break;
+						}
+
+					default:
+						readInfo.skipItem();
+						break;
+					}
+				}
+			}
+
+		//const UCHAR* const end = info + buffer_length;
+		InfoGen infoGen(info, buffer_length);
+		items = recv_items;
+		bool infoPutError = false;
+		//const end_items2 = items + recv_item_length;
+		
+		while (items < end_items2 && *items != isc_info_end)
+			{
+
+			if (infoPutError)
+				break;
+			/*
+			if we attached to the "anonymous" service we allow only following queries:
+
+			isc_info_svc_get_config     - called from within remote/ibconfig.cpp
+			isc_info_svc_dump_pool_info - called from within utilities/print_pool.cpp
+			isc_info_svc_user_dbpath    - called from within utilities/security.cpp
+			*/
+			 
+			if (service->svc_user_flag == SVC_user_none)
+				switch (*items)
+					{
+					case isc_info_svc_get_config:
+					case isc_info_svc_dump_pool_info:
+					case isc_info_svc_user_dbpath:
+						break;
+						
+					default:
+						SVC_post(isc_bad_spb_form, 0);
+						break;
+					}
+
+			switch ((item = *items++))
+				{
+				case isc_info_end:
+					break;
+
+//#ifdef SERVER_SHUTDOWN
+				case isc_info_svc_svr_db_info:
+					{
+					/*
+					UCHAR dbbuf[1024];
+					USHORT num_dbs = 0, num = 0;
+					USHORT num_att = 0;
+					UCHAR *ptr = NULL;
+					UCHAR *ptr2 = NULL;
+
+					*info++ = item;
+					*/
+
+					infoGen.putItem(item);
+
+					infoGen.putItem(isc_spb_num_att);
+					infoGen.putInt(nrOfAttachments);
+
+					infoGen.putItem(isc_spb_num_db);
+					infoGen.putInt(databasePaths.count());
+
+					while (!databasePaths.isEmpty())
+						{
+						JString* databasePath = (JString*) databasePaths.pop();
+						if (!infoGen.put(isc_spb_dbname, databasePath->length(), (UCHAR*) databasePath->getString())) 
+							{
+							infoPutError = true;
+							}											
+						delete databasePath;
+
+						if (infoPutError)
+							break;
+						}
+
+					//ptr = JRD_num_attachments(reinterpret_cast<char*>(dbbuf),
+					//						sizeof(dbbuf), JRD_info_dbnames,
+					//						&num_att, &num_dbs);
+											
+					/* Move the number of attachments into the info buffer */
+					
+					/*if (!ck_space_for_numeric(info, end))
+						return 0;				
+						
+					*info++ = isc_spb_num_att;
+					ADD_SPB_NUMERIC(info, num_att);
+					*/
+	//				infoGen.putItem(isc_spb_num_att);
+	//				infoGen.putInt(num_att);
+
+					/* Move the number of databases in use into the info buffer */
+					
+					/*if (!ck_space_for_numeric(info, end))
+						return 0;
+						
+					*info++ = isc_spb_num_db;
+					ADD_SPB_NUMERIC(info, num_dbs);
+					*/
+	//				infoGen.putItem(isc_spb_num_db);
+	//				infoGen.putInt(num_dbs);
+
+					/* Move db names into the info buffer */
+					
+					/*
+					if (ptr2 = ptr) 
+						{
+						num = (USHORT) isc_vax_integer((const char*) ptr2, sizeof(USHORT));
+						fb_assert(num == num_dbs);
+						ptr2 += sizeof(USHORT);
+						
+						for (; num; num--) 
+							{
+							length = (USHORT) isc_vax_integer((const char*) ptr2, sizeof(USHORT));
+							ptr2 += sizeof(USHORT);
+							
+							if (! infoGen.put(isc_spb_dbname, length, ptr2)) 
+								{
+								THREAD_ENTER;
+								return 0;
+								}
+								
+							ptr2 += length;
+							}
+
+						//if (ptr != reinterpret_cast < TEXT * >(dbbuf))
+						if (ptr != dbbuf)
+							gds__free(ptr);	// memory has been allocated by JRD_num_attachments()
+						}
+					*/
+
+					/*
+					if (info < end)
+						*info++ = isc_info_flag_end;
+					*/
+					if (!infoPutError)
+						infoGen.putItem(isc_info_flag_end);
+					}
+
+					break;
+
+#ifdef SERVER_SHUTDOWN
+
+				case isc_info_svc_svr_online:
+					*info++ = item;
+					
+					if (service->svc_user_flag & SVC_user_dba) 
+						{
+						service->svc_do_shutdown = FALSE;
+						WHY_set_shutdown(FALSE);
+						}
+					else
+						need_admin_privs(&status, "isc_info_svc_svr_online");
+					break;
+
+				case isc_info_svc_svr_offline:
+					*info++ = item;
+					
+					if (service->svc_user_flag & SVC_user_dba) 
+						{
+						service->svc_do_shutdown = TRUE;
+						WHY_set_shutdown(TRUE);
+						}
+					else
+						need_admin_privs(&status, "isc_info_svc_svr_offline");
+						
+					break;
+#endif /* SERVER_SHUTDOWN */
+
+				/* The following 3 service commands (or items) stuff the response
+				buffer 'info' with values of environment variable INTERBASE,
+				INTERBASE_LOCK or INTERBASE_MSG. If the environment variable
+				is not set then default value is returned.
+				*/
+					 
+				case isc_info_svc_get_env:
+				case isc_info_svc_get_env_lock:
+				case isc_info_svc_get_env_msg:
+					switch (item) 
+						{
+						case isc_info_svc_get_env:
+							gds__prefix(buffer, "");
+							break;
+							
+						case isc_info_svc_get_env_lock:
+							gds__prefix_lock(buffer, "");
+							break;
+							
+						case isc_info_svc_get_env_msg:
+							gds__prefix_msg(buffer, "");
+						}
+
+					/* Note: it is safe to use strlen to get a length of "buffer"
+					because gds_prefix[_lock|_msg] return a zero-terminated
+					string
+					*/
+					 
+					//info = INF_put_item(item, buffer, info, end);
+					infoGen.putString(item, buffer);
+					break;
+
+#ifdef SUPERSERVER
+				case isc_info_svc_dump_pool_info:
+					{
+					char fname[MAXPATHLEN];
+					int length = isc_vax_integer((char*) items, sizeof(USHORT));
+					
+					if (length >= sizeof(fname))
+						length = sizeof(fname) - 1; // truncation
+						
+					items += sizeof(USHORT);
+					strncpy(fname, (const char*) items, length);
+					fname[length] = 0;
+					//JRD_print_all_counters(fname);		// It's a no-op anyway (jas)
+					break;
+					}
+#endif
+		/*
+				case isc_info_svc_get_config:
+					// TODO: iterate through all integer-based config values
+					//		 and return them to the client
+					break;
+
+				case isc_info_svc_default_config:
+					*info++ = item;
+					if (service->svc_user_flag & SVC_user_dba) {
+						THREAD_ENTER;
+						// TODO: reset the config values to defaults
+						THREAD_EXIT;
+					}
+					else
+						need_admin_privs(&status, "isc_info_svc_default_config");
+					break;
+
+				case isc_info_svc_set_config:
+					*info++ = item;
+					if (service->svc_user_flag & SVC_user_dba) {
+						THREAD_ENTER;
+						// TODO: set the config values
+						THREAD_EXIT;
+					}
+					else {
+						need_admin_privs(&status, "isc_info_svc_set_config");
+					}
+					break;
+		*/
+				case isc_info_svc_version:
+					/* The version of the service manager */
+					/***
+					if (!ck_space_for_numeric(info, end))
+						return 0;
+					*info++ = item;
+					ADD_SPB_NUMERIC(info, SERVICE_VERSION);
+					***/
+					infoGen.putInt(item, SERVICE_VERSION);
+					break;
+
+				case isc_info_svc_capabilities:
+					/* bitmask defining any specific architectural differences */
+					/***
+					if (!ck_space_for_numeric(info, end))
+						return 0;
+					*info++ = item;
+					ADD_SPB_NUMERIC(info, SERVER_CAPABILITIES_FLAG);
+					***/
+					infoGen.putInt(item, SERVER_CAPABILITIES_FLAG);
+					break;
+
+				case isc_info_svc_running:
+					/* Returns the status of the flag SVC_thd_running */
+					/***
+					if (!ck_space_for_numeric(info, end))
+						return 0;
+					*info++ = item;
+					***/
+					
+					if (service->svc_flags & SVC_thd_running)
+						//ADD_SPB_NUMERIC(info, TRUE)
+						infoGen.putInt(item, TRUE);
+					else
+						//ADD_SPB_NUMERIC(info, FALSE)
+						infoGen.putInt(item, FALSE);
+
+					break;
+
+				case isc_info_svc_server_version:
+					/* The version of the server engine */
+					//info = INF_put_item(item, GDS_VERSION, info, end);
+					infoGen.putString(item, engineVersion.getString());
+					break;
+
+				case isc_info_svc_implementation:
+					/* The server implementation - e.g. Interbase/sun4 */
+					isc_format_implementation(IMPLEMENTATION, sizeof(buffer), buffer, 0, 0, NULL);
+					//info = INF_put_item(item, buffer, info, end);
+					infoGen.putString(item, buffer);
+					break;
+
+
+				case isc_info_svc_user_dbpath:
+					/* The path to the user security database (security.fdb) */
+					//SecurityDatabase::getPath(buffer);
+					infoGen.putString(item, service->getSecurityDatabase());
+					break;
+
+				case isc_info_svc_response:
+					service_put(service, &item, 1);
+					service_get(service, &item, 1, GET_BINARY, 0, &length);
+					service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
+					l = (USHORT) gds__vax_integer(infoBuffer, 2);
+					service->responseBuffer.resize(l);
+					service_get(service, service->responseBuffer.space, l, GET_BINARY, 0, &length);
+					service->responseLength = length;
+					//info = INF_put_item(item, length, info + 3, info, end);
+					l = infoGen.maxRemaining();
+					
+					if (length < l)
+						{
+						infoGen.put(item, length, service->responseBuffer.space);
+						service->responseOffset = length;
+						}
+					else
+						{
+						infoGen.put(item, l, service->responseBuffer.space);
+						service->responseOffset = l;
+						infoGen.forceTruncation();
+						}
+					
+					break;
+
+				case isc_info_svc_response_more:
+					length = service->responseLength - service->responseOffset;
+					l = infoGen.maxRemaining();
+					
+					if (length < l)
+						{
+						infoGen.put(item, length, service->responseBuffer.space + service->responseOffset);
+						service->responseOffset = 0;
+						service->responseLength = 0;
+						}
+					else
+						{
+						infoGen.put(item, l, service->responseBuffer.space + service->responseOffset);
+						service->responseOffset += l;
+						infoGen.forceTruncation();
+						}
+						
+					/***
+					if ( (l = length = service->svc_resp_len) )
+						length = MIN(end - (info + 5), l);
+						
+					if (!(info = INF_put_item(item, length, service->svc_resp_ptr, info, end))) 
+						{
+						THREAD_ENTER;
+						return 0;
+						}
+						
+					service->svc_resp_ptr += length;
+					service->svc_resp_len -= length;
+					
+					if (length != l)
+						*info++ = isc_info_truncated;
+					***/
+					break;
+
+				case isc_info_svc_total_length:
+					service_put(service, &item, 1);
+					service_get(service, &item, 1, GET_BINARY, 0, &length);
+					service_get(service, infoBuffer, 2, GET_BINARY, 0, &length);
+					l = (USHORT) gds__vax_integer(infoBuffer, 2);
+					service_get(service, infoBuffer, l, GET_BINARY, 0, &length);
+					infoGen.put(item, length, infoBuffer);
+					break;
+
+				case isc_info_svc_line:
+				case isc_info_svc_to_eof:
+				case isc_info_svc_limbo_trans:
+				case isc_info_svc_get_users:
+					if (item == isc_info_svc_line)
+						get_flags = GET_LINE;
+					else if (item == isc_info_svc_to_eof)
+						get_flags = GET_EOF;
+					else
+						get_flags = GET_BINARY;
+
+					TempSpace tempSpace(sizeof(infoBuffer), infoBuffer);
+					l = infoGen.maxRemaining();
+					tempSpace.resize(l);
+					service_get(service, tempSpace.space, l, get_flags, timeout, &length);
+					infoGen.put(item, length, tempSpace.space);
+					
+					/* If the read timed out, return the data, if any, & a timeout
+					item.  If the input buffer was not large enough
+					to store a read to eof, return the data that was read along
+					with an indication that more is available. */
+
+					if (service->svc_flags & SVC_timeout)
+						*info++ = isc_info_svc_timeout;
+					else
+						{
+						if (!length && !(service->svc_flags & SVC_finished))
+							*info++ = isc_info_data_not_ready;
+						else
+							if (item == isc_info_svc_to_eof && !(service->svc_flags & SVC_finished))
+								*info++ = isc_info_truncated;
+						}
+						
+					break;
+					}
+
+			if (service->svc_user_flag == SVC_user_none)
+				break;
+			}
+
+		if (!infoPutError)
+			infoGen.fini();
+
+		THREAD_ENTER;
+
+		// Clean up remaining paths probably left due error
+		while (!databasePaths.isEmpty())
+			{
+			JString* databasePath = (JString*) databasePaths.pop();
+			delete databasePath;
+			}
+		}
+	catch (...)
+		{
+		// Clean up remaining paths probably left due exception
+		while (!databasePaths.isEmpty())
+			{
+			JString* databasePath = (JString*) databasePaths.pop();
+			delete databasePath;
+			}
+			
+		throw;
+		}
+
 	
 	//return tdbb->tdbb_status_vector[1];
 	return 0;

@@ -669,6 +669,12 @@
 				RelativePath="..\..\..\src\jrd\Engine8.def">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\EngineInfo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\EngineInfoGen.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Entrypoint.cpp">
 			</File>
 			<File
@@ -2777,6 +2783,12 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\Engine8.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\EngineInfo.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\EngineInfoGen.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\entry.h">

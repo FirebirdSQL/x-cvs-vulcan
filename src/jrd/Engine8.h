@@ -156,6 +156,7 @@ public:
 
 	virtual ISC_STATUS updateAccountInfo(ISC_STATUS* statusVector, DbHandle* dbHandle, int apbLength, const UCHAR* apb);
 	virtual ISC_STATUS authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandle, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
+	virtual ISC_STATUS engineInfo(ISC_STATUS* userStatus, const TEXT* engineName, int itemsLength, const UCHAR *items, int bufferLength, UCHAR *buffer);
 };
 
 #endif // !defined(AFX_ENGINE8_H__A2B53E9A_1888_44F9_BED1_D488D59F6B44__INCLUDED_)

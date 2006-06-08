@@ -582,3 +582,10 @@ ISC_STATUS Engine8::authenticateUser(ISC_STATUS* statusVector, DbHandle* dbHandl
 									   itemsLength, items,
 									   bufferLength, buffer));
 }
+
+ISC_STATUS Engine8::engineInfo(ISC_STATUS* userStatus, const TEXT* engineName, int itemsLength, const UCHAR *items, int bufferLength, UCHAR *buffer)
+{
+	enterSystem();
+	
+	return exitSystem (jrd8_engine_info(userStatus, engineName, itemsLength, items, bufferLength, buffer));
+}

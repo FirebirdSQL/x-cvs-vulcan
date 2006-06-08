@@ -16,7 +16,7 @@ public:
 	bool putInt (UCHAR item, int value);
 	bool putShort (UCHAR item, int value);
 	bool putShort (int value);
-	bool put (UCHAR item, int length);
+	bool put(UCHAR item, int length);
 	bool put(UCHAR item, int length, const UCHAR* stuff);
 	InfoGen(UCHAR *buffer, int bufferLength);
 	virtual ~InfoGen();
@@ -29,6 +29,8 @@ public:
 	bool putUnknown(UCHAR item);
 	bool putInt(int value);
 	bool putByte(UCHAR item, UCHAR stuff);
+	bool putItem(UCHAR item); 
+	int size();
 	int maxRemaining(void);
 	void forceTruncation(void);
 };

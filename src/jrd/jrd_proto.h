@@ -146,6 +146,10 @@ ISC_STATUS jrd8_user_info(ISC_STATUS*, Attachment**, int dpbLength, const UCHAR 
 						  int itemsLength, const UCHAR *items,
 						  int bufferLength, UCHAR *buffer);
 
+ISC_STATUS jrd8_engine_info(ISC_STATUS* userStatus, const TEXT* engineName,
+							int itemsLength, const UCHAR *items, 
+							int bufferLength, UCHAR *buffer);
+
 void jrd_vtof(const char*, char*, SSHORT);
 
 #ifdef SERVER_SHUTDOWN

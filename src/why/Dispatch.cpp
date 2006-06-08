@@ -2484,3 +2484,51 @@ ISC_STATUS Dispatch::setConfigText(ISC_STATUS *userStatus, const char* configTex
 
 	return statusVector.getReturn();
 }
+
+ISC_STATUS Dispatch::engineInfo(ISC_STATUS* userStatus, const TEXT* engineName,
+								int itemsLength, const UCHAR *items, 
+								int bufferLength, UCHAR *buffer)
+{
+	if (!initialized)
+		initialize();
+
+	trace ("engineInfo");
+	StatusVector statusVector (userStatus, traceFlags);
+
+	bool haveError = false;
+	
+	ConfObject *confObject = Configuration::findObject ("engines", "generic");
+	
+	if (!confObject)
+		{
+		statusVector.post(isc_bad_svc_handle, isc_arg_string, "", isc_arg_end);
+		return statusVector.getReturn();
+		}
+		
+	for (int n = 0;; ++n)
+		{
+		JString providerName = confObject->getValue (n, "provider");
+		if (providerName.IsEmpty())
+			break;
+		Provider *provider = getProvider (providerName);
+		if (provider->subsystems)
+			for (int subsys = 0;; ++subsys)
+				{
+				Subsystem *subsystem = provider->subsystems [subsys];
+				if (!subsystem)
+					break;
+
+				if (subsystem->engineInfo(statusVector, engineName, itemsLength, items, bufferLength, buffer))
+					haveError = true;
+				else
+					{
+					return statusVector.getReturn();
+					}
+				}
+		}
+
+	if (haveError)
+		return statusVector.getCode();
+
+	return entrypointUnavailable (userStatus);
+}

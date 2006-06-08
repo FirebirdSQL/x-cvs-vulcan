@@ -193,6 +193,9 @@
 				RelativePath="..\..\..\src\jrd\enc.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\EngineInfoGen.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Error.cpp">
 			</File>
 			<File
@@ -296,6 +299,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\services\services.def">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Stack.cpp">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\status.cpp">
@@ -513,6 +519,9 @@
 				RelativePath="..\..\..\src\jrd\enc_proto.h">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\EngineInfoGen.h">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\Error.h">
 			</File>
 			<File
@@ -631,6 +640,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\src\burp\spit.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\Stack.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\status.h">
