@@ -104,6 +104,7 @@ void dsql_fld::setType(dsc* desc, int dimensions)
 	fld_length = desc->dsc_length;
 	fld_sub_type = desc->dsc_sub_type;
 	fld_ttype = desc->dsc_sub_type;
+	fld_flags |= (desc->dsc_flags & DSC_nullable) ? FLD_nullable : 0;
 	fld_dimensions = dimensions;
 
     if (fld_dtype <= dtype_any_text)  

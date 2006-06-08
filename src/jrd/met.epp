@@ -2150,6 +2150,8 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 							   FLD.RDB$FIELD_SUB_TYPE,
 							   FLD.RDB$CHARACTER_SET_ID,
 							   FLD.RDB$COLLATION_ID);
+				if (!(RFR.RDB$NULL_FLAG || FLD.RDB$NULL_FLAG))
+					desc.dsc_flags |= DSC_nullable;
 				field->setType(&desc, FLD.RDB$DIMENSIONS);
 				field->fld_id = RFR.RDB$FIELD_ID;
 				field->fld_position = RFR.RDB$FIELD_POSITION;
@@ -2185,6 +2187,8 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 									FLD.RDB$FIELD_SCALE, FLD.RDB$FIELD_LENGTH,
 									FLD.RDB$FIELD_SUB_TYPE, FLD.RDB$CHARACTER_SET_ID,
 									FLD.RDB$COLLATION_ID);
+				if (!(RFR.RDB$NULL_FLAG || FLD.RDB$NULL_FLAG))
+					desc.dsc_flags |= DSC_nullable;
 				field->setType(&desc, FLD.RDB$DIMENSIONS);
 				field->fld_id = RFR.RDB$FIELD_ID;
 				field->fld_position = RFR.RDB$FIELD_POSITION;
