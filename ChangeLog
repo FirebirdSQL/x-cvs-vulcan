@@ -1,3 +1,26 @@
+2006-06-08 13:56  arnobrinkman
+
+	* vulcan/: builds/MasterBuildConfig/Services/Services.vcproj,
+	builds/MasterBuildConfig/jrd/jrd.vcproj, src/Services/Services.cpp:
+	
+	Add fb_engine_info call to engine
+
+2006-06-08 13:53  arnobrinkman
+
+	* vulcan/src/: jrd/EngineInfo.cpp, jrd/EngineInfo.h,
+	jrd/EngineInfoGen.cpp, jrd/EngineInfoGen.h, jrd/Engine8.cpp,
+	jrd/Engine8.h, jrd/InfoGen.cpp, jrd/InfoGen.h, jrd/Subsystem.cpp,
+	jrd/Subsystem.h, jrd/ibase.h, jrd/jrd.cpp, jrd/jrd_proto.h,
+	jrd/svc.cpp, why/Dispatch.cpp, why/Dispatch.h, why/entrypoints.cpp:
+	
+	Add fb_engine_info call to engine
+
+2006-06-08 13:37  dimitr
+
+	* vulcan/src/: jrd/met.epp, dsql/dsql_rel.cpp:
+	
+	Fixed lost nullability flag after ALTER TABLE.
+
 2006-06-07 05:00  verbguy
 
 	* vulcan/src/jrd/: jrd.cpp, tra.cpp, tra.h:
