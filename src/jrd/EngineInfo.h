@@ -1,5 +1,5 @@
 /*
- *	PROGRAM:	Engine information
+ *	PROGRAM:	Engine information interface
  *	MODULE:		EngineInfo.h
  *	DESCRIPTION:	EngineInfo
  *
@@ -17,7 +17,7 @@
  *  The Original Code was created by Arno Brinkman
  *  for the Firebird Open Source RDBMS project.
  *
- *  Copyright (c) 2004 Arno Brinkman <firebird@abvisie.nl>
+ *  Copyright (c) 2006 Arno Brinkman <firebird@abvisie.nl>
  *  and all contributors signed below.
  *
  *  All Rights Reserved.
