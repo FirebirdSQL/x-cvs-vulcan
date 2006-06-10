@@ -20,7 +20,6 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  *
- * $Id$
  * 2001.5.20 Claudio Valderrama: Stop null pointer that leads to a crash,
  * caused by incomplete yacc syntax that allows ALTER DOMAIN dom SET;
  *

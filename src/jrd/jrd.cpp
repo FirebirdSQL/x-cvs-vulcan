@@ -2259,8 +2259,8 @@ ISC_STATUS GDS_DROP_DATABASE(ISC_STATUS * user_status, Attachment* * handle)
 
 
 ISC_STATUS GDS_ENGINE_INFO(ISC_STATUS* userStatus, const TEXT* engineName,
-						   int itemsLength, const UCHAR *items, 
-						   int bufferLength, UCHAR *buffer)
+						   int itemsLength, const UCHAR* items, 
+						   int bufferLength, UCHAR* buffer)
 {
 /**************************************
  *

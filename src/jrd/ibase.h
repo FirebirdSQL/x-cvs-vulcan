@@ -1795,32 +1795,32 @@ enum info_db_provider
  * Engine information global items  *
  ************************************/
 
-#define isc_info_engine_list_begin            5		// begin of list
-#define isc_info_engine_list_end              6		// end of list
-#define isc_info_engine_value                 7		// data will follow in the format <length> <data in bytes by length>
+#define isc_info_engine_list_begin			 5	// begin of list
+#define isc_info_engine_list_end			 6	// end of list
+#define isc_info_engine_value				 7	// data will follow in the format <length> <data in bytes by length>
 
 /************************************ 
  * Engine information request items *
  ************************************/
 
-#define isc_info_engine_req_database_paths   10		// list database paths
-#define isc_info_engine_req_num_attachments  11		// number of attachments per database
-#define isc_info_engine_req_num_databases    12		// number of databases
-#define isc_info_engine_req_engine_version   13		// version of engine
+#define isc_info_engine_req_database_paths	10	// list database paths
+#define isc_info_engine_req_num_attachments	11	// number of attachments per database
+#define isc_info_engine_req_num_databases	12	// number of databases
+#define isc_info_engine_req_engine_version	13	// version of engine
 
 /************************************ 
  * Engine information return items  *
  ************************************/
 
-#define isc_info_engine_begin            10		// begin of engine info block
-#define isc_info_engine_end              11		// end of engine info block (isc_info_end will still be the last item)
-#define isc_info_engine_num_databases    12		// number of databases
-#define isc_info_engine_databases        13		// list database info with sub-items
-#define isc_info_engine_engine_version   14		// version of engine
+#define isc_info_engine_begin				10	// begin of engine info block
+#define isc_info_engine_end					11	// end of engine info block (isc_info_end will still be the last item)
+#define isc_info_engine_num_databases		12	// number of databases
+#define isc_info_engine_databases			13	// list database info with sub-items
+#define isc_info_engine_engine_version		14	// version of engine
 
 // database sub-items
-#define isc_info_engine_db_path          10		// sub-item database path
-#define isc_info_engine_db_attachments   11		// sub-item number of attachments
+#define isc_info_engine_db_path				10	// sub-item database path
+#define isc_info_engine_db_attachments		11	// sub-item number of attachments
 
 /*********************************/
 /* Event Parameter Block items   */
