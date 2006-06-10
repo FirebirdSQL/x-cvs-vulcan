@@ -67,7 +67,7 @@ bool InfoGen::putInt(UCHAR item, int value)
 	return putInt(value);
 }
 
-int InfoGen::size()
+int InfoGen::size() const
 {
 	return ptr - buffer;
 }
@@ -119,14 +119,14 @@ bool InfoGen::putByte(UCHAR item, UCHAR stuff)
 	return put(item, 1, &stuff);
 }
 
-int InfoGen::maxRemaining(void)
+int InfoGen::maxRemaining() const
 {
 	int n = yellow - ptr - 3;
 	
 	return (n >= 0) ? n : 0;
 }
 
-void InfoGen::forceTruncation(void)
+void InfoGen::forceTruncation()
 {
 	full = true;
 	*ptr++ = isc_info_truncated;

@@ -30,9 +30,9 @@ public:
 	bool putInt(int value);
 	bool putByte(UCHAR item, UCHAR stuff);
 	bool putItem(UCHAR item); 
-	int size();
-	int maxRemaining(void);
-	void forceTruncation(void);
+	int size() const;
+	int maxRemaining() const;
+	void forceTruncation();
 };
 
 #endif // !defined(AFX_INFOGEN_H__0BBF8C41_9AA3_4D97_B8BC_C21C67DA5539__INCLUDED_)
