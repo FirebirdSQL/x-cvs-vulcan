@@ -1,3 +1,34 @@
+2006-06-10 03:34  asfernandes
+
+	* vulcan/src/jrd/Sync.cpp:
+	
+	Misc
+
+2006-06-10 03:29  asfernandes
+
+	* vulcan/src/jrd/: InfoGen.cpp, InfoGen.h:
+	
+	Put const in methods - requested by Claudio
+
+2006-06-09 14:28  arnobrinkman
+
+	* vulcan/src/jrd/: EngineInfo.cpp, EngineInfo.h, EngineInfoGen.cpp,
+	EngineInfoGen.h:
+	
+	Add missing license info
+
+2006-06-09 14:24  arnobrinkman
+
+	* vulcan/install/master.conf:
+	
+	Add engines block to master configuration file
+
+2006-06-09 14:06  arnobrinkman
+
+	* vulcan/builds/win32/defs/gds32.def:
+	
+	Add fb_engine_info call
+
 2006-06-08 13:56  arnobrinkman
 
 	* vulcan/: builds/MasterBuildConfig/Services/Services.vcproj,
