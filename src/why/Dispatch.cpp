@@ -2486,8 +2486,8 @@ ISC_STATUS Dispatch::setConfigText(ISC_STATUS *userStatus, const char* configTex
 }
 
 ISC_STATUS Dispatch::engineInfo(ISC_STATUS* userStatus, const TEXT* engineName,
-								int itemsLength, const UCHAR *items, 
-								int bufferLength, UCHAR *buffer)
+								int itemsLength, const UCHAR* items, 
+								int bufferLength, UCHAR* buffer)
 {
 	if (!initialized)
 		initialize();
@@ -2521,9 +2521,7 @@ ISC_STATUS Dispatch::engineInfo(ISC_STATUS* userStatus, const TEXT* engineName,
 				if (subsystem->engineInfo(statusVector, engineName, itemsLength, items, bufferLength, buffer))
 					haveError = true;
 				else
-					{
 					return statusVector.getReturn();
-					}
 				}
 		}
 

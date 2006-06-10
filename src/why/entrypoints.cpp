@@ -1849,8 +1849,8 @@ ISC_STATUS ISC_EXPORT fb_config_file (ISC_STATUS* userStatus,
 }
 
 ISC_STATUS API_ROUTINE fb_engine_info(ISC_STATUS* userStatus, const TEXT* engineName, 
-									  int itemsLength, const UCHAR *items, 
-									  int bufferLength, UCHAR *buffer)
+									  int itemsLength, const UCHAR* items, 
+									  int bufferLength, UCHAR* buffer)
 {
 	if (!dispatch)
 		initialize();

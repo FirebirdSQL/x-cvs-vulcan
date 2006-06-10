@@ -230,8 +230,7 @@ public:
 	virtual ISC_STATUS cancelOperation(ISC_STATUS* userStatus, DbHandle* dbHandle, int flags);
 	virtual ISC_STATUS updateAccountInfo(ISC_STATUS* userStatus, DbHandle* dbHandle, int apbLength, const UCHAR* apb);
 	virtual ISC_STATUS authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandle, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
-	virtual ISC_STATUS engineInfo(ISC_STATUS* userStatus, const TEXT* engineName, int itemsLength, const UCHAR *items, int bufferLength, UCHAR *buffer);
-
+	virtual ISC_STATUS engineInfo(ISC_STATUS* userStatus, const TEXT* engineName, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 };
 
 #endif // !defined(AFX_SUBSYSTEM_H__AE519A29_124C_411B_BF19_9BB7F234FC77__INCLUDED_)

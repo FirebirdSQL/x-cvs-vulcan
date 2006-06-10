@@ -1,4 +1,3 @@
-/* $Id$ */
 /*
  *  The contents of this file are subject to the Initial
  *  Developer's Public License Version 1.0 (the "License");
@@ -227,8 +226,8 @@ public:
 	virtual ISC_STATUS updateAccountInfo (ISC_STATUS *userStatus, DbHandle *dbHandle, int apbLength, const UCHAR *apb);
 	virtual ISC_STATUS authenticateUser(ISC_STATUS* userStatus, DbHandle* dbHandle, int dpbLength, const UCHAR* dpb, int itemsLength, const UCHAR* items, int bufferLength, UCHAR* buffer);
 	virtual ISC_STATUS engineInfo(ISC_STATUS* userStatus, const TEXT* engineName,
-								  int itemsLength, const UCHAR *items, 
-								  int bufferLength, UCHAR *buffer);
+								  int itemsLength, const UCHAR* items, 
+								  int bufferLength, UCHAR* buffer);
 
 protected:
 	Provider*	getProvider(JString providerName);

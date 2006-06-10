@@ -907,12 +907,14 @@ static SSHORT par_context(CompilerScratch* csb, SSHORT* context_ptr)
 
 	const SSHORT stream = csb->nextStream(false);
 	
-	if (stream > MAX_STREAMS) 
+	if (stream > MAX_STREAMS)
+	{
 		// TMN: Someone please review this to verify that
 		// isc_too_many_contexts is indeed the right error to report.
 		// "Too many streams" would probably be more correct, but we
 		/// don't have such an error (yet).
 		error(csb, isc_too_many_contexts, 0);
+	}
 
 	fb_assert(stream <= MAX_STREAMS);
 	const SSHORT context = (unsigned int) BLR_BYTE;

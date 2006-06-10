@@ -945,12 +945,12 @@ ISC_STATUS SVC_query2(Service* service,
 
 	THREAD_EXIT;
 
-	/* Setup the status vector */
+	// Setup the status vector
 	
 	//ISC_STATUS *status = tdbb->tdbb_status_vector;
 	//*status++ = isc_arg_gds;
 
-	/* Process the send portion of the query first. */
+	// Process the send portion of the query first
 
 	USHORT timeout = 0;
 	const UCHAR* items = send_items;
@@ -995,13 +995,13 @@ ISC_STATUS SVC_query2(Service* service,
 				break;
 			}
 
-	/* Process the receive portion of the query now. */
+	// Process the receive portion of the query now
 
 
 	items = recv_items;
 	const UCHAR* const end_items2 = items + recv_item_length;
 	
-	/* Build request info specific for engine */
+	// Build request info specific for engine
 	UCHAR requestBuffer[MAXPATHLEN];
 	EngineInfoGen requestEngineInfo(requestBuffer, sizeof(requestBuffer));
 
@@ -1009,9 +1009,6 @@ ISC_STATUS SVC_query2(Service* service,
 		{
 		switch ((item = *items++))
 			{
-			case isc_info_end:
-				break;
-
 			case isc_info_svc_svr_db_info:
 				requestEngineInfo.putItem(isc_info_engine_req_database_paths);
 				requestEngineInfo.putItem(isc_info_engine_req_num_attachments);
@@ -1024,7 +1021,7 @@ ISC_STATUS SVC_query2(Service* service,
 			}
 		}
 
-	/* Get engine information if we have an engine info request */
+	// Get engine information if we have an engine info request
 	int nrOfAttachments = 0;
 	JString engineVersion = "";
 	Stack databasePaths;
@@ -1037,8 +1034,10 @@ ISC_STATUS SVC_query2(Service* service,
 			ISC_STATUS statusVector[ISC_STATUS_LENGTH];
 			UCHAR infoBuffer[32000];
 			if (fb_engine_info(statusVector, NULL, sizeof(requestBuffer), requestBuffer,
-					sizeof(infoBuffer), infoBuffer))				
+					sizeof(infoBuffer), infoBuffer))
+				{
 				throw OSRIException(statusVector);
+				}
 
 			EngineInfoReader readInfo(infoBuffer, sizeof(infoBuffer));
 
@@ -1051,13 +1050,10 @@ ISC_STATUS SVC_query2(Service* service,
 				switch (engineItem)
 					{
 					case isc_info_engine_engine_version:
-						{
 						engineVersion = readInfo.getValueString();
 						break;
-						}
 
 					case isc_info_engine_databases:
-						{
 						engineItem = readInfo.getItem();
 						if (engineItem != isc_info_engine_list_begin)
 							{
@@ -1091,7 +1087,6 @@ ISC_STATUS SVC_query2(Service* service,
 								}
 							}
 						break;
-						}
 
 					default:
 						readInfo.skipItem();
