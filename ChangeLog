@@ -1,3 +1,18 @@
+2006-06-10 21:26  asfernandes
+
+	* vulcan/src/: jrd/Subsystem.cpp, jrd/Subsystem.h, jrd/par.cpp,
+	jrd/svc.cpp, why/Dispatch.cpp, why/Dispatch.h, why/entrypoints.cpp:
+	
+	Misc
+
+2006-06-10 04:19  asfernandes
+
+	* vulcan/src/: dsql/ddl.cpp, jrd/Database.h, jrd/Engine8.cpp,
+	jrd/Engine8.h, jrd/ibase.h, jrd/jrd.cpp, jrd/jrd_proto.h,
+	jrd/met.epp:
+	
+	Misc
+
 2006-06-10 03:34  asfernandes
 
 	* vulcan/src/jrd/Sync.cpp:
