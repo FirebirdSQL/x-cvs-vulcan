@@ -31,7 +31,7 @@
 #if !defined(AFX_LEX_H__89737590_2C93_4F77_99AD_4C3881906C96__INCLUDED_)
 #define AFX_LEX_H__89737590_2C93_4F77_99AD_4C3881906C96__INCLUDED_
 
-#if _MSC_VER > 1000
+#if defined _MSC_VER  && _MSC_VER >= 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
@@ -69,6 +69,7 @@ class Lex
 {
 public:
 	void captureStuff();
+	char& charTable(int ch);
 	bool getSegment();
 	void pushStream (InputStream *stream);
 	void setContinuationChar (char c);
@@ -76,12 +77,12 @@ public:
 	JString getName();
 	JString reparseFilename();
 	bool match (const char *word);
-	bool isKeyword (const char *word);
+	bool isKeyword (const char *word) const;
 	void setCommentString (const char *start, const char *end);
 	void setLineComment (const char *string);
 	void setCharacters (int type, const char *characters);
 	void getToken();
-	bool match (const char *pattern, const char *string);
+	static bool match (const char *pattern, const char *string);
 	void skipWhite();
 	Lex(const char *punctuation, int debugFlags);
 	virtual ~Lex();
@@ -106,7 +107,7 @@ public:
 	const char	*commentStart;
 	const char	*commentEnd;
 	char		continuationChar;
-	char		charTable [256];
+	char		charTableArray [256];	// Don't use directly. Use through charTable.
 };
 
 END_NAMESPACE
