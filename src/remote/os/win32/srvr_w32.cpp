@@ -400,9 +400,6 @@ static int inet_connect_wait_thread( void* dummy)
 	if (!(server_flag & SRVR_non_service))
 		thread = CNTL_insert_thread();
 
-#ifdef DEBUG_SERVICES
-//	DebugBreak();
-#endif
 	Port *port = INET_connect(protocol_inet, configuration, 0, status_vector, server_flag, 0, 0);
 	
 	if (port)
@@ -503,10 +500,6 @@ static void THREAD_ROUTINE xnet_connect_wait_thread(void *dummy)
 	void *thread;
 	ISC_STATUS_ARRAY status_vector;
 	
-#ifdef DEBUG_SERVICES
-	DebugBreak();
-#endif
-
 	if (!(server_flag & SRVR_non_service))
 		thread = CNTL_insert_thread();
 	//XNET_srv(server_flag);
