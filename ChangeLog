@@ -1,3 +1,11 @@
+2006-06-21 14:43  dimitr
+
+	* vulcan/src/jrd/TempSpace.cpp:
+	
+	If you extend the temp buffer via reallocation, don't forget to
+	copy the old contents :-) In particular, this bug caused garbage in
+	string literals longer than 256 bytes (used in dsql/SQLParse.cpp).
+
 2006-06-18 11:59  dimitr
 
 	* vulcan/src/remote/os/win32/srvr_w32.cpp:
