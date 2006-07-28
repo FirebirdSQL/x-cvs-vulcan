@@ -2249,6 +2249,8 @@ Relation* MET_lookup_relation(thread_db* tdbb, const char* name)
 			{
 			relation = dbb->getRelation(tdbb, X.RDB$RELATION_ID);
 			relation->rel_dbkey_length = X.RDB$DBKEY_LENGTH;
+			if (!relation->rel_dbkey_length)
+				relation->rel_dbkey_length = 8;
 			if (!relation->rel_name)
 				{
 				relation->rel_name = MET_save_name(tdbb, name);
@@ -2346,6 +2348,8 @@ Relation* MET_lookup_relation_id(thread_db* tdbb, SLONG id, BOOLEAN return_delet
 
 		relation = dbb->getRelation(tdbb, X.RDB$RELATION_ID);
 		relation->rel_dbkey_length = X.RDB$DBKEY_LENGTH;
+		if (!relation->rel_dbkey_length)
+			relation->rel_dbkey_length = 8;
 		if (!relation->rel_name)
 			{
 			relation->rel_name = MET_save_name(tdbb, X.RDB$RELATION_NAME);
