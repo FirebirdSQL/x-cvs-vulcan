@@ -159,9 +159,9 @@ int PRETTY_print_cdb( SCHAR * blr,
 	indent(control, level);
 	i = BLR_BYTE;
 	if (*control->ctl_blr)
-		sprintf((SCHAR *) temp, "isc__dpb_version%d, ", i);
+		sprintf((SCHAR *) temp, "isc_dpb_version%d, ", i);
 	else
-		sprintf((SCHAR *) temp, "isc__dpb_version%d", i);
+		sprintf((SCHAR *) temp, "isc_dpb_version%d", i);
 	blr_format(control, temp);
 	PRINT_LINE;
 
