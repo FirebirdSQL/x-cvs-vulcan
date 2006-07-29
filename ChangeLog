@@ -1,3 +1,9 @@
+2006-07-28 07:58  dimitr
+
+	* vulcan/src/jrd/met.epp:
+	
+	Fixed C_SQL_PRED_17. Reported by Bill Oliver.
+
 2006-06-21 14:43  dimitr
 
 	* vulcan/src/jrd/TempSpace.cpp:
