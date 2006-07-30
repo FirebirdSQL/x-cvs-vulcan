@@ -1,3 +1,10 @@
+2006-07-29 12:02  hvlad
+
+	* vulcan/src/gpre/pretty.cpp:
+	
+	Lets gpre to generate dpb right (isc_dpb_version1 but not
+	isc__dpb_version1)
+
 2006-07-28 07:58  dimitr
 
 	* vulcan/src/jrd/met.epp:
