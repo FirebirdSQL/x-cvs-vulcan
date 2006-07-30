@@ -23,9 +23,6 @@
 //  TMN (Mike Nordell) 11.APR.2001 - Reduce compiler warnings
 //  
 //
-//____________________________________________________________
-//
-//	$Id$
 //
 
 #include <stdio.h>
