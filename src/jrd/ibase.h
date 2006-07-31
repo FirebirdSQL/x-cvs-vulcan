@@ -51,14 +51,7 @@
 
 #include <limits.h>
 
-typedef	int				ISC_LONG;
-typedef	unsigned int	ISC_ULONG;
 typedef unsigned int    isc_handle;
-
-typedef	signed short	ISC_SHORT;
-typedef	unsigned short	ISC_USHORT;
-
-typedef	unsigned char	ISC_UCHAR;
 
 #define  DSQL_close     1
 #define  DSQL_drop      2

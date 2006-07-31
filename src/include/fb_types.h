@@ -125,11 +125,18 @@ typedef struct GDS_QUAD_t ISC_QUAD;
 //
 typedef char SCHAR;
 
-
 typedef unsigned char UCHAR;
 typedef short SSHORT;
 typedef unsigned short USHORT;
 
+// Substitution of API data types 
+
+typedef SCHAR ISC_SCHAR;
+typedef UCHAR ISC_UCHAR;
+typedef SSHORT ISC_SHORT;
+typedef USHORT ISC_USHORT;
+typedef SLONG ISC_LONG;
+typedef ULONG ISC_ULONG;
 
 //
 // TMN: some misc data types from all over the place
