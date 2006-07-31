@@ -173,6 +173,7 @@ static bool test_and_fixup_error(thread_db*, const PsqlException*, Request*);
 static void trigger_failure(thread_db*, Request*);
 static void validate(thread_db*, JRD_NOD);
 inline void PreModifyEraseTriggers(thread_db*, Relation*, Triggers**, SSHORT, record_param*, Record*, req_ta);
+static void stuff_stack_trace(Request* request, OSRIException& exception);
 
 #ifdef PC_ENGINE
 static JRD_NOD find(thread_db*, JRD_NOD);
@@ -208,6 +209,8 @@ static SLONG memory_count = 0;
 #define ALL_TRIGS	0
 #define PRE_TRIG	1
 #define POST_TRIG	2
+
+const size_t MAX_STACK_TRACE = 2048;
 
 /* this constant defines how many records are locked
    before we check whether record locking has been
@@ -1486,7 +1489,56 @@ static Request *execute_triggers(thread_db* tdbb,
 }
 
 
+static void stuff_stack_trace(Request* request, OSRIException& exception)
+{
+	JString sTrace;
+	bool isEmpty = true;
 
+	for (Request* req = request; req; req = req->req_caller)
+	{
+		JString name;
+
+		if (req->req_trg_name.length()) {
+			name = "At trigger '";
+			name += req->req_trg_name;
+		}
+		else if (req->req_procedure) {
+			name = "At procedure '";
+			name += req->req_procedure->findName();
+		}
+
+		if (! name.IsEmpty())
+		{
+			// name.trim();
+
+			if (sTrace.length() + name.length() + 2 > MAX_STACK_TRACE)
+				break;
+
+			if (isEmpty) {
+				isEmpty = false;
+			}
+			else {
+				sTrace += "\n";
+			}
+			sTrace += name + "'";
+
+			//if (req->req_src_line)
+			//{
+			//	Firebird::string src_info;
+			//	src_info.printf(" line: %u, col: %u", req->req_src_line, req->req_src_column);
+
+			//	if (sTrace.length() + src_info.length() > MAX_STACK_TRACE)
+			//		break;
+
+			//	sTrace += src_info;
+			//}
+		}
+	}
+
+	if (!isEmpty)
+		// ERR_post_nothrow(isc_stack_trace, isc_arg_string, ERR_cstring(sTrace), 0);
+		exception.postException(isc_stack_trace, isc_arg_string, ERR_cstring(sTrace), 0);
+}
 
 
 static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
@@ -1546,6 +1598,9 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 	Request *old_request = tdbb->tdbb_request;
 	tdbb->tdbb_request = request;
 	tdbb->tdbb_transaction = transaction;
+    fb_assert(request->req_caller == NULL);
+	request->req_caller = old_request;
+
 	SLONG save_point_number = (transaction->tra_save_point) ? transaction->tra_save_point->sav_number : 0;
 	JRD_NOD node = in_node;
 
@@ -1715,7 +1770,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 						if (request->req_operation == req_evaluate) 
 							{
 							if (impure->irsb_flags & irsb_open) 
-								ERR_post(isc_invalid_cursor_state, isc_arg_string, "open", 0);
+								ERR_post(isc_cursor_already_open, 0);
 
 							//RSE_open(tdbb, rsb);
 							rsb->open(request);
@@ -1728,7 +1783,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 						if (request->req_operation == req_evaluate) 
 							{
 							if (!(impure->irsb_flags & irsb_open)) 
-								ERR_post(isc_invalid_cursor_state, isc_arg_string, "closed", 0);
+								ERR_post(isc_cursor_not_open, 0);
 
 							//RSE_close(tdbb, rsb);
 							rsb->close(request);
@@ -1743,7 +1798,7 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 							{
 							case req_evaluate:
 								if (!(impure->irsb_flags & irsb_open)) 
-									ERR_post(isc_invalid_cursor_state, isc_arg_string, "closed", 0);
+									ERR_post(isc_cursor_not_open, 0);
 
 								if (node->nod_arg[e_cursor_stmt_seek]) 
 									{
@@ -2041,6 +2096,8 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 
 								tdbb->tdbb_default = old_pool;
 								tdbb->tdbb_request = old_request;
+								fb_assert(request->req_caller == old_request);
+								request->req_caller = NULL;
 
 								/* Save the previous state of req_error_handler
 								   bit. We need to restore it later. This is
@@ -2069,6 +2126,8 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 								catch_disabled = false;
 								tdbb->tdbb_default = request->req_pool;
 								tdbb->tdbb_request = request;
+								fb_assert(request->req_caller == NULL);
+								request->req_caller = old_request;
 
 								/* The error is dealt with by the application, cleanup
 								this block's savepoint. */
@@ -2117,8 +2176,11 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 
 			case nod_error_handler:
 				if (request->req_flags & req_error_handler && !error_pending) 
+				{
+					fb_assert(request->req_caller == old_request);
+					request->req_caller = NULL;
 					return node;
-
+				}
 				node = node->nod_parent;
 				node = node->nod_parent;
 				
@@ -2451,6 +2513,12 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 		pendingException = exception;
 		request->req_operation = req_unwind;
 		request->req_label = 0;
+		
+		if (! (tdbb->tdbb_flags & TDBB_stack_trace_done) ) 
+		{
+			stuff_stack_trace(request, pendingException);
+			tdbb->tdbb_flags |= TDBB_stack_trace_done;
+		}
 		}
 	} // while()
 
@@ -2489,6 +2557,8 @@ static JRD_NOD looper(thread_db* tdbb, Request *request, JRD_NOD in_node)
 	request->req_next = node;
 	tdbb->tdbb_default = old_pool;
 	tdbb->tdbb_transaction = (tdbb->tdbb_request = old_request) ? old_request->req_transaction : NULL;
+	fb_assert(request->req_caller == old_request);
+	request->req_caller = NULL;
 
 	// in the case of a pending error condition (one which did not
 	// result in a exception to the top of looper), we need to

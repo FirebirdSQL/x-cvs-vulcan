@@ -1865,9 +1865,9 @@ SLONG API_ROUTINE gds__sqlcode(const ISC_STATUS* status_vector)
 				USHORT code = (USHORT) gds__decode(status_vector[1], &fac, &class_);
 
 				if ((code < FB_NELEM(gds__sql_code)) &&
-					(gds__sql_code[code] != GENERIC_SQLCODE))
+					(gds__sql_code[code].sql_code != GENERIC_SQLCODE))
 				{
-					sqlcode = gds__sql_code[code];
+					sqlcode = gds__sql_code[code].sql_code;
 					have_sqlcode = true;
 				}
 			}
