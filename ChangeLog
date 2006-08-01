@@ -1,3 +1,48 @@
+2006-07-31 22:23  hvlad
+
+	* vulcan/src/jrd/: exe.cpp, gds.cpp, tdbb.h:
+	
+	Ported FB2 ability to stuff PSQL stack trace into status vector
+
+2006-07-31 22:21  hvlad
+
+	* vulcan/src/include/gen/: codes.h, codetext.h, gds_codes.ftn,
+	gds_codes.pas, iberror.h, msg_facs.h, msgs.h, rdb_codes.h,
+	sql_code.h:
+	
+	Regenerate error codes to match FB2
+
+2006-07-31 22:20  hvlad
+
+	* vulcan/src/jrd/codes.epp:
+	
+	Update codes.epp from FB2's one
+
+2006-07-31 22:19  hvlad
+
+	* vulcan/src/msgs/msg.gbak:
+	
+	Update msg.gbak from FB2's one
+
+2006-07-31 22:19  hvlad
+
+	* vulcan/src/msgs/build_file.epp:
+	
+	Fix build_file.epp to produce right blr constants
+
+2006-07-31 22:17  hvlad
+
+	* vulcan/src/: include/fb_types.h, jrd/ibase.h:
+	
+	Move ISC_xxx types from ibase.h to fb_types.h
+
+2006-07-31 12:41  arnobrinkman
+
+	* vulcan/src/dsql/pass1.cpp:
+	
+	Fix JIRA bug CORE-855 Aggregates on derived fields where allowed in
+	where clause
+
 2006-07-30 04:18  asfernandes
 
 	* vulcan/src/gpre/pretty.cpp:
