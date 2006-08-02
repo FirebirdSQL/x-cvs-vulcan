@@ -56,9 +56,6 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 {
 	const ISC_STATUS *vector = *vectorPtr;
 	
-	if (vector[0] == isc_arg_tkts_error) 
-		vector += 2;
-
 	if (!*vector)
 		return 0;
 
@@ -130,7 +127,7 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 								args[4]) < 0)
 				{
 				if ((decoded < FB_NELEM(messages) - 1) && (decoded >= 0))
-					sprintf(buffer, messages[decoded], args[0], args[1], args[2],
+					sprintf(buffer, messages[decoded].code_text, args[0], args[1], args[2],
 							args[3], args[4]);
 				else
 					sprintf(buffer, "unknown ISC error %ld", code);	/* TXNN */
