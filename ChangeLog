@@ -1,3 +1,10 @@
+2006-08-02 21:43  verbguy
+
+	* vulcan/src/jrd/StatusPrint.cpp:
+	
+	fix compile: remove tkts constant, change ref of messages[decoded]
+	to messages[decoded].code_text
+
 2006-07-31 22:23  hvlad
 
 	* vulcan/src/jrd/: exe.cpp, gds.cpp, tdbb.h:
