@@ -1,4 +1,3 @@
-/* $Id$ */
 #ifndef __TDBB_H_
 #define __TDBB_H_
 
@@ -17,7 +16,7 @@ const USHORT TDBB_no_cache_unwind		= 2;	/* Don't unwind page buffer cache */
 const USHORT TDBB_prc_being_dropped		= 4;	/* Dropping a procedure  */
 const USHORT TDBB_set_backup_state		= 8;	/* Setting state for backup lock */
 const USHORT TDBB_backup_merge			= 16;	/* Merging changes from difference file */
-const USHORT TDBB_stack_trace_done		= 32;	/* PSQL stack trase is added into status-vector */
+const USHORT TDBB_stack_trace_done		= 32;	/* PSQL stack trace is added into status-vector */
 
 #define MAX_THREAD_BDBS		10
 

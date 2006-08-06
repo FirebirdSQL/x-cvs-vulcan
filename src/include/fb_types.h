@@ -22,8 +22,6 @@
  *  This file, fb_types.h was created from ibase.h
  *
  *
- *  $Id$
- *
  * 2002.02.15 Sean Leyne - Code Cleanup, removed obsolete "OS/2" port
  *
  */
