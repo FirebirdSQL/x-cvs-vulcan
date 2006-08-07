@@ -1,3 +1,9 @@
+2006-08-06 20:17  asfernandes
+
+	* vulcan/src/: include/fb_types.h, jrd/tdbb.h:
+	
+	Misc
+
 2006-08-02 21:43  verbguy
 
 	* vulcan/src/jrd/StatusPrint.cpp:
