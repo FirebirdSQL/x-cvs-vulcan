@@ -1857,27 +1857,35 @@ SLONG API_ROUTINE gds__sqlcode(const ISC_STATUS* status_vector)
 				return *(s + 2);
 			}
 
-			if (!have_sqlcode) {
-				/* Now check the hard-coded mapping table of gds_codes to
-				   sql_codes */
-				USHORT fac = 0, class_ = 0;
-
-				USHORT code = (USHORT) gds__decode(status_vector[1], &fac, &class_);
-
-				if ((code < FB_NELEM(gds__sql_code)) &&
-					(gds__sql_code[code].sql_code != GENERIC_SQLCODE))
+			if (!have_sqlcode)
 				{
-					sqlcode = gds__sql_code[code].sql_code;
+				// Now check the hard-coded mapping table of gds_codes to
+				// sql_codes
+				const SLONG gdscode = status_vector[1];
+
+				if (gdscode) {
+					for (int i = 0; gds__sql_code[i].gds_code; ++i) {
+						if (gdscode == gds__sql_code[i].gds_code) {
+							if (gds__sql_code[i].sql_code != GENERIC_SQLCODE) {
+								sqlcode = gds__sql_code[i].sql_code;
+								have_sqlcode = true;
+							}
+							break;
+						}
+					}
+				}
+				else {
+					sqlcode = 0;
 					have_sqlcode = true;
 				}
 			}
 			s++;
 		}
 		else if (*s == isc_arg_cstring)
-			s += 3;				/* skip: isc_arg_cstring <len> <ptr> */
+			s += 3;				// skip: isc_arg_cstring <len> <ptr>
 		else
-			s += 2;				/* skip: isc_arg_* <item> */
-	};
+			s += 2;				// skip: isc_arg_* <item>
+	}
 
 	return sqlcode;
 }
