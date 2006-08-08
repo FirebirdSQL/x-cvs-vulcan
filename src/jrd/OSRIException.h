@@ -73,6 +73,7 @@ public:
 	void release(void);
 	OSRIException(SQLException* exception);
 	void postException(ISC_STATUS code, ...);
+	void appendException(ISC_STATUS code, ...);
 	OSRIException(AdminException* exception);
 	void setBugcheck(void);
 	bool isBugcheck(void);

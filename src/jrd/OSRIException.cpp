@@ -349,6 +349,139 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 	*status = isc_arg_end;
 }
 
+void OSRIException::appendException(ISC_STATUS code, ...)
+{
+	va_list		args;
+	va_start	(args, code);
+
+	int oldStringsLength = stringsLength;
+
+	// Make a first pass counting up string lengths 
+	for (;;)
+	{
+		ISC_STATUS argType = va_arg(args, ISC_STATUS);
+		if (argType == isc_arg_end)
+			break;
+		switch (argType)
+		{
+			case isc_arg_cstring:
+			{
+				stringsLength += va_arg(args, int) + 1;
+				const char *p = va_arg(args, const char*);
+				break;
+			}
+			
+			case isc_arg_string:
+				stringsLength += (int) strlen (va_arg (args, const char*)) + 1;
+				break;
+			
+			case isc_arg_warning:
+			case isc_arg_vms:
+			case isc_arg_unix:
+			case isc_arg_win32:
+			default:
+				va_arg (args, ISC_STATUS);
+		}
+	}
+	va_end (args);
+
+	// Allocate string space if needed
+	char* oldStrings = strings;
+	if (oldStringsLength != stringsLength)
+	{
+		strings = new char [stringsLength + 1];
+		strings[0] = 1;
+
+		if (oldStrings)
+		{
+			strncpy(strings + 1, oldStrings + 1, oldStringsLength);
+			delete[] oldStrings;
+		}
+	}
+	
+	char *p = strings + oldStringsLength + 1;
+	ISC_STATUS *status = statusVector;
+	ISC_STATUS *statusEnd = statusVector + ISC_STATUS_LENGTH;
+
+	// search end of current status-vector and relocate strings
+	while(status < statusEnd)
+	{
+		if (*status == isc_arg_end)
+			break;
+
+		switch (*status)
+		{
+			case isc_arg_cstring:
+				status += 2;
+				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
+			break;
+			
+			case isc_arg_string:
+				status++;
+				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
+			break;
+
+			case isc_arg_warning:
+			case isc_arg_vms:
+			case isc_arg_unix:
+			case isc_arg_win32:
+			default:
+				status++;
+		}
+	}
+
+	if (status >= statusEnd - 3)
+		return;
+
+	// copy stack arguments
+	va_start	(args, code);
+	*status++ = isc_arg_gds;
+	*status++ = code;
+
+	while (status < statusEnd - 3)
+	{
+		ISC_STATUS argType = va_arg (args, ISC_STATUS);
+		if (argType == isc_arg_end)
+			break;
+
+		*status++ = argType;
+		switch (argType)
+		{
+			case isc_arg_cstring:
+			{
+				int l = va_arg (args, int);
+				const char *q = va_arg (args, const char*);
+				*status++ = l;
+				*status++ = (ISC_STATUS) p;
+				while (l--)
+					*p++ = *q++;
+				*p++ = 0;
+			}
+			break;
+			
+			case isc_arg_string:
+			{
+				const char *q = va_arg (args, const char*);
+				*status++ = (ISC_STATUS) p;
+				while (*p++ = *q++)
+					;
+			}
+			break;
+			
+			case isc_arg_warning:
+			case isc_arg_vms:
+			case isc_arg_unix:
+			case isc_arg_win32:
+			case isc_arg_gds:
+			default:
+				*status++ = va_arg (args, ISC_STATUS);
+		}
+	}
+	
+	va_end (args);
+	*status = isc_arg_end;
+}
+
 ISC_STATUS OSRIException::copy(ISC_STATUS* vector, char* stringSpace)
 {
 	if (type == osriAlreadyStuffed)
