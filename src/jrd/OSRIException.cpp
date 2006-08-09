@@ -394,8 +394,10 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 
 		if (oldStrings)
 		{
-			strncpy(strings + 1, oldStrings + 1, oldStringsLength);
-			delete[] oldStrings;
+			memcpy(strings + 1, oldStrings + 1, oldStringsLength);
+
+			if (--(oldStrings[0]) == 0)
+				delete[] oldStrings;
 		}
 	}
 	

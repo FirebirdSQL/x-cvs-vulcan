@@ -1536,10 +1536,7 @@ static void stuff_stack_trace(Request* request, OSRIException& exception)
 	}
 
 	if (!isEmpty) 
-	{
-		// ERR_post_nothrow(isc_stack_trace, isc_arg_string, ERR_cstring(sTrace), 0);
-		exception.appendException(isc_stack_trace, isc_arg_string, sTrace, 0);
-	}
+		exception.appendException(isc_stack_trace, isc_arg_string, sTrace.getString(), 0);
 }
 
 
