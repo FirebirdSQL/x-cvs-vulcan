@@ -1,3 +1,21 @@
+2006-08-08 21:46  hvlad
+
+	* vulcan/src/jrd/exe.cpp:
+	
+	Append stack trace to the existing exception (not overwrite it)
+
+2006-08-08 21:44  hvlad
+
+	* vulcan/src/jrd/: OSRIException.cpp, OSRIException.h:
+	
+	Implement OSRIException::appendException
+
+2006-08-08 21:43  hvlad
+
+	* vulcan/src/jrd/gds.cpp:
+	
+	Right algorithm to search sql codes, ported from FB2
+
 2006-08-06 20:17  asfernandes
 
 	* vulcan/src/: include/fb_types.h, jrd/tdbb.h:
