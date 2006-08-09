@@ -351,8 +351,8 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 
 void OSRIException::appendException(ISC_STATUS code, ...)
 {
-	va_list		args;
-	va_start	(args, code);
+	va_list args;
+	va_start (args, code);
 
 	int oldStringsLength = stringsLength;
 
@@ -360,16 +360,16 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 	for (;;)
 	{
 		ISC_STATUS argType = va_arg(args, ISC_STATUS);
+
 		if (argType == isc_arg_end)
 			break;
+
 		switch (argType)
 		{
 			case isc_arg_cstring:
-			{
 				stringsLength += va_arg(args, int) + 1;
-				const char *p = va_arg(args, const char*);
+				va_arg(args, const char*);
 				break;
-			}
 			
 			case isc_arg_string:
 				stringsLength += (int) strlen (va_arg (args, const char*)) + 1;
@@ -399,12 +399,12 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 		}
 	}
 	
-	char *p = strings + oldStringsLength + 1;
-	ISC_STATUS *status = statusVector;
-	ISC_STATUS *statusEnd = statusVector + ISC_STATUS_LENGTH;
+	char* p = strings + oldStringsLength + 1;
+	ISC_STATUS* status = statusVector;
+	ISC_STATUS* statusEnd = statusVector + ISC_STATUS_LENGTH;
 
 	// search end of current status-vector and relocate strings
-	while(status < statusEnd)
+	while (status < statusEnd)
 	{
 		if (*status == isc_arg_end)
 			break;
@@ -414,12 +414,12 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 			case isc_arg_cstring:
 				status += 2;
 				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
-			break;
+				break;
 			
 			case isc_arg_string:
 				status++;
 				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
-			break;
+				break;
 
 			case isc_arg_warning:
 			case isc_arg_vms:
@@ -434,39 +434,41 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 		return;
 
 	// copy stack arguments
-	va_start	(args, code);
+	va_start (args, code);
 	*status++ = isc_arg_gds;
 	*status++ = code;
 
 	while (status < statusEnd - 3)
 	{
 		ISC_STATUS argType = va_arg (args, ISC_STATUS);
+
 		if (argType == isc_arg_end)
 			break;
 
 		*status++ = argType;
+
 		switch (argType)
 		{
 			case isc_arg_cstring:
 			{
 				int l = va_arg (args, int);
-				const char *q = va_arg (args, const char*);
+				const char* q = va_arg (args, const char*);
 				*status++ = l;
 				*status++ = (ISC_STATUS) p;
 				while (l--)
 					*p++ = *q++;
 				*p++ = 0;
+				break;
 			}
-			break;
 			
 			case isc_arg_string:
 			{
-				const char *q = va_arg (args, const char*);
+				const char* q = va_arg (args, const char*);
 				*status++ = (ISC_STATUS) p;
 				while (*p++ = *q++)
 					;
+				break;
 			}
-			break;
 			
 			case isc_arg_warning:
 			case isc_arg_vms:
