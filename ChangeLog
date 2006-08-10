@@ -1,3 +1,15 @@
+2006-08-09 21:00  hvlad
+
+	* vulcan/src/jrd/: OSRIException.cpp, exe.cpp:
+	
+	Corrections noted by Adriano
+
+2006-08-09 04:55  asfernandes
+
+	* vulcan/src/jrd/OSRIException.cpp:
+	
+	Misc
+
 2006-08-08 21:46  hvlad
 
 	* vulcan/src/jrd/exe.cpp:
