@@ -1594,9 +1594,6 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 				dsc parDesc = parameter->par_desc;
 				parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
 
-				if (DTYPE_IS_TEXT(parDesc.dsc_dtype))
-					parDesc.dsc_sub_type = 0;
-
 				if (alignment)
 					offset = FB_ALIGN (offset, alignment);
 
