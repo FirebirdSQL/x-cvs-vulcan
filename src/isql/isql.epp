@@ -24,7 +24,6 @@
  *
  */
 /*
-  $Id$
   Revision 1.5  2000/11/18 16:49:24  fsg
   Increased PRINT_BUFFER_LENGTH to 2048 to show larger plans
   Fixed Bug #122563 in extract.e get_procedure_args
@@ -6331,7 +6330,8 @@ static int print_sqlda_input(const bool can_have_input_parameters)
 	input_sqlda->sqld = input_sqlda->sqln = 10;
 
 	if (isc_dsql_describe_bind
-		(isc_status, &Stmt, SQL_dialect, input_sqlda)) {
+		(isc_status, &Stmt, SQL_dialect, input_sqlda))
+	{
 		ISQL_errmsg(isc_status);
 		return ERR;
 	}
@@ -6347,7 +6347,8 @@ static int print_sqlda_input(const bool can_have_input_parameters)
 		input_sqlda->version = SQLDA_VERSION1;
 		input_sqlda->sqld = input_sqlda->sqln = n_columns;
 		if (isc_dsql_describe_bind
-			(isc_status, &Stmt, SQL_dialect, input_sqlda)) {
+			(isc_status, &Stmt, SQL_dialect, input_sqlda))
+		{
 			ISQL_errmsg(isc_status);
 			return ERR;
 		}
