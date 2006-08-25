@@ -1,12 +1,17 @@
 ::
 :: Do everything necessary to build Vulcan
 ::
-@echo off
+::=============================================================================
+::Note - if required, set VULCAN_SCRIPT_DEBUG manually before running 
+::       this script. Then remove the @ symbol from the lines you wish  
+::       to debug.
+@if not defined VULCAN_SCRIPT_DEBUG (@echo off) else (@echo on)
 
 :: Know our own name
 @title=Building Firebird Vulcan
 
 :: See if we have a request for help on the command line
+if "%1"=="" (goto :HELP & goto :EOF)
 for %%v in ( %* )  do (
   ( @if /I "%%v"=="-h" (goto :HELP & goto :EOF) )
   ( @if /I "%%v"=="/h" (goto :HELP & goto :EOF) )
@@ -21,7 +26,7 @@ goto :EOF
 :SET_DEFAULTS
 set VULCAN_CLEAN=0
 set VULCAN_CLEANONLY=0
-set VULCAN_ENGINE=1
+set VULCAN_ENGINE=0
 set VULCAN_EXAMPLES=0
 set VULCAN_INSTALL_KITS=0
 set VULCAN_ISS_DEBUG=0
@@ -31,10 +36,12 @@ set VULCAN_REBUILD=0
 set VULCAN_BUILDCONFIG=Release
 set VULCAN_AUTO_BUILD=1
 set VULCAN_PREPAREGUI=0
+set VULCAN_PREPAREGUICLIENT=0
 set VULCAN_CLIENTDIR=
 set VULCAN_START_TIME=0
 set VULCAN_END_TIME=0
 set VULCAN_BAT_DEBUG=
+set DEBUG=
 
 goto :EOF
 
@@ -42,8 +49,10 @@ goto :EOF
 :CHECK_COMMANDLINE
 :: lets see what we have on the command line
 for %%v in ( %* )  do (
-  ( @if /I "%%v"=="-B" (@set VULCAN_BAT_DEBUG=1) )
+  ( @if /I "%%v"=="-A" (@set VULCAN_BAT_DEBUG=1) )
   ( @if /I "%%v"=="BAT_DEBUG" (@set VULCAN_BAT_DEBUG=1) )
+  ( @if /I "%%v"=="-B" (@set VULCAN_ENGINE=1) )
+  ( @if /I "%%v"=="BUILD" (@set VULCAN_ENGINE=1) )
   ( @if /I "%%v"=="-C" (@set VULCAN_CLEAN=1) )
   ( @if /I "%%v"=="CLEAN" (@set VULCAN_CLEAN=1) )
   ( @if /I "%%v"=="-CO" ((@set VULCAN_CLEANONLY=1) & (@set VULCAN_CLEAN=1) ))
@@ -62,14 +71,16 @@ for %%v in ( %* )  do (
   ( @if /I "%%v"=="PREPAREGUI" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1))
   ( @if /I "%%v"=="-PC" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1) & (set VULCAN_CLIENTDIR=client))
   ( @if /I "%%v"=="PREPAREGUICLIENT" (@set VULCAN_AUTO_BUILD=0) & (set VULCAN_PREPAREGUI=1) & (set VULCAN_CLIENTDIR=client))
-  ( @if /I "%%v"=="-R" (@set VULCAN_REBUILD=1) )
-  ( @if /I "%%v"=="REBUILD" (@set VULCAN_REBUILD=1) )
-  ( @if /I "%%v"=="-S" (@set VULCAN_SNAPSHOT=1) )
-  ( @if /I "%%v"=="SNAPSHOT" (@set VULCAN_SNAPSHOT=1) )
+  ( @if /I "%%v"=="-R" (@set VULCAN_REBUILD=1) & (@set VULCAN_ENGINE=1) )
+  ( @if /I "%%v"=="REBUILD" (@set VULCAN_REBUILD=1) & (@set VULCAN_ENGINE=1) )
+  ( @if /I "%%v"=="-S" (@set VULCAN_SNAPSHOT=1) & (@set VULCAN_ENGINE=1) )
+  ( @if /I "%%v"=="SNAPSHOT" (@set VULCAN_SNAPSHOT=1) & (@set VULCAN_ENGINE=1) )
 )
 
 :: Now resolve ambiguities
 @if %VULCAN_PREPAREGUI% equ 1 (set VULCAN_INSTALL_KITS=0)
+@if %VULCAN_PREPAREGUICLIENT% equ 1 (set VULCAN_INSTALL_KITS=0)
+
 
 
 @echo.
@@ -153,9 +164,12 @@ endlocal
 ::=================
 @echo.
 @echo Building install kits
-@echo CWD is %CD%
-@dir /og /p
-::@call %VULCAN_ROOT\builds\win32\install\BuildInstallKits.bat
+@pushd install 
+@call BuildInstallKits.bat ALL
+::don't increment the package number for the PDB kits
+set /A VULCAN_PACKAGE_NUMBER-=1
+@call BuildInstallKits.bat ALL PDB
+popd
 @echo.
 @goto :EOF
 
@@ -227,12 +241,15 @@ EXIT /B 1
 @echo.
 @echo    The following parameters may be passed:
 @echo.
+@echo      BUILD      Do a full build from command-line.
+@echo                 Uses previously compiled files if possible.  
+@echo.
 @echo      CLEAN      Run clean_vulcan.bat
 @echo.
 @echo      CLEANONLY  Run clean_vulcan.bat and exit
 @echo.
-@echo      NOENGINE   Don't build the engine
-@echo.
+::@echo      NOENGINE   Don't build the engine
+::@echo.
 @echo      REBUILD    Recompile object files
 @echo.
 @echo      SNAPSHOT   Do a snapshot build
@@ -255,7 +272,7 @@ EXIT /B 1
 @echo.
 @echo      ISS_DEBUG  Create a debug version of the Innosetup script
 @echo.
-@echo    If no parameters are passed then a full build will occur.
+@echo    If no parameters are passed then this help screen will appear
 @echo.
 @echo    Do not pass DEBUG unless you really want to do a debug build.
 @echo    It is not necessary to create a debug build in order to debug the
@@ -275,8 +292,10 @@ call :CHECK_COMMANDLINE %*
 call :CHECK_ENV  || (@echo Error checking environment & @goto :FINISH)
 @if %VULCAN_CLEAN% equ 1   ((@echo Cleaning previous build...) & (@call clean_vulcan.bat %VULCAN_DEBUG% BUILD GEN ))
 if %VULCAN_CLEANONLY% equ 1 (@goto :FINISH)
-call :BUILD_VSRELO || (@echo Error building vsrelo & @goto :FINISH)
-call :RUN_VSRELO
+if %VULCAN_ENGINE% equ 1 (
+ (call :BUILD_VSRELO || (@echo Error building vsrelo & @goto :FINISH))
+ (call :RUN_VSRELO)
+)
 ::|| (@echo errorlevel is %ERRORLEVEL% & @echo Error running vsrelo & @goto :EOF)
 if %VULCAN_ENGINE% equ 1 (call :BUILD_VULCAN || (@echo Error building vulcan & @goto :FINISH))
 call :GET_TIME
@@ -304,6 +323,8 @@ goto :EOF
 @set VULCAN_PREPAREGUI=
 @set VULCAN_CLIENTDIR=
 @set VULCAN_BAT_DEBUG=
+@set DEBUG=
+
 
 
 @popd

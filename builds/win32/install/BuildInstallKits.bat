@@ -1,5 +1,8 @@
 
 ::=============================================================================
+::Note - if required, set VULCAN_SCRIPT_DEBUG manually before running 
+::       this script. Then remove the @ symbol from the lines you wish  
+::       to debug.
 @if not defined VULCAN_SCRIPT_DEBUG (@echo off) else (@echo on)
 
 @goto :MAIN
@@ -62,7 +65,7 @@ for %%v in ( %* )  do (
 ::)
 
 ::Are we doing a snapshot build? If so we always do less work.
-if "%VULCAN_SNAPSHOT%"=="1" (
+if %VULCAN_SNAPSHOT% equ 1 (
   (set ISS_EXAMPLES=noexamples)
   (set VULCAN_ISX_PACK=0)
   (set VULCAN_EMB_PACK=0)
@@ -301,6 +304,17 @@ call :WARNING "%0 not yet implemented"
 ::------------------------------------------------------------------------------
 
 ::------------------------------------------------------------------------------
+:EMB_GEN
+:: Generate embedded image to be zipped
+::======
+
+call :WARNING "%0 not yet implemented"
+
+@goto :EOF
+::End of EMB_GEN
+::------------------------------------------------------------------------------
+
+::------------------------------------------------------------------------------
 :ZIP_PACK
 :: Zip the image 
 ::======
@@ -309,6 +323,17 @@ call :WARNING "%0 not yet implemented"
 
 @goto :EOF
 ::End of ZIP_PACK
+::------------------------------------------------------------------------------
+
+::------------------------------------------------------------------------------
+:EMB_PACK
+:: Zip the embedded image 
+::======
+
+call :WARNING "%0 not yet implemented"
+
+@goto :EOF
+::End of EMB_PACK
 ::------------------------------------------------------------------------------
 
 ::------------------------------------------------------------------------------
@@ -410,12 +435,17 @@ for %%v in ( %1 %2 %3 %4 %5 %6 %7 %8 %9 )  do (
 (@echo. & @echo   Reading command-line parameters...) & (@call :SET_PARAMS %* ) || (goto :FINISH)
 (@echo. & @echo   Checking environment...) & (@call :CHECK_ENV %* ) || (goto :FINISH)
 (@echo. & @echo   Setting version number...) & (@call :SED_MAGIC ) || (goto :FINISH)
-(@echo. & @echo   Copying additonal files needed for installation...) & (@call :COPY_XTRA )  || (goto :FINISH)
+(@echo. & @echo   Copying additional files needed for installation...) & (@call :COPY_XTRA )  || (goto :FINISH)
 (@echo. & @echo   Copying documentation...) & (@call :COPY_DOCS )  || (goto :FINISH)
 
 if %VULCAN_ZIP_PACK% EQU 1 (
 (@echo. & @echo   Generating zip image...) & (@call :ZIP_GEN )  || (goto :FINISH)
 (@echo. & @echo   Zipping image...) & (@call :ZIP_PACK )  || (goto :FINISH)
+)
+
+if %VULCAN_EMB_PACK% EQU 1 (
+(@echo. & @echo   Generating embedded zip image...) & (@call :EMB_GEN )  || (goto :FINISH)
+(@echo. & @echo   Zipping embedded image...) & (@call :EMB_PACK )  || (goto :FINISH)
 )
 
 if %VULCAN_ISX_PACK% EQU 1 (
