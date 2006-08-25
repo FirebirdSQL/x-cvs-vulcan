@@ -717,9 +717,7 @@ void MAKE_desc(thread_db* threadData, dsc* desc, dsql_nod* node, dsql_nod* null_
 				{
 				// mixed numeric and non-numeric: 
 
-				fb_assert(DTYPE_IS_DATE(dtype1) || DTYPE_IS_DATE(dtype2));
-
-				/* The MAX(dtype) rule doesn't apply with dtype_int64 */
+				// The MAX(dtype) rule doesn't apply with dtype_int64
 
 				if (dtype_int64 == dtype1)
 					dtype1 = dtype_double;
