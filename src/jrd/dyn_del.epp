@@ -450,8 +450,8 @@ void DYN_delete_global_field(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found) 
-		DYN_error_punt(tdbb, false, 46, NULL, NULL, NULL, NULL, NULL);
-		/* msg 46: "Field not found" */
+		DYN_error_punt(tdbb, false, 89, NULL, NULL, NULL, NULL, NULL);
+		/* msg 89: "Domain not found" */
 
 
 	while (*(*ptr)++ != isc_dyn_end)
