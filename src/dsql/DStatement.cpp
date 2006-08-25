@@ -1596,6 +1596,9 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 
 				if (alignment)
 					offset = FB_ALIGN (offset, alignment);
+				
+				if (offset + desc.dsc_length > msgLength)
+					break;
 
 				if (inMsg)
 				{
