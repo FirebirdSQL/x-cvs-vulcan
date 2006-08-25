@@ -1,3 +1,29 @@
+2006-08-25 03:32  verbguy
+
+	* vulcan/src/dsql/make.cpp:
+	
+	Remove unwanted assert - already removed from FB2 in make.cpp
+	(1.107)
+
+2006-08-24 19:05  verbguy
+
+	* vulcan/src/dsql/make.cpp:
+	
+	back-port Claudio's fix for CORE-152 into Vulcan. Thanks!
+
+2006-08-24 03:29  asfernandes
+
+	* vulcan/src/isql/isql.epp:
+	
+	Misc
+
+2006-08-23 23:05  verbguy
+
+	* vulcan/src/isql/isql.epp:
+	
+	integrate SAS fixes to ISQL (1) fix memory leak (2) get
+	SQLDA_DISPLAY working like Firebird 2.
+
 2006-08-10 14:39  asfernandes
 
 	* vulcan/src/dsql/DStatement.cpp:
