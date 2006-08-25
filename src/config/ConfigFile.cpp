@@ -37,7 +37,7 @@
 #include "ScanDir.h"
 
 #ifdef _WIN32
-
+#include "../utilities/SystemServices/Registry.h"
 #include <windows.h>
 #define IS_SEPARATOR(c)		(c == '\\' || c == '/')
 
@@ -301,7 +301,7 @@ const char* ConfigFile::getInstallDirectory(void)
 		{
 		ret = RegOpenKey (HKEY_LOCAL_MACHINE, KEY, &key);
 		length = sizeof (keyString);
-		ret = RegQueryValueEx (key, "DefaultInstance", NULL, NULL, (LPBYTE) keyString, &length);
+		ret = RegQueryValueEx (key, FB_DEFAULT_INSTANCE, NULL, NULL, (LPBYTE) keyString, &length);
 		RegCloseKey (key);
 		if (ret == ERROR_SUCCESS)
 			{
