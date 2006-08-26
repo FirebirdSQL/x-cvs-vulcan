@@ -1,3 +1,37 @@
+2006-08-25 18:34  verbguy
+
+	* vulcan/src/jrd/dyn_del.epp:
+	
+	dropping a non-existent domain gives eror - "Column not found".
+	Error should be "Domain not found".
+
+2006-08-25 16:17  paul_reeves
+
+	* vulcan/builds/win32/: install/BuildInstallKits.bat,
+	really_make_all.bat:
+	
+	Change semantics of build script - default is now to show help
+	screen if no options are provided. Build must be instigated
+	explicitly.
+	
+	Implement INSTALL option so complete kits can be built from a
+	single command.
+	
+	Minor tweaks to BuildInstallKits
+
+2006-08-25 15:50  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	Adriano's suggestion for CASE problem
+
+2006-08-25 12:36  paul_reeves
+
+	* vulcan/src/config/ConfigFile.cpp:
+	
+	Use constant instead of hard-coded string to establish default
+	instance of Vulcan on Windows.
+
 2006-08-25 03:32  verbguy
 
 	* vulcan/src/dsql/make.cpp:
