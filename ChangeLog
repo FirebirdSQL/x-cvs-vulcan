@@ -1,3 +1,9 @@
+2006-08-27 04:05  asfernandes
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	Fixed problems when copying messages
+
 2006-08-25 18:34  verbguy
 
 	* vulcan/src/jrd/dyn_del.epp:
