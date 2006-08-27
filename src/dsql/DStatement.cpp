@@ -1549,6 +1549,7 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 	//isc_print_blr ((const char*) blr, NULL, NULL, NULL);
 	BlrParse parse (blr);
 	int count = 0;
+	int parmcount;
 
 	if (blrLength)
 	{
@@ -1557,6 +1558,7 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 		parse.getByte();	// verb
 		parse.getByte();	// msg number
 		count = parse.getWord();
+		parmcount = count / 2;	// don't include for nulls
 	}
 	else
 	{
@@ -1568,12 +1570,12 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 			if (parameter->par_index)
 				count++;
 		}
+
+		parmcount = count;
 	}
 
 	int offset = 0;
-    int index, parmcount;
-
-	parmcount = count / 2; /* don't include for nulls */
+    int index;
 
 	for (index = 1; index <= parmcount; index++)
 	{
@@ -1598,7 +1600,10 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 					offset = FB_ALIGN (offset, alignment);
 				
 				if (offset + desc.dsc_length > msgLength)
+				{
+					n = -1;
 					break;
+				}
 
 				if (inMsg)
 				{
@@ -1654,10 +1659,18 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 			}
 		}
 
-		if (n >= count)
+		if (n == -1)
+			break;
+		else if (n >= count)
 	        ERRD_bugcheck ("Parameter index not found.");
 	}
-	    
+
+	if (index <= parmcount)
+	{
+		ERRD_post(isc_sqlerr, isc_arg_number, -804,
+					isc_arg_gds, isc_dsql_sqlda_err, 0);
+	}
+
    /*
     * SAS Defect S0263306 - GSF - 24FEB2005
     *
