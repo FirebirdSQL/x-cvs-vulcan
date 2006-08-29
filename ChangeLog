@@ -1,3 +1,17 @@
+2006-08-29 03:26  verbguy
+
+	* vulcan/src/dsql/ddl.cpp:
+	
+	set tran causes error in ISQL - actually a sigaddr. Here is test:
+	create database 'test.fdb'; set autoddl off; set transaction w1;
+	recreate table foo (i integer not null); drop database;
+
+2006-08-29 03:23  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	re-wire DDL_execute(statement)
+
 2006-08-27 04:05  asfernandes
 
 	* vulcan/src/dsql/DStatement.cpp:
