@@ -280,20 +280,22 @@ void DDL_execute(CStatement* request)
 	// for delete & modify, get rid of the cached relation metadata
 
 	dsql_str* string = NULL;
-	dsql_nod* relation_node;
+	// dsql_nod* relation_node;
 
 	switch (request->ddlNode->nod_type)
 		{
 		case nod_mod_relation:
 		case nod_redef_relation:
-			relation_node = request->ddlNode->nod_arg[e_alt_name];
-			if (string = (dsql_str*) relation_node->nod_arg[e_rln_name])
-				request->dropRelation (*string);
+//			relation_node = request->ddlNode->nod_arg[e_alt_name];
+//			string = (dsql_str*) relation_node->nod_arg[e_rln_name];
+//				request->dropRelation (*string);
 			break;
 
 		case nod_mod_view:
 		case nod_replace_view:
 		case nod_redef_view:
+			break;
+			
 		case nod_del_relation:
 		case nod_del_view:
 			if (string = (dsql_str*) request->ddlNode->nod_arg[e_alt_name])
