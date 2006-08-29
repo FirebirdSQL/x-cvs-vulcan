@@ -29,7 +29,7 @@
 #include "BlrParse.h"
 #include "ibase.h"
 #include "OSRIException.h"
-//#include "ddl_proto.h"
+#include "ddl_proto.h"
 #include "Database.h"
 #include "InfoGen.h"
 #include "../jrd/tra.h"
@@ -1313,7 +1313,7 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 					
 				if (statement->threadData == NULL)
 					statement->threadData = thread;					
-				// DDL_execute (statusVector, statement, transaction);
+				DDL_execute (statement);
 				return FB_SUCCESS;
 
 			/***
