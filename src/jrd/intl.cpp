@@ -1005,7 +1005,7 @@ int INTL_convert_string(const dsc* to, const dsc* from, FPTR_ERROR err)
 		break;
 
 	case dtype_varying:
-		if ((from_cs != to_cs) && (to_cs != CS_BINARY) && (to_cs != CS_NONE)) {
+		if ((from_cs != to_cs) && (to_cs != CS_BINARY) && (to_cs != CS_NONE) && (from_cs != CS_NONE)) {
 
 			to_len =
 				INTL_convert_bytes(tdbb, to_cs,
