@@ -1,3 +1,9 @@
+2006-08-29 05:18  asfernandes
+
+	* vulcan/src/jrd/intl.cpp:
+	
+	Fixed more transliterations problems
+
 2006-08-29 03:26  verbguy
 
 	* vulcan/src/dsql/ddl.cpp:
