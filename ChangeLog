@@ -1,3 +1,10 @@
+2006-08-31 02:39  verbguy
+
+	* vulcan/src/jrd/OSRIException.cpp:
+	
+	pointer math incorrect in case where we have to relocate the old
+	error string.
+
 2006-08-29 05:18  asfernandes
 
 	* vulcan/src/jrd/intl.cpp:
