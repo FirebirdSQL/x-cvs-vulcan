@@ -5836,7 +5836,13 @@ static SLONG insert_node(thread_db* tdbb,
 				{
 				if (allRecordNumber 
 						&& (newRecordNumber < beforeInsertNode.recordNumber)) 
+					{
+					if (leafPage && validateDuplicates) 
+						// Save the duplicate so the main caller can validate them.
+						RBM_SET(tdbb->tdbb_default, &insertion->iib_duplicates, 
+							beforeInsertNode.recordNumber.getValue());
 					break;
+					}
 				else
 					return NO_VALUE_PAGE;
 				}
@@ -5845,13 +5851,9 @@ static SLONG insert_node(thread_db* tdbb,
 				break;
 
 			if (leafPage && validateDuplicates) 
-				{
 				// Save the duplicate so the main caller can validate them.
-				// hvlad: don't check unique index if key has only null values
-
 				RBM_SET(tdbb->tdbb_default, &insertion->iib_duplicates, 
 					beforeInsertNode.recordNumber.getValue());
-				}
 
 			// AB: Never insert a duplicate node with the same record number.
 			// This would lead to nodes which will never be deleted.
