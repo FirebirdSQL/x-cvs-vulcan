@@ -374,8 +374,8 @@ void DYN_delete_generator(thread_db* tdbb, GBL gbl, const UCHAR**ptr)
     }
 
 	if (!found) {
-		DYN_error_punt(tdbb, false, 214, NULL, NULL, NULL, NULL, NULL);
-	    /* msg 214: "Generator not found" */
+		DYN_error_punt(tdbb, false, 214, t, NULL, NULL, NULL, NULL);
+	    /* msg 214: "Generator %s not found" */
 	}
 }
 
@@ -757,15 +757,16 @@ void DYN_delete_local_field(thread_db* tdbb,
 		{
 		DYN_rundown_request(tdbb, request, -1);
 		
-		if (id == drq_l_dep_flds)
-			{
+		switch (id) {
+		case drq_l_dep_flds:
 			DYN_error_punt(tdbb, &exception, 53, NULL, NULL, NULL, NULL, NULL);
-			/* msg 53: "ERASE RDB$RELATION_FIELDS failed" */
-			}
-		else
-			{
-			DYN_error_punt(tdbb, &exception, 54, NULL, NULL, NULL, NULL, NULL);
-			/* msg 54: "ERASE RDB$RELATION_FIELDS failed" */
+			// msg 53: "ERASE RDB$RELATION_FIELDS failed"
+		// case drq_e_fld_prvs:
+			// DYN_error_punt(tdbb, &exception, 62, NULL, NULL, NULL, NULL, NULL);
+			// msg 62: "ERASE RDB$USER_PRIVILEGES failed"
+		default:
+			DYN_error_punt(tdbb, &exception, 53, NULL, NULL, NULL, NULL, NULL);
+			// msg 53: "ERASE RDB$RELATION_FIELDS failed"
 			}
 		}
 
