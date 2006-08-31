@@ -416,11 +416,13 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 			case isc_arg_cstring:
 				status += 2;
 				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
+				status++;
 				break;
 			
 			case isc_arg_string:
 				status++;
 				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
+				status++;
 				break;
 
 			case isc_arg_warning:
@@ -428,7 +430,7 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 			case isc_arg_unix:
 			case isc_arg_win32:
 			default:
-				status++;
+				status+=2;
 		}
 	}
 
