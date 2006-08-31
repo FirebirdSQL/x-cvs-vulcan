@@ -1311,8 +1311,7 @@ ISC_STATUS DStatement::executeRequest(ISC_STATUS *statusVector,
 				if (s = jrd8_ddl (statusVector, &attachment, transactionHandle, statement->blrGen->getLength(), statement->blrGen->buffer))
 					return s;
 					
-				if (statement->threadData == NULL)
-					statement->threadData = thread;					
+				statement->threadData = thread;					
 				DDL_execute (statement);
 				return FB_SUCCESS;
 
