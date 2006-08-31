@@ -869,10 +869,15 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 					}
 				else
 					{
-					// Deactivate streams so marked
 					if (free_streams[0]) 
-						for (i = 1; i <= sub_streams[0]; i++) 
-							csb->csb_rpt[sub_streams[i]].csb_flags &= ~csb_active;
+						{
+						// Deactivate streams from rivers on stack, because
+						// the remaining streams don't have any indexed relationship with them.
+						RiverStack::iterator stack1(rivers_stack);
+						
+						for (; stack1.hasData(); ++stack1) 
+							set_inactive(opt, stack1.object());
+						}
 
 					break;
 					}
