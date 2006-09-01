@@ -582,6 +582,14 @@ int DStatement::getPlanInfo(thread_db* threadData, int bufferLength, UCHAR **buf
 			if (!getRsbItem(&explain_length, &explain, &buffer_length, &plan,
 							  &join_count, &level)) 
 				{
+				// don't allocate buffer of the same length second time
+				if (buffer_ptr != *bufferPtr) {
+					if (buffer_length) {
+						*plan++ = isc_info_truncated;
+					}
+					break;
+				}
+
 				// assume we have run out of room in the buffer, try again with a larger one 
 
 				buffer_ptr = (UCHAR*) gds__alloc(BUFFER_XLARGE);
