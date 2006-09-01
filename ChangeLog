@@ -1,3 +1,35 @@
+2006-09-01 04:13  asfernandes
+
+	* vulcan/src/jrd/btr.cpp:
+	
+	Misc
+
+2006-08-31 22:52  arnobrinkman
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	Couldn't drop relation due AV on statement->threadData. Fix for
+	REQ_DDL
+
+2006-08-31 22:49  arnobrinkman
+
+	* vulcan/src/jrd/btr.cpp:
+	
+	Backport fix from Vlad for CORE-895
+
+2006-08-31 20:28  arnobrinkman
+
+	* vulcan/src/jrd/opt.cpp:
+	
+	Fix bug CORE-897
+
+2006-08-31 19:52  verbguy
+
+	* vulcan/src/jrd/dyn_del.epp:
+	
+	fix error messages changed by integration of FB2 message file with
+	Vlad's Pstack trace feature.
+
 2006-08-31 02:39  verbguy
 
 	* vulcan/src/jrd/OSRIException.cpp:
