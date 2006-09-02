@@ -1,3 +1,9 @@
+2006-09-01 14:04  arnobrinkman
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	Backport fix for garbage output in very long PLAN info
+
 2006-09-01 04:13  asfernandes
 
 	* vulcan/src/jrd/btr.cpp:
