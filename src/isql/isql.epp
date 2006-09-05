@@ -77,9 +77,6 @@
 #include "editline.h"
 #endif
 
-#include <string>
-
-
 #define TIME_ERR	101
 #define	BLANK			'\040'
 #define	DBL_QUOTE		'\042'
@@ -233,8 +230,6 @@ BOOLEAN connecting_to_pre_v6_server = FALSE;
 SSHORT V45 = FALSE;
 SSHORT V4 = FALSE;
 SSHORT V33 = FALSE;
-USHORT major_ods = 0;
-USHORT minor_ods = 0;
 SCHAR server_version [256];
 SSHORT Quiet;
 SSHORT Version_info = FALSE;
@@ -405,6 +400,10 @@ int CLIB_ROUTINE main(int argc, char* argv[])
 		}
 	}
 #endif
+
+	// Initialize globals
+	major_ods = 0;
+	minor_ods = 0;
 
 	Exit_value = ISQL_main(argc, argv);
 

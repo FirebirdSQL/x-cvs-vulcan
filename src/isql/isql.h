@@ -250,6 +250,8 @@ EXTERN SCHAR Numbufs[16];		/* # of cache buffers on connect */
 EXTERN SSHORT Merge_stderr;
 EXTERN USHORT SQL_dialect;
 EXTERN USHORT db_SQL_dialect;
+EXTERN USHORT major_ods;
+EXTERN USHORT minor_ods;
 #undef EXTERN
 
 typedef vary VARY;

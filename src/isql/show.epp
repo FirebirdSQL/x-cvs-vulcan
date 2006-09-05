@@ -63,8 +63,6 @@
 
 DATABASE DB = EXTERN COMPILETIME "yachts.lnk";
 
-extern USHORT major_ods;
-extern USHORT minor_ods;
 extern SSHORT V4;
 extern SSHORT V33;
 
@@ -221,8 +219,9 @@ static const SCHAR db_dialect_info[] = {
 	isc_info_end
 };
 
-/* Added support to display FORCED WRITES status. - PR 27-NOV-2001 */
-/* Added support to display transaction info when next_transaction id is fixed. */
+// Added support to display FORCED WRITES status. - PR 27-NOV-2001
+// Added support to display transaction info when next_transaction id is fixed.
+// Added support to display ODS version. CVC 26-Aug-2004.
 static const SCHAR db_items[] = {
 	isc_info_page_size,
 	isc_info_db_size_in_pages,
@@ -233,6 +232,8 @@ static const SCHAR db_items[] = {
 	isc_info_oldest_active,
 	isc_info_oldest_snapshot,
 	isc_info_next_transaction,
+	isc_info_ods_version,
+	isc_info_ods_minor_version,
 	isc_info_end
 };
 
@@ -356,7 +357,7 @@ BOOLEAN SHOW_dbb_parameters(isc_handle db_handle,
 
 		case isc_info_page_size:
 			value_out = isc_vax_integer(d, length);
-			sprintf(info, "PAGE_SIZE %ld %s", value_out, NEWLINE);
+			sprintf(info, "PAGE_SIZE %"SLONGFORMAT" %s", value_out, NEWLINE);
 			break;
 
 		case isc_info_db_size_in_pages:
@@ -364,22 +365,21 @@ BOOLEAN SHOW_dbb_parameters(isc_handle db_handle,
 			if (translate) {
 				ISQL_msg_get(NUMBER_PAGES, msg, (TEXT*) (long) value_out, NULL,
 							 NULL, NULL, NULL);
-				sprintf(info, msg);
+				sprintf(info, "%s%s", msg, NEWLINE);
 			}
 			else
-				sprintf(info, "Number of DB pages allocated = %ld %s",
+				sprintf(info, "Number of DB pages allocated = %"SLONGFORMAT" %s",
 						value_out, NEWLINE);
 			break;
 
 		case isc_info_sweep_interval:
 			value_out = isc_vax_integer(d, length);
 			if (translate) {
-				ISQL_msg_get(SWEEP_INTERV, msg, (TEXT*) (long) value_out, NULL,
-							 NULL, NULL, NULL);
-				sprintf(info, msg);
+				ISQL_msg_get(SWEEP_INTERV, msg, (TEXT*)(long) value_out, NULL, NULL, NULL, NULL);
+				sprintf(info, "%s%s", msg, NEWLINE);
 			}
 			else
-				sprintf(info, "Sweep interval = %ld %s", value_out, NEWLINE);
+				sprintf(info, "Sweep interval = %"SLONGFORMAT" %s", value_out, NEWLINE);
 			break;
 
         case isc_info_forced_writes:
@@ -389,22 +389,22 @@ BOOLEAN SHOW_dbb_parameters(isc_handle db_handle,
 
         case isc_info_oldest_transaction :
             value_out = isc_vax_integer (d, length);
-            sprintf (info, "Transaction - oldest = %ld %s", value_out, NEWLINE);
+				sprintf(info, "Transaction - oldest = %"SLONGFORMAT" %s", value_out, NEWLINE);
             break;
             
         case isc_info_oldest_active :
             value_out = isc_vax_integer (d, length);
-            sprintf (info, "Transaction - oldest active = %ld %s", value_out, NEWLINE);
+				sprintf(info, "Transaction - oldest active = %"SLONGFORMAT" %s", value_out, NEWLINE);
             break;
  	
         case isc_info_oldest_snapshot :
             value_out = isc_vax_integer (d, length);
-            sprintf (info, "Transaction - oldest snapshot = %ld %s", value_out, NEWLINE);
+				sprintf(info, "Transaction - oldest snapshot = %"SLONGFORMAT" %s", value_out, NEWLINE);
             break;
  	
         case isc_info_next_transaction :
             value_out = isc_vax_integer (d, length);
-            sprintf (info, "Transaction - Next = %ld %s", value_out, NEWLINE);
+				sprintf (info, "Transaction - Next = %"SLONGFORMAT" %s", value_out, NEWLINE);
             break;
 
 		case isc_info_num_wal_buffers:
@@ -471,10 +471,10 @@ BOOLEAN SHOW_dbb_parameters(isc_handle db_handle,
 			if (translate) {
 				ISQL_msg_get(BASE_LEVEL, msg, (TEXT*) (long) value_out, NULL, NULL,
 							 NULL, NULL);
-				sprintf(info, msg);
+				sprintf(info, "%s%s", msg, NEWLINE);
 			}
 			else
-				sprintf(info, "Base level = %ld %s", value_out, NEWLINE);
+				sprintf(info, "Base level = %"SLONGFORMAT" %s", value_out, NEWLINE);
 			break;
 
 		case isc_info_limbo:
@@ -482,11 +482,20 @@ BOOLEAN SHOW_dbb_parameters(isc_handle db_handle,
 			if (translate) {
 				ISQL_msg_get(LIMBO, msg, (TEXT*) (long) value_out, NULL, NULL, NULL,
 							 NULL);
-				sprintf(info, msg);
+				sprintf(info, "%s%s", msg, NEWLINE);
 			}
 			else
-				sprintf(info, "Transaction in limbo = %ld %s",
+				sprintf(info, "Transaction in limbo = %"SLONGFORMAT" %s",
 						value_out, NEWLINE);
+			break;
+
+		case isc_info_ods_version:
+			major_ods = isc_vax_integer(d, length);
+			break;
+		case isc_info_ods_minor_version:
+			value_out = isc_vax_integer(d, length);
+			sprintf(info, "ODS = %"SLONGFORMAT".%"SLONGFORMAT"%s", 
+					(long) major_ods, (long) value_out, NEWLINE);
 			break;
 		}
 
