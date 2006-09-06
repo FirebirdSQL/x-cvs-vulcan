@@ -1,3 +1,21 @@
+2006-09-06 03:54  verbguy
+
+	* vulcan/src/include/gen/codes.h:
+	
+	claudio's recommendation not to use underscores to start
+	identifiers anymore (including macros), it's against the C/C++
+	library recommendations.
+
+2006-09-05 20:59  verbguy
+
+	* vulcan/src/: isql/isql.epp, isql/isql.h, isql/show.epp,
+	jrd/dyn_del.epp:
+	
+	recent integration of FB2 message file requires some changes to get
+	the diff's clean again. I also moved vars major_ods, minor_ods to
+	isql/isql.h which is where they are in fb2, and now SHOW DATABASE
+	shows the ODS version.
+
 2006-09-01 14:04  arnobrinkman
 
 	* vulcan/src/dsql/DStatement.cpp:
