@@ -1555,6 +1555,19 @@ static USHORT par_name(CompilerScratch* csb, TEXT* string)
 	USHORT l = BLR_BYTE;
 	const USHORT count = l;
 
+	// Check for overly long identifiers at BLR parse stage to prevent unwanted
+	// surprises in deeper layers of the engine.
+	if (l > MAX_SQL_IDENTIFIER_LEN) {
+		SqlIdentifier st;
+		char* s = st;
+		l = MAX_SQL_IDENTIFIER_LEN;
+		while (l--) {
+			*s++ = BLR_BYTE;
+		}
+		*s = 0;
+		ERR_post(isc_identifier_too_long, isc_arg_string, ERR_cstring(st), 0);
+	}
+
 	if (count) {
 		do {
 			*string++ = BLR_BYTE;
