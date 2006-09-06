@@ -18,8 +18,8 @@
  * 
  */
 
-#ifndef _JRD_GEN_CODES_H
-#define _JRD_GEN_CODES_H
+#ifndef JRD_GEN_CODES_H
+#define JRD_GEN_CODES_H
 
 #ifdef __cplusplus /* c++ definitions */
 
