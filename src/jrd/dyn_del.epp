@@ -773,7 +773,7 @@ void DYN_delete_local_field(thread_db* tdbb,
 	if (!found) 
 		{
 		DYN_error_punt(tdbb, false, 55, col_nm, NULL, NULL, NULL, NULL);
-		/* msg 55: "Field not found for relation" */
+		/* msg 55: "Column not found for table" */
 		}
 }
 
