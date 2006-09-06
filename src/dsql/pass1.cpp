@@ -2830,12 +2830,10 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 {
 	DEV_BLKCHK(input, dsql_type_nod);
 
-	void* base = request->context.mark();
-
 	// create a derived table representing our subquery
 	dsql_nod* dt = MAKE_node(request->threadData, nod_derived_table, e_derived_table_count);
 	// Ignore validation for columnames that must be exists for "user" derived tables.
-	dt->nod_flags |= (NOD_DT_IGNORE_COLUMN_CHECK | NOD_DT_ALLOW_OUTER_REFERENCE);
+	dt->nod_flags |= NOD_DT_IGNORE_COLUMN_CHECK;
 	dt->nod_arg[e_derived_table_rse] = input->nod_arg[1];
 	dsql_nod* from = MAKE_node(request->threadData, nod_list, 1);
 	from->nod_arg[0] = dt;
@@ -2844,6 +2842,7 @@ static dsql_nod* pass1_any( CStatement* request, dsql_nod* input, NOD_TYPE ntype
 	dsql_nod* select_expr = MAKE_node(request->threadData, nod_select_expr, e_sel_count);
 	select_expr->nod_arg[e_sel_query_spec] = query_spec;
 
+	void* base = request->context.mark();
 	dsql_nod* rse = PASS1_rse(request, select_expr, NULL);
 
 	// create a conjunct to be injected
@@ -3508,10 +3507,10 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 		temp.push(object);
 		}
 
-	const bool allowOuterReference = (input->nod_flags & NOD_DT_ALLOW_OUTER_REFERENCE);
 	// Put special contexts (NEW/OLD) also on the stack
 	FOR_STACK (dsql_ctx*, context, &temp)
-		if (allowOuterReference || (context->ctx_flags & CTX_system))
+		if ((context->ctx_scope_level < request->scopeLevel) || 
+			(context->ctx_flags & CTX_system))
 			{
 			request->context.push(context);
 			}
@@ -3556,7 +3555,6 @@ static dsql_nod* pass1_derived_table(CStatement* request, dsql_nod* input, bool 
 	while (!request->context.isEmpty() && (!request->context.isMark(baseContext)))
 		{
 		void* object = request->context.pop();
-		//request->req_dt_context.push(object);
 		context->ctx_childs_derived_table.push(object);
 		}
 	while (!request->context.isEmpty())
@@ -4002,7 +4000,6 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 
 				// at this point the context could be a table, a procedure, or 
 				// a derived table.  Find a matching field and quit there.
-
 				if (context->ctx_relation)
 					field = match_relation_field (context->ctx_relation, name);
 				else if (context->ctx_procedure)	
@@ -4011,6 +4008,9 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					for (; field; field = field->fld_next) 
 						if (!strcmp(name->str_data, field->fld_name)) 
 							break;
+
+				if (field)
+					ambiguous_ctx_stack.push(context);
 
 				// If a qualifier was present and we don't have found
 				// a matching field then we should stop searching.
@@ -4024,9 +4024,6 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 
 				if (field) 
 					{
-					if (!is_check_constraint && !qualifier) 
-						ambiguous_ctx_stack.push (context);
-
 					if (!check_field_type (request, field))
 						return NULL;
 
@@ -7583,6 +7580,10 @@ static dsql_nod* remap_field(CStatement* request, dsql_nod* field,
 				return field;
 			}
 	
+		case nod_derived_table:
+			remap_field(request, field->nod_arg[e_derived_table_rse], context, current_level);
+			return field;
+
 		default:
 			return field;
 	}

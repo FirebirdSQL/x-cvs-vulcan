@@ -1236,9 +1236,11 @@ static void define_constraint_trigger(CStatement* request, dsql_nod* node)
         // record for fetch operation".
 
 		relation_node->nod_arg[e_rln_alias] = (dsql_nod*) MAKE_cstring(request->threadData, OLD_CONTEXT);
-		PASS1_make_context(request, relation_node);
+		dsql_ctx* oldContext = PASS1_make_context(request, relation_node);
+		oldContext->ctx_flags |= CTX_system;
 		relation_node->nod_arg[e_rln_alias] = (dsql_nod*) MAKE_cstring(request->threadData, NEW_CONTEXT);
-		PASS1_make_context(request, relation_node);
+		dsql_ctx* newContext = PASS1_make_context(request, relation_node);
+		newContext->ctx_flags |= CTX_system;
 
 		// generate the condition for firing the trigger
 
@@ -2761,7 +2763,8 @@ static void define_trigger( CStatement* request, dsql_nod* node)
 		if (hasOldContext(trig_type))
 			{
 			relation_node->nod_arg[e_rln_alias] = (dsql_nod*) MAKE_cstring(request->threadData, OLD_CONTEXT);
-			PASS1_make_context(request, relation_node);
+			dsql_ctx* oldContext = PASS1_make_context(request, relation_node);
+			oldContext->ctx_flags |= CTX_system;
 			}
 		else
 			request->contextNumber++;
@@ -2769,7 +2772,8 @@ static void define_trigger( CStatement* request, dsql_nod* node)
 		if (hasNewContext(trig_type))
 			{
 			relation_node->nod_arg[e_rln_alias] = (dsql_nod*) MAKE_cstring(request->threadData, NEW_CONTEXT);
-			PASS1_make_context(request, relation_node);
+			dsql_ctx* newContext = PASS1_make_context(request, relation_node);
+			newContext->ctx_flags |= CTX_system;
 			}
 		else
 			request->contextNumber++;
@@ -3722,9 +3726,11 @@ static void define_view_trigger( CStatement* request, dsql_nod* node, dsql_nod* 
 		reset_context_stack(request);
 		dsql_nod* temp_alias = relation_node->nod_arg[e_rln_alias];
 		relation_node->nod_arg[e_rln_alias] = (dsql_nod*) MAKE_cstring(request->threadData, OLD_CONTEXT);
-		PASS1_make_context(request, relation_node);
+		dsql_ctx* oldContext = PASS1_make_context(request, relation_node);
+		oldContext->ctx_flags |= CTX_system;
 		relation_node->nod_arg[e_rln_alias] = (dsql_nod*) MAKE_cstring(request->threadData, NEW_CONTEXT);
-		PASS1_make_context(request, relation_node);
+		dsql_ctx* newContext = PASS1_make_context(request, relation_node);
+		newContext->ctx_flags |= CTX_system;
 		relation_node->nod_arg[e_rln_alias] = temp_alias;
 
 		if (sav_context) 
