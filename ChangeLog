@@ -1,3 +1,37 @@
+2006-09-07 03:16  asfernandes
+
+	* vulcan/src/jrd/OSRIException.cpp:
+	
+	Misc
+
+2006-09-06 23:15  arnobrinkman
+
+	* vulcan/src/dsql/: ddl.cpp, node.h, pass1.cpp:
+	
+	Some sync with FB2
+
+2006-09-06 17:59  verbguy
+
+	* vulcan/src/jrd/par.cpp:
+	
+	minimal backport of "identifier too long" error message from FB2
+
+2006-09-06 15:46  verbguy
+
+	* vulcan/src/jrd/dyn_del.epp:
+	
+	comment incorrect when dropping non-existent column.  test case:
+	create table test (i integer); alter table test1 drop xxx ;
+	
+	Statement failed, SQLCODE = -607 unsuccessful metadata update
+	-Column not found for table
+
+2006-09-06 04:29  asfernandes
+
+	* vulcan/src/isql/: isql.h, show.epp:
+	
+	Misc
+
 2006-09-06 03:54  verbguy
 
 	* vulcan/src/include/gen/codes.h:
