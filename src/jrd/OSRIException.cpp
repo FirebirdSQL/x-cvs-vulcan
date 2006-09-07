@@ -430,7 +430,7 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 			case isc_arg_unix:
 			case isc_arg_win32:
 			default:
-				status+=2;
+				status += 2;
 		}
 	}
 
