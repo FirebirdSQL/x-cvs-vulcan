@@ -419,7 +419,7 @@ void DYN_delete_global_field(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 			DYN_rundown_request (tdbb, request, -1);
 			DYN_error_punt (tdbb, false, 43, Y.RDB$FIELD_SOURCE, Y.RDB$RELATION_NAME,
 						Y.RDB$FIELD_NAME, NULL, NULL);
-				/* msg 43: "field %s is used in relation %s (local name %s) and can not be dropped" */
+		// msg 43: "Domain %s is used in table %s (local name %s) and can not be dropped"
 		END_FOR;
 		
 		if (!DYN_REQUEST(drq_l_fld_src))
@@ -449,9 +449,10 @@ void DYN_delete_global_field(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		throw;
 		}
 
-	if (!found) 
+	if (!found) {
 		DYN_error_punt(tdbb, false, 89, NULL, NULL, NULL, NULL, NULL);
-		/* msg 89: "Domain not found" */
+		// msg 89: "Domain not found"
+	}
 
 
 	while (*(*ptr)++ != isc_dyn_end)
@@ -770,10 +771,10 @@ void DYN_delete_local_field(thread_db* tdbb,
 			}
 		}
 
-	if (!found) 
+	if (!found)
 		{
-		DYN_error_punt(tdbb, false, 55, col_nm, NULL, NULL, NULL, NULL);
-		/* msg 55: "Column not found for table" */
+		DYN_error_punt(tdbb, false, 176, col_nm, tbl_nm, NULL, NULL, NULL);
+		// msg 176: "column %s does not exist in table/view %s"
 		}
 }
 

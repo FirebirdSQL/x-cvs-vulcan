@@ -1141,7 +1141,6 @@ void DYN_modify_local_field(thread_db* tdbb,
 		modify_lfield_position(tdbb, dbb, gbl, r, f, position,
 							   existing_position);
 
-
 	}
 	catch (OSRIException &exception) {
 		DYN_rundown_request(tdbb, request, -1);
@@ -1151,8 +1150,8 @@ void DYN_modify_local_field(thread_db* tdbb,
 
 	if (!found)
 	{
-		DYN_error_punt(tdbb, false, 96, NULL, NULL, NULL, NULL, NULL);
-		/* msg 96: "Local column not found" */
+		DYN_error_punt(tdbb, false, 176, f, r, NULL, NULL, NULL);
+		// msg 176: "column %s does not exist in table/view %s"
 	}
 }
 
@@ -2590,10 +2589,10 @@ void DYN_modify_sql_field(thread_db* tdbb, GBL		gbl,
 	request = NULL;
 
 	if (!found)
-		DYN_error_punt(tdbb, false, 96, NULL, NULL, NULL, NULL, NULL);
-	/* msg 96: "Local column not found" */
+		DYN_error_punt(tdbb, false, 176, orig_fld->dyn_fld_name, relation_name, NULL, NULL, NULL);
+	// msg 176: "column %s does not exist in table/view %s"
 
-/* Update any indicies that exist */
+	// Update any indices that exist
 	modify_lfield_index(tdbb, dbb, gbl, relation_name, orig_fld->dyn_fld_name,
 						orig_fld->dyn_fld_name);
 
@@ -2619,9 +2618,8 @@ void DYN_modify_sql_field(thread_db* tdbb, GBL		gbl,
 		if (orig_fld) {
 			gds__free(orig_fld);
 		}
-
 		DYN_error_punt(tdbb, &exception, 95, NULL, NULL, NULL, NULL, NULL);
-		/* msg 95: "MODIFY RDB$RELATION_FIELDS failed" */
+		// msg 95: "MODIFY RDB$RELATION_FIELDS failed"
 	}
 }
 
