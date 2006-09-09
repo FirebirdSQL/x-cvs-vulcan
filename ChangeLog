@@ -1,3 +1,10 @@
+2006-09-08 21:52  verbguy
+
+	* vulcan/src/jrd/: dyn_del.epp, dyn_mod.epp:
+	
+	back-port recent 2.1 changes to ALTER TABLE to print column name /
+	table name if column not found.
+
 2006-09-07 03:16  asfernandes
 
 	* vulcan/src/jrd/OSRIException.cpp:
