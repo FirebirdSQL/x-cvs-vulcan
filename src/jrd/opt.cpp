@@ -2198,6 +2198,9 @@ static USHORT distribute_equalities(thread_db* tdbb,
 		{
 		jrd_nod* boolean = stack1.object();
 
+		if (boolean->nod_flags & nod_deoptimize)
+			continue;
+
 		if (boolean->nod_type != nod_eql)
 			continue;
 

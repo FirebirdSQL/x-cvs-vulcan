@@ -678,7 +678,6 @@ bool EVL_boolean(thread_db* tdbb, JRD_NOD node)
 				{
 				fb_assert(rsb->rsb_type == rsb_counter);
 				RsbBoolean* select = (RsbBoolean*) rsb->rsb_next;
-				fb_assert(select->rsb_type == rsb_boolean);
 				select->rsb_any_boolean = ((RecordSelExpr*) (node->nod_arg[e_any_rse]))->rse_boolean;
 				
 				if (node->nod_type == nod_ansi_any)
