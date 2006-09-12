@@ -314,8 +314,8 @@ void DYN_delete_function(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found)
-		DYN_error_punt(tdbb, false, 41, NULL, NULL, NULL, NULL, NULL);
-		/* msg 41: "Function not found" */
+		DYN_error_punt(tdbb, false, 41, f, NULL, NULL, NULL, NULL);
+		/* msg 41: "Function %s not found" */
 
 	if (*(*ptr)++ != isc_dyn_end) 
 		DYN_unsupported_verb(tdbb);
