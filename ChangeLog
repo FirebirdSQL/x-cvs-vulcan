@@ -1,3 +1,16 @@
+2006-09-12 20:00  verbguy
+
+	* vulcan/src/jrd/dyn_del.epp:
+	
+	Change for message file from FB2. DROP EXTERNAL FUNCTION FOO when
+	foo not present, error message now echoes non-existent function.
+
+2006-09-12 13:26  dimitr
+
+	* vulcan/src/jrd/: evl.cpp, opt.cpp:
+	
+	Fixed VLC-23 along with the its counterpart bug with ALL predicate.
+
 2006-09-08 21:52  verbguy
 
 	* vulcan/src/jrd/: dyn_del.epp, dyn_mod.epp:
