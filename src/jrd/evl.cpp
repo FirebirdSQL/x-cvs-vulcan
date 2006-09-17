@@ -19,7 +19,7 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
-  * $Id$ 
+ *
  */
 
 /*

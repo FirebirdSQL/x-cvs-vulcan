@@ -4004,10 +4004,12 @@ static dsql_nod* pass1_field( CStatement* request, dsql_nod* input,
 					field = match_relation_field (context->ctx_relation, name);
 				else if (context->ctx_procedure)	
 					field = match_procedure_field (context->ctx_procedure, name);
-				else 
+				else
+					{
 					for (; field; field = field->fld_next) 
 						if (!strcmp(name->str_data, field->fld_name)) 
 							break;
+					}
 
 				if (field)
 					ambiguous_ctx_stack.push(context);

@@ -314,8 +314,10 @@ void DYN_delete_function(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found)
+		{
 		DYN_error_punt(tdbb, false, 41, f, NULL, NULL, NULL, NULL);
-		/* msg 41: "Function %s not found" */
+		// msg 41: "Function %s not found"
+		}
 
 	if (*(*ptr)++ != isc_dyn_end) 
 		DYN_unsupported_verb(tdbb);
@@ -449,10 +451,11 @@ void DYN_delete_global_field(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		throw;
 		}
 
-	if (!found) {
+	if (!found)
+		{
 		DYN_error_punt(tdbb, false, 89, NULL, NULL, NULL, NULL, NULL);
 		// msg 89: "Domain not found"
-	}
+		}
 
 
 	while (*(*ptr)++ != isc_dyn_end)

@@ -2589,8 +2589,10 @@ void DYN_modify_sql_field(thread_db* tdbb, GBL		gbl,
 	request = NULL;
 
 	if (!found)
+	{
 		DYN_error_punt(tdbb, false, 176, orig_fld->dyn_fld_name, relation_name, NULL, NULL, NULL);
-	// msg 176: "column %s does not exist in table/view %s"
+		// msg 176: "column %s does not exist in table/view %s"
+	}
 
 	// Update any indices that exist
 	modify_lfield_index(tdbb, dbb, gbl, relation_name, orig_fld->dyn_fld_name,
