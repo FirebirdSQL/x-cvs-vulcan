@@ -32,7 +32,7 @@
 static char THIS_FILE[]=__FILE__;
 #endif
 
-
+
 Stack::Stack ()
 {
 /**************************************
@@ -45,10 +45,10 @@ Stack::Stack ()
  *		Constructor.
  *
  **************************************/
-
-prior = NULL;
+	prior = NULL;
 }
-
+
+
 void *Stack::getPrior (Stack **ptr)
 {
 /**************************************
@@ -60,12 +60,13 @@ void *Stack::getPrior (Stack **ptr)
  * Functional description
  *
  **************************************/
-Stack *node = *ptr;
-*ptr = node->prior;
+	Stack *node = *ptr;
+	*ptr = node->prior;
 
-return node->object;
+	return node->object;
 }
-
+
+
 Stack *Stack::getTop ()
 {
 /**************************************
@@ -77,10 +78,10 @@ Stack *Stack::getTop ()
  * Functional description
  *
  **************************************/
-
-return prior;
+	return prior;
 }
-
+
+
 void *Stack::pop ()
 {
 /**************************************
@@ -92,16 +93,16 @@ void *Stack::pop ()
  * Functional description
  *
  **************************************/
-Stack *node = prior;
-void *object = node->object;
-prior = node->prior;
-node->prior = NULL;
-delete node;
+	Stack *node = prior;
+	void *object = node->object;
+	prior = node->prior;
+	node->prior = NULL;
+	delete node;
 
-return object;
+	return object;
 }
 
-
+
 void Stack::push (void *object)
 {
 /**************************************
@@ -113,11 +114,10 @@ void Stack::push (void *object)
  * Functional description
  *
  **************************************/
-
-Stack *node = new Stack;
-node->object = object;
-node->prior = prior;
-prior = node;
+	Stack *node = new Stack;
+	node->object = object;
+	node->prior = prior;
+	prior = node;
 }
 
 
@@ -126,11 +126,13 @@ void* Stack::mark()
 	return prior;	
 }
 
+
 void Stack::pop(void * mark)
 {
 	while (prior && prior != mark)
 		pop();	
 }
+
 
 void* Stack::peek()
 {
@@ -140,16 +142,19 @@ void* Stack::peek()
 	return prior->object;
 }
 
+
 bool Stack::isEmpty()
 {
 	return prior == NULL;
 }
+
 
 Stack::~Stack()
 {
 	while (prior)
 		pop();	
 }
+
 
 int Stack::count()
 {
@@ -161,16 +166,19 @@ int Stack::count()
 	return n;
 }
 
+
 bool Stack::isMark(void * mark)
 {
 	return prior == mark;
 }
+
 
 void Stack::clear()
 {
 	while (prior)
 		pop();	
 }
+
 
 bool Stack::insertOrdered(void *object)
 {
@@ -192,6 +200,7 @@ bool Stack::insertOrdered(void *object)
 	return true;
 }
 
+
 bool Stack::equal(Stack *stack)
 {
 	Stack *s1 = prior;
@@ -206,6 +215,7 @@ bool Stack::equal(Stack *stack)
 
 	return true;
 }
+
 
 bool Stack::isMember(void *object)
 {
