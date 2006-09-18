@@ -1,3 +1,16 @@
+2006-09-17 05:05  asfernandes
+
+	* vulcan/src/: dsql/pass1.cpp, jrd/dyn_del.epp, jrd/dyn_mod.epp,
+	jrd/evl.cpp:
+	
+	Misc
+
+2006-09-17 04:43  asfernandes
+
+	* vulcan/src/jrd/Stack.cpp:
+	
+	Formatting
+
 2006-09-12 20:00  verbguy
 
 	* vulcan/src/jrd/dyn_del.epp:
