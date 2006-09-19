@@ -4765,7 +4765,7 @@ static RecordSource* gen_outer(thread_db* tdbb,
 	
 	if (rse->rse_jointype == blr_full) 
 		//find_rsbs(stream_o.stream_rsb, rsb->rsb_left_inner_streams, NULL);
-		stream_o.stream_rsb->findRsbs(rsb->rsb_left_streams, rsb->rsb_left_rsbs);
+		stream_o.stream_rsb->findRsbs(rsb->rsb_left_inner_streams, rsb->rsb_left_rsbs);
 
 	return rsb;
 }

@@ -110,7 +110,7 @@ bool RsbLeftCross::get(Request* request, RSE_GET_MODE mode)
 					outerRsb->close(request);
 					impure->irsb_flags |= irsb_join_full;
 					//RSE_open(tdbb, innerRsb);
-					outerRsb->open(request);
+					innerRsb->open(request);
 					break;
 					}
 					
