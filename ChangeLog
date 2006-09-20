@@ -1,3 +1,9 @@
+2006-09-20 00:11  arnobrinkman
+
+	* vulcan/src/jrd/: RsbLeftCross.cpp, opt.cpp:
+	
+	Fix FULL JOIN bug found by Gary Franklin.
+
 2006-09-17 05:05  asfernandes
 
 	* vulcan/src/: dsql/pass1.cpp, jrd/dyn_del.epp, jrd/dyn_mod.epp,
