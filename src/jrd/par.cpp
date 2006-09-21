@@ -102,7 +102,7 @@ static JRD_NOD par_literal(thread_db*, CompilerScratch*);
 static JRD_NOD par_map(thread_db*, CompilerScratch*, USHORT);
 static JRD_NOD par_message(thread_db*, CompilerScratch*);
 static JRD_NOD par_modify(thread_db*, CompilerScratch*);
-static USHORT par_name(CompilerScratch*, TEXT *);
+static USHORT par_name(CompilerScratch*, TEXT *, const bool checkLength);
 static JRD_NOD par_plan(thread_db*, CompilerScratch*);
 static JRD_NOD par_procedure(thread_db*, CompilerScratch*, SSHORT);
 static void par_procedure_parms(thread_db*, CompilerScratch*, Procedure*, JRD_NOD *, JRD_NOD *, USHORT);
@@ -779,7 +779,7 @@ static PsqlException* par_condition(thread_db* tdbb, CompilerScratch* csb)
 
 		case blr_gds_code:
 			exception_list->xcp_rpt[0].xcp_type = xcp_gds_code;
-			par_name(csb, name);
+			par_name(csb, name, true);
 			for (p = name; *p; *p++)
 				*p = LOWWER(*p);
 			code_number = PAR_symbol_to_gdscode(name);
@@ -792,7 +792,7 @@ static PsqlException* par_condition(thread_db* tdbb, CompilerScratch* csb)
 		case blr_exception:
 		case blr_exception_msg:
 			exception_list->xcp_rpt[0].xcp_type = xcp_xcp_code;
-			par_name(csb, name);
+			par_name(csb, name, true);
 			if (!(exception_list->xcp_rpt[0].xcp_code =
 				MET_lookup_exception_number(tdbb, name)))
 				error(csb, isc_xcpnotdef, isc_arg_string, ERR_cstring(name), 0);
@@ -849,7 +849,7 @@ static PsqlException* par_conditions(thread_db* tdbb, CompilerScratch* csb)
 
 			case blr_gds_code:
 				exception_list->xcp_rpt[i].xcp_type = xcp_gds_code;
-				par_name(csb, name);
+				par_name(csb, name, true);
 				
 				for (p = name; *p; *p++)
 					*p = LOWWER(*p);
@@ -863,7 +863,7 @@ static PsqlException* par_conditions(thread_db* tdbb, CompilerScratch* csb)
 
 			case blr_exception:
 				exception_list->xcp_rpt[i].xcp_type = xcp_xcp_code;
-				par_name(csb, name);
+				par_name(csb, name, true);
 				
 				if (!(exception_list->xcp_rpt[i].xcp_code = MET_lookup_exception_number(tdbb, name)))
 					error(csb, isc_xcpnotdef, isc_arg_string, ERR_cstring(name), 0);
@@ -1005,7 +1005,7 @@ static JRD_NOD par_exec_proc(thread_db* tdbb, CompilerScratch* csb, SSHORT op)
 	////SET_TDBB(tdbb);
 	TEXT name[32];
 
-	par_name(csb, name);
+	par_name(csb, name, true);
 	Procedure* procedure = tdbb->tdbb_database->findProcedure(tdbb, name, FALSE);
 			
 	if (!procedure)
@@ -1136,7 +1136,7 @@ static JRD_NOD par_field(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_
 
 		if (procedure) 
 			{
-			par_name(csb, name);
+			par_name(csb, name, true);
 			if ((id = find_proc_field(procedure, name)) == -1)
 				error(csb,
 					  isc_fldnotdef,
@@ -1156,7 +1156,7 @@ static JRD_NOD par_field(thread_db* tdbb, CompilerScratch* csb, SSHORT operator_
 					MET_scan_relation(tdbb, relation);
 			***/
 			
-			par_name(csb, name);
+			par_name(csb, name, true);
 			if ((id = MET_lookup_field(tdbb, relation, name, 0)) < 0) 
 				{
 				if (csb->csb_g_flags & csb_validation) 
@@ -1229,7 +1229,7 @@ static JRD_NOD par_function(thread_db* tdbb, CompilerScratch* csb)
 	//SET_TDBB(tdbb);
 	
 	TEXT name[32];
-	const USHORT count = par_name(csb, name);
+	const USHORT count = par_name(csb, name, true);
 
 	UserFunction* function = FUN_lookup_function(tdbb, name, !(tdbb->tdbb_attachment->att_flags & ATT_gbak_attachment));
 
@@ -1540,7 +1540,7 @@ static JRD_NOD par_modify(thread_db* tdbb, CompilerScratch* csb)
 }
 
 
-static USHORT par_name(CompilerScratch* csb, TEXT* string)
+static USHORT par_name(CompilerScratch* csb, TEXT* string, const bool checkLength)
 {
 /**************************************
  *
@@ -1550,22 +1550,28 @@ static USHORT par_name(CompilerScratch* csb, TEXT* string)
  *
  * Functional description
  *	Parse a counted string, returning count.
+ *  We don't want to check length of name for derived tables, hence the
+ *  checkLength flag. FB2 uses function overloading between String and MetaName,
+ *  but Vulcan doesn't yet have MetaName class, so we'll just add additional parameter.
  *
  **************************************/
 	USHORT l = BLR_BYTE;
 	const USHORT count = l;
 
-	// Check for overly long identifiers at BLR parse stage to prevent unwanted
-	// surprises in deeper layers of the engine.
-	if (l > MAX_SQL_IDENTIFIER_LEN) {
-		SqlIdentifier st;
-		char* s = st;
-		l = MAX_SQL_IDENTIFIER_LEN;
-		while (l--) {
-			*s++ = BLR_BYTE;
+	if (checkLength)
+	{
+		// Check for overly long identifiers at BLR parse stage to prevent unwanted
+		// surprises in deeper layers of the engine.
+		if (l > MAX_SQL_IDENTIFIER_LEN) {
+			SqlIdentifier st;
+			char* s = st;
+			l = MAX_SQL_IDENTIFIER_LEN;
+			while (l--) {
+				*s++ = BLR_BYTE;
+			}
+			*s = 0;
+			ERR_post(isc_identifier_too_long, isc_arg_string, ERR_cstring(st), 0);
 		}
-		*s = 0;
-		ERR_post(isc_identifier_too_long, isc_arg_string, ERR_cstring(st), 0);
 	}
 
 	if (count) {
@@ -1661,7 +1667,7 @@ static JRD_NOD par_plan(thread_db* tdbb, CompilerScratch* csb)
 
 			/* pick up the index name and look up the appropriate ids */
 
-			par_name(csb, name);
+			par_name(csb, name, true);
             /* CVC: We can't do this. Index names are identifiers.
                for (p = name; *p; *p++)
                *p = UPPER (*p);
@@ -1716,7 +1722,7 @@ static JRD_NOD par_plan(thread_db* tdbb, CompilerScratch* csb)
 			/* pick up the index names and look up the appropriate ids */
 
 			for (jrd_nod** arg = access_type->nod_arg + extra_count; count--;) {
-				par_name(csb, name);
+				par_name(csb, name, true);
           		/* Nickolay Samofatov: We can't do this. Index names are identifiers.
 				 for (p = name; *p; *p++)
 				 *p = UPPER(*p);
@@ -1780,7 +1786,7 @@ static JRD_NOD par_procedure(thread_db* tdbb, CompilerScratch* csb, SSHORT op)
 
 	//if (op == blr_procedure) 
 		{
-		par_name(csb, name);
+		par_name(csb, name, true);
 		procedure = tdbb->tdbb_database->findProcedure(tdbb, name, FALSE);
 		}
 	/***
@@ -1972,7 +1978,7 @@ static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operat
 			const SSHORT length = BLR_PEEK;
 			alias_string = FB_NEW_RPT(*tdbb->tdbb_default, length + 1) str();
 			alias_string->str_length = length;
-			par_name(csb, reinterpret_cast < char *>(alias_string->str_data));
+			par_name(csb, reinterpret_cast < char *>(alias_string->str_data), false);
 			}
 		//if (!(relation = MET_lookup_relation_id(tdbb, id, FALSE))) 
 		if (!(relation = tdbb->tdbb_attachment->findRelation(tdbb, id, csb->csb_g_flags)))
@@ -1983,13 +1989,13 @@ static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operat
 		}
 	else if (operator_ == blr_relation || operator_ == blr_relation2) 
 		{
-		par_name(csb, name);
+		par_name(csb, name, true);
 		if (operator_ == blr_relation2) 
 			{
 			const SSHORT length = BLR_PEEK;
 			alias_string = FB_NEW_RPT(*tdbb->tdbb_default, length + 1) str();
 			alias_string->str_length = length;
-			par_name(csb, reinterpret_cast < char *>(alias_string->str_data));
+			par_name(csb, reinterpret_cast < char *>(alias_string->str_data), false);
 			}
 		//if (!(relation = MET_lookup_relation(tdbb, name)))
 		if (!(relation = tdbb->tdbb_attachment->findRelation(tdbb, name, csb->csb_g_flags)))
@@ -2465,7 +2471,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 
 		case blr_user_savepoint:
 			*arg++ = (JRD_NOD) (long) BLR_BYTE;
-			par_name(csb, name);
+			par_name(csb, name, true);
 			*arg++ = (JRD_NOD) ALL_cstring(name);
 			break;
 
@@ -2612,7 +2618,7 @@ static JRD_NOD parse(thread_db* tdbb, CompilerScratch* csb, USHORT expected, USH
 			{
 			TEXT name[32];
 
-			par_name(csb, name);
+			par_name(csb, name, true);
 			const SLONG tmp = MET_lookup_generator(tdbb, name);
 			
 			if (tmp < 0) 
