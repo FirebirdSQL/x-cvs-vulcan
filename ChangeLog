@@ -1,3 +1,10 @@
+2006-09-21 04:10  verbguy
+
+	* vulcan/src/jrd/par.cpp:
+	
+	backport claudio's fix from fb2.1 for buffer over-run for joins
+	that have exactly 256 relations.
+
 2006-09-20 00:11  arnobrinkman
 
 	* vulcan/src/jrd/: RsbLeftCross.cpp, opt.cpp:
