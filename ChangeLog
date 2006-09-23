@@ -1,3 +1,12 @@
+2006-09-21 05:09  verbguy
+
+	* vulcan/src/jrd/par.cpp:
+	
+	adriano notes that for that for derived tables handled inside
+	par_relation, we don't want to check identifier length. This issue
+	was fixed in FB2 by Alex at par.cpp, 1.132.4.2, but since Vulcan
+	doesn't have MetaName class, implementation here is different.
+
 2006-09-21 04:10  verbguy
 
 	* vulcan/src/jrd/par.cpp:
