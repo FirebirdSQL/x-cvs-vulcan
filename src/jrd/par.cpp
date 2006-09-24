@@ -102,7 +102,7 @@ static JRD_NOD par_literal(thread_db*, CompilerScratch*);
 static JRD_NOD par_map(thread_db*, CompilerScratch*, USHORT);
 static JRD_NOD par_message(thread_db*, CompilerScratch*);
 static JRD_NOD par_modify(thread_db*, CompilerScratch*);
-static USHORT par_name(CompilerScratch*, TEXT *, const bool checkLength);
+static USHORT par_name(CompilerScratch*, TEXT*, const bool checkLength);
 static JRD_NOD par_plan(thread_db*, CompilerScratch*);
 static JRD_NOD par_procedure(thread_db*, CompilerScratch*, SSHORT);
 static void par_procedure_parms(thread_db*, CompilerScratch*, Procedure*, JRD_NOD *, JRD_NOD *, USHORT);
@@ -1556,7 +1556,6 @@ static USHORT par_name(CompilerScratch* csb, TEXT* string, const bool checkLengt
  *
  **************************************/
 	USHORT l = BLR_BYTE;
-	const USHORT count = l;
 
 	if (checkLength)
 	{
@@ -1573,6 +1572,8 @@ static USHORT par_name(CompilerScratch* csb, TEXT* string, const bool checkLengt
 			ERR_post(isc_identifier_too_long, isc_arg_string, ERR_cstring(st), 0);
 		}
 	}
+
+	const USHORT count = l;
 
 	if (count) {
 		do {
@@ -1978,7 +1979,7 @@ static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operat
 			const SSHORT length = BLR_PEEK;
 			alias_string = FB_NEW_RPT(*tdbb->tdbb_default, length + 1) str();
 			alias_string->str_length = length;
-			par_name(csb, reinterpret_cast < char *>(alias_string->str_data), false);
+			par_name(csb, reinterpret_cast<char*>(alias_string->str_data), false);
 			}
 		//if (!(relation = MET_lookup_relation_id(tdbb, id, FALSE))) 
 		if (!(relation = tdbb->tdbb_attachment->findRelation(tdbb, id, csb->csb_g_flags)))
@@ -1995,7 +1996,7 @@ static JRD_NOD par_relation(thread_db* tdbb, CompilerScratch* csb, SSHORT operat
 			const SSHORT length = BLR_PEEK;
 			alias_string = FB_NEW_RPT(*tdbb->tdbb_default, length + 1) str();
 			alias_string->str_length = length;
-			par_name(csb, reinterpret_cast < char *>(alias_string->str_data), false);
+			par_name(csb, reinterpret_cast<char*>(alias_string->str_data), false);
 			}
 		//if (!(relation = MET_lookup_relation(tdbb, name)))
 		if (!(relation = tdbb->tdbb_attachment->findRelation(tdbb, name, csb->csb_g_flags)))
