@@ -58,6 +58,7 @@ public:
 	bool getRsbItem (int *explain_length_ptr, const UCHAR **explain_ptr, int* plan_length_ptr, UCHAR** plan_ptr, USHORT* parent_join_count, USHORT* level_ptr);
 	UCHAR* getVariableInfo (dsql_msg *message, const UCHAR *items, const UCHAR *end_describe, UCHAR *info, const UCHAR* end, int first_index);
 	int getPlanInfo (thread_db* threadData, int bufferLength, UCHAR **bufferPtr);
+	int getRawPlanInfo (thread_db* threadData, int bufferLength, UCHAR **bufferPtr);
 	int getRequestInfo (thread_db* threadData, int bufferLength, UCHAR *buffer);
 	UCHAR* put_item (UCHAR item, int length, const UCHAR *string, UCHAR *ptr, const UCHAR *end);
 	int convert (int number, UCHAR* buffer);

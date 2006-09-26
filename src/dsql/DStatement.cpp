@@ -342,6 +342,25 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 					return returnSuccess(statusVector);
 				}
 				break;
+
+			case isc_info_sql_get_raw_plan:
+				{
+				/* be careful, get_plan_info() will reallocate the buffer to a
+				  larger size if it is not big enough */
+
+				UCHAR *buffer_ptr = buffer;
+				length = getRawPlanInfo(thread, sizeof(buffer), &buffer_ptr);
+
+				if (length)
+					info = put_item(item, length, buffer_ptr, info, end_info);
+
+				if (length > sizeof(buffer))
+					gds__free(buffer_ptr);
+
+				if (!info)
+					return returnSuccess(statusVector);
+				}
+				break;
 			
 			default:
 				if (!message || (item != isc_info_sql_num_variables && item != isc_info_sql_describe_vars))
@@ -609,6 +628,64 @@ int DStatement::getPlanInfo(thread_db* threadData, int bufferLength, UCHAR **buf
 	*bufferPtr = buffer_ptr;
 
 	return plan - *bufferPtr;
+}
+
+int DStatement::getRawPlanInfo(thread_db* threadData, int bufferLength, UCHAR **bufferPtr)
+{
+	UCHAR explain_buffer[256];
+	int buffer_length = bufferLength;
+	memset(explain_buffer, 0, sizeof(explain_buffer));
+	UCHAR* explain_ptr = explain_buffer;
+	UCHAR* buffer_ptr = *bufferPtr;
+
+	// get the access path info for the underlying request from the engine 
+
+	if (!statement->request)
+		return 0;
+		
+	INF_request_info(threadData, statement->request, 
+					 explainInfo, sizeof(explainInfo), explain_buffer, sizeof(explain_buffer));
+
+	if (*explain_buffer == isc_info_truncated) 
+		{
+		explain_ptr = (UCHAR *) gds__alloc(BUFFER_XLARGE);
+		// CVC: Added test for memory exhaustion here.
+		// Should we throw an exception or simply return 0 to the caller?
+		if (!explain_ptr)
+			return 0;
+		INF_request_info(threadData, statement->request, 
+						 explainInfo, sizeof(explainInfo), explain_ptr, BUFFER_XLARGE);
+		}
+
+	const UCHAR* explain = explain_ptr;
+	if (*explain++ != isc_info_access_path)
+		{
+		// CVC: deallocate memory!
+		if (explain_ptr != explain_buffer) 
+			gds__free(explain_ptr);
+		return 0;
+		}
+
+	int explain_length = *explain++;
+	explain_length += (UCHAR) (*explain++) << 8;
+
+	if (explain_length > (bufferLength - 6)) // 6 = (isc_info_access_path + length) + (isc_info_sql_raw... + length)
+		{
+		buffer_ptr = (UCHAR*) gds__alloc(BUFFER_XLARGE);
+		buffer_length = BUFFER_XLARGE;
+		}
+
+	UCHAR* end_buffer_ptr = buffer_ptr + buffer_length;
+
+	UCHAR* baseBufferPtr = buffer_ptr;
+	buffer_ptr = put_item(isc_info_access_path, explain_length, explain_ptr, buffer_ptr, end_buffer_ptr);
+
+	if (explain_ptr != explain_buffer)
+		gds__free(explain_ptr);
+
+	*bufferPtr = baseBufferPtr;
+
+	return buffer_ptr - baseBufferPtr;
 }
 
 UCHAR* DStatement::getVariableInfo(dsql_msg *message, const UCHAR *items, const UCHAR *end_describe, UCHAR *info, const UCHAR *end, int first_index)
