@@ -326,8 +326,8 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 			
 			case isc_info_sql_get_plan: 
 				{
-				/* be careful, get_plan_info() will reallocate the buffer to a
-				  larger size if it is not big enough */
+				// be careful, getPlanInfo() will reallocate the buffer to a
+				// larger size if it is not big enough
 
 				UCHAR *buffer_ptr = buffer;
 				length = getPlanInfo(thread, sizeof(buffer), &buffer_ptr);
@@ -345,8 +345,8 @@ ISC_STATUS DStatement::getSqlInfo(ISC_STATUS *statusVector, int itemsLength, con
 
 			case isc_info_sql_get_raw_plan:
 				{
-				/* be careful, get_plan_info() will reallocate the buffer to a
-				  larger size if it is not big enough */
+				// be careful, getRawPlanInfo() will reallocate the buffer to a
+				// larger size if it is not big enough
 
 				UCHAR *buffer_ptr = buffer;
 				length = getRawPlanInfo(thread, sizeof(buffer), &buffer_ptr);
