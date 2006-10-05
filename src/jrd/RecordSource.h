@@ -142,6 +142,9 @@ public:
 	RecordSource* rsb_next;			// next rsb, if appropriate
 	Format*		rsb_format;			// format, if appropriate
 	RecordSource *nextInRequest;	// list of rsbs in request
+
+	double		estimatedSelectivity; // estimated selectivity of stream
+	double		estimatedCost; // estimated cost (page reads) of stream
 	
 	// AP:	stop saving memory with the price of awful conversions,
 	//		later may be union will help this, because no ~ are
@@ -163,6 +166,7 @@ public:
 	virtual void popRecords(Request* request);
 	virtual void saveRecord(Request* request, record_param* rpb);
 	virtual void restoreRecord(record_param* rpb);
+	virtual bool getExecutionPathEstimationInfo(ExecutionPathInfoGen* infoGen);
 };
 
 #endif

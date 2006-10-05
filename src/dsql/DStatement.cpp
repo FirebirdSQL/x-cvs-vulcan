@@ -954,6 +954,28 @@ bool DStatement::getRsbItem(int *explain_length_ptr, const UCHAR **explain_ptr, 
 				*plan++ = *explain++;
 			break;
 
+		case isc_info_rsb_estimation:
+			explain_length--;
+
+			//isc_info_rsb_begin
+			explain++;
+			explain_length--;
+
+			while (*explain != isc_info_rsb_end)
+			{
+				explain++; // item
+				explain_length--;
+				int est_data_length = *explain++; // length
+				est_data_length += (UCHAR) (*explain++) << 8;
+				explain += est_data_length; // data
+				explain_length -= est_data_length;
+			}
+
+			//isc_info_rsb_end
+			explain++;
+			explain_length--;						
+			break;
+
 		case isc_info_rsb_type:
 			explain_length--;
 			switch (rsb_type = *explain++) 
@@ -1079,6 +1101,7 @@ bool DStatement::getRsbItem(int *explain_length_ptr, const UCHAR **explain_ptr, 
 						return false;
 					while (*p)
 						*plan++ = *p++;
+
 
 					// print out additional index information 
 

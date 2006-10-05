@@ -82,9 +82,63 @@ bool ExecutionPathInfoGen::putByte(UCHAR value)
 	return true;
 }
 
+bool ExecutionPathInfoGen::putDouble(double value)
+{
+	return putInt64( *((SINT64*) &value));
+}
+
 bool ExecutionPathInfoGen::putEnd()
 {
 	return putByte(isc_info_rsb_end);
+}
+
+bool ExecutionPathInfoGen::putInt(int value)
+{
+	if (!putShort (value))
+		return false;
+
+	return putShort (value >> 16);
+}
+
+bool ExecutionPathInfoGen::putInt64(SINT64 value)
+{
+	if (ptr + 8 > bufferEnd)
+		{
+		return false;
+		}
+
+    *ptr++ = (value);
+    *ptr++ = (value >> 8);
+    *ptr++ = (value >> 16);
+    *ptr++ = (value >> 24);
+    *ptr++ = (value >> 32);
+    *ptr++ = (value >> 40);
+    *ptr++ = (value >> 48);
+    *ptr++ = (value >> 56);
+
+	return true;
+}
+
+bool ExecutionPathInfoGen::putItemValueDouble(UCHAR item, double value)
+{
+	if (!putByte(item))
+		return false;
+
+	if (!putShort(8))
+		return false;
+
+	return putDouble(value);
+}
+
+bool ExecutionPathInfoGen::putItemValueInt(UCHAR item, int value)
+{
+	if (!putByte(item))
+		return false;
+
+	if (!putShort(4))
+		return false;
+
+	return putInt(value);
 }
 
 bool ExecutionPathInfoGen::putRelation(Relation* relation, const str* alias)
@@ -125,6 +179,19 @@ bool ExecutionPathInfoGen::putRequest(Request* request)
 		if (rsb && !rsb->getExecutionPathInfo(request, this))
 			return false;
 		}
+	return true;
+}
+
+bool ExecutionPathInfoGen::putShort(int value)
+{
+	if (ptr + 2 > bufferEnd)
+		{
+		return false;
+		}
+
+	*ptr++ = value;
+	*ptr++ = value >> 8;
+
 	return true;
 }
 

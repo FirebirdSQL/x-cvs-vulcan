@@ -157,7 +157,7 @@ static RecordSource* gen_procedure(thread_db*, OptimizerBlk*, jrd_nod*);
 static RecordSource* gen_residual_boolean(thread_db*, OptimizerBlk*, RecordSource*);
 static RecordSource* gen_retrieval(thread_db*, OptimizerBlk*, SSHORT, jrd_nod**,
 					jrd_nod**, bool, bool, jrd_nod**);
-static RecordSource* gen_rsb(thread_db*, OptimizerBlk*, RecordSource*, jrd_nod*, SSHORT, Relation*, str*, jrd_nod*, float);
+static RecordSource* gen_rsb(thread_db*, OptimizerBlk*, RecordSource*, jrd_nod*, SSHORT, Relation*, str*, jrd_nod*, float, double, double);
 static RecordSource*	gen_skip (thread_db*, OptimizerBlk*, RecordSource*, jrd_nod*);
 static RsbSort* gen_sort(thread_db*, OptimizerBlk*, const UCHAR*, const UCHAR*, RecordSource*, jrd_nod*, bool);
 static bool gen_sort_merge(thread_db*, OptimizerBlk*, RiverStack&);
@@ -4949,6 +4949,8 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 
 	Database* dbb = tdbb->tdbb_database;
 	const bool ods11orHigher = (dbb->dbb_ods_version >= ODS_VERSION11);
+	double estimatedSelectivity = 1;
+	double estimatedCost = 0;
 	
 	// For ODS11 and higher databases we can use new calculations
 
@@ -4958,8 +4960,14 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 			OptimizerRetrieval(tdbb, *tdbb->tdbb_default, opt, stream, outer_flag, inner_flag, sort_ptr);
 		InversionCandidate* candidate = optimizerRetrieval->getInversion(&rsb);
 		
-		if (candidate && candidate->inversion)
-			inversion = candidate->inversion;			
+		if (candidate)
+			{
+			estimatedSelectivity = candidate->selectivity;
+			estimatedCost = candidate->cost;
+
+			if (candidate->inversion)
+				inversion = candidate->inversion;			
+			}
 
 		delete candidate;
 		delete optimizerRetrieval;
@@ -5266,10 +5274,12 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 
 	if (full) 
 		return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
-					   *return_boolean, csb_tail->csb_cardinality);
+					   *return_boolean, csb_tail->csb_cardinality, 
+					   estimatedSelectivity, estimatedCost);
 
 	return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
-					opt_boolean, csb_tail->csb_cardinality);
+					opt_boolean, csb_tail->csb_cardinality,
+                    estimatedSelectivity, estimatedCost);
 }
 
 
@@ -5281,7 +5291,9 @@ static RecordSource* gen_rsb(thread_db* tdbb,
 							 Relation* relation, 
 							 str* alias, 
 							 jrd_nod* boolean, 
-							 float cardinality)
+							 float cardinality,
+							 double estimatedSelectivity, 
+							 double estimatedCost)
 {
 /**************************************
  *
@@ -5359,12 +5371,18 @@ static RecordSource* gen_rsb(thread_db* tdbb,
 		***/
 		}
 
+	rsb->rsb_cardinality = (ULONG) cardinality;
+	rsb->estimatedSelectivity = estimatedSelectivity;
+	rsb->estimatedCost = estimatedCost;
+
 	if (boolean) 
+		{
 		rsb = gen_boolean(tdbb, opt, rsb, boolean);
 
-	// retain the cardinality for use at runtime by blr_cardinality
+		// retain the cardinality for use at runtime by blr_cardinality
 	
-	rsb->rsb_cardinality = (ULONG) cardinality;
+		rsb->rsb_cardinality = (ULONG) cardinality;
+		}
 	
 	return rsb;
 }

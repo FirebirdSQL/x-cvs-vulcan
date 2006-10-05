@@ -1752,6 +1752,15 @@ enum info_db_provider
 #define isc_info_rsb_once			20
 #define isc_info_rsb_procedure		21
 #define isc_info_rsb_skip			22
+#define isc_info_rsb_estimation		23
+
+/**********************/
+/* Estimation info    */
+/**********************/
+
+#define isc_info_rsb_cardinality	2
+#define isc_info_rsb_selectivity	3
+#define isc_info_rsb_cost			4
 
 /**********************/
 /* Bitmap expressions */

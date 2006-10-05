@@ -50,9 +50,15 @@ public:
 	bool put(const UCHAR* value, int length);
 	bool putBegin();
 	bool putByte(UCHAR value);
+	bool putDouble(double value);
 	bool putEnd();
+	bool putInt(int value);
+	bool putInt64(SINT64 value);
+	bool putItemValueDouble(UCHAR item, double value);
+	bool putItemValueInt(UCHAR item, int value);
 	bool putRelation(Relation* relation, const str* alias);
 	bool putRequest(Request* request);
+	bool putShort(int value);
 	bool putString(const char* value, int length);
 	bool putType(UCHAR item);
 

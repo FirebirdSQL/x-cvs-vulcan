@@ -131,6 +131,9 @@ bool RsbSequential::getExecutionPathInfo(Request* request, ExecutionPathInfoGen*
 	if (!infoGen->putRelation(rsb_relation, rsb_alias))
 		return false;
 
+	if (!getExecutionPathEstimationInfo(infoGen))
+		return false;
+
 	if (!infoGen->putType(isc_info_rsb_sequential))
 		return false;
 

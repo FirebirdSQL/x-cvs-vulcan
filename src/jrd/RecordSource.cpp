@@ -34,6 +34,7 @@
  
 #include <errno.h>
 #include "fbdev.h"
+#include "ibase.h"
 #include "RecordSource.h"
 #include "Request.h"
 #include "Relation.h"
@@ -65,6 +66,8 @@
 #include "RsbCross.h"
 #include "RsbIndexed.h"
 #include "CompilerScratch.h"
+#include "ExecutionPathInfoGen.h"
+
 
 #if defined(WIN_NT)
 #include <io.h> // close
@@ -1979,4 +1982,27 @@ void RecordSource::popRecords(Request* request)
 {
 	if (rsb_next)
 		rsb_next->popRecords(request);
+}
+
+bool RecordSource::getExecutionPathEstimationInfo(ExecutionPathInfoGen* infoGen)
+{
+	if (!infoGen->putByte(isc_info_rsb_estimation))
+		return false;
+
+	if (!infoGen->putBegin())
+		return false;
+
+	if (!infoGen->putItemValueInt(isc_info_rsb_cardinality, rsb_cardinality))
+		return false;
+
+	if (!infoGen->putItemValueDouble(isc_info_rsb_selectivity, estimatedSelectivity))
+		return false;
+
+	if (!infoGen->putItemValueDouble(isc_info_rsb_cost, estimatedCost))
+		return false;
+
+	if (!infoGen->putEnd())
+		return false;
+
+	return true;
 }
