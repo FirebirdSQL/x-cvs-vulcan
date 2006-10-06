@@ -1,3 +1,19 @@
+2006-10-06 02:47  asfernandes
+
+	* vulcan/src/: dsql/DStatement.cpp, jrd/ExecutionPathInfoGen.cpp,
+	jrd/RecordSource.cpp, jrd/RecordSource.h, jrd/opt.cpp:
+	
+	Misc
+
+2006-10-05 15:47  arnobrinkman
+
+	* vulcan/src/: jrd/ExecutionPathInfoGen.cpp,
+	jrd/ExecutionPathInfoGen.h, jrd/RecordSource.cpp,
+	jrd/RecordSource.h, jrd/RsbIndexed.cpp, jrd/RsbSequential.cpp,
+	jrd/ibase.h, jrd/opt.cpp, dsql/DStatement.cpp, include/firebird.h:
+	
+	Include rsb estimation information inside execute-path-tree.
+
 2006-09-27 02:49  asfernandes
 
 	* vulcan/src/dsql/DStatement.cpp:
