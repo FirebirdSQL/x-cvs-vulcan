@@ -249,7 +249,8 @@ void VIO_backout(thread_db* tdbb,
 		return;
 		}
 
-	if (temp.rpb_flags & rpb_deleted)
+	if ((temp.rpb_flags & rpb_deleted)
+			&& (!(temp.rpb_flags & rpb_delta)))
 		CCH_RELEASE(tdbb, &temp.rpb_window);
 	else 
 		{
@@ -658,7 +659,8 @@ int VIO_chase_record_version(thread_db* tdbb,
 
 					record_param temp = *rpb;
 					
-					if (!(rpb->rpb_flags & rpb_deleted)) 
+					if ((!(rpb->rpb_flags & rpb_deleted)) 
+							||(rpb->rpb_flags & rpb_delta))
 						{
 						VIO_data(tdbb, rpb, pool);
 						rpb->rpb_page = temp.rpb_page;
