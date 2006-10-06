@@ -586,7 +586,7 @@ int DStatement::getPlanInfo(thread_db* threadData, int bufferLength, UCHAR **buf
 			}
 
 		int explain_length = *explain++;
-		explain_length += (UCHAR) (*explain++) << 8;
+		explain_length += (*explain++) << 8;
 
 		plan = buffer_ptr;
 
@@ -667,7 +667,7 @@ int DStatement::getRawPlanInfo(thread_db* threadData, int bufferLength, UCHAR **
 		}
 
 	int explain_length = *explain++;
-	explain_length += (UCHAR) (*explain++) << 8;
+	explain_length += (*explain++) << 8;
 
 	if (explain_length > (bufferLength - 6)) // 6 = (isc_info_access_path + length) + (isc_info_sql_raw... + length)
 		{
@@ -966,7 +966,7 @@ bool DStatement::getRsbItem(int *explain_length_ptr, const UCHAR **explain_ptr, 
 				explain++; // item
 				explain_length--;
 				int est_data_length = *explain++; // length
-				est_data_length += (UCHAR) (*explain++) << 8;
+				est_data_length += (*explain++) << 8;
 				explain += est_data_length; // data
 				explain_length -= est_data_length;
 			}

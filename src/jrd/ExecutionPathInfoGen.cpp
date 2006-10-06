@@ -84,7 +84,7 @@ bool ExecutionPathInfoGen::putByte(UCHAR value)
 
 bool ExecutionPathInfoGen::putDouble(double value)
 {
-	return putInt64( *((SINT64*) &value));
+	return putInt64(*((SINT64*) &value));
 }
 
 bool ExecutionPathInfoGen::putEnd()
@@ -94,10 +94,10 @@ bool ExecutionPathInfoGen::putEnd()
 
 bool ExecutionPathInfoGen::putInt(int value)
 {
-	if (!putShort (value))
+	if (!putShort(value))
 		return false;
 
-	return putShort (value >> 16);
+	return putShort(value >> 16);
 }
 
 bool ExecutionPathInfoGen::putInt64(SINT64 value)

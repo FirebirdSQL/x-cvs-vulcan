@@ -20,7 +20,6 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
  *
- * $Id$
  *
  * 2001.07.28: John Bellardo: Implemented rse_skip and made rse_first work with
  *                              seekable streams.

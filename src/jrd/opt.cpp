@@ -5272,10 +5272,12 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 			}
 		}
 
-	if (full) 
+	if (full)
+		{
 		return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
 					   *return_boolean, csb_tail->csb_cardinality, 
 					   estimatedSelectivity, estimatedCost);
+		}
 
 	return gen_rsb(tdbb, opt, rsb, inversion, stream, relation, alias,
 					opt_boolean, csb_tail->csb_cardinality,
