@@ -1,3 +1,13 @@
+2006-10-06 19:45  awharrison
+
+	* vulcan/src/jrd/vio.cpp:
+	
+	Normally deleted records are just empty stubs and should not have
+	their data read during backout or chase record version.  Sometimes,
+	however, they are actually whole records with delta back versions
+	and must be read or the operation will fail with a wrong length
+	record error.  This change fixes the know cases of that.
+
 2006-10-06 02:47  asfernandes
 
 	* vulcan/src/: dsql/DStatement.cpp, jrd/ExecutionPathInfoGen.cpp,
