@@ -955,8 +955,6 @@ bool DStatement::getRsbItem(int *explain_length_ptr, const UCHAR **explain_ptr, 
 			break;
 
 		case isc_info_rsb_estimation:
-			explain_length--;
-
 			//isc_info_rsb_begin
 			explain++;
 			explain_length--;
@@ -965,8 +963,11 @@ bool DStatement::getRsbItem(int *explain_length_ptr, const UCHAR **explain_ptr, 
 			{
 				explain++; // item
 				explain_length--;
+
 				int est_data_length = *explain++; // length
 				est_data_length += (*explain++) << 8;
+				explain_length -= 2;
+
 				explain += est_data_length; // data
 				explain_length -= est_data_length;
 			}
@@ -1679,6 +1680,7 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 		}
 
 		parmcount = count;
+		count *= 2;
 	}
 
 	int offset = 0;
