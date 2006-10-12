@@ -1,3 +1,10 @@
+2006-10-11 15:14  arnobrinkman
+
+	* vulcan/src/dsql/DStatement.cpp:
+	
+	Fix problem when blrLength was 0.  Fix PLAN output when estimation
+	info is included.
+
 2006-10-06 19:45  awharrison
 
 	* vulcan/src/jrd/vio.cpp:
