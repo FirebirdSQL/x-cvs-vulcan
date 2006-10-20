@@ -2079,10 +2079,10 @@ static void gen_relation( CStatement* request, dsql_ctx* context)
 			}
 
 		stuff(request, context->ctx_context);
-		stuff_word(request, procedure->findInputCount());
 		dsql_nod* inputs = context->ctx_proc_inputs;
 		if (inputs) 
 			{
+			stuff_word(request, inputs->nod_count);
 		    dsql_nod* const* ptr = inputs->nod_arg;
 			for (const dsql_nod* const* const end = ptr + inputs->nod_count; ptr < end; ptr++)
 				GEN_expr(request, *ptr);
