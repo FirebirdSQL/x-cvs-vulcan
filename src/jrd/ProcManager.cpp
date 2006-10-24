@@ -445,7 +445,7 @@ void ProcManager::remove(Procedure* procedure)
 }
 
 // parameter "proc" not used here. Can we remove?
-// Had to change from "Procedure* Procedure" since that hides local
+// Had to change from "Procedure* procedure" since that hides local
 // variable procedure and is compile error on H6I - HP-UX Itanium.
 void ProcManager::purgeDependencies(Procedure* proc)
 {

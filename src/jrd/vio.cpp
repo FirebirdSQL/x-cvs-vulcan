@@ -658,7 +658,7 @@ int VIO_chase_record_version(thread_db* tdbb,
 
 					record_param temp = *rpb;
 					
-					if ((!(rpb->rpb_flags & rpb_deleted)) ||(rpb->rpb_flags & rpb_delta))
+					if ((!(rpb->rpb_flags & rpb_deleted)) || (rpb->rpb_flags & rpb_delta))
 						{
 						VIO_data(tdbb, rpb, pool);
 						rpb->rpb_page = temp.rpb_page;
