@@ -2087,6 +2087,8 @@ static void gen_relation( CStatement* request, dsql_ctx* context)
 			for (const dsql_nod* const* const end = ptr + inputs->nod_count; ptr < end; ptr++)
 				GEN_expr(request, *ptr);
 			}
+		else
+			stuff_word(request, 0);
 		}
 	}
 
