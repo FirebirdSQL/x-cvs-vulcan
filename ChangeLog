@@ -1,3 +1,9 @@
+2006-11-12 01:02  asfernandes
+
+	* vulcan/src/jrd/RsbSingular.cpp:
+
+	Fix the bug in RSB refactoration found by Bill Oliver
+
 2006-10-26 16:21  verbguy
 
 	* vulcan/src/dsql/gen.cpp:
