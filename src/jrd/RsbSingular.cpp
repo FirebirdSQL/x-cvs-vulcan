@@ -32,10 +32,12 @@
 #include "CompilerScratch.h"
 #include "iberror.h"
 #include "ExecutionPathInfoGen.h"
+#include "../jrd/cmp_proto.h"
 #include "../jrd/err_proto.h"
 
 RsbSingular::RsbSingular(CompilerScratch *csb, RecordSource *next) : RecordSource(csb, rsb_singular)
 {
+	rsb_impure = CMP_impure(csb, sizeof(struct irsb));
 	rsb_next = next;
 }
 
