@@ -82,6 +82,7 @@ Attachment::Attachment(Database *database)
 	att_dbkey_trans = NULL;
 	att_requests = NULL;
 	att_id_lock = NULL;
+	att_attachment_id = 0;
 	att_security_class = NULL;
 	att_security_classes = NULL;
 	att_relation_locks = NULL;
@@ -107,6 +108,11 @@ Attachment::~Attachment()
 
 Cursor* Attachment::allocateCursor(DStatement* statement, Transaction* transaction)
 {
+#ifdef SHARED_CACHE
+	Sync sync(&syncCursors, "Attachment::allocateCursor");
+	sync.lock(Exclusive);
+#endif
+
 	Cursor *cursor = new Cursor (statement, transaction);
 	cursor->next = cursors;
 	cursors = cursor;
@@ -156,6 +162,11 @@ bool Attachment::isSoleAttachment(void)
 
 Cursor* Attachment::findCursor(const char* name)
 {
+#ifdef SHARED_CACHE
+	Sync sync(&syncCursors, "Attachment::findCursor");
+	sync.lock(Shared);
+#endif
+
 	for (Cursor *cursor = cursors; cursor; cursor = cursor->next)
 		if (cursor->name == name)
 			return cursor;
@@ -165,6 +176,11 @@ Cursor* Attachment::findCursor(const char* name)
 
 void Attachment::deleteCursor(Cursor* cursor)
 {
+#ifdef SHARED_CACHE
+	Sync sync(&syncCursors, "Attachment::deleteCursor");
+	sync.lock(Exclusive);
+#endif
+
 	for (Cursor **ptr = &cursors; *ptr; ptr = &(*ptr)->next)
 		if (*ptr == cursor)
 			{
@@ -177,8 +193,35 @@ void Attachment::deleteCursor(Cursor* cursor)
 
 void Attachment::endTransaction(Transaction* transaction)
 {
-	for (Cursor *cursor; cursor = cursors;)
-		cursor->statement->clearCursor();
+#ifdef SHARED_CACHE
+	Sync curSync(&syncCursors, "Attachment::endTransaction");
+	curSync.lock(Shared);
+#endif
+
+	Cursor **cursor_ptr = &cursors;
+	for (Cursor *cursor; cursor = *cursor_ptr;)
+		{
+		if (cursor->transaction == transaction)
+			{
+#ifdef SHARED_CACHE
+			curSync.unlock();
+#endif
+			cursor->statement->clearCursor();
+#ifdef SHARED_CACHE
+			curSync.lock(Shared);
+#endif
+			cursor_ptr = &cursors;
+			}
+		else
+			cursor_ptr = &cursor->next;
+		}
+
+#ifdef SHARED_CACHE
+	curSync.unlock();
+
+	Sync traSync(&syncTransactions, "Attachment::endTransaction");
+	traSync.lock(Exclusive);
+#endif
 
 	for (Transaction **ptr = &att_transactions; *ptr; ptr = &(*ptr)->tra_next) 
 		if (*ptr == transaction) 
@@ -396,6 +439,11 @@ Relation* Attachment::getRelation(thread_db* tdbb, const char* relationName)
 
 void Attachment::addTransaction(Transaction* transaction)
 {
+#ifdef SHARED_CACHE
+	Sync sync(&syncTransactions, "Attachment::addTransaction");
+	sync.lock(Exclusive);
+#endif
+
 	transaction->tra_next = att_transactions;
 	att_transactions = transaction;
 }

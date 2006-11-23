@@ -169,7 +169,9 @@ public:
 #ifdef SHARED_CACHE
 	SyncObject		syncObject;
 	SyncObject		syncLongLocks;
+	SyncObject		syncCursors;
 	SyncObject		syncRequests;
+	SyncObject		syncTransactions;
 #endif
 
 };

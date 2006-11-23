@@ -1351,8 +1351,8 @@ ISC_STATUS DStatement::execute(ISC_STATUS* statusVector, Transaction** transacti
 		*/
 		if ((!sing_status) && (needsCursor))
 			{
-                	if (!cursor)
-			cursor = attachment->allocateCursor (this, transaction);
+			if (!cursor)
+				cursor = attachment->allocateCursor (this, transaction);
 			req_flags |= REQ_cursor_open |
 				((requestType == REQ_EMBED_SELECT) ? REQ_embedded_sql_cursor : 0);
 			/***
@@ -1882,7 +1882,7 @@ ISC_STATUS DStatement::freeStatement(ISC_STATUS* statusVector, int options)
 	try
 		{
 		if (options & (DSQL_close | DSQL_unprepare))
-				closeCursor();
+			closeCursor();
 
 		if (options & (DSQL_drop | DSQL_unprepare))
 			{
@@ -1918,12 +1918,13 @@ ISC_STATUS DStatement::setCursor(ISC_STATUS* statusVector, const TEXT* cursorNam
 			ERRD_post(isc_sqlerr, isc_arg_number, -502,
 					  isc_arg_gds, isc_dsql_decl_err, 0);
 			}
-	
+
 		if (attachment->findCursor(name))
 			ERRD_post(isc_sqlerr, isc_arg_number, -502,
 					  isc_arg_gds, isc_dsql_decl_err, 0);
 
-		cursor = attachment->allocateCursor(this, transaction);
+		if (!cursor)
+			cursor = attachment->allocateCursor(this, transaction);
 		cursor->name = name;		
 		//const dsql_sym* symbol = HSHD_lookup(attach, cursor, length, SYM_cursor, 0);
 		}
@@ -1931,7 +1932,7 @@ ISC_STATUS DStatement::setCursor(ISC_STATUS* statusVector, const TEXT* cursorNam
 		{
 		return exception.copy (statusVector);
 		}
-	
+
 	return returnSuccess(statusVector);
 }
 
@@ -2018,12 +2019,10 @@ ISC_STATUS DStatement::executeDDL(ISC_STATUS* statusVector)
 
 void DStatement::clearCursor(void)
 {
-	while (cursor != NULL)
+	if (cursor)
 		{
-		Cursor *next = cursor->next;
-		if (this == cursor->statement)
-			attachment->deleteCursor(cursor);
-		cursor = next;
+		attachment->deleteCursor(cursor);
+		cursor = NULL;
 		}
 
 	req_flags &= ~(REQ_cursor_open | REQ_embedded_sql_cursor);	
