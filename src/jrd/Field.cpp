@@ -78,6 +78,9 @@ void Field::setName(JString name)
 {
 	fld_name = name;
 	fld_length = fld_name.length();
+	
+	if (dsqlField)
+		dsqlField->fld_name = name;
 }
 
 void Field::setType(DSC* desc, int dimensions)
