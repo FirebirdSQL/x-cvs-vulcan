@@ -1099,12 +1099,8 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
  *	transactions.
  *
  **************************************/
-	VEC vector;
-	vec::iterator lock;
-	USHORT i;
-
 	transaction->connectionsCheckout();
-	
+
 	while (transaction->tra_blobs)
 		BLB_cancel(tdbb, transaction->tra_blobs);
 
@@ -1130,16 +1126,20 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 
 	/* Release the locks associated with the transaction */
 
-	if ( (vector = transaction->tra_relation_locks) )
-		for (i = 0, lock = vector->begin(); i < vector->count(); i++, lock++)
+	VEC vector = transaction->tra_relation_locks;
+	if (vector)
+	{
+		vec::iterator lock = vector->begin();
+		for (ULONG i = 0; i < vector->count(); i++, lock++)
 			if (*lock)
 				LCK_release((Lock*)*lock);
+	}
 
 	++transaction->tra_use_count;
-	
+
 	if (transaction->tra_lock)
 		LCK_release(transaction->tra_lock);
-		
+
 	--transaction->tra_use_count;
 
 	/* release the sparse bit map used for commit retain transaction */
