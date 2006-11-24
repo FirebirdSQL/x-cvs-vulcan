@@ -1,4 +1,3 @@
-/* $Id$ */
 /*
  *	PROGRAM:	JRD Access Method
  *	MODULE:		Attachment.h
