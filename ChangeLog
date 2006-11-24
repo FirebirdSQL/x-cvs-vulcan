@@ -1,3 +1,35 @@
+2006-11-24 04:11  dimitr
+
+	* vulcan/src/jrd/: Relation.cpp, met.epp:
+
+	Fixed one more crash at Relation::~Relation.
+
+2006-11-24 03:16  dimitr
+
+	* vulcan/src/jrd/tra.cpp:
+
+	Solved a weird crash at the end of TRA_release_transaction. Dunno
+	if anybody else noticed that.
+
+2006-11-24 01:40  asfernandes
+
+	* vulcan/src/jrd/Attachment.h:
+
+	Misc
+
+2006-11-23 22:11  hvlad
+
+	* vulcan/src/jrd/Field.cpp:
+
+	Fixed metadata bug reported by Bill Oliver
+
+2006-11-23 16:11  dimitr
+
+	* vulcan/src/: dsql/DStatement.cpp, jrd/Attachment.cpp,
+	jrd/Attachment.h:
+
+	An attempt to fix the crashes reported by Bill.
+
 2006-11-12 01:02  asfernandes
 
 	* vulcan/src/jrd/RsbSingular.cpp:
