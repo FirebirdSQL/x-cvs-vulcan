@@ -935,6 +935,7 @@ void DPM_delete_relation( thread_db* tdbb, Relation* relation)
 
 	//delete relation->rel_pages;
 	//relation->rel_pages = NULL;
+	relation->rel_pages.resize(0);
 	relation->rel_data_pages = 0;
 
 	// Now get rid of the index root page 
@@ -1839,7 +1840,7 @@ void DPM_scan_pages( thread_db* tdbb)
 	Sync sync2(&dbb->syncSysTrans, "DPM_scan_pages");
 	sync2.lock(Exclusive);
 #endif
-	
+
 	Relation *relation = dbb->getRelation(tdbb, 0);
 #ifdef SHARED_CACHE
 	SIVector<SLONG> *vector = &relation->rel_pages;
@@ -1867,10 +1868,10 @@ void DPM_scan_pages( thread_db* tdbb)
 	
 		if (!REQUEST(irq_r_pages))
 			REQUEST(irq_r_pages) = request;
-			
+
 		relation = dbb->getRelation(tdbb, X.RDB$RELATION_ID);
 		sequence = X.RDB$PAGE_SEQUENCE;
-		
+
 		switch (X.RDB$PAGE_TYPE) 
 			{
 			case pag_root:
@@ -1892,7 +1893,7 @@ void DPM_scan_pages( thread_db* tdbb)
 			default:
 				CORRUPT(257);		// msg 257 bad record in RDB$PAGES
 			}
-			
+
 		vector->checkSize(sequence, sequence + 1);
 		(*vector)[sequence] = X.RDB$PAGE_NUMBER;
 	END_FOR;

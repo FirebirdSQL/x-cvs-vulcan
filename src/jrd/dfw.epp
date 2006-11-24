@@ -197,7 +197,7 @@ static void get_trigger_dependencies(thread_db* tdbb, DeferredWork*);
 static void	load_trigs(thread_db*, Relation*, Triggers* *);
 static Format* make_format(thread_db*, Relation*, USHORT *, TempField*);
 static USHORT name_length(const TEXT*);
-static DeferredWork* post_work(Transaction*, SLONG, DeferredWork* *, enum dfw_t, DSC *, USHORT);
+static DeferredWork* post_work(Transaction*, SLONG, DeferredWork* *, enum dfw_t, DSC *, USHORT, USHORT);
 static void put_summary_blob(thread_db* tdbb, blb*, enum rsr_t, bid*);
 static void put_summary_record(thread_db* tdbb, blb*, enum rsr_t, const UCHAR*, USHORT);
 static void	setup_array(thread_db*, blb*, const TEXT*, USHORT, TempField*);
@@ -621,7 +621,7 @@ void DFW_perform_post_commit_work(thread_db* tdbb, Transaction* transaction)
 }
 
 
-DeferredWork* DFW_post_work(Transaction* transaction, enum dfw_t type, DSC* desc, USHORT id)
+DeferredWork* DFW_post_work(Transaction* transaction, enum dfw_t type, DSC* desc, USHORT id, USHORT id2)
 {
 /**************************************
  *
@@ -646,7 +646,8 @@ DeferredWork* DFW_post_work(Transaction* transaction, enum dfw_t type, DSC* desc
 					 &transaction->tra_deferred_work,
 					 type,
 					 desc,
-					 id);
+					 id,
+					 id2);
 }
 
 
@@ -668,7 +669,8 @@ void DFW_post_work_arg( Transaction* transaction, DeferredWork* work, DSC * desc
 			  &work->dfw_args,
 			  work->dfw_type,
 			  desc,
-			  id);
+			  id,
+			  0);
 }
 
 
@@ -2030,7 +2032,7 @@ static bool create_relation(thread_db* tdbb,
 				delete work->dfw_lock;
 				work->dfw_lock = NULL;
 				}
-
+/*
 			request = CMP_find_request(tdbb, irq_c_relation2, IRQ_REQUESTS);
 
 			FOR(REQUEST_HANDLE request)
@@ -2047,6 +2049,9 @@ static bool create_relation(thread_db* tdbb,
 
 			if (!REQUEST(irq_c_relation2))
 				REQUEST(irq_c_relation2) = request;
+*/
+			if (work->dfw_id)
+				dbb->dropRelation(tdbb, work->dfw_id);
 
 			break;
 
@@ -2152,6 +2157,7 @@ static bool create_relation(thread_db* tdbb,
 			{
 				relation = dbb->getRelation(tdbb, rel_id);
 				DPM_create_relation(tdbb, relation);
+				work->dfw_id = rel_id;
 			}
 				
 			return true;
@@ -2489,14 +2495,14 @@ static bool delete_index(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 	switch (phase)
 		{
 		case 0:
-			relation = MET_lookup_relation(tdbb, work->dfw_name);
-			
+			relation = MET_lookup_relation_id(tdbb, work->dfw_id2, FALSE);
+
 			if (!relation) 
 				return false;
 
 			id = work->dfw_id - 1;
 			index = CMP_get_index_lock(tdbb, relation, id);
-			
+
 			if (index && !index->idl_count) 
 				LCK_release(index->idl_lock);
 
@@ -2510,25 +2516,25 @@ static bool delete_index(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 			/* Look up the relation.  If we can't find the relation,
 			   don't worry about the index. */
 
-			relation = MET_lookup_relation(tdbb, work->dfw_name);
-			
-			if (!relation) 
+			relation = MET_lookup_relation_id(tdbb, work->dfw_id2, FALSE);
+
+			if (!relation)
 				return false;
 
 			/* Make sure nobody is currently using the index */
 
 			id = work->dfw_id - 1;
 			index = CMP_get_index_lock(tdbb, relation, id);
-			
+
 			if (index)
 				{
 				wait = (transaction->tra_flags & TRA_nowait) ? FALSE : TRUE;
-				
+
 				// Try to clear trigger cache to release lock
-				
+
 				if (index->idl_count)
 					MET_clear_cache(tdbb, NULL);
-					
+
 				if (index->idl_count ||
 					!LCK_lock_non_blocking(tdbb, index->idl_lock, LCK_EX, wait))
 					ERR_post(isc_no_meta_update,
@@ -2542,15 +2548,15 @@ static bool delete_index(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 			return true;
 
 		case 4:
-			relation = MET_lookup_relation(tdbb, work->dfw_name);
-			
+			relation = MET_lookup_relation_id(tdbb, work->dfw_id2, FALSE);
+
 			if (!relation) 
 				return false;
 
 			id = work->dfw_id - 1;
 			index = CMP_get_index_lock(tdbb, relation, id);
 			IDX_delete_index(tdbb, relation, id);
-			
+
 			if (work->dfw_type == dfw_delete_expression_index)
 				MET_delete_dependencies(tdbb, work->dfw_name, obj_expression_index);
 
@@ -2563,9 +2569,9 @@ static bool delete_index(thread_db* tdbb, SSHORT phase, DeferredWork* work, Tran
 				 * it for the exclusive lock it would have to be 1.
 				 * IF now it is NOT 1 then someone else got a lock to
 				 * the index and something is seriously wrong */
-				   
+
 				fb_assert(index->idl_count == 1);
-				
+
 				if (!--index->idl_count)
 					{
 					/* Release index existence lock and memory. */
@@ -4265,7 +4271,8 @@ static DeferredWork* post_work(Transaction* transaction,
 					 DeferredWork* *list,
 					 enum dfw_t type,
 					 DSC * desc,
-					 USHORT id)
+					 USHORT id,
+					 USHORT id2)
 {
 /**************************************
  *
@@ -4320,6 +4327,7 @@ static DeferredWork* post_work(Transaction* transaction,
 	{
 		if (work->dfw_type == type &&
 			work->dfw_id == id &&
+			work->dfw_id2 == id2 &&
 			work->dfw_name_length == length &&
 			work->dfw_sav_number == sav_number)
 		{
@@ -4337,6 +4345,7 @@ static DeferredWork* post_work(Transaction* transaction,
 	*ptr = work = FB_NEW_RPT(*transaction->tra_pool, length) DeferredWork;
 	work->dfw_type = type;
 	work->dfw_id = id;
+	work->dfw_id2 = id2;
 	work->dfw_count = 1;
 	work->dfw_name_length = length;
 	work->dfw_sav_number = sav_number;

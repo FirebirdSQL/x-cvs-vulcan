@@ -33,7 +33,7 @@ void DFW_merge_work(Transaction*, SLONG, SLONG);
 void DFW_perform_system_work(thread_db* tdbb);
 void DFW_perform_work(thread_db* tdbb, Transaction*);
 void DFW_perform_post_commit_work(thread_db* tdbb, Transaction*);
-DeferredWork* DFW_post_work(Transaction*, enum dfw_t, dsc*, USHORT);
+DeferredWork* DFW_post_work(Transaction*, enum dfw_t, dsc*, USHORT, USHORT = 0);
 void DFW_post_work_arg(Transaction*, DeferredWork*, dsc*, USHORT);
 void DFW_update_index(thread_db* tdbb, const TEXT*, USHORT, const SelectivityList&);
 

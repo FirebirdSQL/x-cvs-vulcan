@@ -1182,10 +1182,13 @@ void VIO_erase(thread_db* tdbb,
 
 				if ((id = MOV_get_long(&desc2, 0))) 
 					{
+					MOV_get_metadata_str(&desc, relation_name, sizeof(relation_name));
+					r2 = MET_lookup_relation(tdbb, relation_name);
+					fb_assert(r2);
 					if (EVL_field(0, rpb->rpb_record, f_idx_exp_blr, &desc2))
-						DFW_post_work(transaction, dfw_delete_expression_index, &desc, id);
+						DFW_post_work(transaction, dfw_delete_expression_index, &desc, id, r2->rel_id);
 					else
-						DFW_post_work(transaction, dfw_delete_index, &desc, id);
+						DFW_post_work(transaction, dfw_delete_index, &desc, id, r2->rel_id);
 					}
 				break;
 

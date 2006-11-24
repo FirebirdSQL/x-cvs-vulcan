@@ -241,6 +241,7 @@ class DeferredWork : public pool_alloc_rpt<SCHAR, type_dfw>
 	SLONG dfw_sav_number;			/* save point number */
 	USHORT dfw_name_length;			/* length of object name */
 	USHORT dfw_id;					/* object id, if appropriate */
+	USHORT dfw_id2;					/* another object id, if necessary */
 	USHORT dfw_count;				/* count of block posts */
 	SCHAR dfw_name[2];				/* name of object */
 };
