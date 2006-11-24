@@ -118,22 +118,21 @@ Relation::~Relation()
 	if (rel_pre_store) delete rel_pre_store;
 	if (rel_post_store) delete rel_post_store;
 
-	
 	for (n = 0; n < rel_fields.size(); ++n)
 		delete rel_fields[n];
 
 	for (n = 0; n < rel_formats.size(); ++n)
 		delete rel_formats[n];
-			
+
 	for (Field *field; field = junk;)
 		{
 		junk = field->fld_junk;
 		delete field;
 		}
-		
+
 	delete rel_view_rse;
 	delete rel_gc_bitmap;
-	
+
 	for (ViewContext *context; context = rel_view_contexts;)
 		{
 		rel_view_contexts = context->vcx_next;
@@ -176,7 +175,7 @@ Field* Relation::findField(thread_db* tdbb, const char* fieldName)
 {
 	if (!(rel_flags & REL_scanned))
 		MET_scan_relation (tdbb, this);
-	
+
 	/***	
 	if (rel_fields) 
 		{
@@ -192,15 +191,15 @@ Field* Relation::findField(thread_db* tdbb, const char* fieldName)
 	***/
 
 	int length = strlen(fieldName);
-	
+
 	for (int n = 0; n < rel_fields.size(); ++n)
 		{
 		Field *field = rel_fields[n];
-		
+
 		if (field && field->fld_length == length && field->fld_name == fieldName)
 			return field;
 		}
-	
+
 	return NULL;
 }
 

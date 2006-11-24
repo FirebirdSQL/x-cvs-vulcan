@@ -1311,7 +1311,7 @@ int MET_lookup_field(thread_db* tdbb, Relation* relation, const TEXT* name, cons
 
 	/* Not found.  Next, try system relations directly */
 
-	USHORT	id = (USHORT) -1;
+	int id = -1;
 
 	if (!relation->rel_name)
 		return id;
@@ -1321,6 +1321,7 @@ int MET_lookup_field(thread_db* tdbb, Relation* relation, const TEXT* name, cons
 	FOR(REQUEST_HANDLE request)
 		X IN RDB$RELATION_FIELDS WITH
 			X.RDB$RELATION_NAME EQ relation->rel_name AND
+			X.RDB$FIELD_ID NOT MISSING AND
 			X.RDB$FIELD_NAME EQ name
 
 		if (!REQUEST(irq_l_field))
@@ -2104,7 +2105,8 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 			RFR IN RDB$RELATION_FIELDS CROSS
 			FLD IN RDB$FIELDS WITH
 			RFR.RDB$FIELD_SOURCE EQ FLD.RDB$FIELD_NAME AND
-			RFR.RDB$RELATION_NAME EQ relation->rel_name
+			RFR.RDB$RELATION_NAME EQ relation->rel_name AND
+			RFR.RDB$FIELD_ID NOT MISSING
 		//FOR_VEC (Field*, field, relation->rel_fields)
 
 	/*
@@ -2158,7 +2160,6 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 		}	/* End Scope */
 
 		if( !optimalFind ) /* Not the last one, search the HARD way! */
-
 
 		for (int n = 0; n < relation->rel_fields.size(); ++n)
 			{
