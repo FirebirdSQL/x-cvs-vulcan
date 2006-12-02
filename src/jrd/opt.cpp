@@ -742,7 +742,7 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 
 		// Put the parent missing nodes on the stack.
 		
-		for (i = 0; (i < missingStack.getCount()) && (conjunct_count < MAX_CONJUNCTS); i++)
+		while (missingStack.hasData() && (conjunct_count < MAX_CONJUNCTS))
 			{
 			opt->opt_conjuncts.grow(conjunct_count + 1);
 			jrd_nod* node = missingStack.pop();
@@ -1705,7 +1705,8 @@ static void check_sorts(RecordSelExpr* rse)
 					// AB: Don't distribute the sort when a FIRST/SKIP is supplied,
 					// because that will affect the behaviour from the deeper RSE.
 
-					if (new_rse->rse_first || new_rse->rse_skip) 
+					if (new_rse != rse &&
+						(new_rse->rse_first || new_rse->rse_skip)) 
 						{
 						node = NULL;
 						break;
@@ -3790,9 +3791,24 @@ static void form_rivers(thread_db* tdbb,
 		// the stream into the river.
 
 		fb_assert(plan_node->nod_type == nod_retrieve);
-		temp[0]++;
 		const jrd_nod* relation_node = plan_node->nod_arg[e_retrieve_relation];
-		temp[temp[0]] = (UCHAR)(long) relation_node->nod_arg[e_rel_stream];
+		const UCHAR stream = (UCHAR)(long) relation_node->nod_arg[e_rel_stream];
+		// dimitr:	the plan may contain more retrievals than the "streams"
+		//			array (some streams could already be joined to the active
+		//			rivers), so we populate the "temp" array only with the
+		//			streams that appear in both the plan and the "streams"
+		//			array.
+		const UCHAR* ptr_stream = streams + 1;
+		const UCHAR* const end_stream = ptr_stream + streams[0];
+		while (ptr_stream < end_stream) 
+			{
+			if (*ptr_stream++ == stream) 
+				{
+				temp[0]++;
+				temp[temp[0]] = stream;
+				break;
+				}
+			}
 		}
 
 	// just because the user specified a join does not mean that 
@@ -3804,33 +3820,30 @@ static void form_rivers(thread_db* tdbb,
 	// CVC: Notice "plan_node" is pointing to the last element in the loop above.
 	// If the loop didn't execute, we had garbage in "plan_node".
 
-	Database* dbb = tdbb->tdbb_database;
-
-	if (dbb->dbb_ods_version >= ODS_VERSION11) 
+	if (temp[0] != 0) 
 		{
-		// For ODS11 and higher databases we can use new calculations
+		OptimizerInnerJoin* innerJoin = NULL;
 
-		OptimizerInnerJoin* innerJoin = FB_NEW(*tdbb->tdbb_default) 
-			OptimizerInnerJoin(tdbb, *tdbb->tdbb_default, opt, temp, river_stack, 
-			sort_clause, project_clause, plan_clause);
+		Database* dbb = tdbb->tdbb_database;
+		if (dbb->dbb_ods_version >= ODS_VERSION11) 
+			{
+			// For ODS11 and higher databases we can use new calculations
+			innerJoin = FB_NEW(*tdbb->tdbb_default) 
+				OptimizerInnerJoin(tdbb, *tdbb->tdbb_default, opt, temp, river_stack, 
+					sort_clause, project_clause, plan_clause);
+			}
 
 		do 
-			count = innerJoin->findJoinOrder();
-		while (form_river(tdbb, opt, count, streams, temp, river_stack, 
+			{
+			count = innerJoin ?
+				innerJoin->findJoinOrder() :
+				find_order(tdbb, opt, temp, plan_node);
+			} 
+		while 
+			(form_river(tdbb, opt, count, streams, temp, river_stack, 
 							sort_clause, project_clause, 0));
 
 		delete innerJoin;
-		return;
-		}
-
-
-	if (temp[0] != 0) 
-		{
-		do 
-			count = find_order(tdbb, opt, temp, plan_node);
-		while (form_river
-			   (tdbb, opt, count, streams, temp, river_stack, sort_clause,
-				project_clause, 0));
 		}
 }
 
@@ -7788,24 +7801,27 @@ static void set_direction(const jrd_nod* from_clause, jrd_nod* to_clause)
  **************************************
  *
  * Functional description
- *	Update the direction of a GROUP BY, DISTINCT, or ORDER BY 
- *	clause to the same direction as another clause. 	
+ *	Update the direction of a GROUP BY, DISTINCT, or ORDER BY
+ *	clause to the same direction as another clause. Do the same
+ *  for the nulls placement flag.
  *
  **************************************/
 	DEV_BLKCHK(from_clause, type_nod);
 	DEV_BLKCHK(to_clause, type_nod);
 
-	// all three clauses are allocated with thrice the number of arguments to 
-	// leave room at the end for an ascending/descending and nulls placement flags, 
-	// one for each field 
+	// Both clauses are allocated with thrice the number of arguments to
+	// leave room at the end for an ascending/descending and nulls placement flags,
+	// one for each field.
 
-	jrd_nod* const* from_ptr = from_clause->nod_arg + from_clause->nod_count;
-	jrd_nod** to_ptr = to_clause->nod_arg + to_clause->nod_count;
-	const jrd_nod* const* const end = from_ptr + from_clause->nod_count * 2;
+	jrd_nod* const* from_ptr = from_clause->nod_arg;
+	jrd_nod** to_ptr = to_clause->nod_arg;
+	const jrd_nod* const* const end = from_ptr + from_clause->nod_count;
 
-	for (; from_ptr < end; from_ptr++)
-		*to_ptr++ = *from_ptr;
-
+	for (;from_ptr < end; from_ptr++, to_ptr++)
+	{
+		*(to_ptr + to_clause->nod_count) = *(from_ptr + from_clause->nod_count);
+		*(to_ptr + to_clause->nod_count * 2) = *(from_ptr + from_clause->nod_count * 2);
+	}
 }
 
 
