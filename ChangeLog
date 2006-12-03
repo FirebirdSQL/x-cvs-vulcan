@@ -1,3 +1,12 @@
+2006-12-02 14:18  arnobrinkman
+
+	* vulcan/src/jrd/opt.cpp:
+
+	Backport optimizer changes done by Dmitry in FB2 HEAD
+
+	Fixed CORE-1029.  Fixed CORE-1025.  Attempted to fix CORE-995.
+	Fixed CORE-1005.
+
 2006-11-24 07:13  dimitr
 
 	* vulcan/src/jrd/dyn_del.epp:
