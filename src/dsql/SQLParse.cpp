@@ -327,7 +327,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 		}
 
 	/*
-	 * Hexadecimal constants.
+	 * Hexadecimal numeric constants.
 	 *
 	 * 0Xbbbbbb
 	 *
@@ -383,36 +383,55 @@ int SQLParse::yylex(dsql_nod **yylval)
 				}
 			}
 
-		/*
-		 * If we made it this far with no error, then convert the string.
-		 */
-
-		if ( !hexerror )
+		// we have a valid hex token. Now give it back, either as
+		// an NUMBER or NUMBER64BIT.
+		if( !hexerror )
 			{
-			/*
-			 * At this point, see if the string length is odd.  If so, 
-			 * we'll assume a leading zero.  Then figure out the length
-			 * of the actual resulting hex string.  Allocate a second 
-			 * temporary buffer for it.
-			 */
+
+			// if charlen > 8 (something like FFFF FFFF 0, w/o the spaces)
+			// then we have to return a NUMBER64BIT. We'll make a string
+			// node here, and let make.cpp worry about converting the
+			// string to a number and building the node later.
+			if (charlen > 8)
+				{
+				char cbuff[32];
+				cbuff[0] = 'X';
+				memcpy(&cbuff[1], hexstring, charlen);
+				cbuff[charlen+1] = '\0';
+				char *p = &cbuff[1];
+				while (*p != '\0')
+			{
+					*(p++) = UPPER(*p);
+					}
+				*yylval = (dsql_nod*) makeString(cbuff, strlen(cbuff));
+				return NUMBER64BIT;
+				}
+
+			// we have an integer value. we'll return NUMBER.
+			// but we have to make a number value to be compatible
+			// with existing code.
+			else
+				{ // integer value
+				
+				 // See if the string length is odd.  If so,
+				 // we'll assume a leading zero.  Then figure out the length
+				 // of the actual resulting hex string.  Allocate a second
+				 // temporary buffer for it.
 		
 			int nibble = ( charlen & 1 );  // IS_ODD(temp.length)
 			int hexlen = charlen / 2 + nibble;
-			TempSpace temp(hexlen, string);
 
-			/*
-			 * Re-scan over the hex string we got earlier, converting 
-			 * adjacent bytes into nibble values.  Every other nibble, 
-			 * write the saved byte to the temp space.  At the end of 
-			 * this, the temp.space area will contain the binary 
-			 * representation of the hex constant.
-			 */
+				 // Re-scan over the hex string we got earlier, converting
+				 // adjacent bytes into nibble values.  Every other nibble,
+				 // write the saved byte to the temp space.  At the end of
+				 // this, the temp.space area will contain the binary
+				 // representation of the hex constant.
 
 			UCHAR byte = 0;
-			UINT64 value = 0;
+			SINT64 value = 0;
 			for ( int i = 0; i < charlen; i++ )
 				{
-				c = UPPER7(hexstring[i]);
+				c = UPPER(hexstring[i]);
 
 				/* Now convert the character to a nibble */
 			
@@ -434,29 +453,11 @@ int SQLParse::yylex(dsql_nod **yylval)
 					}
 				}
 
-			/*
-			 * At this point, value is a 64-bit integer containing
-			 * the value of our hext literal. We report it back as a
-			 * 32-bit integer, or, if > 8 characters hex, a NUMBER64BIT.
-			 */
-			if (charlen > 8)
-			{
-				char cbuff[32];
-				// char cbuff[32] = "-9223372036854775808"; // min bigint
-				// char cbuff[32] = "9223372036854775807"; // max bigint
-				sprintf(cbuff, "%" UQUADFORMAT, value);
-
-				//if (value < 0)
-				//{
-					// TODO: Insert a node with minus sign
-				//}
-				*yylval = (dsql_nod*) makeString(cbuff, strlen(cbuff));
-				return NUMBER64BIT;
-			}
 			*yylval = (dsql_nod*) (long) value;
 			return NUMBER;
+			} // integer value
 
-			}  // if (!hexerror)...
+		}  // if (!hexerror)...
 		
 		/*
 		 * If we got here, there was a parsing error.  Set the
@@ -466,8 +467,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 
 		c = *last_token;
 		ptr = last_token + 1;
-		
-		}
+		} // headecimal numeric constants
 
 	
 	if (tok_class & CHR_INTRODUCER)
@@ -590,7 +590,6 @@ int SQLParse::yylex(dsql_nod **yylval)
 		bool have_exp	   = false;	/* digit ... [eE]				  */
 		bool have_exp_sign  = false; /* digit ... [eE] {+-]			 */
 		bool have_exp_digit = false; /* digit ... [eE] ... digit		*/
-		bool should_be_float = false; /* Digit string long enough to need float representation? */
 		UINT64	number		 = 0;
 		UINT64	limit_by_10	= MAX_SINT64 / 10;
 
@@ -637,22 +636,20 @@ int SQLParse::yylex(dsql_nod **yylval)
 			else if (classes[c] & CHR_DIGIT)
 				{
 				/* Before computing the next value, make sure there will be
-				   no overflow.  If there is, we accept it but note that it
-				   will require downstream conversion as a FLOAT_NUMBER. */
+				   no overflow.  */
 
 				have_digit = true;
-				/* Test for multiply overflow predictively */
-				if (number > limit_by_10)
-					should_be_float = true;
-				else
+
+				if (number >= limit_by_10)
+				{
+				/* possibility of an overflow */
+					if ((number > limit_by_10) || (c > '8'))
 				        {
-					UINT64 overflow_guard;
-					overflow_guard = number = number * 10;
-					/* now test for add overflow, empirically */
-					number = number + ( c - '0' );
-					if (number < overflow_guard)
-						should_be_float = true;
+						have_error = true;
+						break;
 					}
+					}
+				number = number * 10 + (c - '0');
 			    }	
 			else if ( (('E' == c) || ('e' == c)) && have_digit )
 				have_exp = true;
@@ -664,21 +661,11 @@ int SQLParse::yylex(dsql_nod **yylval)
 		/* We're done scanning the characters: now return the right kind
 		   of number token, if any fits the bill. */
 
-		/* If we have a really long digit string, then the user must have */
-		/* used floating notation ("." or "e").  If s/he didn't then it's */
-		/* an error since the integer value can't be stored in a UINT64.  */
-
-		if ( !have_error )
-			{
-			if ( should_be_float && !(have_exp || have_decimal ))
-				have_error = true;
-			}
-		
 		if (!have_error)
 			{
-			//fb_assert(have_digit);
+			fb_assert(have_digit);
 
-			if (have_exp_digit || should_be_float)
+			if (have_exp_digit)
 				{
 				*yylval = (dsql_nod*) makeString(last_token, ptr - last_token);
 				last_token_bk = last_token;
