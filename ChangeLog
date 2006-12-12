@@ -1,3 +1,9 @@
+2006-12-11 17:21  verbguy
+
+	* vulcan/src/dsql/: SQLParse.cpp, make.cpp:
+
+	fix treatment of hex literals for BIGINT's
+
 2006-12-02 14:18  arnobrinkman
 
 	* vulcan/src/jrd/opt.cpp:
