@@ -560,10 +560,6 @@ void SORT_fini(SortContext* scb, Attachment* att)
 
 	if (scb && local_fini(scb, att))
 		gds__free(scb);
-
-	if (att)
-		for (SortContext *context = att->att_active_sorts; context; context = context->scb_next)
-			;
 }
 
 
@@ -830,6 +826,10 @@ SortContext* SORT_init(thread_db* threadData,
 
 	if (att) 
 		{
+#ifdef SHARED_CACHE
+		Sync sync(&att->syncSorts, "SORT_init");
+		sync.lock(Exclusive);
+#endif
 		for (SortContext *context = att->att_active_sorts; context; context = context->scb_next)
 			fb_assert(context != scb);
 			
@@ -1018,8 +1018,22 @@ void SORT_shutdown(Attachment* att)
 	// structure here, so if something goes
 	// wrong, it's not *CRITICAL*.  -- mrs
 
-	while (att->att_active_sorts)
-		local_fini(att->att_active_sorts, att);
+#ifdef SHARED_CACHE
+	Sync sync(&att->syncSorts, "SORT_shutdown");
+	sync.lock(Shared);
+#endif
+
+	SortContext* scb = NULL;
+	while ( (scb = att->att_active_sorts) )
+		{
+#ifdef SHARED_CACHE
+		sync.unlock();
+#endif
+		local_fini(scb, att);
+#ifdef SHARED_CACHE
+		sync.lock(Shared);
+#endif
+		}
 }
 
 
@@ -2241,6 +2255,11 @@ static bool local_fini(SortContext* scb, Attachment* att)
 	// Start by unlinking from que, if present
 
 	if (att)
+		{
+#ifdef SHARED_CACHE
+		Sync sync(&att->syncSorts, "sort.cpp::local_fini");
+		sync.lock(Exclusive);
+#endif
 		for (ptr = &att->att_active_sorts; *ptr; ptr = &(*ptr)->scb_next)
 			if (*ptr == scb) 
 				{
@@ -2248,6 +2267,7 @@ static bool local_fini(SortContext* scb, Attachment* att)
 				found_it = true;
 				break;
 				}
+		}
 
 	// *NO*. I won't free it if it's not in
     // the pointer list that has been passed

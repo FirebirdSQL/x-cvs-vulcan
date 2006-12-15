@@ -93,7 +93,6 @@ Attachment::Attachment(Database *database)
 	att_compatibility_table = NULL;
 	att_val_errors = NULL;
 	att_active_sorts = NULL;
-	memset (att_counts, 0, sizeof (att_counts));
 	att_flags = 0;
 	att_charset = 0;
 	att_lock_owner_handle = 0;
@@ -263,10 +262,6 @@ void Attachment::shutdown(thread_db* tdbb)
 
 	if (att_id_lock)
 		LCK_release(att_id_lock);
-
-	for (vcl** vector = att_counts; vector < att_counts + DBB_max_count; ++vector)
-		if (*vector)
-			delete *vector;
 
 	if (att_lc_messages)
 		delete att_lc_messages;

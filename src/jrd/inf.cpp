@@ -991,13 +991,7 @@ static USHORT get_counts(thread_db* tdbb, USHORT count_id, UCHAR* buffer, USHORT
  *	Return operation counts for relation.
  *
  **************************************/
-	SLONG n;
-	vcl::iterator ptr;
-	USHORT relation_id;
-	VCL vector;
-
-	if (!(vector = tdbb->tdbb_attachment->att_counts[count_id]))
-		return 0;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
 	// CVC: This function was receiving UCHAR* but to avoid all the casts
 	// when calling it, I changed it to SCHAR* and I'm doing here the cast
@@ -1006,13 +1000,17 @@ static USHORT get_counts(thread_db* tdbb, USHORT count_id, UCHAR* buffer, USHORT
 	UCHAR* p = buffer;
 	const UCHAR* const end = p + length - 6;
 
-	for (relation_id = 0, ptr = vector->begin();
-		 relation_id < vector->count() && p < end; ++relation_id)
-		if (n = *ptr++) 
+	for (USHORT relation_id = 0;
+		relation_id < attachment->att_counts[count_id].size() && p < end;
+		++relation_id)
+		{
+		SLONG n = attachment->att_counts[count_id][relation_id];
+		if (n) 
 			{
 			STUFF_WORD(p, relation_id);
 			p += INF_convert(n, p);
 			}
+		}
 
 	return p - buffer;
 }

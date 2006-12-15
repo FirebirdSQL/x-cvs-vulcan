@@ -37,6 +37,8 @@
 
 #include "../include/fb_vector.h"
 #include "JString.h"
+#include "SVector.h"
+#include "SIVector.h"
 #include "SyncObject.h"
 #include "UserData.h"
 
@@ -146,7 +148,11 @@ public:
 	SLONG			att_event_session;		// Event session id, if any
 	SecurityClass*	att_security_class;	// security class for database
 	SecurityClass*	att_security_classes;	// security classes
-	vcl*			att_counts[DBB_max_count];
+#ifdef SHARED_CACHE
+	SIVector<SLONG>	att_counts[DBB_max_count];
+#else
+	SVector<SLONG>	att_counts[DBB_max_count];
+#endif
 	vec*			att_relation_locks;		// explicit persistent locks for relations
 	Lock*			att_record_locks;		// explicit or implicit record locks taken out during attachment
 	ULONG			att_flags;				// Flags describing the state of the attachment
@@ -171,6 +177,7 @@ public:
 	SyncObject		syncCursors;
 	SyncObject		syncRequests;
 	SyncObject		syncTransactions;
+	SyncObject		syncSorts;
 #endif
 
 };

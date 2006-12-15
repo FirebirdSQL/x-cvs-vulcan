@@ -456,11 +456,12 @@ void VIO_bump_count(thread_db* tdbb,
 		return;
 #endif
 
-	const USHORT relation_id = relation->rel_id;
-	vcl** ptr = tdbb->tdbb_attachment->att_counts + count_id;
+	Attachment* attachment = tdbb->tdbb_attachment;
 
-	vcl* vector = *ptr = vcl::newVector(*dbb->dbb_permanent, *ptr, relation_id + 1);
-	((*vector)[relation_id]) += (error) ? -1 : 1;
+	const USHORT relation_id = relation->rel_id;
+	attachment->att_counts[count_id].resize(relation_id + 1);
+	const SLONG count = attachment->att_counts[count_id][relation_id];
+	attachment->att_counts[count_id][relation_id] = count + (error) ? -1 : 1;
 }
 
 
