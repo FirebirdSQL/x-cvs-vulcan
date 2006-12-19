@@ -1906,6 +1906,9 @@ int LockMgr::blocking_action_thread(void *arg)
 		ISC_unmap_file(status_vector, &LOCK_data2, 0);
 #endif
 		shutdownComplete.post();
+
+		Thread::deleteThreadObject();
+
 		return 0;
 		}
 	catch (...)
