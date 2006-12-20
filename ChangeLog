@@ -1,3 +1,10 @@
+2006-12-19 16:19  gary_franklin
+
+	* vulcan/src/lock/LockMgr.cpp:
+
+	Resolve event leak discovered during endurance run testing.  One
+	line fix replaces original three line fix.
+
 2006-12-16 01:14  arnobrinkman
 
 	* vulcan/src/jrd/btr.cpp:
