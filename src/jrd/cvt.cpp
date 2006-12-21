@@ -184,6 +184,7 @@ static void integer_to_text(const dsc*, dsc*, FPTR_ERROR);
 static void string_to_datetime(const dsc*, GDS_TIMESTAMP*, EXPECT_DATETIME,
 							   FPTR_ERROR);
 static double power_of_ten(const int);
+static SINT64 hex_to_value (const char* string);
 
 #ifdef NATIVE_QUAD
 static const SQUAD quad_min_int = LONG_MIN;
@@ -1973,7 +1974,8 @@ static SSHORT decompose(const char* string,
  **************************************
  *
  * Functional description
- *      Decompose a numeric string in mantissa and exponent.
+ *      Decompose a numeric string in mantissa and exponent,
+ *      or if it is in hexadecimal notation.
  *
  **************************************/
 #ifndef NATIVE_QUAD
@@ -2001,6 +2003,37 @@ static SSHORT decompose(const char* string,
 
 	const char* p = string;
 	const char* const end = p + length;
+
+	// Check if this is a numeric hex string. Must start with 0x or 0x, and be
+	// no longer than 16 hex digits + 2 (the length of the 0X prefix) = 18.
+	if ( ((strncmp ("0x", p, 2) == 0) || (strncmp ("0X", p, 2) == 0)) && (length <= 18)) {
+		char cbuff[32];
+		p+=2; // skip over 0X part
+		length = length -2;
+		memcpy(&cbuff[0], p, (length));
+		cbuff[length] = '\0';
+		
+		// scan over cbuff. force all characters to upper case and and
+		// check for any invalid characters.
+		char *q = cbuff;
+		while (*q != '\0')
+		{
+			*q = UPPER (*q);
+			if (! ((isdigit(*q)) || ((*q >= 'A') && (*q <= 'F'))))
+			{
+				conversion_error(&errd, err);
+				return 0;
+			}
+		q++;
+		}			
+		value = hex_to_value (cbuff);
+		if (dtype == dtype_long)
+			*return_value = (SLONG) value;
+		else
+			*((SINT64 *) return_value) = value;
+		return 0; // 0 scale for hex literals
+	}
+
 	for (; p < end; p++)
 	{
 		if (*p == ',')
@@ -2815,3 +2848,56 @@ double power_of_ten(const int scale)
 	return upper_part[scale >> 5] * lower_part[scale & 0x1f];
 }
 
+
+SINT64 hex_to_value (const char* string)
+/*************************************
+ *
+ *      hex_to_value
+ *
+ *************************************
+ *
+ * Functional description
+ *      Convert a hex string to a numeric value. This code only
+ *      converts a hex string into a numeric value, and the
+ *      biggest hex string supported must fit into a BIGINT.
+ *
+ *      We assume that the caller has pre-processed the
+ *      input string, so that all characters here are upper case
+ *      and the length of the string is <= 16.
+ *
+ *************************************/
+{
+	// we already know this is a hex string, and there is no prefix.
+	// So, string is something like DEADBEEF.
+	
+	SINT64 value = 0;
+	const char* p = string;
+	UCHAR byte = 0;
+	int nibble = ((strlen(p)) & 1 );
+	SSHORT c;
+
+	// hex string is already upper-cased
+	while ( (isdigit(*p)) || ((*p >= 'A') && (*p <= 'F')))
+		{
+		// Now convert the character to a nibble
+		if( *p >= 'A' )
+			c = (*p - 'A') + 10;
+		else
+			c = (*p - '0');
+
+		if( nibble )
+			{
+			byte = (byte << 4) + (UCHAR) c;
+			nibble = 0;
+			value = (value << 8) + byte;
+			}
+		else
+			{
+			byte = c;
+			nibble = 1;
+			}
+		*p++;
+		}
+		
+	return value;
+}
