@@ -175,9 +175,9 @@ dsql_nod* MAKE_constant(thread_db* threadData, dsql_str* constant, dsql_constant
 						{
 						// Now convert the character to a nibble
 						if( *p >= 'A' )
-							c = (*p-'A')+10;
+							c = (*p - 'A') + 10;
 						else
-							c = (*p-'0');
+							c = (*p - '0');
 
 						if( nibble )
 							{
@@ -201,7 +201,7 @@ dsql_nod* MAKE_constant(thread_db* threadData, dsql_str* constant, dsql_constant
 						value = -value;
 						*(SINT64 *) (node->nod_desc.dsc_address) = value;
 						dsql_nod* sub = node;
-						node = MAKE_node (threadData,nod_negate,1);
+						node = MAKE_node (threadData, nod_negate, 1);
 						node->nod_arg[0] = sub;
 						}
 					else

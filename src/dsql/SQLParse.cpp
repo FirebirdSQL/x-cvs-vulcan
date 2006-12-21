@@ -397,7 +397,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 				char cbuff[32];
 				cbuff[0] = 'X';
 				memcpy(&cbuff[1], hexstring, charlen);
-				cbuff[charlen+1] = '\0';
+				cbuff[charlen + 1] = '\0';
 				char *p = &cbuff[1];
 				while (*p != '\0')
 			{
