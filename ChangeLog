@@ -1,3 +1,38 @@
+2006-12-21 21:25  verbguy
+
+	* vulcan/src/jrd/cvt.cpp:
+
+	hex conversions. Add code for test case suggested by Adriano:
+
+	recreate table testy (i integer) ; insert into testy values ('01')
+	; -- insert should pass, just like previous insert insert into
+	testy values ('0x0101') ;
+
+	-- select should return 2 rows select * from testy;
+
+2006-12-21 19:34  verbguy
+
+	* vulcan/src/dsql/: SQLParse.cpp, make.cpp:
+
+	style/spacing corrections.
+
+2006-12-21 19:10  verbguy
+
+	* vulcan/src/jrd/: ini.epp, trig.h:
+
+	backport system triggers from FB2 release. Specifically, disallows
+	this test related to partner indexes:
+
+	create database 'test.fdb'; create table parent (pk integer not
+	null primary key, c char(20) ); create table child (pk integer not
+	null primary key, d char(20) ); alter table child add  foreign key
+	(pk) references parent; insert into parent values (1, 'test1');
+	insert into parent values (2, 'test2'); insert into child  values
+	(1, 'test1'); commit; -- we should not let this work! alter table
+	parent	alter pk type varchar(50);
+
+	drop database;
+
 2006-12-19 16:19  gary_franklin
 
 	* vulcan/src/lock/LockMgr.cpp:
