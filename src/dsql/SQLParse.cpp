@@ -400,7 +400,7 @@ int SQLParse::yylex(dsql_nod **yylval)
 				cbuff[charlen + 1] = '\0';
 				char *p = &cbuff[1];
 				while (*p != '\0')
-			{
+					{
 					*(p++) = UPPER(*p);
 					}
 				*yylval = (dsql_nod*) makeString(cbuff, strlen(cbuff));
@@ -641,13 +641,13 @@ int SQLParse::yylex(dsql_nod **yylval)
 				have_digit = true;
 
 				if (number >= limit_by_10)
-				{
-				/* possibility of an overflow */
+					{
+					/* possibility of an overflow */
 					if ((number > limit_by_10) || (c > '8'))
 				        {
 						have_error = true;
 						break;
-					}
+						}
 					}
 				number = number * 10 + (c - '0');
 			    }	

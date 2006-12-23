@@ -2032,7 +2032,7 @@ static bool create_relation(thread_db* tdbb,
 				delete work->dfw_lock;
 				work->dfw_lock = NULL;
 				}
-/*
+			/*
 			request = CMP_find_request(tdbb, irq_c_relation2, IRQ_REQUESTS);
 
 			FOR(REQUEST_HANDLE request)
@@ -2049,7 +2049,7 @@ static bool create_relation(thread_db* tdbb,
 
 			if (!REQUEST(irq_c_relation2))
 				REQUEST(irq_c_relation2) = request;
-*/
+			*/
 			if (work->dfw_id)
 				dbb->dropRelation(tdbb, work->dfw_id);
 

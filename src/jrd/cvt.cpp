@@ -2008,12 +2008,12 @@ static SSHORT decompose(const char* string,
 	// no longer than 16 hex digits + 2 (the length of the 0X prefix) = 18.
 	if ( ((strncmp ("0x", p, 2) == 0) || (strncmp ("0X", p, 2) == 0)) && (length <= 18)) {
 		char cbuff[32];
-		p+=2; // skip over 0X part
-		length = length -2;
-		memcpy(&cbuff[0], p, (length));
+		p += 2; // skip over 0X part
+		length = length - 2;
+		memcpy(&cbuff[0], p, length);
 		cbuff[length] = '\0';
 		
-		// scan over cbuff. force all characters to upper case and and
+		// scan over cbuff. force all characters to upper case and
 		// check for any invalid characters.
 		char *q = cbuff;
 		while (*q != '\0')
@@ -2873,7 +2873,7 @@ SINT64 hex_to_value (const char* string)
 	SINT64 value = 0;
 	const char* p = string;
 	UCHAR byte = 0;
-	int nibble = ((strlen(p)) & 1 );
+	int nibble = ((strlen(p)) & 1);
 	SSHORT c;
 
 	// hex string is already upper-cased

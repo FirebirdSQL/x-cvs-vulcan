@@ -38,10 +38,6 @@
  *
  */
 
-/*
-$Id$
-*/
-
 #include <stdarg.h>
 #include "fbdev.h"
 #include "../jrd/jrd_time.h"

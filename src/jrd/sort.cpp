@@ -19,7 +19,6 @@
  *
  * All Rights Reserved.
  * Contributor(s): ______________________________________.
- * $Id$
  *
  * 2001-09-24  SJL - Temporary fix for large sort file bug
  *
