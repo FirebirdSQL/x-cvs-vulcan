@@ -3422,6 +3422,12 @@ static void define_view( CStatement* request, NOD_TYPE op)
 		i_ptr < i_end; i_ptr++, position++) 
 	{
 		dsql_nod* field_node = *i_ptr;
+		const dsql_str* alias_name = NULL;
+
+		if (field_node->nod_type == nod_alias) {
+			alias_name = (dsql_str*) field_node->nod_arg[e_alias_alias];
+			field_node = field_node->nod_arg[e_alias_value];
+		}
 
 		// check if this is a field or an expression 
 
@@ -3447,9 +3453,16 @@ static void define_view( CStatement* request, NOD_TYPE op)
 
 		// determine the proper field name, replacing the default if necessary 
 
-		if (field) {
+		if (alias_name) {
+			field_string = (TEXT*) alias_name->str_data;
+		}
+		else if (field) {
 			field_string = field->fld_name;
 		}
+		else {
+			field_string = NULL;
+		}
+
 		/* CVC: Small modification here to catch any mismatch between number of
 				explicit field names in a view and number of fields in the select expression,
 				see comment below. This closes Firebird Bug #223059. */
