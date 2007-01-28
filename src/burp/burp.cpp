@@ -1627,17 +1627,18 @@ void BURP_print_status(ISC_STATUS* status_vector)
 		ISC_STATUS* status = tdgbl->service_blk->svc_status;
 		
 		if (status != status_vector) 
-			{
+		{
 		    int i = 0;
-			while (*status && (++i < ISC_STATUS_LENGTH))
-				status++;
+			if (status[1]) {
+				while (*status && (++i < ISC_STATUS_LENGTH))
+					status++;
+			}
 			for (int j = 0; status_vector[j] && (i < ISC_STATUS_LENGTH); j++, i++)
 				*status++ = status_vector[j];
-			}
+		}
 #endif
 
         SCHAR s[1024];
-        
 		if (isc_interprete(s, &vector)) 
 			{
 			translate_cp(s);
