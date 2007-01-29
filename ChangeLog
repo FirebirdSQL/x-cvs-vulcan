@@ -1,3 +1,9 @@
+2007-01-28 23:50  hvlad
+
+	* vulcan/src/burp/burp.cpp:
+
+	Port bugfix from FB
+
 2007-01-25 22:09  gary_franklin
 
 	* vulcan/src/dsql/ddl.cpp:
