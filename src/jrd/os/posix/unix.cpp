@@ -1017,7 +1017,7 @@ static BOOLEAN unix_error(
 		*status++ = isc_arg_unix;
 		*status++ = errno;
 		*status++ = isc_arg_end;
-		gds__log_status(0, status_vector);
+		gds__log_status(file->fil_string, status_vector);
 		return FALSE;
 	}
 	else
