@@ -56,6 +56,7 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 {
 	const ISC_STATUS *vector = *vectorPtr;
 	
+	if (vector[0] == isc_arg_sql_state) vector += 2;
 	if (!*vector)
 		return 0;
 
@@ -168,14 +169,14 @@ void StatusPrint::getOSText(int type, int code, int bufferLength, TEXT* buffer)
 		{
 #ifdef WIN_NT
 		case isc_arg_win32:
-			if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+			if (!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_MAX_WIDTH_MASK,
 								NULL,
 								code,
 								GetUserDefaultLangID(),
 								buffer,
 								bufferLength,
 								NULL) &&
-				!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+				!FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_MAX_WIDTH_MASK,
 								NULL,
 								code,
 								0, // TMN: Fallback to system known language

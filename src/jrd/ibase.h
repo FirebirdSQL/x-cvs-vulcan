@@ -724,6 +724,8 @@ ISC_STATUS ISC_EXPORT_VARARG isc_start_transaction(ISC_STATUS *,
 
 SLONG ISC_EXPORT isc_sqlcode(const ISC_STATUS*);
 
+void ISC_EXPORT fb_sqlstate(char* const, const ISC_STATUS*);
+
 void ISC_EXPORT isc_sql_interprete(short,
 								   char *,
 								   short);

@@ -52,9 +52,11 @@ extern void ISQL_get_version(BOOLEAN);
 extern SSHORT ISQL_init(FILE *, FILE *);
 extern BOOLEAN ISQL_is_domain(TEXT *);
 extern SSHORT ISQL_main(int, char **);
-extern void ISQL_make_upper(UCHAR *);
-extern void ISQL_msg_get(USHORT,
-						 TEXT *, TEXT *, TEXT *, TEXT *, TEXT *, TEXT *);
+extern void ISQL_make_upper(TEXT *);
+void	ISQL_msg_get(USHORT number, TEXT* msg, const TEXT* arg1, const TEXT* arg2 = 0,
+	const TEXT* arg3 = 0, const TEXT* arg4 = 0, const TEXT* arg5 = 0);
+void ISQL_msg_get(USHORT number, USHORT size, TEXT* msg, const TEXT* arg1,
+	const TEXT* arg2 = 0, const TEXT* arg3 = 0, const TEXT* arg4 = 0, const TEXT* arg5 = 0);
 extern void ISQL_print_validation(FILE *, GDS__QUAD *, SSHORT, isc_handle);
 extern void ISQL_printf(FILE *, const TEXT *);
 extern void ISQL_query_database(SSHORT *, FILE *, FILE *, FILE *);

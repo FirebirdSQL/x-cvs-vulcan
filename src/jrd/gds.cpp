@@ -126,6 +126,7 @@ static const TEXT gdslogid[] = "";
 static const char * FB_PID_FILE = "fb_%d";
 
 #include "gen/sql_code.h"
+#include "gen/sql_state.h"
 #include "../jrd/thd.h"
 //#include "../jrd/gdsold.h"
 #include "../jrd/msg.h"
@@ -168,6 +169,10 @@ static char *ib_prefix_msg = 0;
 
 #ifndef GENERIC_SQLCODE
 #define GENERIC_SQLCODE		-999
+#endif
+
+#ifndef GENERIC_SQLSTATE
+#define GENERIC_SQLSTATE	"HY000"
 #endif
 
 static char ib_prefix_val[MAXPATHLEN];
@@ -1911,6 +1916,116 @@ void API_ROUTINE gds__sqlcode_s(const ISC_STATUS* status_vector, ULONG* sqlcode)
 	*sqlcode = gds__sqlcode(status_vector);
 }
 
+
+void API_ROUTINE fb_sqlstate(char* const sqlstate, const ISC_STATUS* status_vector)
+{
+/**************************************
+ *
+ *	f b _ s q l s t a t e
+ *
+ **************************************
+ *
+ * Functional description
+ *	Translate GDS error code to SQL State. We'll check to see if
+ * we have an exact match, and if so that's great. Maybe we'll
+ * get lucky and the caller already put a SQLSTATE in the
+ * status vector. It could happen.
+ *
+ *	Scan a status vector - if we find gds__sqlerr in the "right"
+ *	positions, return the code that follows.  Otherwise, for the
+ *	first code for which there is a non-generic SQLCODE, return it.
+ *
+ **************************************/
+	strcpy (sqlstate, "HY000"); // error of last resort
+	if (!status_vector) {
+		DEV_REPORT("fb_sqlstate: NULL status vector");
+		return;
+	}
+
+	SLONG gdscode = status_vector[1];
+	if (gdscode == 0) {
+		// status_vector[1] == 0 is no error, by definition
+		strcpy (sqlstate, "00000");
+		return;
+	}
+
+	const ISC_STATUS* s = status_vector;
+	bool have_sqlstate = false;
+
+	// step #1, maybe we already have a SQLSTATE stuffed in the status vector
+	while ((*s != isc_arg_end) && (!have_sqlstate))
+	{
+		if (*s == isc_arg_sql_state) {
+			strcpy (sqlstate, (char*) *(s + 1)); // easy, next argument points to sqlstate string
+			have_sqlstate = true;
+		}
+		else if (*s == isc_arg_cstring) {
+			s += 3; // skip: isc_arg_cstring <len> <ptr>
+		}
+		else {
+			s += 2; // skip: isc_arg_* <item>
+		}
+	}
+	
+	if (have_sqlstate)
+		return;
+
+	// step #2, see if we can find a mapping.
+	gdscode = 0;
+	s = status_vector;
+	while ((*s != isc_arg_end) && (!have_sqlstate)) {
+		if (*s == isc_arg_gds) {
+			s++;
+			gdscode = (const SLONG) *s;
+			if (gdscode != 0) {
+				if (!(gdscode == isc_random || gdscode == isc_sqlerr))	{
+					// random is useless - it's just "%s". skip it
+					// sqlerr (sqlcode) is useless for determining sqlstate. skip it
+					
+					// implement a binary search for array gds__sql_state[]
+					int first=0;
+					int last=sizeof(gds__sql_state)/sizeof(*gds__sql_state);
+					while (first <= last) {
+						int mid = (first + last) / 2;
+						if (gdscode > gds__sql_state[mid].gds_code)
+							first = mid + 1;
+						else if (gdscode < gds__sql_state[mid].gds_code)
+							last = mid - 1;
+						else {
+							// found it!!!
+
+							// we get 00000 for info messages like "Table %"
+							// these are completely ignored
+							if (!(strcmp ("00000", (char *) gds__sql_state[mid].sql_state) == 0)) {
+								strcpy (sqlstate, (char *) gds__sql_state[mid].sql_state);
+
+								// 42000 is general syntax error, and HY000 is general API error.
+								// we may be able to find something more precise if we keep scanning.
+								if (!(strcmp ("42000", sqlstate) == 0 || strcmp ("HY000", sqlstate) == 0) ) {
+									have_sqlstate = true;
+								}
+							}
+							break;
+						}
+					} // while
+				}
+				s++;
+			}
+		}
+		else if (*s == isc_arg_cstring) {
+			s += 3; // skip: isc_arg_cstring <len> <ptr>
+		}
+		else {
+			s += 2; // skip: isc_arg_* <item>
+		}
+
+	} // while
+
+	// sqlstate will be exact match, or
+	// 42000 for no_meta_update, or
+	// HY000 if we didn't find a match
+	return;
+}
 
 void API_ROUTINE gds__temp_dir(TEXT* buffer)
 {

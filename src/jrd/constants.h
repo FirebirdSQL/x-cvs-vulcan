@@ -119,6 +119,8 @@ const int MAX_KEY_PRE_ODS11	= 255;		// Max key-size before ODS11
 const char SQL_MATCH_1_CHAR		= '_';	/* Not translatable */
 const char SQL_MATCH_ANY_CHARS	= '%';	/* Not translatable */
 
+const size_t MAX_SORT_ITEMS = 255; // ORDER BY f1,...,f255
+
 const int MAX_CONTEXT_VARS	= 1000;		// Maximum number of context variables allowed for a single object
 
 #endif /* JRD_CONSTANTS_H */

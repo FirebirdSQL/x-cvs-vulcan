@@ -54,6 +54,8 @@ static Mutex mutex;
 OSRIException::OSRIException(ISC_STATUS code, ...)
 {
 	error();
+	stringsLength = 0;
+	strings = NULL;
 	type = osriException;
 	va_list		args;
 	va_start	(args, code);
@@ -66,6 +68,8 @@ OSRIException::OSRIException(ISC_STATUS code, ...)
 OSRIException::OSRIException(OSRIException* exception, ISC_STATUS code, ...)
 {
 	error();
+	stringsLength = 0;
+	strings = NULL;
 	type = osriException;
 	va_list		args;
 	va_start	(args, code);
@@ -88,6 +92,8 @@ OSRIException::OSRIException(va_list args, ISC_STATUS code)
 OSRIException::OSRIException(const OSRIException& source)
 {
 	error();
+	stringsLength = 0;
+	strings = NULL;
 	memcpy (statusVector, source.statusVector, sizeof (statusVector));
 	type = source.type;
 	
@@ -105,6 +111,7 @@ OSRIException::OSRIException(ExceptionType exceptionType)
 	error();
 	type = exceptionType;
 	strings = NULL;
+	stringsLength = 0;
 }
 
 OSRIException::OSRIException(const ISC_STATUS *vector)
@@ -122,6 +129,8 @@ OSRIException::OSRIException(const ISC_STATUS *vector)
 	
 	char *p = strings + 1;
 	ISC_STATUS *status = statusVector;
+        
+	memset(statusVector, 0, sizeof(statusVector));
 	
 	for (const ISC_STATUS *input = vector, *end = input + 20; input < end;)
 		{
@@ -144,6 +153,7 @@ OSRIException::OSRIException(const ISC_STATUS *vector)
 				break;
 			
 			case isc_arg_string:
+			case isc_arg_sql_state:
 				{
 				const char *q = (const char*) *input++;
 				*status++ = (ISC_STATUS) p;
@@ -176,6 +186,8 @@ OSRIException::OSRIException(void)
 
 OSRIException::OSRIException(SQLException* exception)
 {
+	stringsLength = 0;
+	strings = NULL;
 	postException(isc_misc_interpreted, isc_arg_string, exception->getText(), isc_arg_end);
 	printStatus();
 }
@@ -183,6 +195,8 @@ OSRIException::OSRIException(SQLException* exception)
 
 OSRIException::OSRIException(AdminException* exception)
 {
+	stringsLength = 0;
+	strings = NULL;
 	postException(isc_misc_interpreted, isc_arg_string, exception->getText(), isc_arg_end);
 	printStatus();
 }
@@ -217,7 +231,8 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 				}
 			
 			case isc_arg_string:
-				stringsLength += (int) strlen (va_arg (args, const char*)) + 1;
+			case isc_arg_sql_state:
+				stringsLength += strlen (va_arg (args, const char*)) + 1;
 				break;
 			
 			case isc_arg_warning:
@@ -242,10 +257,19 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 	char *p = strings + 1;
 	ISC_STATUS *status = statusVector;
 	ISC_STATUS *statusEnd = statusVector + 19;
+        
+	memset(statusVector, 0, sizeof(statusVector));
+        
+	// skip the new args if this and previous exception is isc_no_meta_update
+	// This mimics the code DYN_error() from Firebird 1.5
+	if (!exception || exception->statusVector[1] != isc_no_meta_update ||
+	    code != isc_no_meta_update)
+	{
+
 	va_copy (args, stuff);
 	*status++ = isc_arg_gds;
 	*status++ = code;
-	
+		
 	// Copy primary arguments
 	
 	for (;;)
@@ -269,6 +293,7 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 				break;
 			
 			case isc_arg_string:
+			case isc_arg_sql_state:
 				{
 				const char *q = va_arg (args, const char*);
 				*status++ = (ISC_STATUS) p;
@@ -277,16 +302,27 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 				}
 				break;
 			
+			case isc_arg_gds:
+				*status++ = va_arg (args, ISC_STATUS);
+
+				break;
+                        
+                        
+			case isc_arg_number:
+				/* needs to be sign extended on 64 bit machines */
+				*status++ = (SLONG)va_arg (args, ISC_STATUS);
+				break;
+			
 			case isc_arg_warning:
 			case isc_arg_vms:
 			case isc_arg_unix:
 			case isc_arg_win32:
-			case isc_arg_gds:
 			default:
 				*status++ = va_arg (args, ISC_STATUS);
 			}
 		}
 	
+	}
 	va_end (args);
 
 	// If necessary, copy secondary argument
@@ -322,6 +358,7 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 					break;
 				
 				case isc_arg_string:
+				case isc_arg_sql_state:
 					{
 					if (status + 1 >= statusEnd)
 						break;
@@ -332,14 +369,18 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 					}
 					break;
 				
+				case isc_arg_gds:
+					*status++ = *input++;
+					lastStatus = status;
+					break;
+					
 				case isc_arg_warning:
 				case isc_arg_vms:
 				case isc_arg_unix:
 				case isc_arg_win32:
-				case isc_arg_gds:
-					lastStatus = status;
 				default:
 					*status++ = *input++;
+					lastStatus = status;
 				}
 			}
 		if (lastStatus)
@@ -371,6 +412,7 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 				va_arg(args, const char*);
 				break;
 			
+			case isc_arg_sql_state:
 			case isc_arg_string:
 				stringsLength += (int) strlen (va_arg (args, const char*)) + 1;
 				break;
@@ -418,7 +460,8 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
 				status++;
 				break;
-			
+
+			case isc_arg_sql_state:
 			case isc_arg_string:
 				status++;
 				*status = (ISC_STATUS) (strings + ((char*)(*status) - oldStrings));
@@ -465,6 +508,7 @@ void OSRIException::appendException(ISC_STATUS code, ...)
 				break;
 			}
 			
+			case isc_arg_sql_state:
 			case isc_arg_string:
 			{
 				const char* q = va_arg (args, const char*);
@@ -523,6 +567,7 @@ ISC_STATUS OSRIException::copy(ISC_STATUS* vector, char* stringSpace)
 				}
 				break;
 			
+			case isc_arg_sql_state:
 			case isc_arg_string:
 				{
 				const char *q = (const char*) *in++;
@@ -602,6 +647,7 @@ int OSRIException::getStringsLength(const ISC_STATUS* vector)
 				++input;
 				break;
 			
+			case isc_arg_sql_state:
 			case isc_arg_string:
 				stringsLength += (int) strlen ((const char*) *input++) + 1;
 				break;

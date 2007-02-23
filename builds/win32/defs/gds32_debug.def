@@ -271,3 +271,4 @@ EXPORTS
     gds_alloc_report=fbclient.gds_alloc_report
     KEYWORD_stringIsAToken=fbclient.KEYWORD_stringIsAToken
     KEYWORD_getTokens=fbclient.KEYWORD_getTokens
+    fb_sqlstate=fb_sqlstate @273

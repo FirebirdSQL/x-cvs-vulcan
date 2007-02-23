@@ -3145,7 +3145,7 @@ static dsc* binary_value(thread_db* tdbb, const jrd_nod* node, impure_value* imp
 		{
 			const double divisor = MOV_get_double(desc2);
 			if (divisor == 0)
-				ERR_post(isc_arith_except, 0);
+				ERR_post(isc_exception_float_divide_by_zero, 0);
 			impure->vlu_misc.vlu_double =
 				DOUBLE_DIVIDE(MOV_get_double(desc1), divisor);
 			impure->vlu_desc.dsc_dtype = DEFAULT_DOUBLE;
@@ -4134,7 +4134,7 @@ static dsc* divide2(const dsc* desc, impure_value* value, const jrd_nod* node)
 	if (node->nod_flags & nod_double) {
 		const double d2 = MOV_get_double(desc);
 		if (d2 == 0.0)
-			ERR_post(isc_arith_except, 0);
+			ERR_post(isc_exception_float_divide_by_zero, 0);
 		const double d1 = MOV_get_double(&value->vlu_desc);
 		value->vlu_misc.vlu_double = DOUBLE_DIVIDE(d1, d2);
 		value->vlu_desc.dsc_dtype = DEFAULT_DOUBLE;
@@ -4183,7 +4183,7 @@ static dsc* divide2(const dsc* desc, impure_value* value, const jrd_nod* node)
  */
 	SINT64 i2 = MOV_get_int64(desc, desc->dsc_scale);
 	if (i2 == 0)
-		ERR_post(isc_arith_except, 0);
+		ERR_post(isc_exception_integer_divide_by_zero, 0);
 
 	SINT64 i1 = MOV_get_int64(&value->vlu_desc, value->vlu_desc.dsc_scale);
 

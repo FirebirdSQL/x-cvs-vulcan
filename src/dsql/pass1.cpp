@@ -4730,8 +4730,16 @@ static dsql_nod* pass1_group_by_list(CStatement* request, dsql_nod* input, dsql_
 	DEV_BLKCHK(input, dsql_type_nod);
 	DEV_BLKCHK(select_list, dsql_type_nod);
 
+	if (input->nod_count > MAX_SORT_ITEMS) // sort and group have the same limit for now.
+	{
+		ERRD_post(isc_sqlerr, isc_arg_number, (SLONG) - 104,
+			isc_arg_gds, isc_dsql_command_err,
+			isc_arg_gds, isc_dsql_max_group_items, 0);
+			// cannot group on more than 255 items
+	}
+
 	// For each node in the list, if it's a field node, see if it's of
-    // the form <tablename>.*.   If so, explode the asterisk.   
+   // the form <tablename>.*.   If so, explode the asterisk.   
 	// If it's a position pick it from the select list.
 	// If none of both then just stack up the node.
 
@@ -6463,6 +6471,14 @@ static dsql_nod* pass1_sort( CStatement* request, dsql_nod* input, dsql_nod* sel
 		ERRD_post(isc_sqlerr, isc_arg_number, -104, isc_arg_gds, 
 			isc_dsql_command_err, isc_arg_gds, isc_order_by_err, 0);
 			// invalid ORDER BY clause 				  
+	}
+
+	if (input->nod_count > MAX_SORT_ITEMS)
+	{
+		ERRD_post(isc_sqlerr, isc_arg_number, -104, isc_arg_gds,
+			isc_dsql_command_err, isc_arg_gds, isc_order_by_err,
+			isc_arg_gds, isc_dsql_max_sort_items, 0);
+			// invalid ORDER BY clause, cannot sort on more than 255 items
 	}
 
 // Node is simply to be rebuilt -- just recurse merrily 

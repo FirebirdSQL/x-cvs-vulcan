@@ -95,6 +95,7 @@
 #include "ProcManager.h"
 #include "../jrd/JrdMove.h"
 #include "../jrd/val.h"
+#include "../jrd/err_proto.h"
 
 #ifdef DSQL_DEBUG
 #include "../gpre/prett_proto.h"
@@ -3954,23 +3955,21 @@ static void delete_relation_view (
 
     if (node->nod_type == nod_del_relation || node->nod_type == nod_redef_relation)
 		{
-        if (!relation && !silent_deletion || relation && (relation->rel_flags & REL_view))
-            ERRD_post (isc_sqlerr, isc_arg_number, (SLONG) -607,
-                       /* isc_arg_gds, isc_dsql_command_err,
-                          isc_arg_gds, isc_dsql_table_not_found, */
-                       isc_arg_gds, 336068783L,
-                       isc_arg_string, string->str_data,
-                       isc_arg_end);
+		if (!relation && !silent_deletion || relation && (relation->rel_flags & REL_view))
+			{
+         	ERRD_post (isc_dsql_table_not_found,
+	         	// isc_dsql_table_not_found: Table %s does not exist
+         		isc_arg_string, string->str_data,
+         		0);
+			}
 		}
     else { /* node->nod_type == nod_del_view, nod_redef_view */
         if (!relation && !silent_deletion ||
 			relation && !(relation->rel_flags & REL_view)) {
-            ERRD_post (isc_sqlerr, isc_arg_number, (SLONG) -607,
-                       /* isc_arg_gds, isc_dsql_command_err,
-                          isc_arg_gds, isc_dsql_view_not_found, */
-                       isc_arg_gds, 336068783L,
-                       isc_arg_string, string->str_data,
-                       isc_arg_end);
+            ERRD_post (isc_dsql_view_not_found,
+            	// isc_dsql_view_not_found: View %s does not exist
+         		isc_arg_string, string->str_data,
+					0);
         }
     }
     if (relation) {

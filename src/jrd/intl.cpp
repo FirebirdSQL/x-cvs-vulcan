@@ -199,6 +199,7 @@ static bool bcLoaded = false;
 
 static const char *INTL_PLUGIN_DIR = "intl";
 
+
 class CharsetIDGetter
 {
 public:
@@ -790,7 +791,7 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 		if (!len || all_spaces(tdbb, src_type, src_ptr, len, 0))
 			return (dest_ptr - start_dest_ptr);
 			
-		(*err) (isc_arith_except, 0);
+		(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 		}
 		
 	if (src_len == 0)
@@ -812,9 +813,9 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 			return len;
 			
 		if (err_code == CS_TRUNCATION_ERROR)
-			(*err) (isc_arith_except, 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 			
-		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, 0);
+		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, isc_arg_sql_state, "22018", 0);
 		}
 
 	/* Find a CS1 to UNICODE object */
@@ -836,9 +837,9 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 		{
 		len = cs_obj.convert(temp.space, src_len * 2, src_ptr, src_len, &err_code, &err_position);
 		if (err_code == CS_TRUNCATION_ERROR)
-			(*err) (isc_arith_except, 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 			
-		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, 0);
+		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, isc_arg_sql_state, "22018", 0);
 		}
 
 	/* Find a UNICODE to CS2 object */
@@ -856,9 +857,9 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 		!((err_code == CS_TRUNCATION_ERROR) && all_spaces(tdbb, CS_UNICODE_UCS2, temp.space, len, err_position))) 
 		{
 		if (err_code == CS_TRUNCATION_ERROR)
-			(*err) (isc_arith_except, 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 			
-		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, 0);
+		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, isc_arg_sql_state, "22018", 0);
 		}
 
 	return len2;
@@ -1031,7 +1032,7 @@ int INTL_convert_string(const dsc* to, const dsc* from, FPTR_ERROR err)
 	if (from_fill)
 		/* Make sure remaining characters on From string are spaces */
 		if (!all_spaces(tdbb, from_cs, q, from_fill, 0))
-			(*err) (isc_arith_except, 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 
 	return 0;
 }

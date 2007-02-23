@@ -481,9 +481,9 @@ JRD_NOD PAR_make_list(thread_db* tdbb, LLS stack)
 	/* Count the number of nodes */
 	
 	USHORT count = 0;
-	
-	for (const lls* temp = stack; temp; count++)
+	for (const lls* temp = stack; temp; count++) {
 		temp = temp->lls_next;
+	}
 
 	jrd_nod* node = PAR_make_node(tdbb, count);
 	node->nod_type = nod_list;
@@ -578,14 +578,15 @@ SLONG PAR_symbol_to_gdscode(const char* name)
 
 	const char* p = name;
 
-	while (*p && *p != ' ')
+	while (*p && *p != ' ') {
 		p++;
-
+	}
 	const size_t length = p - name;
-	
-	for (int i = 0; codes[i].code_number; ++i) 
-		if (!strncmp(name, codes[i].code_string, length))
+	for (int i = 0; codes[i].code_number; ++i) {
+		if (!strncmp(name, codes[i].code_string, length)) {
 			return codes[i].code_number;
+		}
+	}
 
 	return 0;
 }
@@ -636,6 +637,7 @@ static void error(CompilerScratch* csb, ...)
 
 			case isc_arg_string:
 			case isc_arg_interpreted:
+			case isc_arg_sql_state:
 				*p++ = (ISC_STATUS) va_arg(args, TEXT *);
 				break;
 
@@ -698,10 +700,11 @@ static JRD_NOD par_args(thread_db* tdbb, CompilerScratch* csb, USHORT expected)
 	node->nod_type = nod_list;
 	jrd_nod** ptr = node->nod_arg;
 
-	if (count) 
+	if (count) {
 		do {
 			*ptr++ = parse(tdbb, csb, expected);
 		} while (--count);
+	}
 
 	return node;
 }

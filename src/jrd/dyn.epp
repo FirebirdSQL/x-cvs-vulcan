@@ -77,6 +77,8 @@
 #include "../jrd/sch_proto.h"
 #include "OSRIException.h"
 #include "PBGen.h"
+#include "../jrd/msg_encode.h"
+#include "gen/sql_state.h"
 #include "Attachment.h"
 
 #define BLANK	'\040'
@@ -249,7 +251,33 @@ void DYN_error(thread_db* tdbb, bool	status_flag,
 		*dest++ = *v1++;
 }
 
+// look for a sqlstate for this error. it is possible that
+// one isn't present, in which case we'll map to "42000",
+// the general, "Syntax Error or Access Violation" message.
+// SQLState is, by definition, 5 characters
+void DYN_get_sql_state(USHORT number, char* sqlstate)
+{
+	SLONG gdscode = ENCODE_ISC_MSG(number, DYN_MSG_FAC);
+	strcpy (sqlstate, "42000"); // generic syntax message
 
+	// do a binary search of gds__sql_state table
+	int first=0;
+	int last=sizeof(gds__sql_state)/sizeof(*gds__sql_state);
+	while (first <= last) {
+		int mid = (first + last) / 2;
+		if (gdscode > gds__sql_state[mid].gds_code)
+			first = mid + 1;
+		else if (gdscode < gds__sql_state[mid].gds_code)
+			last = mid - 1;
+		else {
+			strcpy (sqlstate, gds__sql_state[mid].sql_state); // found it!
+			break;
+			}
+		} // while
+
+} // DYN_get_sql_state
+	
+	
 void DYN_error_punt(thread_db* tdbb, bool	status_flag,
 					USHORT	number,
 					const TEXT*	arg1,
@@ -272,12 +300,24 @@ void DYN_error_punt(thread_db* tdbb, bool	status_flag,
 
 	if (!number)
 		throw OSRIException (isc_no_meta_update, 0);
-
+		
+	// since we support up to 5 (!) arguments, it's possible we might flood the
+	// status vector if we're not careful. The solution is flatten the error
+	// message and arguments into a single string, by calling gds__msg_format...
 	gds__msg_format(NULL, DYN_MSG_FAC, number, sizeof (error_buffer), error_buffer, 
 					arg1, arg2, arg3, arg4, arg5);
+
+	// ... but, when we flatten the error message, we lose any chance of
+	// later mapping a SQL State. So, we have to stuff the correct SQL State
+	// in the status vector right now!
+	char sqlstate[6];
+	DYN_get_sql_state(number, sqlstate);
+	
 	throw OSRIException (isc_no_meta_update, 
-						 isc_arg_gds, isc_random,
-						 isc_arg_string, error_buffer, 0);	
+		isc_arg_gds, isc_random,
+		isc_arg_string, error_buffer,
+		isc_arg_sql_state, sqlstate,
+		0);
 }
 
 void DYN_error_punt(thread_db* tdbb, OSRIException *exception,
@@ -303,14 +343,16 @@ void DYN_error_punt(thread_db* tdbb, OSRIException *exception,
 	if (!number)
 		throw OSRIException (exception, isc_no_meta_update, 0);
 
-	if (exception->statusVector[1] == isc_no_meta_update)
-		throw OSRIException (*exception);
-
 	gds__msg_format(NULL, DYN_MSG_FAC, number, sizeof (error_buffer), error_buffer, 
 					arg1, arg2, arg3, arg4, arg5);
+
+	char sqlstate[6];
+	DYN_get_sql_state(number, sqlstate);
 	throw OSRIException (exception, isc_no_meta_update, 
-						 isc_arg_gds, isc_random,
-						 isc_arg_string, error_buffer, 0);
+		isc_arg_gds, isc_random,
+		isc_arg_string, error_buffer, 
+		isc_arg_sql_state, sqlstate,
+		0);	
 }
 
 

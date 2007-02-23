@@ -241,8 +241,8 @@ void DYN_delete_filter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found) 
-		DYN_error_punt(tdbb, false, 37, NULL, NULL, NULL, NULL, NULL);
-		/* msg 37: "Blob Filter not found" */
+		DYN_error_punt(tdbb, false, 37, f, NULL, NULL, NULL, NULL);
+		/* msg 37: "Blob Filter %s not found" */
 
 	if (*(*ptr)++ != isc_dyn_end) 
 		DYN_unsupported_verb(tdbb);
@@ -514,8 +514,8 @@ void DYN_delete_index(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found)
-		DYN_error_punt(tdbb, false, 48, NULL, NULL, NULL, NULL, NULL);
-		/* msg 48: "Index not found" */
+		DYN_error_punt (tdbb, false, 48, idx_name, NULL, NULL, NULL, NULL);
+		// msg 48: isc_dyn_idx_nf: Index %s not found
 
 	if (!delete_index_segment_records(tdbb, gbl, idx_name))
 		DYN_error_punt(tdbb, false, 50, NULL, NULL, NULL, NULL, NULL);
@@ -624,7 +624,7 @@ void DYN_delete_local_field(thread_db* tdbb,
 		**  ===============================================================
 		**  ==
 		**  ==  If the column to be dropped is being used as a foreign key
-		**  ==  and the coulmn was not part of any compound foreign key,
+		**  ==  and the column was not part of any compound foreign key,
 		**  ==  then we can drop the column. But we have to drop the foreign key
 		**  ==  constraint first.
 		**  ==
@@ -673,7 +673,7 @@ void DYN_delete_local_field(thread_db* tdbb,
 		/*
 		**  ================================================================
 		**  ==
-		**  ==  make sure that column is not referenced in any indexes
+		**  ==  make sure that column is not referenced in any user-defined indexes
 		**  ==
 		**  ==  NOTE: You still could see the system generated indices even though
 		**  ==        they were already been deleted when dropping column that was 
@@ -683,58 +683,32 @@ void DYN_delete_local_field(thread_db* tdbb,
 		*/
 
 		request = CMP_find_request(tdbb, drq_e_l_idx, DYN_REQUESTS);
-		id = drq_e_l_idx;
-		Request *old_request = NULL;
-		found = false;
 		
 		FOR(REQUEST_HANDLE request TRANSACTION_HANDLE gbl->gbl_transaction)
-			IDX IN RDB$INDICES
-				WITH IDX.RDB$RELATION_NAME EQ tbl_nm
-				
+			IDX IN RDB$INDICES CROSS
+				IDX_SEG IN RDB$INDEX_SEGMENTS
+				WITH IDX.RDB$INDEX_NAME EQ IDX_SEG.RDB$INDEX_NAME
+				AND IDX.RDB$RELATION_NAME EQ tbl_nm
+				AND IDX_SEG.RDB$FIELD_NAME EQ col_nm
+				AND NOT ANY
+					REL_CONST IN RDB$RELATION_CONSTRAINTS
+					WITH REL_CONST.RDB$RELATION_NAME EQ IDX.RDB$RELATION_NAME
+					AND REL_CONST.RDB$INDEX_NAME EQ IDX.RDB$INDEX_NAME
 			if (!DYN_REQUEST(drq_e_l_idx)) 
 				DYN_REQUEST(drq_e_l_idx) = request;
 
-			found = false;
-			
-			if (strncmp(IMPLICIT_DOMAIN_PREFIX, IDX.RDB$INDEX_NAME, IMPLICIT_DOMAIN_PREFIX_LEN) != 0)
-				{
-				old_request = request;
-
-				id = drq_l_idx_seg;
-				request = CMP_find_request(tdbb, drq_l_idx_seg, DYN_REQUESTS);
-				
-				FOR(REQUEST_HANDLE request TRANSACTION_HANDLE gbl->gbl_transaction)
-					FIRST 1 IDX_SEG IN RDB$INDEX_SEGMENTS
-						WITH IDX_SEG.RDB$INDEX_NAME EQ IDX.RDB$INDEX_NAME AND
-						IDX_SEG.RDB$FIELD_NAME = col_nm
-					if (!DYN_REQUEST(drq_l_idx_seg))
-						DYN_REQUEST(drq_l_idx_seg) = request;
-					found = true;
-				END_FOR;
-				
-				if (!DYN_REQUEST(drq_l_idx_seg))
-					DYN_REQUEST(drq_l_idx_seg) = request;
-					
-				request = old_request;
-				id = drq_e_l_idx;
-				}
-				
-			if (found) 
-				{
-				DYN_rundown_request(tdbb, request, -1);
-				DYN_error_punt(tdbb, false, 187, col_nm, tbl_nm, IDX.RDB$INDEX_NAME,
-							NULL, NULL);
-				/* msg 187: "field %s from relation %s is referenced in index %s" */
-				}
+			DYN_rundown_request(tdbb, request, -1);
+			DYN_error_punt(tdbb, false, 187, col_nm, tbl_nm, IDX.RDB$INDEX_NAME,
+						NULL, NULL);
+			// msg 187: "field %s from relation %s is referenced in index %s"
 		END_FOR;
-		
 		if (!DYN_REQUEST(drq_e_l_idx))
 			DYN_REQUEST(drq_e_l_idx) = request;
 
 		request = CMP_find_request(tdbb, drq_e_lfield, DYN_REQUESTS);
 		id = drq_e_lfield;
+
 		found = false;
-		
 		FOR(REQUEST_HANDLE request TRANSACTION_HANDLE gbl->gbl_transaction)
 			RFR IN RDB$RELATION_FIELDS
 				WITH RFR.RDB$FIELD_NAME EQ col_nm
@@ -743,6 +717,13 @@ void DYN_delete_local_field(thread_db* tdbb,
 				DYN_REQUEST(drq_e_lfield) = request;
 
 			ERASE RFR;
+
+//			if (!RFR.RDB$SECURITY_CLASS.NULL
+//				&& !strncmp(RFR.RDB$SECURITY_CLASS, SQL_SECCLASS_PREFIX, SQL_SECCLASS_PREFIX_LEN))
+//			{
+//				delete_security_class2(gbl, RFR.RDB$SECURITY_CLASS);
+//			}
+
 			found = true;
 			delete_gfield_for_lfield(tdbb, gbl, RFR.RDB$FIELD_SOURCE);
 			
@@ -771,14 +752,12 @@ void DYN_delete_local_field(thread_db* tdbb,
 		default:
 			DYN_error_punt(tdbb, &exception, 53, NULL, NULL, NULL, NULL, NULL);
 			// msg 53: "ERASE RDB$RELATION_FIELDS failed"
-			}
 		}
+	}
 
-	if (!found)
-		{
-		DYN_error_punt(tdbb, false, 176, col_nm, tbl_nm, NULL, NULL, NULL);
-		// msg 176: "column %s does not exist in table/view %s"
-		}
+	if (!found) 
+		DYN_error_punt (tdbb, false, 96, col_nm, NULL, NULL, NULL, NULL);
+			// msg 96: isc_dyn_col_nf: Column %s not found
 }
 
 

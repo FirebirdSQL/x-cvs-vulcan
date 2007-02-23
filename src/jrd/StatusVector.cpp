@@ -129,6 +129,7 @@ ISC_STATUS StatusVector::post(ISC_STATUS iscStatus, ...)
 				break;
 
 			case isc_arg_string:
+			case isc_arg_sql_state:
 			case isc_arg_interpreted:
 				*v++ = (ISC_STATUS) va_arg (args, TEXT*);
 				break;

@@ -54,6 +54,7 @@ const ISC_LONG isc_arg_next_mach	= 15;	// NeXT/Mach error code
 const ISC_LONG isc_arg_netware		= 16;	// NetWare error code 
 const ISC_LONG isc_arg_win32		= 17;	// Win32 error code 
 const ISC_LONG isc_arg_warning		= 18;	// warning argument 
+const ISC_LONG isc_arg_sql_state     = 19; // tkts error, SQLSTATE 
 
 const ISC_LONG isc_arith_except                     = 335544321L;
 const ISC_LONG isc_bad_dbkey                        = 335544322L;
@@ -655,6 +656,14 @@ const ISC_LONG isc_dsql_cursor_rel_ambiguous        = 336003093L;
 const ISC_LONG isc_dsql_cursor_rel_not_found        = 336003094L;
 const ISC_LONG isc_dsql_cursor_not_open             = 336003095L;
 const ISC_LONG isc_dsql_type_not_supp_ext_tab       = 336003096L;
+const ISC_LONG isc_dyn_idx_pk_nf                    = 336068626L;
+const ISC_LONG isc_dyn_idx_exists                   = 336068629L;
+const ISC_LONG isc_dyn_rel_col_exists               = 336068637L;
+const ISC_LONG isc_dyn_idx_nf                       = 336068656L;
+const ISC_LONG isc_dyn_col_nf                       = 336068704L;
+const ISC_LONG isc_dyn_tbl_nf                       = 336068709L;
+const ISC_LONG isc_dyn_col_idx_nf                   = 336068728L;
+const ISC_LONG isc_dyn_tbl_exists                   = 336068740L;
 const ISC_LONG isc_dyn_role_does_not_exist          = 336068796L;
 const ISC_LONG isc_dyn_no_grant_admin_opt           = 336068797L;
 const ISC_LONG isc_dyn_user_not_role_member         = 336068798L;
@@ -764,6 +773,8 @@ const ISC_LONG isc_dsql_line_col_error              = 336397208L;
 const ISC_LONG isc_dsql_unknown_pos                 = 336397209L;
 const ISC_LONG isc_dsql_no_dup_name                 = 336397210L;
 const ISC_LONG isc_dsql_too_many_values             = 336397211L;
+const ISC_LONG isc_dsql_max_sort_items              = 336397215L;
+const ISC_LONG isc_dsql_max_group_items             = 336397216L;
 const ISC_LONG isc_gsec_cant_open_db                = 336723983L;
 const ISC_LONG isc_gsec_switches_error              = 336723984L;
 const ISC_LONG isc_gsec_no_op_spec                  = 336723985L;
@@ -823,7 +834,7 @@ const ISC_LONG isc_gstat_unexpected_eof             = 336920580L;
 const ISC_LONG isc_gstat_open_err                   = 336920605L;
 const ISC_LONG isc_gstat_read_err                   = 336920606L;
 const ISC_LONG isc_gstat_sysmemex                   = 336920607L;
-const ISC_LONG isc_err_max                          = 768;
+const ISC_LONG isc_err_max                          = 778;
 
 #else /* c definitions */
 
@@ -847,6 +858,7 @@ const ISC_LONG isc_err_max                          = 768;
 #define isc_arg_netware	16	/* NetWare error code */
 #define isc_arg_win32		17	/* Win32 error code */
 #define isc_arg_warning	18	/* warning argument */
+#define isc_arg_sql_state     19 /* tkts error, SQLSTATE */
 
 #define isc_arith_except                     335544321L
 #define isc_bad_dbkey                        335544322L
@@ -1448,6 +1460,14 @@ const ISC_LONG isc_err_max                          = 768;
 #define isc_dsql_cursor_rel_not_found        336003094L
 #define isc_dsql_cursor_not_open             336003095L
 #define isc_dsql_type_not_supp_ext_tab       336003096L
+#define isc_dyn_idx_pk_nf                    336068626L
+#define isc_dyn_idx_exists                   336068629L
+#define isc_dyn_rel_col_exists               336068637L
+#define isc_dyn_idx_nf                       336068656L
+#define isc_dyn_col_nf                       336068704L
+#define isc_dyn_tbl_nf                       336068709L
+#define isc_dyn_col_idx_nf                   336068728L
+#define isc_dyn_tbl_exists                   336068740L
 #define isc_dyn_role_does_not_exist          336068796L
 #define isc_dyn_no_grant_admin_opt           336068797L
 #define isc_dyn_user_not_role_member         336068798L
@@ -1557,6 +1577,8 @@ const ISC_LONG isc_err_max                          = 768;
 #define isc_dsql_unknown_pos                 336397209L
 #define isc_dsql_no_dup_name                 336397210L
 #define isc_dsql_too_many_values             336397211L
+#define isc_dsql_max_sort_items              336397215L
+#define isc_dsql_max_group_items             336397216L
 #define isc_gsec_cant_open_db                336723983L
 #define isc_gsec_switches_error              336723984L
 #define isc_gsec_no_op_spec                  336723985L

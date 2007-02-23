@@ -621,6 +621,14 @@ static const struct {
 	{336003094, -502}, /*  22 dsql_cursor_rel_not_found        */
 	{336003095, -502}, /*  23 dsql_cursor_not_open             */
 	{336003096, -607}, /*  24 dsql_type_not_supp_ext_tab       */
+	{336068626, -999}, /*  18 dyn_idx_pk_nf                    */
+	{336068629, -999}, /*  21 dyn_idx_exists                   */
+	{336068637, -999}, /*  29 dyn_rel_col_exists               */
+	{336068656, -999}, /*  48 dyn_idx_nf                       */
+	{336068704, -999}, /*  96 dyn_col_nf                       */
+	{336068709, -999}, /* 101 dyn_tbl_nf                       */
+	{336068728, -999}, /* 120 dyn_col_idx_nf                   */
+	{336068740, -999}, /* 132 dyn_tbl_exists                   */
 	{336068796, -901}, /* 188 dyn_role_does_not_exist          */
 	{336068797, -901}, /* 189 dyn_no_grant_admin_opt           */
 	{336068798, -901}, /* 190 dyn_user_not_role_member         */
@@ -730,6 +738,8 @@ static const struct {
 	{336397209, -206}, /* 921 dsql_unknown_pos                 */
 	{336397210, -206}, /* 922 dsql_no_dup_name                 */
 	{336397211, -901}, /* 923 dsql_too_many_values             */
+	{336397215, -104}, /* 927 dsql_max_sort_items              */
+	{336397216, -104}, /* 928 dsql_max_group_items             */
 	{336723983, -901}, /*  15 gsec_cant_open_db                */
 	{336723984, -901}, /*  16 gsec_switches_error              */
 	{336723985, -901}, /*  17 gsec_no_op_spec                  */

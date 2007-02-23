@@ -1934,8 +1934,8 @@ void DYN_define_index(thread_db*	tdbb,
 			if (seg_count) 
 				{
 				if (seg_count != fld_count)
-					DYN_error_punt(tdbb, false, 120, IDX.RDB$INDEX_NAME, NULL, NULL, NULL, NULL);
-					/* msg 118 "Unknown fields in index %s" */
+					DYN_error_punt (tdbb, false, 120, IDX.RDB$INDEX_NAME, NULL, NULL, NULL, NULL); 
+					// msg 120: isc_dyn_col_idx_nf: Unknown columns in index %s
 
 				old_request = request;
 				old_id = id;
@@ -2056,8 +2056,8 @@ void DYN_define_index(thread_db*	tdbb,
 						strcpy(referred_index_name, (char*)index_name);
 					}
 				else
-					DYN_error_punt(tdbb, false, 18, NULL, NULL, NULL, NULL, NULL);
-					/* msg 18: "could not find unique index with specified fields" */
+					DYN_error_punt (tdbb, false, 18, NULL, NULL, NULL, NULL, NULL);
+						// msg 18: could not find UNIQUE or PRIMARY KEY constraint with specified columns
 				}
 			else if (referenced_relation[0]) 
 				{
@@ -2126,8 +2126,8 @@ void DYN_define_index(thread_db*	tdbb,
 		switch (id)
 			{
 			case drq_s_indices:
-				DYN_error_punt(tdbb, &exception, 21, NULL, NULL, NULL, NULL, NULL);
-				/* msg 21: "STORE RDB$INDICES failed" */
+				DYN_error_punt(tdbb, &exception, 21, index_name, NULL, NULL, NULL, NULL);
+					// msg 21: isc_dyn_idx_exists: Index %s already exists
 				break;
 				
 			case drq_s_idx_segs:
@@ -2818,7 +2818,7 @@ void DYN_define_parameter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, TEXT* pr
 		if (id == drq_s_prms) {
 			DYN_rundown_request(tdbb, request, drq_s_prms);
 			DYN_error_punt(tdbb, &exception, 136, NULL, NULL, NULL, NULL, NULL);
-			/* msg 163: "STORE RDB$PROCEDURE_PARAMETERS failed" */
+			/* msg 136: "STORE RDB$PROCEDURE_PARAMETERS failed" */
 		}
 		else if (id == drq_s_prm_src) {
 			DYN_rundown_request(tdbb, request, drq_s_prm_src);
@@ -3071,7 +3071,8 @@ void DYN_define_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 						GET_STRING(ptr, REL.RDB$EXTERNAL_FILE);
 						if (ISC_check_if_remote(REL.RDB$EXTERNAL_FILE, false))
 							DYN_error_punt(tdbb, true, 163, NULL, NULL, NULL, NULL, NULL);
-
+						// MSG 163: A node name is not permitted in a table with external file definition
+						
 						// Check for any path, present in filename.
 						// If miss it, file will be searched in External Tables Dirs,
 						// that's why no expand_filename required.
@@ -3667,8 +3668,8 @@ void DYN_define_sql_field(thread_db* tdbb, GBL		gbl,
 	catch (OSRIException &exception) {
 		if (id == drq_s_sql_lfld) {
 			DYN_rundown_request(tdbb, request, id);
-			DYN_error_punt(tdbb, &exception, 29, NULL, NULL, NULL, NULL, NULL);
-			/* msg 29: "STORE RDB$RELATION_FIELDS failed" */
+			DYN_error_punt (tdbb, &exception, 29, sql_field_name, NULL, NULL, NULL, NULL);
+			// msg 29: Column %s already exists
 		}
 		else {
 			DYN_rundown_request(tdbb, request, id);
@@ -4146,8 +4147,9 @@ static void check_unique_name  (thread_db* tdbb,
 		if (!DYN_REQUEST(drq_l_rel_name))
 			DYN_REQUEST(drq_l_rel_name) = request;
 
-		if (found) 
+		if (found)
 			DYN_error_punt(tdbb, false, 132, object_name, NULL, NULL, NULL, NULL);
+			// msg 132: isc_dyn_rel_tbl_exists: Table %s already exists
 
 		request = CMP_find_request (tdbb, drq_l_prc_name, DYN_REQUESTS);
 

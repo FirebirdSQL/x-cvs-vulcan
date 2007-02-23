@@ -497,14 +497,12 @@ void DYN_modify_global_field(thread_db* tdbb,
 			case isc_dyn_fld_length:
 				fldlen = true;
 				new_dom->dyn_dsc.dsc_length = DYN_get_number(ptr);
-				
 				if (++field_adjusted_count > 2)
-					{
+				{
 					//EXE_unwind(tdbb, (JRD_REQ)request);
 					request->unwind();
 					DYN_error_punt(tdbb, false, 5, err_one_type_change_only, NULL, NULL, NULL, NULL);
-					}
-					
+				}
 				switch (new_dom->dyn_dtype) {
 				
 				case blr_text:
@@ -524,13 +522,12 @@ void DYN_modify_global_field(thread_db* tdbb,
 			case isc_dyn_fld_type:
 				dtype = true;
 				new_dom->dyn_dtype = DYN_get_number(ptr);
-				
 				if (++field_adjusted_count > 2)
-					{
+				{
 					//EXE_unwind(tdbb, (JRD_REQ)request);
 					request->unwind();
 					DYN_error_punt(tdbb, false, 5, err_one_type_change_only, NULL, NULL, NULL, NULL);
-					}
+				}
 
 				switch (new_dom->dyn_dtype) {
 
@@ -1141,6 +1138,7 @@ void DYN_modify_local_field(thread_db* tdbb,
 		modify_lfield_position(tdbb, dbb, gbl, r, f, position,
 							   existing_position);
 
+
 	}
 	catch (OSRIException &exception) {
 		DYN_rundown_request(tdbb, request, -1);
@@ -1352,8 +1350,8 @@ void DYN_modify_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 
 	if (!found)
 	{
-		DYN_error_punt(tdbb, false, 101, NULL, NULL, NULL, NULL, NULL);
-		/* msg 101: "Relation field not found" */
+		DYN_error_punt (tdbb, false, 101, name, NULL, NULL, NULL, NULL);
+		// msg 101: isc_dyn_tbl_nf: Table %s not found
 	}
 }
 
@@ -1648,8 +1646,8 @@ void DYN_modify_view(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 	}
 
 	if (!found) {
-		DYN_error_punt(tdbb, false, 61, NULL, NULL, NULL, NULL, NULL);
-		/* msg 61: "Relation not found" */
+		DYN_error_punt(tdbb, false, 54, view_name, NULL, NULL, NULL, NULL);
+		/* msg 54: "View %s not found" */
 	}
 }
 

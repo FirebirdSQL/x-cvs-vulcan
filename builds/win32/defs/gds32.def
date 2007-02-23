@@ -282,4 +282,5 @@ EXPORTS
 	
 	gds__alloc_debug=gds__alloc_debug
 	isc_format_implementation=isc_format_implementation
+    fb_sqlstate=fb_sqlstate @273
 	
