@@ -1,3 +1,22 @@
+2007-02-23 15:33  verbguy
+
+	* vulcan/: src/include/gen/codetext.h, src/include/gen/iberror.h,
+	src/include/gen/msgs.h, src/include/gen/rdb_codes.h,
+	src/include/gen/sql_code.h, src/include/gen/sql_state.h,
+	src/jrd/OSRIException.cpp, src/jrd/StatusPrint.cpp,
+	src/jrd/StatusVector.cpp, src/jrd/codes.epp, src/jrd/constants.h,
+	src/jrd/cvt.cpp, src/jrd/dyn.epp, src/jrd/dyn_def.epp,
+	src/jrd/dyn_del.epp, src/jrd/dyn_mod.epp, src/jrd/evl.cpp,
+	src/jrd/gds.cpp, src/jrd/ibase.h, src/jrd/intl.cpp,
+	src/jrd/par.cpp, builds/win32/defs/gds32.def,
+	builds/win32/defs/gds32_debug.def, src/dsql/ddl.cpp,
+	src/dsql/pass1.cpp, src/isql/isql.epp, src/isql/isql.h,
+	src/isql/isql_proto.h, src/include/firebird.h, src/msgs/msg.gbak,
+	src/msgs/sqlstates.sql:
+
+	Add fb_sqlstate() to Vulcan. More ISQL back-porting from FB2.0
+	release.
+
 2007-02-19 16:43  gary_franklin
 
 	* vulcan/src/jrd/os/posix/unix.cpp:
