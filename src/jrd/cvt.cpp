@@ -1595,7 +1595,7 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 						else
 #endif
 #endif
-					(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
+							(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 #ifndef REQUESTER
 #ifndef SUPERCLIENT
 						}
@@ -1673,7 +1673,7 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 						do {
 							char ch = *q++;
 							if (ch && (ch != ASCII_SPACE))
-						(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
+								(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
 						} while (--l);
 
 						}

@@ -1647,7 +1647,7 @@ void DYN_modify_view(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 
 	if (!found) {
 		DYN_error_punt(tdbb, false, 54, view_name, NULL, NULL, NULL, NULL);
-		/* msg 54: "View %s not found" */
+		// msg 54: "View %s not found"
 	}
 }
 

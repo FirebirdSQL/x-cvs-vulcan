@@ -241,8 +241,10 @@ void DYN_delete_filter(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found) 
+		{
 		DYN_error_punt(tdbb, false, 37, f, NULL, NULL, NULL, NULL);
-		/* msg 37: "Blob Filter %s not found" */
+		// msg 37: "Blob Filter %s not found"
+		}
 
 	if (*(*ptr)++ != isc_dyn_end) 
 		DYN_unsupported_verb(tdbb);
@@ -514,8 +516,10 @@ void DYN_delete_index(thread_db* tdbb,  GBL gbl, const UCHAR** ptr)
 		}
 
 	if (!found)
+		{
 		DYN_error_punt (tdbb, false, 48, idx_name, NULL, NULL, NULL, NULL);
 		// msg 48: isc_dyn_idx_nf: Index %s not found
+		}
 
 	if (!delete_index_segment_records(tdbb, gbl, idx_name))
 		DYN_error_punt(tdbb, false, 50, NULL, NULL, NULL, NULL, NULL);
@@ -718,11 +722,13 @@ void DYN_delete_local_field(thread_db* tdbb,
 
 			ERASE RFR;
 
-//			if (!RFR.RDB$SECURITY_CLASS.NULL
-//				&& !strncmp(RFR.RDB$SECURITY_CLASS, SQL_SECCLASS_PREFIX, SQL_SECCLASS_PREFIX_LEN))
-//			{
-//				delete_security_class2(gbl, RFR.RDB$SECURITY_CLASS);
-//			}
+			/***
+			if (!RFR.RDB$SECURITY_CLASS.NULL &&
+				!strncmp(RFR.RDB$SECURITY_CLASS, SQL_SECCLASS_PREFIX, SQL_SECCLASS_PREFIX_LEN))
+			{
+				delete_security_class2(gbl, RFR.RDB$SECURITY_CLASS);
+			}
+			***/
 
 			found = true;
 			delete_gfield_for_lfield(tdbb, gbl, RFR.RDB$FIELD_SOURCE);
@@ -755,9 +761,11 @@ void DYN_delete_local_field(thread_db* tdbb,
 		}
 	}
 
-	if (!found) 
+	if (!found)
+		{
 		DYN_error_punt (tdbb, false, 96, col_nm, NULL, NULL, NULL, NULL);
-			// msg 96: isc_dyn_col_nf: Column %s not found
+		// msg 96: isc_dyn_col_nf: Column %s not found
+		}
 }
 
 

@@ -136,7 +136,7 @@ static const SCHAR *gds_c_boiler_plate[] = {
 	"#define gds_arg_netware	16	/* NetWare error code */",
 	"#define gds_arg_win32		17	/* Win32 error code */",
 	"#define gds_arg_warning	18	/* warning argument */",
-	"#define gds_arg_sql_state     19 /* SQLSTATE */",
+	"#define gds_arg_sql_state	19 /* SQLSTATE */",
 	"",
 };
 
@@ -219,7 +219,7 @@ static const SCHAR *isc_cpp_boiler_plate[] = {
 	"const ISC_LONG isc_arg_netware		= 16;	// NetWare error code ",
 	"const ISC_LONG isc_arg_win32		= 17;	// Win32 error code ",
 	"const ISC_LONG isc_arg_warning		= 18;	// warning argument ",
-	"const ISC_LONG isc_arg_sql_state		= 19;	// SQLSTATE ",
+	"const ISC_LONG isc_arg_sql_state	= 19;	// SQLSTATE ",
 	"",
 };
 
@@ -907,8 +907,8 @@ static void build_other_headers(void)
 		if (E.NUMBER != (SSHORT) i + 1 && E.FAC_CODE == 0)
 		{
 			fprintf(stderr,
-						   "Warning: Sequence of error numbers is bad %d!\n",
-						   E.NUMBER);
+				"Warning: Sequence of error numbers is bad %d!\n",
+				E.NUMBER);
 		}
 		i = E.NUMBER;
 
@@ -934,7 +934,6 @@ static void build_other_headers(void)
 	fprintf(sql_states, "\t{0, 0}\n");
 	fprintf(sql_states, "};\n");
 	check_close(sql_states, SQL_STATES_H, "tmpcodeA", "w", genDirectory);
-
 }
 
 

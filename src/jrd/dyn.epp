@@ -261,15 +261,17 @@ void DYN_get_sql_state(USHORT number, char* sqlstate)
 	strcpy (sqlstate, "42000"); // generic syntax message
 
 	// do a binary search of gds__sql_state table
-	int first=0;
-	int last=sizeof(gds__sql_state)/sizeof(*gds__sql_state);
-	while (first <= last) {
+	int first = 0;
+	int last = sizeof(gds__sql_state) / sizeof(*gds__sql_state);
+	while (first <= last)
+		{
 		int mid = (first + last) / 2;
 		if (gdscode > gds__sql_state[mid].gds_code)
 			first = mid + 1;
 		else if (gdscode < gds__sql_state[mid].gds_code)
 			last = mid - 1;
-		else {
+		else
+			{
 			strcpy (sqlstate, gds__sql_state[mid].sql_state); // found it!
 			break;
 			}

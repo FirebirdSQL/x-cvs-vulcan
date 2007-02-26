@@ -3969,7 +3969,7 @@ static void delete_relation_view (
             ERRD_post (isc_dsql_view_not_found,
             	// isc_dsql_view_not_found: View %s does not exist
          		isc_arg_string, string->str_data,
-					0);
+				0);
         }
     }
     if (relation) {
