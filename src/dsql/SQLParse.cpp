@@ -304,13 +304,14 @@ int SQLParse::yylex(dsql_nod **yylval)
 					}
 				}
 
-			*yylval = (dsql_nod*) makeString((char*) temp.space, temp.length );
-			
-			/* 
-			 * Thought for the future:  Do we need to look into the dsql_nod 
-			 * to set the descriptor type to something that indicates a hex
-			 * string constant stored here?  - Tom
-			 */
+			// S0395933 - set character set to BINARY for hex string literals
+			// *yylval = (dsql_nod*) makeString((char*) temp.space, temp.length);
+			dsql_str* string = makeString((char*) temp.space, temp.length);
+
+			// set the character set
+			string->str_charset = "BINARY";
+			*yylval = (dsql_nod*) string;
+			// S0395933 ends
 			
 			return STRING;	
 			}  // if (!hexerror)...
@@ -396,12 +397,16 @@ int SQLParse::yylex(dsql_nod **yylval)
 				{
 				char cbuff[32];
 				cbuff[0] = 'X';
-				memcpy(&cbuff[1], hexstring, charlen);
+				strncpy(&cbuff[1], hexstring, charlen);
 				cbuff[charlen + 1] = '\0';
 				char *p = &cbuff[1];
 				while (*p != '\0')
 					{
-					*(p++) = UPPER(*p);
+						if ((c >= 'a') && (c <= 'f'))
+						{
+							*p = UPPER(*p);
+						}
+						p++;
 					}
 				*yylval = (dsql_nod*) makeString(cbuff, strlen(cbuff));
 				return NUMBER64BIT;

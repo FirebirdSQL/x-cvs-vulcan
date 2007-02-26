@@ -2862,8 +2862,13 @@ SINT64 hex_to_value (const char* string)
  *      biggest hex string supported must fit into a BIGINT.
  *
  *      We assume that the caller has pre-processed the
- *      input string, so that all characters here are upper case
- *      and the length of the string is <= 16.
+ *      input string, so that all characters here are upper case,
+ *      there are no spaces or invalid characters, and the length
+ *      of the string is <= 16.
+ *
+ *      Note!!! No overflow checking here, since this is already
+ *      checked for in dsql/SQLParse.cpp. Overflow checking will
+ *      be needed if another code path brings us here.
  *
  *************************************/
 {
