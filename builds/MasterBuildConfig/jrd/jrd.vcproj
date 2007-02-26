@@ -1708,6 +1708,9 @@
 				RelativePath="..\..\..\src\jrd\RsbNavigate.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\src\jrd\RsbOuterMerge.cpp">
+			</File>
+			<File
 				RelativePath="..\..\..\src\jrd\RsbProcedure.cpp">
 			</File>
 			<File
@@ -3443,6 +3446,9 @@ move dsql.tab.h  $(InputDir)\parse.h
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbNavigate.h">
+			</File>
+			<File
+				RelativePath="..\..\..\src\jrd\RsbOuterMerge.h">
 			</File>
 			<File
 				RelativePath="..\..\..\src\jrd\RsbProcedure.h">

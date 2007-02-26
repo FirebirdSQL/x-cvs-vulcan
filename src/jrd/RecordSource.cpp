@@ -1906,6 +1906,35 @@ void RecordSource::mapSortData(Request* request, SortMap* map, UCHAR* data)
 		}
 }
 
+void RecordSource::setRecordsToNulls(Request* request, StreamStack* streams)
+{
+	thread_db *tdbb = request->req_tdbb;
+
+	for (StreamStack::iterator stack(*streams); stack.hasData(); ++stack)
+		{
+		record_param* rpb = &request->req_rpb[stack.object()];
+
+		/* Make sure a record block has been allocated.  If there isn't
+		   one, first find the format, then allocate the record block */
+
+		Record* record = rpb->rpb_record;
+		
+		if (!record)
+			{
+			Format* format = rpb->rpb_relation->rel_current_format;
+			
+			if (!format)
+				format = rpb->rpb_relation->getFormat(tdbb, rpb->rpb_format_number);
+						 
+			record = VIO_record(tdbb, rpb, format, tdbb->tdbb_default);
+			}
+
+        record->rec_fmt_bk = record->rec_format;
+		record->rec_format = NULL;
+		}
+}
+
+
 void RecordSource::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
 {
 	if (rsb_next)

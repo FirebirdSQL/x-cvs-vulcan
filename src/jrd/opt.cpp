@@ -87,6 +87,7 @@
 #include "../jrd/Optimizer.h"
 #include "RsbProcedure.h"
 #include "RsbSort.h"
+#include "RsbOuterMerge.h"
 #include "RsbMerge.h"
 #include "RsbCross.h"
 #include "RsbLeftCross.h"
@@ -165,6 +166,14 @@ static RecordSource* gen_union(thread_db*, OptimizerBlk*, jrd_nod*, UCHAR *, USH
 static void get_expression_streams(const jrd_nod*, firebird::SortedArray<int>&);
 static void get_inactivities(const CompilerScratch*, ULONG*);
 static jrd_nod* get_unmapped_node(thread_db*, jrd_nod*, jrd_nod*, UCHAR, bool);
+
+static jrd_nod* genBaseResidualBoolean(thread_db*, OptimizerBlk*);
+static RecordSource* genInnerBooleanRsb(thread_db*, OptimizerBlk*, RecordSource*, SSHORT);
+static RecordSource* genOuterRsb(thread_db*, OptimizerBlk*, RecordSelExpr*, RiverStack&, jrd_nod**, jrd_nod**);
+static RecordSource* genRetrievalRsb(thread_db*, OptimizerBlk*, SSHORT, jrd_nod**, jrd_nod**, 
+									 bool, bool, SortedStreamList*);
+static jrd_nod* genStreamBoolean(thread_db*, OptimizerBlk*, SSHORT,	bool, bool, bool);
+
 static IndexedRelationship* indexed_relationship(thread_db*, OptimizerBlk*, USHORT);
 static RecordSource* make_cross(thread_db*, OptimizerBlk*, RiverStack&);
 static jrd_nod* make_index_node(thread_db*, Relation*, CompilerScratch*, const index_desc*);
@@ -772,7 +781,12 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 		// outer joins require some extra processing
 
 		if (rse->rse_jointype != blr_inner) 
-			rsb = gen_outer(tdbb, opt, rse, rivers_stack, &sort, &project);
+			{
+			if (dbb->dbb_ods_version >= ODS_VERSION11) 
+				rsb = genOuterRsb(tdbb, opt, rse, rivers_stack, &sort, &project);
+			else
+				rsb = gen_outer(tdbb, opt, rse, rivers_stack, &sort, &project);
+			}
 		else 
 			{
 			bool sort_present = (sort);
@@ -3899,15 +3913,27 @@ static bool form_river(thread_db* tdbb,
 	if (count != streams[0]) 
 		sort_clause = project_clause = NULL;
 
+	Database* dbb = tdbb->tdbb_database;
+	const bool ods11orHigher = (dbb->dbb_ods_version >= ODS_VERSION11);
 	OptimizerBlk::opt_stream* tail;
 	int n = 0;
 	
 	for (tail = opt->opt_streams.begin(); tail < opt_end; tail++, stream++, n++) 
 		{
 		*stream = (UCHAR) tail->opt_best_stream;
-		RecordSource *subRsb = gen_retrieval(tdbb, opt, *stream, sort_clause, 
-											project_clause, false, false, NULL);
-		
+		RecordSource* subRsb = NULL;
+
+		if (ods11orHigher)
+			{
+			subRsb = genRetrievalRsb(tdbb, opt, *stream, sort_clause, 
+				project_clause, false, false, NULL);
+
+			subRsb = genInnerBooleanRsb(tdbb, opt, subRsb, *stream);
+			}
+		else
+			subRsb = gen_retrieval(tdbb, opt, *stream, sort_clause, 
+				project_clause, false, false, NULL);
+
 		if (rsb)
 			rsb->rsbs[n] = subRsb;
 		else
@@ -4119,25 +4145,12 @@ static RecordSource* gen_boolean(thread_db* tdbb,
  *	set of record source blocks (rsb's).
  *
  **************************************/
-	/***
-	DEV_BLKCHK(opt, type_opt);
-	DEV_BLKCHK(node, type_nod);
-	DEV_BLKCHK(prior_rsb, type_rsb);
-	SET_TDBB(tdbb);
-	***/
-
 	CompilerScratch* csb = opt->opt_csb;
-
-	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, 1) RecordSource(csb);
 
 	RecordSource* rsb = new (tdbb->tdbb_default) RsbBoolean(csb, prior_rsb, node);
 
-	//rsb->rsb_count = 1;
-	//rsb->rsb_type = rsb_boolean;
-	//rsb->rsb_next = prior_rsb;
-	//rsb->rsb_arg[0] = (RecordSource*) node;
-
 	rsb->rsb_impure = CMP_impure(csb, sizeof(struct irsb));
+	rsb->rsb_cardinality = prior_rsb->rsb_cardinality;
 	
 	return rsb;
 }
@@ -4347,9 +4360,20 @@ static void gen_join(thread_db* tdbb,
 
 		fb_assert(csb->csb_rpt[streams[1]].csb_relation);
 
-		river->riv_rsb =
-			gen_retrieval(tdbb, opt, streams[1], sort_clause, project_clause,
-						  false, false, NULL);
+		if (dbb->dbb_ods_version >= ODS_VERSION11) 
+			{
+			river->riv_rsb =
+				genRetrievalRsb(tdbb, opt, streams[1], sort_clause, project_clause,
+							false, false, NULL);
+
+			river->riv_rsb = 
+				genInnerBooleanRsb(tdbb, opt, river->riv_rsb, streams[1]);
+			}
+		else
+			river->riv_rsb =
+				gen_retrieval(tdbb, opt, streams[1], sort_clause, project_clause,
+							false, false, NULL);
+
 		river->riv_streams[0] = streams[1];
 		river_stack.push(river);
 		return;
@@ -4614,18 +4638,9 @@ static RecordSource* gen_nav_rsb(thread_db* tdbb,
 
 	USHORT key_length = ROUNDUP(BTR_key_length(tdbb, relation, idx), sizeof(SLONG));
 
-	//RecordSource* rsb = FB_NEW_RPT(*tdbb->tdbb_default, RSB_NAV_count) RecordSource(opt->opt_csb);
-
 	RsbNavigate *rsb = new (tdbb->tdbb_default) RsbNavigate(opt->opt_csb, stream, relation, alias,
 															  OPT_make_index(tdbb, opt, relation, idx),
 															  key_length);
-	//rsb->rsb_type = rsb_navigate;
-	//rsb->rsb_relation = relation;
-	//rsb->rsb_stream = (UCHAR) stream;
-	//rsb->rsb_alias = alias;
-	//rsb->rsb_arg[RSB_NAV_index] = (RecordSource*) OPT_make_index(tdbb, opt, relation, idx);
-	//rsb->rsb_arg[RSB_NAV_key_length] = (RecordSource*) (long) key_length;
-	//rsb->keyLength = key_length;
 
 #ifdef SCROLLABLE_CURSORS
 	// indicate that the index needs to be navigated in a mirror-image   
@@ -4637,6 +4652,7 @@ static RecordSource* gen_nav_rsb(thread_db* tdbb,
 #endif
 	return rsb;
 }
+
 
 
 static RecordSource* gen_outer(thread_db* tdbb,
@@ -4666,13 +4682,6 @@ static RecordSource* gen_outer(thread_db* tdbb,
 		RecordSource* stream_rsb;
 		USHORT stream_num;
 		} stream_o, stream_i, *stream_ptr[2];
-	
-	/***
-	DEV_BLKCHK(opt, type_opt);
-	DEV_BLKCHK(rse, type_nod);
-	DEV_BLKCHK(*sort_clause, type_nod);
-	SET_TDBB(tdbb);
-	***/
 	
 	// Determine which stream should be outer and which is inner.
 	// In the case of a left join, the syntactically left stream is the 
@@ -4784,6 +4793,286 @@ static RecordSource* gen_outer(thread_db* tdbb,
 }
 
 
+static RecordSource* genOuterRsb(thread_db* tdbb, OptimizerBlk* opt,
+							   RecordSelExpr* rse, RiverStack& river_stack, 
+							   jrd_nod** sort_clause, jrd_nod** project_clause)
+{
+/**************************************
+ *
+ *	g e n O u t e r R s b
+ *
+ **************************************
+ *
+ * Functional description
+ *	Generate a top level outer join.  The "outer" and "inner"
+ *	sub-streams must be handled differently from each other.
+ *	The inner is like other streams.  The outer stream isn't
+ *	because conjuncts may not eliminate records from the
+ *	stream.  They only determine if a join with an inner
+ *	stream record is to be attempted.
+ *
+ **************************************/
+	struct 
+		{
+		RecordSource* stream_rsb;
+		USHORT stream_num;
+		} stream_o, stream_i, *stream_ptr[2];
+	
+	// Determine which stream should be outer and which is inner.
+	// In the case of a left join, the syntactically left stream is the 
+	// outer, and the right stream is the inner.  For all others, swap 
+	// the sense of inner and outer, though for a full join it doesn't 
+	// matter and we should probably try both orders to see which is 
+	// more efficient.
+	
+	if (rse->rse_jointype != blr_left) 
+		{
+		stream_ptr[1] = &stream_o;
+		stream_ptr[0] = &stream_i;
+		}
+	else 
+		{
+		stream_ptr[0] = &stream_o;
+		stream_ptr[1] = &stream_i;
+		}
+
+	// Loop through the outer join sub-streams in
+	// reverse order because rivers may have been PUSHed
+	
+	RecordSource* rsb = NULL;
+	River* outerRiver = NULL;
+	River* innerRiver = NULL;
+	SSHORT i;
+	jrd_nod* node;
+	
+	for (i = 1; i >= 0; i--) 
+		{
+		node = rse->rse_relation[i];
+		
+		if (node->nod_type == nod_union
+				|| node->nod_type == nod_aggregate
+			 	|| node->nod_type == nod_procedure 
+			 	|| node->nod_type == nod_rse)
+			{
+			River* river = river_stack.pop();
+			stream_ptr[i]->stream_rsb = river->riv_rsb;
+
+			if (stream_ptr[i] == &stream_i)
+				innerRiver = river;
+			else
+				outerRiver = river;
+			}
+		else 
+			{
+			stream_ptr[i]->stream_rsb = NULL;
+			stream_ptr[i]->stream_num = (USHORT)(long) node->nod_arg[STREAM_INDEX(node)];
+			}
+		}
+
+	// Generate rsbs for the sub-streams. 	
+	jrd_nod* outerBoolean = NULL;
+	jrd_nod* innerBoolean = NULL;
+	
+	if (!stream_o.stream_rsb) 
+		{
+		stream_o.stream_rsb = 
+			genRetrievalRsb(tdbb, opt, stream_o.stream_num, 
+				sort_clause, project_clause, true, false, NULL);
+
+		outerBoolean = genStreamBoolean(tdbb, opt, stream_o.stream_num, true, false, false);
+
+		if (outerBoolean)
+			stream_o.stream_rsb = gen_boolean(tdbb, opt, stream_o.stream_rsb, outerBoolean);
+
+		outerRiver = FB_NEW_RPT(*tdbb->tdbb_default, 1) River();
+		outerRiver->riv_count = 1;
+		outerRiver->riv_streams[0] = stream_o.stream_num;
+		}
+
+	// in the case of a full join, we must make sure we don't exclude record from 
+	// the inner stream; otherwise just retrieve it as we would for an inner join
+	const bool bFullJoin = (rse->rse_jointype == blr_full);
+	bool indexedInnerStream = false;
+	if (!stream_i.stream_rsb)
+		{
+		SortedStreamList dependentStreams;
+
+		// AB: the sort clause for the inner stream of an
+		// OUTER JOIN is never usefull for index retrieval.
+		// dimitr: the same for DISTINCT via navigational index
+		stream_i.stream_rsb = 
+			genRetrievalRsb(tdbb, opt, stream_i.stream_num, 
+				NULL, NULL, bFullJoin, true, &dependentStreams);
+
+		// Walk through the index dependent streams and check
+		// if at least one outer stream is one of them.
+		int depCount = dependentStreams.getCount();
+		if (depCount >= 1)
+			{
+			StreamStack outerStreams;
+			RsbStack outerRsbs;
+			stream_o.stream_rsb->findRsbs(&outerStreams, &outerRsbs);
+
+			while (outerStreams.hasData() && !indexedInnerStream)
+				{
+				int outerStream = outerStreams.pop();
+
+				int depIndex = 0;
+				for (; depIndex < depCount; depIndex++)
+						if (outerStream == dependentStreams[depIndex])
+							{
+							indexedInnerStream = true;
+							break;
+							}
+				}
+			}
+
+		// Pick up usable conjunctions early as possible to avoid unneeded fetches.
+		if (!bFullJoin)
+			{
+			if (!indexedInnerStream)
+				set_inactive(opt, outerRiver);
+
+			innerBoolean = genStreamBoolean(tdbb, opt, stream_i.stream_num, false, true, true);
+
+			if (!indexedInnerStream)
+				set_active(opt, outerRiver);
+
+			if (innerBoolean)
+				stream_i.stream_rsb = gen_boolean(tdbb, opt, stream_i.stream_rsb, innerBoolean);
+			}
+
+		innerRiver = FB_NEW_RPT(*tdbb->tdbb_default, 1) River();
+		innerRiver->riv_count = 1;
+		innerRiver->riv_streams[0] = stream_i.stream_num;
+		}
+
+	if (!indexedInnerStream)
+		{
+		// We didn't had a index retrieval for the inner stream with
+		// a reference to the outer stream.
+		// Try to create a SORT/MERGE.
+		NodeStack innerNodes;
+		NodeStack outerNodes;
+
+		OptimizerBlk::opt_conjunct* tail = opt->opt_conjuncts.begin();
+		const OptimizerBlk::opt_conjunct* opt_end = tail 
+			+ (bFullJoin ? opt->opt_base_missing_conjuncts : opt->opt_conjuncts.getCount());
+
+		// Find equality nodes that match both inner and outer river
+		for (; tail < opt_end; tail++)
+			{
+			jrd_nod* node = tail->opt_conjunct_node;
+			if (node->nod_type == nod_eql)
+				{
+				jrd_nod* leftNode = node->nod_arg[0];
+				jrd_nod* rightNode = node->nod_arg[1];
+				if (!river_reference(innerRiver, leftNode))
+					if (river_reference(innerRiver, rightNode))
+						{
+						jrd_nod* tempNode = leftNode;
+						leftNode = rightNode;
+						rightNode = tempNode;
+						}
+					else
+						continue;
+
+				if (!river_reference(outerRiver, rightNode))
+					continue;
+
+				if (tail->opt_conjunct_flags & opt_conjunct_used)
+					{
+					innerNodes.clear();
+					outerNodes.clear();
+					break;
+					}
+					
+				innerNodes.push(leftNode);
+				outerNodes.push(rightNode);	
+				}
+			}
+
+		// If we've found a match, generate the MERGE/SORT
+		if (innerNodes.getCount() && outerNodes.getCount())
+			{
+			innerBoolean = genBaseResidualBoolean(tdbb, opt);
+
+			RsbOuterMerge *mergeRsb = new (tdbb->tdbb_default) 
+				RsbOuterMerge(opt->opt_csb, 2, !bFullJoin, innerBoolean);
+
+			mergeRsb->rsb_impure = CMP_impure(opt->opt_csb, (USHORT) (sizeof(struct irsb_mrg) 
+				+ 2 * sizeof(irsb_mrg::irsb_mrg_repeat)));
+
+			jrd_nod* sort = FB_NEW_RPT(*tdbb->tdbb_default, innerNodes.getCount() * 3) jrd_nod();
+			sort->nod_type = nod_sort;
+			sort->nod_count = innerNodes.getCount();
+
+			jrd_nod** ptr = sort->nod_arg;
+			for (; !innerNodes.isEmpty(); ptr++) 
+				{
+				ptr[sort->nod_count] = (jrd_nod*) FALSE; // Ascending sort
+				ptr[sort->nod_count * 2] = (jrd_nod*) rse_nulls_default; // Default nulls placement
+				*ptr = (jrd_nod*)innerNodes.pop();
+				}
+
+			RsbSort* innerRsbSort = gen_sort(tdbb, opt, &innerRiver->riv_count, NULL, stream_i.stream_rsb, sort, false);
+
+			mergeRsb->sortRsbs[1] = innerRsbSort;
+			mergeRsb->sortNodes[1] = sort;
+
+			sort = FB_NEW_RPT(*tdbb->tdbb_default, outerNodes.getCount() * 3) jrd_nod();
+			sort->nod_type = nod_sort;
+			sort->nod_count = outerNodes.getCount();
+
+			ptr = sort->nod_arg;
+			for (; !outerNodes.isEmpty(); ptr++) 
+				{
+				ptr[sort->nod_count] = (jrd_nod*) FALSE; // Ascending sort
+				ptr[sort->nod_count * 2] = (jrd_nod*) rse_nulls_default; // Default nulls placement
+				*ptr = (jrd_nod*)outerNodes.pop();
+				}
+
+			RsbSort* outerRsbSort = gen_sort(tdbb, opt, &outerRiver->riv_count, NULL, stream_o.stream_rsb, sort, false);
+
+			mergeRsb->sortRsbs[0] = outerRsbSort;
+			mergeRsb->sortNodes[0] = sort;
+
+			rsb = mergeRsb;
+			}
+		}
+
+	if (!rsb)
+		{
+		if (bFullJoin)
+			innerBoolean = genBaseResidualBoolean(tdbb, opt);
+
+		// generate a parent boolean rsb for any remaining booleans that 
+		// were not satisfied via an index lookup	
+		stream_i.stream_rsb = gen_residual_boolean(tdbb, opt, stream_i.stream_rsb);
+
+		// Allocate and fill in the rsb
+		RsbLeftCross* leftCrossRsb = new (tdbb->tdbb_default) 
+			RsbLeftCross(opt->opt_csb, innerBoolean, stream_i.stream_rsb,
+				outerBoolean, stream_o.stream_rsb);
+
+		leftCrossRsb->rsb_impure = CMP_impure(opt->opt_csb, sizeof(struct irsb));
+		leftCrossRsb->rsb_left_streams = FB_NEW(*tdbb->tdbb_default) StreamStack(*tdbb->tdbb_default);
+		leftCrossRsb->rsb_left_inner_streams = FB_NEW(*tdbb->tdbb_default) StreamStack(*tdbb->tdbb_default);
+		leftCrossRsb->rsb_left_rsbs = FB_NEW(*tdbb->tdbb_default) RsbStack(*tdbb->tdbb_default);
+			
+		// find all the outer and inner substreams and push them on a stack.
+		stream_i.stream_rsb->findRsbs(leftCrossRsb->rsb_left_streams,  leftCrossRsb->rsb_left_rsbs);
+		
+		if (bFullJoin) 
+			stream_o.stream_rsb->findRsbs(leftCrossRsb->rsb_left_inner_streams, leftCrossRsb->rsb_left_rsbs);
+
+		rsb = leftCrossRsb;
+		}
+
+	return rsb;
+}
+
+
 static RecordSource* gen_procedure(thread_db* tdbb, 
 								   OptimizerBlk* opt, 
 								   jrd_nod* node)
@@ -4845,30 +5134,234 @@ static RecordSource* gen_residual_boolean(thread_db* tdbb,
  *	must still be applied to the result stream.
  *
  **************************************/
-	SET_TDBB(tdbb);
-	DEV_BLKCHK(opt, type_opt);
-	DEV_BLKCHK(prior_rsb, type_rsb);
 
-	jrd_nod* boolean = NULL;
+	jrd_nod* boolean = genBaseResidualBoolean(tdbb, opt);
+
+	if (!boolean)
+		return prior_rsb;
+
+	return gen_boolean(tdbb, opt, prior_rsb, boolean);
+}
+
+
+static jrd_nod* genBaseResidualBoolean(thread_db* tdbb, OptimizerBlk* opt)
+{
+/**************************************
+ *
+ *	g e n B a s e B o o l e a n
+ *
+ **************************************
+ *
+ * Functional description
+ *	Walk through all our conjunctions
+ *	directly given to the current rse.
+ *	Such as an ON clause for a JOIN.
+ *	Pick up any residual boolean remaining.
+ *
+ **************************************/
+	OptimizerBlk::opt_conjunct* tail = opt->opt_conjuncts.begin();
 	const OptimizerBlk::opt_conjunct* const opt_end =
 		opt->opt_conjuncts.begin() + opt->opt_base_conjuncts;
-	OptimizerBlk::opt_conjunct* tail = opt->opt_conjuncts.begin();
 
-	for (; tail < opt_end; tail++)
+	jrd_nod* boolean = NULL;
+
+	for (; tail < opt_end; tail++) 
 		{
 		jrd_nod* node = tail->opt_conjunct_node;
-
-		if (!(tail->opt_conjunct_flags & opt_conjunct_used)) 
+		
+		if (!(tail->opt_conjunct_flags & opt_conjunct_used))
 			{
 			compose(tdbb, &boolean, node, nod_and);
 			tail->opt_conjunct_flags |= opt_conjunct_used;
 			}
 		}
 
-	if (!boolean)
-		return prior_rsb;
+	return boolean;
+}
 
-	return gen_boolean(tdbb, opt, prior_rsb, boolean);
+
+static RecordSource* genInnerBooleanRsb(thread_db* tdbb, OptimizerBlk* opt,
+                                        RecordSource* retrievalRsb, SSHORT stream)
+/**************************************
+ *
+ *	g e n I n n e r B o o l e a n R s b
+ *
+ **************************************
+ *
+ * Functional description
+ *	Generate RsbBoolean if possible for
+ *  a inner joined stream.
+ *
+ **************************************/
+{
+	bool indexed = 
+		(retrievalRsb->rsb_type == rsb_indexed) ||
+		((retrievalRsb->rsb_type == rsb_navigate) && 
+			(((RsbNavigate*) retrievalRsb)->inversion));
+
+	jrd_nod* nodBoolean = genStreamBoolean(tdbb, opt, stream, false, false, indexed);
+
+	if (nodBoolean)
+		return gen_boolean(tdbb, opt, retrievalRsb, nodBoolean);
+	else
+		return retrievalRsb;
+}
+
+
+static RecordSource* genRetrievalRsb(thread_db* tdbb, OptimizerBlk* opt,
+								   SSHORT stream,
+								   jrd_nod** sort_ptr, jrd_nod** project_ptr,
+								   bool ignoreBase, bool ignoreParentMissings,
+								   SortedStreamList* dependentStreams)
+{
+/**************************************
+ *
+ *	g e n R e t r i e v a l R s b
+ *
+ **************************************
+ *
+ * Functional description
+ *	Only for ODS11!!
+ *	Compile and optimize a record selection expression into a
+ *	set of record source blocks (rsb's).
+ *
+ **************************************/
+	CompilerScratch* csb = opt->opt_csb;
+	CompilerScratch::csb_repeat* csb_tail = &csb->csb_rpt[stream];
+	Relation* relation = csb_tail->csb_relation;
+
+	fb_assert(relation);
+
+	csb_tail->csb_flags |= csb_active;
+	
+	if (sort_ptr && *sort_ptr && project_ptr && *project_ptr) 
+		sort_ptr = NULL;
+
+	jrd_nod* inversion = NULL;
+	RecordSource* rsb = NULL;
+	Database* dbb = tdbb->tdbb_database;
+	double estimatedSelectivity = 1;
+	double estimatedCost = 0;
+	
+	if (relation->rel_file) 
+		{
+		rsb = EXT_optimize(tdbb, opt, stream, sort_ptr ? sort_ptr : project_ptr);
+		//estimatedCost = ????;
+		}
+	else
+		{
+		OptimizerRetrieval* optimizerRetrieval = FB_NEW(*tdbb->tdbb_default) 
+			OptimizerRetrieval(tdbb, *tdbb->tdbb_default, opt, stream, 
+				ignoreBase, ignoreParentMissings, sort_ptr);
+		InversionCandidate* candidate = optimizerRetrieval->getInversion(&rsb);
+		
+		if (candidate)
+			{
+			estimatedSelectivity = candidate->selectivity;
+			estimatedCost = candidate->cost;
+
+			if (candidate->inversion)
+				inversion = candidate->inversion;			
+
+			if (dependentStreams)
+				dependentStreams->join(candidate->dependentFromStreams);
+
+			}
+
+		delete candidate;
+		delete optimizerRetrieval;
+		}
+
+	if (rsb) 
+		{
+		if (rsb->rsb_type == rsb_navigate && inversion) 
+			((RsbNavigate*) rsb)->inversion = inversion;
+		}
+	else 
+		{
+		SSHORT size;
+		str* alias = OPT_make_alias(tdbb, csb, csb_tail);
+		
+		if (inversion) 
+			{
+			rsb = new (tdbb->tdbb_default) RsbIndexed(opt->opt_csb, stream, relation, alias, inversion);
+			size = sizeof(struct irsb_index);
+			}
+		else 
+			{
+			rsb = new (tdbb->tdbb_default) RsbSequential(opt->opt_csb, stream, relation, alias);		
+			}
+		}
+
+	rsb->rsb_cardinality = (ULONG) csb_tail->csb_cardinality;
+	rsb->estimatedSelectivity = estimatedSelectivity;
+	rsb->estimatedCost = estimatedCost;
+	return rsb;
+}
+
+
+static jrd_nod* genStreamBoolean(thread_db* tdbb, OptimizerBlk* opt, 
+								 SSHORT stream,	bool ignoreBase, 
+								 bool ignoreParentMissings, bool indexedStream)
+{
+/**************************************
+ *
+ *	g e n S t r e a m B o o l e a n
+ *
+ **************************************
+ *
+ * Functional description
+ *	Walk through the needed conjunctions and test 
+ *  if those are computable against the stream. 
+ *	For a stream that has no indexed retrieval 
+ *	pick up booleans that contain only stream-references
+ *	to itself, so others could be used for MERGE.
+ *
+ **************************************/
+	CompilerScratch* csb = opt->opt_csb;
+	CompilerScratch::csb_repeat* csb_tail = &csb->csb_rpt[stream];
+	Relation* relation = csb_tail->csb_relation;
+	OptimizerBlk::opt_conjunct* tail = opt->opt_conjuncts.begin();
+	const OptimizerBlk::opt_conjunct* const opt_end = 
+		tail + (ignoreParentMissings ? opt->opt_base_missing_conjuncts : opt->opt_conjuncts.getCount());
+
+	// Now make another pass thru the conjuncts finding unused, computable
+	// booleans.  When one is found, roll it into a final boolean and mark
+	// it used. If a computable boolean didn't match against an index then
+	// mark the stream to denote unmatched booleans.
+		
+	if (ignoreBase) 
+		tail += opt->opt_base_parent_conjuncts;
+
+	jrd_nod* boolean = NULL;
+
+	for (; tail < opt_end; tail++)
+		{
+		jrd_nod* node = tail->opt_conjunct_node;
+		
+		if (!relation->rel_file) 
+			compose(tdbb, &boolean, OPT_make_dbkey(tdbb, opt, node, stream), nod_bit_and);
+
+		if (!(tail->opt_conjunct_flags & opt_conjunct_used)
+			// ANY/ALL boolean should always be left as a residual one
+			&& !(node->nod_flags & nod_deoptimize)
+			&& OPT_computable(csb, node, -1, false, false))
+			{
+			// If no index is used then leave other nodes alone, because they 
+			// could be used for building a SORT/MERGE.			
+			if ((indexedStream && expression_contains_stream(csb, node, stream, NULL)) ||
+				(!indexedStream && OPT_computable(csb, node, stream, false, true)))
+				{
+				compose(tdbb, &boolean, node, nod_and);
+				tail->opt_conjunct_flags |= opt_conjunct_used;
+
+				if (!ignoreBase && !(tail->opt_conjunct_flags & opt_conjunct_matched))
+					csb_tail->csb_flags |= csb_unmatched;
+				}
+			}
+		}
+
+	return boolean;
 }
 
 
@@ -4965,8 +5458,8 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 	double estimatedSelectivity = 1;
 	double estimatedCost = 0;
 	
+/*
 	// For ODS11 and higher databases we can use new calculations
-
 	if (ods11orHigher && !relation->rel_file) 
 		{
 		OptimizerRetrieval* optimizerRetrieval = FB_NEW(*tdbb->tdbb_default) 
@@ -4985,9 +5478,12 @@ static RecordSource* gen_retrieval(thread_db* tdbb,
 		delete candidate;
 		delete optimizerRetrieval;
 		}
-	// External files are handled differently too
 
-	else if (relation->rel_file) 
+
+	// External files are handled differently too
+	else 
+*/
+	if (relation->rel_file) 
 		rsb = EXT_optimize(tdbb, opt, stream, sort_ptr ? sort_ptr : project_ptr);
 
 	// we want to start with indices which have more index segments, attempting to match 

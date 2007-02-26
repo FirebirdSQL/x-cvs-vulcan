@@ -161,6 +161,7 @@ public:
 	virtual void close(Request* request) = 0;
 	void init(void);
 	static void mapSortData(Request* request, SortMap* map, UCHAR* data);
+	static void setRecordsToNulls(Request* request, StreamStack* streams);
 	virtual void findRsbs(StreamStack* stream_list, RsbStack* rsb_list);
 	virtual void pushRecords(Request* request);
 	virtual void popRecords(Request* request);

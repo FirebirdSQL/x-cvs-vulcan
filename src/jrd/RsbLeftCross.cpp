@@ -118,7 +118,7 @@ bool RsbLeftCross::get(Request* request, RSE_GET_MODE mode)
 					{
 					/* The boolean pertaining to the left sub-stream is false
 					   so just join sub-stream to a null valued right sub-stream */
-					joinToNulls(request, rsb_left_streams);
+					setRecordsToNulls(request, rsb_left_streams);
 					return TRUE;
 					}
 					
@@ -145,7 +145,7 @@ bool RsbLeftCross::get(Request* request, RSE_GET_MODE mode)
 				{
 				/* The current left sub-stream record has not been joined
 				   to anything.  Join it to a null valued right sub-stream */
-				joinToNulls(request, rsb_left_streams);
+				setRecordsToNulls(request, rsb_left_streams);
 				return TRUE;
 				}
 			}
@@ -183,7 +183,7 @@ bool RsbLeftCross::get(Request* request, RSE_GET_MODE mode)
 	else if (!full->get(request, RSE_get_forward))
 		return FALSE;
 
-	joinToNulls(request, rsb_left_inner_streams);
+	setRecordsToNulls(request, rsb_left_inner_streams);
 
 	return TRUE;
 }
@@ -216,34 +216,6 @@ void RsbLeftCross::close(Request* request)
 {
 	outerRsb->close(request);
 	innerRsb->close(request);
-}
-
-void RsbLeftCross::joinToNulls(Request* request, StreamStack* stream)
-{
-	thread_db *tdbb = request->req_tdbb;
-
-	for (StreamStack::iterator stack(*stream); stack.hasData(); ++stack)
-		{
-		record_param* rpb = &request->req_rpb[stack.object()];
-
-		/* Make sure a record block has been allocated.  If there isn't
-		   one, first find the format, then allocate the record block */
-
-		Record* record = rpb->rpb_record;
-		
-		if (!record)
-			{
-			Format* format = rpb->rpb_relation->rel_current_format;
-			
-			if (!format)
-				format = rpb->rpb_relation->getFormat(tdbb, rpb->rpb_format_number);
-						 
-			record = VIO_record(tdbb, rpb, format, tdbb->tdbb_default);
-			}
-
-        record->rec_fmt_bk = record->rec_format;
-		record->rec_format = NULL;
-		}
 }
 
 void RsbLeftCross::findRsbs(StreamStack* stream_list, RsbStack* rsb_list)
