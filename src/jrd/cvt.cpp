@@ -2006,34 +2006,58 @@ static SSHORT decompose(const char* string,
 
 	// Check if this is a numeric hex string. Must start with 0x or 0x, and be
 	// no longer than 16 hex digits + 2 (the length of the 0X prefix) = 18.
-	if ( ((strncmp ("0x", p, 2) == 0) || (strncmp ("0X", p, 2) == 0)) && (length <= 18)) {
-		char cbuff[32];
-		p += 2; // skip over 0X part
-		length = length - 2;
-		memcpy(&cbuff[0], p, length);
-		cbuff[length] = '\0';
-		
-		// scan over cbuff. force all characters to upper case and
-		// check for any invalid characters.
-		char *q = cbuff;
-		while (*q != '\0')
+
+	// skip over any preceding spaces
+	for (; (p < end && *p == ' '); p++)
 		{
-			*q = UPPER (*q);
-			if (! ((isdigit(*q)) || ((*q >= 'A') && (*q <= 'F'))))
+		// do nothing, just advance
+	}
+	
+	// 0 must be followed immediately by x or X to be hex string
+	if ((strncmp ("0x", p, 2) == 0) || (strncmp ("0X", p, 2) == 0))
+	{
+		char cbuff[19];
+		int cbuff_index=0;
+		p += 2; // skip 0x
+		for (; (p < end && cbuff_index <= 16); p++)
+		{
+			if ( (isdigit (*p) || (*p >= 'A' && *p <= 'F')) )
+			{
+				cbuff[cbuff_index] = *p;
+				cbuff_index++;
+			}
+			else if (*p >= 'a' && *p <= 'f')
+			{
+				cbuff[cbuff_index] = *p - 'a' + 'A';
+				cbuff_index++;
+			}
+			else if (*p != ' ')
 			{
 				conversion_error(&errd, err);
 				return 0;
 			}
-		q++;
 		}			
-		value = hex_to_value (cbuff);
-		if (dtype == dtype_long)
-			*return_value = (SLONG) value;
+
+		if (cbuff_index == 17)
+		{
+			// too long, would cause overflow
+			conversion_error(&errd, err);
+			return 0;
+		}
 		else
-			*((SINT64 *) return_value) = value;
-		return 0; // 0 scale for hex literals
+		{
+			cbuff[cbuff_index] = '\0';
+			value = hex_to_value (cbuff);
+			if (dtype == dtype_long)
+				*return_value = (SLONG) value;
+			else
+				*((SINT64 *) return_value) = value;
+			return 0; // 0 scale for hex literals
+		}
 	}
 
+	// wasn't a hex string, reset p
+	p = string;
 	for (; p < end; p++)
 	{
 		if (*p == ',')
