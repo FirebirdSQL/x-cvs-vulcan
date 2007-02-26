@@ -558,9 +558,6 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 					else 
 						{
 						rsb = OPT_compile(tdbb, csb, (RecordSelExpr*) node, parent_stack, 0);
-						
-						if (rse->rse_jointype == blr_left)
-							find_used_streams(rsb, outer_streams);
 						}
 						
 					break;
@@ -578,11 +575,15 @@ RecordSource* OPT_compile(thread_db*		tdbb,
 				river->riv_rsb = rsb;
 				MOVE_FAST(local_streams + 1, river->riv_streams, i);
 				
-				// AB: Save all inner-part streams
-				
+				// AB: Save all inner-part streams				
 				if (rse->rse_jointype == blr_inner  
 						|| (rse->rse_jointype == blr_left && (ptr - rse->rse_relation) == 0))
+					{
 					find_used_streams(rsb, sub_streams);
+					// Save also the outer streams						
+					if (rse->rse_jointype == blr_left)
+						find_used_streams(rsb, outer_streams);
+					}
 
 				set_made_river(opt, river);
 				set_inactive(opt, river);
