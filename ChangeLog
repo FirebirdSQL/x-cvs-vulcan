@@ -1,3 +1,34 @@
+2007-02-26 22:19  verbguy
+
+	* vulcan/src/jrd/cvt.cpp:
+
+	better handling of blanks in hex strings for review by Adriano
+
+2007-02-26 19:57  verbguy
+
+	* vulcan/src/: dsql/SQLParse.cpp, jrd/cvt.cpp:
+
+	Apply SAS fixes S0398903, HEX TESTS DIFFERENCE ON LAX (Linux AMD)
+	S0395933, SET SQLSUBTYPE TO CS_BINARY FOR STRING HEX LITERALS
+
+	Add comments to jrd/cvt.cpp hex_to_value(), to let callers know
+	input hex strings must be valid and pre-processed. Thanks, Adriano!
+
+2007-02-26 13:18  arnobrinkman
+
+	* vulcan/src/jrd/opt.cpp:
+
+	Backported fix for CORE-1130
+
+2007-02-26 13:07  arnobrinkman
+
+	* vulcan/: src/jrd/RecordSource.cpp, src/jrd/RecordSource.h,
+	src/jrd/RsbLeftCross.cpp, src/jrd/RsbLeftCross.h,
+	src/jrd/RsbOuterMerge.cpp, src/jrd/RsbOuterMerge.h,
+	src/jrd/opt.cpp, builds/MasterBuildConfig/jrd/jrd.vcproj:
+
+	Add OuterMerge RSB to vulcan
+
 2007-02-26 03:14  asfernandes
 
 	* vulcan/src/: dsql/ddl.cpp, include/gen/iberror.h, jrd/codes.epp,
