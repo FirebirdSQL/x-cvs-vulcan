@@ -304,9 +304,7 @@ void OSRIException::post(OSRIException *exception, int code, va_list stuff)
 			
 			case isc_arg_gds:
 				*status++ = va_arg (args, ISC_STATUS);
-
 				break;
-                        
                         
 			case isc_arg_number:
 				/* needs to be sign extended on 64 bit machines */

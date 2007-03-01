@@ -1983,8 +1983,8 @@ void API_ROUTINE fb_sqlstate(char* const sqlstate, const ISC_STATUS* status_vect
 					// sqlerr (sqlcode) is useless for determining sqlstate. skip it
 					
 					// implement a binary search for array gds__sql_state[]
-					int first=0;
-					int last=sizeof(gds__sql_state)/sizeof(*gds__sql_state);
+					int first = 0;
+					int last = sizeof(gds__sql_state) / sizeof(*gds__sql_state);
 					while (first <= last) {
 						int mid = (first + last) / 2;
 						if (gdscode > gds__sql_state[mid].gds_code)

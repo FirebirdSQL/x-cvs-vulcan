@@ -581,7 +581,9 @@ SLONG PAR_symbol_to_gdscode(const char* name)
 	while (*p && *p != ' ') {
 		p++;
 	}
+
 	const size_t length = p - name;
+
 	for (int i = 0; codes[i].code_number; ++i) {
 		if (!strncmp(name, codes[i].code_string, length)) {
 			return codes[i].code_number;
