@@ -1684,101 +1684,98 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 	}
 
 	int offset = 0;
-    int index;
-
+	int index;
 	for (index = 1; index <= parmcount; index++)
 	{
-		parameter = source->msg_par_ordered;
-		int n;
-
-		for (n = 0; parameter && n < count; ++n, parameter = parameter->par_ordered)
-		{
-			if (parameter->par_index == index)
-			{
-				dsc desc;
-
-				if (blrLength)
-					parse.getBlrDescriptor (&desc);
-				else
-					desc = parameter->par_desc;
-				int alignment = type_alignments[desc.dsc_dtype];
-				dsc parDesc = parameter->par_desc;
-				parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
-
-				if (alignment)
-					offset = FB_ALIGN (offset, alignment);
-				
-				if (offset + desc.dsc_length > msgLength)
-				{
-					n = -1;
-					break;
-				}
-
-				if (inMsg)
-				{
-					desc.dsc_address = (UCHAR*) inMsg + offset;
-					mover.move (&desc, &parDesc);
-				}
-				else if (outMsg)
-				{
-					desc.dsc_address = outMsg + offset;
-					mover.move (&parDesc, &desc);
-				}
-				else
-				{
-					fb_assert(false);
-				}
-
-				offset += desc.dsc_length;
-
-				// handle the null
-
-				if (parameter->par_null)
-				{
-					if (blrLength)
-						parse.getBlrDescriptor (&desc);
-					else
-						desc = parameter->par_null->par_desc;
-					alignment = type_alignments[desc.dsc_dtype];
-					parDesc = parameter->par_null->par_desc;
-					parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
-
-					if (alignment)
-						offset = FB_ALIGN (offset, alignment);
-
-					if (inMsg)
-					{
-						desc.dsc_address = (UCHAR*) inMsg + offset;
-						mover.move (&desc, &parDesc);
-					}
-					else if (outMsg)
-					{
-						desc.dsc_address = outMsg + offset;
-						mover.move (&parDesc, &desc);
-					}
-					else
-					{
-						fb_assert(false);
-					}
-
-					offset += desc.dsc_length;
-				}
-
-				break;
-			}
+		if (index == 1) {
+			parameter = source->msg_par_ordered;
+		}
+		else {
+			parameter = parameter->par_ordered;
 		}
 
-		if (n == -1)
-			break;
-		else if (n >= count)
-	        ERRD_bugcheck ("Parameter index not found.");
-	}
+		if (parameter->par_index == 0)
+			parameter = parameter->par_ordered;
+		if (parameter->par_index != index) {
+			ERRD_bugcheck ("The parameter list is not ordered");
+		}
+	
+		dsc desc;
+		if (blrLength)
+			parse.getBlrDescriptor (&desc);
+		else
+			desc = parameter->par_desc;
 
-	if (index <= parmcount)
-	{
-		ERRD_post(isc_sqlerr, isc_arg_number, -804,
-					isc_arg_gds, isc_dsql_sqlda_err, 0);
-	}
+		dsc parDesc = parameter->par_desc;
+
+		parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
+
+		if (type_alignments[desc.dsc_dtype])
+			offset = FB_ALIGN (offset, type_alignments[desc.dsc_dtype]);
+					
+		if (offset + desc.dsc_length > msgLength)
+		{
+			// we have more hooks (?'s) than parameters
+			ERRD_post(isc_sqlerr, isc_arg_number, -804,
+			   isc_arg_gds, isc_dsql_sqlda_err, 0);
+		}
+
+		if (inMsg)
+		{
+			desc.dsc_address = (UCHAR*) inMsg + offset;
+			mover.move (&desc, &parDesc);
+		}
+		else if (outMsg)
+		{
+			desc.dsc_address = outMsg + offset;
+			mover.move (&parDesc, &desc);
+		}
+		else
+		{
+			fb_assert(false);
+		}
+					
+		offset += desc.dsc_length;
+
+		// handle the null
+		if (parameter->par_null)
+		{
+			if (blrLength)
+				parse.getBlrDescriptor (&desc);
+			else
+				desc = parameter->par_null->par_desc;
+
+			parDesc = parameter->par_null->par_desc;
+			parDesc.dsc_address = msgBuffer + (IPTR) parDesc.dsc_address;
+		                        
+			if (type_alignments[desc.dsc_dtype])
+			{
+				offset = FB_ALIGN (offset, type_alignments[desc.dsc_dtype]);
+			}
+					
+			if (inMsg)
+			{
+				desc.dsc_address = (UCHAR*) inMsg + offset;
+				mover.move (&desc, &parDesc);
+			}
+			else if (outMsg)
+			{
+				desc.dsc_address = outMsg + offset;
+				mover.move (&parDesc, &desc);
+			}
+			else
+			{
+				fb_assert(false);
+			}
+		                        
+			offset += desc.dsc_length;
+		}
+		                
+//		if (n == -1)
+//			break;
+//		else if (n >= count)
+//		        ERRD_bugcheck ("Parameter index not found.");
+	} // for
 
    /*
     * SAS Defect S0263306 - GSF - 24FEB2005
