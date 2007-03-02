@@ -813,7 +813,7 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 			return len;
 			
 		if (err_code == CS_TRUNCATION_ERROR)
-			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "22001", 0);
 			
 		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, isc_arg_sql_state, "22018", 0);
 		}
@@ -837,7 +837,7 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 		{
 		len = cs_obj.convert(temp.space, src_len * 2, src_ptr, src_len, &err_code, &err_position);
 		if (err_code == CS_TRUNCATION_ERROR)
-			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "22001", 0);
 			
 		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, isc_arg_sql_state, "22018", 0);
 		}
@@ -857,7 +857,7 @@ USHORT INTL_convert_bytes(thread_db* tdbb,
 		!((err_code == CS_TRUNCATION_ERROR) && all_spaces(tdbb, CS_UNICODE_UCS2, temp.space, len, err_position))) 
 		{
 		if (err_code == CS_TRUNCATION_ERROR)
-			(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
+			(*err) (isc_arith_except, isc_arg_sql_state, "22001", 0);
 			
 		(*err) (isc_arith_except, isc_arg_gds, isc_transliteration_failed, isc_arg_sql_state, "22018", 0);
 		}
