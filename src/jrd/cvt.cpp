@@ -1673,7 +1673,7 @@ void CVT_move(const dsc* from, dsc* to, FPTR_ERROR err)
 						do {
 							char ch = *q++;
 							if (ch && (ch != ASCII_SPACE))
-								(*err) (isc_arith_except, isc_arg_sql_state, "01004", 0);
+								(*err) (isc_arith_except, isc_arg_sql_state, "22001", 0);
 						} while (--l);
 
 						}
@@ -2016,6 +2016,7 @@ static SSHORT decompose(const char* string,
 	// 0 must be followed immediately by x or X to be hex string
 	if ((strncmp ("0x", p, 2) == 0) || (strncmp ("0X", p, 2) == 0))
 	{
+		bool have_space = false; // disallow interior spaces like '0xAB CD'
 		char cbuff[19];
 		int cbuff_index=0;
 		p += 2; // skip 0x
@@ -2023,15 +2024,29 @@ static SSHORT decompose(const char* string,
 		{
 			if ( (isdigit (*p) || (*p >= 'A' && *p <= 'F')) )
 			{
+				if (have_space)
+				{
+					conversion_error(&errd, err);
+					return 0;
+				}
 				cbuff[cbuff_index] = *p;
 				cbuff_index++;
 			}
 			else if (*p >= 'a' && *p <= 'f')
 			{
+				if (have_space)
+				{
+					conversion_error(&errd, err);
+					return 0;
+				}
 				cbuff[cbuff_index] = *p - 'a' + 'A';
 				cbuff_index++;
 			}
-			else if (*p != ' ')
+			else if (*p == ' ')
+			{
+				have_space = true;
+			}
+			else
 			{
 				conversion_error(&errd, err);
 				return 0;
