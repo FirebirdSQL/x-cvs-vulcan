@@ -1,3 +1,33 @@
+2007-03-02 23:15  verbguy
+
+	* vulcan/src/dsql/DStatement.cpp:
+
+	Insert into a prepared statement with 1000 columns was really slow.
+	I've tuned the code in DStatement::copyData, taking advantage of
+	the fact that the parameter list is ordered. Hopefully this is
+	always true.
+
+2007-03-02 23:10  verbguy
+
+	* vulcan/src/jrd/cvt.cpp:
+
+	1) Truncation on insert is a sql Error with SQLState 22001, not a
+	SQL warning.  2) Disallow spaces in the middle of attempting to
+	convert hex literals expressed as strings to numbers, per Adriano.
+
+2007-03-02 23:04  verbguy
+
+	* vulcan/src/jrd/gds.cpp:
+
+	Remove unnecessary cast, per Adriano's inspection.
+
+2007-03-02 23:02  verbguy
+
+	* vulcan/src/jrd/intl.cpp:
+
+	Truncation on insert is a sql Error with SQLState 22001, not a SQL
+	warning. Warnings begin with 01.
+
 2007-03-01 02:57  asfernandes
 
 	* vulcan/src/jrd/: OSRIException.cpp, StatusPrint.cpp, gds.cpp,
