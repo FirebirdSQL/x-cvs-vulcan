@@ -21,7 +21,7 @@ extern void membar_wait(void);
 #define FLUSH_CACHE membar_flush();
 #else
 /* I64 hpux currently has mf in the cas asm routines */
-/* (h6icas.s). They should probably be moved here instead */ 
+/* (h6icas.s). They should probably be moved here instead */
 #endif
 
 
@@ -123,7 +123,7 @@ extern "C"
 #define InterlockedDecrement		_InterlockedDecrement
 //#define InterlockedCompareExchange	_InterlockedCompareExchange
 
-extern "C" 
+extern "C"
 	{
 	INTERLOCK_TYPE  InterlockedIncrement(volatile INTERLOCK_TYPE* lpAddend);
 	INTERLOCK_TYPE  InterlockedDecrement(volatile INTERLOCK_TYPE* lpAddend);
@@ -143,9 +143,9 @@ extern "C"
 
 #if defined (__i386) || (__x86_64__)
 #define COMPARE_EXCHANGE(target,compare,exchange)\
-	(inline_cas(target,compare,exchange)== compare)
+	(inline_cas(target,compare,exchange))
 #define COMPARE_EXCHANGE_POINTER(target,compare,exchange)\
-	(inline_cas_pointer((volatile void**)target,(void*)compare,(void*)exchange)== compare)
+	(inline_cas_pointer((volatile void**)target,(void*)compare,(void*)exchange))
 #endif
 
 #ifndef INTERLOCK_TYPE
@@ -162,11 +162,11 @@ inline INTERLOCK_TYPE interlockedIncrement(volatile INTERLOCK_TYPE *ptr)
 	INTERLOCK_TYPE ret;
 	asm (
 		"mov $1,%%eax\n\t"
-		"lock\n\t" "xaddl %%eax,%1\n\t" 
+		"lock\n\t" "xaddl %%eax,%1\n\t"
 		"incl %%eax\n\t"
 		"movl %%eax,%0\n\t"
 		: "=m" (ret)
-		: "m" (*ptr) 
+		: "m" (*ptr)
 		: "%eax"
 		);
 	return ret;
@@ -178,7 +178,7 @@ inline INTERLOCK_TYPE interlockedIncrement(volatile INTERLOCK_TYPE *ptr)
 		if (COMPARE_EXCHANGE(ptr,oldValue,newValue))
 			return newValue;
 		}
-#endif 
+#endif
 }
 
 inline INTERLOCK_TYPE interlockedDecrement(volatile INTERLOCK_TYPE *ptr)
@@ -191,11 +191,11 @@ inline INTERLOCK_TYPE interlockedDecrement(volatile INTERLOCK_TYPE *ptr)
 	INTERLOCK_TYPE ret;
 	asm (
 		"mov $-1,%%eax\n\t"
-		"lock\n\t" "xaddl %%eax,%1\n\t" 
+		"lock\n\t" "xaddl %%eax,%1\n\t"
 		"decl %%eax\n\t"
 		"movl %%eax,%0\n\t"
 		: "=m" (ret)
-		: "m" (*ptr) 
+		: "m" (*ptr)
 		: "%eax"
 		);
 	return ret;
@@ -207,54 +207,36 @@ inline INTERLOCK_TYPE interlockedDecrement(volatile INTERLOCK_TYPE *ptr)
 		if (COMPARE_EXCHANGE(ptr,oldValue,newValue))
 			return newValue;
 		}
-#endif 
+#endif
 }
 
 inline int inline_cas (volatile int *target, int compare, int exchange)
 {
 #if defined(__i386) || (__x86_64__)
-	int result;
- 
-	__asm __volatile ("lock; cmpxchgl %2, %1"
-		    : "=a" (result), "=m" (*target)
-		    : "r" (exchange), "m" (*target), "0" (compare)); 
+    char ret;
 
-	return result;
+    __asm __volatile ("lock; cmpxchg %2, %1 ; sete %0"
+            : "=q" (ret), "+m" (*(target))
+            : "r" (exchange), "a" (compare)
+            : "cc", "memory");
 
+    return ret;
 #else
 	return -2;
 #endif
 }
 
-inline void* inline_cas_pointer (volatile void **target, void *compare, void *exchange)
+inline char inline_cas_pointer (volatile void **target, void *compare, void *exchange)
 {
-#if defined(__i386)
-	void* result;
- 
-	__asm __volatile ("lock; cmpxchgl %2, %1"
-		    : "=a" (result), "=m" (*target)
-		    : "r" (exchange), "m" (*target), "0" (compare)); 
+#if defined(__i386) || defined(__x86_64__)
+    char ret;
 
-	return result;
+    __asm __volatile ("lock; cmpxchg %2, %1 ; sete %0"
+            : "=q" (ret), "+m" (*(target))
+            : "r" (exchange), "a" (compare)
+            : "cc", "memory");
 
-#elif defined(__x86_64__)
-	void* result;
- 
-	__asm __volatile ("lock; cmpxchgq %q2, %1"
-		    : "=a" (result), "=m" (*target)
-		    : "r" ((long)(exchange)), "m" (*target), "0" ((long)(compare))); 
-
-	return result;
-
-/***
- #define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \
-   ({ __typeof (*mem) ret;						      \
--     __asm __volatile (LOCK "cmpxchgq %q2, %1"				      \
-+     __asm __volatile (LOCK_PREFIX "cmpxchgq %q2, %1"			      \
- 		       : "=a" (ret), "=m" (*mem)			      \
- 		       : "r" ((long) (newval)), "m" (*mem),		      \
- 			 "0" ((long) (oldval)));			      \
-***/
+    return ret;
 
 #else
 	return NULL;
