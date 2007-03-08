@@ -2100,6 +2100,7 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 	DBB dbb = tdbb->tdbb_database;
 	Request* request = CMP_find_request(tdbb, irq_l_type_info, IRQ_REQUESTS);
 	long fieldCounter = 0L; /* Needed for optimization below */
+	Field *field = NULL;
 
 	FOR (REQUEST_HANDLE request)
 			RFR IN RDB$RELATION_FIELDS CROSS
@@ -2122,7 +2123,10 @@ void MET_getTypeInformation (thread_db* tdbb, Relation *relation)
 			/* Array is zero-based, get the nth one */
 
 			long arrayPos = fieldCounter++;
-			Field * field = relation->rel_fields[arrayPos];
+			if (arrayPos < relation->rel_fields.size())
+			{
+				field = relation->rel_fields[arrayPos];
+			}
 
 			/* Zap trailing blanks (not NLS safe, I think!) */
 			/* Removes need to do it later in the main loop */

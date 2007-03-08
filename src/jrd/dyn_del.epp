@@ -1186,7 +1186,8 @@ void DYN_delete_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, const TEX
 		DYN_REQUEST(drq_e_relation) = request;
 
 	if (!found) {
-		goto dyn_punt_61;
+		DYN_error_punt(tdbb, false, 101, relation_name, NULL, NULL, NULL, NULL);
+		/* msg 101: "Table %s not found" */
 	}
 
 /* Triggers must be deleted after check constraints   */
@@ -1261,10 +1262,6 @@ void DYN_delete_relation(thread_db* tdbb,  GBL gbl, const UCHAR** ptr, const TEX
 	}
 
 	return;
-
-dyn_punt_61:
-	DYN_error_punt(tdbb, false, 61, NULL, NULL, NULL, NULL, NULL);
-	/* msg 61: "Relation not found" */
 }
 
 
