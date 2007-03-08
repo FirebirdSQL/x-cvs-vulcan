@@ -1,3 +1,9 @@
+2007-03-07 14:47  alexpeshkoff
+
+	* vulcan/src/jrd/Interlock.h:
+
+	Applied patch, suggested by Jim last year
+
 2007-03-02 23:15  verbguy
 
 	* vulcan/src/dsql/DStatement.cpp:
