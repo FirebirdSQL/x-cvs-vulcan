@@ -1696,8 +1696,39 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 
 		if (parameter->par_index == 0)
 			parameter = parameter->par_ordered;
-		if (parameter->par_index != index) {
-			ERRD_bugcheck ("The parameter list is not ordered");
+
+		// almost all of my test cases showed the parameter list to be ordered.
+		// but there was one where the list looked like 2, 3, 4, ... 16, 1.
+		// we have to consider a wrap-around case, and a mismatch case.
+
+		if (!parameter)
+		{
+			// because the list wasn't ordered, we skipped ahead
+			// and haven't processed all parameters.
+			// reset parameter to the first in the chain.
+			parameter = source->msg_par_ordered;
+		}
+
+		if (parameter->par_index != index)
+		{
+			// the list isn't ordered. This is rare, so most of
+			// the time we can skip this lookup. Even in odd cases
+			// the list will be "mostly" sorted, so this block of
+			// code is not hit often.
+			int parm_index = 0;
+			parameter = source->msg_par_ordered; // go to start of list
+			while (parameter && parm_index < count)
+			{
+				if (parameter->par_index == index)
+				{
+					break; // exit while loop, we've found the parameter
+				}
+				else
+				{
+					parm_index++;
+					parameter = parameter->par_ordered;
+				}
+			}
 		}
 	
 		dsc desc;
@@ -1770,11 +1801,6 @@ void DStatement::copyData(dsql_msg* source, UCHAR *msgBuffer, int blrLength, con
 		                        
 			offset += desc.dsc_length;
 		}
-		                
-//		if (n == -1)
-//			break;
-//		else if (n >= count)
-//		        ERRD_bugcheck ("Parameter index not found.");
 	} // for
 
    /*
