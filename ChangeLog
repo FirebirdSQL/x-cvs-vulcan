@@ -1,3 +1,10 @@
+2007-03-08 19:42  gary_franklin
+
+	* vulcan/src/jrd/: dyn_del.epp, met.epp:
+
+	Thread testing - resolve "vector index error" and improve table not
+	found error message, defect - S0399139.
+
 2007-03-07 14:47  alexpeshkoff
 
 	* vulcan/src/jrd/Interlock.h:
