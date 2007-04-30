@@ -1104,18 +1104,14 @@ dsql_fld* SQLParse::makeField(dsql_nod* field_name)
 {
 	if (field_name == NULL)
 		{
-		dsql_fld* field = new dsql_fld;
-			//FB_NEW_RPT(*tdsql->tsql_default, sizeof (INTERNAL_FIELD_NAME)) dsql_fld;
-		//strcpy (field->fld_name, (TEXT*) INTERNAL_FIELD_NAME);
+		dsql_fld* field = FB_NEW(*threadData->tsql_default) dsql_fld;
 		field->fld_name = INTERNAL_FIELD_NAME;
 		return field;
 		}
 		
 	const dsql_str* string = (dsql_str*) field_name->nod_arg[1];
-	dsql_fld* field = new dsql_fld;
-		//FB_NEW_RPT(*tdsql->tsql_default, strlen ((SCHAR*) string->str_data)) dsql_fld;
-	//strcpy (field->fld_name, (TEXT*) string->str_data);
-	field->fld_name =  string->str_data;
+	dsql_fld* field = FB_NEW(*threadData->tsql_default) dsql_fld;
+	field->fld_name = string->str_data;
 
 	return field;
 }
