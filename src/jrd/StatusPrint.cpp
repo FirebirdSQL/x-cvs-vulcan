@@ -56,9 +56,6 @@ ISC_STATUS StatusPrint::interpretStatus(int bufferLength, char* buffer, const IS
 {
 	const ISC_STATUS *vector = *vectorPtr;
 	
-	if (vector[0] == isc_arg_sql_state)
-		vector += 2;
-
 	if (!*vector)
 		return 0;
 
