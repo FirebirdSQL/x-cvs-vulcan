@@ -1,3 +1,18 @@
+2007-05-17 19:01  verbguy
+
+	* vulcan/src/jrd/StatusPrint.cpp:
+
+	correcting bad fix, which caused error messages in status vector
+	after sqlstate to be skipped. Adding comments to not make same
+	mistake twice!
+
+2007-05-17 16:38  verbguy
+
+	* vulcan/src/jrd/StatusPrint.cpp:
+
+	remove un-needed check that is in wrong place anyway. thx to
+	claudio.
+
 2007-04-30 20:35  dimitr
 
 	* vulcan/src/dsql/SQLParse.cpp:
