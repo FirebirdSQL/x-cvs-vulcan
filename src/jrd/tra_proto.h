@@ -37,7 +37,7 @@ int		TRA_get_state(thread_db*, SLONG);
 #ifdef SUPERSERVER_V2
 void	TRA_header_write(thread_db*, Database *, SLONG);
 #endif
-void	TRA_init(thread_db*, Attachment *attachment);
+void	TRA_init(thread_db*);
 void	TRA_invalidate(Database *, ULONG);
 //void	TRA_link_transaction(thread_db*, Transaction *);
 void	TRA_post_resources(thread_db*, Transaction *, class Resource*);

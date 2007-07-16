@@ -718,7 +718,7 @@ void TRA_header_write(thread_db* tdbb, DBB dbb, SLONG number)
 #endif
 
 
-void TRA_init(thread_db* tdbb, Attachment *attachment)
+void TRA_init(thread_db* tdbb)
 {
 /**************************************
  *
@@ -732,7 +732,7 @@ void TRA_init(thread_db* tdbb, Attachment *attachment)
  **************************************/
  
 	Database *dbb = tdbb->tdbb_database;
-	Transaction *trans = dbb->dbb_sys_trans = FB_NEW_RPT(*dbb->dbb_permanent, 0) Transaction(attachment);
+	Transaction *trans = dbb->dbb_sys_trans = FB_NEW_RPT(*dbb->dbb_permanent, 0) Transaction(NULL);
 	trans->tra_flags |= TRA_system | TRA_ignore_limbo;
 	trans->tra_pool = dbb->dbb_permanent;
 }
@@ -1112,7 +1112,8 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 
 	/* Release interest in relation/procedure existence for transaction */
 
-	for (Resource* rsc = transaction->tra_resources; rsc; rsc = rsc->next)
+	for (Resource* rsc = transaction->tra_resources; rsc; )
+	{
 		switch (rsc->type) 
 			{
 			case Resource::rsc_procedure:
@@ -1123,6 +1124,11 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 				MET_release_existence(rsc->relation);
 				break;
 			}
+
+		Resource* next = rsc->next;
+		delete rsc;
+		rsc = next;
+	}
 
 	/* Release the locks associated with the transaction */
 
@@ -1151,18 +1157,26 @@ void TRA_release_transaction(thread_db* tdbb, Transaction* transaction)
 
 	/* Unlink the transaction from the database block */
 
-	tdbb->tdbb_attachment->endTransaction(transaction);
+	if (transaction->tra_attachment)
+		transaction->tra_attachment->endTransaction(transaction);
 
 	/* Release transaction's under-modification-rpb list. */
 
 	delete transaction->tra_rpblist;
 
-	/* Release the transaction pool. */
-	JrdMemoryPool *tra_pool = transaction->tra_pool;
-	delete transaction; /* need to do a delete so the mutex destructor gets called */
+	if (transaction->tra_flags & TRA_system)
+	{
+		delete transaction;
+	}
+	else
+	{
+		/* Release the transaction pool. */
+		JrdMemoryPool *tra_pool = transaction->tra_pool;
+		delete transaction; /* need to do a delete so the mutex destructor gets called */
 
-	if (tra_pool)
-		JrdMemoryPool::deletePool(tra_pool);
+		if (tra_pool)
+			JrdMemoryPool::deletePool(tra_pool);
+	}
 }
 
 

@@ -554,9 +554,10 @@ void Database::shutdown(thread_db* tdbb)
 	if (securityPlugin)
 		{
 		securityPlugin->close();
-		securityPlugin = NULL;
 		}
-		
+
+	TRA_release_transaction(tdbb, dbb_sys_trans);
+
 #ifdef SUPERSERVER_V2
 	TRA_header_write(tdbb, this, 0L);	/* Update transaction info on header page. */
 #endif

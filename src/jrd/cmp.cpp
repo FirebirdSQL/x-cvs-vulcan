@@ -423,6 +423,8 @@ void CMP_expunge_transaction(Transaction* transaction)
 	JRD_REQ request;
 	vec::iterator sub, end;
 	Attachment *attachment = transaction->tra_attachment;
+	if (!attachment)
+		return;
 	
 #ifdef SHARED_CACHE
 	Sync sync(&attachment->syncRequests, "CMP_expunge_transaction");

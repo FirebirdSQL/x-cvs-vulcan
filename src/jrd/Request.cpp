@@ -97,6 +97,12 @@ Request::~Request(void)
 		rsbs = rsb->nextInRequest;
 		delete rsb;
 		}
+
+	for (Resource *resource; resource = req_resources;)
+		{
+		req_resources = resource->next;
+		delete resource;
+		}
 }
 
 

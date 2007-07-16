@@ -665,7 +665,6 @@ ISC_STATUS GDS_ATTACH_DATABASE(ISC_STATUS* user_status,
 		attachment = dbb->createAttachment();
 		threadData.setAttachment (attachment);
 		dbb->dbb_flags &= ~DBB_being_opened;
-		dbb->dbb_sys_trans->tra_attachment = attachment;
 
 		attachment->att_charset = options.dpb_interp;
 
@@ -1614,7 +1613,6 @@ ISC_STATUS GDS_CREATE_DATABASE(ISC_STATUS*	user_status,
 		threadData.setAttachment (attachment);
 		
 		dbb->dbb_flags &= ~DBB_being_opened;
-		dbb->dbb_sys_trans->tra_attachment = attachment;
 
 		if (options.dpb_working_directory) 
 			attachment->att_working_directory = options.dpb_working_directory;
@@ -5332,7 +5330,7 @@ static DBB init(thread_db* tdbb,
 
 		/* Initialize a number of subsystems */
 
-		TRA_init(tdbb, NULL);
+		TRA_init(tdbb);
 
 		/* Lookup some external "hooks" */
 
@@ -6049,8 +6047,6 @@ static void purge_attachment(thread_db* tdbb,
 		}
 	else
 		{
-		// delete dbb->procManager;
-		dbb->procManager = NULL;
 		delete attachment;
 		shutdown_database(tdbb, true);
 		}
