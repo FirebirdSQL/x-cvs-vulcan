@@ -1,3 +1,11 @@
+2007-07-16 14:30  dimitr
+
+	* vulcan/src/jrd/: Database.cpp, cmp.cpp, jrd.cpp, Request.cpp,
+	tra.cpp, tra_proto.h:
+
+	A bunch of changes I promised to Jerry months ago, mostly memory
+	leak fixes. I just hope I didn't break something that worked :-)
+
 2007-05-17 19:01  verbguy
 
 	* vulcan/src/jrd/StatusPrint.cpp:
