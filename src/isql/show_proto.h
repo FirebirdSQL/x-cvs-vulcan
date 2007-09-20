@@ -1,7 +1,8 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Interactive SQL utility
  *	MODULE:		show_proto.h
- *	DESCRIPTION:	Prototype header file for show.e
+ *	DESCRIPTION:	Prototype header file for show.epp
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -24,14 +25,13 @@
 #ifndef _ISQL_SHOW_PROTO_H_
 #define _ISQL_SHOW_PROTO_H_
 
-
-
-extern BOOLEAN	SHOW_dbb_parameters (isc_handle, SCHAR *, SCHAR *, USHORT, USHORT);
-extern int	SHOW_grants (const SCHAR *, const SCHAR *, USHORT);
-extern int	SHOW_grants2 (const SCHAR *, const SCHAR *, USHORT, TEXT *);
-extern void	SHOW_grant_roles (const SCHAR *, SSHORT *);
-extern void	SHOW_grant_roles2 (const SCHAR *, SSHORT *, TEXT *);
-extern void SHOW_print_metadata_text_blob(FILE *, GDS__QUAD *);
-extern int SHOW_metadata(SCHAR **, SCHAR **);
+void	SHOW_comments(bool force);
+bool	SHOW_dbb_parameters (FB_API_HANDLE, SCHAR*, const SCHAR*, USHORT, bool);
+processing_state	SHOW_grants (const SCHAR*, const SCHAR*, USHORT);
+processing_state	SHOW_grants2 (const SCHAR*, const SCHAR*, USHORT, const TEXT*);
+void	SHOW_grant_roles (const SCHAR*, bool*);
+void	SHOW_grant_roles2 (const SCHAR*, bool*, const TEXT*);
+void	SHOW_print_metadata_text_blob(FILE*, ISC_QUAD*, bool escape_squote = false);
+processing_state	SHOW_metadata(const SCHAR* const*, SCHAR**);
 
 #endif /* _ISQL_SHOW_PROTO_H_ */

@@ -1,7 +1,8 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Interactive SQL utility
  *	MODULE:		extra_proto.h
- *	DESCRIPTION:	Prototype header file for extract.e
+ *	DESCRIPTION:	Prototype header file for extract.epp
  *
  * The contents of this file are subject to the Interbase Public
  * License Version 1.0 (the "License"); you may not use this file
@@ -24,9 +25,8 @@
 #ifndef _ISQL_EXTRA_PROTO_H_
 #define _ISQL_EXTRA_PROTO_H_
 
-extern SSHORT EXTRACT_ddl(int, SCHAR *);
-extern SSHORT EXTRACT_list_table(SCHAR *, SCHAR *, SSHORT, SSHORT);
-extern void EXTRACT_list_view(SCHAR *);
-extern int	EXTRACT_list_grants (const SCHAR *);
+int	EXTRACT_ddl(LegacyTables, const SCHAR*);
+int	EXTRACT_list_table(const SCHAR*, const SCHAR*, bool, SSHORT);
+processing_state	EXTRACT_list_grants (const SCHAR*);
 
 #endif /* _ISQL_EXTRA_PROTO_H_ */

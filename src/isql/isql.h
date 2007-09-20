@@ -1,3 +1,4 @@
+/* $Id$ */
 /*
  *	PROGRAM:	Interactive SQL utility
  *	MODULE:		isql.h
@@ -65,17 +66,21 @@ const int ROLE_LENGTH			= 128;
 
 /* Define the possible states of processing commands */
 
-#define FOUND_EOF EOF
-#define CONT		0
-#define EXIT		1
-#define BACKOUT		2
-#define ERR		3
-#define END		4
-#define SKIP		5
-#define FAIL		6
-#define EXTRACT		7
-#define EXTRACTALL	8
-#define FETCH		9
+enum processing_state {
+	FOUND_EOF   =   EOF,
+	CONT		=	0,
+	EXIT		=	1,
+	BACKOUT		=	2,
+	ps_ERR		=	3,
+	END			=	4,
+	SKIP		=	5,
+	FAIL		=	6,
+	EXTRACT		=	7,
+	EXTRACTALL	=	8,
+	FETCH		=	9,
+	OBJECT_NOT_FOUND = 10
+};
+
 
 // Which blob subtypes to print 
 
@@ -93,11 +98,12 @@ enum LegacyTables
 #define NO_SOURCE 	0
 #define SHOW_SOURCE	1
 
-
-#define WORDLENGTH	32
-#define DEFTERM		";"
-#define DEFCHARSET	"NONE"
-#define NULL_DISP_LEN    6
+const size_t WORDLENGTH			= 32;
+// The worst case of a quoted identifier is 31 * 2 => 62 + 2 DQUOTES + TERM => 65.
+const size_t QUOTEDLENGTH       = 65;
+static const char* const DEFTERM	= ";";
+static const char* const DEFCHARSET	= "NONE";
+const int NULL_DISP_LEN				= 6;
 
 #define NULL_PTR	((void*) 0)
 
@@ -162,7 +168,7 @@ const int NAME_PROMPT				= 49;		// Enter %s>
 const int DATE_ERR					= 50;		// Bad date %s\n 
 const int CON_PROMPT				= 51;		// "CON> "
 const int HLP_SETLIST				= 52;		// \tSET LIST -- toggles column or table display\n 
-const int NOT_FOUND				= 53;		// %s not found\n
+const int NOT_FOUND_MSG				= 53;		// %s not found\n
 const int COPY_ERR 					= 54;		// Errors occured(possibly duplicate domains) in creating %s in %s\n" 
 const int SERVER_TOO_OLD			= 55;		// Server version too old to support the isql command 
 const int REC_COUNT 				= 56;		// Total returned: %ld 
@@ -247,50 +253,129 @@ const int HLP_SETSQLSTATE        = 148;      // toggle display of SQLSTATE
 #define Trace		1
 #endif
 
-#ifdef ISQL_MAIN
-#define EXTERN
-#else
-#define EXTERN	extern
-#endif
-
-/* Utility transaction handle */
-
-EXTERN isc_tr_handle M__trans;
-EXTERN isc_tr_handle D__trans;
-EXTERN isc_stmt_handle Stmt;
-EXTERN FILE *Ofp, *Out, *Ifp, *Errfp;
-EXTERN SCHAR Term[MAXTERM_SIZE];
-EXTERN SCHAR Db_name[128];
-EXTERN SCHAR Target_db[128];
-EXTERN SCHAR User[128], Password[128], Role[128];
-EXTERN SCHAR Numbufs[16];		/* # of cache buffers on connect */
-EXTERN SSHORT Merge_stderr;
-EXTERN USHORT SQL_dialect;
-EXTERN USHORT db_SQL_dialect;
-EXTERN USHORT major_ods;
-EXTERN USHORT minor_ods;
-#undef EXTERN
-
 typedef vary VARY;
 
-typedef struct sqltypes {
+// Initialize types
+
+struct sqltypes {
 	SSHORT type;
 	SCHAR type_name[WORDLENGTH];
-} SQLTYPES;
+};
 
-#define MAXSUBTYPES 8			/* Top of subtypes array */
 
-#define SMALLINT	7
-#define INTEGER		8
-#define QUAD		9
-#define FLOAT		10
-#define FCHAR		14
-#define DOUBLE_PRECISION 27
-#define DATE		35
-#define VARCHAR		37
-#define CSTRING		40
-#define BLOB_ID		45
-#define BLOB		261
+//
+// Use T_FLOAT and T_CHAR to avoid collisions with windows defines
+//
+const int SMALLINT		= 7;
+const int INTEGER		= 8;
+const int QUAD			= 9;
+const int T_FLOAT		= 10;
+const int T_CHAR		= 14;
+const int DOUBLE_PRECISION = 27;
+const int DATE			= 35;
+const int VARCHAR		= 37;
+const int CSTRING		= 40;
+const int BLOB_ID		= 45;
+const int BLOB			= 261;
+//const int SQL_DATE      = 12;
+//const int SQL_TIME      = 13;
+const int BIGINT        = 16;
+
+static const sqltypes Column_types[] = {
+	{SMALLINT, "SMALLINT"},		// NTX: keyword
+	{INTEGER, "INTEGER"},		// NTX: keyword
+	{QUAD, "QUAD"},				// NTX: keyword
+	{T_FLOAT, "FLOAT"},			// NTX: keyword
+	{T_CHAR, "CHAR"},			// NTX: keyword
+	{DOUBLE_PRECISION, "DOUBLE PRECISION"},	// NTX: keyword
+	{VARCHAR, "VARCHAR"},		// NTX: keyword
+	{CSTRING, "CSTRING"},		// NTX: keyword
+	{BLOB_ID, "BLOB_ID"},		// NTX: keyword
+	{BLOB, "BLOB"},				// NTX: keyword
+	{blr_sql_time, "TIME"},		// NTX: keyword
+	{blr_sql_date, "DATE"},		// NTX: keyword
+	{blr_timestamp, "TIMESTAMP"},	// NTX: keyword
+	{BIGINT, "BIGINT"},		// keyword
+	{0, ""}
+};
+
+// Integral subtypes
+
+const int MAX_INTSUBTYPES	= 2;
+
+static const SCHAR* Integral_subtypes[] = {
+	"UNKNOWN",					// Defined type, NTX: keyword
+	"NUMERIC",					// NUMERIC, NTX: keyword
+	"DECIMAL"					// DECIMAL, NTX: keyword
+};
+
+// Blob subtypes
+
+const int MAX_BLOBSUBTYPES	= 8;
+
+static const SCHAR* Sub_types[] = {
+	"BINARY",					// NTX: keyword
+	"TEXT",						// NTX: keyword
+	"BLR",						// NTX: keyword
+	"ACL",						// NTX: keyword
+	"RANGES",					// NTX: keyword
+	"SUMMARY",					// NTX: keyword
+	"FORMAT",					// NTX: keyword
+	"TRANSACTION_DESCRIPTION",	// NTX: keyword
+	"EXTERNAL_FILE_DESCRIPTION"	// NTX: keyword
+};
+
+/* CVC: Notice that
+BY REFERENCE is the default for scalars and can't be specified explicitly;
+BY VMS_DESCRIPTOR is known simply as BY DESCRIPTOR and works for FB1;
+BY ISC_DESCRIPTOR is the default for BLOBs and can't be used explicitly;
+BY SCALAR_ARRAY_DESCRIPTOR is supported in FB2 as BY SCALAR_ARRAY, since
+the server has already the capability to deliver arrays to UDFs;
+BY REFERENCE_WITH_NULL his supported in FB2 to be able to signal SQL NULL
+in input parameters.
+The names mentioned here are documented in jrd/types.h. */
+
+const int MAX_UDFPARAM_TYPES = 6;
+
+static const char* UDF_param_types[] = {
+	" BY VALUE",			// NTX: keyword
+	"",						// BY REFERENCE
+	" BY DESCRIPTOR",		// keyword in FB, internally VMS descriptor
+	"",						// BY ISC_DESCRIPTOR => BLOB
+	" BY SCALAR_ARRAY",		// keyword in FB v2
+	" NULL",                 // BY REFERENCE WITH NULL, but only appends NULL to the type
+	" ERROR-type-unknown"
+};
+
+class IsqlGlobals
+{
+public:
+	FILE* Out;
+	FILE* Errfp;
+	SCHAR global_Db_name[MAXPATHLEN];
+	SCHAR global_Target_db[MAXPATHLEN];
+	SCHAR global_Term[MAXTERM_SIZE];
+	SCHAR User[128];
+	SCHAR Role[256];
+	USHORT SQL_dialect;
+	USHORT db_SQL_dialect;
+	// from isql.epp
+	USHORT major_ods;
+	void printf(const char* buffer, ...);
+	void prints(const char* buffer);
+};
+
+extern IsqlGlobals isqlGlob;
+
+// WBO 2007-08-08 FB2 has a nicer way of dealing with incompatible
+// names of string functions that ignore case. See utils_proto.h
+// problem is that function name is stricmp() on MS platform, but
+// strcasecmp on linux.
+#ifdef _WIN32
+#define strcasecmp		stricmp
+#define strncasecmp		strnicmp
+#endif
+
 
 #ifdef VMS
 #include <descrip.h>
@@ -315,10 +400,10 @@ static const char* SCRATCH		= "fb_query_";
 
 inline void STDERROUT(const char* st, bool cr = true)
 {
-	fprintf (Errfp, "%s", st);
+	fprintf (isqlGlob.Errfp, "%s", st);
 	if (cr)
-		fprintf (Errfp, "\n");
-	fflush (Errfp);
+		fprintf (isqlGlob.Errfp, "\n");
+	fflush (isqlGlob.Errfp);
 }
 
 #ifndef ISQL_ALLOC
@@ -331,5 +416,9 @@ inline void STDERROUT(const char* st, bool cr = true)
 
 static const char* NEWLINE			= "\n";
 static const char* TAB_AS_SPACES	= "        ";
+
+const char BLANK		= '\040';
+const char DBL_QUOTE	= '\042';
+const char SINGLE_QUOTE	= '\'';
 
 #endif /* _ISQL_ISQL_H_ */
