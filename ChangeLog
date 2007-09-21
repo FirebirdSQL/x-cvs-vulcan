@@ -1,3 +1,11 @@
+2007-09-20 16:47  verbguy
+
+	* vulcan/src/: jrd/ibase.h, include/firebird.h, isql/extra_proto.h,
+	isql/extract.epp, isql/isql.epp, isql/isql.h, isql/isql_proto.h,
+	isql/show.epp, isql/show_proto.h:
+
+	backport ISQL from FB 2.0 release, plus SAS changes
+
 2007-07-16 14:30  dimitr
 
 	* vulcan/src/jrd/: Database.cpp, cmp.cpp, jrd.cpp, Request.cpp,
