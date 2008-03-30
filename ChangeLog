@@ -1,3 +1,14 @@
+2008-03-30 14:13  robocop
+
+	* vulcan/src/: install/arch-specific/sinixz/Makefile.in,
+	install/arch-specific/sinixz/pkginfo.in,
+	install/arch-specific/sinixz/postinstall.in,
+	install/arch-specific/sinixz/postremove.in,
+	install/arch-specific/sinixz/preinstall.in,
+	install/arch-specific/sinixz/prototype.in, jrd/sinixz.h:
+
+	Remove obsolete SINIX-Z files.
+
 2007-09-20 16:47  verbguy
 
 	* vulcan/src/: jrd/ibase.h, include/firebird.h, isql/extra_proto.h,
